@@ -751,6 +751,8 @@ public class HikeConstants
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
 	public static final String FORCE_BG = "force_bg";
 
+	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -3688,6 +3690,8 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
+	public static final String IS_BLOCK = "is_block";
+
 	public static final String BOT_TABLE_REFRESH = "btr";
 	
 	public static final String BOTS = HikePlatformConstants.BOTS;
@@ -3764,6 +3768,10 @@ public class HikeConstants
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+
+	public static final String CALLER_BLOKED_LIST_SYNCHED = "caller_block_list_synched";
+
+	public static final String CALLER_BLOKED_LIST_SYNCHED_SIGNUP = "caller_block_list_synched_signup";
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 

@@ -3,6 +3,7 @@ package com.bsb.hike.chatHead;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,13 +21,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
-import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.PhoneLookup;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.support.v4.app.TaskStackBuilder;
@@ -34,9 +34,6 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.widget.Toast;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.ContactsContract.PhoneLookup;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -44,11 +41,15 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -82,9 +83,9 @@ public class ChatHeadUtils
 	
 	private static ClipboardListener clipboardListener;
 	
-	private static final int HTTP_CALL_RETRY_DELAY = 2000; 
+	public static final int HTTP_CALL_RETRY_DELAY = 2000;
 	
-	private static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
+	public static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
 		
 	// replica of hidden constant ActivityManager.PROCESS_STATE_TOP 
 	public static final int PROCESS_STATE_TOP =2;
@@ -104,7 +105,24 @@ public class ChatHeadUtils
 	private static final boolean CHAT_HEAD_ENABLE_DEFAULT = true;
 	
 	private static final boolean CHAT_HEAD_USR_CONTROL_DEFAULT = true;
-	
+
+	private static final String NAME_JSON_FIELD = "n";
+
+	private static final String GENDER_JSON_FIELD = "g";
+
+	private static final String PARAMS = "params";
+
+	private static final long ONE_MONTH = 30 * 24 * 60 * 60 * 1000l;
+
+	private static final long ONE_DAY = 24 * 60 * 60 * 1000l;
+
+	public static String msisdn;
+
+	public static final int VALUE_FALSE = 0;
+
+	public static final int VALUE_TRUE = 1;
+
+
 	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
 			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
 			+ "{\"a\":\"Viber\",\"p\":\"com.viber.voip\"},"
@@ -462,36 +480,27 @@ public class ChatHeadUtils
 		
 		if(jsonChanged || serverEndAccessibilityPermitted)
 		{
-			uiHandler.post(new Runnable()
-			{
+			uiHandler.post(new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					viewManager.onDestroy();
 				}
 			});
 		}
 		
-		uiHandler.post(new Runnable()
-		{
+		uiHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
-				if (willPollingWork() && (sessionLogEnabled || startChatHead))
-				{
-					if (jsonChanged)
-					{
+			public void run() {
+				if (willPollingWork() && (sessionLogEnabled || startChatHead)) {
+					if (jsonChanged) {
 						restartService();
-					}
-					else
-					{
+					} else {
 						startService();
 					}
-				}
-				else
-				{
+				} else {
 					stopService();
-				}}
+				}
+			}
 		});
 
 		if (serverEndAccessibilityPermitted)
@@ -630,7 +639,12 @@ public class ChatHeadUtils
 		return currentPoll != null && !currentPoll.isEmpty() && !(currentPoll.size() == 1 && currentPoll.contains(HikeMessengerApp.getInstance().getPackageName()));
 	}
 
-	public static String getNameAndAddressFromNumber(Context context, String number)
+	public static boolean checkDeviceFunctionality()
+	{
+		return Utils.isIceCreamOrHigher();
+	}
+
+	public static String getNameFromNumber(Context context, String number)
 	{
 		if (number != null)
 		{
@@ -659,93 +673,120 @@ public class ChatHeadUtils
 				if (cur != null)
 					cur.close();
 			}
-			String selection = Data.MIMETYPE + "=?";
-			String[] selection_type = new String[] { StructuredPostal.CONTENT_ITEM_TYPE };
-			String[] projection = new String[] { ContactsContract.Contacts.Data.DATA1 };
-			Cursor cursor = null;
-			try
+			if (name != null)
 			{
-				cursor = context.getContentResolver().query(
-						Uri.withAppendedPath(Contacts.getLookupUri(context.getContentResolver(), lookupUriName), Contacts.Data.CONTENT_DIRECTORY), null, selection, selection_type,
-						null);
-				if (cursor.moveToFirst())
+				return name;
+			}
+		}
+		return null;
+	}
+
+
+	private static void callerServerCall(String number, boolean isUpdate, CallerContentModel callerContentModel)
+	{
+		JSONObject json = new JSONObject();
+		IRequestListener iRequestListener;
+
+		if (callerContentModel != null)
+		{
+			if (isUpdate)
+			{
+
+				if (System.currentTimeMillis() - callerContentModel.getUpdationTime() < ONE_DAY)
 				{
-					if (cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.Data.DATA1)) != null)
+					return;
+				}
+
+				if ((System.currentTimeMillis() - callerContentModel.getCreationTime() < ONE_MONTH)
+						|| (ChatHeadUtils.getNameFromNumber(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn()) != null))
+				{
+					try
 					{
-						address = (cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.Data.DATA1)));
+						JSONObject params = new JSONObject();
+						params.put(NAME_JSON_FIELD, 0);
+						params.put(GENDER_JSON_FIELD, 0);
+						json.put(PARAMS, params);
+					}
+					catch (JSONException e)
+					{
+						Logger.d("StickyCaller", "JSONException server Request");
 					}
 				}
 			}
-			catch (Exception e)
-			{
-				Logger.d("Caller", "getAddressException");
-			}
-			finally
-			{
-				if (cursor != null)
-					cursor.close();
-			}
-			try
-			{
-				JSONObject obj = new JSONObject();
-				if (name != null)
-				{
-					obj.put(StickyCaller.NAME, name);
-					obj.put(StickyCaller.ADDRESS, address);
-					return obj.toString();
-				}
-			}
-			catch (JSONException e)
-			{
-				Logger.d("JSONobject", "unable to get json from contact details ");
-			}
-
 		}
-
-		return null;
+		try
+		{
+			json.put(HikeConstants.MSISDN, number);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "jsonException");
+		}
+		if (isUpdate)
+		{
+			iRequestListener = new UpdateCallListener();
+		}
+		else
+		{
+			iRequestListener = new CallListener();
+		}
+		RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerUrl(), json, iRequestListener, StickyCaller.THREE_RETRIES, HTTP_CALL_RETRY_DELAY,
+				HTTP_CALL_RETRY_MULTIPLIER, true);
+		requestToken.execute();
 	}
-	
+
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		if (searchNumber != null && !searchNumber.contains("*") && !searchNumber.contains("#"))
+		final String number = getValidNumber(Utils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+				.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+		if (number != null)
 		{
-			final String number = getValidNumber(Utils.normalizeNumber(
-				searchNumber,
-				HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-						.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
-			if (number != null)
+			//removing caller view as old caller view must be removed when new caller card request is initiated
+			StickyCaller.removeCallerView();
+			msisdn = number;
+			CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(number);
+			if (callerContentModel != null && callerContentModel.isBlock())
 			{
-			String contactName = getNameAndAddressFromNumber(context, number);
+				if (StickyCaller.CALL_TYPE == StickyCaller.INCOMING || StickyCaller.CALL_TYPE == StickyCaller.MISSED)
+				{
+					Utils.killCall();
+					StickyCaller.CALL_TYPE = StickyCaller.NONE;
+					return;
+				}
+			}
+			String contactName = getNameFromNumber(context, number);
 			if (contactName != null)
 			{
 				if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true))
 				{
-					StickyCaller.showCallerViewWithDelay(number, contactName, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
+					if (callerContentModel != null)
+					{
+						callerContentModel.setFullName(contactName);
+					}
+					else
+					{
+						callerContentModel = new CallerContentModel();
+						callerContentModel.setFullName(contactName);
+						callerContentModel.setMsisdn(number);
+						callerContentModel.setIsOnHike(Utils.isOnHike(number));
+						ContactManager.getInstance().insertIntoCallerTable(callerContentModel, false, false);
+					}
+					callerServerCall(number, true, callerContentModel);
+					StickyCaller.showCallerViewWithDelay(number, callerContentModel, StickyCaller.ALREADY_SAVED, AnalyticsConstants.StickyCallerEvents.ALREADY_SAVED);
 				}
-			}
-			else if (HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null) != null)
-			{
-				StickyCaller.showCallerViewWithDelay(number, HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(number, null), StickyCaller.SUCCESS,
-						AnalyticsConstants.StickyCallerEvents.CACHE);
 			}
 			else
 			{
-				JSONObject json = new JSONObject();
-				try
+				if (callerContentModel != null)
 				{
-					json.put(HikeConstants.MSISDN, number);
+					callerServerCall(number, true, callerContentModel);
+					StickyCaller.showCallerViewWithDelay(number, callerContentModel, StickyCaller.SUCCESS, AnalyticsConstants.StickyCallerEvents.CACHE);
 				}
-				catch (JSONException e)
+				else
 				{
-					Logger.d(TAG, "jsonException");
+					callerServerCall(number, false, callerContentModel);
 				}
-				CallListener callListener = new CallListener();
-				RequestToken requestToken = HttpRequests.postNumberAndGetCallerDetails(HttpRequestConstants.getHikeCallerUrl(), json, callListener, HTTP_CALL_RETRY_DELAY,
-						HTTP_CALL_RETRY_MULTIPLIER);
-				StickyCaller.showCallerViewWithDelay(number, null, StickyCaller.LOADING, null);
-				requestToken.execute();
 			}
-		}
 		}
 	}
 	
@@ -757,27 +798,30 @@ public class ChatHeadUtils
 		{
 			registerOrUnregisterClipboardListener(context);
 
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+			if (uiHandler != null)
 			{
-				// putting code inside runnable to make it run on UI thread.
-				@Override
-				public void run()
+				uiHandler.post(new Runnable()
 				{
-					if (incomingCallReceiver == null)
+					// putting code inside runnable to make it run on UI thread.
+					@Override
+					public void run()
 					{
-						incomingCallReceiver = new IncomingCallReceiver();
-						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+						if (incomingCallReceiver == null)
+						{
+							incomingCallReceiver = new IncomingCallReceiver();
+							TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+							telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_CALL_STATE);
+						}
+						if (outgoingCallReceiver == null)
+						{
+							outgoingCallReceiver = new OutgoingCallReceiver();
+							IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+							context.registerReceiver(outgoingCallReceiver, intentFilter);
+						}
 					}
-					if (outgoingCallReceiver == null)
-					{
-						outgoingCallReceiver = new OutgoingCallReceiver();
-						IntentFilter intentFilter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
-						context.registerReceiver(outgoingCallReceiver, intentFilter);
-					}
-				}
-			});
-
+				});
+			}
 		}
 	}
 
@@ -786,21 +830,25 @@ public class ChatHeadUtils
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickyCaller.ENABLE_CLIPBOARD_CARD, true))
 		{
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+			if (uiHandler != null)
 			{
-				// putting code inside runnable to make it run on UI thread.
-				@Override
-				public void run()
+				uiHandler.post(new Runnable()
 				{
-
-					if (clipboardListener == null)
+					// putting code inside runnable to make it run on UI thread.
+					@Override
+					public void run()
 					{
-						clipboardListener = new ClipboardListener();
-						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-						clipBoard.addPrimaryClipChangedListener(clipboardListener);
+
+						if (clipboardListener == null)
+						{
+							clipboardListener = new ClipboardListener();
+							ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+							clipBoard.addPrimaryClipChangedListener(clipboardListener);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		else
 		{
@@ -811,21 +859,24 @@ public class ChatHeadUtils
 
 	public static void unregisterClipboardListener(final Context context)
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		if (uiHandler != null)
 		{
-			// putting code inside runnable to make it run on UI thread.
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-				if (clipboardListener != null)
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
 				{
-					ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-					clipBoard.removePrimaryClipChangedListener(clipboardListener);
-					clipboardListener = null;
+					if (clipboardListener != null)
+					{
+						ClipboardManager clipBoard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+						clipBoard.removePrimaryClipChangedListener(clipboardListener);
+						clipboardListener = null;
+					}
 				}
-			}
-		});
-
+			});
+		}
 	}
 
 	public static void unregisterCallReceiver()
@@ -833,77 +884,44 @@ public class ChatHeadUtils
 		final Context context = HikeMessengerApp.getInstance();
 
 		unregisterClipboardListener(context);
-
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		
+		Handler uiHandler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
+		if (uiHandler != null)
 		{
-			// putting code inside runnable to make it run on UI thread.
-			@Override
-			public void run()
+			uiHandler.post(new Runnable()
 			{
-
-				if (incomingCallReceiver != null)
+				// putting code inside runnable to make it run on UI thread.
+				@Override
+				public void run()
 				{
-					TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-					telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
-					incomingCallReceiver = null;
-				}
 
-				if (outgoingCallReceiver != null)
-				{
-					context.unregisterReceiver(outgoingCallReceiver);
-					outgoingCallReceiver = null;
+					if (incomingCallReceiver != null)
+					{
+						TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+						telephonyManager.listen(incomingCallReceiver, PhoneStateListener.LISTEN_NONE);
+						incomingCallReceiver = null;
+					}
+
+					if (outgoingCallReceiver != null)
+					{
+						context.unregisterReceiver(outgoingCallReceiver);
+						outgoingCallReceiver = null;
+					}
+					StickyCaller.removeCallerView();
 				}
-				StickyCaller.removeCallerView();
-			}
-		});
+			});
+		}
 	}
-	
+
 	public static void onCallClickedFromCallerCard(Context context, String callCurrentNumber, CallSource hikeStickyCaller)
 	{
-		boolean isOnHike = false;
+		CallerContentModel callerContentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(callCurrentNumber);
 		String callerName = callCurrentNumber;
-		String contactDetails = getNameAndAddressFromNumber(context, callCurrentNumber);
-		if (contactDetails != null)
+		if (callerContentModel != null && callerContentModel.getFullName() != null)
 		{
-			isOnHike = Utils.isOnHike(callCurrentNumber);
-			try
-			{
-				JSONObject obj = new JSONObject(contactDetails);
-				if (obj.getString(StickyCaller.NAME) != null)
-				{
-					callerName = obj.getString(StickyCaller.NAME);
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.d("JSON EXception", "no name found");
-			}
+			callerName = callerContentModel.getFullName();
 		}
-		if (callerName.equals(callCurrentNumber))
-		{
-			try
-			{
-				CallerContentModel callerContentModel = getCallerContentModelObject(HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getData(
-						callCurrentNumber, null));
-				if(callerContentModel != null)
-				{
-					isOnHike = callerContentModel.getIsOnHike();
-					if (callerContentModel.getFirstName() != null)
-					{
-						callerName = callerContentModel.getFirstName();
-					}
-					else if (callerContentModel.getLastName() != null)
-					{
-						callerName = callerContentModel.getLastName();
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.d("CardFreeCallClicked", "EntryNotFound");
-			}
-		}
-		if (isOnHike)
+		if (callerContentModel != null && callerContentModel.getIsOnHike())
 		{
 			Utils.onCallClicked(context, callCurrentNumber, hikeStickyCaller);
 		}
@@ -940,4 +958,90 @@ public class ChatHeadUtils
 		}
 	}
 
+	public static void syncFromClientToServer()
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false))
+				{
+					JSONArray blockedArray = new JSONArray();
+					JSONArray unBlockedArray = new JSONArray();
+
+					Cursor cursor = ContactManager.getInstance().getAllUnsyncedContactCursor();
+					if (cursor != null)
+					{
+						if (cursor.moveToFirst())
+						{
+							while (!cursor.isAfterLast())
+							{
+								if (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE)
+								{
+									blockedArray.put(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+								}
+								else
+								{
+									unBlockedArray.put(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+								}
+								cursor.moveToNext();
+							}
+						}
+						else
+						{
+							HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, true);
+							return;
+						}
+					}
+					try
+					{
+						JSONObject callerSyncJson = new JSONObject();
+						if (blockedArray.length() != 0)
+						{
+							callerSyncJson.put(StickyCaller.BLOCKED_LIST, blockedArray);
+						}
+						if (unBlockedArray.length() != 0)
+						{
+							callerSyncJson.put(StickyCaller.UNBLOCKED_LIST, unBlockedArray);
+						}
+						if (blockedArray.length() != 0 || unBlockedArray.length() != 0)
+						{
+							IBlockRequestListener blockListener = new IBlockRequestListener(callerSyncJson);
+							RequestToken requestToken = HttpRequests.postCallerMsisdn(HttpRequestConstants.getHikeCallerBlockUrl(), callerSyncJson, blockListener, StickyCaller.ONE_RETRY,
+									ChatHeadUtils.HTTP_CALL_RETRY_DELAY, ChatHeadUtils.HTTP_CALL_RETRY_MULTIPLIER, false);
+							if (!requestToken.isRequestRunning())
+							{
+								requestToken.execute();
+							}
+						}
+						Logger.d("callerSyncJson", callerSyncJson.toString());
+					}
+					catch (JSONException e)
+					{
+						Logger.d("ChatHeadUtils", "not able to create sync json");
+					}
+				}
+			}
+		});
+
+	}
+
+	public static void syncAllCallerBlockedContacts()
+	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false))
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
+					RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY,
+							HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
+					requestToken.execute();
+				}
+			});
+		}
+	}
 }

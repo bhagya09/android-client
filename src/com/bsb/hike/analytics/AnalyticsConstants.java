@@ -538,7 +538,24 @@ public class AnalyticsConstants
 		public static final String WRONG_JSON = "wrngJsn";
 
 		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
-		
+
+		public static final String AFTER_INCOMING_UNKNOWN = "aftInc";
+
+		public static final String AFTER_OUTGOING_UNKNOWN = "aftOut";
+
+		public static final String BLOCK = "blk";
+
+		public static final String BLOCK_LIST = "blkLst";
+
+		public static final String POSITIVE_CLICKED = "pos";
+
+		public static final String NEGATIVE_CLICKED = "neg";
+
+		public static final String BLOCK_DIALOG = "blkDlg";
+
+		public static final String UNBLOCK_DIALOG = "unblkDlg";
+
+
 	}
 	
 	public static String EVENT_SOURCE = "sr";

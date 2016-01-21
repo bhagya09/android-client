@@ -75,10 +75,16 @@ public class HttpRequestConstants
 
 	private static final String ANONYMOUS_NAME = "/anonymousName";
 
-	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
+	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000";
 	
-	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
-	
+	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in";
+
+	private static final String BASE_NAME = "/name";
+
+	private static final String BASE_BLOCK = "/block";
+
+	private static final String BASE_BLOCKED_LIST = "/blocked_list";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -403,11 +409,36 @@ public class HttpRequestConstants
 	{
 		if (isProduction)
 		{
-			return PRODUCTION_HIKECALLER_API;
+			return PRODUCTION_HIKECALLER_API + BASE_NAME;
 		}
 		else
 		{
-			return STAGING_HIKECALLER_API;
+			return STAGING_HIKECALLER_API + BASE_NAME;
+		}
+	}
+
+	public static String getHikeCallerBlockUrl()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ BASE_BLOCK;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + BASE_BLOCK;
+		}
+	}
+
+
+	public static String getBlockedCallerListUrl()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ BASE_BLOCKED_LIST;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + BASE_BLOCKED_LIST;
 		}
 	}
 
