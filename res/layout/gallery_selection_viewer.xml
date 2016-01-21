@@ -52,12 +52,12 @@
             android:padding="10dp"
             android:text="@string/CANCEL"
             android:textColor="@color/white_75"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <View
             android:layout_width="2px"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="2dp"
             android:background="@color/transparent_white_ab" />
 
         <com.bsb.hike.view.CustomFontTextView
@@ -71,7 +71,7 @@
             android:padding="10dp"
             android:text="@string/OK"
             android:textColor="@color/white_75"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
     </LinearLayout>
 
 
