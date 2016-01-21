@@ -49,6 +49,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 						JSONArray callerContent = jsonObject.getJSONArray(StickyCaller.BLOCK_MSISDNS);
 						for (int i = 0; i < callerContent.length(); i++)
 						{
+							Logger.d("ICallerSignUpRequestListener", callerContent.get(i).toString());
 							CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelObject(callerContent.get(i).toString());
 							callerContentModelArray.add(callerContentModel);
 						}
