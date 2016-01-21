@@ -59,8 +59,6 @@ public class UploadFileTask extends FileTransferBase
 
 	private String fileType;
 
-	private ConvMessage userContext;
-
 	private long msgId;
 
 	private String fileKey;
