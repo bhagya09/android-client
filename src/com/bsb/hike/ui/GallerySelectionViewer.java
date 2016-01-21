@@ -167,6 +167,14 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		galleryItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
 
+		if(galleryItems.isEmpty())
+		{
+			//To Do : Display appropriate toast
+			Logger.e(TAG,"Gallery Selection Viewer started without valid Extras");
+			GallerySelectionViewer.this.finish();
+			return;
+		}
+
 		/**
 		 * Array to maintain list of edited files so that we dont create unnecessary copies
 		 */
