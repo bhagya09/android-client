@@ -3504,7 +3504,15 @@ public class Utils
 			switch (hikeFile.getHikeFileType())
 			{
 			case IMAGE:
-				return context.getString(R.string.send_sms_img_msg);
+				String caption = convMessage.getMetadata().getCaption();
+				if(TextUtils.isEmpty(caption))
+				{
+					return context.getString(R.string.send_sms_img_msg);
+				}
+				else
+				{
+					return context.getString(R.string.send_sms_img_msg) +"("+caption+")";
+				}
 			case VIDEO:
 				return context.getString(R.string.send_sms_video_msg);
 			case AUDIO:
