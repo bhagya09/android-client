@@ -1010,6 +1010,12 @@ public enum ChatTheme
 		{
 			return R.drawable.bg_system_message_light;
 		}
+
+		@Override
+		public int getAnimationId()
+		{
+			return R.anim.valetines_nudge_anim;
+		}
 	},
 
 	FRIENDS
@@ -3557,6 +3563,105 @@ public enum ChatTheme
 			return R.color.christmas_theme_status_bar_color;
 		}
 
+	},
+
+	VALENTINES_2016 {
+		@Override
+		public String bgId()
+		{
+			return "45";
+		}
+
+		@Override
+		public int headerBgResId()
+		{
+			return R.drawable.bg_header_transparent_2x;
+		}
+
+		@Override
+		public int previewResId()
+		{
+			return R.drawable.ic_ct_valentine_2016_preview;
+		}
+
+		@Override
+		public int bgResId()
+		{
+			return R.drawable.bg_ct_valentine;
+		}
+
+		@Override
+		public int bubbleResId()
+		{
+			return R.drawable.ic_bubble_blue;
+		}
+
+		@Override
+		public boolean isTiled()
+		{
+			return false;
+		}
+
+		@Override
+		public int sentNudgeResId()
+		{
+			return R.drawable.ic_nudge_sent_valentines_2016;
+		}
+
+		@Override
+		public boolean isAnimated()
+		{
+			return true;
+		}
+
+		@Override
+		public int receivedNudgeResId()
+		{
+			return R.drawable.ic_nudge_receive_valentines_2016;
+		}
+
+		@Override
+		public int inLineUpdateBGResId()
+		{
+			return R.drawable.bg_status_chat_thread_custom_theme;
+		}
+
+		@Override
+		public int bubbleColor()
+		{
+			return R.color.bubble_blue;
+		}
+
+		@Override
+		public int smsToggleBgRes()
+		{
+			return R.drawable.bg_sms_toggle_custom_theme;
+		}
+
+		@Override
+		public int multiSelectBubbleColor()
+		{
+			return R.color.light_black_transparent;
+		}
+
+		@Override
+		public int offlineMsgTextColor()
+		{
+			return R.color.white;
+		}
+
+		@Override
+		public int statusBarColor()
+		{
+			// TODO Auto-generated method stub
+			return R.color.valentines_2016_theme_status_bar_color;
+		}
+
+		@Override
+		public int getAnimationId()
+		{
+			return R.anim.valentines_2016_nudge_anim;
+		}
 	};
 
 	public abstract String bgId();
@@ -3588,6 +3693,11 @@ public enum ChatTheme
 	{
 		return R.drawable.bg_system_message_dark;
 	}
+
+	public int getAnimationId()
+	{
+		return -1;
+	}
 	
 	public abstract int bubbleColor();
 	
@@ -3617,10 +3727,10 @@ public enum ChatTheme
 	public static ChatTheme[] FTUE_THEMES = { STARRY, BEACH, FOREST };
 	
 	/*This stores the order of themes in which they will they will be displayed. Whenever another theme is added update this as well.
-	 The current order followed is [0,39,44,41,42,36,37,38,30,25,28,21,23,20,40,32,22,29,26,8,1,43,24,14,31,18,17,10,2,4,9,13,15,11,7,3]
+	 The current order followed is [0,45,44,41,42,36,37,38,30,25,28,21,23,20,40,32,22,29,26,8,1,39,43,24,14,31,18,17,10,2,4,9,13,15,11,7,3]
 	*/
-	public static ChatTheme[] THEME_PICKER = { DEFAULT, INDEPENDENCE, PURPLE_FLOWER, TRACK, COFFEEBEAN, SLEEPINGDOG, PEACOCKGLORY, NOWHERE, GUITAR, SWIVEL,
-			FRIENDS, NIGHT_PATTERN, OWL, VALENTINES_2, LOVE_2, HIKIN_COUPLE, NIGHT, RAIN2, BEACH_2, CREEPY, LOVE, CHRISTMAS,
+	public static ChatTheme[] THEME_PICKER = { DEFAULT, VALENTINES_2016, PURPLE_FLOWER, TRACK, COFFEEBEAN, SLEEPINGDOG, PEACOCKGLORY, NOWHERE, GUITAR,
+			SWIVEL, FRIENDS, NIGHT_PATTERN, OWL, VALENTINES_2, LOVE_2, HIKIN_COUPLE, NIGHT, RAIN2, BEACH_2, CREEPY, LOVE, INDEPENDENCE, CHRISTMAS,
 			SPRING, KISSES, MR_RIGHT, VALENTINES, STUDY, FLORAL, CHATTY, STARRY, CELEBRATION, TECHY, BEACH, FOREST, SMILEY, GIRLY };
 	
 	/*
