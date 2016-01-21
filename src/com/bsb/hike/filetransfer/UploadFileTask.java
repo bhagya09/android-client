@@ -59,8 +59,6 @@ public class UploadFileTask extends FileTransferBase
 
 	private String fileType;
 
-	private ConvMessage userContext;
-
 	private long msgId;
 
 	private String fileKey;
@@ -570,7 +568,11 @@ public class UploadFileTask extends FileTransferBase
 				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
-					if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+					if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+					{
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 					{
 						// deleteStateFile();
 						showToast(HikeConstants.FTResult.CANCELLED);

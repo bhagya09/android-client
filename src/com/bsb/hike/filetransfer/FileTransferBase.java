@@ -47,7 +47,7 @@ public class FileTransferBase
 
 	protected static String ETAG = "Etag";
 
-	protected Object userContext = null;
+	protected ConvMessage userContext = null;
 
 	protected Context context;
 
