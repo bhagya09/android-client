@@ -293,7 +293,6 @@ public class BotUtils
 		}
 		catch (JSONException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -321,6 +320,7 @@ public class BotUtils
                 String appName =  appsToBeRemoved.get(i).toString();
                 String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
                 Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+
                 if(PlatformUtils.deleteDirectory(makePath)){
                     String sentData = AnalyticsConstants.REMOVE_SUCCESS;
                     JSONObject json = new JSONObject();
@@ -420,7 +420,7 @@ public class BotUtils
             if (botMetadata.isMicroAppMode())
 			{
                 botInfo.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS);
-                PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -429,7 +429,7 @@ public class BotUtils
 			else if (botMetadata.isNativeMode())
 			{
                 botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+				PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 		}
 

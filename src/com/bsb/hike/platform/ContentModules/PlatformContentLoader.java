@@ -124,6 +124,13 @@ public class PlatformContentLoader extends Handler
 
 		Logger.d(TAG, "fetching template from remote");
 
-		PlatformUtils.downloadAndUnzip(argContentRequest, true, true);
+        // Setting up parameters for downloadAndUnzip call
+        boolean isTemplatingEnabled = true;
+        boolean doReplace = true;
+        String callbackId = null;
+        boolean resumeSupported = false;
+        String assocCbot = "";
+
+		PlatformUtils.downloadAndUnzip(argContentRequest, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
 	}
 }

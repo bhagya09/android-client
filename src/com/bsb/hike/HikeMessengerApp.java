@@ -22,6 +22,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DbConversationListener;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
@@ -611,7 +612,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
-    public static int currentPlatformSDKVersion = 0;
+    public static HashMap<String,Integer> hikeSdkMap = new HashMap<>();
 
 	static
 	{
@@ -990,7 +991,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 
         // Set up current platform sdk version by getting its value from the database
-		currentPlatformSDKVersion = PlatformUtils.initPlatformMicroAppSDKVersion();
+        HikeContentDatabase.getInstance().initSdkMap();
 
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs

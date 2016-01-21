@@ -797,7 +797,7 @@ public class MqttMessagesManager
             return;
 
 		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
-		if (!downloader.isMicroAppExist())
+        if ((rqst.getBotType() == HikePlatformConstants.PlatformBotType.HIKE_MAPPS && !downloader.isMicroAppExistForMappPacket()) || !downloader.isMicroAppExistForCbotPacket())
 		{
 			downloader.downloadAndUnzip();
 		}

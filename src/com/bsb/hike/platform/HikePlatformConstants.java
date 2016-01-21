@@ -92,6 +92,7 @@ public interface HikePlatformConstants
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
+    public static final String IS_SDK ="isSdk" ;
 
 	public static final class PlatformFetchType
 	{

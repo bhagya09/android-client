@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,13 +71,12 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-
+import com.bsb.hike.platform.ContentModules.PlatformContentListener;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
-
-import com.bsb.hike.platform.ContentModules.*;
-
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -105,6 +105,8 @@ public class PlatformUtils
 	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
 
     private static final String APPS = "apps";
+
+    public static HashMap<String,Integer> assocMappRequestStatusMap = new HashMap<String,Integer>();
 
 	/**
 	 * 
@@ -413,16 +415,170 @@ public class PlatformUtils
 
 	}
 
-	/**
-	 * download the microapp and then set the state to whatever that has been passed by the server.
-	 * 
-	 * @param botInfo
-	 * @param enableBot
-	 */
-	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+
+    /*
+     * Method to download assoc mapp (helper data) requested with cbot packet
+     */
+	public static void downloadAssocMappForNonMessagingBot(final JSONObject assocMappJson, final BotInfo botInfo, final boolean enableBot, final String botChatTheme,
+			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport, final int assocMappsCount)
 	{
 
+		final PlatformContentModel platformContentModel = PlatformContentModel.make(assocMappJson.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
+		{
+			long fileLength = 0;
+
+			@Override
+			public void onComplete(PlatformContentModel content)
+			{
+				Logger.d(TAG, "microapp download packet success.");
+				// Store successful micro app creation in db
+				mAppCreationSuccessHandling(assocMappJson);
+				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport, assocMappsCount);
+			}
+
+			@Override
+			public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+			{
+				JSONObject jsonObject = new JSONObject();
+				try
+				{
+					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+				{
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
+					Logger.d(TAG, "microapp already exists.");
+					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport, assocMappsCount);
+				}
+				else
+				{
+					try
+					{
+						if (fileLength > 0)
+						{
+							jsonObject.put(AnalyticsConstants.FILE_SIZE, String.valueOf(fileLength));
+						}
+						jsonObject.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "JSONException " + e.getMessage());
+					}
+
+					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+				}
+
+			}
+
+			@Override
+			public void downloadedContentLength(long length)
+			{
+				fileLength = length;
+			}
+		});
+
+		int mAppPacketversionCode = 0;
+		JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+
+		if (cardObjectJson != null)
+		{
+			mAppPacketversionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+		}
+
+		// As this flow is there for MAPP flow, setting the request type to Hike Mapps
+		rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		rqst.getContentData().cardObj.setMappVersionCode(mAppPacketversionCode);
+
+		// Setting up parameters for downloadAndUnzip call
+		boolean isTemplatingEnabled = false;
+		boolean doReplace = false;
+		String callbackId = null;
+		boolean resumeSupported = false;
+		String assocCbot = "";
+
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
+	}
+
+
+    /*
+     * This method would check if assoc mapps required for this cbot are downlaoded, then trigger the download of micro app
+     */
+    private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport, final int assocMappsCount) {
+
+        if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+        {
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappRequestStatusMap.get(botInfo.getMsisdn()) + 1);
+
+            if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == assocMappsCount)
+            {
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+                assocMappRequestStatusMap.put(botInfo.getMsisdn(),0);
+            }
+
+        }
+
+    }
+
+    /**
+     * download the microapp and then set the state to whatever that has been passed by the server.
+     *
+     * @param botInfo
+     * @param enableBot
+     */
+    public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+	{
+        // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as 0
+
+        if (botMetadata != null && botMetadata.getAsocmapp() != null)
+		{
+			JSONArray assocMappJsonArray = botMetadata.getAsocmapp();
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),0);
+            int assocMappsCount = 0;
+
+            if(assocMappJsonArray != null)
+                assocMappsCount = assocMappJsonArray.length();
+
+            for (int i = 0; i < assocMappsCount; i++)
+			{
+				// Get assoc mapp json object from cbot json array
+				JSONObject assocMappJson = null;
+				try
+				{
+					assocMappJson = assocMappJsonArray.getJSONObject(i);
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+
+                if(assocMappJson != null)
+                    downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,assocMappsCount);
+			}
+		}
+        else
+        {
+            // Download micro app for non messaging bot
+            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+        }
+	}
+
+
+    /*
+     * method to download the micro app zip as per cbot packet
+     */
+	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{
@@ -482,17 +638,18 @@ public class PlatformUtils
 		// Stop the flow and return from here in case any exception occurred and contentData becomes null
 		if (rqst.getContentData() == null)
 		{
-			Logger.e(TAG,"Stop the micro app download flow for incorrect request");
-            return;
+			Logger.e(TAG, "Stop the micro app download flow for incorrect request");
+			return;
 		}
 
 		rqst.setBotType(botInfo.getBotType());
-        rqst.getContentData().cardObj.setMappVersionCode(botInfo.getMAppVersionCode());
+		rqst.getContentData().cardObj.setMappVersionCode(botInfo.getMAppVersionCode());
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
 		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
 	}
+    
 
 	public static void botCreationSuccessHandling(BotInfo botInfo, boolean enableBot, String botChatTheme, String notifType)
 	{
@@ -689,27 +846,12 @@ public class PlatformUtils
 		}
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
-	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, false);
-	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, resumeSupported, "");
-	}
-
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled).setDoReplace(doReplace)
+		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
 				.setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).createPlatformZipDownloader();
 
-		if (!downloader.isMicroAppExist() || doReplace)
+		if ((request.getBotType() == HikePlatformConstants.PlatformBotType.HIKE_MAPPS && !downloader.isMicroAppExistForMappPacket()) || !downloader.isMicroAppExistForCbotPacket() )
 		{
 			downloader.downloadAndUnzip();
 		}
@@ -717,11 +859,6 @@ public class PlatformUtils
 		{
 			request.getListener().onEventOccured(request.getContentData() != null ? request.getContentData().getUniqueId() : 0, PlatformContent.EventCode.ALREADY_DOWNLOADED);
 		}
-	}
-
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId)
-	{
-		downloadAndUnzip(request, isTemplatingEnabled, doReplace, callbackId, false, "");
 	}
 
 	/**
@@ -1796,6 +1933,7 @@ public class PlatformUtils
 			final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
 			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 			final String appPackage = cardObjectJson.optString(HikePlatformConstants.APP_PACKAGE, "");
+            final boolean isSdk = cardObjectJson.optBoolean(HikePlatformConstants.IS_SDK,false);
 
 			HikeHandlerUtil mThread;
 			mThread = HikeHandlerUtil.getInstance();
@@ -1806,19 +1944,10 @@ public class PlatformUtils
 				@Override
 				public void run()
 				{
-					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage);
+					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage,isSdk);
 				}
 			});
 		}
 	}
 
-    /*
-     * Method needed for initializing current platform sdk variable by getting its value from the database
-     */
-    public static int initPlatformMicroAppSDKVersion() {
-
-        int platformSDKVersion = HikeContentDatabase.getInstance().getMappVersionByAppName(HikePlatformConstants.PLATFORM_WEB_SDK);
-        return platformSDKVersion;
-
-    }
 }

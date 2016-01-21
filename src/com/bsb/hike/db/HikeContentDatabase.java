@@ -140,6 +140,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
                 + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + NAME + " TEXT UNIQUE, "
                 + VERSION + " INTEGER, "
+                + IS_SDK + " INTEGER, "
                 + APP_PACKAGE + " TEXT" + ")";
         createAndIndexes[i++]= mAppTable;
 
@@ -893,40 +894,43 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
     /*
      * Method to insert entry to MApp Data table for each entry
      */
-    public void insertIntoMAppDataTable(String mAppName,int version,String appPackageUrl)
+    public void insertIntoMAppDataTable(String mAppName,int version,String appPackageUrl,boolean isSdk)
     {
         // values to insert into Mapp Data table
         ContentValues cv = new ContentValues();
         cv.put(NAME,mAppName);
         cv.put(VERSION,version);
         cv.put(APP_PACKAGE,appPackageUrl);
+        if(isSdk)
+            cv.put(IS_SDK,1);
+        else
+            cv.put(IS_SDK,0);
 
         long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
-        if(insertedRow > 0 && mAppName.equals(HikePlatformConstants.PLATFORM_WEB_SDK))
-            HikeMessengerApp.currentPlatformSDKVersion = version;
+        if(insertedRow > 0 && isSdk)
+            HikeMessengerApp.hikeSdkMap.put(mAppName,version);
     }
 
     /*
      * Method to get mapp version by its app name
      */
-    public int getMappVersionByAppName(String mAppName)
+    public void initSdkMap()
     {
-        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[] { DBConstants.HIKE_CONTENT.VERSION}, NAME + "=?", new String[]{mAppName}, null, null, null);
-        int appVersion = 0;
+        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[] { DBConstants.NAME,DBConstants.HIKE_CONTENT.VERSION }, IS_SDK + "=?", new String[]{"1"}, null, null, null);
 
-        while(c.moveToNext())
+        while(c != null && c.moveToNext())
         {
-            appVersion = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
+            String appName = c.getString(c.getColumnIndex(DBConstants.NAME));
+            int version = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
+            Logger.v("BOT", "Putting sdk Info in hashmap " + appName + version);
+            HikeMessengerApp.hikeSdkMap.put(appName,version);
         }
 
         if (c != null)
         {
             c.close();
         }
-
-        return appVersion;
-
     }
 
     /*
@@ -938,6 +942,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
                 + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + NAME + " TEXT UNIQUE, "
                 + VERSION + " INTEGER, "
+                + IS_SDK + " INTEGER, "
                 + APP_PACKAGE + " TEXT" + ")";
 
         return mAppTable;

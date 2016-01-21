@@ -45,8 +45,6 @@ public class PlatformZipDownloader
 	private PlatformContentRequest mRequest;
 
 	private boolean isTemplatingEnabled = false;
-	
-	private boolean doReplace = false;
 
 	private String callbackId = "";
 
@@ -72,7 +70,6 @@ public class PlatformZipDownloader
     public static class Builder {
         private PlatformContentRequest argRequest;
         private boolean isTemplatingEnabled;
-        private boolean doReplace = false;
         private String callbackId = "";
         private boolean resumeSupported = false;
         private String assocCbotMsisdn = "";
@@ -84,11 +81,6 @@ public class PlatformZipDownloader
 
         public Builder setIsTemplatingEnabled(boolean isTemplatingEnabled) {
             this.isTemplatingEnabled = isTemplatingEnabled;
-            return this;
-        }
-
-        public Builder setDoReplace(boolean doReplace) {
-            this.doReplace = doReplace;
             return this;
         }
 
@@ -121,7 +113,6 @@ public class PlatformZipDownloader
     {
         mRequest = builder.argRequest;
         this.isTemplatingEnabled = builder.isTemplatingEnabled;
-        this.doReplace = builder.doReplace;
         this.callbackId = builder.callbackId;
         this.resumeSupported = builder.resumeSupported;
         this.asocCbotMsisdn = builder.assocCbotMsisdn;
@@ -162,7 +153,7 @@ public class PlatformZipDownloader
 		stateFilePath= PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
-	public boolean isMicroAppExist()
+	public boolean isMicroAppExistForCbotPacket()
 	{
 		try
 		{
@@ -195,12 +186,38 @@ public class PlatformZipDownloader
 		}
 		catch (NullPointerException npe)
 		{
-			Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
+			Logger.e("PlatformZipDownloader isMicroAppExistForCbotPacket",npe.toString());
             npe.printStackTrace();
 		}
 
 		return false;
 	}
+
+    /*
+     * Method to determine if mapp sdk exists and compares its version code
+     */
+    public boolean isMicroAppExistForMappPacket()
+    {
+        // get micro app details for current mapp request
+        String microAppName = mRequest.getContentData().cardObj.getAppName();
+        int microAppVersionCode = mRequest.getContentData().cardObj.getMappVersionCode();
+
+        // Generate path for the old mapp directory
+        File unzipPath = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, microAppName);
+
+        int currentMappVersionCode = 0;
+
+        if(HikeMessengerApp.hikeSdkMap.containsKey(microAppName))
+            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(microAppName);
+        else
+            return false;
+
+        if (unzipPath.exists() && microAppVersionCode <= currentMappVersionCode)
+            return true;
+        else
+            return false;
+    }
+
 
 	/**
 	 * Calling this function will download and unzip the micro app. Download will be terminated if the folder already exists and then will try to
@@ -208,12 +225,6 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
-		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
-        if (!isMicroAppExist())
-        {
-            doReplace = false;
-        }
-
 		File zipFile = getZipPath();
 
         //If resume is supported we donot want to delete the zipfile on download failure.

@@ -377,7 +377,7 @@ public interface DBConstants
         public static final String MAPP_DATA = "mapp_data";
         public static final String VERSION = "version";
         public static final String APP_PACKAGE = "app_package";
-
+        public static final String IS_SDK = "is_sdk";
 	}
 	
 	public static interface HIKE_PERSISTENCE
