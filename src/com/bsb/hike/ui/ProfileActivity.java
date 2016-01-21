@@ -2046,7 +2046,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		switch (profileType)
 		{
 		case BROADCAST_INFO:
-		case GROUP_INFO:
 			final boolean isBroadcast = profileType == ProfileType.BROADCAST_INFO;
 			CustomAlertDialog alertDialog = new CustomAlertDialog(this, -1);
 			alertDialog.setMessage(isBroadcast ? R.string.delete_broadcast_confirm : R.string.leave_group_confirm);
@@ -2081,6 +2080,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			alertDialog.setPositiveButton(R.string.YES, listener);
 			alertDialog.setNegativeButton(R.string.NO, listener);
 			alertDialog.show();
+			break;
+		case GROUP_INFO:
+			leaveGroup();
 			break;
 		case CONTACT_INFO:
 			openChatThread(contactInfo);
@@ -2211,6 +2213,56 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		HikeMessengerApp.getPubSub().publish(isBlocked ? HikePubSub.UNBLOCK_USER : HikePubSub.BLOCK_USER, this.mLocalMSISDN);
 		isBlocked = !isBlocked;
 		blockBtn.setText(!isBlocked ? R.string.block_user : R.string.unblock_user);
+	}
+	
+	public void leaveGroup()
+	{
+		HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
+		{
+
+			@Override
+			public void positiveClicked(HikeDialog hikeDialog)
+			{
+				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
+				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
+
+				if (((CustomAlertDialog) hikeDialog).isChecked())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					finish();
+				}
+				else
+				{
+
+					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
+					{
+
+						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
+						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
+					}
+				}
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+				hikeDialog.dismiss();
+			}
+
+		
+			@Override
+			public void neutralClicked(HikeDialog hikeDialog)
+			{
+			}
+
+			@Override
+			public void negativeClicked(HikeDialog hikeDialog)
+			{
+				hikeDialog.dismiss();
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+
+			}
+		}, oneToNConversation.getLabel());
 	}
 
 	@SuppressWarnings("unchecked")
