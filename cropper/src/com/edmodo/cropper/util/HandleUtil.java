@@ -74,8 +74,10 @@ public class HandleUtil {
 
         // Note: corner-handles take precedence, then side-handles, then center.
 
-
-         if (HandleUtil.isInCornerTargetZone(x, y, left, top, targetRadius)) {
+         if (HandleUtil.isInCenterTargetZone(x, y, left, top, right, bottom) && !focusCenter()) {
+            pressedHandle = Handle.CENTER;
+        }
+         else if (HandleUtil.isInCornerTargetZone(x, y, left, top, targetRadius)) {
             pressedHandle = Handle.TOP_LEFT;
         } else if (HandleUtil.isInCornerTargetZone(x, y, right, top, targetRadius)) {
             pressedHandle = Handle.TOP_RIGHT;
@@ -94,10 +96,7 @@ public class HandleUtil {
         } else if (HandleUtil.isInVerticalTargetZone(x, y, right, top, bottom, targetRadius)) {
             pressedHandle = Handle.RIGHT;
         }
-        else if (HandleUtil.isInCenterTargetZone(x, y, left, top, right, bottom) && !focusCenter()) {
-            pressedHandle = Handle.CENTER;
 
-        }
 
         return pressedHandle;
     }
