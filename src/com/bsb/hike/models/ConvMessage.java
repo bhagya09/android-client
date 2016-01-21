@@ -94,6 +94,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	
 	private long sortingId = -1;
 
+	private boolean fromCustomKeyboard=false;
+
 	public String getNameSpace()
 	{
 		return nameSpace;
@@ -471,9 +473,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		}
 		
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
-		/* prevent us from receiving a message from the future */
-		long now = System.currentTimeMillis() / 1000;
-		this.mTimestamp = (this.mTimestamp > now) ? now : this.mTimestamp;
 		/* if we're deserialized an object from json, it's always unread */
 		setState(State.RECEIVED_UNREAD);
 		msgID = -1;
@@ -907,6 +906,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 					else if (metadata.isPokeMessage())
 					{
 						data.put(HikeConstants.POKE, true);
+					}else if(fromCustomKeyboard()){
+						data.put(HikeConstants.METADATA, md);
 					}
 				}
 				
@@ -1386,7 +1387,12 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		this.messageOriginType = messageOriginType;
 	}
-
+	public void setfromCustomKeyboard(boolean fromCustomKeyboard){
+		this.fromCustomKeyboard=fromCustomKeyboard;
+	}
+	public boolean fromCustomKeyboard(){
+		return fromCustomKeyboard;
+	}
 	public long getServerId()
 	{
 		if(isBroadcastMessage() && !isBroadcastConversation())
@@ -1551,6 +1557,19 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			return lhs.compareTo(rhs);
 		}
 
+	}
+
+	/**
+	 * Used to forcefully set the state of the ConvMessage. This is used by General Events since we need to change the state of messages from sent to received and vice versa.
+	 *
+	 * @param state
+	 */
+	public void setStateForced(State state)
+	{
+		if (state != null)
+		{
+			mState = state;
+		}
 	}
 
 }

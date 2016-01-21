@@ -1,17 +1,7 @@
 package com.bsb.hike.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,51 +25,29 @@ import android.util.Base64;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.CustomStickerCategory;
-import com.bsb.hike.models.FileListItem;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.Conversation.*;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MessageMetadata;
-import com.bsb.hike.models.Protip;
-import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.models.Conversation.BroadcastConversation;
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.ConversationMetadata;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.ContentLove;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -89,14 +57,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -123,7 +84,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private HikeConversationsDatabase(Context context)
 	{
-		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION);
+		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 		mDb = getWritableDatabase();
 	}
 	
@@ -6227,30 +6188,30 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.BOT_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
+			c = mDb.query(DBConstants.BOT_TABLE, null, null, null, null, null, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 
-			mDb.beginTransaction();
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
 
-				BotInfo botInfo = getBotInfoForMsisdn(msisdn);
+				BotInfo botInfo = getBotInfoFromCursor(c, msisdn);
 
 				if (botInfo != null)
 				{
 					Logger.v("BOT", "Putting Bot Info in hashmap " + botInfo.toString());
 					HikeMessengerApp.hikeBotInfoMap.put(msisdn, botInfo);
+					// Putting the fake bot contact in contact manager as well here
+					ContactInfo contact = new ContactInfo(msisdn, msisdn, botInfo.getConversationName(), msisdn);
+					ContactManager.getInstance().updateContacts(contact);
 				}
-				
+
 				else
 				{
 					Logger.wtf("BOT", "got null bot Info for msisdn : " + msisdn);
 				}
-
 			}
-			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
@@ -6258,9 +6219,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				c.close();
 			}
-			mDb.endTransaction();
 		}
-
 	}
 
 	public ConvMessage showParticipantStatusMessage(String groupId)
@@ -7207,17 +7166,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				args = new String[] { "0" };
 			}
 
-			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN }, selection, args, null, null, null);
+			c = mDb.query(DBConstants.CONVERSATIONS_TABLE, new String[] { DBConstants.UNREAD_COUNT, DBConstants.MSISDN ,DBConstants.MSG_STATUS}, selection, args, null, null, null);
 
 			if (c!=null && c.moveToFirst())
 			{
 				final int unreadMessageColumn = c.getColumnIndex(DBConstants.UNREAD_COUNT);
 				final int msisdnColumn = c.getColumnIndex(DBConstants.MSISDN);
+				final int msgstateColumnIndex=c.getColumnIndex(DBConstants.MSG_STATUS);
 
 				do
 				{
 					int dbUnreadCount = c.getInt(unreadMessageColumn);
 					String msisdn = c.getString(msisdnColumn);
+					int msgState=c.getInt(msgstateColumnIndex);
 					if (msisdn!=null && BotUtils.isBot(msisdn))
 					{
 
@@ -7227,6 +7188,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 							dbUnreadCount = 1;
 						}
 					}
+					if(msgState< State.RECEIVED_UNREAD.ordinal())
+						dbUnreadCount=0;
 					unreadMessages += dbUnreadCount;
 				}
 				while (c.moveToNext());
@@ -8169,6 +8132,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 		contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+		contentValues.put(DBConstants.IS_STEALTH, StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 		contentValues.put(DBConstants.UNREAD_COUNT, 1); // inOrder to show 1+ on conv screen, we need to have some unread counter
 
 		/**
@@ -8179,11 +8143,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			botInfo.setLastConversationMsg(convMessage);
 			botInfo.setUnreadCount(1);  // inOrder to show 1+ on conv screen, we need to have some unread counter
 			botInfo.setConvPresent(true); //In Order to indicate the presence of bot in the conv table
-
+			botInfo.setStealth(StealthModeManager.getInstance().isStealthMsisdn(botInfo.getMsisdn()));
 			//If the chat thread already exists and we need only to change the convInfo,we would not want the listeners on new chat created to be fired,like badge counter.
 			if (isChatExist)
 			{
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CONVINFO_UPDATED,botInfo);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.LASTMSG_UPDATED,botInfo.getLastConversationMsg());
 			}
 			else
 			{
@@ -8272,6 +8236,38 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 
 		return null;
+	}
+
+
+	public BotInfo getBotInfoFromCursor(Cursor c, String msisdn)
+	{
+
+		int nameIdx = c.getColumnIndex(DBConstants.NAME);
+		int configurationIdx = c.getColumnIndex(DBConstants.BOT_CONFIGURATION);
+		int botTypeIdx = c.getColumnIndex(DBConstants.BOT_TYPE);
+		int metadataIdx = c.getColumnIndex(DBConstants.CONVERSATION_METADATA);
+		int muteIdx = c.getColumnIndex(DBConstants.IS_MUTE);
+		int namespaceIdx = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
+		int configDataidx = c.getColumnIndex(DBConstants.CONFIG_DATA);
+		int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
+		int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
+		int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+
+		String name = c.getString(nameIdx);
+		int config = c.getInt(configurationIdx);
+		int botType = c.getInt(botTypeIdx);
+		String metadata = c.getString(metadataIdx);
+		int mute = c.getInt(muteIdx);
+		String namespace = c.getString(namespaceIdx);
+		String configData = c.getString(configDataidx);
+		String notifData = c.getString(notifDataIdx);
+		String helperData = c.getString(helperDataIdx);
+		int version = c.getInt(versionIdx);
+		BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+
+		botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
+		return botInfo;
 	}
 
 	public String getMessageEventsForMicroapps(String nameSpace, boolean includeNormalEvent)
@@ -8702,8 +8698,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		boolean result = false;
 		try
 		{
-			mDb.beginTransaction();
-
 			long startTime = System.currentTimeMillis();
 
 			String updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = " + DBConstants.MESSAGE_ID;
@@ -8714,19 +8708,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			analyticsForUpgradeSortId(numRows, timeTaken);
 			Logger.d("HikeConversationsDatabase", " ServerId db upgrade time : " + timeTaken);
 
-			mDb.setTransactionSuccessful();
 			result = true;
 		}
 
 		catch (Exception e)
 		{
 			Logger.e("HikeConversationsDatabase", "Got an exception while upgrading for sorting id field : ", e);
-			e.printStackTrace();
 			result = false;
-		}
-		finally
-		{
-			mDb.endTransaction();
 		}
 
 		return result;

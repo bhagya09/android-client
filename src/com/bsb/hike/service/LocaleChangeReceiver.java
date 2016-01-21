@@ -25,7 +25,7 @@ public class LocaleChangeReceiver extends BroadcastReceiver
 			return;
 		}
 
-		Utils.sendLocaleToServer(context);
+		Utils.sendLocaleToServer();
 	}
 
 }

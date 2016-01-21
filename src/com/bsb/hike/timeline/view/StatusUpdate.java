@@ -223,10 +223,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		initEmoticonPicker();
 		
 		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard);
 		if (!systemKeyboard)
 		{
-			initCustomKeyboard();			
+			initCustomKeyboard();
 		}
 		
 		addOnClickListeners();
@@ -352,6 +351,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		super.onResume();
+		KptUtils.resumeKeyboard(mCustomKeyboard);
 		showKeyboard(false);
 		isForeground = true;
 		if (statusImage != null && statusImage.getDrawable() != null)
@@ -402,7 +402,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mCustomKeyboard.registerEditText(R.id.status_txt);
 		mCustomKeyboard.init(statusTxt);
 		findViewById(R.id.status_txt).setOnClickListener(this);
-		mEmoticonPicker.setCustomKeyBoardHeight((keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
+		mEmoticonPicker.setCustomKeyBoard(!systemKeyboard, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		if (!(getIntent().hasExtra(STATUS_UPDATE_IMAGE_PATH)))
 		{
 			mCustomKeyboard.showCustomKeyboard(statusTxt, true);			
@@ -483,6 +483,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else
 		{
 			showEmoticonPicker();
+			//while using custom keyboard Photos/Mood layout remain at bottom because we are hiding the keyboard so we need to update the padding
+			if (!systemKeyboard)
+				KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 	}
 	
@@ -712,6 +715,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
+			if(!HikeMessengerApp.isSystemKeyboard())
 			addLanguageAnalytics();
 		}
 		catch (IOException e)
@@ -732,10 +736,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 	protected void addLanguageAnalytics()
 	{
+
 		JSONObject metadata = new JSONObject();
 		try 
 		{
-			metadata.put(HikeConstants.LogEvent.KPT, KptKeyboardManager.getInstance(StatusUpdate.this).getCurrentLanguageAddonItem().getlocaleName());
+			metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		} 
 		catch (JSONException e) 
@@ -773,7 +778,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 					addItemsLayout.setLayoutParams(p);
 				}
 			}
-		}, 300); // TODO Remove hack. Use Shareable popup layout
+		}, mActivityTask.keyboardShowing ? 300 : 0); // TODO Remove hack. Use Shareable popup layout
 
 		boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 		int columns = portrait ? 4 : 6;
@@ -897,12 +902,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		 * let GC pick up any instance of this activity. So whenever this activity gets destroyed its instance doesn't get cleared from heap.
 		 */
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsubListeners);
-		super.onDestroy();
+
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+		super.onDestroy();
 		
 	}
 
@@ -963,6 +969,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		int[] dontEatThisTouch = {R.id.emoji_btn, R.id.status_txt};
 		mEmoticonPicker = new EmoticonPicker(this, statusTxt, findViewById(R.id.parent_layout), (int)getResources().getDimension(R.dimen.emoticon_pallete), dontEatThisTouch);
+		mEmoticonPicker.setBottomPadding(0);
 		mEmoticonPicker.setOnDismissListener(this);
 		mEmoticonPicker.setDisableExtraPadding(false);
 		mEmoticonPicker.useStatusUpdateEmojisList(true);

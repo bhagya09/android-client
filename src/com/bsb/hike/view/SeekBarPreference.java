@@ -7,9 +7,13 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+
+import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 
 public final class SeekBarPreference extends DialogPreference implements
 		OnSeekBarChangeListener {
@@ -50,7 +54,12 @@ public final class SeekBarPreference extends DialogPreference implements
 		mDefaultValue = attrs.getAttributeIntValue(ANDROID_NS, "defaultValue", 0);
 		mMaxValue = attrs.getAttributeIntValue(ANDROID_NS, "max", 100);
 
+
 		prefFont = CustomTypeFace.getTypeFace("roboto");
+		if(prefFont==null)
+		{
+			prefFont=new CustomTypeFace(context,null);
+		}
 		
 	}
 
@@ -106,10 +115,16 @@ public final class SeekBarPreference extends DialogPreference implements
 	@Override
 	protected void onBindView(View view) {
 		super.onBindView(view);
+
 		TextView titleView = (TextView) view.findViewById(android.R.id.title);
+		titleView.setTextAppearance(mContext, R.style.SettingsHeaderItemTextView);
 		titleView.setTypeface(prefFont.normal);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(10, 0, 0, 0); // llp.setMargins(left, top, right, bottom);
+		titleView.setLayoutParams(params);
 
 		TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
+		summaryView.setTextAppearance(mContext, R.style.ListItemSubHeaderTextView);
 		summaryView.setTypeface(prefFont.normal);
 	}
 

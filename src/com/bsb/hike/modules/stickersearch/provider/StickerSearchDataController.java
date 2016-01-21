@@ -516,8 +516,8 @@ public enum StickerSearchDataController
 		{
 			synchronized (StickerSearchDataController.class)
 			{
-				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Pack-Story data: " + packStoryData);
-				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Sticker-Tag data: " + stickersTagData);
+				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Pack-Story data for packs: " + packStoryData.keySet());
+				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Sticker-Tag data for stickers (count): " + stickersTagData.size());
 
 				try
 				{
@@ -548,17 +548,17 @@ public enum StickerSearchDataController
 					}
 				}
 
-				int finalSetSize = updateRetrySet.size();
-				
-				// turn on sticker recommendation if number of stickers left in queue is less than threshold value
-				if(finalSetSize < StickerSearchConstants.NUM_STICKERS_THRESHOLD)
+				int remainingSetSize = updateRetrySet.size();
+
+				// Turn on sticker recommendation, if number of stickers left in queue is less than threshold value
+				if (remainingSetSize < StickerSearchConstants.THRESHOLD_NUM_STICKERS)
 				{
-					Logger.d(TAG, "threshold reached turnig recommendation on");
+					Logger.d(TAG, "setupStickerSearchWizard(), Turnig recommendation on after threshold is crossed.");
 					StickerManager.getInstance().toggleStickerRecommendation(true);
 				}
-				
+
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
-				if (finalSetSize > 0)
+				if (remainingSetSize > 0)
 				{
 					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
 				}

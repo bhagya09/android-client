@@ -15,16 +15,19 @@ import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONException;
@@ -66,9 +69,23 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_ftue);
         setUpView();
+        SendLogsForAppLangFtueShown();
         showNextFtue();
     }
 
+    private void SendLogsForAppLangFtueShown()
+    {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE_SHOWN_EVENT);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
 
     private void setUpView() {
         setupActionBar();
@@ -108,7 +125,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
     private void completeFtue()
     {
         IntentFactory.openHomeActivity(HomeFtueActivity.this);
-        this.finish();
+        //Not calling finish since it updates activity state as back pressed and then onResume is not handled 
     }
 
     private void refreshActionBar() {
@@ -135,30 +152,46 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 // download and install language only if custem language selected is not English
                 if (!selectedLocalLanguage.getLocale().equals(LocalLanguage.English.getLocale()))
                 {
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(
+                    KptKeyboardManager.getInstance().setInstallListener(
                             new KptKeyboardManager.KptLanguageInstallListener() {
                                 @Override
                                 public void onError(KPTAddonItem item, String message) {
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
 
                                 @Override
                                 public void onSuccess(KPTAddonItem item) {
                                     // change keyboard to custom keyboard if the language selected is successfully downloaded
                                     HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, false);
-                                    KptKeyboardManager.getInstance(HomeFtueActivity.this).setInstallListener(null);
+                                    HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
+                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
                             }
                     );
-                    KptKeyboardManager.getInstance(HomeFtueActivity.this).downloadAndInstallLanguage(selectedLocalLanguage.getLocale());
+                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale(), HikeConstants.KEYBOARD_LANG_DWNLD_APP_FTUE);
                 }
             }
+            addAnalyticsForDoneButton();
             showNextFtue();
         }
     }
+    
+    private void addAnalyticsForDoneButton() {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_FTUE_DONE_BTN);
+			metadata.put(HikeConstants.APP_LANGUAGE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
+    
     private void showLocalizationFtue() {
         flipper.setDisplayedChild(LOCALIZATION);
-
         final TextView languageText = (TextView) flipper.findViewById(R.id.txt_lang);
 
         if (LocalLanguageUtils.isLocalLanguageSelected())
@@ -176,6 +209,8 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                    	
+                    	sendAppLanguageDialogShownEvent();
                         final ArrayList<LocalLanguage> list = new ArrayList<>(LocalLanguage.getDeviceSupportedHikeLanguages(HomeFtueActivity.this));
                         AlertDialog.Builder builder = new AlertDialog.Builder(HomeFtueActivity.this);
                         ListAdapter adapter = new ArrayAdapter<>(HomeFtueActivity.this, R.layout.alert_item, R.id.item, list);
@@ -187,18 +222,8 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                                 }
                                 selectedLocalLanguage = list.get(which);
                                 languageText.setText(selectedLocalLanguage.getDisplayName());
-                                LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage);
-
-                                //	tracking the app language selected by the user in ftue
-                                try {
-                                    JSONObject metadata = new JSONObject();
-                                    metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_FTUE);
-                                    metadata.put(HikeConstants.KEYBOARD_LANGUAGE, selectedLocalLanguage.getDisplayName());
-                                    HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-                                } catch (JSONException e) {
-                                    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + selectedLocalLanguage.getDisplayName() + "\n" + e);
-                                }
-
+                                LocalLanguageUtils.setApplicationLocalLanguage(selectedLocalLanguage, HikeConstants.APP_LANG_CHANGED_FTUE);
+                                Utils.sendLocaleToServer();
                                 // Relaunching the Activity
                                 IntentFactory.openHomeFtueActivity(HomeFtueActivity.this);
                             }
@@ -214,6 +239,20 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
         refreshActionBar();
     }
 
+    private void sendAppLanguageDialogShownEvent()
+    {
+    	try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.APP_LANGUAGE_DIALOG_OPEN_EVENT);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();

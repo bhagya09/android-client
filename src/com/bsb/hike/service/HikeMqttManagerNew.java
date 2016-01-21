@@ -898,6 +898,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
+						if(previousHostInfo!=null && previousHostInfo.getExceptionCount() > 6)
+						{
+							//-1 implies connect success
+							sendHttpNetworkTestRequest(-1);
+						}
+
 						pushConnect = false;
 						retryCount = 0;
 						fastReconnect = 0;
@@ -932,7 +938,10 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					try
 					{
-						
+						if(previousHostInfo != null)
+						{
+						    previousHostInfo.increaseExceptionCount();
+						}
 						MqttException exception = (MqttException) value;
 						handleMqttException(exception, true);
 					}
@@ -1197,7 +1206,15 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
     private void sendHttpNetworkTestRequest(int errorCode)
     {
-        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode);
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HTTP_NETWORK_CHECK_CALL, false))
+        {
+            return;
+        }
+
+        int port = previousHostInfo != null ? previousHostInfo.getPort() : 0;
+        int networkType = previousNetInfo != null ? previousNetInfo.getNetworkType() : -1;
+        int exceptionCount = previousHostInfo != null ? previousHostInfo.getExceptionCount() : -1;
+        RequestToken requestToken =  HttpRequests.httpNetworkTestRequest(errorCode, port, networkType, exceptionCount);
         requestToken.execute();
     }
 	private void handleMqttException(MqttException e, boolean reConnect)
@@ -1351,6 +1368,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			handleOtherException();
 			scheduleNextConnectionCheck(getConnRetryTime());
 			sendAnalyticsEvent(e);
+			sendHttpNetworkTestRequest(e.getReasonCode());
 			break;
 		case MqttException.REASON_CODE_SOCKET_FACTORY_MISMATCH:
 			clearSettings();
@@ -1372,6 +1390,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			break;
 		default:
 			Logger.e(TAG, "In Default : " + e.getMessage());
+			handleOtherException();
 			mqttConnStatus = MQTTConnectionStatus.NOT_CONNECTED;
 			connectOnMqttThread(getConnRetryTime());
 			sendAnalyticsEvent(e, MqttConstants.EXCEPTION_DEFAULT);

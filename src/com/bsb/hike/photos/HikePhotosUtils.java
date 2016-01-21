@@ -282,7 +282,7 @@ public class HikePhotosUtils
 
 			public List<FilterType> filters = new ArrayList<FilterType>();
 
-			private static FilterList effectfilters, qualityfilters;
+			private static FilterList qualityfilters;
 
 			public void addFilter(final String name, final FilterType filter)
 			{
@@ -295,40 +295,60 @@ public class HikePhotosUtils
 			 */
 			public static FilterList getHikeEffects(Context context)
 			{
-				if (effectfilters == null)
+				FilterList effectfilters = new FilterList();
+
+				String[] filterNameArray = HikeMessengerApp.getInstance().getApplicationContext().getResources()
+						.getStringArray(R.array.filter_names);
+				int filterNameIndex = 0;
+
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.ORIGINAL);
+				++filterNameIndex;
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false)) 
 				{
-					effectfilters = new FilterList();
-					
-					String[] filterNameArray = HikeMessengerApp.getInstance().getApplicationContext().getResources().getStringArray(R.array.filter_names);
-					int filterNameIndex = 0;
-					
-                    effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.ORIGINAL);++filterNameIndex;
-					if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
-					{
-						effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.TIRANGAA);
-					}
-					++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SOLOMON);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.CLASSIC);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.NASHVILLE);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JALEBI);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GULAAL);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.X_PRO_2);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.HDR);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.APOLLO);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.RETRO);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.EARLYBIRD);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SUNLITT);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.BRANNAN);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.LO_FI);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.INKWELL);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.KELVIN);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.E1977);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JUNGLEE);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.POLAROID);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SEPIA);++filterNameIndex;
-					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GRAYSCALE);++filterNameIndex;
+					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.TIRANGAA);
 				}
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SOLOMON);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.CLASSIC);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.NASHVILLE);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JALEBI);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GULAAL);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.X_PRO_2);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.HDR);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.APOLLO);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.RETRO);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.EARLYBIRD);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SUNLITT);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.BRANNAN);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.LO_FI);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.INKWELL);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.KELVIN);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.E1977);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.JUNGLEE);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.POLAROID);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.SEPIA);
+				++filterNameIndex;
+				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.GRAYSCALE);
+				++filterNameIndex;
+
 				return effectfilters;
 			}
 

@@ -6,7 +6,7 @@
         android:key="appLanguagePref"
         android:layout="@layout/list_preference"
         android:summary="@string/language_summary"
-        android:title="@string/language" />
+        android:title="@string/app_language" />
 
     <PreferenceCategory
         android:key="keyboardSettingsCategory"
