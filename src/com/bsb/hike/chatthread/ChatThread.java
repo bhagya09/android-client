@@ -985,7 +985,7 @@ import android.widget.Toast;
 		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
 			@Override
 			public void onAnimationStart(Animator animation) {
-				if (activity == null || activity.isFinishing() || activity.isDestroyed())
+				if (activity == null || activity.isFinishing())
 				{
 					return;
 				}
