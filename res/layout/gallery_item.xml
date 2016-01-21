@@ -12,8 +12,8 @@
 
     <RelativeLayout
         android:id="@+id/contentLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/gallery_cover_item_size"
+        android:layout_height="@dimen/gallery_cover_item_size"
         android:layout_alignBottom="@id/album_image"
         android:background="@color/gallery_camera_tile_bg"
         android:layout_alignLeft="@id/album_image"
