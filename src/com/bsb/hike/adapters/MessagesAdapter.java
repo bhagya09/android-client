@@ -1527,6 +1527,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					imageHolder.caption.setVisibility(View.VISIBLE);
 					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
 				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
