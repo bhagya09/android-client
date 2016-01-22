@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -756,14 +757,18 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				@Override
 				public void run()
 				{
+					Log.d("Atul", "STARTING TO COMPRESS"+filePath);
+
 					final Bitmap bmp = galleryPagerImageLoader.processBitmap(filePath);
 
+					Log.d("Atul", "QUEUED TO VIEW ON SCREEN "+filePath);
 					runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
 						{
 							galleryImageView.setImageBitmap(bmp);
+							Log.d("Atul", "DISPLAYED  ON SCREEN " + filePath);
 							galleryImageView.hideCropOverlay();
 						}
 					});
