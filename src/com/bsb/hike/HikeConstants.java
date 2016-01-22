@@ -3404,6 +3404,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3785,5 +3787,5 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 }
