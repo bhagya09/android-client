@@ -895,6 +895,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			break;
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
+			}
+
 			if(selectAllMode)
 			{
 				onItemClickDuringSelectAllMode(contactInfo);
