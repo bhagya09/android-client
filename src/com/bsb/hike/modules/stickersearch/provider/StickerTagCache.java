@@ -22,11 +22,7 @@ public class StickerTagCache
 
     private static final int VERSION = 1;
 
-    private static StickerTagCache mCache;//To Do : Discuss if this should be volatile
-
-    private static final Object mCacheInitLock = new Object();
-
-    private int currentStickerCount;
+    private volatile static StickerTagCache mCache;
 
     private int tagType;
 
@@ -45,6 +41,7 @@ public class StickerTagCache
     private StickerTagCache(int tagType)
     {
         this.tagType = tagType;
+        mCache.init();
     }
 
     /* Get the instance of this class from outside */
@@ -52,12 +49,11 @@ public class StickerTagCache
     {
         if (mCache == null)
         {
-            synchronized (mCacheInitLock)
+            synchronized (StickerTagCache.class)
             {
                 if (mCache == null)
                 {
                     mCache = new StickerTagCache(tagType);
-                    mCache.init();
                 }
             }
         }

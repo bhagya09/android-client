@@ -168,12 +168,6 @@ public class StickerSearchUtils
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 
-		if (prefs == null)
-		{
-			return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
-		}
-
-
 		switch(tagType)
 		{
 			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
@@ -186,12 +180,6 @@ public class StickerSearchUtils
 	public static int getUndownloadedTagsStickersCount()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-
-		if (prefs == null)
-		{
-			return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
-		}
-
 
 		return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, 0);
 	}

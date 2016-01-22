@@ -158,7 +158,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     }
 
     private String getRequestId() {
-        return StickerConstants.StickerRequestType.TAGS.getLabel();
+        return StickerConstants.StickerRequestType.FORCED.getLabel();
     }
 
     @Override

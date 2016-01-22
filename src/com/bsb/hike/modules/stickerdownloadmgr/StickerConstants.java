@@ -48,7 +48,8 @@ public class StickerConstants
 		TAGS(7, "st"),
 		SINGLE_TAG(8, "sit"),
 		CATEGORY_DETAIL(9, "scd"),
-		MINI(10, "mini");
+		MINI(10, "mini"),
+		FORCED(11, "forced");
 
 		private final int type;
 		private final String label;
