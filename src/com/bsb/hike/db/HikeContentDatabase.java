@@ -901,10 +901,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         cv.put(NAME,mAppName);
         cv.put(VERSION,version);
         cv.put(APP_PACKAGE,appPackageUrl);
-        if(isSdk)
-            cv.put(IS_SDK,1);
-        else
-            cv.put(IS_SDK,0);
+
+        // Converting isSdk boolean variable to isSdkInt before adding it into the db
+        int isSdkInt = (isSdk) ? 1 : 0;
+        cv.put(IS_SDK,isSdkInt);
+
 
         long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 

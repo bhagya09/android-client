@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -214,8 +215,29 @@ public class BotUtils
 		}
 
 		HikeConversationsDatabase.getInstance().getBotHashmap();
-		Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
-		Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
+        Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
+        Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
+        
+        /*
+        * Set up current platform sdk version by getting its value from the database
+        * Removing db query from ui thread and setting it up on Hike handler util thread..
+        */
+        HikeHandlerUtil mThread;
+        mThread = HikeHandlerUtil.getInstance();
+        mThread.startHandlerThread();
+
+		mThread.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().initSdkMap();
+
+			}
+		});
+                
+        Logger.d("hikeSdkMap", "Keys are " + HikeMessengerApp.hikeSdkMap.keySet() + "------");
+        Logger.d("hikeSdkMap", "values are " + HikeMessengerApp.hikeSdkMap.values());
 	}
 
 	/**
@@ -420,7 +442,10 @@ public class BotUtils
             if (botMetadata.isMicroAppMode())
 			{
                 botInfo.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS);
-                PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+
+                // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
+                if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -429,7 +454,10 @@ public class BotUtils
 			else if (botMetadata.isNativeMode())
 			{
                 botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
-				PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+
+                // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
+                if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 		}
 

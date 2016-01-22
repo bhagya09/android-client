@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -106,7 +107,7 @@ public class PlatformUtils
 
     private static final String APPS = "apps";
 
-    public static HashMap<String,Integer> assocMappRequestStatusMap = new HashMap<String,Integer>();
+    public static ConcurrentHashMap<String,Integer> assocMappRequestStatusMap = new ConcurrentHashMap<String,Integer>();
 
 	/**
 	 * 
@@ -415,12 +416,11 @@ public class PlatformUtils
 
 	}
 
-
     /*
-     * Method to download assoc mapp (helper data) requested with cbot packet
+     * Method to download assoc mapp (helper files) requested with cbot packet.
      */
 	public static void downloadAssocMappForNonMessagingBot(final JSONObject assocMappJson, final BotInfo botInfo, final boolean enableBot, final String botChatTheme,
-			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport, final int assocMappsCount)
+			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport)
 	{
 
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(assocMappJson.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
@@ -434,7 +434,7 @@ public class PlatformUtils
 				Logger.d(TAG, "microapp download packet success.");
 				// Store successful micro app creation in db
 				mAppCreationSuccessHandling(assocMappJson);
-				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport, assocMappsCount);
+				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
 			}
 
 			@Override
@@ -454,7 +454,7 @@ public class PlatformUtils
 				{
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
 					Logger.d(TAG, "microapp already exists.");
-					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport, assocMappsCount);
+					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
 				}
 				else
 				{
@@ -471,6 +471,8 @@ public class PlatformUtils
 						Logger.e(TAG, "JSONException " + e.getMessage());
 					}
 
+                    // In case of assoc mapp failure, remove entry from hashmap
+                    assocMappRequestStatusMap.remove(botInfo.getMsisdn());
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
@@ -486,7 +488,6 @@ public class PlatformUtils
 
 		int mAppPacketversionCode = 0;
 		JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-
 		if (cardObjectJson != null)
 		{
 			mAppPacketversionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
@@ -507,27 +508,6 @@ public class PlatformUtils
 		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
 	}
 
-
-    /*
-     * This method would check if assoc mapps required for this cbot are downlaoded, then trigger the download of micro app
-     */
-    private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport, final int assocMappsCount) {
-
-        if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
-        {
-            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappRequestStatusMap.get(botInfo.getMsisdn()) + 1);
-
-            if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == assocMappsCount)
-            {
-                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
-                assocMappRequestStatusMap.put(botInfo.getMsisdn(),0);
-            }
-
-        }
-
-    }
-
     /**
      * download the microapp and then set the state to whatever that has been passed by the server.
      *
@@ -537,17 +517,17 @@ public class PlatformUtils
     public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
 			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
-        // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as 0
-
+        // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as no of mapps request to be completed
         if (botMetadata != null && botMetadata.getAsocmapp() != null)
 		{
 			JSONArray assocMappJsonArray = botMetadata.getAsocmapp();
-            assocMappRequestStatusMap.put(botInfo.getMsisdn(),0);
             int assocMappsCount = 0;
 
             if(assocMappJsonArray != null)
                 assocMappsCount = assocMappJsonArray.length();
 
+            // add entry in assocMapp requests map with initial count as no of mapps request to be completed
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappsCount);
             for (int i = 0; i < assocMappsCount; i++)
 			{
 				// Get assoc mapp json object from cbot json array
@@ -561,8 +541,21 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 
+                // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
+                if(assocMappJson != null) {
+                    JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                    if (cardObjectJson != null) {
+                        final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+                        final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+
+                        if (isMicroAppExistForMappPacket(appName, version) && i == assocMappsCount-1) {
+                            // Download micro app for non messaging bot
+                            downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+                        }
+                    }
+                }
                 if(assocMappJson != null)
-                    downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,assocMappsCount);
+                    downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
 			}
 		}
         else
@@ -737,6 +730,17 @@ public class PlatformUtils
 			return;
 		}
 
+        // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
+        JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+        if (cardObjectJson != null) {
+            final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+            final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+
+            if(isMicroAppExistForMappPacket(appName,version))
+                return;
+        }
+
+
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
@@ -848,12 +852,17 @@ public class PlatformUtils
 
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot)
 	{
-		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
-				.setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).createPlatformZipDownloader();
+        // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
+        String mAppName = request.getContentData().cardObj.getAppName();
+        int mAppVersionCode = request.getContentData().cardObj.getMappVersionCode();
+        byte botType = request.getBotType();
+        String msisdn = request.getContentData().getMsisdn();
 
-		if ((request.getBotType() == HikePlatformConstants.PlatformBotType.HIKE_MAPPS && !downloader.isMicroAppExistForMappPacket()) || !downloader.isMicroAppExistForCbotPacket() )
+		if (!PlatformUtils.isMicroAppExistForCbotPacket(mAppName,mAppVersionCode,msisdn,botType))
 		{
-			downloader.downloadAndUnzip();
+            PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
+                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).createPlatformZipDownloader();
+            downloader.downloadAndUnzip();
 		}
 		else
 		{
@@ -1949,5 +1958,80 @@ public class PlatformUtils
 			});
 		}
 	}
+
+    /*
+     * Method to determine if mapp sdk exists and compares its version code
+     */
+    public static boolean isMicroAppExistForMappPacket(String mAppName,int mAppVersionCode)
+    {
+        // Generate path for the old mapp directory
+        File unzipPath = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, mAppName);
+
+        int currentMappVersionCode = 0;
+        if(HikeMessengerApp.hikeSdkMap.containsKey(mAppName))
+            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(mAppName);
+        else
+            return false;
+
+        return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
+    }
+
+
+    /*
+     * This method would check if assoc mapps required for this cbot are downloaded, then trigger the download of micro app
+     */
+    private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
+                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport) {
+
+        if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+        {
+            assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappRequestStatusMap.get(botInfo.getMsisdn()) - 1);
+
+            if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == 0)
+            {
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+                assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+            }
+        }
+    }
+
+    /*
+     * Method to determine if micro app already exists or not and compares its version code
+     */
+    public static boolean isMicroAppExistForCbotPacket(String microAppName,int microAppVersionCode,String msisdn,byte botType)
+    {
+        // Generate path and check the case for the old micro app directory
+        File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+        if (oldMicroAppFolder.exists())
+            return true;
+
+        // check if msisdn is empty, stop the flow as we can not determine current micro app versioning details without msisdn
+        if(TextUtils.isEmpty(msisdn))
+            return false;
+
+        try
+        {
+            String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+            unzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType,unzipPath,microAppName);
+
+            // Details for current micro app running on device
+            BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+            int currentBotInfoMAppVersionCode = 0;
+            if(currentBotInfo != null)
+                currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+
+            if (new File(unzipPath).exists() && microAppVersionCode <= currentBotInfoMAppVersionCode)
+                return true;
+
+        }
+        catch (NullPointerException npe)
+        {
+            Logger.e("PlatformZipDownloader isMicroAppExistForCbotPacket",npe.toString());
+            npe.printStackTrace();
+        }
+
+        return false;
+    }
+
 
 }

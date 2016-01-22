@@ -168,7 +168,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						e.printStackTrace();
 					}
                     // Check if game engine is not present in new directory path after versioning else check in previous path
-					String appName = json.optString(HikeConstants.NAME);
+                    JSONObject cardObjectJson = json.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 					cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + "/libcocos2d.so";
                     if(!new File(cocosEnginePath).exists())
                     {

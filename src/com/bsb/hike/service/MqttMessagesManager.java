@@ -762,7 +762,7 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
+        PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
 		{
 
@@ -796,10 +796,16 @@ public class MqttMessagesManager
         if(rqst.getContentData() == null)
             return;
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
-        if ((rqst.getBotType() == HikePlatformConstants.PlatformBotType.HIKE_MAPPS && !downloader.isMicroAppExistForMappPacket()) || !downloader.isMicroAppExistForCbotPacket())
+        //  Parameters to call if micro app already exists method for this case
+        String mAppName = rqst.getContentData().cardObj.getAppName();
+        int mAppVersionCode = rqst.getContentData().cardObj.getMappVersionCode();
+        byte botType = rqst.getBotType();
+        String msisdn = rqst.getContentData().getMsisdn();
+
+        if (!PlatformUtils.isMicroAppExistForCbotPacket(mAppName,mAppVersionCode,msisdn,botType))
 		{
-			downloader.downloadAndUnzip();
+            PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
+            downloader.downloadAndUnzip();
 		}
 		else
 		{
