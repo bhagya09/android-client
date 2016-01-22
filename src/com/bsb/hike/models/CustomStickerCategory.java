@@ -1,5 +1,11 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -9,10 +15,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public class CustomStickerCategory extends StickerCategory
 {
@@ -77,9 +79,23 @@ public class CustomStickerCategory extends StickerCategory
 	public void loadStickers()
 	{
 		stickerSet = getSortedListForCategory(getCategoryId(), StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(getCategoryId()));
-		if (getCategoryId().equals(StickerManager.RECENT) && stickerSet.isEmpty())
+		if (getCategoryId().equals(StickerManager.RECENT))
 		{
-			addDefaultRecentSticker();
+			if(stickerSet.isEmpty())
+			{
+				addDefaultRecentSticker();
+			}
+
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FORCED_RECENTS_PRESENT, false))
+			{
+				List<Sticker> forcedRecentStickers = StickerManager.getInstance().getFrocedRecentsStickers();
+
+				if(forcedRecentStickers != null)
+				{
+					stickerSet.addAll(forcedRecentStickers);
+				}
+			}
+
 		}
 	}
 

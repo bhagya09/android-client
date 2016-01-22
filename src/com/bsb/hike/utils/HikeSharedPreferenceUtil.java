@@ -108,6 +108,12 @@ public class HikeSharedPreferenceUtil
 		return editor.commit();
 	}
 
+	public synchronized boolean saveData(String key, Set<String> value)
+	{
+		editor.putStringSet(key,value);
+		return editor.commit();
+	}
+
 	public synchronized boolean saveDataMap(Map<String, Integer> keyValueMap)
 	{
 		if ((keyValueMap != null) && (keyValueMap.size() > 0))

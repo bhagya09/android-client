@@ -3786,4 +3786,8 @@ public class HikeConstants
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
 	public static final String STICKER_FORCE_DOWNLOAD = "f_download";
+
+	public static final String FORCED_RECENTS_PRESENT = "forced_recents";
+
+	public static final String FORCED_RECENTS_LIST = "forced_recents_list";
 }
