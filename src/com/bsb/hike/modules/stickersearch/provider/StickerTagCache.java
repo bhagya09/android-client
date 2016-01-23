@@ -24,13 +24,13 @@ public class StickerTagCache
 
     private volatile static StickerTagCache mCache;
 
-    private int tagType;
+    private int tagState;
 
     private int currentCacheSize;
 
-    private void init()
+    private void setupCacheForTagState()
     {
-        switch(mCache.tagType)
+        switch(mCache.tagState)
         {
             case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
                 currentCacheSize = StickerSearchUtils.getUndownloadedTagsStickersCount();
@@ -38,14 +38,12 @@ public class StickerTagCache
         }
     }
 
-    private StickerTagCache(int tagType)
+    private StickerTagCache()
     {
-        this.tagType = tagType;
-        mCache.init();
     }
 
     /* Get the instance of this class from outside */
-    public static StickerTagCache getInstance(int tagType)
+    public static StickerTagCache getInstance()
     {
         if (mCache == null)
         {
@@ -53,7 +51,7 @@ public class StickerTagCache
             {
                 if (mCache == null)
                 {
-                    mCache = new StickerTagCache(tagType);
+                    mCache = new StickerTagCache();
                 }
             }
         }
@@ -66,7 +64,7 @@ public class StickerTagCache
         if (!Utils.isHoneycombOrHigher())
         {
             Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
-            StickerManager.getInstance().removeStickerSet(mCache.tagType);
+            StickerManager.getInstance().removeStickerSet(mCache.tagState);
             return false;
         }
 
@@ -87,7 +85,7 @@ public class StickerTagCache
     public void preTagsInsertTask(JSONObject stickerJSON)
     {
 
-        if(mCache.tagType !=  StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD)
+        if(mCache.tagState !=  StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD)
         {
             //Currently cache only applied for undownloaded tags thus no pre processing required for other kinds
             return;
@@ -126,8 +124,12 @@ public class StickerTagCache
         HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, stickersToBeInsertedCount + currentCacheSize);
     }
 
-    public void insertTags(JSONObject stickerJSON)
+    public void insertTags(JSONObject stickerJSON,int tagState)
     {
+
+        setTagState(tagState);
+
+        setupCacheForTagState();
 
         if(!isValidStickerTagsJSON(stickerJSON))
         {
@@ -135,11 +137,11 @@ public class StickerTagCache
         }
 
         preTagsInsertTask(stickerJSON);
-        StickerSearchDataController.getInstance().setupStickerSearchWizard(stickerJSON, mCache.tagType);
+        StickerSearchDataController.getInstance().setupStickerSearchWizard(stickerJSON, mCache.tagState);
     }
 
 
-
-
-
+    public void setTagState(int tagState) {
+        this.tagState = tagState;
+    }
 }
