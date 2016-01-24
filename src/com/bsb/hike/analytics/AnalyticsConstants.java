@@ -595,6 +595,8 @@ public class AnalyticsConstants
 	
 	public static final String LOG_FIELD_6 = "fld6";
 
+    public static final String LOG_FIELD_7 = "fld7";
+
 	public static final String UPDATE_TIP_CLICKED = "ugtClk";
 	
 	public static final String INVITE_TIP_CLICKED = "ivtClk";

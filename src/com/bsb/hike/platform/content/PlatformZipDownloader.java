@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -27,13 +17,21 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -328,9 +326,17 @@ public class PlatformZipDownloader
 								return;
 							}
 							Boolean isSuccess = (Boolean) data;
-							if (isSuccess)
+
+							/*
+							 * After unzip, need to put this precautionary code check to try reading file and consider unzip successful only if we are able to read index html file
+							 * from micro app code.
+							 */
+							File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId(), mRequest.getContentData().getTag());
+							String indexFileText = PlatformContentUtils.readDataFromFile(file);
+
+                            if (isSuccess && !TextUtils.isEmpty(indexFileText))
 							{
-								if (!TextUtils.isEmpty(asocCbotMsisdn))
+                                if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
 									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
 									if (botinfo != null)
@@ -398,7 +404,7 @@ public class PlatformZipDownloader
 
 	private void unzipWebFile(String zipFilePath, String unzipLocation, Observer observer)
 	{
-		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation);
+		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation,mRequest.getContentData().cardObj.getAppName());
 		unzipper.addObserver(observer);
 		unzipper.unzip();
 	}
