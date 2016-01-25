@@ -233,7 +233,7 @@ public class ProductInfoManager
 					}
 					break;
 				case INVALID_DATA:
-
+                case INCOMPLETE_ZIP_DOWNLOAD:
 				case STORAGE_FULL:
 
 					ArrayList<ProductContentModel> mmArrayList = new ArrayList<ProductContentModel>();

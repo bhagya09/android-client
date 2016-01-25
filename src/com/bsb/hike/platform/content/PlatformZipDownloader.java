@@ -327,15 +327,9 @@ public class PlatformZipDownloader
 							}
 							Boolean isSuccess = (Boolean) data;
 
-							/*
-							 * After unzip, need to put this precautionary code check to try reading file and consider unzip successful only if we are able to read index html file
-							 * from micro app code.
-							 */
-							File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mRequest.getContentData().getId(), mRequest.getContentData().getTag());
-							String indexFileText = PlatformContentUtils.readDataFromFile(file);
-
-                            if (isSuccess && !TextUtils.isEmpty(indexFileText))
-							{
+                            // Check if html file tag is not empty, then code should be able to read html code from file
+                            if (isSuccess)
+                            {
                                 if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
 									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
@@ -383,7 +377,8 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
                                 PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
-							}
+							    PlatformUtils.deleteDirectory(unzipPath);
+                            }
 							zipFile.delete();
 						}
 					});
@@ -432,18 +427,19 @@ public class PlatformZipDownloader
 	{
 		return new IRequestListener()
 		{
-
 			@Override
 			public void onRequestSuccess(Response result)
 			{
 				if(!resumeSupported)
 				{
-					JSONObject json = new JSONObject();
+					long zipFileLength = zipFile.length();
+
+                    JSONObject json = new JSONObject();
 					try
 					{
 						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
 						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.FILE_DOWNLOADED);
-						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFile.length());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFileLength);
 						json.putOpt(AnalyticsConstants.LOG_FIELD_1, mRequest.getContentData().getId());
 						json.putOpt(AnalyticsConstants.LOG_FIELD_5,result.getStatusCode());
 					} catch (JSONException e)
@@ -452,7 +448,19 @@ public class PlatformZipDownloader
 					}
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
-				}
+
+                    // Check being added here for checking content length of downloaded zip with the length received in http headers
+                    if(result.getBody() != null && result.getBody().getContentLength() > 0 && zipFileLength > 0)
+                    {
+                        if(zipFileLength != result.getBody().getContentLength())
+                        {
+                            HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+                            onRequestFailure(exception);
+                            return;
+                        }
+                    }
+                }
+
 
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
@@ -482,11 +490,16 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+                // Check to make event code as per http exception received
+                EventCode eventCode = EventCode.LOW_CONNECTIVITY;
+                if(httpException.getErrorCode() == HttpException.REASON_CODE_INCOMPLETE_REQUEST)
+                    eventCode = EventCode.INCOMPLETE_ZIP_DOWNLOAD;
+
 				callbackProgress.remove(callbackId);
 				platformRequests.remove(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
+				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);
 				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				if (!resumeSupported) //As we would write to the same file on download resume.
 					zipFile.delete();

@@ -1,13 +1,12 @@
 package com.bsb.hike.platform.content;
 
 
-import java.io.File;
-
 import android.os.Environment;
+
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import java.io.File;
 
 public class PlatformContent
 {
@@ -84,8 +83,15 @@ public class PlatformContent
 					{
 						return "unzip_fail";
 					}
-				}
-
+				},
+		INCOMPLETE_ZIP_DOWNLOAD
+		    {
+			        @Override
+			        public String toString()
+			{
+				return "incomplete_zip_download";
+			}
+		    }
 	}
 
 	/**

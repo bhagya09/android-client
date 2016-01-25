@@ -7,7 +7,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.zip.ZipEntry;
@@ -90,7 +89,7 @@ public class HikeUnzipFile extends Observable
 	/*
 	 * This method called from the above method does the actual unzip of each file and directorie present within the zip file and copy them to the destination
 	 */
-	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws IOException
+	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws Exception
 	{
 		if (entry.isDirectory())
 		{
