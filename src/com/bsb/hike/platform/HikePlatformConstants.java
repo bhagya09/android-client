@@ -91,8 +91,9 @@ public interface HikePlatformConstants
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
+    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 
-	public static final class PlatformFetchType
+    public static final class PlatformFetchType
 	{
 		public static final int SELF = 1;
 
