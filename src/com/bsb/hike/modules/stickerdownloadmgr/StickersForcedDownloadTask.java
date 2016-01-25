@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -94,6 +95,10 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
                             JSONObject stickersData = data.optJSONObject(sticker).optJSONObject("md");
 
+                            if(!isValidForcedSticker(category,sticker))
+                            {
+                                continue;
+                            }
 
                             switch(stickersData.getInt("image"))
                             {
@@ -224,6 +229,13 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     {
         SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(categoryId,stickerId,null);
         singleStickerDownloadTask.execute();
+    }
+
+    private boolean isValidForcedSticker(String catId,String sId)
+    {
+        Sticker current = new Sticker(catId,sId);
+
+        return !current.isStickerAvailable();
     }
 
 }
