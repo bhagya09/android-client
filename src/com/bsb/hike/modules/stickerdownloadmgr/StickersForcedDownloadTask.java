@@ -13,7 +13,6 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;

@@ -533,6 +533,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String STICKER_SET_FOR_LANGUAGE = "stickerSetForLanguage";
 
+	public static final String STICKER_SET_FORCED_SET = "stickerSetForced";
+
 	public static final String SHOWN_STICKER_RECOMMEND_TIP = "shownStickerRecommendTip";
 
 	public static final String SHOWN_STICKER_RECOMMEND_AUTOPOPUP_OFF_TIP = "shownStickerRecommendAutoPopupOffTip";

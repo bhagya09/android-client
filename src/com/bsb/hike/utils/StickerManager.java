@@ -2409,6 +2409,9 @@ public class StickerManager
 			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
 				return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET_FOR_LANGUAGE, new HashSet<String>());
 
+			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+				return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET_FORCED_SET, new HashSet<String>());
+
 			default:
 				return HikeSharedPreferenceUtil.getInstance().getDataSet(HikeMessengerApp.STICKER_SET, new HashSet<String>());
 		}
@@ -2421,12 +2424,19 @@ public class StickerManager
 		{
 			case StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT:
 				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET, stickerSet);
+				break;
 
 			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
 				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_REFRESH_SET, stickerSet);
+				break;
 
 			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
 				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET_FOR_LANGUAGE, stickerSet);
+				break;
+
+			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeMessengerApp.STICKER_SET_FORCED_SET, stickerSet);
+				break;
 
 		}
 	}
@@ -2437,12 +2447,19 @@ public class StickerManager
         {
             case StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT:
                 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET);
+				break;
 
             case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
                 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_REFRESH_SET);
+				break;
 
             case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
                 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET_FOR_LANGUAGE);
+				break;
+
+			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET_FORCED_SET);
+				break;
         }
 	}
 	
