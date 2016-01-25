@@ -110,7 +110,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	private void shouldShowMultiAdminPopup() {
-		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
+		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat&&oneToNConversation.isConversationAlive())
 		{
 			try {
 				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
