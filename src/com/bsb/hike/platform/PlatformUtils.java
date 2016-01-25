@@ -1529,9 +1529,9 @@ public class PlatformUtils
 	}
 
     /**
-     * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
-     * "exception_track", "fld1": "java.io.IOException: abc", "fld7": "hikenewsv16", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
-     * "sid": 1453620914078 } } }
+     * Sample log lines : { "t": "le_android", "d": { "et": "plf", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+     * "micro app unzip failed exception", "fld1": "java.io.IOException: ", "fld6": "hikenewsv16", "networkType": "1", "app_version": "4.1.0.36"
+     * } } }
      *
      * @param microAppName
      * @param errorMsg
