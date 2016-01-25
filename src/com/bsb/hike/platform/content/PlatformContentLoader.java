@@ -123,6 +123,7 @@ class PlatformContentLoader extends Handler
 
 			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
 			{
+				PlatformRequestManager.reportFailure(argContentRequest, PlatformContent.EventCode.INVALID_DATA);
 				return; // MAX DOWNLOAD CAPPING LIMIT REACHED!
 			}
 		}
