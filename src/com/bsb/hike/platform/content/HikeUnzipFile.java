@@ -79,7 +79,7 @@ public class HikeUnzipFile extends Observable
 		catch (Exception e)
 		{
             // Adding analytics call here on any exception and failure in unzip code base
-            PlatformUtils.microAppWriteFailedAnalytics(mAppName,e.toString());
+            PlatformUtils.microappIOFailedAnalytics(mAppName,e.toString(), false);
             return false;
 		}
 

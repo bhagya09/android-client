@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
@@ -114,7 +113,7 @@ class PlatformContentCache
 			public void onExceptionOcurred(Exception ex)
 			{
 				Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
-				PlatformUtils.microappReadFailedAnalytics(content.getContentData(), ex.toString());
+				PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
 			}
 		};
 
