@@ -48,6 +48,7 @@ public class PlatformContentModel
 	private int uniqueId;
 
 	public String target_platform;
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -27,13 +17,23 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -56,7 +56,7 @@ public class PlatformZipDownloader
 
 	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
 	// and value is the token.
-	private static HashMap<String, RequestToken> platformRequests= new HashMap<String, RequestToken>();
+	private static HashMap<String, PairModified<RequestToken, Integer>> platformRequests= new HashMap<String, PairModified<RequestToken, Integer>>();
 	
 	private boolean resumeSupported = false;
 	
@@ -67,7 +67,6 @@ public class PlatformZipDownloader
 	private  float progress_done=0;
 
 	private String asocCbotMsisdn = "";
-
 
 	/**
 	 * Instantiates a new platform template download task.
@@ -227,9 +226,9 @@ public class PlatformZipDownloader
 		if (!token.isRequestRunning())
 		{
 			token.execute();
-			platformRequests.put(mRequest.getContentData().getLayout_url(), token);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
-			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
+//			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
+			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getLayout_url(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)));
 		}
 
 	}
@@ -328,9 +327,10 @@ public class PlatformZipDownloader
 								return;
 							}
 							Boolean isSuccess = (Boolean) data;
-							if (isSuccess)
-							{
-								if (!TextUtils.isEmpty(asocCbotMsisdn))
+
+                            if (isSuccess)
+                            {
+                                if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
 									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
 									if (botinfo != null)
@@ -375,8 +375,10 @@ public class PlatformZipDownloader
 							{
 								mRequest.getListener().downloadedContentLength(fileSize);
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
+                                PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
-							}
+							    PlatformUtils.deleteDirectory(unzipPath);
+                            }
 							zipFile.delete();
 						}
 					});
@@ -391,14 +393,61 @@ public class PlatformZipDownloader
 		});
 	}
 
-	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
+	/**
+	 * Map Methods : get, put, remove, reduce ref count
+	 */
+
+	public static HashMap<String, PairModified<RequestToken, Integer>> getCurrentDownloadingRequests()
 	{
 		return platformRequests;
 	}
 
+	public static void putInCurrentDownloadingRequests(String key, PairModified<RequestToken, Integer> requestTokenIntegerPair)
+	{
+		if (platformRequests != null)
+		{
+			if (platformRequests.containsKey(key))
+			{
+				reduceRefCountInDownloadingRequests(key);
+			}
+
+			else
+			{
+				Logger.d("PlatformRequests", "Adding Key to Map : " + key + " RequestRetryCount : " + requestTokenIntegerPair.getSecond());
+				platformRequests.put(key, requestTokenIntegerPair);
+			}
+		}
+	}
+
+	private static void reduceRefCountInDownloadingRequests(String key)
+	{
+		if (platformRequests != null)
+		{
+			if (platformRequests.containsKey(key))
+			{
+				PairModified<RequestToken, Integer> tokenIntegerPair = platformRequests.get(key);
+				tokenIntegerPair.setSecond(tokenIntegerPair.getSecond() - 1);
+				Logger.d("PlatformRequests", "Reducing Ref Count For :  " + key + " New Ref Count : "+ tokenIntegerPair.getSecond());
+			}
+		}
+	}
+
+	public static void removeDownloadingRequest(String key)
+	{
+		if (platformRequests != null)
+		{
+			Logger.d("PlatformRequests", "Removing key : " + key);
+			platformRequests.remove(key);
+		}
+	}
+
+	/**
+	 * Map method ends here
+	 */
+
 	private void unzipWebFile(String zipFilePath, String unzipLocation, Observer observer)
 	{
-		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation);
+		HikeUnzipFile unzipper = new HikeUnzipFile(zipFilePath, unzipLocation,mRequest.getContentData().cardObj.getAppName());
 		unzipper.addObserver(observer);
 		unzipper.unzip();
 	}
@@ -425,18 +474,30 @@ public class PlatformZipDownloader
 	{
 		return new IRequestListener()
 		{
-
 			@Override
 			public void onRequestSuccess(Response result)
 			{
 				if(!resumeSupported)
 				{
-					JSONObject json = new JSONObject();
+					long zipFileLength = zipFile.length();
+
+                    // Check being added here for checking content length of downloaded zip with the length received in http headers, in case of incorrect downloaded file size , it would be considered as download failure
+                    if(result.getBody() != null && result.getBody().getContentLength() > 0 && zipFileLength > 0)
+                    {
+                        if(zipFileLength != result.getBody().getContentLength())
+                        {
+                            HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+                            onRequestFailure(exception);
+                            return;
+                        }
+                    }
+
+                    JSONObject json = new JSONObject();
 					try
 					{
 						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
 						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.FILE_DOWNLOADED);
-						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFile.length());
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFileLength);
 						json.putOpt(AnalyticsConstants.LOG_FIELD_1, mRequest.getContentData().getId());
 						json.putOpt(AnalyticsConstants.LOG_FIELD_5,result.getStatusCode());
 					} catch (JSONException e)
@@ -445,7 +506,8 @@ public class PlatformZipDownloader
 					}
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
-				}
+                }
+
 
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
@@ -454,8 +516,7 @@ public class PlatformZipDownloader
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
-				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
+//				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				unzipMicroApp(zipFile);
 			}
 
@@ -475,12 +536,19 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+                // Check to make event code as per http exception received
+                EventCode eventCode = EventCode.LOW_CONNECTIVITY;
+                if(httpException.getErrorCode() == HttpException.REASON_CODE_INCOMPLETE_REQUEST)
+                    eventCode = EventCode.INCOMPLETE_ZIP_DOWNLOAD;
+
 				callbackProgress.remove(callbackId);
-				platformRequests.remove(mRequest.getContentData().getLayout_url());
+				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
-				PlatformRequestManager.failure(mRequest, EventCode.LOW_CONNECTIVITY, isTemplatingEnabled);
-				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
+
+				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);
+//				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
+
 				if (!resumeSupported) //As we would write to the same file on download resume.
 					zipFile.delete();
 			}

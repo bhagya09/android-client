@@ -627,6 +627,34 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+	 * "exception_track", "fld1": "java.io.FileNotFoundException: abc", "fld2": "hikenewsv14", "fld4" : "true", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+	 * "sid": 1453620914078 } } }
+	 *
+	 * @param appName
+	 * @param errorMsg
+	 */
+	public static void microappIOFailedAnalytics(String appName, String errorMsg, boolean isReadException)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, "exception_track");
+			json.put(AnalyticsConstants.LOG_FIELD_1, errorMsg); //Error
+			json.put(AnalyticsConstants.LOG_FIELD_2, appName); //App Name
+			json.put(AnalyticsConstants.LOG_FIELD_4, Boolean.toString(isReadException)); //App Name
+			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
@@ -1500,4 +1528,5 @@ public class PlatformUtils
 
 		return jsonObj.optString(HikeConstants.BODY);
 	}
+
 }

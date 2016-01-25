@@ -1,13 +1,13 @@
 package com.bsb.hike.platform.content;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.os.Handler;
 import android.os.Looper;
 
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.Logger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PlatformRequestManager
 {
@@ -37,12 +37,12 @@ public class PlatformRequestManager
 		};
 	};
 
-	private static volatile ArrayList<Integer> currentDownloadingTemplates = new ArrayList<Integer>();
+//	private static volatile ArrayList<Integer> currentDownloadingTemplates = new ArrayList<Integer>();
 
-	public static ArrayList<Integer> getCurrentDownloadingTemplates()
-	{
-		return currentDownloadingTemplates;
-	}
+//	public static ArrayList<Integer> getCurrentDownloadingTemplates()
+//	{
+//		return currentDownloadingTemplates;
+//	}
 
 	/**
 	 * Add request to executing pool. Check for wait states. Check for duplicates (change priority)
@@ -159,7 +159,7 @@ public class PlatformRequestManager
 
 				Logger.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
 
-				getCurrentDownloadingTemplates().clear();
+				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getLayout_url());
 
 				requestQueue.remove(argRequest);
 
