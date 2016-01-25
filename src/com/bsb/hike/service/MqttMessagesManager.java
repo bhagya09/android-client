@@ -2697,7 +2697,7 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.MAX_RETRY_COUNT_MAPPS))
 		{
-			int newRetryCount = data.optInt(HikeConstants.MAX_RETRY_COUNT_MAPPS, 1);
+			int newRetryCount = data.optInt(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT);
 			if (newRetryCount < 1)
 			{
 				return;

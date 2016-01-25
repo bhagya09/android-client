@@ -228,7 +228,7 @@ public class PlatformZipDownloader
 			token.execute();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 //			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
-			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getLayout_url(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, 1)));
+			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getLayout_url(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)));
 		}
 
 	}

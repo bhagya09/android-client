@@ -295,4 +295,6 @@ public interface HikePlatformConstants
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
 
+	public static final Integer MAPP_DEFAULT_RETRY_COUNT = 2;
+
 }
