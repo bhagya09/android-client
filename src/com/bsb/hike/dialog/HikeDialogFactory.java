@@ -907,8 +907,8 @@ public class HikeDialogFactory
 		case DELETE_GROUP_CONVERSATION_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(R.string.delete_group_confirm, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(context.getString(R.string.delete), listener);
-			deleteConfirmDialog.setNegativeButton(R.string.cancel, listener);
+			deleteConfirmDialog.setPositiveButton(context.getString(R.string.DELETE), listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			
 		case DELETE_ALL_CONVERSATIONS:
