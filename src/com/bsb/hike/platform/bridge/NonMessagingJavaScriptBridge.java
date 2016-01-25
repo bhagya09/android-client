@@ -7,7 +7,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeConstants;
@@ -29,6 +28,7 @@ import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -1288,11 +1288,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		Pair<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
-		if (null != tokenCountPair && null != tokenCountPair.first)
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
-			tokenCountPair.first.cancel();
+			tokenCountPair.getFirst().cancel();
 		}
 		else
 		{
@@ -1358,8 +1358,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		Pair<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
-		if (null != tokenCountPair && null != tokenCountPair.first && tokenCountPair.first.isRequestRunning())
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
 		}

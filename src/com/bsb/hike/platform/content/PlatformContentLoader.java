@@ -1,14 +1,15 @@
 package com.bsb.hike.platform.content;
 
-import java.util.ArrayList;
-
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.util.Pair;
 
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.samskivert.mustache.Template;
 
 /**
@@ -115,9 +116,14 @@ class PlatformContentLoader extends Handler
 //				return;
 //			}
 //		}
-		for(String request: PlatformZipDownloader.getCurrentDownloadingRequests().keySet()){
-			if(request.equals(argContentRequest.getContentData().getLayout_url())){
-				return;
+
+		if (PlatformZipDownloader.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
+		{
+			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
+
+			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
+			{
+				return; // MAX DOWNLOAD CAPPING LIMIT REACHED!
 			}
 		}
 
