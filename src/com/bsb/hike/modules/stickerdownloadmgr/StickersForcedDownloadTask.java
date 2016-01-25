@@ -164,21 +164,9 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     @Override
     public void execute()
     {
-        Set<String> stickerSet;
-
-        stickerSet = StickerManager.getInstance().getStickerSet(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);
-
-        if(Utils.isEmpty(stickerSet))
-        {
-            Logger.wtf(TAG, "empty sticker set.");
-
-            return ;
-        }
-
         try
         {
             JSONObject json = new JSONObject();
-            json.put(HikeConstants.CATEGORY_ID_LIST, new JSONArray(stickerSet)) ;
 
             if(Utils.isEmpty(languagesSet))
             {
