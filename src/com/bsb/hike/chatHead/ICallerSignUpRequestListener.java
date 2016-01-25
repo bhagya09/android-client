@@ -8,7 +8,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.hike.transporter.utils.Logger;
+import com.bsb.hike.utils.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
