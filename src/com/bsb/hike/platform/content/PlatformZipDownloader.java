@@ -35,15 +35,6 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
 /**
  * Download and store template. First
  *
@@ -337,7 +328,6 @@ public class PlatformZipDownloader
 							}
 							Boolean isSuccess = (Boolean) data;
 
-                            // Check if html file tag is not empty, then code should be able to read html code from file
                             if (isSuccess)
                             {
                                 if (!TextUtils.isEmpty(asocCbotMsisdn))
@@ -491,6 +481,17 @@ public class PlatformZipDownloader
 				{
 					long zipFileLength = zipFile.length();
 
+                    // Check being added here for checking content length of downloaded zip with the length received in http headers, in case of incorrect downloaded file size , it would be considered as download failure
+                    if(result.getBody() != null && result.getBody().getContentLength() > 0 && zipFileLength > 0)
+                    {
+                        if(zipFileLength != result.getBody().getContentLength())
+                        {
+                            HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+                            onRequestFailure(exception);
+                            return;
+                        }
+                    }
+
                     JSONObject json = new JSONObject();
 					try
 					{
@@ -505,17 +506,6 @@ public class PlatformZipDownloader
 					}
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
-
-                    // Check being added here for checking content length of downloaded zip with the length received in http headers
-                    if(result.getBody() != null && result.getBody().getContentLength() > 0 && zipFileLength > 0)
-                    {
-                        if(zipFileLength != result.getBody().getContentLength())
-                        {
-                            HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
-                            onRequestFailure(exception);
-                            return;
-                        }
-                    }
                 }
 
 
