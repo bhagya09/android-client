@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +7,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeConstants;
@@ -25,14 +20,9 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.ui.GalleryActivity;
@@ -41,8 +31,11 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -1295,11 +1288,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
-		if (null != token)
+		Pair<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.first)
 		{
 			callbackToJS(functionId, "true");
-			token.cancel();
+			tokenCountPair.first.cancel();
 		}
 		else
 		{
@@ -1365,8 +1358,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
-		if (null != token&& token.isRequestRunning())
+		Pair<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.first && tokenCountPair.first.isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
 		}

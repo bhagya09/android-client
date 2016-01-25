@@ -1,15 +1,5 @@
 package com.bsb.hike.platform.content;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -27,13 +17,21 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -56,7 +54,7 @@ public class PlatformZipDownloader
 
 	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
 	// and value is the token.
-	private static HashMap<String, RequestToken> platformRequests= new HashMap<String, RequestToken>();
+	private static HashMap<String, Pair<RequestToken, Integer>> platformRequests= new HashMap<String, Pair<RequestToken, Integer>>();
 	
 	private boolean resumeSupported = false;
 	
@@ -227,7 +225,7 @@ public class PlatformZipDownloader
 		if (!token.isRequestRunning())
 		{
 			token.execute();
-			platformRequests.put(mRequest.getContentData().getLayout_url(), token);
+			platformRequests.put(mRequest.getContentData().getLayout_url(), new Pair<RequestToken, Integer>(token, 0));
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
@@ -391,7 +389,7 @@ public class PlatformZipDownloader
 		});
 	}
 
-	public static HashMap<String, RequestToken> getCurrentDownloadingRequests()
+	public static HashMap<String, Pair<RequestToken, Integer>> getCurrentDownloadingRequests()
 	{
 		return platformRequests;
 	}
