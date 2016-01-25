@@ -500,7 +500,6 @@ public class PlatformZipDownloader
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				callbackProgress.remove(callbackId);
-				PlatformZipDownloader.reduceRefCountInDownloadingRequests(mRequest.getContentData().getLayout_url());
 //				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				unzipMicroApp(zipFile);
 			}
