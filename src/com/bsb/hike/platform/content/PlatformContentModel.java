@@ -49,9 +49,6 @@ public class PlatformContentModel
 
 	public String target_platform;
 
-
-
-	private String type;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -486,11 +483,4 @@ public class PlatformContentModel
 
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
 }
