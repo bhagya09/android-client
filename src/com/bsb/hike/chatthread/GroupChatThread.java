@@ -1159,6 +1159,9 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			pinView.setVisibility(View.VISIBLE);
 		}
+		if(!oneToNConversation.isConversationAlive()){
+			hideKeyboard();
+		}
 		super.destroySearchMode();
 	}
 	
