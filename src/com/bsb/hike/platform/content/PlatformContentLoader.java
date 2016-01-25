@@ -106,12 +106,17 @@ class PlatformContentLoader extends Handler
 		PlatformRequestManager.setWaitState(argContentRequest);
 
 		// Check if this is already being downloaded
-		ArrayList<Integer> currentDownloadingTemplates = PlatformRequestManager.getCurrentDownloadingTemplates();
+//		ArrayList<Integer> currentDownloadingTemplates = PlatformRequestManager.getCurrentDownloadingTemplates();
 
-		for (Integer downloadingTemplateCode : currentDownloadingTemplates)
-		{
-			if (downloadingTemplateCode.compareTo(argContentRequest.getContentData().appHashCode()) == 0)
-			{
+//		for (Integer downloadingTemplateCode : currentDownloadingTemplates)
+//		{
+//			if (downloadingTemplateCode.compareTo(argContentRequest.getContentData().appHashCode()) == 0)
+//			{
+//				return;
+//			}
+//		}
+		for(String request: PlatformZipDownloader.getCurrentDownloadingRequests().keySet()){
+			if(request.equals(argContentRequest.getContentData().getLayout_url())){
 				return;
 			}
 		}
