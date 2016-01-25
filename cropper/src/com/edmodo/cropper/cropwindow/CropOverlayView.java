@@ -41,7 +41,7 @@ public class CropOverlayView extends View {
     // Private Constants ///////////////////////////////////////////////////////
 
     private static final int SNAP_RADIUS_DP = 6;
-    private static final float DEFAULT_SHOW_GUIDELINES_LIMIT = 100;
+    private static final float DEFAULT_SHOW_GUIDELINES_LIMIT = 250;
     
     // Gets default values from PaintUtil, sets a bunch of values such that the
     // corners will draw correctly
@@ -145,7 +145,7 @@ public class CropOverlayView extends View {
         // Draw translucent background for the cropped area.
         drawBackground(canvas, mBitmapRect);
 
-        if (showGuidelines()) {
+//        if (showGuidelines()) {
             // Determines whether guidelines should be drawn or not
             if (mGuidelines == GUIDELINES_ON) {
                 drawRuleOfThirdsGuidelines(canvas);
@@ -156,7 +156,7 @@ public class CropOverlayView extends View {
             } else if (mGuidelines == GUIDELINES_OFF) {
                 // Do nothing
             }
-        }
+//        }
 
         // Draws the main crop window border.
         canvas.drawRect(Edge.LEFT.getCoordinate(),
@@ -384,6 +384,10 @@ public class CropOverlayView extends View {
      */
     private void initCropWindow(Rect bitmapRect) {
 
+        if(getVisibility() != VISIBLE)
+        {
+            return;
+        }
         // Tells the attribute functions the crop window has already been
         // initialized
         if (initializedCropWindow == false)
@@ -442,8 +446,11 @@ public class CropOverlayView extends View {
         } else { // ... do not fix aspect ratio...
 
             // Initialize crop window to have 10% padding w/ respect to image.
-            final float horizontalPadding = 0.0f * bitmapRect.width();
-            final float verticalPadding = 0.0f * bitmapRect.height();
+            final float horizontalPadding = 0.07f * bitmapRect.width();
+            final float verticalPadding = 0.07f * bitmapRect.height();
+
+            Log.d("CropOverlay","PadH: "+horizontalPadding);
+            Log.d("CropOverlay","PadY: "+verticalPadding);
 
             Edge.LEFT.setCoordinate(bitmapRect.left + horizontalPadding);
             Edge.TOP.setCoordinate(bitmapRect.top + verticalPadding);
@@ -583,7 +590,7 @@ public class CropOverlayView extends View {
         final float right = Edge.RIGHT.getCoordinate();
         final float bottom = Edge.BOTTOM.getCoordinate();
 
-        mPressedHandle = HandleUtil.getPressedHandle(x, y, left, top, right, bottom, mHandleRadius);
+        mPressedHandle = HandleUtil.getPressedHandle(x, y, left, top, right, bottom, mHandleRadius,getContext());
 
         if (mPressedHandle == null)
             return;
@@ -628,12 +635,6 @@ public class CropOverlayView extends View {
         x += mTouchOffset.first;
         y += mTouchOffset.second;
         
-        Log.d("Atul", ""+x);
-        Log.d("Atul", ""+y);
-        
-        Log.d("Atul diff", ""+(mBitmapRect.left - mBitmapRect.right));
-        Log.d("Atul diff", ""+(mBitmapRect.top - mBitmapRect.bottom));
-
         // Calculate the new crop window size/position.
         if (mFixAspectRatio) {
             mPressedHandle.updateCropWindow(x, y, mTargetAspectRatio, mBitmapRect, mSnapRadius);

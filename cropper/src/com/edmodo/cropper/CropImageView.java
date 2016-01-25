@@ -24,6 +24,7 @@ import android.media.ExifInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -207,10 +208,14 @@ public class CropImageView extends FrameLayout {
             mLayoutHeight = height;
 
             final Rect bitmapRect = ImageViewUtil.getBitmapRect(mBitmap.getWidth(),
-                                                                            mBitmap.getHeight(),
-                                                                            mLayoutWidth,
-                                                                            mLayoutHeight,
-																			mScaleType);
+                    mBitmap.getHeight(),
+                    mLayoutWidth,
+                    mLayoutHeight,
+                    mScaleType);
+            Log.d("CropOverlay", "bitW: " + mBitmap.getWidth());
+            Log.d("CropOverlay","bitH: "+mBitmap.getHeight());
+            Log.d("CropOverlay","rectW: "+ (bitmapRect.right - bitmapRect.left));
+            Log.d("CropOverlay","rectH: "+(bitmapRect.bottom - bitmapRect.top));
             mCropOverlayView.setBitmapRect(bitmapRect);
 
             // MUST CALL THIS
