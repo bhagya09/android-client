@@ -1517,9 +1517,8 @@ public class PlatformUtils
             json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
             json.put(AnalyticsConstants.EVENT, "micro app unzip failed exception");
             json.put(AnalyticsConstants.LOG_FIELD_1, errorMsg); //Error
-            json.put(AnalyticsConstants.LOG_FIELD_7, microAppName); //App Name
-            json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+            json.put(AnalyticsConstants.LOG_FIELD_6, microAppName); //App Name
+            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.EVENT_TAG_PLATFORM, AnalyticsConstants.DOWNLOAD_EVENT, json);
         }
         catch (JSONException e)
         {
