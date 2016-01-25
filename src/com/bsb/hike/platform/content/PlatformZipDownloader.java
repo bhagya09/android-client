@@ -22,6 +22,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
@@ -65,7 +66,6 @@ public class PlatformZipDownloader
 	private  float progress_done=0;
 
 	private String asocCbotMsisdn = "";
-
 
 	/**
 	 * Instantiates a new platform template download task.
@@ -225,7 +225,7 @@ public class PlatformZipDownloader
 		if (!token.isRequestRunning())
 		{
 			token.execute();
-			platformRequests.put(mRequest.getContentData().getLayout_url(), new Pair<RequestToken, Integer>(token, 0));
+			platformRequests.put(mRequest.getContentData().getLayout_url(), new Pair<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, 1)));
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
 		}
