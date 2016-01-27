@@ -1460,11 +1460,16 @@ public class PlatformUtils
 	 */
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
 	{
+		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+	}
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
 			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(
 					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
