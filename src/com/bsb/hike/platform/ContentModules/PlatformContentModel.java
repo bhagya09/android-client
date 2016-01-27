@@ -1,5 +1,6 @@
 package com.bsb.hike.platform.ContentModules;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -132,6 +133,10 @@ public class PlatformContentModel
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
+                // If files are not found in the newer structured hierarchy directory path, then look for files in the older content directory path used before versioning
+                if(!new File(PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath).isDirectory())
+                    basePath = microApp + File.separator;
+
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
@@ -180,6 +185,10 @@ public class PlatformContentModel
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
+
+                // If files are not found in the newer structured hierarchy directory path, then look for files in the older content directory path used before versioning
+                if(!new File(PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath).isDirectory())
+                    basePath = microApp + File.separator;
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
