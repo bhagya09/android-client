@@ -419,7 +419,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	public void onPause()
 	{
 		super.onPause();
-		if (!timelineCardsAdapter.getSUViewedSet().isEmpty())
+		if (timelineCardsAdapter != null && !timelineCardsAdapter.getSUViewedSet().isEmpty())
 		{
 			JSONArray viewedJsonArray = new JSONArray();
 			HashSet<String> viewedSUs = timelineCardsAdapter.getSUViewedSet();
@@ -433,23 +433,31 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
 				timelineCardsAdapter.getSUViewedSet().clear();
-				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener() {
+				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
+				{
 					@Override
-					public void onRequestFailure(HttpException httpException) {
+					public void onRequestFailure(HttpException httpException)
+					{
 						Logger.d("SendViewsAPI", "Failed");
 					}
 
 					@Override
-					public void onRequestSuccess(Response result) {
+					public void onRequestSuccess(Response result)
+					{
 						Logger.d("SendViewsAPI", "Success");
 					}
 
 					@Override
-					public void onRequestProgressUpdate(float progress) {
+					public void onRequestProgressUpdate(float progress)
+					{
 						// Do nothing
 					}
 				});
-				sendViewsToken.execute();
+				
+				if(sendViewsToken!=null)
+				{
+					sendViewsToken.execute();
+				}
 			}
 			catch (JSONException e)
 			{
