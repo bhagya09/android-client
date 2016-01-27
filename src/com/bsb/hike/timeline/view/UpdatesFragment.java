@@ -1,6 +1,5 @@
 package com.bsb.hike.timeline.view;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,7 +37,6 @@ import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -415,6 +413,49 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		timelineCardsAdapter.onDestroy();
 		super.onDestroy();
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		if (!timelineCardsAdapter.getSUViewedSet().isEmpty())
+		{
+			JSONArray viewedJsonArray = new JSONArray();
+			HashSet<String> viewedSUs = timelineCardsAdapter.getSUViewedSet();
+			for (String suID : viewedSUs)
+			{
+				viewedJsonArray.put(suID);
+			}
+
+			JSONObject viewsPayload = new JSONObject();
+			try
+			{
+				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
+				timelineCardsAdapter.getSUViewedSet().clear();
+				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener() {
+					@Override
+					public void onRequestFailure(HttpException httpException) {
+						Logger.d("SendViewsAPI", "Failed");
+					}
+
+					@Override
+					public void onRequestSuccess(Response result) {
+						Logger.d("SendViewsAPI", "Success");
+					}
+
+					@Override
+					public void onRequestProgressUpdate(float progress) {
+						// Do nothing
+					}
+				});
+				sendViewsToken.execute();
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override

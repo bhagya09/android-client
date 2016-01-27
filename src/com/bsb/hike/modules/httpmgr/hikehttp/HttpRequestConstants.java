@@ -330,6 +330,11 @@ public class HttpRequestConstants
 	{
 		return BASE_URL + BASE_V1 + "/status/love";
 	}
+
+	public static String registerViewActionUrl()
+	{
+		return BASE_URL + BASE_V1 + "/status/view";
+	}
 	
 	public static String getActionsUpdateUrl()
 	{
