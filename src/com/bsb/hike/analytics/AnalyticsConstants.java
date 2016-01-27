@@ -589,6 +589,8 @@ public class AnalyticsConstants
 
 	public static final String LOG_FIELD_1 = "fld1";
 
+	public static final String LOG_FIELD_2 = "fld2";
+
 	public static final String LOG_FIELD_4 = "fld4";
 	
 	public static final String LOG_FIELD_5 = "fld5";

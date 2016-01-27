@@ -2695,6 +2695,19 @@ public class MqttMessagesManager
 			publishOpenComposeChatOnceEvent(data, settings);
 		}
 
+		if(data.has(HikeConstants.MAX_RETRY_COUNT_MAPPS))
+		{
+			int newRetryCount = data.optInt(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT);
+			if (newRetryCount < 1)
+			{
+				return;
+			}
+
+			Logger.d("Platform", "New Retry Count is : " + newRetryCount);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
