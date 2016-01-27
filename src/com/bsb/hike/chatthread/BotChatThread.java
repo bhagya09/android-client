@@ -219,6 +219,12 @@ public class BotChatThread extends OneToOneChatThread
 		return true;
 	}
 
+	@Override
+	protected boolean showOverflowMenuKeyboardTipIfRequired()
+	{
+		return true;
+	}
+
 	/**
 	 * Returns a list of over flow menu items to be displayed
 	 *
