@@ -30,7 +30,8 @@ public class ProductPopupsConstants
 	public static final String CATID="catId";
 
 	public static final String PUSH_SOUND = "sound";
-	public static final java.lang.String SENDALL = "sendAll";
+
+	public static final String SENDALL = "sendAll";
 
 	public static String SELECTALL="selectAll";
 	

@@ -1535,6 +1535,10 @@ public class PlatformUtils
         List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
         List<ContactInfo> recentList = ContactManager.getInstance().getAllConversationContactsSorted(true, true);
         //reversing it so maintain order
+
+		if (allContacts == null || allContacts.isEmpty()) {
+			return;
+		}
         Collections.reverse(recentList);
 
         //removing duplicate contacts
@@ -1543,9 +1547,7 @@ public class PlatformUtils
         //creating new order-->recent contacts-->all contacts
         recentList.addAll(allContacts);
         allContacts = recentList;
-        if (allContacts == null || allContacts.isEmpty()) {
-            return;
-        }
+
 
         List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
         for (ContactInfo ci : allContacts) {
@@ -1556,7 +1558,7 @@ public class PlatformUtils
         }
 
         Sticker sticker = new Sticker(categoryId, stickerId);
-        ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts, StickerManager.FROM_FORWARD);
+        ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
 
         if (cm != null) {
             List<ConvMessage> multiMsg = new ArrayList<>();
@@ -1574,13 +1576,13 @@ public class PlatformUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_SENT, multiMessages);
 	}
 
-	public static ConvMessage getConvMessageForSticker(Sticker sticker, String categoryIdIfUnknown, List<ContactInfo> arrayList, String source)
+	public static ConvMessage getConvMessageForSticker(Sticker sticker, String categoryIdIfUnknown, ContactInfo contactInfo, String source)
 	{
-		if (arrayList == null || arrayList.isEmpty())
+		if (contactInfo == null)
 		{
 			return null;
 		}
-		ConvMessage convMessage = Utils.makeConvMessage((arrayList.get(0)).getMsisdn(), "Sticker", (arrayList.get(0)).isOnhike());
+		ConvMessage convMessage = Utils.makeConvMessage(contactInfo.getMsisdn(), "Sticker",contactInfo.isOnhike());
 
 		JSONObject metadata = new JSONObject();
 		try
