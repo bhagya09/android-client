@@ -80,6 +80,7 @@ public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 			holder.galleryName.setVisibility(View.GONE);
 			holder.galleryCount.setVisibility(View.GONE);
 		}
+
 		if (galleryItem != null)
 		{
 			if (galleryItem.getType() == GalleryItem.CUSTOM)
@@ -121,6 +122,8 @@ public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 		holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 		LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
 		holder.galleryThumb.setLayoutParams(layoutParams);
+
+		holder.contentLayout.setLayoutParams(layoutParams);
 
 		return holder;
 	}
