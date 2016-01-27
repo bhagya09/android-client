@@ -125,6 +125,8 @@ public class StickyCaller {
 
 	public static boolean contactsSynched;
 
+	public static boolean showFailCard = false;
+
 	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
@@ -392,6 +394,28 @@ public class StickyCaller {
 		}
 	}
 
+	private static void setCallerParamType() {
+
+		switch (CALL_TYPE) {
+			case INCOMING:
+			case OUTGOING:
+			case CLIPBOARD:
+				callerParams.type = LayoutParams.TYPE_SYSTEM_ERROR;
+				break;
+			case AFTER_INCOMING_UNKNOWN:
+			case AFTER_OUTGOING_UNKNOWN:
+			case MISSED:
+			case SMS:
+				callerParams.type = LayoutParams.TYPE_PHONE;
+				break;
+		}
+		if (showFailCard)
+		{
+			callerParams.type = LayoutParams.TYPE_PHONE;
+			showFailCard = false;
+		}
+	}
+
 	private static void showSmsView() {
 		if (StickyCaller.sms != null) {
 			stickyCallerView.findViewById(R.id.sms_divider).setVisibility(View.VISIBLE);
@@ -452,6 +476,7 @@ public class StickyCaller {
 		callerParams.y = HikeSharedPreferenceUtil.getInstance().getData(CALLER_Y_PARAMS, (int) (130f * Utils.densityMultiplier));
 		callerParams.x = 0;
 		callerParams.alpha = 1.0f;
+		setCallerParamType();
 	}
 
 	private static void setShowResponse(String text) {
@@ -698,13 +723,14 @@ public class StickyCaller {
 	{
 		return v.getTag() != null ? v.getTag().toString() : "";
 	}
-	
+
 	private static void settingLayoutDataFailure(Context context, String number)
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_layout, null);
 		setBasicClickListener(number);
 		setShowResponse(context.getString(R.string.net_not_connected));
+		showFailCard = true;
 	}
 
 	private static OnClickListener callerClickListener = new OnClickListener()
