@@ -49,7 +49,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 						stickerSet.addAll(StickerManager.getInstance().getStickerSetFromList(stickers));
 					}
 
-					StickerManager.getInstance().saveStickerSet(stickerSet, state);
+					StickerManager.getInstance().saveStickerSet(stickerSet, state, false);
 				}
 			} else {
 				stickerSet = StickerManager.getInstance().getStickerSet(state);
@@ -57,7 +57,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 		}
 		else
 		{
-			StickerManager.getInstance().saveStickerSet(stickerSet, state);
+			StickerManager.getInstance().saveStickerSet(stickerSet, state, false);
 		}
 
 		

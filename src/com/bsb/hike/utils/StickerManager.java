@@ -1969,7 +1969,7 @@ public class StickerManager
 		Set<String> stickerSet = new HashSet<>(1);
 		stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
 
-		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, false);
 	}
 
 	public void addRecentStickerToPallete(Sticker sticker)
@@ -2441,8 +2441,18 @@ public class StickerManager
 		}
 	}
 	
-	public void saveStickerSet(Set<String> stickerSet, int state)
+	public void saveStickerSet(Set<String> stickerSet, int state, boolean forceReplace)
 	{
+
+		if(!forceReplace)
+		{
+			Logger.d(TAG, "sticker set to insert : " + stickerSet);
+			Logger.d(TAG , "current sticker set : " + StickerManager.getInstance().getStickerSet(state));
+
+			stickerSet.addAll(StickerManager.getInstance().getStickerSet(state));
+
+			Logger.d(TAG, "sticker set after new set insert: " + stickerSet);
+		}
 
 		switch (state)
 		{
