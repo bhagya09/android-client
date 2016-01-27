@@ -939,7 +939,7 @@ import android.widget.Toast;
 		showOverflowMenuKeyboardTipIfRequired();
 	}
 
-	private boolean showOverflowMenuKeyboardTipIfRequired()
+	protected boolean showOverflowMenuKeyboardTipIfRequired()
 	{
 		// Show Ist keyboard change tip if:
 		// - it is not done yet
@@ -956,6 +956,7 @@ import android.widget.Toast;
 				&& !HikeMessengerApp.isSystemKeyboard())
 		{
 			showOverflowTip(R.string.switch_to_old_key);
+			return true;
 		}
 		// Show IInd keyboard change tip if:
 		// - first keyboard tip is successfully done.
@@ -972,6 +973,7 @@ import android.widget.Toast;
 				&& HikeMessengerApp.isSystemKeyboard())
 		{
 			showOverflowTip(R.string.switch_to_hike_key);
+			return true;
 		}
 		return false;
 	}
