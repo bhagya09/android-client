@@ -45,7 +45,6 @@ import com.bsb.hike.offline.CleanFileRunnable;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
-import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -54,7 +53,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.TException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -261,7 +259,6 @@ public class HikeService extends Service
 		 */
 		assignUtilityThread();
 		scheduleNextAnalyticsSendAlarm();
-        scheduleHikeMicroAppsMigrationAlarm();
 		AccountBackupRestore.getInstance(getApplicationContext()).scheduleNextAutoBackup();
 
 		/*
@@ -939,24 +936,4 @@ public class HikeService extends Service
 		
 		HikeAlarmManager.setAlarm(getApplicationContext(), nextAlarm, HikeAlarmManager.REQUESTCODE_HIKE_ANALYTICS, false);
  	}
-
-    /**
-     * Used to schedule the alarm for scheduling migration of old running micro apps in the content directory as per the given mapping file
-     */
-    private void scheduleHikeMicroAppsMigrationAlarm()
-    {
-        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
-
-            long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 50, 30, 0);
-            // If the scheduled time is in the past
-            // Scheduled time is increased by 24 hours i.e. same time next day.
-            if (scheduleTime < System.currentTimeMillis())
-            {
-                scheduleTime += 24 * 60 * 60 * 1000;
-            }
-
-            HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, false);
-        }
-    }
-
 }
