@@ -895,7 +895,7 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setCheckBox(R.string.delete_conversation,null, false);
 			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
-			deleteConfirmDialog.setTitle(null);
+			deleteConfirmDialog.setTitle(R.string.leave_group);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
