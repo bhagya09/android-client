@@ -1,16 +1,17 @@
 package com.bsb.hike.platform.ContentModules;
 
-import java.util.ArrayList;
-
 import android.annotation.SuppressLint;
 import android.os.Handler;
 
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformRequestManager;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.samskivert.mustache.Template;
 
 /**
@@ -112,13 +113,24 @@ public class PlatformContentLoader extends Handler
 		PlatformRequestManager.setWaitState(argContentRequest);
 
 		// Check if this is already being downloaded
-		ArrayList<Integer> currentDownloadingTemplates = PlatformRequestManager.getCurrentDownloadingTemplates();
+//		ArrayList<Integer> currentDownloadingTemplates = PlatformRequestManager.getCurrentDownloadingTemplates();
 
-		for (Integer downloadingTemplateCode : currentDownloadingTemplates)
+//		for (Integer downloadingTemplateCode : currentDownloadingTemplates)
+//		{
+//			if (downloadingTemplateCode.compareTo(argContentRequest.getContentData().appHashCode()) == 0)
+//			{
+//				return;
+//			}
+//		}
+
+		if (PlatformZipDownloader.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
 		{
-			if (downloadingTemplateCode.compareTo(argContentRequest.getContentData().appHashCode()) == 0)
+			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
+
+			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
 			{
-				return;
+				PlatformRequestManager.reportFailure(argContentRequest, PlatformContent.EventCode.INVALID_DATA);
+				return; // MAX DOWNLOAD CAPPING LIMIT REACHED!
 			}
 		}
 

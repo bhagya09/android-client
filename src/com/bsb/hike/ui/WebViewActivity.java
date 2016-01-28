@@ -162,7 +162,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
-	private  long time;
+	private long time;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -234,7 +234,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		alignAnchorForOverflowMenu();
 		
-		checkAndRecordNotificationAnalytics();
+		checkAndRecordBotOpen();
 	}
 
 	private void closeWebViewActivity()
@@ -500,6 +500,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
+
+			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
+			{
+				webView.removeWebViewReferencesFromWebKit();
+				webView.clearWebViewCache(true);
+			}
 		}
 		
 		if (mActionBar != null)
@@ -1475,11 +1481,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	/**
 	 * Used to record analytics for bot opens via push notifications
 	 */
-	private void checkAndRecordNotificationAnalytics()
+	private void checkAndRecordBotOpen()
 	{
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
 

@@ -24,11 +24,7 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.GpsLocation;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.*;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -37,8 +33,10 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1312,18 +1310,19 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param appName: the appname of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String appName)
+	public void cancelRequest(String functionId, String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token)
+
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
-			token.cancel();
+			tokenCountPair.getFirst().cancel();
 		}
 		else
 		{
@@ -1381,15 +1380,16 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String appName)
+	public void isRequestRunning(String functionId,String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token&& token.isRequestRunning())
+
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
 		}

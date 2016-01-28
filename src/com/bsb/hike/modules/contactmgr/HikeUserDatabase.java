@@ -23,6 +23,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class HikeUserDatabase extends SQLiteOpenHelper
@@ -63,7 +65,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	
 	private HikeUserDatabase(Context context)
 	{
-		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
+		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 		this.mContext = context;
 		mDb = getWritableDatabase();
 		mReadDb = getReadableDatabase();

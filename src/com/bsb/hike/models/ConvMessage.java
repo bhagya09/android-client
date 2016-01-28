@@ -473,9 +473,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		}
 		
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
-		/* prevent us from receiving a message from the future */
-		long now = System.currentTimeMillis() / 1000;
-		this.mTimestamp = (this.mTimestamp > now) ? now : this.mTimestamp;
 		/* if we're deserialized an object from json, it's always unread */
 		setState(State.RECEIVED_UNREAD);
 		msgID = -1;

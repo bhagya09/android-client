@@ -2,11 +2,7 @@ package com.bsb.hike.platform;
 
 import java.io.File;
 
-import org.cocos2dx.lib.Cocos2dxActivity;
-import org.cocos2dx.lib.Cocos2dxHandler;
-import org.cocos2dx.lib.Cocos2dxHelper;
-import org.cocos2dx.lib.Cocos2dxVideoHelper;
-import org.cocos2dx.lib.Cocos2dxWebViewHelper;
+import org.cocos2dx.lib.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +21,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -141,6 +138,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 		}
+
+		checkAndRecordBotOpen();
 
 		loadGame();
 	}
@@ -395,6 +394,28 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	{
         String path = nonMessagingBotMetadata.getBotFilePath();
         return path + File.separator;
+	}
+
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikesnake+", "bot_source" : "bot_notif" }
+	 */
+	private void checkAndRecordBotOpen()
+	{
+		String source = (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER)) ? getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER) : "default";
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

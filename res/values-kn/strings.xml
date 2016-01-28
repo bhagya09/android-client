@@ -1100,7 +1100,7 @@
     <string name="photo_actions_header">ಉತ್ತಮವಾಗಿ ಕಾಣುತ್ತಿದೆ! ಈ ಫೊಟೋವನ್ನು ಬಳಸಿ ಇದಕ್ಕೆ,</string>
     <string name="profile_header_subtext">ಪ್ರೊಫೈಲ್‌ ಫೊಟೋ ಎಲ್ಲರಿಗೂ ಕಾಣುತ್ತದೆ</string>
     <string name="sms_with_settings">SMS ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="sms_credits_with_settings">ಉಚಿತ SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ಉಚಿತ SMS: %1$s</string>
     <string name="free_hike_2_sms_india">ಭಾರತದಲ್ಲಿ ಮಾತ್ರ ಉಚಿತ</string>
     <string name="invite_friends_earn_rewards">hikeಗೆ ಸ್ನೇಹಿತರನ್ನು ಆಹ್ವಾನಿಸಿ ಮತ್ತು ಪುರಸ್ಕಾರ ಪಡೆಯಿರಿ</string>
     <string name="your_referral_code">ನಿಮ್ಮ 

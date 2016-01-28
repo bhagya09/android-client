@@ -8,11 +8,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +22,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,11 +119,23 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		}
 
 		/*
-		 * Check if migration is successful , save the flag is true in Shared Preferences
+		 * Check if migration is successful , save the flag is true in Shared Preferences , else set alarm for it
 		 */
 		if (isSuccessfullyMigrated)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+		}
+		else
+		{
+			long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 4, 45, 30, 0);
+			// If the scheduled time is in the past
+			// Scheduled time is increased by 24 hours i.e. same time next day.
+			if (scheduleTime < System.currentTimeMillis())
+			{
+				scheduleTime += 24 * 60 * 60 * 1000;
+			}
+
+			HikeAlarmManager.setAlarm(this, scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, true);
 		}
 	}
 

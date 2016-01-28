@@ -446,7 +446,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		if (activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, activity.getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
 

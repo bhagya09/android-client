@@ -1,6 +1,5 @@
 package com.bsb.hike.service;
 
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
-
 			Intent intentKpt = new Intent();
 			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
 			context.sendBroadcast(intentKpt);
@@ -45,6 +43,9 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			{
 				return;
 			}
+
+            // schedule the alarm for migration of old running micro apps in the content directory to new path if code not already migrated
+            scheduleHikeMicroAppsMigrationAlarm(context);
 
 			/*
 			 * Checking if the current version is the latest version. If it is we reset the preference which prompts the user to update the app.
@@ -92,4 +93,17 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 		}
 	}
+
+    /**
+     * Used to schedule the alarm for migration of old running micro apps in the content directory
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
+    {
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+        }
+    }
+
+
 }

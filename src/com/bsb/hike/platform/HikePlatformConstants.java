@@ -93,8 +93,9 @@ public interface HikePlatformConstants
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
     public static final String IS_SDK ="isSdk" ;
+    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 
-	public static final class PlatformFetchType
+    public static final class PlatformFetchType
 	{
 		public static final int SELF = 1;
 
@@ -332,4 +333,7 @@ public interface HikePlatformConstants
     public static final String PLATFORM_SDK_PATH = "platformSdkPath";
 
     public static final String PLATFORM_WEB_SDK = "platformSdk";
+
+	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
+
 }

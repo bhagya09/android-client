@@ -84,8 +84,15 @@ public class PlatformContent
 					{
 						return "unzip_fail";
 					}
-				}
-
+				},
+		INCOMPLETE_ZIP_DOWNLOAD
+		    {
+			        @Override
+			        public String toString()
+			{
+				return "incomplete_zip_download";
+			}
+		    }
 	}
 
 	/**
@@ -130,7 +137,7 @@ public class PlatformContent
 	 * @param listener
 	 * @return
 	 */
-	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener, boolean clearRequestInQueue)
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
@@ -139,8 +146,12 @@ public class PlatformContent
 		}
 		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
 
+
 		if (request != null)
 		{
+			if(clearRequestInQueue){
+				PlatformZipDownloader.removeDownloadingRequest(request.getContentData().getLayout_url());
+			}
 			PlatformContentLoader.getLoader().handleRequest(request);
 			return request;
 		}
@@ -186,6 +197,11 @@ public class PlatformContent
 			listener.onEventOccured(0, EventCode.INVALID_DATA);
 			return null;
 		}
+	}
+
+	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	{
+		return getContent(uniqueId, contentData,listener, false);
 	}
 
 	public static void init(boolean isProduction)
