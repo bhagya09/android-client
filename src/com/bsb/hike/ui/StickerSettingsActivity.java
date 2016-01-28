@@ -43,6 +43,16 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.my_stickers);
+
+		TextView editOption = (TextView) actionBarView.findViewById(R.id.editOption);
+		editOption.setText(R.string.EDIT);
+		editOption.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View viewIn) {
+				stickerSettingsFragment.setDeleteOptionVisibility(true);
+			}
+		});
+
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);

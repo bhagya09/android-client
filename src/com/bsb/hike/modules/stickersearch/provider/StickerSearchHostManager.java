@@ -177,6 +177,14 @@ public class StickerSearchHostManager
 		return sStickerSearchHostManager;
 	}
 
+	public void clearCaches() {
+		sCacheForLocalSearch.clear();
+		sCacheForLocalAnalogousScore.clear();
+		sCacheForLocalOrderedStickers.clear();
+		Logger.i(TAG, "clearCaches : " + " size of all = " + sCacheForLocalSearch.size() + " , " +
+		sCacheForLocalAnalogousScore.size() + " and " + sCacheForLocalOrderedStickers.size());
+	}
+
 	/*
 	 * Call this method just after choosing any contact to chat (while opening chat-thread) to load the history of that contact (either a person or a group)
 	 */
@@ -1253,6 +1261,8 @@ public class StickerSearchHostManager
 				sCacheForLocalOrderedStickers.put(plainSearchKey, stickers);
 			}
 		}
+
+		Logger.i(TAG, "getOrderedStickers : returning hashset = " + stickers);
 
 		return stickers;
 	}

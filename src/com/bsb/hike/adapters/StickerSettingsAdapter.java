@@ -21,6 +21,8 @@ import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
@@ -45,6 +47,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	private StickerOtherIconLoader stickerOtherIconLoader;
 	
 	private StickerCategory draggedCategory = null;
+
+	private boolean isDeleteEnabled = false;
 
 	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories)
 	{
@@ -103,6 +107,23 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		return mListMapping[position] - 1;
 	}
 
+	/* Method to make sticker pack delete option visible */
+	public void setDeleteMode (boolean value){
+		isDeleteEnabled = value;
+		this.notifyDataSetChanged();
+	}
+
+	/* Method for deciding visibility of sticker pack delete option */
+	private void checkAndEnableDeleteButton (String categoryId, ImageButton deleteOption) {
+		if (isDeleteEnabled == false || categoryId.equals(StickerManager.HUMANOID) ||
+				categoryId.equals(StickerManager.EXPRESSIONS)) {
+			deleteOption.setVisibility(View.GONE);
+		}
+		else {
+			deleteOption.setVisibility(View.VISIBLE);
+		}
+	}
+
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
@@ -120,6 +141,12 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.updateAvailable = (TextView) convertView.findViewById(R.id.update_available);
 			viewHolder.downloadProgress = (ProgressBar) convertView.findViewById(R.id.download_progress);
 			viewHolder.checkBox.setOnClickListener(this);
+
+			viewHolder.deleteOption = (ImageButton) convertView.findViewById(R.id.delete_option);
+			viewHolder.deleteOption.setOnClickListener(this);
+			viewHolder.deletingPack = (TextView) convertView.findViewById(R.id.delete_pack);
+			viewHolder.deleteProgress = (ProgressBar) convertView.findViewById(R.id.delete_progress);
+
 			convertView.setTag(viewHolder);
 			
 		}
@@ -128,7 +155,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		{
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
-		
+
+		checkAndEnableDeleteButton(category.getCategoryId(), viewHolder.deleteOption);
+
 		viewHolder.downloadProgress.setVisibility(View.GONE); //This is being done to clear the spinner animation.
 		viewHolder.downloadProgress.clearAnimation();
 		
@@ -143,6 +172,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		}
 		
 		int state = category.getState();
+		Logger.d("  getview() function : ", " Category = " + category.getCategoryName() + " State = " + state);
+
 		switch(state)
 		{
 			case StickerCategory.UPDATE:
@@ -150,6 +181,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.VISIBLE);
 				viewHolder.updateAvailable.setText(mContext.getResources().getString(R.string.update_sticker));
 				viewHolder.downloadProgress.setVisibility(View.GONE);
+				viewHolder.deletingPack.setVisibility(View.GONE);
+				viewHolder.deleteProgress.setVisibility(View.GONE);
 				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
 				
 				break;
@@ -159,6 +192,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.VISIBLE);
 				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
 				viewHolder.checkBox.setVisibility(View.GONE);
+				viewHolder.deletingPack.setVisibility(View.GONE);
+				viewHolder.deleteProgress.setVisibility(View.GONE);
 
 				break;
 			case StickerCategory.DONE_SHOP_SETTINGS:  //To be treated as same
@@ -170,14 +205,26 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
 				
 				break;
+			case StickerCategory.DELETING:
+				viewHolder.deletingPack.setVisibility(View.VISIBLE);
+				viewHolder.checkBox.setVisibility(View.GONE);
+				viewHolder.updateAvailable.setVisibility(View.GONE);
+				viewHolder.deleteProgress.setVisibility(View.VISIBLE);
+				viewHolder.downloadProgress.setVisibility(View.GONE);
+				viewHolder.deleteOption.setVisibility(View.GONE);
+				break;
+
 			default:
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.GONE);
+				viewHolder.deleteProgress.setVisibility(View.GONE);
+				viewHolder.deletingPack.setVisibility(View.GONE);
 				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
 				
 		}
 			
 		viewHolder.checkBox.setTag(category);
+		viewHolder.deleteOption.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
 		viewHolder.checkBox.setSelected(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
@@ -197,6 +244,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		viewHolder.updateAvailable.setText(state == StickerCategory.DONE ? R.string.see_them : R.string.RETRY);
 		viewHolder.updateAvailable.setTextColor(isVisible ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 		viewHolder.downloadProgress.setVisibility(View.GONE);
+		viewHolder.deletingPack.setVisibility(View.GONE);
+		viewHolder.deleteProgress.setVisibility(View.GONE);
 		checkAndDisableCheckBox(categoryId, viewHolder.checkBox);	
 	}
 
@@ -319,7 +368,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		TextView categoryName;
 		
 		ImageButton checkBox;
-		
+
+		ImageButton deleteOption;
+
 		ImageView categoryPreviewImage;
 
 		TextView updateAvailable;
@@ -327,21 +378,43 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		TextView categorySize;
 		
 		ProgressBar downloadProgress;
+
+		TextView deletingPack;
+
+		ProgressBar deleteProgress;
+
 	}
-	
+
+	public void updateMappingOnPackDelete(StickerCategory category) {
+		category.setState(StickerCategory.NONE);
+		stickerCategories.remove(category);								//removing sticker pack from sticker categories list
+		stickerSet.remove(category);									//removing sticker pack from sticker set
+		mListMapping = null;
+		mListMapping = new int[stickerCategories.size()];
+		initialiseMapping(mListMapping, stickerCategories);				//reinitialising mapping
+		this.notifyDataSetChanged();
+	}
+
 	@Override
 	public void onClick(View v)
 	{
-		StickerCategory category = (StickerCategory) v.getTag();
-		boolean visibility = !category.isVisible();
-		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();;
-		ImageButton checkBox = (ImageButton) v;
-		category.setVisible(visibility);
-		checkBox.setSelected(visibility);
-		stickerSet.add(category);
-		int categoryIdx = stickerCategories.indexOf(category);
-		updateLastVisibleIndex(categoryIdx, category);
-		StickerManager.getInstance().checkAndSendAnalytics(visibility);
+			StickerCategory category = (StickerCategory) v.getTag();
+
+			if (v.getId() == R.id.delete_option) {
+				new DeleteStickerPackAsyncTask(mContext, category, this).execute();
+			}
+			else {
+				boolean visibility = !category.isVisible();
+				Toast.makeText(mContext, "Category state = " + category.getState(), Toast.LENGTH_SHORT).show();
+				Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
+				ImageButton checkBox = (ImageButton) v;
+				category.setVisible(visibility);
+				checkBox.setSelected(visibility);
+				stickerSet.add(category);
+				int categoryIdx = stickerCategories.indexOf(category);
+				updateLastVisibleIndex(categoryIdx, category);
+				StickerManager.getInstance().checkAndSendAnalytics(visibility);
+			}
 	}
 
 	/**

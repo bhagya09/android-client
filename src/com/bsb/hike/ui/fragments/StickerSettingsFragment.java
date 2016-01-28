@@ -73,7 +73,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.sticker_settings, null);
-		
+
 		return parent;
 	}
 	
@@ -98,7 +98,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			final View parent = getView();
 			final View updateAll = parent.findViewById(R.id.update_all_ll);
 			final View confirmAll = parent.findViewById(R.id.confirmation_ll);
-			
+
 			Animation alphaIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_noalpha);
 			alphaIn.setDuration(800);
 			updateAll.setAnimation(alphaIn);
@@ -146,22 +146,17 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		
 		displayTotalStickersCount(totalStickers);
 		
-		cancelBtn.setOnClickListener(new View.OnClickListener()
-		{
+		cancelBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				isUpdateAllTapped = false;
 				confirmView.setVisibility(View.GONE);
-				
-				try
-				{
+
+				try {
 					JSONObject metadata = new JSONObject();
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.UPDATE_ALL_CANCEL_CLICKED);
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
-				{
+				} catch (JSONException e) {
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
 			}
@@ -391,6 +386,10 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	public void setDeleteOptionVisibility (boolean value) {
+		mAdapter.setDeleteMode(value);
 	}
 
 	public static StickerSettingsFragment newInstance()
