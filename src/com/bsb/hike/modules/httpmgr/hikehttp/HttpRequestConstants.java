@@ -24,6 +24,8 @@ public class HttpRequestConstants
 	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+
+	public static final String STICKERS_CDN_PRODUCTION_API = "static.stickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
@@ -42,6 +44,8 @@ public class HttpRequestConstants
 	private static String BASE_PLATFORM_URL = HTTP + PLATFORM_PRODUCTION_API;
 	
 	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
+
+	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
 
 	private static final String BASE_V1 = "/v1";
 
@@ -152,6 +156,10 @@ public class HttpRequestConstants
 		BASE_STICKERS_URL = "";
 		BASE_STICKERS_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_STICKERS_URL += (isProduction) ? STICKERS_PRODUCTION_API : STAGING_API;
+
+		BASE_STICKERS_CDN_URL = "";
+		BASE_STICKERS_CDN_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
 	
 	
@@ -165,7 +173,7 @@ public class HttpRequestConstants
 
 	public static String singleStickerImageDownloadBase()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/image";
+		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
 	}
 
 	public static String multiStickerDownloadUrl()
@@ -175,7 +183,7 @@ public class HttpRequestConstants
 
 	public static String multiStickerImageDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/image";
+		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
