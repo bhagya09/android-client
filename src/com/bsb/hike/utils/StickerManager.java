@@ -1,5 +1,61 @@
 package com.bsb.hike.utils;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
+import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.smartcache.HikeLruCache;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,58 +77,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.widget.Toast;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.CustomStickerCategory;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.models.StickerPageAdapterItem;
-import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerTagDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
-import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.smartcache.HikeLruCache;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
 
 public class StickerManager
 {
@@ -2525,8 +2529,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
 
-	public Set<String> getStickerSetFromList(List<Sticker> stickerList)
-	{
+	public Set<String> getStickerSetFromList(List<Sticker> stickerList) {
 		Set<String> stickerSet = new HashSet<>();
 		if (!Utils.isEmpty(stickerList)) {
 			for (Sticker sticker : stickerList) {
@@ -2534,5 +2537,32 @@ public class StickerManager
 			}
 		}
 		return stickerSet;
+	}
+
+	public void sendResponseTimeAnalytics(Response response, String methodType)
+	{
+		try
+		{
+			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
+			{
+				return;
+			}
+
+			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
+					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
+
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.EVENT_KEY, HttpAnalyticsLogger.processRequestUrl(response.getUrl()));
+			metadata.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
+			metadata.put(HttpAnalyticsConstants.HTTP_METHOD_TYPE, methodType);
+			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			HAManager.getInstance().record(HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "json exception in logging sticker response time", e);
+		}
 	}
 }

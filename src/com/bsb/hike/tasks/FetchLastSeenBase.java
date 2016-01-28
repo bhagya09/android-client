@@ -1,5 +1,7 @@
 package com.bsb.hike.tasks;
 
+import android.os.AsyncTask;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -14,9 +16,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSSLUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
-public abstract class FetchLastSeenBase extends MyAsyncTask<Void, Void, Boolean>
+public abstract class FetchLastSeenBase extends AsyncTask<Void, Void, Boolean>
 {
 	public abstract boolean saveResult(JSONObject response) throws JSONException;
 
