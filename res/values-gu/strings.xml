@@ -929,7 +929,7 @@
     <string name="change_password_from_privacy">હિડીન મોડ સેટિંગ્સ</string>
     <string name="nudge_setting_header">નજ કરવા માટે બે વાર ટૅપ કરો</string>
     <string name="nudge_setting_info">ચેટિંગ કરતા વખતે બે વાર ટૅપ દ્વારા નજ મોકલો</string>
-    <string name="enter_setting_header">એન્ટર કી સેન્ડ છે</string>
+    <string name="enter_setting_header">એન્ટર કી પર મોકલો</string>
     <string name="enter_setting_info">એન્ટર કી દબાવવાથી મેસેજ મોકલાશે</string>
     <string name="settings_chat">ચેટ સેટિંગ્સ</string>
     <string name="settings_localization">ભાષા અને ઈનપુટ</string>
