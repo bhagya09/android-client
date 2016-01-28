@@ -151,7 +151,7 @@ public class VoIPConstants {
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
 	public static final int MSG_VOIP_CLIENT_STOP = 16;
-	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
+	public static final int MSG_CALL_ACTIVE = 19;
 	public static final int MSG_START_RECONNECTION_BEEPS = 21;
 	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
 	public static final int MSG_CONNECTED = 23;

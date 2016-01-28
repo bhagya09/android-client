@@ -243,11 +243,12 @@ public class VoIPService extends Service implements Listener
 				Logger.d(tag, "Connection established with " + msisdn);
 				if (client == null)
 					return;
-				
+
+				startRecordingAndPlayback();
 				if (client.isInitiator()) {
 					playIncomingCallRingtone();
 				} else {
-					if (!recordingAndPlaybackRunning)
+					if (!client.isCallActive())
 						playOutgoingCallRingtone();
 					if (hostingConference())
 						sendClientsListToAllClients();
@@ -275,8 +276,8 @@ public class VoIPService extends Service implements Listener
 				sendMessageToActivity(VoIPConstants.MSG_UPDATE_REMOTE_HOLD);
 				break;
 
-			case VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK:
-				startRecordingAndPlayback(msisdn);
+			case VoIPConstants.MSG_CALL_ACTIVE:
+				setCallAsActive(msisdn);
 				break;
 				
 			case VoIPConstants.MSG_START_RECONNECTION_BEEPS:
@@ -322,7 +323,7 @@ public class VoIPService extends Service implements Listener
 						setMute(true);
 					} 
 					// Text to speech
-					if (recordingAndPlaybackRunning) {
+					if (client.isCallActive()) {
 						if (forceMute)
 							tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
 						 else
@@ -1443,23 +1444,35 @@ public class VoIPService extends Service implements Listener
 		}, "ACCEPT_INCOMING_CALL_THREAD").start();
 
 		startBluetooth();
-		startRecordingAndPlayback(client.getPhoneNumber());
+		setCallAsActive(client.getPhoneNumber());
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
-	
-	private synchronized void startRecordingAndPlayback(String msisdn) {
+
+	private void startRecordingAndPlayback() {
+		if (!recordingAndPlaybackRunning) {
+			recordingAndPlaybackRunning = true;
+			Logger.d(tag, "Starting audio record / playback.");
+			startRecording();
+			startPlayBack();
+		} else {
+			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+		}
+	}
+
+	private synchronized void setCallAsActive(String msisdn) {
 
 		final VoIPClient client = getClient(msisdn);
 		
 		if (client == null)
 			return;
 		
-		if (client.audioStarted) {
+		if (client.isCallActive()) {
 			Logger.d(tag, "Audio already started.");
 			return;
 		}
 
-		client.audioStarted = true;
+		startChrono();
+		client.setIsCallActive(true);
 
 		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY) 
 			client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_RELAY);
@@ -1473,16 +1486,6 @@ public class VoIPService extends Service implements Listener
 		playFromSoundPool(SOUND_ACCEPT, false);
 		sendMessageToActivity(VoIPConstants.MSG_AUDIO_START);
 
-		if (!recordingAndPlaybackRunning) {
-			recordingAndPlaybackRunning = true;
-			Logger.d(tag, "Starting audio record / playback.");
-			startRecording();
-			startPlayBack();
-			startChrono();
-		} else {
-			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
-		}
-		
 		if (hostingConference()) {
 			sendMessageToActivity(VoIPConstants.MSG_UPDATE_SPEAKING);
 			sendClientsListToAllClients();
@@ -2023,7 +2026,7 @@ public class VoIPService extends Service implements Listener
 		 * If we get a missed cellular call WHILE we're already receiving a voip call, 
 		 * the voip call will erroneously unhold itself. 
 		 */
-		if (!recordingAndPlaybackRunning && newHold)
+		if (!client.isCallActive() && newHold)
 			return;
 		
 		Logger.d(tag, "Changing hold to: " + newHold);
@@ -2103,7 +2106,7 @@ public class VoIPService extends Service implements Listener
 		VoIPClient client = getClient();
 		synchronized (this) {
 			
-			if (client == null || client.reconnecting || client.audioStarted)
+			if (client == null || client.reconnecting || client.isCallActive())
 				return;
 			
 			if (isRingingOutgoing) {
@@ -2123,7 +2126,7 @@ public class VoIPService extends Service implements Listener
 	private void playIncomingCallRingtone() {
 
 		VoIPClient client = getClient();
-		if (client.reconnecting || client.audioStarted || !keepRunning)
+		if (client.reconnecting || client.isCallActive() || !keepRunning)
 			return;
 
 		VoIPUtils.closeSystemDialogs(getApplicationContext());
@@ -2231,8 +2234,12 @@ public class VoIPService extends Service implements Listener
 			client.sendAnalyticsEvent(ek, value);
 	}
 	
-	public boolean isAudioRunning() {
-		return recordingAndPlaybackRunning;
+	public boolean inActiveCall() {
+		VoIPClient client = getClient();
+		if (client != null)
+			return client.isCallActive();
+		else
+			return false;
 	}
 
 	public void setCallStatus(VoIPConstants.CallStatus status)
@@ -2247,7 +2254,7 @@ public class VoIPService extends Service implements Listener
 	{
 		VoIPClient client = getClient();
 		
-		if (hostingConference() && recordingAndPlaybackRunning)
+		if (hostingConference() && client != null && client.isCallActive())
 			return CallStatus.ACTIVE;
 		
 		if (client != null)
@@ -2424,7 +2431,7 @@ public class VoIPService extends Service implements Listener
 					// We have an incoming or outgoing call
 					Logger.w(tag, "Cellular call detected.");
 					sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_NATIVE_CALL_INTERRUPT);
-					if (isAudioRunning()) {
+					if (inActiveCall()) {
 						inCellularCall = true;
 						setHold(true);
 					}

@@ -100,7 +100,7 @@ public class VoIPClient  {
 	public boolean cryptoEnabled = true;
 	private VoIPEncryptor.EncryptionStage encryptionStage;
 	public boolean remoteHold = false, remoteMute = false;
-	public boolean audioStarted = false;
+	private boolean isCallActive = false;
 	private VoIPConstants.CallStatus currentCallStatus;
 	private int localBitrate = VoIPConstants.BITRATE_WIFI, remoteBitrate = 0;
 	private Chronometer chronometer = null;
@@ -821,7 +821,7 @@ public class VoIPClient  {
 			public void run() {
 				try {
 					Thread.sleep(VoIPConstants.TIMEOUT_PARTNER_ANSWER);
-					if (!isAudioRunning()) {
+					if (!isCallActive()) {
 						// Edge case error fixing. If the call went into reconnection
 						// before it was answered, then normally no outgoing missed call
 						// would appear in our chat thread since we aren't connected.
@@ -1012,7 +1012,7 @@ public class VoIPClient  {
 		establishingConnection = false;
 		stopReconnectBeeps();
 		connected = false;
-		audioStarted = false;
+		isCallActive = false;
 		reconnecting = false;
 		removeExternalSocketInfo();
 		
@@ -1428,7 +1428,7 @@ public class VoIPClient  {
 						
 					case START_VOICE:
 						interruptResponseTimeoutThread();
-						startRecordingAndPlayback();
+						setCallAsActive();
 						break;
 						
 					case CALL_DECLINED:
@@ -1859,10 +1859,14 @@ public class VoIPClient  {
 	}
 	
 
-	public boolean isAudioRunning() {
-		return audioStarted;
+	public boolean isCallActive() {
+		return isCallActive;
 	}
-	
+
+	public void setIsCallActive(boolean isCallActive) {
+		this.isCallActive = isCallActive;
+	}
+
 	public void setCallStatus(VoIPConstants.CallStatus status)
 	{
 		currentCallStatus = status;
@@ -1875,7 +1879,7 @@ public class VoIPClient  {
 
 	public void setInitialCallStatus()
 	{
-		if(isAudioRunning())
+		if(isCallActive())
 		{
 			setCallStatus(VoIPConstants.CallStatus.ACTIVE);
 		}
@@ -2231,7 +2235,7 @@ public class VoIPClient  {
 		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS && bitrateAdjustment >= 0)
 			return;
 		
-		if (!audioStarted) 
+		if (!isCallActive)
 			return;
 		
 		if (lastCongestionControlTimestamp > System.currentTimeMillis() - VoIPConstants.CONGESTION_CONTROL_REPEAT_THRESHOLD * 1000)
@@ -2271,7 +2275,7 @@ public class VoIPClient  {
 		// and hence a reconnect will not be attempted. 
 		if (version >= 2 && isInAHostedConference && keepRunning) {
 			reconnecting = false;
-			audioStarted = false;
+			isCallActive = false;
 			
 			// Socket info timeout thread will be running since we will 
 			// already be trying to reconnect.
@@ -2292,7 +2296,11 @@ public class VoIPClient  {
 		// If we are in a large conference, then don't send non-voice audio
 		if (!dp.isVoice() && clientMsisdns.size() > VoIPConstants.CONFERENCE_THRESHOLD)
 			return;
-		
+
+		// If the call isn't active yet, discard recorded audio
+		if (!isCallActive())
+			return;
+
 		samplesToEncodeQueue.add(dp);
 	}
 	
@@ -2349,7 +2357,7 @@ public class VoIPClient  {
 		if (isDummy)
 			return isRinging;
 		
-		if (connected && !audioStarted)
+		if (connected && !isCallActive)
 			ringing = true;
 		
 		return ringing;
@@ -2395,8 +2403,8 @@ public class VoIPClient  {
 		sendMessageToService(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
 
-	private void startRecordingAndPlayback() {
-		sendMessageToService(VoIPConstants.MSG_START_RECORDING_AND_PLAYBACK);
+	private void setCallAsActive() {
+		sendMessageToService(VoIPConstants.MSG_CALL_ACTIVE);
 	}
 	
 	private void startReconnectBeeps() {
