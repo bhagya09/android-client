@@ -1,18 +1,17 @@
 package com.bsb.hike.modules.httpmgr.client;
 
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
+
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
-import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
-
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
 
 /**
  * 
@@ -54,7 +53,6 @@ public class OkClient implements IClient
 	{
 		clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
 		OkHttpClient client = new OkHttpClient();
-		client.networkInterceptors().add(new StethoInterceptor());
 		return setClientParameters(client, clientOptions);
 	}
 
