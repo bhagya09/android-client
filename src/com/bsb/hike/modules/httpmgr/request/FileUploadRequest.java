@@ -11,7 +11,6 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
-import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
@@ -213,7 +212,6 @@ public class FileUploadRequest extends Request<JSONObject>
 					// upload successful
 					getState().setFTState(FTState.COMPLETED);
 					saveStateInDB(getState());
-					publishProgress((float) bytesTransferred / length);
 					break;
 				}
 

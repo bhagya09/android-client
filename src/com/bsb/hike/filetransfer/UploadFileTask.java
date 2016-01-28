@@ -531,8 +531,6 @@ public class UploadFileTask extends FileTransferBase
 					try
 					{
 						JSONObject responseJson = new JSONObject(new String(b));
-						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-
 						handleSuccessJSON(responseJson);
 					}
 					catch (JSONException e)

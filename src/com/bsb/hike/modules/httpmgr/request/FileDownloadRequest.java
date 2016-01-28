@@ -120,7 +120,6 @@ public class FileDownloadRequest extends Request<File>
 
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				publishProgress((float) transferredSize / totalSize);
 				chunkSize = chunkSizePolicy.getChunkSize();
 				buffer = new byte[chunkSize];
 				int byteRead = 0;
@@ -131,6 +130,8 @@ public class FileDownloadRequest extends Request<File>
 					saveStateInDB(state);
 					break;
 				}
+
+				publishProgress((float) transferredSize / totalSize);
 
 				while (byteRead < chunkSize)
 				{
