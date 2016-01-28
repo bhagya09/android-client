@@ -554,6 +554,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.bsb.hike.notifications.PersNotifClickReceiver">
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_URL_INTENT" />
+            </intent-filter>
+        </receiver>
+
 </application>
 
 </manifest>
