@@ -59,19 +59,9 @@ public class UploadFileTask extends FileTransferBase
 
 	private String fileType;
 
-	private long msgId;
-
-	private String fileKey;
-
-	protected int fileSize;
-
-	protected HikeFileType hikeFileType;
-
 	private int mAttachementType;
 
 	private File selectedFile = null;
-
-	private File mFile = null;
 
 	private Uri picasaUri = null;
 
