@@ -1094,7 +1094,7 @@
     <string name="photo_actions_header">छान दिसते! हा फोटो यासाठी वापरा,</string>
     <string name="profile_header_subtext">प्रोफाईल फोटो प्रत्येकाला दृश्यमान असेल</string>
     <string name="sms_with_settings">SMS सेटिंग्ज</string>
-    <string name="sms_credits_with_settings">फ्री SMS: %1$d</string>
+    <string name="sms_credits_with_settings">फ्री SMS: %1$s</string>
     <string name="free_hike_2_sms_india">केवळ भारतात फ्री</string>
     <string name="invite_friends_earn_rewards">मित्रांना hike वर आमंत्रित करा आणि पारितोषिके कमवा</string>
     <string name="your_referral_code">तुमचा <b>संदर्भ</b> कोड</string>
@@ -1423,5 +1423,7 @@
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
     <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
     <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
+    <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
+    <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
     
 </resources>

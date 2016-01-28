@@ -2,6 +2,7 @@ package com.bsb.hike.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.support.v7.widget.RecyclerView;
@@ -173,7 +174,11 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
 	{
 		if (mContext != null)
 		{
-			mContext.startActivity(IntentFactory.getIntentForBots(mBotInfo, mContext));	
+			Intent intent = IntentFactory.getIntentForBots(mBotInfo, mContext);
+			
+			intent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_DISC);
+			
+			mContext.startActivity(intent);	
 		}
 		else
 		{

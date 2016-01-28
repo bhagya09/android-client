@@ -13,6 +13,8 @@
 package org.eclipse.paho.client.mqttv3;
 
 import org.eclipse.paho.client.mqttv3.internal.ClientComms;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -23,10 +25,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.util.Log;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -138,6 +142,7 @@ class AlarmPingSender implements MqttPingSender {
 
 			// No ping has been sent.
 			if (token == null) {
+				sendAnalyticsEvent(false, false, "N/A");
 				return;
 			}
 
@@ -155,6 +160,8 @@ class AlarmPingSender implements MqttPingSender {
 				}
 				wakelock.acquire(pingWackLockTimeout);
 			}
+			
+			final long sTime = System.currentTimeMillis();
 			token.setActionCallback(new IMqttActionListener() {
 
 				@Override
@@ -165,6 +172,9 @@ class AlarmPingSender implements MqttPingSender {
 					if(wakelock != null && wakelock.isHeld()){
 						wakelock.release();
 					}
+					
+					long timeTaken = System.currentTimeMillis() - sTime;
+					sendAnalyticsEvent(true, true, timeTaken+"");
 				}
 
 				@Override
@@ -176,10 +186,37 @@ class AlarmPingSender implements MqttPingSender {
 					if(wakelock != null && wakelock.isHeld()){
 						wakelock.release();
 					}
+					
+					long timeTaken = System.currentTimeMillis() - sTime;
+					sendAnalyticsEvent(true, false, timeTaken+"");
 				}
 			});
 			
 			app.connectToService();
+		}
+	}
+	
+	private void sendAnalyticsEvent(boolean pingSent, boolean result, String timeTaken)
+	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GCM_PROD_AREA_LOGGING, false))
+		{
+			return;
+		}
+		
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put("pingSent", pingSent);
+			infoJson.put("result", result);
+			infoJson.put("timeTaken", timeTaken);
+			String devArea = "ping";
+			
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, devArea, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
 		}
 	}
 }

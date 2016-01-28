@@ -995,7 +995,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, R.anim.valetines_nudge_anim));
+					int animId = chatTheme.getAnimationId();
+					if(animId != -1)
+					{
+						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
+					}
 				}
 			}
 			setTimeNStatus(position, nudgeHolder, true, nudgeHolder.nudge);
@@ -2547,6 +2551,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			dayHolder.dayStubInflated.setVisibility(View.GONE);
 		}
 		Logger.i("chatthread", "position " + position + " time taken : " + (System.currentTimeMillis() - startTime));
+		
+		if (convMessages == null || convMessages.size() == 0 || position == convMessages.size() - 1)
+		{
+			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
+		}
 		return v;
 	}
 

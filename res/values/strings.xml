@@ -1114,7 +1114,7 @@
     <string name="photo_actions_header">Looks great! Use this photo to,</string>
     <string name="profile_header_subtext">Profile photo is visible to everyone</string>
     <string name="sms_with_settings">SMS Settings</string>
-    <string name="sms_credits_with_settings">FREE SMS: %1$d</string>
+    <string name="sms_credits_with_settings">FREE SMS: %1$s</string>
     <string name="free_hike_2_sms_india">Free only to India</string>
     <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
     <string name="your_referral_code">Your <b>referral</b> code</string>
@@ -1504,4 +1504,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="switch_to_old_key">Switch to your old keyboard</string>
+    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>
