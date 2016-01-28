@@ -7,7 +7,7 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.hike.transporter.utils.Logger;
+import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +45,7 @@ public class IBlockRequestListener implements IRequestListener
 		boolean requestSuccess = false;
 		if (resultContent != null)
 		{
+			Logger.d("IBlockRequestListener", resultContent);
 			try
 			{
 				JSONObject jsonObject = new JSONObject(resultContent);

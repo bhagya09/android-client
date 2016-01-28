@@ -40,6 +40,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 		{
 			try
 			{
+				Logger.d("ICallerSignUpListener", resultContent);
 				JSONObject jsonObject = new JSONObject(resultContent);
 				if (HikeConstants.OK.equals(jsonObject.get(HikeConstants.STATUS)))
 				{
