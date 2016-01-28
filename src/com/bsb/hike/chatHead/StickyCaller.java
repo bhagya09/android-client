@@ -363,6 +363,10 @@ public class StickyCaller {
 			{
 				settingLayoutDataFailure(context, number);
 			}
+			else
+			{
+				return;
+			}
 			break;
 		}
 
