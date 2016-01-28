@@ -25,7 +25,7 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
-	public static final String STICKERS_CDN_PRODUCTION_API = "static.stickers.im.hike.in";
+	public static final String STICKERS_CDN_PRODUCTION_API = "static-stickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
