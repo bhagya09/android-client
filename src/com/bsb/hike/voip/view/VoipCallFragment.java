@@ -133,7 +133,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
-				if (!voipService.isAudioRunning()) {
+				if (!voipService.inActiveCall()) {
 					VoIPClient clientPartner = voipService.getPartnerClient();
 					if (clientPartner == null)
 						break;
@@ -372,7 +372,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			return;
 		}
 		
-		if(voipService.isAudioRunning())
+		if(voipService.inActiveCall())
 		{
 			// Active Call
 			isCallActive = true;
@@ -403,13 +403,13 @@ public class VoipCallFragment extends Fragment implements CallActions
 
 		unbindVoipService();
 
+		playHangUpTone();
+
 		if(activity.isShowingCallFailedFragment())
 		{
 			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
-		
-		playHangUpTone();
 		
 		new Handler().postDelayed(new Runnable()
 		{
@@ -429,7 +429,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (voipService == null)
 			return false;
 		
-		if (!voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (!voipService.inActiveCall() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
@@ -909,7 +909,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			// When a call is initiated or received, 
 			// show the participants list only to the host
 			// and to the participants after they accept the call
-			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
+			if (voipService.inActiveCall() || voipService.hostingConference())
 				updateConferenceList();
 		} else {
 			if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)
