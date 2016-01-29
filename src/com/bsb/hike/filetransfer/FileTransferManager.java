@@ -328,7 +328,8 @@ public class FileTransferManager
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
-			task.startFileUploadProcess();
+			task.upload();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 		else
 		{
