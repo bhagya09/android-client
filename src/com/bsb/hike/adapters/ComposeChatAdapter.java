@@ -144,38 +144,52 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			boolean fetchSMSContacts = true;
 			boolean fetchRecommendedContacts;
 			boolean fetchHideListContacts;
-			
-			
+
+
 			NuxSelectFriends nuxPojo = NUXManager.getInstance().getNuxSelectFriendsPojo();
 			fetchHideListContacts = (nuxPojo.getHideList() != null && !nuxPojo.getHideList().isEmpty());
 			fetchRecommendedContacts = (nuxPojo.getRecoList() != null && !nuxPojo.getRecoList().isEmpty());
-			
+
 			int contactsShown = nuxPojo.getContactSectionType();
 			switch(NUXConstants.ContactSectionTypeEnum.getEnum(contactsShown)){
-				case none : 
+				case none :
 					fetchHikeContacts = false;
 					fetchSMSContacts = false;
 					break;
 				case nonhike:
 					fetchHikeContacts = false;
 					break;
-				case hike : 
+				case hike :
 					fetchSMSContacts = false;
 					break;
 				case both :
 				case all :
 				default:
-						
+
 			}
-			
+
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
 					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false);
-			
+
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
 					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase);
+		}
+
+		if(showTimeline)
+		{
+			ContactInfo timelineListItem = new HikeFeatureInfo(context.getResources().getString(R.string.timeline), R.drawable.ic_timeline, context.getResources().getString(
+					R.string.timeline_short_desc), true, new Intent());
+			timelineListItem.setId(ComposeChatAdapter.HIKE_FEATURES_ID);
+			timelineListItem.setPhoneNum(ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID);
+			timelineListItem.setName(context.getString(R.string.timeline));
+			timelineListItem.setMsisdn(context.getString(R.string.timeline));
+
+			hikeOtherFeaturesList.add(timelineListItem);
+
+			fetchFriendsTask.addOtherFeaturesList(hikeOtherFeaturesList,filteredHikeOtherFeaturesList);
 		}
 		Utils.executeAsyncTask(fetchFriendsTask);
 	}
@@ -237,7 +251,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			holder = (ViewHolder) convertView.getTag();
 			HikeFeatureInfo hikeFeatureInfo = (HikeFeatureInfo)contactInfo;
-			holder.name.setText(hikeFeatureInfo.getName());
+			Integer startIndex = contactSpanStartIndexes.get(hikeFeatureInfo.getMsisdn());
+			if(startIndex!=null && viewType != ViewType.NEW_CONTACT)
+			{
+				holder.name.setText(getSpanText(hikeFeatureInfo.getName(), startIndex), TextView.BufferType.SPANNABLE);
+			}
+			else
+			{
+				holder.name.setText(hikeFeatureInfo.getName());
+			}
 			holder.status.setText(hikeFeatureInfo.getDescription());
 
 			Drawable timelineLogoDrawable = ContextCompat.getDrawable(context, hikeFeatureInfo.getIconDrawable());
@@ -580,17 +602,21 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			return;
 		}
 
-		if(showTimeline)
+		if (filteredHikeOtherFeaturesList != null)
 		{
 			ContactInfo otherFeaturesSection = new ContactInfo(SECTION_ID, "1", context.getResources().getString(R.string.you).toUpperCase(), HIKE_FEATURES_ID);
-			ContactInfo timelineListItem = new HikeFeatureInfo(context.getResources().getString(R.string.timeline),R.drawable.ic_timeline,context.getResources().getString(R.string.timeline_short_desc), true, new Intent());
-			timelineListItem.setId(HIKE_FEATURES_ID);
-			timelineListItem.setPhoneNum(HIKE_FEATURES_TIMELINE_ID);
-			timelineListItem.setName(context.getString(R.string.timeline));
-			completeList.add(otherFeaturesSection);
-			completeList.add(timelineListItem);
+			if (!filteredHikeOtherFeaturesList.isEmpty())
+			{
+				completeList.add(otherFeaturesSection);
+				completeList.addAll(filteredHikeOtherFeaturesList);
+			}
+			else
+			{
+				completeList.remove(otherFeaturesSection);
+				completeList.removeAll(filteredHikeOtherFeaturesList);
+			}
 		}
-		
+
 		if (showMicroappShowcase && filteredmicroAppShowcaseList != null)
 		{
 			ContactInfo microappSection = new ContactInfo(SECTION_ID, "" + filteredmicroAppShowcaseList.size(), HikeSharedPreferenceUtil.getInstance().getData(

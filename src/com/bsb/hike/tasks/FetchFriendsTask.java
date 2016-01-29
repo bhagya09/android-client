@@ -1,12 +1,15 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.ComposeChatAdapter;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -14,6 +17,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFeatureInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.*;
@@ -116,8 +120,10 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 	private boolean nativeSMSOn;
 
 	private boolean showDefaultEmptyList;
-	
+
 	private boolean showMicroappShowcase;
+	private List<ContactInfo> filteredOtherFeaturesList;
+	private List<ContactInfo> otherFeaturesList;
 
 	public FetchFriendsTask(FriendsAdapter friendsAdapter, Context context, List<ContactInfo> friendsList, List<ContactInfo> hikeContactsList, List<ContactInfo> smsContactsList,
 			List<ContactInfo> recentContactsList,List<ContactInfo> recentlyJoinedHikeContactsList, List<ContactInfo> friendsStealthList, List<ContactInfo> hikeStealthContactsList, List<ContactInfo> smsStealthContactsList, List<ContactInfo> recentsStealthList, List<ContactInfo> filteredFriendsList,
@@ -178,11 +184,17 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 
 		this.showDefaultEmptyList = showDefaultEmptyList;
 		this.showMicroappShowcase = showMicroappShowcase;
-		
+
 		this.nativeSMSOn = Utils.getSendSmsPref(context);
-		
+
 		this.microappShowcaseList = microappShowcaseList;
 		this.filteredMicroAppShowcaseList = filteredMicroAppShowcaseList;
+	}
+
+	public void addOtherFeaturesList(List<ContactInfo> otherFeaturesList, List<ContactInfo> filteredOtherFeaturesList)
+	{
+		this.otherFeaturesList = otherFeaturesList;
+		this.filteredOtherFeaturesList = filteredOtherFeaturesList;
 	}
 
 	@Override
@@ -398,6 +410,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				filteredMicroAppShowcaseList.clear();
 				filteredMicroAppShowcaseList.addAll(microappShowcaseList);
 			}
+		}
+
+		if(otherFeaturesList!=null)
+		{
+			filteredOtherFeaturesList.clear();
+			filteredOtherFeaturesList.addAll(otherFeaturesList);
 		}
 		
 		Logger.d("TestQuery", "total time: " + (System.currentTimeMillis() - startTime));
