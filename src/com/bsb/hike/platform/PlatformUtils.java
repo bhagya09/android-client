@@ -1103,7 +1103,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
 
 	}
 	
