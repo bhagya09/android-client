@@ -158,7 +158,7 @@ public class PlatformNotificationMsgStack
 		ListIterator<PlatformNotificationPreview> listIterator = ll.listIterator(ll.size());
 		while (listIterator.hasPrevious())
 		{
-			customBigTextList.add(HikeNotificationUtils.makeNotificationLine(null, listIterator.previous().getBody()));
+			customBigTextList.add(HikeNotificationUtils.makeNotificationLine(null, listIterator.previous().getSubText()));
 		}
 		return customBigTextList;
 	}

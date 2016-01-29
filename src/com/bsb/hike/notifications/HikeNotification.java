@@ -1379,10 +1379,10 @@ public class HikeNotification
 			{
 				PlatformNotificationPreview platformNotificationPreview = new PlatformNotificationPreview.PlatformNotificationPreviewBuilder(
 						isClubByMsisdn, msisdn, HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.getJSONObject(
-								HikePlatformConstants.METADATA).getString(HikePlatformConstants.HIKE_MESSAGE)).build();
+								HikePlatformConstants.METADATA).getString(HikePlatformConstants.HIKE_MESSAGE)).setSubText(jsonObject.optString(HikeConstants.BODY)).build();
 				platformNotificationMsgStack.addNotif(platformNotificationPreview);
 			}
-			if (platformNotificationMsgStack.getMessageCountForMsisdn(msisdn) > 1)
+			if (isClubByMsisdn && platformNotificationMsgStack.getMessageCountForMsisdn(msisdn) > 1)
 			{
 				List<SpannableString> bigTextList = platformNotificationMsgStack.getBigTextList(msisdn);
 				showInboxStyleNotification(notifIntent, 0, System.currentTimeMillis(), msisdn.hashCode() + 1, getTickerText(msisdn, jsonObject.getString(HikeConstants.BODY)),
