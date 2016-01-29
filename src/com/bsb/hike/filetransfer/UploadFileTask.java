@@ -59,19 +59,9 @@ public class UploadFileTask extends FileTransferBase
 
 	private String fileType;
 
-	private long msgId;
-
-	private String fileKey;
-
-	protected int fileSize;
-
-	protected HikeFileType hikeFileType;
-
 	private int mAttachementType;
 
 	private File selectedFile = null;
-
-	private File mFile = null;
 
 	private Uri picasaUri = null;
 
@@ -393,6 +383,18 @@ public class UploadFileTask extends FileTransferBase
 		validateFileKey();
 	}
 
+	public void upload()
+	{
+		if (requestToken != null)
+		{
+			requestToken.execute();
+		}
+		else
+		{
+			startFileUploadProcess();
+		}
+	}
+
 	private String getImageQuality()
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -541,8 +543,6 @@ public class UploadFileTask extends FileTransferBase
 					try
 					{
 						JSONObject responseJson = new JSONObject(new String(b));
-						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-
 						handleSuccessJSON(responseJson);
 					}
 					catch (JSONException e)
