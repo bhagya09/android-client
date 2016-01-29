@@ -1,10 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,6 +17,11 @@ import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -300,7 +300,8 @@ public class FileTransferManager
 		if (isFileTaskExist(convMessage.getMsgID()))
 		{
 			UploadFileTask task = (UploadFileTask) fileTaskMap.get(convMessage.getMsgID());
-			task.startFileUploadProcess();
+			task.upload();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
 		else
 		{

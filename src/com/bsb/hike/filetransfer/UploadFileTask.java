@@ -383,6 +383,18 @@ public class UploadFileTask extends FileTransferBase
 		validateFileKey();
 	}
 
+	public void upload()
+	{
+		if (requestToken != null)
+		{
+			requestToken.execute();
+		}
+		else
+		{
+			startFileUploadProcess();
+		}
+	}
+
 	private String getImageQuality()
 	{
 		SharedPreferences appPrefs = PreferenceManager.getDefaultSharedPreferences(context);

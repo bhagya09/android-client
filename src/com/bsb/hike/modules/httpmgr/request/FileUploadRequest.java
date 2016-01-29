@@ -175,6 +175,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			byte[] fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
 
 			Response response = null;
+			getState().setSessionId(X_SESSION_ID);
 			getState().setFTState(FTState.IN_PROGRESS);
 			publishProgress((float) bytesTransferred / length);
 			while (end < length)

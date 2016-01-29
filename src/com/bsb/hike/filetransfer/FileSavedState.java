@@ -1,11 +1,11 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.Serializable;
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import java.io.Serializable;
 
 public class FileSavedState implements Serializable
 {
@@ -135,6 +135,11 @@ public class FileSavedState implements Serializable
 	public String getSessionId()
 	{
 		return _sessionId;
+	}
+
+	public void setSessionId(String sessionId)
+	{
+		this._sessionId = sessionId;
 	}
 
 	public String getFileKey()
