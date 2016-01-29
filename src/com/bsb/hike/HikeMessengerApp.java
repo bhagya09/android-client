@@ -25,7 +25,6 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -73,7 +72,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1302,22 +1300,4 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		MultiDex.install(this);
 	}
 
-    /**
-     * Used to schedule the alarm for migration of old running micro apps in the content directory
-     */
-    private void scheduleHikeMicroAppsMigrationAlarm()
-    {
-        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
-
-            long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(), 23, 23, 30, 0);
-            // If the scheduled time is in the past
-            // Scheduled time is increased by 24 hours i.e. same time next day.
-            if (scheduleTime < System.currentTimeMillis())
-            {
-                scheduleTime += 24 * 60 * 60 * 1000;
-            }
-
-            HikeAlarmManager.setAlarm(getApplicationContext(), scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, true);
-        }
-    }
 }
