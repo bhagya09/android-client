@@ -26,7 +26,7 @@ public class PlatformNotificationPreview
      */
     private String body;
 
-
+    private String subText;
     private PlatformNotificationPreviewBuilder builder;
 
     private PlatformNotificationPreview(PlatformNotificationPreviewBuilder builder)
@@ -40,6 +40,7 @@ public class PlatformNotificationPreview
         msisdn=builder.msisdn;
         title=builder.title;
         body=builder.body;
+        subText = builder.subText;
     }
 
     public Boolean getClubByMsisdn()
@@ -61,6 +62,9 @@ public class PlatformNotificationPreview
     {
         return body;
     }
+    public String getSubText() {
+        return subText;
+    }
 
     public static class PlatformNotificationPreviewBuilder
     {
@@ -68,6 +72,7 @@ public class PlatformNotificationPreview
         public String msisdn;
         public String title;
         public String body;
+        public String subText;
         //These are compulsory params
         public PlatformNotificationPreviewBuilder(Boolean clubByMsisdn,String msisdn,String title,String body)
         {
@@ -77,7 +82,10 @@ public class PlatformNotificationPreview
             this.body=body;
         }
         //Add builder for other optionals
-
+        public PlatformNotificationPreviewBuilder setSubText(String subText){
+            this.subText = subText;
+            return this;
+        }
         public PlatformNotificationPreview build()
         {
             return new PlatformNotificationPreview(this);
