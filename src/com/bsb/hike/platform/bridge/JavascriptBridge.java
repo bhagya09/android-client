@@ -539,11 +539,9 @@ public abstract class JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
 		});
@@ -1087,8 +1085,16 @@ public abstract class JavascriptBridge
 			final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
 			final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
 			final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+			final boolean sendAll=mmObject.optBoolean(ProductPopupsConstants.SENDALL,false);
 			if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
 			{
+
+				if(sendAll)
+				{
+					PlatformUtils.sendStickertoAllHikeContacts(stickerId,categoryId);
+					return;
+				}
+
 				mHandler.post(new Runnable()
 				{
 					

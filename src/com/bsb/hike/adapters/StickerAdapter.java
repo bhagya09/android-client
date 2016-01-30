@@ -313,7 +313,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 					{
 						category.setUpdateAvailable(false);
 					}
-					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.FIRST_TIME, DownloadType.NEW_CATEGORY, mContext);
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.FIRST_TIME, DownloadType.NEW_CATEGORY, mContext);
 					setupStickerPage(parent, category);
 				}
 			});

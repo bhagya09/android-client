@@ -205,7 +205,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
 		}
 		//Resetting to use Phone Language as default
-		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()));
+		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()), HikeConstants.APP_LANG_CHANGED_DEL_ACC);
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 

@@ -516,8 +516,8 @@ public enum StickerSearchDataController
 		{
 			synchronized (StickerSearchDataController.class)
 			{
-				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Pack-Story data: " + packStoryData);
-				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Sticker-Tag data: " + stickersTagData);
+				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Pack-Story data for packs: " + packStoryData.keySet());
+				Logger.v(TAG, "setupStickerSearchWizard(), Ready to insert Sticker-Tag data for stickers (count): " + stickersTagData.size());
 
 				try
 				{
@@ -560,7 +560,7 @@ public enum StickerSearchDataController
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 				if (remainingSetSize > 0)
 				{
-					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
+					StickerManager.getInstance().saveStickerSet(updateRetrySet, state, true);
 				}
 				else
 				{
