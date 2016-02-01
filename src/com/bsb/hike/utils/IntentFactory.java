@@ -715,9 +715,18 @@ public class IntentFactory
 
 	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery)
 	{
+		return getImageSelectionIntent(argContext,argSelectedImages,fromDeviceGallery,false);
+	}
+
+	/*
+	TODO: Fix input params
+	 */
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture)
+	{
 		Intent multiIntent = new Intent(argContext,GallerySelectionViewer.class);
 		multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList(argSelectedImages));
 		multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, fromDeviceGallery);
+		multiIntent.putExtra(GallerySelectionViewer.FROM_CAMERA_CAPTURE, fromCameraCapture);
 		return multiIntent;
 	}
 

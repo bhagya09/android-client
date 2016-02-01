@@ -1041,7 +1041,7 @@ import android.widget.Toast;
 			filePathArrays.add(filename);
 			ArrayList<GalleryItem> galleryItemArrayList = GalleryItem.getGalleryItemsFromFilepaths(filePathArrays);
 
-			Intent selectionIntent = IntentFactory.getImageSelectionIntent(activity, galleryItemArrayList, true);
+			Intent selectionIntent = IntentFactory.getImageSelectionIntent(activity, galleryItemArrayList, true, true);
 			activity.startActivityForResult(selectionIntent, AttachmentPicker.GALLERY);
 			break;
 		case AttachmentPicker.AUDIO:

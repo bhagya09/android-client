@@ -69,6 +69,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 {
 	public static final String FROM_DEVICE_GALLERY_SHARE = "from_gallery_share";
 
+	public static final String FROM_CAMERA_CAPTURE = "from_camera_capture";
+
 	public static final String EDIT_IMAGES_LIST = "edit_images_list";
 
 	public static final int MULTI_EDIT_REQUEST_CODE = 12309;
@@ -129,6 +131,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private View btnCropAccept;
 
+	private boolean fromCameraCapture;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -164,6 +168,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		}
 
 		forGalleryShare = getIntent().getBooleanExtra(FROM_DEVICE_GALLERY_SHARE, false);
+
+		fromCameraCapture = getIntent().getBooleanExtra(FROM_CAMERA_CAPTURE, false);
 
 		galleryItems = data.getParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS);
 		totalSelections = galleryItems.size();
@@ -510,9 +516,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		//Using edited filepath if user has edited the current selection other wise the original also writing over the edited file if the user is editing an already edited image
 		String selectedFilePath = getFinalFilePathAtPosition(currPos);
-		String destinationFilePath = isIndexEdited(currPos)?selectedFilePath:null;
+		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath:null;
 		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare,destinationFilePath , false);
 		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+		HikeMessengerApp.getLruCache().removeItemForKey(GalleryImageLoader.GALLERY_KEY_PREFIX + selectedFilePath);
 	}
 
 	@Override
