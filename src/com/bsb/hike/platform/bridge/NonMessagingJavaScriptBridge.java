@@ -1358,18 +1358,35 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
 			return;
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-		JSONObject json = new JSONObject();
+
+        // Json to remove micro app code from old micro app content path
+        JSONObject json = new JSONObject();
+        try
+        {
+            JSONArray array = new JSONArray();
+            array.put(nonMessagingBotMetadata.getAppName());
+            json.put(HikePlatformConstants.APP_NAME, array);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        BotUtils.removeMicroApp(json);
+
+        // Json to remove micro app code from new structured versioning path
+        JSONObject jsonToRemoveMicroAppFromVersioningPath = new JSONObject();
 		try
 		{
-			json.put(HikePlatformConstants.APP_NAME, nonMessagingBotMetadata.getAppName());
-            json.put(HikePlatformConstants.MSISDN, msisdn);
+            jsonToRemoveMicroAppFromVersioningPath.put(HikePlatformConstants.APP_NAME, nonMessagingBotMetadata.getAppName());
+            jsonToRemoveMicroAppFromVersioningPath.put(HikePlatformConstants.MSISDN, msisdn);
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
-		BotUtils.removeMicroApp(json);
-		BotUtils.deleteBot(msisdn);
+		BotUtils.removeMicroAppFromVersioningPath(jsonToRemoveMicroAppFromVersioningPath);
+
+        BotUtils.deleteBot(msisdn);
 	}
 	/**
 	 * Platform Version 9
