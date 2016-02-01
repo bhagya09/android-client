@@ -249,7 +249,7 @@ public class VoIPService extends Service implements Listener
 				if (client.isInitiator()) {
 					playIncomingCallRingtone();
 				} else {
-					if (!client.isCallActive())
+					if (!client.isCallActive() && !hostingConference())
 						playOutgoingCallRingtone();
 					if (hostingConference())
 						sendClientsListToAllClients();
