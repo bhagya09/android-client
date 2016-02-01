@@ -1359,33 +1359,29 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
-        // Json to remove micro app code from old micro app content path
+        // Json to remove micro app code from old micro app content path and from new structured versioning path
         JSONObject json = new JSONObject();
         try
         {
-            JSONArray array = new JSONArray();
-            array.put(nonMessagingBotMetadata.getAppName());
-            json.put(HikePlatformConstants.APP_NAME, array);
+            // Generating app Names json array
+            JSONArray appNameArray = new JSONArray();
+            appNameArray.put(nonMessagingBotMetadata.getAppName());
+
+            // Generating msisdn json array
+            JSONArray msisdnArray = new JSONArray();
+            msisdnArray.put(msisdn);
+
+            json.put(HikePlatformConstants.APP_NAME, appNameArray);
+            json.put(HikePlatformConstants.MSISDN, msisdnArray);
         }
         catch (JSONException e)
         {
             e.printStackTrace();
         }
         BotUtils.removeMicroApp(json);
+        BotUtils.removeMicroAppFromVersioningPath(json);
 
-        // Json to remove micro app code from new structured versioning path
-        JSONObject jsonToRemoveMicroAppFromVersioningPath = new JSONObject();
-		try
-		{
-            jsonToRemoveMicroAppFromVersioningPath.put(HikePlatformConstants.APP_NAME, nonMessagingBotMetadata.getAppName());
-            jsonToRemoveMicroAppFromVersioningPath.put(HikePlatformConstants.MSISDN, msisdn);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		BotUtils.removeMicroAppFromVersioningPath(jsonToRemoveMicroAppFromVersioningPath);
-
+        // code to delete bot from conversations
         BotUtils.deleteBot(msisdn);
 	}
 	/**

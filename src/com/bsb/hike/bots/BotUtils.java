@@ -277,7 +277,7 @@ public class BotUtils
                                 "t": "ac",
                                 "d": {
                                     "dmapp": [
-                                        { "appName":[],
+                                        {
                                           "msisdn":["+hikenews+" ,"+hikecoupons+"]
                                         }
                                     }
