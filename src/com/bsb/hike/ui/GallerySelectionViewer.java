@@ -106,7 +106,22 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private static final String TAG = "GAllerySelectionViewer";
 
-	private SparseArray<String> captions = new SparseArray<>();
+	private SparseArray<String> captions = new SparseArray<String>()
+	{
+		//TODO Question the need for this
+		@Override
+		public String get(int key)
+		{
+			String returnObj = super.get(key);
+
+			if(returnObj == null)
+			{
+				return "";
+			}
+
+			return returnObj;
+		}
+	};
 
 	private boolean isInCropMode;
 
@@ -206,12 +221,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
             galleryGridItems.add(null);
             HikeMessengerApp.getPubSub().addListener(HikePubSub.MULTI_FILE_TASK_FINISHED, this);
         }
-
-		for (int i = 0; i < galleryItems.size(); i++)
-		{
-			captions.put(i,"");
-		}
-
 
 		selectedGrid = (GridView) findViewById(R.id.selection_grid);
 		selectedPager = (ViewPager) findViewById(R.id.selection_pager);
