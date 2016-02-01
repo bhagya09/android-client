@@ -21,6 +21,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -214,6 +215,16 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		selectedGrid = (GridView) findViewById(R.id.selection_grid);
 		selectedPager = (ViewPager) findViewById(R.id.selection_pager);
+		selectedPager.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				if(isInCropMode)
+				{
+					return true;
+				}
+				return false;
+			}
+		});
 
 		btnCrop = (ImageButton)findViewById(R.id.ib_crop);
 		btnEdit = (ImageButton)findViewById(R.id.ib_edit);
