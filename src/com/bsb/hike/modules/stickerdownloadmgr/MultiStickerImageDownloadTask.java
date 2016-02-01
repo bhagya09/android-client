@@ -121,7 +121,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 		}
 
 		@Override
-		public void intercept(Chain chain)
+		public void intercept(Chain chain) throws Exception
 		{
 			Logger.d(TAG, "intercept(), CategoryId: " + category.getCategoryId());
 			String directoryPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(category.getCategoryId());
