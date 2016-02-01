@@ -63,6 +63,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
 import com.edmodo.cropper.CropImageView;
 
@@ -106,7 +107,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private static final String TAG = "GAllerySelectionViewer";
 
-	private SparseArray<String> captions = new SparseArray<String>()
+	private ParcelableSparseArray captions = new ParcelableSparseArray()
 	{
 		//TODO Question the need for this
 		@Override
@@ -173,6 +174,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		else
 		{
 			data = savedInstanceState;
+		}
+
+		if(data !=null && data.containsKey(HikeConstants.CAPTION))
+		{
+			captions = (ParcelableSparseArray)data.getParcelable(HikeConstants.CAPTION);
 		}
 
 		if(data == null || !data.containsKey(HikeConstants.Extras.GALLERY_SELECTIONS))
@@ -967,6 +973,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItems);
+		outState.putParcelable(HikeConstants.CAPTION, captions);
 		if(haveImagesBeenEdited())
 		{
 			outState.putStringArrayList(EDIT_IMAGES_LIST, editedImages);
