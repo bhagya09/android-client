@@ -24,6 +24,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.util.Linkify;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -317,6 +318,7 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 		String date = Utils.getFormattedDate(getActivity(), timeStamp);
 		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
 		itemTimeStamp.setText(getSenderName(position)+", "+date+", "+time);
+		Linkify.addLinks(senderName, Linkify.ALL);
 	}
 
 	private String getSenderName(int position)
