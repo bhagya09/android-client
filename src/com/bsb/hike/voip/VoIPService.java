@@ -96,7 +96,7 @@ public class VoIPService extends Service implements Listener
 	private AudioManager.OnAudioFocusChangeListener mOnAudioFocusChangeListener;
 	private int playbackSampleRate = 0, recordingSampleRate = 0;
 	private boolean inCellularCall = false;
-	public boolean recordingAndPlaybackRunning = false;
+//	public boolean recordingAndPlaybackRunning = false;
 	
 	// Conference related
 	private boolean conferencingEnabled = false;
@@ -244,7 +244,8 @@ public class VoIPService extends Service implements Listener
 				if (client == null)
 					return;
 
-				startRecordingAndPlayback();
+//				startRecordingAndPlayback();
+				startRecording();
 				if (client.isInitiator()) {
 					playIncomingCallRingtone();
 				} else {
@@ -1448,16 +1449,16 @@ public class VoIPService extends Service implements Listener
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 
-	private void startRecordingAndPlayback() {
-		if (!recordingAndPlaybackRunning) {
-			recordingAndPlaybackRunning = true;
-			Logger.d(tag, "Starting audio record / playback.");
-			startRecording();
-			startPlayBack();
-		} else {
-			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
-		}
-	}
+//	private void startRecordingAndPlayback() {
+//		if (!recordingAndPlaybackRunning) {
+//			recordingAndPlaybackRunning = true;
+//			Logger.d(tag, "Starting audio record / playback.");
+//			startRecording();
+//			startPlayBack();
+//		} else {
+//			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
+//		}
+//	}
 
 	private synchronized void setCallAsActive(String msisdn) {
 
@@ -1472,6 +1473,8 @@ public class VoIPService extends Service implements Listener
 		}
 
 		startChrono();
+		setAudioModeInCall();
+		startPlayBack();
 		client.setIsCallActive(true);
 
 		if(client.getPreferredConnectionMethod() == ConnectionMethods.RELAY) 
@@ -1495,19 +1498,20 @@ public class VoIPService extends Service implements Listener
 	private void startRecording() {
 		
 		if (recordingThread != null)
-			recordingThread.interrupt();
-		
+			return;	// We are already running
+
 		recordingThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				try {
-					// Sleep for a little bit in case the AudioRecord is being initialized
-					// again. Doing it immediately will cause the AudioRecord to fail. 
-					Thread.sleep(500);
-				} catch (InterruptedException e1) {
-					return;
-				}
+
+//				try {
+//					// Sleep for a little bit in case the AudioRecord is being initialized
+//					// again. Doing it immediately will cause the AudioRecord to fail.
+//					Thread.sleep(500);
+//				} catch (InterruptedException e1) {
+//					return;
+//				}
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
@@ -1703,14 +1707,16 @@ public class VoIPService extends Service implements Listener
 	}
 	
 	private void startPlayBack() {
-		
+
+		if (playbackThread != null)
+			return;	// We are already running
+
 		playbackThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-				setAudioModeInCall();
 				int index;
 				int size;
 
@@ -2033,10 +2039,14 @@ public class VoIPService extends Service implements Listener
 		this.hold = newHold;
 		
 		if (newHold) {
-			if (recordingThread != null)
+			if (recordingThread != null) {
 				recordingThread.interrupt();
-			if (playbackThread != null)
+				recordingThread = null;
+			}
+			if (playbackThread != null) {
 				playbackThread.interrupt();
+				playbackThread = null;
+			}
 		} else {
 			// Coming off hold
 			startRecording();
