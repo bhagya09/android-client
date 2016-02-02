@@ -47,6 +47,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
@@ -120,7 +121,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private View progressLoading;
 
 	private GalleryRecyclerAdapter recyclerAdapter;
-	
+
+	private ParcelableSparseArray captions;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -157,6 +160,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
 		{
 			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
+		}
+
+		if(data.containsKey(HikeConstants.CAPTION) && data.get(HikeConstants.CAPTION) != null)
+		{
+			captions  = (ParcelableSparseArray) data.get(HikeConstants.CAPTION);
 		}
 
 		if (data.containsKey(FOLDERS_REQUIRED_KEY))
@@ -303,12 +311,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
-		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
-		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>)galleryItemList);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>) selectedGalleryItems);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>) galleryItemList);
 		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 		}
+		outState.putParcelable(HikeConstants.CAPTION,captions);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -479,6 +488,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				intent.putStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 				editedImages=null;
+			}
+
+			if(captions != null)
+			{
+				intent.putExtra(HikeConstants.CAPTION,captions);
 			}
 		}
 		

@@ -108,22 +108,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private static final String TAG = "GAllerySelectionViewer";
 
-	private ParcelableSparseArray captions = new ParcelableSparseArray()
-	{
-		//TODO Question the need for this
-		@Override
-		public String get(int key)
-		{
-			String returnObj = super.get(key);
-
-			if(returnObj == null)
-			{
-				return "";
-			}
-
-			return returnObj;
-		}
-	};
+	private ParcelableSparseArray captions;
 
 	private boolean isInCropMode;
 
@@ -180,6 +165,26 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		if(data !=null && data.containsKey(HikeConstants.CAPTION))
 		{
 			captions = (ParcelableSparseArray)data.getParcelable(HikeConstants.CAPTION);
+		}
+
+		if(captions == null)
+		{
+			captions = new ParcelableSparseArray()
+			{
+				//TODO Question the need for this
+				@Override
+				public String get(int key)
+				{
+					String returnObj = super.get(key);
+
+					if(returnObj == null)
+					{
+						return "";
+					}
+
+					return returnObj;
+				}
+			};
 		}
 
 		if(data == null || !data.containsKey(HikeConstants.Extras.GALLERY_SELECTIONS))
@@ -339,7 +344,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 	private void startAddMoreGalleryIntent()
 	{
-
 		Intent intent = new Intent(this, GalleryActivity.class);
 
 		intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, galleryItems);
@@ -358,6 +362,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			intent.putStringArrayListExtra(EDIT_IMAGES_LIST, editedImages);
 		}
+
+		intent.putExtra(HikeConstants.CAPTION,captions);
 
 		startActivity(intent);
 	}
