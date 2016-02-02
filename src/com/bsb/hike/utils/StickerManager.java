@@ -393,6 +393,16 @@ public class StickerManager
 			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
+
+		// Remove tags being used for sticker search w.r.t. deleted sticker category here
+		Set<String> removedCategorySet = new HashSet<String>();
+		removedCategorySet.add(removedCategoryId);
+		StickerSearchManager.getInstance().removeDeletedStickerTags(removedCategorySet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
+	}
+
+	public void removeTagForDeletedStickers(Set<String> removedStickerInfoSet)
+	{
+		StickerSearchManager.getInstance().removeDeletedStickerTags(removedStickerInfoSet, StickerSearchConstants.REMOVAL_BY_STICKER_DELETED);
 	}
 
 	public void addNoMediaFilesToStickerDirectories()
