@@ -728,7 +728,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
 		btnCrop.animate().x(enableCrop ? btnXorig + 200f : btnXorig);
 
-		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop ? gridYorig + 600f : gridYorig : enableCrop ? gridYorig + 300f : gridYorig);
+		selectedGrid.animate().y(galleryGridItems.size() > 4 ? enableCrop ? gridYorig + 650f : gridYorig : enableCrop ? gridYorig + 300f : gridYorig);
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
 		containerRotate.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
 		cropDivider.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
