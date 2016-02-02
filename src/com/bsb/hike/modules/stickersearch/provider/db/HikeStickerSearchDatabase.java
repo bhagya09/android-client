@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,6 +73,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	private static long sInsertionTimePerSession = 0;
 
 	private static long sPTInsertionTimePerSession = 0;
+
+	private Float maxLocalFrequency = 0.0f;
+	private Float maxTrendingFrequency = 0.0f;
+	private Float maxGlobalFrequency = 0.0f;
 
 	private HikeStickerSearchDatabase(Context context)
 	{
@@ -1713,7 +1718,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isTrendingSummeryTurn)
 			{
 				// Compute proportional trending frequencies first for all sticker-tags
-				float maxTrendingFrequency = Collections.max(trendingFrequencies);
+				maxTrendingFrequency = Collections.max(trendingFrequencies);
 
 				float MAXIMUM_FREQUENCY_TRENDING = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_TRENDING,
 						StickerSearchConstants.MAXIMUM_FREQUENCY_TRENDING);
@@ -1751,7 +1756,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isLocalSummeryTurn)
 			{
 				// Compute proportional local frequencies first for all sticker-tags
-				float maxLocalFrequency = Collections.max(localFrequencies);
+				maxLocalFrequency = Collections.max(localFrequencies);
 
 				float MAXIMUM_FREQUENCY_LOCAL = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_LOCAL, StickerSearchConstants.MAXIMUM_FREQUENCY_LOCAL);
 
@@ -1788,7 +1793,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			if (isGlobalSummeryTurn)
 			{
 				// Compute proportional global frequencies first for all sticker-tags
-				float maxGlobalFrequency = Collections.max(globalFrequencies);
+				maxGlobalFrequency = Collections.max(globalFrequencies);
 
 				float MAXIMUM_FREQUENCY_GLOBAL = stickerDataSharedPref.getData(HikeConstants.STICKER_TAG_MAX_FREQUENCY_GLOBAL, StickerSearchConstants.MAXIMUM_FREQUENCY_GLOBAL);
 
@@ -2134,6 +2139,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		ArrayList<StickerAppositeDataContainer> resultSet = null;
 
+		 maxLocalFrequency = 0.0f;
+		 maxTrendingFrequency = 0.0f;
+		 maxGlobalFrequency = 0.0f;
+
+
 		try
 		{
 			c = mDb.query(true,
@@ -2162,6 +2172,22 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					String frequencyFunction = c.getString(compositeFrequencyIndex);
 					StickerAppositeDataContainer temp = new StickerAppositeDataContainer(stickerCode,frequencyFunction,0,HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY,stickertagAge);
 					resultSet.add(temp);
+
+					if(maxGlobalFrequency < temp.getGlobalFrequency())
+					{
+						maxGlobalFrequency = temp.getGlobalFrequency();
+					}
+
+					if(maxTrendingFrequency < temp.getTrendingFrequency())
+					{
+						maxTrendingFrequency = temp.getTrendingFrequency();
+					}
+
+					if(maxLocalFrequency < temp.getLocalFrequency())
+					{
+						maxLocalFrequency = temp.getLocalFrequency();
+					}
+
 				}
 			}
 		}
@@ -2180,7 +2206,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		Collections.sort(resultSet);
+		Collections.sort(resultSet, new Comparator<StickerAppositeDataContainer>() {
+			@Override
+			public int compare(StickerAppositeDataContainer lhs, StickerAppositeDataContainer rhs) {
+				float lhsScore = lhs.getCumalativeNormalisedFrequency(maxLocalFrequency,maxTrendingFrequency,maxGlobalFrequency);
+				float rhsScore = rhs.getCumalativeNormalisedFrequency(maxLocalFrequency,maxTrendingFrequency,maxGlobalFrequency);
+
+				return Float.compare(rhsScore,lhsScore);
+			}
+		});
 
 		int stickersToDelete = StickerSearchUtils.getUndownloadedTagsStickersCount() - StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);
 

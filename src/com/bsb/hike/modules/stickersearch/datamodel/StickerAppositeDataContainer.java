@@ -425,4 +425,24 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 				+ mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
 				+ "><sr_scr=" + mRecommendationScore + ">]";
 	}
+
+	public float getCumalativeNormalisedFrequency(float maxLocalFrequency,float maxTrendingFrequency,float maxGlobalFrequency)
+	{
+		if(maxLocalFrequency == 0.0f)
+		{
+			maxLocalFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		if(maxTrendingFrequency == 0.0f)
+		{
+			maxTrendingFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		if(maxGlobalFrequency == 0.0f)
+		{
+			maxGlobalFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		return (this.getLocalFrequency()/maxLocalFrequency + this.getTrendingFrequency()/maxTrendingFrequency + this.getGlobalFrequency()/maxGlobalFrequency);
+	}
 }
