@@ -33,66 +33,59 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/checkboxAndDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:id="@+id/category_checkbox_ll"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:orientation="horizontal"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:orientation="vertical"
         android:gravity="center"
         android:layout_centerVertical="true" >
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <ImageButton
+            <ImageButton
+            android:id="@+id/category_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/sticker_settings_checkbox"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:visibility="gone"/>
+
+
+            <ImageButton
             android:id="@+id/delete_option"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:src="@drawable/actionbar_ic_delete"
             android:scaleType="centerInside"
             android:clickable="true"
             android:background="@android:color/darker_gray"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="4dp"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
+        <ProgressBar
+            android:id="@+id/download_progress"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Progress Bar"
+            android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
+            android:visibility="gone"
+            android:layout_gravity="center" />
 
-        <LinearLayout
-            android:id="@+id/category_checkbox_ll"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_centerVertical="true" >
+        </FrameLayout>
 
-            <ImageButton
-                android:id="@+id/category_checkbox"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/sticker_settings_checkbox"
-                android:scaleType="centerInside"
-                android:background="@android:color/transparent" />
+        <ProgressBar
+            android:id="@+id/delete_progress"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
+            android:visibility="gone"
+            android:layout_gravity="center" />
 
-            <ProgressBar
-                android:id="@+id/download_progress"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="Progress Bar"
-                android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
-                android:visibility="gone"
-                android:layout_gravity="center" />
-
-            <ProgressBar
-                android:id="@+id/delete_progress"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
-                android:visibility="gone"
-                android:layout_gravity="center" />
-
-
-        </LinearLayout>
 
     </LinearLayout>
 
