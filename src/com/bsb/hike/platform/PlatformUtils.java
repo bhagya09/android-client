@@ -1695,6 +1695,7 @@ public class PlatformUtils
 				cardShareImageFile.deleteOnExit();
 			}
 		}
+	}
 	public static String getRunningGame(Context context)
 	{
 		String gameId = "";
