@@ -141,6 +141,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private static final String SELECT_ALL_MSISDN="all";
 	
 	private final String HORIZONTAL_FRIEND_FRAGMENT = "horizontalFriendFragment";
+
+	private final String IMAGES_TO_SHARE = "imgToShare";
+
+	private final String MSG_TO_SHARE = "msgToShare";
 	
 	private static int MIN_MEMBERS_GROUP_CHAT = 2;
 
@@ -333,6 +337,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		if (savedInstanceState != null)
 		{
 			deviceDetailsSent = savedInstanceState.getBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT);
+			imagesToShare = savedInstanceState.getStringArrayList(IMAGES_TO_SHARE);
+			messageToShare = savedInstanceState.getString(MSG_TO_SHARE);
 		}
 		
 		if (!shouldInitiateFileTransfer())
@@ -397,7 +403,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 
-						if(savedInstanceState == null)
 						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 
 						//Got images to share
@@ -421,7 +426,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
 
-						if(savedInstanceState == null)
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						// Got images to share
 						// Keep references to images (these will need to be shared via hike features (timeline,etc)
@@ -597,6 +601,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) adapter.getAllSelectedContactsMsisdns());
+		outState.putStringArrayList(IMAGES_TO_SHARE, imagesToShare);
+		outState.putString(MSG_TO_SHARE,messageToShare);
 	}
 	
 	@Override
