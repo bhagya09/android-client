@@ -1707,6 +1707,5 @@ public class PlatformUtils
 			Logger.e("productpopup", "Invalid JSON", e);
 		}
 		return convMessage;
->>>>>>> d7663b935cb34657a3008ab8b7a2ccb59926e4c4
 	}
 }
