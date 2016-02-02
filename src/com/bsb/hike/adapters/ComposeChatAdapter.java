@@ -186,6 +186,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			timelineListItem.setPhoneNum(ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID);
 			timelineListItem.setName(context.getString(R.string.timeline));
 			timelineListItem.setMsisdn(context.getString(R.string.timeline));
+			timelineListItem.setOnhike(true);
 
 			hikeOtherFeaturesList.add(timelineListItem);
 
@@ -938,6 +939,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		{
 			ArrayList<List<ContactInfo>> listsToSelect = getOnHikeContactLists();
 			listsToSelect.add(groupsList);
+			listsToSelect.add(filteredHikeOtherFeaturesList);
 			selectAllFromList(listsToSelect);
 		}
 		else
