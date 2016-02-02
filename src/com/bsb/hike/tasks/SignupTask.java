@@ -743,8 +743,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 		settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
 
-		ChatHeadUtils.syncAllCallerBlockedContacts();
-
 		return Boolean.TRUE;
 	}
 	
