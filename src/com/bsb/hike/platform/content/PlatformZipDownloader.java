@@ -18,23 +18,14 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.ToastListener;
-import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -176,6 +167,17 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
+		// Instead of getting an ex
+		if (TextUtils.isEmpty(mRequest.getContentData().getLayout_url()))
+		{
+			if (null != mRequest.getListener())
+			{
+				mRequest.getListener().onEventOccured(0, EventCode.INVALID_DATA);
+			}
+
+			return;
+		}
+
 		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
         if (!isMicroAppExist())
         {
