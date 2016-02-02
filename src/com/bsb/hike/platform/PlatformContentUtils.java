@@ -1,20 +1,14 @@
-package com.bsb.hike.platform.content;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+package com.bsb.hike.platform;
 
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
+
+import java.io.*;
 
 public class PlatformContentUtils
 {
