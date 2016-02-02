@@ -1067,15 +1067,15 @@ public class VoIPClient  {
 		partnerSocketInfoTimeoutThread.start();
 	}
 	
-	public synchronized void sendPacket(VoIPDataPacket dp, boolean requiresAck) {
+	public synchronized void sendPacket(VoIPDataPacket dp, boolean guaranteeDelivery) {
 		
 		if (dp.getType() != PacketType.ACK && dp.getPacketNumber() == 0)
 			dp.setPacketNumber(currentPacketNumber++);
 		
-		dp.setRequiresAck(requiresAck);
+		dp.setRequiresAck(guaranteeDelivery);
 		dp.setTimestamp(System.currentTimeMillis());
 
-		if (requiresAck)
+		if (guaranteeDelivery)
 			addPacketToAckWaitQueue(dp);
 
 		if (!keepRunning)
@@ -2046,15 +2046,6 @@ public class VoIPClient  {
 			}
 			hit = false;
 		} else {
-
-//			if (version >= 4 && lastAudioPacketPlayed > 0 && dp.getVoicePacketNumber() > 0) {
-//				if (lastAudioPacketPlayed < dp.getVoicePacketNumber() - 1) {
-//					Logger.w(tag, "Missing audio.");
-//					measureRTT();
-//					if (minimumDecodedQueueSize == 0)
-//						minimumDecodedQueueSize = 1;
-//				}
-//			}
 
 			if (dp != null) {
 				lastAudioPacketPlayed = dp.getVoicePacketNumber();

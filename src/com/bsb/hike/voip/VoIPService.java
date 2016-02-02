@@ -244,8 +244,9 @@ public class VoIPService extends Service implements Listener
 				if (client == null)
 					return;
 
-//				startRecordingAndPlayback();
+				// Start recording immediately so our AEC library can tune itself.
 				startRecording();
+
 				if (client.isInitiator()) {
 					playIncomingCallRingtone();
 				} else {
@@ -983,7 +984,7 @@ public class VoIPService extends Service implements Listener
 		else
 			title = getString(R.string.voip_call_notification_title, client.getName()); 
 
-		String text = null;
+		String text;
 
 		NotificationCompat.Builder builder = null;
 
@@ -1018,7 +1019,7 @@ public class VoIPService extends Service implements Listener
 		case PARTNER_BUSY:
 		case ENDED:
 			int callDuration = getCallDuration();
-			String durationString = "";
+			String durationString;
 
 			if (callDuration <= 0)
 				durationString = "";
@@ -1449,17 +1450,6 @@ public class VoIPService extends Service implements Listener
 		client.sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_CALL_ACCEPT);
 	}
 
-//	private void startRecordingAndPlayback() {
-//		if (!recordingAndPlaybackRunning) {
-//			recordingAndPlaybackRunning = true;
-//			Logger.d(tag, "Starting audio record / playback.");
-//			startRecording();
-//			startPlayBack();
-//		} else {
-//			Logger.d(tag, "Skipping startRecording() and startPlayBack()");
-//		}
-//	}
-
 	private synchronized void setCallAsActive(String msisdn) {
 
 		final VoIPClient client = getClient(msisdn);
@@ -1505,13 +1495,6 @@ public class VoIPService extends Service implements Listener
 			@Override
 			public void run() {
 
-//				try {
-//					// Sleep for a little bit in case the AudioRecord is being initialized
-//					// again. Doing it immediately will cause the AudioRecord to fail.
-//					Thread.sleep(500);
-//				} catch (InterruptedException e1) {
-//					return;
-//				}
 				android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
 				AudioRecord recorder = null;
@@ -1803,10 +1786,16 @@ public class VoIPService extends Service implements Listener
 		playbackThread.start();
 		startAudioProcessor();
 	}
-	
+
+	/**
+	 * This is the heart of audio recording and playback.
+	 * For a given frame size (60 ms in our case), the thread runs repeatedly at that frequency.
+	 * Every time it runs, it will queue a frame for playback, and send a recorded frame to the
+	 * other client. If this client is hosting a conference, it will combine all the audio samples
+	 * correctly and broadcast them to the appropriate clients.
+	 */
 	private void startAudioProcessor() {
 		
-		// This is how often we feed PCM samples to the speaker. 
 		// Should be equal to 60ms for a frame size of 2880. (2880 / 48000)
 		int sleepTime = OpusWrapper.OPUS_FRAME_SIZE * 1000 / VoIPConstants.AUDIO_SAMPLE_RATE;
 		
@@ -2246,10 +2235,7 @@ public class VoIPService extends Service implements Listener
 	
 	public boolean inActiveCall() {
 		VoIPClient client = getClient();
-		if (client != null)
-			return client.isCallActive();
-		else
-			return false;
+		return client != null && client.isCallActive();
 	}
 
 	public void setCallStatus(VoIPConstants.CallStatus status)

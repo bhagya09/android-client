@@ -104,7 +104,7 @@ public class VoIPConstants {
 	 * Maximum round trip time between clients. If RTT is more than this
 	 * value, then quality will suffer since repeat audio requests won't work.
 	 */
-	public static final int MAX_RTT = 2;
+	public static final int MAX_RTT = 1;
 	
 	/**
 	 * Wait before sending an error message to the activity for an outgoing
@@ -279,7 +279,7 @@ public class VoIPConstants {
 	 * </p>
 	 *
 	 */
-	public static enum CallStatus
+	public enum CallStatus
 	{
 		OUTGOING_CONNECTING, 
 		OUTGOING_RINGING, 
@@ -293,9 +293,4 @@ public class VoIPConstants {
 		UNUSED_PLACEHOLDER_FOR_BACKWARD_COMPATIBILITY
 	}
 
-	/**
-	 * Track packets received for last X seconds
-	 */
-	public static final int QUALITY_WINDOW = 3;
-	
 }
