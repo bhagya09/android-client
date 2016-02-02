@@ -104,6 +104,14 @@ public class StatusUpdateTask implements IHikeHTTPTask
 							{
 								sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(imageFilePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
 										(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.ARGB_8888, HikePhotosUtils.getLoadingOptionsAdvanced(), false);
+								sourceBitmap = Utils.getRotatedBitmap(imageFilePath, sourceBitmap);
+
+								if (sourceBitmap == null)
+								{
+									sourceBitmap = HikeBitmapFactory.decodeSampledBitmapFromFile(imageFilePath, (HikeConstants.HikePhotos.MAX_IMAGE_DIMEN),
+											(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, HikePhotosUtils.getLoadingOptionsAdvanced(), false);
+									sourceBitmap = Utils.getRotatedBitmap(imageFilePath, sourceBitmap);
+								}
 							}
 						}
 

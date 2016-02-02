@@ -298,11 +298,13 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
 					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.ARGB_8888, options, true);
+			bmp = Utils.getRotatedBitmap(mImagePath,bmp);
 
 			if(bmp == null)
 			{
 				bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
 						(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
+				bmp = Utils.getRotatedBitmap(mImagePath, bmp);
 			}
 
 			if(bmp == null)
