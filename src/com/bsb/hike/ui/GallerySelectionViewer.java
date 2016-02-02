@@ -453,7 +453,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 					Intent data = new Intent();
 					ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
 					data.putParcelableArrayListExtra(HikeConstants.IMAGE_PATHS,selectedFiles);
-
+					data.putStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS, editedImages);
 					if (captions.size() > 0)
 					{
 						ArrayList<String> captionsArrayList = new ArrayList<String>();
@@ -549,7 +549,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		//Using edited filepath if user has edited the current selection other wise the original also writing over the edited file if the user is editing an already edited image
 		String selectedFilePath = getFinalFilePathAtPosition(currPos);
-		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath: HikePhotosUtils.getEditedImagePath(selectedFilePath);
+		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath: null;
 		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare,destinationFilePath , false);
 		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		removeCacheThumbnailForSelection();

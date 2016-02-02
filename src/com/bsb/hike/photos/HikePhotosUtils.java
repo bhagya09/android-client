@@ -549,21 +549,4 @@ public class HikePhotosUtils
 
 		return options;
 	}
-
-	public static String getEditedImagePath(String originalFilePath)
-	{
-		String newFilePath = PictureEditer.getEditImageSaveDirectory(true) + File.separator;
-
-		File originalFile = new File(originalFilePath);
-		String originalFileName = originalFile.getName();
-		String[] fileNameSplit = originalFileName.split("\\.(?=[^\\.]+$)");
-		if (fileNameSplit == null || fileNameSplit.length == 0)
-		{
-			return newFilePath + Utils.getUniqueFilename(HikeFile.HikeFileType.IMAGE);
-		}
-		else
-		{
-			return newFilePath + fileNameSplit[0]+"_edited.jpg";
-		}
-	}
 }

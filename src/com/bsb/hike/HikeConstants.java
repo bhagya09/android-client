@@ -3436,6 +3436,8 @@ public class HikeConstants
 
 	public static final String IMAGE_PATHS = "image-paths";
 
+	public static final String EDITED_IMAGE_PATHS = "edited-image-paths";
+
 	public static final String OFFLINE_MESSAGE_REQUEST = "omr";
 
 	public static final String ENABLE_TIMELINE_FTUE = "tl_ftue";

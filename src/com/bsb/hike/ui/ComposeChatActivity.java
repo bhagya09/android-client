@@ -96,7 +96,6 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -602,7 +601,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
 		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) adapter.getAllSelectedContactsMsisdns());
 		outState.putStringArrayList(IMAGES_TO_SHARE, imagesToShare);
-		outState.putString(MSG_TO_SHARE,messageToShare);
+		outState.putString(MSG_TO_SHARE, messageToShare);
 	}
 	
 	@Override
@@ -1394,6 +1393,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 			case GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE:
 				ArrayList<Uri> imageUris = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				ArrayList<String> editedPaths = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
 				if (imageUris != null && !imageUris.isEmpty())
 				{
 					if (imageUris.size() > 1)
@@ -1431,32 +1431,27 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							JSONArray multipleMsgFwdArray = new JSONArray(jsonString);
 							JSONArray newMultipleMsgFwdArray = new JSONArray();
 							int msgCount = multipleMsgFwdArray.length();
-
 							int captionCounter = 0;
+
 							for (int i = 0; i < msgCount; i++)
 							{
 								JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
 								if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 								{
 									String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
-									String editedFilePath = HikePhotosUtils.getEditedImagePath(filePath);
-									if(imagesToShare.contains(filePath) || imagesToShare.contains(editedFilePath))
+									if (!imagesToShare.contains(filePath) && !Utils.isEmpty(editedPaths))
 									{
-										if(imagesToShare.contains(editedFilePath))
-										{
-											msgExtrasJson.remove(HikeConstants.Extras.FILE_PATH);
-											msgExtrasJson.put(HikeConstants.Extras.FILE_PATH, editedFilePath);
-											msgExtrasJson.remove(HikeConstants.Extras.FILE_KEY);
-
-										}
-
-										if(!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= captionCounter) 
-										{
-											msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));
-										}
-										captionCounter++;
-										newMultipleMsgFwdArray.put(msgExtrasJson);
+										msgExtrasJson.remove(HikeConstants.Extras.FILE_PATH);
+										msgExtrasJson.put(HikeConstants.Extras.FILE_PATH, editedPaths.remove(0));
+										msgExtrasJson.remove(HikeConstants.Extras.FILE_KEY);
 									}
+
+									if (!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= captionCounter)
+									{
+										msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));
+									}
+									captionCounter++;
+									newMultipleMsgFwdArray.put(msgExtrasJson);
 								}
 							}
 							intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, newMultipleMsgFwdArray.toString());
