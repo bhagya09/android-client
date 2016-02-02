@@ -20,7 +20,7 @@ public class StickerTagInsertTask implements Runnable
 	@Override
 	public void run()
 	{
-		StickerTagCache.getInstance(state).insertTags(data);
+		StickerTagCache.getInstance().insertTags(data,state);
 	}
 
 }
