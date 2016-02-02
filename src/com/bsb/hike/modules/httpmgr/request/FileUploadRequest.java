@@ -121,7 +121,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			// if paused or error
 			// get session id from state file
 			X_SESSION_ID = fileSavedState.getSessionId();
-			if (X_SESSION_ID == null)
+			if (TextUtils.isEmpty(X_SESSION_ID))
 			{
 				X_SESSION_ID = UUID.randomUUID().toString();
 				mStart = 0;
