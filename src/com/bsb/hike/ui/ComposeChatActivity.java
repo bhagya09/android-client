@@ -96,6 +96,7 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
@@ -1427,8 +1428,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 								{
 									String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
-									if(imagesToShare.contains(filePath) && newMultipleMsgFwdArray.length() < imagesToShare.size())
+									String editedFilePath = HikePhotosUtils.getEditedImagePath(filePath);
+									if(imagesToShare.contains(filePath) || imagesToShare.contains(editedFilePath))
 									{
+										if(imagesToShare.contains(editedFilePath))
+										{
+											msgExtrasJson.remove(HikeConstants.Extras.FILE_PATH);
+											msgExtrasJson.put(HikeConstants.Extras.FILE_PATH, editedFilePath);
+											msgExtrasJson.remove(HikeConstants.Extras.FILE_KEY);
+
+										}
+
 										if(!imageCaptions.isEmpty() && imageCaptions.size() - 1 >= captionCounter) 
 										{
 											msgExtrasJson.put(HikeConstants.CAPTION, imageCaptions.get(captionCounter));

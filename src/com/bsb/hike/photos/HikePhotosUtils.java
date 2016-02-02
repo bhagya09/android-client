@@ -1,5 +1,6 @@
 package com.bsb.hike.photos;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,11 +8,11 @@ import java.util.List;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -25,9 +26,12 @@ import android.util.DisplayMetrics;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
@@ -544,5 +548,22 @@ public class HikePhotosUtils
 		options.inPreferQualityOverSpeed = true;
 
 		return options;
+	}
+
+	public static String getEditedImagePath(String originalFilePath)
+	{
+		String newFilePath = PictureEditer.getEditImageSaveDirectory(true) + File.separator;
+
+		File originalFile = new File(originalFilePath);
+		String originalFileName = originalFile.getName();
+		String[] fileNameSplit = originalFileName.split("\\.(?=[^\\.]+$)");
+		if (fileNameSplit == null || fileNameSplit.length == 0)
+		{
+			return newFilePath + Utils.getUniqueFilename(HikeFile.HikeFileType.IMAGE);
+		}
+		else
+		{
+			return newFilePath + fileNameSplit[0]+"_edited.jpg";
+		}
 	}
 }

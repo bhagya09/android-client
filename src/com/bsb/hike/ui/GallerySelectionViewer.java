@@ -53,6 +53,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.smartImageLoader.GalleryPagerImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
@@ -542,7 +543,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		//Using edited filepath if user has edited the current selection other wise the original also writing over the edited file if the user is editing an already edited image
 		String selectedFilePath = getFinalFilePathAtPosition(currPos);
-		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath:null;
+		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath: HikePhotosUtils.getEditedImagePath(selectedFilePath);
 		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare,destinationFilePath , false);
 		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		HikeMessengerApp.getLruCache().removeItemForKey(GalleryImageLoader.GALLERY_KEY_PREFIX + selectedFilePath);
