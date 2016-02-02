@@ -495,6 +495,12 @@ public class HikeConstants
 
 	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_DELETE_PREF = "stickerDeletePref";
+
+	public static final String STICKER_HIDE_PREF = "stickerHidePref";
+
+	public static final String STICKER_UPDATE_PREF = "stickerUpdatePref";
+
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
@@ -1885,6 +1891,21 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
+
+		public static final String STICKER_SETTINGS_TASK = "stickerSettingsTask";
+
+
+	}
+
+	public static final class StickerSettingsTask
+	{
+		public static final int STICKER_REORDER_TASK = 1;
+
+		public static final int STICKER_DELETE_TASK = 2;
+
+		public static final int STICKER_HIDE_TASK = 3;
+
+		public static final int STICKER_UPDATE_TASK = 4;
 	}
 
 	public static final class LogEvent
