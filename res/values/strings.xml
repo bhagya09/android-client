@@ -1515,4 +1515,5 @@
     <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
+    <string name="image_w_caption_sms">sent you an image with caption \"</string>
 </resources>

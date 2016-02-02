@@ -3511,7 +3511,7 @@ public class Utils
 				}
 				else
 				{
-					return context.getString(R.string.send_sms_img_msg) +"("+caption+")";
+					return context.getString(R.string.image_w_caption_sms)+caption+"\"";
 				}
 			case VIDEO:
 				return context.getString(R.string.send_sms_video_msg);
