@@ -86,8 +86,6 @@ public class StickerManager
 
 	public static final String RECENT_STICKER_SERIALIZATION_LOGIC_CORRECTED = "recentStickerSerializationCorrected";
 
-	public static final String REMOVED_CATGORY_IDS = "removedCategoryIds";
-
 	public static final String RESET_REACHED_END_FOR_DEFAULT_STICKERS = "resetReachedEndForDefaultStickers";
 
 	public static final String CORRECT_DEFAULT_STICKER_DIALOG_PREFERENCES = "correctDefaultStickerDialogPreferences";
