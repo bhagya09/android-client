@@ -1403,8 +1403,17 @@ public class PlatformUtils
 	
 	public static String getLastGame()
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		if (BotUtils.isBot(HikePlatformConstants.GAME_CHANNEL))
+		{
+			return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME, BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		}
+
+		else //Highly improbable, can only happen when Games Channel is not yet installed.
+		{
+			return "";
+		}
 	}
+
 	public static void killProcess(Activity context,String process)
 	{
 		if (context != null)
