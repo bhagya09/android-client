@@ -105,7 +105,9 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
 				
-				Intent i = new Intent(StickerShopActivity.this, StickerSettingsActivity.class);
+				Intent i = new Intent(StickerShopActivity.this, HikePreferences.class);
+				i.putExtra(HikeConstants.Extras.PREF, R.xml.sticker_settings_preferences);
+				i.putExtra(HikeConstants.Extras.TITLE, R.string.settings_sticker);
 				startActivity(i);
 			}
 		});
