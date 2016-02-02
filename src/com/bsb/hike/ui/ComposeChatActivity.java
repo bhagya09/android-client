@@ -396,6 +396,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if((selectedImages!=null))
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
+
+						if(savedInstanceState == null)
 						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 
 						//Got images to share
@@ -418,6 +420,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if ((selectedImages != null))
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
+
+						if(savedInstanceState == null)
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						// Got images to share
 						// Keep references to images (these will need to be shared via hike features (timeline,etc)
@@ -486,6 +490,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if((selectedImages!=null))
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
+						if(savedInstanceState == null)
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 					}
 				}
