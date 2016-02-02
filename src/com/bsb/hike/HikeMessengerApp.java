@@ -589,8 +589,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
-
-
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;

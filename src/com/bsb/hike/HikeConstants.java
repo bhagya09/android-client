@@ -3780,6 +3780,8 @@ public class HikeConstants
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 
+	public static final String OFFSET = "offset";
+
 	public static final String APP_LANG_CHANGED_DEL_ACC = "d_a";
 	
 	public static final String APP_LANG_CHANGED_SETTINGS = "stg";
@@ -3795,4 +3797,10 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String SINGLE_STICKER_CDN = "sscdn";
+
+	public static final String STICKER_PACK_CDN = "spcdn";
+
+	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
 }
