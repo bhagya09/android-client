@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
+
     android:versionCode="1586"
     android:versionName="4.2.0.3.internal_release" >
 
