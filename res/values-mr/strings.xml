@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">कृपया किमान एक संपर्क निवडा</string>
     <string name="choose_contact">संपर्क निवडा</string>
     <string name="voip_reconnecting">…पुन्हा कनेक्ट करत आहे</string>
-    <string name="group_creation">रोजी तयार केले </string>
+    <string name="group_creation">रोजी तयार केले %1$s</string>
     <string name="ls_change_failed">शेवटचे पाहिले अद्यतन अयशस्वी!</string>
     <string name="terms_conditions_hint">अटी आणि नियम</string>
     <string name="terms_conditions_title">टी &amp; सी</string>

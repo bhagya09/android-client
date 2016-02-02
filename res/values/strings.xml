@@ -964,7 +964,7 @@
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="voip_reconnecting">&#8230;RECONNECTING</string>
-    <string name="group_creation">Created on </string>
+    <string name="group_creation">Created on %1$s</string>
     <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
