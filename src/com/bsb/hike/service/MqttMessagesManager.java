@@ -50,7 +50,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -818,8 +817,7 @@ public class MqttMessagesManager
 			
 			if(!StickerManager.getInstance().isStickerExists(sticker.getCategoryId(), sticker.getStickerId()))
 			{
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
-				singleStickerDownloadTask.execute();
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
 			}
 		}
 	}
@@ -2683,6 +2681,24 @@ public class MqttMessagesManager
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WHITE_SCREEN_FIX, enableWhiteScreenFix);
 			CustomWebView.setApplyWhiteScreenFix(enableWhiteScreenFix);
+		}
+
+		if(data.has(HikeConstants.SINGLE_STICKER_CDN))
+		{
+			boolean singleStickerCdnEnabled = data.getBoolean(HikeConstants.SINGLE_STICKER_CDN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_STICKER_CDN, singleStickerCdnEnabled);
+		}
+
+		if(data.has(HikeConstants.STICKER_PACK_CDN))
+		{
+			boolean stickerPackCdnEnabled = data.getBoolean(HikeConstants.STICKER_PACK_CDN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN, stickerPackCdnEnabled);
+		}
+
+		if(data.has(HikeConstants.STICKER_PACK_CDN_THRESHOLD))
+		{
+			int stickerPackCdnThreshold = data.getInt(HikeConstants.STICKER_PACK_CDN_THRESHOLD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
 		editor.commit();

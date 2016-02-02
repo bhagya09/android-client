@@ -880,10 +880,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
-				singleStickerDownloadTask.execute();
-
-
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId,categoryId, convMessage);
 			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
