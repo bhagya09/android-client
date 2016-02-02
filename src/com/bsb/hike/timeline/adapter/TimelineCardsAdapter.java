@@ -497,6 +497,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.parent.setOnClickListener(null);
 			viewHolder.parent.setOnLongClickListener(null);
 
+			viewHolder.cardView.setOnClickListener(null);
+			viewHolder.cardView.setOnLongClickListener(null);
+
 			switch (statusMessage.getStatusMessageType())
 			{
 			case NO_STATUS:
