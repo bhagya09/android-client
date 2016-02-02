@@ -267,21 +267,28 @@ public class FileUploadRequest extends Request<JSONObject>
 
 		DefaultHeaders.applyDefaultHeaders(req);
 
-		Response res = client.execute(req);
-		byte[] byteArray = (byte[]) res.getBody().getContent();
-		String resString = new String(byteArray);
 		try
 		{
-			bytesUploaded = Integer.parseInt(resString) + 1;
-			if (bytesUploaded <= 0)
+			Response res = client.execute(req);
+			byte[] byteArray = (byte[]) res.getBody().getContent();
+			if (byteArray != null)
 			{
-				X_SESSION_ID = UUID.randomUUID().toString();
-				bytesUploaded = 0;
+				String resString = new String(byteArray);
+				bytesUploaded = Integer.parseInt(resString) + 1;
+				if (bytesUploaded <= 0)
+				{
+					X_SESSION_ID = UUID.randomUUID().toString();
+					bytesUploaded = 0;
+				}
 			}
 		}
 		catch (NumberFormatException ex)
 		{
 			Logger.e(getClass().getSimpleName(), "NumberFormatException while getting bytes uploaded from server : ", ex);
+		}
+		catch (Exception ex)
+		{
+			Logger.e(getClass().getSimpleName(), "exception while getting bytes uploaded from server : ", ex);
 		}
 		return bytesUploaded;
 	}
