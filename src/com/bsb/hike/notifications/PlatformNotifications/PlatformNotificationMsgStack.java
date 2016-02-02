@@ -129,7 +129,7 @@ public class PlatformNotificationMsgStack
 
 	public String getTickerTextForMsisdn(String msisdn)
 	{
-		return String.format(mContext.getResources().getString(R.string.notifTickerText), getMessageCountForMsisdn(msisdn));
+		return String.format(mContext.getResources().getString(R.string.num_new_messages), getMessageCountForMsisdn(msisdn));
 	}
 
 	public int getMessageCountForMsisdn(String msisdn)
