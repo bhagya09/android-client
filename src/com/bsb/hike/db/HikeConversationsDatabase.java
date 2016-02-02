@@ -5500,14 +5500,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		updateStickerCategoryData(categoryId, null, totalNum, -1);
 	}
 
-	public void removeStickerCategory(String categoryId)
+	public void removeStickerCategory(String categoryId, boolean removeFromShopTable)
 	{
 		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
-		mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
-	}
-
-	public void removeStickerPackFromTable(String categoryId) {
-		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+		if (removeFromShopTable) {
+			mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
+		}
 	}
 
 	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize)

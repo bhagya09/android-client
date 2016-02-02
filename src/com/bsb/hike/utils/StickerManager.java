@@ -372,67 +372,9 @@ public class StickerManager
 		stickerCategoriesMap.putAll(HikeConversationsDatabase.getInstance().getAllStickerCategoriesWithVisibility(true));
 	}
 
-	/*
-	 * Method to delete sticker pack permanently i.e. from recommendations, database and phone memory
-	 * @param: Sticker category
-	 * @returns: none
-	 */
-	public void removeStickerPack(StickerCategory category) {
-		/* Removing tags for deleted stickers */
-		Set<String> stickerSet = new HashSet<>();
-		List<Sticker> stickerList  = category.getStickerList();   	// Getting stickers list in the selected category/pack
-
-		if(!Utils.isEmpty(stickerList))
-		{
-			for(Sticker sticker : stickerList)
-			{
-				stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
-			}
-		} else {
-			//Toast.makeText(context, "Sticker list empty for " + category, Toast.LENGTH_SHORT).show();
-		}
-		StickerSearchDataController.getInstance().updateStickerList(stickerSet);
-
-		//clearing caches used for local sticker search
-		StickerSearchHostManager.getInstance().clearCaches();
-
-		//Toast.makeText(context, "Pack tags Deleted for " + category, Toast.LENGTH_SHORT).show();
-
-		/* Deleting stickers pack from database table */
-		String removedCategoryId = category.getCategoryId();
-		HikeConversationsDatabase.getInstance().removeStickerPackFromTable(removedCategoryId);
-
-		/* Removing from palette if visible */
-		stickerCategoriesMap.remove(removedCategoryId);
-
-		/* Deleting small stickers pack from phone;
-		 * Not deleting large stickers because the stickers already sent are displayed through it
-		 * */
-		String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);		//synch missing
-		Logger.d(TAG, "CategoryDirPath for " + category.getCategoryName() + "  =  " + categoryDirPath);
-
-		if (categoryDirPath != null)
-		{
-			File smallCatDir = new File(categoryDirPath + HikeConstants.SMALL_STICKER_ROOT);
-			if (smallCatDir.exists())
-			{
-				String[] stickerIds = smallCatDir.list();
-				for (String stickerId : stickerIds)
-				{
-					removeStickerFromCustomCategory(new Sticker(removedCategoryId, stickerId));
-				}
-			}
-
-			Logger.d(TAG, "sticker " + category.getCategoryName() + "   Small dir : " + smallCatDir.getAbsolutePath());
-			Utils.deleteFile(smallCatDir);
-		}
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
-	}
-
-	public void removeCategory(String removedCategoryId)
+	public void removeCategory(String removedCategoryId, boolean removeFromShopTable)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, removeFromShopTable);
 		StickerCategory cat = stickerCategoriesMap.remove(removedCategoryId);
 		if (!cat.isCustom())
 		{
