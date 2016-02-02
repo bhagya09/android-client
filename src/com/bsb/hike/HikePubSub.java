@@ -504,6 +504,8 @@ public class HikePubSub implements Runnable
 
 	public static final String LASTMSG_UPDATED ="lastMsgUpdated";
 
+	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
