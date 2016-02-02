@@ -340,9 +340,9 @@ public class ChatHeadUtils
 				CallerContentModel callerContentModel = new Gson().fromJson(callerDetails, CallerContentModel.class);
 				return callerContentModel;
 			}
-			catch (JsonSyntaxException e)
+			catch (Exception e)
 			{
-				Logger.d(TAG, "Json Syntax Exception" + e);
+				Logger.d(TAG, "Exception" + e);
 				JSONObject metadata = new JSONObject();
 				try
 				{
