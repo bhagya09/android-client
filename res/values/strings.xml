@@ -1516,4 +1516,5 @@
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
     <string name="image_w_caption_sms">sent you an image with caption \"</string>
+    <string name="share_on_timeline">Share on Timeline?</string>
 </resources>

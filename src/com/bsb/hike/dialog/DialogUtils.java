@@ -49,6 +49,11 @@ public class DialogUtils
 		{
 			if(hasTimeline)
 			{
+				if(arrayList.size() == 1)
+				{
+					return context.getString(R.string.share_on_timeline);
+				}
+				
 				return arrayList.size() == 2 ? context.getString(R.string.forward_to_single_timeline) : context.getString(R.string.forward_to_plural_timeline,
 						arrayList.size() - 1);
 			}
