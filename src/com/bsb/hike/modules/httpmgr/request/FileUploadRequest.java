@@ -211,7 +211,21 @@ public class FileUploadRequest extends Request<JSONObject>
 				if (end == (length - 1) && response != null)
 				{
 					// upload successful
-					getState().setFTState(FTState.COMPLETED);
+					try
+					{
+						byte[] bytes = (byte[]) response.getBody().getContent();
+						JSONObject responseJson = new JSONObject(new String(bytes));
+						getState().setResponseJson(responseJson);
+					}
+					catch (Exception ex)
+					{
+						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
+					}
+
+					if (getState().getFTState() != FTState.PAUSED)
+					{
+						getState().setFTState(FTState.COMPLETED);
+					}
 					saveStateInDB(getState());
 					break;
 				}

@@ -1045,7 +1045,7 @@ public class HttpRequests
 		return token;
 	}
 	
-	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IRequestInterceptor interceptor,IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
 				.setUrl(getUploadFileBaseUrl())
@@ -1056,6 +1056,9 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setFile(filePath)
 				.build();
+
+		requestToken.getRequestInterceptors().addFirst("uploadFileInterceptor", interceptor);
+
 		return requestToken;
 	}
 	

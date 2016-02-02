@@ -529,6 +529,29 @@ public class UploadFileTask extends FileTransferBase
 		token.execute();
 	}
 
+	public IRequestInterceptor getUploadFileInterceptor()
+	{
+		return new IRequestInterceptor() {
+			@Override
+			public void intercept(Chain chain) throws Exception {
+				JSONObject json = getFileSavedState().getResponseJson();
+				if (json != null)
+				{
+					handleSuccessJSON(json);
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
+				}
+				else
+				{
+					chain.proceed();
+				}
+			}
+		};
+	}
+
 	public void uploadFile(File sourceFile)
 	{
 		if (requestToken == null || !requestToken.isRequestRunning())
@@ -538,22 +561,28 @@ public class UploadFileTask extends FileTransferBase
 				@Override
 				public void onRequestSuccess(Response result)
 				{
-					byte[] b = (byte[]) result.getBody().getContent();
-					Logger.d("HttpResponseUpload", "  result json : " + (new String(b)));
-					try
+					FTState state = getFileSavedState().getFTState();
+					if (state == FTState.COMPLETED)
 					{
-						JSONObject responseJson = new JSONObject(new String(b));
-						handleSuccessJSON(responseJson);
+						byte[] b = (byte[]) result.getBody().getContent();
+						Logger.d("HttpResponseUpload", "  result json : " + (new String(b)));
+						try
+						{
+							JSONObject responseJson = new JSONObject(new String(b));
+							handleSuccessJSON(responseJson);
+						}
+						catch (JSONException e)
+						{
+							e.printStackTrace();
+						}
 					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-
 					if (userContext != null)
 					{
 						removeTask();
-						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						if (state != FTState.PAUSED)
+						{
+							HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						}
 					}
 				}
 
@@ -589,7 +618,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 
 				}
-			}, chunkSizePolicy);
+			}, getUploadFileInterceptor(), chunkSizePolicy);
 		}
 		requestToken.execute();
 	}
