@@ -2918,11 +2918,6 @@ public class MqttMessagesManager
 			if (HikeConstants.REMOVE_CATEGORY.equals(subType))
 			{
 				StickerManager.getInstance().removeCategory(categoryId);
-
-				// Remove tags being used for sticker search w.r.t. deleted sticker category here
-				Set<String> removedCategorySet = new HashSet<String>();
-				removedCategorySet.add(categoryId);
-				StickerSearchManager.getInstance().removeDeletedStickerTags(removedCategorySet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
 			}
 			else
 			{
@@ -2942,7 +2937,7 @@ public class MqttMessagesManager
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize);
 
 				// Remove tags being used for sticker search w.r.t. deleted stickers here
-				StickerSearchManager.getInstance().removeDeletedStickerTags(removedStickerSet, StickerSearchConstants.REMOVAL_BY_STICKER_DELETED);
+				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
