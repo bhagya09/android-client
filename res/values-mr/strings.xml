@@ -1423,5 +1423,7 @@
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
     <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
     <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
+    <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
+    <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
     
 </resources>
