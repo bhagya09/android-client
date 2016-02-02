@@ -546,6 +546,13 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		String destinationFilePath = isIndexEdited(currPos) || fromCameraCapture?selectedFilePath: HikePhotosUtils.getEditedImagePath(selectedFilePath);
 		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare,destinationFilePath , false);
 		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+		removeCacheThumbnailForSelection();
+	}
+
+	private void removeCacheThumbnailForSelection()
+	{
+		int currPos = selectedPager.getCurrentItem();
+		String selectedFilePath = getFinalFilePathAtPosition(currPos);
 		HikeMessengerApp.getLruCache().removeItemForKey(GalleryImageLoader.GALLERY_KEY_PREFIX + selectedFilePath);
 	}
 
@@ -648,6 +655,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			setCropViewVisibility(false);
 			break;
 		case R.id.accept:
+			removeCacheThumbnailForSelection();
 			Bitmap croppedImage = cropImageView.getCroppedImage();
 			int currPos = selectedPager.getCurrentItem();
 
