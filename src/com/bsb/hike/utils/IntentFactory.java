@@ -237,10 +237,7 @@ public class IntentFactory
 	
 	public static void openStickerSettings(Context context)
 	{
-		if (ChatHeadUtils.checkDeviceFunctionality())
-		{
-			context.startActivity(getStickerShareSettingsIntent(context));
-		}
+		context.startActivity(getStickerShareSettingsIntent(context));
 	}
 	
 	public static void openSettingHelp(Context context)

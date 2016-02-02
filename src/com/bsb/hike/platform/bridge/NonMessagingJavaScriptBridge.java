@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -39,7 +33,14 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -1306,21 +1307,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param appName: the appname of the call that needs to be cancelled.
+	 * @param url: the url of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
-	public void cancelRequest(String functionId, String appName)
+	public void cancelRequest(String functionId, String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token)
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
-			token.cancel();
+			tokenCountPair.getFirst().cancel();
 		}
 		else
 		{
@@ -1374,20 +1375,20 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 9
 	 * Call this method to know if download request is currently running
 	 * Can only be called by special bots
-	 * @param appName
+	 * @param url
 	 * @param functionId
 	 * return true/false
 	 */
 	@JavascriptInterface
-	public void isRequestRunning(String functionId,String appName)
+	public void isRequestRunning(String functionId,String url)
 	{
 		if (!BotUtils.isSpecialBot(mBotInfo))
 		{
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token&& token.isRequestRunning())
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
 		}
@@ -1566,4 +1567,20 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	}
 
+        /**
+         * Platform Version 11
+         * This function is made to know, if any game is running and accordingly display the running status on games channel
+         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
+         * @param id : the id of the function that native will call to call the js .
+         */
+        @JavascriptInterface
+        public void getRunningGame(String id)
+        {
+                Activity context = weakActivity.get();
+                if (context != null)
+                {
+                        String gameId = PlatformUtils.getRunningGame(context);
+                        callbackToJS(id, gameId);
+                }
+        }
 }

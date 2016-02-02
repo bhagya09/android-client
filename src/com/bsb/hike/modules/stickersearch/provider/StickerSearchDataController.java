@@ -560,7 +560,7 @@ public enum StickerSearchDataController
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 				if (remainingSetSize > 0)
 				{
-					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
+					StickerManager.getInstance().saveStickerSet(updateRetrySet, state, true);
 				}
 				else
 				{

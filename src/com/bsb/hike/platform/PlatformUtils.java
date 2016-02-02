@@ -2,6 +2,7 @@ package com.bsb.hike.platform;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,8 +63,10 @@ import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.ContentModules.*;
-import com.bsb.hike.platform.content.*;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -453,7 +456,7 @@ public class PlatformUtils
 					}
 				});
 
-		downloadAndUnzip(rqst, false,botMetadata.shouldReplace(), botMetadata.getCallbackId(),resumeSupport);
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport);
 
 	}
 
@@ -609,7 +612,7 @@ public class PlatformUtils
 				String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 				boolean resumeSupported=downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 				String assoc_cbot=downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT,"");
-				downloadAndUnzip(rqst, false,doReplace, callbackId,resumeSupported,assoc_cbot);
+				downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot);
 
 	}
 
@@ -630,6 +633,33 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.EVENT_KEY, key);
 			json.put(AnalyticsConstants.APP_NAME, content.getId());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+	 * "exception_track", "fld1": "java.io.FileNotFoundException: abc", "fld2": "hikenewsv14", "fld4" : "true", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+	 * "sid": 1453620914078 } } }
+	 *
+	 * @param appName
+	 * @param errorMsg
+	 */
+	public static void microappIOFailedAnalytics(String appName, String errorMsg, boolean isReadException)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, "exception_track");
+			json.put(AnalyticsConstants.LOG_FIELD_1, errorMsg); //Error
+			json.put(AnalyticsConstants.LOG_FIELD_2, appName); //App Name
+			json.put(AnalyticsConstants.LOG_FIELD_4, Boolean.toString(isReadException)); //App Name
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
@@ -887,7 +917,7 @@ public class PlatformUtils
 			Logger.d("FileSystemAccess", "Invalid file path!");
 			return null;
 		}
-		ArrayList<File> list = filesReader(directory,doDeepLevelAccess);
+		ArrayList<File> list = filesReader(directory, doDeepLevelAccess);
 		JSONArray mArray = new JSONArray();
 		for (int i = 0; i < list.size(); i++)
 		{
@@ -1083,7 +1113,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
 
 	}
 	
@@ -1093,8 +1123,7 @@ public class PlatformUtils
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (ChatHeadUtils.checkDeviceFunctionality())
-			{
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
@@ -1111,7 +1140,7 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 				ChatHeadUtils.startOrStopService(true);
-			}
+
 		}
 		else
 		{
@@ -1230,15 +1259,16 @@ public class PlatformUtils
 	
 	/**
 	 * Used to record analytics for bot opens via push notifications
-	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+", "bot_source" : "bot_notif" }
 	 */
-	public static void recordBotOpenViaNotification(String msisdn)
+	public static void recordBotOpenSource(String msisdn, String source)
 	{
 		JSONObject json = new JSONObject();
 		try
 		{
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 
@@ -1443,11 +1473,16 @@ public class PlatformUtils
 	 */
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
 	{
+		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+	}
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
 			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(
 					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
@@ -1660,5 +1695,104 @@ public class PlatformUtils
 				cardShareImageFile.deleteOnExit();
 			}
 		}
+	public static String getRunningGame(Context context)
+	{
+		String gameId = "";
+		String lastGame = getLastGame();
+
+		if (context == null || TextUtils.isEmpty(lastGame))
+		{
+			Logger.e(TAG, "Either activity is null or lastgame is null in getRunningGame");
+			return gameId;
+		}
+
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		for (int i = 0; i < procInfos.size(); i++)
+		{
+			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS))
+			{
+				gameId = lastGame;
+				break;
+			}
+		}
+		Logger.d(TAG, "getRunningGame: " + gameId);
+		return gameId;
+	}
+
+    public static void sendStickertoAllHikeContacts(String stickerId, String categoryId) {
+
+        List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+        List<ContactInfo> recentList = ContactManager.getInstance().getAllConversationContactsSorted(true, true);
+        //reversing it so maintain order
+
+		if (allContacts == null || allContacts.isEmpty()) {
+			return;
+		}
+        Collections.reverse(recentList);
+
+        //removing duplicate contacts
+        allContacts.removeAll(recentList);
+
+        //creating new order-->recent contacts-->all contacts
+        recentList.addAll(allContacts);
+        allContacts = recentList;
+
+
+        List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
+        for (ContactInfo ci : allContacts) {
+            if(!ci.isBot()&&ci.isOnhike())  // add more check here ..ex:stealth,unknown etc...
+            {
+                finalContacts.add(ci);
+            }
+        }
+
+        Sticker sticker = new Sticker(categoryId, stickerId);
+        ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
+
+        if (cm != null) {
+            List<ConvMessage> multiMsg = new ArrayList<>();
+            multiMsg.add(cm);
+            sendMultiMessages(multiMsg, finalContacts);
+        } else {
+            Logger.wtf("productpopup", "ConvMessage is Null");
+        }
+    }
+
+	private static void sendMultiMessages(List<ConvMessage> multipleMessageList, List<ContactInfo> arrayList)
+	{
+		MultipleConvMessage multiMessages = new MultipleConvMessage(multipleMessageList, arrayList, System.currentTimeMillis() / 1000, false, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_SENT, multiMessages);
+	}
+
+	public static ConvMessage getConvMessageForSticker(Sticker sticker, String categoryIdIfUnknown, ContactInfo contactInfo, String source)
+	{
+		if (contactInfo == null)
+		{
+			return null;
+		}
+		ConvMessage convMessage = Utils.makeConvMessage(contactInfo.getMsisdn(), "Sticker",contactInfo.isOnhike());
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			String categoryId = sticker.getCategoryId();
+			metadata.put(StickerManager.CATEGORY_ID, categoryId);
+
+			metadata.put(StickerManager.STICKER_ID, sticker.getStickerId());
+
+			if(!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
+			{
+				metadata.put(StickerManager.SEND_SOURCE, source);
+			}
+			convMessage.setMetadata(metadata);
+			Logger.d("productpopup", "metadata: " + metadata.toString());
+		}
+		catch (JSONException e)
+		{
+			Logger.e("productpopup", "Invalid JSON", e);
+		}
+		return convMessage;
 	}
 }

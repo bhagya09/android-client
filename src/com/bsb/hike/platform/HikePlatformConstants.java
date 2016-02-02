@@ -93,8 +93,9 @@ public interface HikePlatformConstants
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
 	public static final String CUSTOM_TABS="customTabs";
+    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 
-	public static final class PlatformFetchType
+    public static final class PlatformFetchType
 	{
 		public static final int SELF = 1;
 
@@ -309,5 +310,7 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
+
+	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
 
 }

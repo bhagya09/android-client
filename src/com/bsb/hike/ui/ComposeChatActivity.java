@@ -895,6 +895,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			break;
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
+			}
+
 			if(selectAllMode)
 			{
 				onItemClickDuringSelectAllMode(contactInfo);
@@ -1606,6 +1614,37 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONFIRM_FORWARD);
 				}
 				metadata.put(AnalyticsConstants.SELECTED_USER_COUNT_FWD, arrayList.size());
+
+				try
+				{
+					//Sending File Transfer analytics for bots.
+					if (BotUtils.isBot(presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN)))
+					{
+						JSONArray array = new JSONArray(presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT));
+						JSONObject msgObject;
+						for (int i = 0; i < array.length(); i++)
+						{
+							msgObject = array.getJSONObject(i);
+							{
+								if (msgObject.has(HikeConstants.Extras.FILE_KEY))
+								{
+									String fileKey = msgObject.getString(HikeConstants.Extras.FILE_KEY);
+									JSONObject json = new JSONObject();
+									json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+									json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_FORWARDED);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_1, msgObject.optString(HikeConstants.Extras.FILE_TYPE));
+									json.putOpt(AnalyticsConstants.BOT_MSISDN, presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN));
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.e("ComposeChatActivity", "Bot Content Error");
+				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
@@ -1825,7 +1864,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 					}else if(msgExtrasJson.has(HikeConstants.Extras.POKE)){
 						// as we will be changing msisdn and hike status while inserting in DB
-						ConvMessage convMessage = Utils.makeConvMessage(null, getString(R.string.poke_msg), true);
+						ConvMessage convMessage = Utils.makeConvMessage(null, getString(R.string.poke_msg_english_only), true);
 						JSONObject metadata = new JSONObject();
 						try
 						{
@@ -2933,7 +2972,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 						}
-						else
+						else if (mCustomKeyboard != null)
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						
