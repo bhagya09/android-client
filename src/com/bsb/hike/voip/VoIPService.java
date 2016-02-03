@@ -1805,7 +1805,7 @@ public class VoIPService extends Service implements Listener
 			Logger.w(tag, "Feeder is already running.");
 			return;
 		} else {
-			scheduledExecutorService = Executors.newScheduledThreadPool(1);
+			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 		}
 		
 		byte[] silence = new byte[OpusWrapper.OPUS_FRAME_SIZE * 2];
