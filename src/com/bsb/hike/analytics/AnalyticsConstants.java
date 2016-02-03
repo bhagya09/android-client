@@ -11,8 +11,6 @@ public class AnalyticsConstants
 	
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
-	public static final Object PARTIAL_FILE_DOWNLOADED ="partialFileDownloaded" ;
-
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
 	public static final Object MICRO_APP_LOADED ="microAppLoaded";
@@ -621,5 +619,7 @@ public class AnalyticsConstants
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
+	public static final String USER_LOCATION = "location";
+	
 	public static final String DATABASE_ERROR = "db_error";
 }

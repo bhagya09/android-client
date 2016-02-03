@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -10,13 +10,17 @@ import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.Logger;
 import com.samskivert.mustache.Template;
 
 /**
  * Responsible for maintaining cache for formed data and pre-compiled templates.
  */
-class PlatformContentCache
+public class PlatformContentCache
 {
 
 	private static String TAG = "PlatformContentCache";

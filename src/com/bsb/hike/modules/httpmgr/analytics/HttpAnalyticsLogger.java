@@ -226,7 +226,7 @@ public class HttpAnalyticsLogger
 	 * @param requestUrl
 	 * @return
 	 */
-	private static String processRequestUrl(String requestUrl)
+	public static String processRequestUrl(String requestUrl)
 	{
 		int index = requestUrl.indexOf(HTTP_REQUEST_URL_FILTER);
 		if (index >= 0)
