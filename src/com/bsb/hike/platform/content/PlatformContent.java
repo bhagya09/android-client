@@ -95,7 +95,15 @@ public class PlatformContent
 			{
 				return "incomplete_zip_download";
 			}
-		    }
+		    },
+		EMPTY_URL
+				{
+					@Override
+					public String toString()
+					{
+						return "empty_url";
+					}
+				}
 	}
 
 	/**
