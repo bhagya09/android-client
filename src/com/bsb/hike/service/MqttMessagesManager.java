@@ -2989,10 +2989,12 @@ public class MqttMessagesManager
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
+				Set<String> removedStickerSet = new HashSet<String>();
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
 					StickerManager.getInstance().removeSticker(categoryId, stickerIds.getString(i));
+					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
@@ -3000,6 +3002,9 @@ public class MqttMessagesManager
 				 * We should not update updateAvailable field in this case
 				 */
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize);
+
+				// Remove tags being used for sticker search w.r.t. deleted stickers here
+				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
