@@ -138,6 +138,7 @@ public class VoIPClient  {
 	
 	// Round trip time
 	private boolean rttSent = false;
+	private boolean rttTooHigh = false;
 	private long rttSentAt = 0;
 	private long rtt = 0;
 	
@@ -638,7 +639,7 @@ public class VoIPClient  {
 					if (rttSent && System.currentTimeMillis() - rttSentAt > VoIPConstants.MAX_RTT * 1000) {
 						Logger.w(tag, "RTT expired.");
 						rttSent = false;
-						measureRTT();
+						rttTooHigh = true;
 					}
 
 					// If we have a playback buffer, then keep calculating RTT every second. 
@@ -1520,11 +1521,13 @@ public class VoIPClient  {
 							long newRtt = System.currentTimeMillis() - rttSentAt; 
 							if (newRtt > VoIPConstants.MAX_RTT * 1000) {
 								Logger.w(tag, "Discarding excessive RTT: " + newRtt);
+								rttTooHigh = true;
 							} else {
 //								Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 								rtt = newRtt;
 								if (minimumDecodedQueueSize > 0)
 									setAudioLatency();
+								rttTooHigh = false;
 							}
 							rttSent = false;
 							
@@ -1994,7 +1997,7 @@ public class VoIPClient  {
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&
 				!isSpeaking()) {
-			Logger.d(tag, "Stalling.");
+			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size());
 			return null;
 		}
 
@@ -2018,6 +2021,7 @@ public class VoIPClient  {
 			// We do not have audio data from the client. 
 			// Use packet loss concealment to extrapolate data.
 			Logger.d(tag, "Miss.");
+			hit = false;
 			try {
 				if (plcCounter++ > VoIPConstants.PLC_LIMIT) {
 					// We have had no data from the client for a while. 
@@ -2044,7 +2048,6 @@ public class VoIPClient  {
 			} catch (Exception e) {
 				Logger.e(tag, "PLC Exception: " + e.toString());
 			}
-			hit = false;
 		} else {
 
 			if (dp != null) {
@@ -2101,8 +2104,10 @@ public class VoIPClient  {
 //		else if (minimumDecodedQueueSize > 0)
 //			minimumDecodedQueueSize--;
 
-		minimumDecodedQueueSize = newQueueSize;
-		Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
+		if (minimumDecodedQueueSize != newQueueSize) {
+			minimumDecodedQueueSize = newQueueSize;
+			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
+		}
 	}
 	
 	/**
@@ -2113,16 +2118,25 @@ public class VoIPClient  {
 		
 		if (version < 4)
 			return;
+
+		// If the RTT is too high, there is no point of re-requesting packets since they will
+		// arrive too late. We'll just end up congesting the network further.
+		if (rttTooHigh)
+			return;
 		
 		// Do not re-request packets if we haven't calculated the RTT already
 		// and don't have an audio buffer. 
 		if (minimumDecodedQueueSize == 0)
 			return;
-		
+
+		// Do not request packets if our decoded queue isn't long enough
+		if (decodedBuffersQueue.size() < minimumDecodedQueueSize)
+			return;
+
 		// Don't request packets again if participating in a hosted conference
 		if (isHostingConference)
 			return;
-		
+
 		Logger.d(tag, "Requesting voice packet number: " + packetNumber);
 		VoIPDataPacket dp = new VoIPDataPacket(PacketType.REPEAT_AUDIO_PACKET_REQUEST);
 		dp.setPacketNumber(packetNumber);
@@ -2223,7 +2237,7 @@ public class VoIPClient  {
 	
 	private void processRemotePacketLoss() {
 		
-		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS && bitrateAdjustment >= 0)
+		if (remotePacketLoss <= VoIPConstants.ACCEPTABLE_PACKET_LOSS && bitrateAdjustment >= 0)
 			return;
 		
 		if (!isCallActive)
@@ -2238,7 +2252,7 @@ public class VoIPClient  {
 		if (isHostingConference || isInAHostedConference)
 			return;
 		
-		if (remotePacketLoss < VoIPConstants.ACCEPTABLE_PACKET_LOSS)
+		if (remotePacketLoss <= VoIPConstants.ACCEPTABLE_PACKET_LOSS)
 			bitrateAdjustment += VoIPConstants.BITRATE_STEP_UP;
 		else
 			bitrateAdjustment -= remotePacketLoss * getVoiceBitrate() / 100;
@@ -2353,7 +2367,13 @@ public class VoIPClient  {
 		
 		return ringing;
 	}
-	
+
+	/**
+	 * Measure the round-trip-time to the client.
+	 * TODO: This implementation is broken. It is possible for it to measure a lower than actual
+	 * RTT if the client receives a response from an older RTT request after a newer request has
+	 * been made.
+	 */
 	private void measureRTT() {
 		
 		if (version < 4)

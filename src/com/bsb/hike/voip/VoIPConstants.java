@@ -56,7 +56,7 @@ public class VoIPConstants {
 	 * If packet loss increases beyond this threshold, congestion control
 	 * will be triggered. 
 	 */
-	public static final int ACCEPTABLE_PACKET_LOSS = 10;
+	public static final int ACCEPTABLE_PACKET_LOSS = 0;
 
 	/**
 	 * If the number of participants in a conference exceeds this threshold, 
