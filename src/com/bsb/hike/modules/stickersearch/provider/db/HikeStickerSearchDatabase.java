@@ -1241,7 +1241,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		HashSet<String> removingStickerSetInDatabase = new HashSet<String>();
 		Cursor c = null;
 
-		/*try
+		try
 		{
 			String whereConditionToGetAvailableStickers = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
 					new String[] { HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
@@ -1265,9 +1265,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		removingStickerSetInDatabase.removeAll(stickerInfoSet);
-		*/
-		removingStickerSetInDatabase.clear();
-		removingStickerSetInDatabase.addAll(stickerInfoSet);
 
 		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 		Iterator<String> iterator = removingStickerSetInDatabase.iterator();
