@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 import com.bsb.hike.adapters.StickerSettingsAdapter;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.utils.StickerManager;
 
