@@ -27,147 +27,176 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDo
 /**
  * Created by anubhavgupta on 03/01/16.
  */
-public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
+public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+{
 
-    private final String TAG = MiniStickerImageDownloadTask.class.getSimpleName();
+	private final String TAG = MiniStickerImageDownloadTask.class.getSimpleName();
 
-    private String categoryId;
+	private String categoryId;
 
-    private String stickerId;
+	private String stickerId;
 
-    private RequestToken requestToken;
+	private ConvMessage convMessage;
 
-    public MiniStickerImageDownloadTask(String categoryId, String stickerId) {
-        this.categoryId = categoryId;
-        this.stickerId = stickerId;
-    }
+	private RequestToken requestToken;
 
-    @Override
-    public void execute() {
-        if (!StickerManager.getInstance().isMinimumMemoryAvailable()) {
-            doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
-            return;
-        }
+	public MiniStickerImageDownloadTask(String categoryId, String stickerId)
+	{
+		this.categoryId = categoryId;
+		this.stickerId = stickerId;
+	}
 
-        String requestId = getRequestId();
+	public MiniStickerImageDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
+	{
+		this.stickerId = stickerId;
+		this.categoryId = categoryId;
+		this.convMessage = convMessage;
+	}
 
-        requestToken = singleStickerDownloadRequest(
-                requestId,
-                stickerId,
-                categoryId,
-                getRequestListener(),
-                StickerLanguagesManager.getInstance().listToString(
-                        StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-                                StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+	@Override
+	public void execute()
+	{
+		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
+		{
+			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
+			return;
+		}
 
+		String requestId = getRequestId();
 
-        if (requestToken.isRequestRunning()) // return if request is running
-        {
-            return;
-        }
-        requestToken.execute();
-    }
+		requestToken = singleStickerDownloadRequest(
+				requestId,
+				stickerId,
+				categoryId,
+				getRequestListener(),
+				StickerLanguagesManager.getInstance().listToString(
+						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
-    private String getRequestId() {
-        return (StickerConstants.StickerRequestType.MINI.getLabel() + "\\" + categoryId + "\\" + stickerId);
-    }
+		if (requestToken.isRequestRunning()) // return if request is running
+		{
+			return;
+		}
+		requestToken.execute();
+	}
 
-    @Override
-    public void cancel() {
-        if (requestToken != null) {
-            requestToken.cancel();
-        }
-    }
+	private String getRequestId()
+	{
+		return (StickerConstants.StickerRequestType.MINI.getLabel() + "\\" + categoryId + "\\" + stickerId);
+	}
 
-    private IRequestListener getRequestListener() {
-        return new IRequestListener() {
-            @Override
-            public void onRequestFailure(HttpException httpException) {
-                Logger.e(TAG, "Mini Sticker download failed :", httpException);
-            }
+	@Override
+	public void cancel()
+	{
+		if (requestToken != null)
+		{
+			requestToken.cancel();
+		}
+	}
 
-            @Override
-            public void onRequestSuccess(Response result) {
+	private IRequestListener getRequestListener()
+	{
+		return new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.e(TAG, "Mini Sticker download failed :", httpException);
+			}
 
-                try {
-                    JSONObject response = (JSONObject) result.getBody().getContent();
-                    if (!Utils.isResponseValid(response)) {
-                        Logger.e(TAG, "Sticker download failed null or invalid response");
-                        doOnFailure(null);
-                        return;
-                    }
+			@Override
+			public void onRequestSuccess(Response result)
+			{
 
-                    JSONObject data = response.getJSONObject(HikeConstants.DATA_2);
+				try
+				{
+					JSONObject response = (JSONObject) result.getBody().getContent();
+					if (!Utils.isResponseValid(response))
+					{
+						Logger.e(TAG, "Sticker download failed null or invalid response");
+						doOnFailure(null);
+						return;
+					}
 
-                    if (null == data) {
-                        Logger.e(TAG, "Sticker download failed null data");
-                        doOnFailure(null);
-                        return;
-                    }
+					JSONObject data = response.getJSONObject(HikeConstants.DATA_2);
 
-                    if (!data.has(HikeConstants.PACKS)) {
-                        Logger.e(TAG, "Sticker download failed null pack data");
-                        doOnFailure(null);
-                        return;
-                    }
+					if (null == data)
+					{
+						Logger.e(TAG, "Sticker download failed null data");
+						doOnFailure(null);
+						return;
+					}
 
-                    JSONObject packs = data.getJSONObject(HikeConstants.PACKS);
-                    String categoryId = packs.keys().next();
+					if (!data.has(HikeConstants.PACKS))
+					{
+						Logger.e(TAG, "Sticker download failed null pack data");
+						doOnFailure(null);
+						return;
+					}
 
-                    if (!packs.has(categoryId)) {
-                        Logger.e(TAG, "Sticker download failed null category data");
-                        doOnFailure(null);
-                        return;
-                    }
+					JSONObject packs = data.getJSONObject(HikeConstants.PACKS);
+					String categoryId = packs.keys().next();
 
-                    JSONObject categoryData = packs.getJSONObject(categoryId);
+					if (!packs.has(categoryId))
+					{
+						Logger.e(TAG, "Sticker download failed null category data");
+						doOnFailure(null);
+						return;
+					}
 
-                    if (!categoryData.has(HikeConstants.STICKERS)) {
-                        Logger.e(TAG, "Sticker download failed null stkrs data");
-                        doOnFailure(null);
-                        return;
-                    }
+					JSONObject categoryData = packs.getJSONObject(categoryId);
 
-                    JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
+					if (!categoryData.has(HikeConstants.STICKERS))
+					{
+						Logger.e(TAG, "Sticker download failed null stkrs data");
+						doOnFailure(null);
+						return;
+					}
 
-                    if (!stickers.has(stickerId)) {
-                        Logger.e(TAG, "Sticker download failed null sticker data");
-                        doOnFailure(null);
-                        return;
-                    }
+					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-                    JSONObject stickerData = stickers.getJSONObject(stickerId);
+					if (!stickers.has(stickerId))
+					{
+						Logger.e(TAG, "Sticker download failed null sticker data");
+						doOnFailure(null);
+						return;
+					}
 
-                    String stickerImage = stickerData.getString(HikeConstants.IMAGE);
-                    CacheRequest cacheRequest = new Base64StringRequest.Builder()
-                            .setKey(StickerManager.getInstance().getMiniStickerKey(stickerId, categoryId))
-                            .setString(stickerImage)
-                            .setTtl(StickerConstants.DEFAULT_TTL_MINI_STICKERS)
-                            .build();
-                    HikeMessengerApp.getDiskCache().put(cacheRequest);
-                    doOnSuccess(categoryId);
-                } catch (JSONException ex) {
-                    Logger.e(TAG, "Sticker download Json Exception", ex);
-                    doOnFailure(new HttpException("json exception", ex));
-                    return;
-                }
+					JSONObject stickerData = stickers.getJSONObject(stickerId);
 
-            }
+					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+					CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(StickerManager.getInstance().getMiniStickerKey(stickerId, categoryId))
+							.setString(stickerImage).setTtl(StickerConstants.DEFAULT_TTL_MINI_STICKERS).build();
+					HikeMessengerApp.getDiskCache().put(cacheRequest);
+					doOnSuccess(categoryId);
+				}
+				catch (JSONException ex)
+				{
+					Logger.e(TAG, "Sticker download Json Exception", ex);
+					doOnFailure(new HttpException("json exception", ex));
+					return;
+				}
 
-            @Override
-            public void onRequestProgressUpdate(float progress) {
+			}
 
-            }
-        };
-    }
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
 
-    @Override
-    public void doOnSuccess(Object result) {
-        HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
-    }
+			}
+		};
+	}
 
-    @Override
-    public void doOnFailure(HttpException exception) {
+	@Override
+	public void doOnSuccess(Object result)
+	{
 
-    }
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
+	}
+
+	@Override
+	public void doOnFailure(HttpException exception)
+	{
+
+	}
 }
