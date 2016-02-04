@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1583"
-    android:versionName="4.2.0.4.internal_release" >
+    android:versionCode="1584"
+    android:versionName="4.2.0.5.voip" >
 
     <uses-sdk
         android:minSdkVersion="14"
