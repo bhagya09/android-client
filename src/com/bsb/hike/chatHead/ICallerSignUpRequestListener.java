@@ -7,7 +7,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 import org.json.JSONArray;
@@ -24,24 +23,26 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 
 	private final long FIVE_MINS =  5 * 60 * 1000l;
 
+	private final String TAG = "ICallerSignUpListener";
+
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		ChatHeadUtils.syncingAllCallerBlockedContacts = false;
+		ChatHeadUtils.blockedCallerFromServerToClientFetched = false;
 		setAlarmSyncingBlockedListFromServerToClient();
 	}
 
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		ChatHeadUtils.syncingAllCallerBlockedContacts = false;
+		ChatHeadUtils.blockedCallerFromServerToClientFetched = false;
 		String resultContent = result.getBody().getContent() == null ? null : result.getBody().getContent().toString();
 		boolean isStatusFail = true;
 		if (resultContent != null)
 		{
 			try
 			{
-				Logger.d("ICallerSignUpListener", resultContent);
+				Logger.d(TAG, resultContent);
 				JSONObject jsonObject = new JSONObject(resultContent);
 				if (HikeConstants.OK.equals(jsonObject.get(HikeConstants.STATUS)))
 				{
@@ -74,7 +75,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 
 	private void setAlarmSyncingBlockedListFromServerToClient()
 	{
-		Logger.d("ICallerSignUpListener", "Cancelling old Alarm if any and Setting new Alarm");
+		Logger.d(TAG, "Cancelling old Alarm if any and Setting new Alarm");
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + FIVE_MINS,
 				HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER, false, true);

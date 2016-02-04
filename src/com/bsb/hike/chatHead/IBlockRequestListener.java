@@ -24,6 +24,8 @@ public class IBlockRequestListener implements IRequestListener
 
 	private JSONObject callerSyncJSON;
 
+	private final String TAG = "IBlockRequestListener";
+
 	public IBlockRequestListener(JSONObject callerSyncJSON)
 	{
 		this.callerSyncJSON = callerSyncJSON;
@@ -33,19 +35,19 @@ public class IBlockRequestListener implements IRequestListener
 	public void onRequestFailure(HttpException httpException)
 	{
 		
-		Logger.d("IBlockRequestListener", "block list update failure");
+		Logger.d(TAG, "block list update failure");
 		setAlarmUpdateBlockedClientToServer();
 	}
 
 	@Override
 	public void onRequestSuccess(Response result)
 	{
-		ChatHeadUtils.syncingFromClientToServer = false;
+		ChatHeadUtils.syncedCallerBlockedFromClientToServer = false;
 		String resultContent = result.getBody().getContent() == null ? null : result.getBody().getContent().toString();
 		boolean requestSuccess = false;
 		if (resultContent != null)
 		{
-			Logger.d("IBlockRequestListener", resultContent);
+			Logger.d(TAG, resultContent);
 			try
 			{
 				JSONObject jsonObject = new JSONObject(resultContent);
@@ -57,7 +59,7 @@ public class IBlockRequestListener implements IRequestListener
 			}
 			catch (JSONException e)
 			{
-				Logger.d("BlockRequestListener", "JSONException");
+				Logger.d(TAG, "JSONException");
 			}
 		}
 		if (requestSuccess)
@@ -73,11 +75,11 @@ public class IBlockRequestListener implements IRequestListener
 
 	private void setAlarmUpdateBlockedClientToServer()
 	{
-		ChatHeadUtils.syncingFromClientToServer = false;
+		ChatHeadUtils.syncedCallerBlockedFromClientToServer = false;
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + SIX_HRS,
 				HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER, false, true);
-		Logger.d("IBlockRequestListener", "Cancelling old Alarm if any and Setting new Alarm");
+		Logger.d(TAG, "Cancelling old Alarm if any and Setting new Alarm");
 
 	}
 

@@ -3,7 +3,6 @@ package com.bsb.hike.chatHead;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,7 +58,6 @@ import com.bsb.hike.voip.VoIPUtils.CallSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 public class ChatHeadUtils
 {
@@ -122,9 +120,9 @@ public class ChatHeadUtils
 
 	public static final int VALUE_TRUE = 1;
 
-	public static boolean syncingAllCallerBlockedContacts = false;
+	public static boolean blockedCallerFromServerToClientFetched = false;
 
-	public static boolean syncingFromClientToServer = false;
+	public static boolean syncedCallerBlockedFromClientToServer = false;
 
 	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
 			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
@@ -968,8 +966,8 @@ public class ChatHeadUtils
 			@Override
 			public void run()
 			{
-				Logger.d("ChatHeadUtils", "syncingFromClientToServer"+syncingFromClientToServer);
-				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false) && !syncingFromClientToServer)
+				Logger.d(TAG, "syncedCallerBlockedFromClientToServer "+ syncedCallerBlockedFromClientToServer);
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false) && !syncedCallerBlockedFromClientToServer)
 				{
 					JSONArray blockedArray = new JSONArray();
 					JSONArray unBlockedArray = new JSONArray();
@@ -1023,9 +1021,9 @@ public class ChatHeadUtils
 					}
 					catch (JSONException e)
 					{
-						Logger.d("ChatHeadUtils", "not able to create sync json");
+						Logger.d(TAG, "not able to create sync json");
 					}
-					syncingFromClientToServer = true;
+					syncedCallerBlockedFromClientToServer = true;
 				}
 			}
 		});
@@ -1039,14 +1037,14 @@ public class ChatHeadUtils
 			@Override
 			public void run()
 			{
-				Logger.d("ChatHeadUtils", "syncingAllCallerBlockedContacts"+syncingAllCallerBlockedContacts);
-				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false) && !syncingAllCallerBlockedContacts)
+				Logger.d(TAG, "blockedCallerFromServerToClientFetched "+ blockedCallerFromServerToClientFetched);
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false) && !blockedCallerFromServerToClientFetched)
 				{
 					ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
 					RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY,
 							HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
 					requestToken.execute();
-					syncingAllCallerBlockedContacts = true;
+					blockedCallerFromServerToClientFetched = true;
 				}
 			}
 		});
