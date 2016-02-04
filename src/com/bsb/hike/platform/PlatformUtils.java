@@ -463,16 +463,15 @@ public class PlatformUtils
 			}
 		});
 
-		int mAppPacketversionCode = 0;
 		JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-		if (cardObjectJson != null)
+
+		if (cardObjectJson == null)
 		{
-			mAppPacketversionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+			rqst.getListener().onEventOccured(0, PlatformContent.EventCode.INVALID_DATA);
+			return;
 		}
 
-		// As this flow is there for MAPP flow, setting the request type to Hike Mapps
-		rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
-		rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+		int	mAppPacketversionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
 		rqst.getContentData().cardObj.setMappVersionCode(mAppPacketversionCode);
 
 		// Setting up parameters for downloadAndUnzip call
