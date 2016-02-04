@@ -1,16 +1,7 @@
 package com.bsb.hike.platform;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,11 +32,7 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -54,11 +41,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -86,13 +69,7 @@ import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 
 /**
  * @author piyush
@@ -542,18 +519,21 @@ public class PlatformUtils
 				}
 
                 // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
-                if(assocMappJson != null) {
-                    JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-                    if (cardObjectJson != null) {
-                        final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
-                        final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+				if (assocMappJson != null)
+				{
+					JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					if (cardObjectJson != null)
+					{
+						final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
+						final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 
-                        if (isMicroAppExistForMappPacket(appName, version) && i == assocMappsCount-1) {
-                            // Download micro app for non messaging bot
-                            downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
-                        }
-                    }
-                }
+						if (isMicroAppExistForMappPacket(appName, version) && i == assocMappsCount - 1)
+						{
+							// Download micro app for non messaging bot
+							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+						}
+					}
+				}
                 if(assocMappJson != null)
                     downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
 			}
