@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -657,7 +656,7 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
-	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
+    public static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 
 		try
@@ -688,7 +687,7 @@ public class PlatformUtils
 		createBotAnalytics(key, botInfo, null);
 	}
 
-	private static void createBotAnalytics(String key, BotInfo botInfo, JSONObject json)
+    public static void createBotAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 		if (json == null)
 		{
@@ -730,18 +729,33 @@ public class PlatformUtils
 			return;
 		}
 
+        final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+
         // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
         JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
         if (cardObjectJson != null) {
             final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
             final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 
-            if(isMicroAppExistForMappPacket(appName,version))
+			if (isMicroAppExistForMappPacket(appName, version))
+			{
+                PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
+                JSONObject jsonObject = new JSONObject();
+                try
+                {
+                    jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+
+                microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+                Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
                 return;
+			}
         }
 
-
-		final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
 			long fileLength = 0;

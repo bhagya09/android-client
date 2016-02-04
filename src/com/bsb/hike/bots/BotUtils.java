@@ -27,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -407,7 +408,8 @@ public class BotUtils
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
-			// Check for rejecting cbot lower version mAppVersionCode and botVersionCode and stop the flow if user already has an upper version of same msisdn bot running
+            botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+            // Check for rejecting cbot lower version mAppVersionCode and botVersionCode and stop the flow if user already has an upper version of same msisdn bot running
 			if (jsonObj.has(HikePlatformConstants.METADATA))
 			{
 				int currentBotInfoMAppVersionCode = 0, mAppVersionCode = 0, botVersionCode = 0, currentBotVersionCode = 0;
@@ -432,10 +434,25 @@ public class BotUtils
 
 				if (mAppVersionCode == -1 || mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
 						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
-					return;
-			}
-            
-            botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+				{
+                    // Added analytics event to consider this micro app download as failure because of invalid data
+                    PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
+                    Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+                    JSONObject json = new JSONObject();
+                    try
+                    {
+                        json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+                        PlatformUtils.createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+                        PlatformUtils.createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+                    }
+                    catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    return;
+				}
+            }
+
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
@@ -455,9 +472,8 @@ public class BotUtils
 			{
                 botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
-                // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
-                if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
-                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
+                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 		}
 
