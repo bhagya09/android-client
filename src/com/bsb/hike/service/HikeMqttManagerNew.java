@@ -1519,11 +1519,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					connectOnMqttThread();
 				}
+				ChatHeadUtils.syncFromClientToServer();
+				ChatHeadUtils.syncAllCallerBlockedContacts();
 			}
 			Utils.setupUri(); // TODO : this should be moved out from here to some other place
 			HttpRequestConstants.toggleSSL();
-			ChatHeadUtils.syncFromClientToServer();
-			ChatHeadUtils.syncAllCallerBlockedContacts();
 
 
 		}

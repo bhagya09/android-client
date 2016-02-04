@@ -122,6 +122,9 @@ public class ChatHeadUtils
 
 	public static final int VALUE_TRUE = 1;
 
+	public static boolean syncingAllCallerBlockedContacts = false;
+
+	public static boolean syncingFromClientToServer = false;
 
 	private static final String CHAT_HEAD_SHARABLE_PACKAGES = "["
 			+ "{\"a\":\"Whatsapp\",\"p\":\"com.whatsapp\"},"
@@ -965,7 +968,8 @@ public class ChatHeadUtils
 			@Override
 			public void run()
 			{
-				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false))
+				Logger.d("ChatHeadUtils", "syncingFromClientToServer"+syncingFromClientToServer);
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED, false) && !syncingFromClientToServer)
 				{
 					JSONArray blockedArray = new JSONArray();
 					JSONArray unBlockedArray = new JSONArray();
@@ -1021,6 +1025,7 @@ public class ChatHeadUtils
 					{
 						Logger.d("ChatHeadUtils", "not able to create sync json");
 					}
+					syncingFromClientToServer = true;
 				}
 			}
 		});
@@ -1029,19 +1034,22 @@ public class ChatHeadUtils
 
 	public static void syncAllCallerBlockedContacts()
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false))
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			@Override
+			public void run()
 			{
-				@Override
-				public void run()
+				Logger.d("ChatHeadUtils", "syncingAllCallerBlockedContacts"+syncingAllCallerBlockedContacts);
+				if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, false) && !syncingAllCallerBlockedContacts)
 				{
 					ICallerSignUpRequestListener callerSignUpListener = new ICallerSignUpRequestListener();
 					RequestToken requestToken = HttpRequests.getBlockedCallerList(HttpRequestConstants.getBlockedCallerListUrl(), callerSignUpListener, StickyCaller.ONE_RETRY,
 							HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
 					requestToken.execute();
+					syncingAllCallerBlockedContacts = true;
 				}
-			});
-		}
+			}
+		});
 	}
+
 }

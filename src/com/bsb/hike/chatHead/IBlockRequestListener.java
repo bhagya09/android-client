@@ -40,8 +40,8 @@ public class IBlockRequestListener implements IRequestListener
 	@Override
 	public void onRequestSuccess(Response result)
 	{
+		ChatHeadUtils.syncingFromClientToServer = false;
 		String resultContent = result.getBody().getContent() == null ? null : result.getBody().getContent().toString();
-
 		boolean requestSuccess = false;
 		if (resultContent != null)
 		{
@@ -73,10 +73,11 @@ public class IBlockRequestListener implements IRequestListener
 
 	private void setAlarmUpdateBlockedClientToServer()
 	{
+		ChatHeadUtils.syncingFromClientToServer = false;
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + SIX_HRS,
 				HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER, false, true);
-		Logger.d("IBlockRequestListener", "Setting Alarm");
+		Logger.d("IBlockRequestListener", "Cancelling old Alarm if any and Setting new Alarm");
 
 	}
 

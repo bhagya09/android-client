@@ -27,13 +27,14 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
+		ChatHeadUtils.syncingAllCallerBlockedContacts = false;
 		setAlarmSyncingBlockedListFromServerToClient();
-		Logger.d("ICallerSignUpListener", "Setting Alarm");
 	}
 
 	@Override
 	public void onRequestSuccess(Response result)
 	{
+		ChatHeadUtils.syncingAllCallerBlockedContacts = false;
 		String resultContent = result.getBody().getContent() == null ? null : result.getBody().getContent().toString();
 		boolean isStatusFail = true;
 		if (resultContent != null)
@@ -73,6 +74,7 @@ public class ICallerSignUpRequestListener implements IRequestListener {
 
 	private void setAlarmSyncingBlockedListFromServerToClient()
 	{
+		Logger.d("ICallerSignUpListener", "Cancelling old Alarm if any and Setting new Alarm");
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + FIVE_MINS,
 				HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER, false, true);
