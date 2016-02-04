@@ -530,10 +530,13 @@ public class PlatformUtils
 							// Download micro app for non messaging bot
 							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
 						}
+
+						else //Download Assocciated mapp
+						{
+							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+						}
 					}
 				}
-                if(assocMappJson != null)
-                    downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
 			}
 		}
         else
