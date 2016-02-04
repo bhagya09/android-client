@@ -498,10 +498,8 @@ public class PlatformUtils
         if (botMetadata != null && botMetadata.getAsocmapp() != null)
 		{
 			JSONArray assocMappJsonArray = botMetadata.getAsocmapp();
-            int assocMappsCount = 0;
 
-            if(assocMappJsonArray != null)
-                assocMappsCount = assocMappJsonArray.length();
+			int assocMappsCount = assocMappJsonArray.length();
 
             // add entry in assocMapp requests map with initial count as no of mapps request to be completed
             assocMappRequestStatusMap.put(botInfo.getMsisdn(),assocMappsCount);
