@@ -2,11 +2,13 @@ package com.bsb.hike.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,7 +21,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,7 +54,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.GalleryImageLoader;
 import com.bsb.hike.smartImageLoader.GalleryPagerImageLoader;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
@@ -66,6 +66,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 import com.edmodo.cropper.CropImageView;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
@@ -800,28 +801,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			// Using edited filepath if user has edited the current selection other wise the original
 			final String filePath = new String(getFinalFilePathAtPosition(position));
 
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					Log.d("Atul", "STARTING TO COMPRESS"+filePath);
-
-					final Bitmap bmp = galleryPagerImageLoader.processBitmap(filePath);
-
-					Log.d("Atul", "QUEUED TO VIEW ON SCREEN "+filePath);
-					runOnUiThread(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							galleryImageView.setImageBitmap(bmp);
-							Log.d("Atul", "DISPLAYED  ON SCREEN " + filePath);
-							galleryImageView.hideCropOverlay();
-						}
-					});
-				}
-			});
+			MyAsyncTask.THREAD_POOL_EXECUTOR.execute( new GalleryPageLoaderRunnable(galleryImageView,filePath));
 
 			((ViewPager) container).addView(page);
 
@@ -872,6 +852,52 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		public GalleryPagerImageLoader getGalleryImageLoader()
 		{
 			return galleryPagerImageLoader;
+		}
+	}
+
+	private class GalleryPageLoaderRunnable implements Runnable
+	{
+		private final WeakReference<CropImageView> ivRef;
+		private final String filePath;
+
+		public GalleryPageLoaderRunnable(CropImageView cropIv, String filePath)
+		{
+			ivRef = new WeakReference<CropImageView>(cropIv);
+			this.filePath = filePath;
+		}
+
+		@Override
+		public void run()
+		{
+			GalleryPagerImageLoader loader = new GalleryPagerImageLoader();
+
+			final Bitmap bmp = loader.processBitmap(filePath);
+
+			if (bmp != null)
+			{
+				Log.d("Atul", "QUEUED TO VIEW ON SCREEN " + filePath);
+
+				setBmpToImageView(bmp);
+			}
+			else
+			{
+				Logger.e("GalleryPageLoaderRunnable", "Not able to load bitmap");
+			}
+		}
+
+		public void setBmpToImageView(final Bitmap bmp)
+		{
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(ivRef != null && ivRef.get()!= null)
+					{
+						ivRef.get().setImageBitmap(bmp);
+						Log.d("Atul", "DISPLAYED  ON SCREEN " + filePath);
+						ivRef.get().hideCropOverlay();
+					}
+				}
+			});
 		}
 	}
 
