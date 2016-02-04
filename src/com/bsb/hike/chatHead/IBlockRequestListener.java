@@ -34,7 +34,7 @@ public class IBlockRequestListener implements IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		
+		ChatHeadUtils.syncedCallerBlockedFromClientToServer = false;
 		Logger.d(TAG, "block list update failure");
 		setAlarmUpdateBlockedClientToServer();
 	}
@@ -75,7 +75,6 @@ public class IBlockRequestListener implements IRequestListener
 
 	private void setAlarmUpdateBlockedClientToServer()
 	{
-		ChatHeadUtils.syncedCallerBlockedFromClientToServer = false;
 		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER);
 		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + SIX_HRS,
 				HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER, false, true);
