@@ -79,6 +79,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.sticker_settings, null);
+		stickerSettingsTask = (StickerSettingsTask) getArguments().getSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG);
 		return parent;
 	}
 	
@@ -88,8 +89,6 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
 		prefs = HikeSharedPreferenceUtil.getInstance();
-		StickerSettingsActivity activity = (StickerSettingsActivity)getActivity();
-		stickerSettingsTask = activity.getStickerSettingsTask();
 		initAdapterAndList();
 		showTipIfRequired();
 		checkAndInflateUpdateView();

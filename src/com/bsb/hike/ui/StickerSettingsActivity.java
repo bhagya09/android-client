@@ -40,8 +40,6 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		
 	}
 
-	public int getStickerSettingsTask() { return stickerSettingsTask; }
-
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -67,7 +65,13 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		if (savedInstanceState != null)
 			return;
 		else
+		{
+			Bundle taskBundle = new Bundle();
+			taskBundle.putSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG, stickerSettingsTask);
 			stickerSettingsFragment = StickerSettingsFragment.newInstance();
+			stickerSettingsFragment.setArguments(taskBundle);
+		}
+
 		getSupportFragmentManager().beginTransaction().add(R.id.sticker_settings_parent, stickerSettingsFragment).commit();
 
 	}
