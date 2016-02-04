@@ -2,7 +2,7 @@ package com.bsb.hike.modules.stickersearch.tasks;
 
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerTagDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.utils.Logger;
@@ -20,10 +20,10 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	
 	private int state;
 
+	private Set<String> stickerSet;
+
 	private Set<String> languagesSet;
 
-	private Set<String> stickerSet;
-	
 	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet)
 	{
 		this.firstTime = firstTime;
@@ -42,7 +42,7 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	@Override
 	public void run()
 	{
-		if(stickerSet == null)
+		if(Utils.isEmpty(stickerSet))
 		{
 			if (firstTime)
 			{
@@ -58,17 +58,10 @@ public class InitiateStickerTagDownloadTask implements Runnable
 					for (StickerCategory category : stickerCategoryList)
 					{
 						List<Sticker> stickers = category.getStickerList();
-
-						if (!Utils.isEmpty(stickers))
-						{
-							for(Sticker sticker : stickers)
-							{
-								stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
-							}
-						}
+						stickerSet.addAll(StickerManager.getInstance().getStickerSetFromList(stickers));
 					}
 
-					StickerManager.getInstance().saveStickerSet(stickerSet, state);
+					StickerManager.getInstance().saveStickerSet(stickerSet, state,false);
 				}
 			}
 			else
@@ -76,9 +69,9 @@ public class InitiateStickerTagDownloadTask implements Runnable
 				stickerSet = StickerManager.getInstance().getStickerSet(state);
 			}
 		}
-		else if(firstTime)
+		else
 		{
-			StickerManager.getInstance().saveStickerSet(stickerSet, state);
+			StickerManager.getInstance().saveStickerSet(stickerSet, state, false);
 		}
 
 		
@@ -93,7 +86,8 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			}
 			return ;
 		}
-		StickerTagDownloadTask stickerTagDownloadTask = new StickerTagDownloadTask(stickerSet, state, languagesSet);
+
+		MultiStickerTagDownloadTask stickerTagDownloadTask = new MultiStickerTagDownloadTask(stickerSet, state, languagesSet);
 		stickerTagDownloadTask.execute();
 
 	}

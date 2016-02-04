@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.BaseAdapter;
 
@@ -22,10 +18,6 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.WebViewCardRenderer.WebViewHolder;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
 
 public class MessagingBotBridgeHelper
 {

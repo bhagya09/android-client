@@ -1,7 +1,7 @@
 package com.bsb.hike.productpopup;
 
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 
 public abstract class PopupContentListener extends PlatformContentListener<PlatformContentModel>
 {

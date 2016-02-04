@@ -5,10 +5,9 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 
 import java.io.File;
 
@@ -103,13 +102,11 @@ public class StickerLoader extends ImageWorker
 
 				if(isMini)
 				{
-					MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(stickerId,categoryId);
-					miniStickerImageDownloadTask.execute();
+					StickerManager.getInstance().initiateMiniStickerDownloadTask(stickerId, categoryId);
 				}
 				else
 				{
-					SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null);
-					singleStickerDownloadTask.execute();
+					StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, null);
 				}
 
 			}

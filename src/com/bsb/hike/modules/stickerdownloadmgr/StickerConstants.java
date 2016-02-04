@@ -53,7 +53,7 @@ public class StickerConstants
 
 		private final int type;
 		private final String label;
-
+		
 		StickerRequestType(int type, String label)
 		{
 			this.type = type;

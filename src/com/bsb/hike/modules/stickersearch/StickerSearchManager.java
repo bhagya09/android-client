@@ -400,7 +400,12 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet);
+		downloadStickerTags(firstTime, state, null, languagesSet);
+	}
+
+	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
+	{
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
