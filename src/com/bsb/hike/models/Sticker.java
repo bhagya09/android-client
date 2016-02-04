@@ -202,7 +202,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getMiniStickerPath()
 	{
-		return StickerSearchConstants.MINI_STICKER_KEY_CODE+":"+categoryId+":"+stickerId;
+		return StickerSearchConstants.MINI_STICKER_KEY_CODE+"_"+categoryId+"_"+stickerId.substring(0,stickerId.indexOf("."));
 	}
 
 	public String getStickerOfflinePath()

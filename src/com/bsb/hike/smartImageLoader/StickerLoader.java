@@ -79,7 +79,7 @@ public class StickerLoader extends ImageWorker
 			{
 				boolean isMini =  dataKey.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE);
 
-				String data = isMini?dataKey.substring(dataKey.indexOf(":") + 1):dataKey;
+				String data = isMini?dataKey.substring(dataKey.indexOf("_") + 1):dataKey;
 
 				String[] args = null;
 				int length =0;
@@ -101,12 +101,11 @@ public class StickerLoader extends ImageWorker
 				}
 
 
-				if(data.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE))
+				if(isMini)
 				{
 					MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(stickerId,categoryId);
 					miniStickerImageDownloadTask.execute();
 				}
-
 				else
 				{
 					SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null);

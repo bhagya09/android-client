@@ -2522,7 +2522,7 @@ public class StickerManager
 		}
 		else if(s.isMiniStickerAvailable())
 		{
-			return StickerSearchConstants.MINI_STICKER_KEY_CODE + ":" + s.getMiniStickerPath();
+			return s.getMiniStickerPath();
 		}
 
 		return null;
