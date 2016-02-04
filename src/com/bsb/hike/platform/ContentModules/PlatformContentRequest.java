@@ -1,6 +1,5 @@
 package com.bsb.hike.platform.ContentModules;
 
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.Logger;
 
 public class PlatformContentRequest
@@ -23,9 +22,6 @@ public class PlatformContentRequest
 	private PlatformContentListener<PlatformContentModel> mContentListener;
 
 	private byte mState = STATE_READY;
-
-    private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
-
 
 	private PlatformContentRequest(PlatformContentModel contentData, PlatformContentListener<PlatformContentModel> contentListner)
 	{
@@ -87,10 +83,11 @@ public class PlatformContentRequest
 	}
 
     public byte getBotType() {
-        return botType;
+        return this.mContentData.getBotType();
     }
 
-    public void setBotType(byte botType) {
-        this.botType = botType;
-    }
+	public void setBotType(byte botType)
+	{
+		this.mContentData.setBotType(botType);
+	}
 }
