@@ -1,13 +1,5 @@
 package com.bsb.hike.platform;
 
-import java.util.ArrayList;
-
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.annotation.SuppressLint;
@@ -23,13 +15,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
-import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -45,20 +32,25 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MovingList;
-import com.bsb.hike.platform.content.HikeWebClient;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano;
 import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
+import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by shobhitmandloi on 14/01/15.

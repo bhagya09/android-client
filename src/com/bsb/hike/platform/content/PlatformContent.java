@@ -1,13 +1,16 @@
 package com.bsb.hike.platform.content;
 
 
-import java.io.File;
-
 import android.os.Environment;
+
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.platform.ContentModules.*;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentLoader;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import java.io.File;
 
 public class PlatformContent
 {
