@@ -118,11 +118,11 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		if (stickerSettingsTask != HikeConstants.StickerSettingsTask.STICKER_DELETE_TASK || categoryId.equals(StickerManager.HUMANOID)
 				|| categoryId.equals(StickerManager.EXPRESSIONS))
 		{
-			deleteOption.setVisibility(View.GONE);
+			deleteButton.setVisibility(View.GONE);
 		}
 		else
 		{
-			deleteOption.setVisibility(View.VISIBLE);
+			deleteButton.setVisibility(View.VISIBLE);
 		}
 
 	}
@@ -159,7 +159,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		checkAndEnableDeleteButton(category.getCategoryId(), viewHolder.deleteOption);
+		checkAndEnableDeleteButton(category.getCategoryId(), viewHolder.deleteButton);
 		viewHolder.downloadProgress.setVisibility(View.GONE); //This is being done to clear the spinner animation.
 		viewHolder.downloadProgress.clearAnimation();
 		
@@ -225,7 +225,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		}
 			
 		viewHolder.checkBox.setTag(category);
-		viewHolder.deleteOption.setTag(category);
+		viewHolder.deleteButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
 		viewHolder.checkBox.setSelected(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
@@ -371,7 +371,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		
 		ImageButton checkBox;
 
-		ImageButton deleteOption;
+		ImageButton deleteButton;
 
 		ImageView categoryPreviewImage;
 
@@ -403,7 +403,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	{
 			StickerCategory category = (StickerCategory) v.getTag();
 
-			if (v.getId() == R.id.delete_option)
+			if (v.getId() == R.id.delete_button)
 			{
 				final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(mContext, category, this);
 				HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,
