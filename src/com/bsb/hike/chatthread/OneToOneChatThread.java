@@ -1668,11 +1668,12 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 			}
 			else
 			{
+				OfflineUtils.sendOfflineRequestPacket(msisdn);
 				offlineController.connectAsPerMsisdn(msisdn);
 				setupOfflineUI();
 				if (showAnimation)
 				{
-					OfflineUtils.sendOfflineRequestPacket(msisdn);
+
 					startFreeHikeAnimation();
 				}
 			}
@@ -3347,6 +3348,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			if(offlineAnimationFragment!=null)
