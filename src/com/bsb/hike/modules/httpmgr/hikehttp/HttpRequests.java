@@ -110,15 +110,8 @@ public class HttpRequests
 	}
 
 	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener) {
-		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId();
-		if(miniStk)
-		{
-			url += "&mini_stk=" + true;
-		}
-		else
-		{
-			url += "&mini_stk=" + false;
-		}
+		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId()+"&mini_stk="+miniStk;
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)

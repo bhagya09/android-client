@@ -13,7 +13,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -22,7 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
 
 /**
  * Created by anubhavgupta on 03/01/16.
@@ -64,14 +63,12 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 		String requestId = getRequestId();
 
-		requestToken = singleStickerDownloadRequest(
+		requestToken = singleStickerImageDownloadRequest(
 				requestId,
 				stickerId,
 				categoryId,
-				getRequestListener(),
-				StickerLanguagesManager.getInstance().listToString(
-						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+				true,
+				getRequestListener());
 
 		if (requestToken.isRequestRunning()) // return if request is running
 		{
