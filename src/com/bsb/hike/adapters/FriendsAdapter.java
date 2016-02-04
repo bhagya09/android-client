@@ -291,7 +291,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
         msisdnList = showFilteredContacts ? (msisdnList) : "";
 
         fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,false,true,showFilteredContacts,msisdnList);
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
         Utils.executeAsyncTask(fetchFriendsTask);
 	}
 

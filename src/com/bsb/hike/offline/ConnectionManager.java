@@ -88,16 +88,28 @@ public class ConnectionManager
             wificonfiguration.allowedGroupCiphers.set(2);
             wificonfiguration.allowedGroupCiphers.set(3);
             int i1 = wifiManager.addNetwork(wificonfiguration);
-            if (i1 != -1)
-            {
-                wifiManager.enableNetwork(i1, false);
-                wificonfiguration.networkId = i1;
-                wifiManager.updateNetwork(wificonfiguration);
-                wifiManager.saveConfiguration();
-            }
-             wifiManager.enableNetwork(i1, true);
-            wifiManager.reconnect();
-		// stack overflow 
+            if (i1 != -1) {
+				wifiManager.enableNetwork(i1, false);
+				wificonfiguration.networkId = i1;
+				wifiManager.updateNetwork(wificonfiguration);
+				wifiManager.saveConfiguration();
+
+				wifiManager.enableNetwork(i1, true);
+				wifiManager.reconnect();
+			}
+		else
+			{
+				//fallback try
+
+				WifiConfiguration wifiConfig = new WifiConfiguration();
+				wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
+				wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
+				int status=wifiManager.addNetwork(wifiConfig);
+				if(status!=-1)
+				connectToWifi(wifiConfig.SSID);
+
+			}
+		// stack overflow
 	
 		
 		
@@ -644,7 +656,7 @@ public class ConnectionManager
 				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid+"BSSID is "+wifiConfiguration.BSSID);
 				if (currentSsid.equals(ssid))
 				{
-					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID+"BSSID is "+wifiConfiguration.BSSID);
+					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID + "BSSID is " + wifiConfiguration.BSSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
 					wifiManager.saveConfiguration();
