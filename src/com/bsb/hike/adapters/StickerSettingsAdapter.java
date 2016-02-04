@@ -389,8 +389,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 							@Override
 							public void positiveClicked(HikeDialog hikeDialog)
 							{
-								hikeDialog.dismiss();
-								deletePackTask.execute();
+								deletePackTask.execute(hikeDialog);
 							}
 
 							@Override

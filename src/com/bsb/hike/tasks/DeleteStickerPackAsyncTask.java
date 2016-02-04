@@ -11,11 +11,12 @@ import com.bsb.hike.utils.StickerManager;
 /**
  * Created by nehadua on 27/01/16.
  */
-public class DeleteStickerPackAsyncTask extends AsyncTask<Void, Integer, Boolean>
+public class DeleteStickerPackAsyncTask extends AsyncTask<HikeDialog, Void, Void>
 {
     private StickerCategory category;
     private Context context;
     private StickerSettingsAdapter adapter;
+    private HikeDialog deleteDialog;
 
     protected void onPreExecute ()
     {
@@ -29,15 +30,17 @@ public class DeleteStickerPackAsyncTask extends AsyncTask<Void, Integer, Boolean
     }
 
     @Override
-    protected Boolean doInBackground(Void... params)
+    protected Void doInBackground(HikeDialog... params)
     {
+        this.deleteDialog = params[0];
         StickerManager.getInstance().removeCategory(category.getCategoryId(), false);     //false to not remove from shop table
-        return true;
+        return null;
     }
 
-    protected void onPostExecute(Boolean result)
+    protected void onPostExecute(Void result)
     {
-            Toast.makeText(context, "Deleted " + category.getCategoryName() + " stickers pack.", Toast.LENGTH_SHORT).show();
-            adapter.updateMappingOnPackDelete(category);
+        if (deleteDialog.isShowing()) { deleteDialog.dismiss(); }
+        Toast.makeText(context, "Deleted " + category.getCategoryName() + " stickers pack.", Toast.LENGTH_SHORT).show();
+        adapter.updateMappingOnPackDelete(category);
     }
 }
