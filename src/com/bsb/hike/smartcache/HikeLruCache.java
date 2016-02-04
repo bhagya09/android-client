@@ -379,7 +379,7 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		evictAll();
 	}
 
-	public Drawable getSticker(Sticker sticker)
+	public Drawable getSticker(Sticker sticker,boolean lookForOffline)
 	{
 		String path = "";
 
@@ -387,7 +387,7 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		{
 			path = sticker.getLargeStickerPath();
 		}
-		else if(sticker.isStickerOffline())
+		else if(sticker.isStickerOffline() && lookForOffline)
 		{
 			path = sticker.getStickerOfflinePath();
 		}

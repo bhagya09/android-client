@@ -862,7 +862,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (sticker.isStickerAvailable())
 			{
 
-				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker);
+				if(!sticker.isFullStickerAvailable())
+				{
+					SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
+					singleStickerDownloadTask.execute();
+				}
+
+				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage());
 
 				if (stickerDrawable != null)
 				{
