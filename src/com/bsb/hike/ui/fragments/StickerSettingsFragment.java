@@ -333,20 +333,19 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private List<StickerCategory> getStickerCategoriesList() {
 		List<StickerCategory> categoriesList = StickerManager.getInstance().getMyStickerCategoryList();
-		List<StickerCategory> tempCategoriesList = new ArrayList<>();
 
-		tempCategoriesList.addAll(categoriesList);
-		/* Returning only categories in Update state if Update Stickers is selected */
-		if (stickerSettingsTask == HikeConstants.StickerSettingsTask.STICKER_UPDATE_TASK)
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK)
 		{
-			for (StickerCategory category : tempCategoriesList)
-			{
-				if (category.getState() != StickerCategory.UPDATE)
-				{
-					categoriesList.remove(category);
-				}
-			}
+			Iterator it = categoriesList.iterator();
+			StickerCategory category;
 
+			while (it.hasNext()) {
+				category = (StickerCategory) it.next();
+				if (category.getState() != StickerCategory.UPDATE) {
+					it.remove();
+				}
+
+			}
 		}
 
 		return categoriesList;
