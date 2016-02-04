@@ -157,7 +157,8 @@ public enum StickerSearchDataController
 						String catgrsType = catgrs.next();
 						if ("catgrs".equals(catgrsType))
 						{
-							tagDataWithScript.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
+							tagDataWithScript
+									.add(new Pair<String, JSONObject>(HikeStickerSearchBaseConstants.DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE, tagData.optJSONObject("catgrs")));
 						}
 						else if ("catgrs_loc".equals(catgrsType))
 						{
@@ -237,10 +238,11 @@ public enum StickerSearchDataController
 											{
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
-													if (!Utils.isBlank(tag))
+													tag = tagArray.optString(i).trim().toUpperCase(Locale.ENGLISH);
+
+													// Do not add exact tag of any language in list, if it is already added for same language due to duplicates in json response
+													if (!Utils.isBlank(tag) && !tempExactMatchElements.contains(tag))
 													{
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
 														tempExactMatchElements.add(tag);
 														tempRemainingExactMatchElements.add(tag);
 													}
@@ -269,15 +271,16 @@ public enum StickerSearchDataController
 
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
-													if (!Utils.isBlank(tag))
+													tag = tagArray.optString(i).trim().toLowerCase(Locale.ENGLISH);
+
+													// Do not add theme of any language in list, if it is already added for same language due to duplicates in json response
+													if (!Utils.isBlank(tag) && !themeList.contains(tag))
 													{
-														tag = tag.trim().toLowerCase(Locale.ENGLISH);
 														themeList.add(tag);
 
 														if (!HikeStickerSearchBaseConstants.DEFAULT_THEME_TAG.equalsIgnoreCase(tag))
 														{
-															tag = tag.trim().toUpperCase(Locale.ENGLISH);
+															tag = tag.toUpperCase(Locale.ENGLISH);
 															tagList.add(tag);
 															tagLanguageList.add(languageId);
 															tagScriptList.add(scriptId);
@@ -316,21 +319,25 @@ public enum StickerSearchDataController
 
 												for (int i = 0; i < tagArray.length(); i++)
 												{
-													tag = tagArray.optString(i);
+													tag = tagArray.optString(i).trim().toUpperCase(Locale.ENGLISH);
 													if (!Utils.isBlank(tag))
 													{
-														tag = tag.trim().toUpperCase(Locale.ENGLISH);
-														tagList.add(tag);
-														tagLanguageList.add(languageId);
-														tagScriptList.add(scriptId);
-														tagCategoryList.add(formattedKey);
-														exactMatchPriority = tempExactMatchElements.indexOf(tag);
-														tagExactMatchPriorityList.add(exactMatchPriority);
-														if (exactMatchPriority >= 0)
+														// Do not add tag of any language in list, if it is already added for same language due to duplicates in json response
+														int indexOfPreExistingTagInList = tagList.indexOf(tag);
+														if ((indexOfPreExistingTagInList < 0) || !languageId.equals(tagLanguageList.get(indexOfPreExistingTagInList)))
 														{
-															tempRemainingExactMatchElements.remove(tag);
+															tagList.add(tag);
+															tagLanguageList.add(languageId);
+															tagScriptList.add(scriptId);
+															tagCategoryList.add(formattedKey);
+															exactMatchPriority = tempExactMatchElements.indexOf(tag);
+															tagExactMatchPriorityList.add(exactMatchPriority);
+															if (exactMatchPriority >= 0)
+															{
+																tempRemainingExactMatchElements.remove(tag);
+															}
+															tagPriorityList.add(i);
 														}
-														tagPriorityList.add(i);
 													}
 												}
 											}
@@ -560,7 +567,7 @@ public enum StickerSearchDataController
 				Logger.i(TAG, "setupStickerSearchWizard(), Updating tag fetching retry list: " + updateRetrySet);
 				if (remainingSetSize > 0)
 				{
-					StickerManager.getInstance().saveStickerSet(updateRetrySet, state);
+					StickerManager.getInstance().saveStickerSet(updateRetrySet, state, true);
 				}
 				else
 				{
@@ -580,26 +587,42 @@ public enum StickerSearchDataController
 
 	private void takeDecisionOnState(int state)
 	{
-		switch(state)
+		switch (state)
 		{
-			case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
-				break;
-			case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
-				StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
-				break;
+		case StickerSearchConstants.STATE_STICKER_DATA_REFRESH:
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_SUCCESSFUL_STICKER_TAG_REFRESH_TIME, System.currentTimeMillis());
+			break;
+		case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
+			StickerLanguagesManager.getInstance().downloadTagsForNextLanguage();
+			break;
 		}
 	}
 
-	public void updateStickerList(Set<String> stickerInfoSet)
+	public void updateStickerList(Set<String> infoSet, int type)
 	{
-		Logger.i(TAG, "updateStickerList(" + stickerInfoSet + ")");
+		Logger.i(TAG, "updateStickerList(" + infoSet + ")");
 
 		if (Utils.isHoneycombOrHigher())
 		{
 			synchronized (StickerSearchDataController.class)
 			{
-				HikeStickerSearchDatabase.getInstance().disableTagsForDeletedStickers(stickerInfoSet);
+				switch (type)
+				{
+				case StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED: // List of categories deleted
+					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedCategories(infoSet);
+					break;
+
+				case StickerSearchConstants.REMOVAL_BY_STICKER_DELETED: // List of stickers deleted
+					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedStickers(infoSet);
+					break;
+
+				case StickerSearchConstants.REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS: // List of current existing stickers
+					HikeStickerSearchDatabase.getInstance().removeTagsForNonExistingStickers(infoSet);
+					break;
+
+				default:
+					Logger.e(TAG, "updateStickerList(), Unknown request type.");
+				}
 			}
 		}
 		else

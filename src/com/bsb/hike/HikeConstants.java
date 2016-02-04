@@ -165,6 +165,8 @@ public class HikeConstants
 
 	public static final String LONGITUDE = "long";
 
+	public static final String LOCATION_PROIVDER = "provider";
+
 	public static final String ZOOM_LEVEL = "zoom";
 
 	public static final String ADDRESS = "add";
@@ -749,7 +751,6 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-	public static final String FORCE_BG = "force_bg";
 
 	public class InviteSection
 	{
@@ -931,7 +932,9 @@ public class HikeConstants
 
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
-	public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
+    public static final int PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST = 1197;
+
+    public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1899,7 +1902,17 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
-	}
+
+        public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
+
+        public static final String LIST = "list";
+
+        public static final String MICRO_APPS_REQUEST_CODE = "microapps_request_code";
+
+        public static final String FUNCTION_ID = "function_id";
+
+        public static final String RESULT_CODE = "result_code";
+    }
 
 	public static final class LogEvent
 	{
@@ -3767,6 +3780,8 @@ public class HikeConstants
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 
+	public static final String OFFSET = "offset";
+
 	public static final String APP_LANG_CHANGED_DEL_ACC = "d_a";
 	
 	public static final String APP_LANG_CHANGED_SETTINGS = "stg";
@@ -3782,4 +3797,10 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String SINGLE_STICKER_CDN = "sscdn";
+
+	public static final String STICKER_PACK_CDN = "spcdn";
+
+	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
 }

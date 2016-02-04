@@ -91,6 +91,8 @@ public interface HikePlatformConstants
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
+	public static final String GAME_ACTIVE ="gameActive" ;
+	public static final String CUSTOM_TABS="customTabs";
 
 	public static final class PlatformFetchType
 	{
@@ -231,7 +233,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 9;
+	public static final int CURRENT_VERSION = 10;
 
 	public static final String AB_COLOR = "color";
 	
@@ -279,8 +281,21 @@ public interface HikePlatformConstants
 
 	public static final String IS_SHORTCUT = "is_shortcut";
 
+	public static final String TYPE = "type";
+
+	public static class UrlInterceptTypes
+	{
+		public static final int INTERCEPT_AND_CLOSE_WEBVIEW = 1;
+	}
+
 	public static final String EXTRA_DATA = "extra_data";
-	
+
+	public static final String RECURRING_LOCATION = "rec_loc";
+
+	public static final String RECURRING_LOCATION_END_TIME = "loc_end_time";
+
+	public static final String TIME_INTERVAL = "interval";
+
 	public static final String TEAM_HIKE_MSISDN = "+hike+";
 	
 	public static final String EMMA_BOT_MSISDN = "+hike1+";
