@@ -703,7 +703,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		/*
 		 * If the text box is empty, the we take the hint text which is a prefill for moods.
 		 */
-		if (TextUtils.isEmpty(statusTxt.getText()) && mActivityTask.moodId != -1)
+		if ((TextUtils.isEmpty(statusTxt.getText()) || (statusTxt.getText().toString()).matches("^\\s*$")) && mActivityTask.moodId != -1)
 		{
 			status = statusTxt.getHint().toString();
 		}

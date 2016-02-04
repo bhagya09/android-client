@@ -21,7 +21,7 @@
     <string name="block_title">ബ്ലോക്കുചെയ്യുക</string>
     <string name="unblock_title">അൺബ്ലോക്കുചെയ്യുക</string>
     <string name="feedback">ഫീഡ്‌ബാക്ക്</string>
-    <string name="block_overlay_message">നിങ്ങൾ %1$s എന്ന വ്യക്തിയെ ബ്ലോക്കുചെയ്തു. അൺബ്ലോക്കുചെയ്ത്, ഹൈക്കിംഗ് തുടരുക.</string>
+    <string name="block_overlay_message">നിങ്ങൾ %1$s എന്ന വ്യക്തിയെ ബ്ലോക്കുചെയ്തു. ഹൈകിംഗ് തുടരാൻ അൺബ്ലോക്കു ചെയ്യുക</string>
     <string name="phone_num">ഫോൺ നമ്പർ</string>
     <string name="pin">പിന്</string>
     <string name="pin_signup">PIN</string>
@@ -103,7 +103,7 @@
     <string name="vibrate_msg">പുതിയ മെസ്സേജിന്  വൈബ്രേറ്റുചെയ്യുക</string>
     <string name="free_sms_msg">ഇന്ത്യയിലേക്ക് സൗജന്യ SMS അയയ്ക്കാൻ ഓണാക്കുക</string>
     <string name="auto_download_media">സ്വയമേവ മീഡിയ ഡൗൺലോഡുചെയ്യുക</string>
-    <string name="md_auto_download_media">സ്വയമേവ മീഡിയ ഡൗൺലോഡുചെയ്യുക : മൊബൈൽ</string>
+    <string name="md_auto_download_media">സ്വയം മീഡിയ ഡൗൺലോഡുചെയ്യുക : മൊബൈൽ</string>
     <string name="wf_auto_download_media">സ്വയമേവ മീഡിയ ഡൗൺലോഡുചെയ്യുക : WI-FI</string>
     <string name="auto_download_image_title">ചിത്രങ്ങൾ</string>
     <string name="auto_download_video_title">വീഡിയോ</string>
@@ -255,7 +255,7 @@
     <string name="sent_sticker">നിങ്ങൾക്ക് ഒരു സ്റ്റിക്കർ അയച്ചു</string>
     <string name="start_new_chat">പുതിയ ചാറ്റ് ആരംഭിക്കുക</string>
     <string name="post_new_update">പുതിയ അപ്‌ഡേറ്റ് പോസ്റ്റുചെയ്യുക</string>
-    <string name="read_by_names_only">%1$s പ്രകാരം വായിക്കുക</string>
+    <string name="read_by_names_only">%1$s വായിച്ചിരിക്കുന്നു</string>
     <string name="read_by_names_number">%1$s എന്ന വ്യക്തിയും മറ്റ് %2$d പേരും വായിച്ചു</string>
     <string name="read_by_everyone">എല്ലാവരും വായിച്ചു</string>
     <string name="attach">അറ്റാച്ചുചെയ്യുക</string>
@@ -289,7 +289,7 @@
     <string name="invite_friends_hike">hike-ലേക്ക് സുഹൃത്തുക്കളെ ക്ഷണിക്കുക</string>
     <string name="hike_contacts">HIKE ഉപയോഗിക്കുന്നവർ</string>
     <string name="sms_contacts">SMS കോണ്ടാക്ട്സ്</string>
-    <string name="invite_subtext">നിങ്ങളുടെ SMS ക്ഷണത്തിലൂടെ hike-ൽ ചേരുന്ന ഓരോ സുഹൃത്തുക്കൾക്കും അധിക സൗജന്യ SMS സമ്പാദിക്കുക.</string>
+    <string name="invite_subtext">നിങ്ങളുടെ SMS ക്ഷണത്തിലൂടെ hike-ൽ ചേരുന്ന ഓരോ സുഹൃത്തുക്കൾക്കും അധിക സൗജന്യ SMS നേടുക.</string>
     <string name="india_only">സൗജന്യ SMS ഇന്ത്യയിലേക്ക് മാത്രമേ അയക്കാനാകൂ.</string>
     <string name="feedback_on_hike">Android-നായുള്ള hike-മായി ബന്ധപ്പെട്ട ഫീഡ്ബാക്ക്</string>
     <string name="feedback_hinttext">ഞങ്ങൾക്ക് ഫീഡ്ബാക്ക് നൽകുക</string>
@@ -486,7 +486,7 @@
     <string name="add_to_contacts_existing">നിലവിലുള്ള കോണ്ടാക്ട്സിനെ ചേർക്കുക</string>
     <string name="delete_chat">ചാറ്റ് ഇല്ലാതാക്കുക</string>
     <string name="clear_whole_conversation">എല്ലാ സംഭാഷണങ്ങളും മായ്ക്കുക</string>
-    <string name="email_conversations">ഇമെയിൽ സംഭാഷണം</string>
+    <string name="email_conversations">സംഭാഷണം ഇമെയിൽ ചെയ്യുക</string>
     <string name="unlink_account_failed">hike-ന് അക്കൗണ്ട് ലോഗൗട്ട് ആക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക</string>
     <string name="deleting_account">അക്കൗണ്ട് ഇല്ലാതാക്കുന്നു...</string>
     <string name="unlink_hinttext">നിങ്ങളുടെ മെസ്സേജുകളും പ്രൊഫൈലും ഈ ഡിവൈസില്‍ നിന്ന് ക്ലിയര്‍ ചെയ്യുക</string>
@@ -497,7 +497,7 @@
     <string name="shortcut">സംഭാഷണ ഷോര്‍ട്ട് കട്ട് ചേര്‍ക്കുക</string>
     <string name="add_to_contacts">കോണ്ടാക്ട്സിലേക്ക് ചേർക്കുക</string>
     <string name="delete_leave">ഡിലീറ്റിന്റെ ഒപ്പം ഗ്രൂപ്പ്‌ എക്സിറ്റ്</string>
-    <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>കുറിപ്പ്: </b>അഡ്രസ്‌ ബുക്കിൽ %1$s-മൊത്തുള്ള hike കോണ്ടാക്ട്സ് മാത്രമേ ഈ ബ്രോഡ്‌കാസ്റ്റ് സ്വീകരിക്കൂ.</font>]]></string>
+    <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>കുറിപ്പ്: </b>അഡ്രസ്‌ ബുക്കിൽ %1$s-ഉള്ള hike കോണ്ടാക്ട്സ് മാത്രമേ ഈ ബ്രോഡ്‌കാസ്റ്റ് സ്വീകരിക്കൂ.</font>]]></string>
     <string name="confirm_delete_chat_msg">\"%1$s\" എന്ന വ്യക്തിയുമായുള്ള ചാറ്റ് ഇല്ലാതാക്കണോ? </string>
     <string name="confirm_delete_group_msg">\"%1$s\"എന്ന ഗ്രൂപ്പ് ഇല്ലാതാക്കുകയും അതിൽനിന്ന് പുറത്തുകടക്കുകയും വേണോ?</string>
     <string name="email_chat">ഇമെയിൽ ചാറ്റ്</string>
@@ -595,7 +595,7 @@
     <string name="max_pin_unread_counter">9+</string>
     <string name="pin_text_hint">പ്രധാനപ്പെട്ട എന്തെങ്കിലും പങ്കിടുക...</string>
     <string name="xyz_posted_pin">%1$s പിന് പോസ്റ്റുചെയ്തു</string>
-    <string name="pinHistoryTutorialText">ഇതുവരെ പിന്-കൾ ഒന്നും ഇല്ല</string>
+    <string name="pinHistoryTutorialText">ഇതുവരെ പിന്നുകൾ ഒന്നും ഇല്ല</string>
     <string name="incorrect_msisdn_warning">തെറ്റായ നമ്പർ</string>
     <string name="incorrect_msisdn_msg">ഈ ഫോണിൽ hike-മായി രജിസ്റ്റർ ചെയ്തിട്ടുള്ള നമ്പർ നൽകുക.</string>
     <string name="delete_account_heading_2">അക്കൗണ്ട് ഇല്ലാതാക്കാൻ, നിങ്ങളുടെ നമ്പർ നൽകുക</string>
@@ -607,12 +607,12 @@
     <string name="set_profile_pic"> Hike പ്രൊഫൈൽ ചിത്രം</string>
     <string name="confirm_delete_pin_header">പിന് ഇല്ലാതാക്കുക</string>
     <string name="confirm_delete_pin">ഈ പിന് ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
-    <string name="confirm_delete_pins_header">പിന്-കൾ ഇല്ലാതാക്കുക</string>
-    <string name="confirm_delete_pins">ഈ %1$s പിന്-കൾ ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
+    <string name="confirm_delete_pins_header">പിന്നുകൾ ഇല്ലാതാക്കുക</string>
+    <string name="confirm_delete_pins">ഈ %1$s പിന്നുകൾ ഇല്ലാതാക്കണമെന്ന് ഉറപ്പാണോ?</string>
     <string name="add_btn">ചേർക്കുക</string>
     <string name="not_now">ഇപ്പോൾ വേണ്ട</string>
     <string name="shared_med">പങ്കിട്ട മീഡിയ</string>
-    <string name="pins">പിന്-കൾ</string>
+    <string name="pins">പിന്നുകൾ</string>
     <string name="groups">ഗ്രൂപ്പുകൾ</string>
     <string name="members">അംഗങ്ങൾ</string>
     <string name="recipients">സ്വീകർത്താക്കൾ</string>
@@ -644,7 +644,7 @@
     <string name="tap_save_contact">കോണ്ടാക്ട്\nസംരക്ഷിക്കുക</string>
     <string name="image_settings_tip_text">ചിത്ര സെറ്റിംഗ്സ് </string>
     <string name="image_settings_tip_subtext">സാധാരണം. മികച്ചത്. കംപ്രസ്സ് ചെയ്യാനാകാത്ത വലുപ്പം</string>
-    <string name="settings_media">മാധ്യമം</string>
+    <string name="settings_media">മീഡിയ</string>
     <string name="image_quality_small">കംപ്രസ്സ് ചെയ്തത്</string>
     <string name="image_quality_medium">സാധാരണം</string>
     <string name="image_quality_original">ഒറിജിനൽ</string>
@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">ചുരുങ്ങിയത് ഒരു കോണ്ടാക്ട് തിരഞ്ഞെടുക്കുക</string>
     <string name="choose_contact">കോണ്ടാക്ട് തിരഞ്ഞെടുക്കുക</string>
     <string name="voip_reconnecting">&#8230;വീണ്ടും ബന്ധിപ്പിക്കുന്നു</string>
-    <string name="group_creation">എന്ന തീയതിയിൽ സൃഷ്ടിച്ചത് </string>
+    <string name="group_creation">%1$s എന്ന തീയതിയിൽ സൃഷ്ടിച്ചത് ആണ്</string>
     <string name="ls_change_failed">ലാസ്റ്റ് സീൻ അപ്ഡേറ്റ് പരാജയം!</string>
     <string name="terms_conditions_hint">വ്യവസ്ഥകളും നിബന്ധനകളും</string>
     <string name="terms_conditions_title">ടി &amp; സി</string>
@@ -972,7 +972,7 @@
     <string name="content_des_typing_notification_chatting">ചാറ്റ് ചെയ്യുമ്പോൾ ഉപയോക്താവിന് വിവരങ്ങൾ ടൈപ്പുചെയ്യുന്നു</string>
     <string name="content_des_typing_notification_received">ഉപയോക്താവിന് ലഭിച്ച അറിയിപ്പ് ടൈപ്പുചെയ്യുന്നു</string>
 	<string name="content_des_send_message_button">സന്ദേശം അയയ്ക്കാൻ ബട്ടൺ അമർത്തുക</string>
-    <string name="content_des_block_overlay_message">നിങ്ങൾ ഈ ഉപയോക്താവിനെ ബ്ലോക്കുചെയ്തിട്ടുണ്ട്. അൺബ്ലോക്കുചെയ്തുകൊണ്ട് ഹൈക്കിംഗ് തുടരുക.</string>
+    <string name="content_des_block_overlay_message">നിങ്ങൾ ഈ ഉപയോക്താവിനെ ബ്ലോക്കുചെയ്തിട്ടുണ്ട്. ഹൈകിംഗ് തുടരാൻ അൺബ്ലോക്കു ചെയ്യുക</string>
     <string name="content_des_user_profile_detail_user_phone_number">ഉപയോക്താക്കളുടെ ഫോൺ നമ്പർ</string>
     <string name="content_des_user_profile_detail_edit_profile_pic">പ്രൊഫൈൽ ചിത്രം മാറ്റുക</string>
     <string name="content_des_user_invitation_on_hike">Hike-ലേക്ക് കോണ്ടാക്ട്സിനെ ക്ഷണിക്കുക</string>
@@ -1009,7 +1009,7 @@
     <string name="one_day_button">24 മണിക്കൂർ</string>
     <string name="settings_share_stickers">സ്റ്റിക്കി</string>
     <string name="sticker_widget_show">ലിസ്റ്റുചെയ്തിട്ടുള്ള എല്ലാ ആപ്സിലും സ്റ്റിക്കി കാണിക്കുക</string>
-    <string name="settings_select_all">എല്ലാവരെയും തിരഞ്ഞെടുക്കുക </string>
+    <string name="settings_select_all">എല്ലാം തിരഞ്ഞെടുക്കുക </string>
     <string name="more_stickers">കൂടുതൽ സ്റ്റിക്കറുകൾ</string>
 	<string name="add_members">അംഗങ്ങളെ ചേർക്കുക</string>
 	<string name="add_members_to_conference">കോൺഫറൻസിലേക്ക് ചേർക്കുക</string>
@@ -1278,7 +1278,7 @@
     <string name="voip_hang_up">വയ്ക്കുക</string>
     <string name="voip_decline">നിരസിക്കുക</string>
     <string name="voip_accept">സ്വീകരിക്കുക</string>
-    <string name="you_group_member_added">നിങ്ങൾ %1$s ചേർത്തു</string>
+    <string name="you_group_member_added">നിങ്ങളെ ചേർത്തു</string>
     <string name="you_added_as_group_member">%1$s നിങ്ങളെ ചേർത്തു</string>
     <string name="group_member_added">%1$s, %2$s എന്നയാളെ ചേർത്തു</string>
     <string name="you_updated_group_admin">നിങ്ങൾ %1$s -നെ അഡ്മിനാക്കി</string>
