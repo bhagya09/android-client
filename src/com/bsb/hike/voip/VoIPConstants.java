@@ -112,6 +112,13 @@ public class VoIPConstants {
 	 * before the error fragment is shown on top.
 	 */
 	public static final int SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY = 2000;
+
+	/**
+	 * We need to have an upper limit on how many times we ask a user to rate their VoIP
+	 * call. This can be overridden with a server message.
+	 */
+	public static final int DEFAULT_MAX_RATINGS_REQUESTS = 2;
+
 	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
