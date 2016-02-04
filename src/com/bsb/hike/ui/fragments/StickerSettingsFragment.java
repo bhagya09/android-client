@@ -73,7 +73,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	
 	private boolean isUpdateAllTapped = false;
 
-	private int stickerSettingsTask;
+	private StickerSettingsTask stickerSettingsTask;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -227,7 +227,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private boolean shouldAddUpdateView()
 	{
-		if (stickerSettingsTask != HikeConstants.StickerSettingsTask.STICKER_UPDATE_TASK)
+		if (stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK)
 		{
 			return false;
 		}
@@ -257,7 +257,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	 */
 	private void showTipIfRequired()
 	{
-		if(stickerSettingsTask == HikeConstants.StickerSettingsTask.STICKER_REORDER_TASK)
+		if(stickerSettingsTask == StickerSettingsTask.STICKER_REORDER_TASK)
 		{
 			showDragTip();
 		}
@@ -365,7 +365,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		mDslv.setAdapter(mAdapter);
 		mDslv.setClickable(true);
 		mDslv.setOnItemClickListener(this);
-		if (stickerSettingsTask == HikeConstants.StickerSettingsTask.STICKER_REORDER_TASK)
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_REORDER_TASK)
 		{
 			mDslv.setDragEnabled(true);
 			mDslv.setDragScrollProfile(this);

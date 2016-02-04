@@ -1894,18 +1894,6 @@ public class HikeConstants
 
 		public static final String STICKER_SETTINGS_TASK = "stickerSettingsTask";
 
-
-	}
-
-	public static final class StickerSettingsTask
-	{
-		public static final int STICKER_REORDER_TASK = 1;
-
-		public static final int STICKER_DELETE_TASK = 2;
-
-		public static final int STICKER_HIDE_TASK = 3;
-
-		public static final int STICKER_UPDATE_TASK = 4;
 	}
 
 	public static final class LogEvent

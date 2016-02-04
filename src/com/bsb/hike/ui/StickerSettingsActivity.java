@@ -25,7 +25,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 {
 	private StickerSettingsFragment stickerSettingsFragment;
-	private int stickerSettingsTask;
+	private StickerSettingsTask stickerSettingsTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -33,7 +33,7 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sticker_settings_page);
 		Intent intent = getIntent();
-		stickerSettingsTask = intent.getIntExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, HikeConstants.StickerSettingsTask.STICKER_REORDER_TASK);
+		stickerSettingsTask = (StickerSettingsTask) intent.getSerializableExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK);
 		setupSettingsFragment(savedInstanceState);
 		setupActionBar();
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP_SETTINGS.ordinal());
@@ -53,7 +53,7 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.my_stickers);
 		TextView hideOption = (TextView) actionBarView.findViewById(R.id.hide_pack);
-		if (stickerSettingsTask == HikeConstants.StickerSettingsTask.STICKER_HIDE_TASK)
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
 		{
 			hideOption.setVisibility(View.VISIBLE);
 		}

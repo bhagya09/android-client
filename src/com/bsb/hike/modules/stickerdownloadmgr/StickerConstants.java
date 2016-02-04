@@ -2,7 +2,15 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 
 public class StickerConstants
 {
-	
+	public static final String STICKER_SETTINGS_TASK_ARG = "stickerSettingsTaskArg";
+
+	public enum StickerSettingsTask
+	{
+		STICKER_REORDER_TASK, STICKER_DELETE_TASK, STICKER_HIDE_TASK, STICKER_UPDATE_TASK, STICKER_INVALID_TASK;
+
+		private int task;
+	}
+
 	public enum STState
 	{
 		NOT_STARTED, INITIALIZED, IN_PROGRESS, PAUSED, CANCELLED, COMPLETED, ERROR

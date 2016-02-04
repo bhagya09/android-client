@@ -54,9 +54,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	
 	private StickerCategory draggedCategory = null;
 
-	private int stickerSettingsTask;
+	private StickerSettingsTask stickerSettingsTask;
 
-	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, int stickerSettingsTask)
+	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask)
 	{
 		this.mContext = context;
 		this.stickerCategories = stickerCategories;
@@ -115,8 +115,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	}
 
 	/* Method for deciding visibility of sticker pack delete option */
-	private void checkAndEnableDeleteButton (String categoryId, ImageButton deleteOption) {
-		if (stickerSettingsTask != HikeConstants.StickerSettingsTask.STICKER_DELETE_TASK || categoryId.equals(StickerManager.HUMANOID)
+	private void checkAndEnableDeleteButton (String categoryId, ImageButton deleteButton) {
+		if (stickerSettingsTask != StickerSettingsTask.STICKER_DELETE_TASK || categoryId.equals(StickerManager.HUMANOID)
 				|| categoryId.equals(StickerManager.EXPRESSIONS))
 		{
 			deleteButton.setVisibility(View.GONE);
@@ -227,7 +227,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	private void showUIForState(int state, ViewHolder viewHolder, String categoryId, boolean isVisible)
 	{
 		viewHolder.updateAvailable.setVisibility((state == StickerCategory.DONE || state == StickerCategory.DONE_SHOP_SETTINGS ||
-					stickerSettingsTask != HikeConstants.StickerSettingsTask.STICKER_UPDATE_TASK) ? View.GONE : View.VISIBLE);
+				stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK) ? View.GONE : View.VISIBLE);
 		viewHolder.updateAvailable.setText(state == StickerCategory.DONE ? R.string.see_them : R.string.RETRY);
 		viewHolder.updateAvailable.setTextColor(isVisible ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 		viewHolder.downloadProgress.setVisibility(View.GONE);
@@ -455,7 +455,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	 */
 	private void checkAndDisableCheckBox(String categoryId, ImageButton cb)
 	{
-		if(stickerSettingsTask != HikeConstants.StickerSettingsTask.STICKER_HIDE_TASK || categoryId.equals(StickerManager.HUMANOID)
+		if(stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK || categoryId.equals(StickerManager.HUMANOID)
 				|| categoryId.equals(StickerManager.EXPRESSIONS))
 		{
 			cb.setVisibility(View.GONE);
