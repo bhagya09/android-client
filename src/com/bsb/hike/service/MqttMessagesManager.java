@@ -1709,6 +1709,11 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
 		}
+		if (data.has(HikeConstants.VOIP_RATINGS_LEFT))
+		{
+			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
+			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
+		}
 		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
