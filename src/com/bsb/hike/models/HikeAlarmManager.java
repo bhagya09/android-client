@@ -391,7 +391,12 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
-
+		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
+			processTasks(intent, context);
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

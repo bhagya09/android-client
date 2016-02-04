@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1585"
-    android:versionName="4.1.0.27.6.hike_caller_new" >
+    android:versionCode="1588"
+    android:versionName="4.2.0.4" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="17"
+        tools:overrideLibrary = "android.support.customtabs"/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"
@@ -556,6 +557,15 @@
              android:name="com.bsb.hike.offline.NotificationCancelReceiver" >
             <intent-filter android:priority="999" >
                 <action android:name="com.bsb.cancel" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.bsb.hike.notifications.PersNotifClickReceiver">
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_ALARM_INTENT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.bsb.hike.PERS_NOTIF_URL_INTENT" />
             </intent-filter>
         </receiver>
 
