@@ -78,15 +78,6 @@
 
         </FrameLayout>
 
-        <ProgressBar
-            android:id="@+id/delete_progress"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
-            android:visibility="gone"
-            android:layout_gravity="center" />
-
-
     </LinearLayout>
 
     <LinearLayout
@@ -142,15 +133,6 @@
             android:visibility="gone"
             android:textColor="@color/sticker_settings_update_color"
             android:textSize="12sp" />
-
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/delete_pack"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/deleting"
-            android:visibility="gone"
-            android:textColor="@android:color/holo_red_dark"
-            android:textSize="12sp"/>
 
     </LinearLayout>
     

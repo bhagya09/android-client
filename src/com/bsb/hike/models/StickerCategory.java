@@ -47,8 +47,6 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	public static final int DONE_SHOP_SETTINGS = 5;
 
-	public static final int DELETING = 6;
-	
 	private int downloadedStickersCount = -1;
 	
 	private int state;

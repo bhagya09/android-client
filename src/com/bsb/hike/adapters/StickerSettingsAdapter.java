@@ -145,10 +145,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.downloadProgress = (ProgressBar) convertView.findViewById(R.id.download_progress);
 			viewHolder.checkBox.setOnClickListener(this);
 
-			viewHolder.deleteOption = (ImageButton) convertView.findViewById(R.id.delete_option);
-			viewHolder.deleteOption.setOnClickListener(this);
-			viewHolder.deletingPack = (TextView) convertView.findViewById(R.id.delete_pack);
-			viewHolder.deleteProgress = (ProgressBar) convertView.findViewById(R.id.delete_progress);
+			viewHolder.deleteButton = (ImageButton) convertView.findViewById(R.id.delete_button);
+			viewHolder.deleteButton.setOnClickListener(this);
 
 			convertView.setTag(viewHolder);
 			
@@ -181,8 +179,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.updateAvailable.setText(mContext.getResources().getString(R.string.update_sticker));
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				viewHolder.deletingPack.setVisibility(View.GONE);
-				viewHolder.deleteProgress.setVisibility(View.GONE);
 				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
 				
 				break;
@@ -190,11 +186,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setTextColor(category.isVisible() ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 				viewHolder.updateAvailable.setText(R.string.downloading_stk);
 				viewHolder.updateAvailable.setVisibility(View.VISIBLE);
-				viewHolder.deleteOption.setVisibility(View.GONE);
+				viewHolder.deleteButton.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
 				viewHolder.checkBox.setVisibility(View.GONE);
-				viewHolder.deletingPack.setVisibility(View.GONE);
-				viewHolder.deleteProgress.setVisibility(View.GONE);
 
 				break;
 			case StickerCategory.DONE_SHOP_SETTINGS:  //To be treated as same
@@ -206,20 +200,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
 				
 				break;
-			case StickerCategory.DELETING:
-				viewHolder.deletingPack.setVisibility(View.VISIBLE);
-				viewHolder.checkBox.setVisibility(View.GONE);
-				viewHolder.updateAvailable.setVisibility(View.GONE);
-				viewHolder.deleteProgress.setVisibility(View.VISIBLE);
-				viewHolder.downloadProgress.setVisibility(View.GONE);
-				viewHolder.deleteOption.setVisibility(View.GONE);
-				break;
 
 			default:
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				viewHolder.deleteProgress.setVisibility(View.GONE);
-				viewHolder.deletingPack.setVisibility(View.GONE);
 				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
 				
 		}
@@ -246,9 +230,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		viewHolder.updateAvailable.setText(state == StickerCategory.DONE ? R.string.see_them : R.string.RETRY);
 		viewHolder.updateAvailable.setTextColor(isVisible ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 		viewHolder.downloadProgress.setVisibility(View.GONE);
-		viewHolder.deletingPack.setVisibility(View.GONE);
-		viewHolder.deleteProgress.setVisibility(View.GONE);
-		checkAndDisableCheckBox(categoryId, viewHolder.checkBox);	
+		checkAndDisableCheckBox(categoryId, viewHolder.checkBox);
 	}
 
 	public void setIsListFlinging(boolean b)
@@ -380,16 +362,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		TextView categorySize;
 		
 		ProgressBar downloadProgress;
-
-		TextView deletingPack;
-
-		ProgressBar deleteProgress;
-
 	}
 
 	public void updateMappingOnPackDelete(StickerCategory category)
 	{
-		category.setState(StickerCategory.NONE);
 		stickerCategories.remove(category);								//removing sticker pack from sticker categories list
 		stickerSet.remove(category);									//removing sticker pack from sticker set
 		mListMapping = null;

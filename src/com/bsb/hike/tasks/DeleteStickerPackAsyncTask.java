@@ -18,8 +18,6 @@ public class DeleteStickerPackAsyncTask extends AsyncTask<Void, Integer, Boolean
 
     protected void onPreExecute ()
     {
-        category.setState(StickerCategory.DELETING);
-        adapter.notifyDataSetChanged();
     }
 
     public DeleteStickerPackAsyncTask(Context context, StickerCategory category, StickerSettingsAdapter adapter)
