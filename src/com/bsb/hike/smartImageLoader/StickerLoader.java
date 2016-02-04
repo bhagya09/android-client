@@ -5,11 +5,9 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.utils.Logger;
 
 import java.io.File;
@@ -21,8 +19,6 @@ public class StickerLoader extends ImageWorker
 	private Context ctx;
 	
 	private boolean downloadIfNotFound,lookInDiskCache;
-
-	Cache stickerDiskCache;
 
 	public StickerLoader(Context ctx, boolean downloadIfNotFound)
 	{
@@ -39,11 +35,7 @@ public class StickerLoader extends ImageWorker
 		this.ctx = ctx;
 		this.downloadIfNotFound = downloadIfNotFound;
 		mResources = ctx.getResources();
-		if (lookInDiskCache) {
-			this.lookInDiskCache = lookInDiskCache;
-			//To Do discuss parameters Akt Anubhav
-			stickerDiskCache = new Cache(new File("test"), 0);
-		}
+		this.lookInDiskCache = lookInDiskCache;
 	}
 
 	@Override
@@ -56,18 +48,7 @@ public class StickerLoader extends ImageWorker
 		}
 		else if(lookInDiskCache && data.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE))
 		{
-			Bitmap bitmap = null;
-
-			int stickerSize = StickerSearchUtils.getStickerSize();
-
-			String sourceFile = data.substring(data.indexOf(":") + 1);
-
-			if(!TextUtils.isEmpty(sourceFile))
-			{
-				bitmap = HikeBitmapFactory.decodeSampledBitmapFromByteArray(stickerDiskCache.getCache().get(sourceFile).getData(),stickerSize,stickerSize);
-			}
-
-			return bitmap;
+			return HikeBitmapFactory.getMiniStickerBitmap(data);
 		}
 		else
 		{
@@ -96,13 +77,29 @@ public class StickerLoader extends ImageWorker
 		{
 			if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(dataKey))
 			{
-				String data = dataKey.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE)?dataKey.substring(dataKey.indexOf(":") + 1):dataKey;
+				boolean isMini =  dataKey.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE);
 
-				String[] args = data.split(File.separator);
-				int length = args.length;
+				String data = isMini?dataKey.substring(dataKey.indexOf(":") + 1):dataKey;
 
-				String stickerId = args[length - 1];
-				String categoryId = args[length - 3];
+				String[] args = null;
+				int length =0;
+				String stickerId = null;
+				String categoryId = null;
+				if(isMini)
+				{
+					args = data.split(":");
+					length = args.length;
+					stickerId = args[length - 1];
+					categoryId = args[length - 2];
+				}
+				else
+				{
+					args = data.split(File.separator);
+					length = args.length;
+					stickerId = args[length - 1];
+					categoryId = args[length - 3];
+				}
+
 
 				if(data.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE))
 				{

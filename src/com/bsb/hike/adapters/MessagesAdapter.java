@@ -1,19 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -72,7 +58,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -89,6 +74,9 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -98,11 +86,8 @@ import com.bsb.hike.models.MessageMetadata.NudgeAnimationType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
@@ -111,6 +96,7 @@ import com.bsb.hike.platform.CardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
@@ -121,7 +107,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontButton;
@@ -129,6 +114,20 @@ import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -348,6 +347,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private HashMap<Long, CharSequence> messageTextMap;
 
+	private StickerLoader stickerLoader;
+
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
@@ -375,6 +376,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.mChatThreadCardRenderer = new CardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
+		this.stickerLoader = new StickerLoader(this.context,false,true);
 
 	}
 
@@ -851,40 +853,24 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setSenderDetails(convMessage, position, stickerHolder, true);
 			String categoryId = sticker.getCategoryId();
 			String stickerId = sticker.getStickerId();
-			String categoryDirPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
-			File stickerImage = null;
+			String categoryDirPath = sticker.getCategoryPath()+ HikeConstants.LARGE_STICKER_ROOT;
 			boolean isStickerOffline=false;
-			if (categoryDirPath != null)
-			{
-				stickerImage = new File(categoryDirPath, stickerId);
-			}
-			
 			/**
 			 * First we check if the sticker is present in our online directory or not ,then we check in our offline directory.
 			 * 
 			 */
-			if (convMessage.isOfflineMessage())
+			if (sticker.isStickerAvailable())
 			{
-				if (stickerImage == null || !(stickerImage.exists()))
-				{
-					String filePath = OfflineUtils.getOfflineStkPath(categoryId, stickerId);
-					if (!TextUtils.isEmpty(filePath))
-					{
-						stickerImage = new File(filePath);
-						isStickerOffline = true;
-					}
-				}
-			}
-			if (stickerImage != null && stickerImage.exists())
-			{
-				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(stickerImage.getPath());
+
+				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker);
+
 				if (stickerDrawable != null)
 				{
 					/**
 					 * In case of Offline Sticker usually the size the of the sticker is big as it might come from a XHDPI phone and we are rendering it on a hdpi phone so we are
 					 * restricting the size of the sticker to a certain value
 					 **/
-					if (isStickerOffline)
+					if (convMessage.isOfflineMessage())
 					{
 						ViewGroup.LayoutParams layoutParams = stickerHolder.image.getLayoutParams();
 						int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, OfflineConstants.STICKER_SIZE, context.getResources().getDisplayMetrics());
@@ -912,6 +898,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					stickerHolder.placeHolder.setBackgroundResource(R.drawable.bg_sticker_placeholder);
 					stickerHolder.image.setVisibility(View.GONE);
 					stickerHolder.image.setImageDrawable(null);
+					stickerLoader.loadImage(sticker.getLargeStickerPath(),stickerHolder.image);
 				}
 			}
 			else
@@ -921,9 +908,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
+				MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(stickerId, categoryId, convMessage);
+				miniStickerImageDownloadTask.execute();
 				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
 				singleStickerDownloadTask.execute();
-
 
 			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);

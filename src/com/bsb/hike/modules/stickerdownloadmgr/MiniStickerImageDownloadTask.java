@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.request.Base64StringRequest;
 import com.bsb.hike.modules.diskcache.request.CacheRequest;

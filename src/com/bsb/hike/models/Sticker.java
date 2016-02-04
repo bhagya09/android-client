@@ -6,7 +6,10 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -30,6 +33,8 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	private String categoryId;
 	
 	private int mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.DEFAULT_AVAILABILITY_STATUS;
+
+	private boolean offlineStatus;
 
 	public Sticker(StickerCategory category, String stickerId)
 	{
@@ -89,15 +94,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 		path = getMiniStickerPath();
 
-		if (!Utils.isBlank(path))
-		{
-			File file = new File(path);
-			resultMini = file.isFile() && file.exists();
-		}
-		else
-		{
-			resultMini = false;
-		}
+		resultMini = HikeMessengerApp.getDiskCache().isKeyExists(path);
 
 		if(resultlarge && resultMini)
 		{
@@ -115,6 +112,8 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		{
 			mStickerAvailabilityStatus = HikeStickerSearchBaseConstants.STICKER_NOT_AVAILABLE;
 		}
+
+		offlineStatus = getStickerOfflinePath() != null && new File(getStickerOfflinePath()).exists();
 
 	}
 
@@ -161,6 +160,12 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return mStickerAvailabilityStatus;
 	}
 
+	public boolean isStickerOffline()
+	{
+		verifyStickerAvailabilityStatus();
+		return offlineStatus;
+	}
+
 	/**
 	 * if sticker small image does'nt exist then its disabled
 	 * 
@@ -197,8 +202,17 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getMiniStickerPath()
 	{
-		//ToDo finalise location with anubhav sir.
-		return "";
+		return StickerSearchConstants.MINI_STICKER_KEY_CODE+":"+categoryId+":"+stickerId;
+	}
+
+	public String getStickerOfflinePath()
+	{
+		return OfflineUtils.getOfflineStkPath(categoryId, stickerId);
+	}
+
+	public String getCategoryPath()
+	{
+		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
 	}
 
 	@Override
