@@ -1254,8 +1254,6 @@ public class StickerSearchHostManager
 			}
 		}
 
-		Logger.i(TAG, "getOrderedStickers : returning hashset = " + stickers);
-
 		return stickers;
 	}
 
