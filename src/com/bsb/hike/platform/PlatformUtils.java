@@ -539,7 +539,8 @@ public class PlatformUtils
 				}
 			}
 		}
-        else
+
+        else // No AssocMapp array found. Reverting to default behaviour.
         {
             // Download micro app for non messaging bot
             downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
