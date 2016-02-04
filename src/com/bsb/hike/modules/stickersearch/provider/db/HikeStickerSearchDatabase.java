@@ -1237,7 +1237,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-
 		HashSet<String> removingStickerSetInDatabase = new HashSet<String>();
 		Cursor c = null;
 
