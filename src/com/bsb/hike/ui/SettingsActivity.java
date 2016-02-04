@@ -384,7 +384,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.settings_sticker:
-				IntentFactory.openSettingSticker(this);
+				IntentFactory.openStickerSettingsActivity(this);
 				break;
 
 			case R.string.settings_localization:

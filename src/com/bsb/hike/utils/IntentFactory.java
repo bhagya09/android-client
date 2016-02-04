@@ -300,7 +300,7 @@ public class IntentFactory
 		context.startActivity(intent);
 	}
 
-	public static void openSettingSticker(Context context)
+	public static void openStickerSettingsActivity(Context context)
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.sticker_settings_preferences);
