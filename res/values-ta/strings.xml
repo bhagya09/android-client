@@ -1203,7 +1203,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">புதிய ஃபோட்டோ</string>
     <string name="upgrade_for_larger_files">இந்த ஃபைலை பெறுவதற்கு %1$s அப்கிரேட் செய்ய வேண்டியுள்ளது.Hike டைரக்ட் வழியாக Hike-ன் லேட்டஸ்ட் வெர்ஷனை ஷேர் செய்யும்</string>
-    <string name="group_participant_info">குழு ஒன்றுக்கு உம்மால் 500 உறுப்பினர்கள் வரை சேர்க்க முடியும்</string>
+    <string name="group_participant_info"><![CDATA[<font color=\"#000000\">இப்பொது </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> பேர் வரை நீங்கள் ஆட் செய்யலாம்்</font>]]></string>
     <string name="maxContactInGroupErr">அதிகபட்சம் %1$s உறுப்பினர்களைச் சேர்க்க முடியும்</string>
     <string name="added_in_group">இந்த தொடர்பு நபர் ஏற்கெனவே ஒரு உறுப்பினராக இருக்கிறார்</string>
     <string name="watsapp">வாட்ஸ்-app வழியாக ஆட் செய்யும்</string>

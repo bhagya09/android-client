@@ -1669,7 +1669,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
 			Logger.d("OfflineAnimationFragment", msisdn);
-			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			if (shouldShowLocationDialog())
 			{
 				showLocationDialog();
@@ -1680,6 +1679,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 				setupOfflineUI();
 				if (showAnimation)
 				{
+					OfflineUtils.sendOfflineRequestPacket(msisdn);
 					startFreeHikeAnimation();
 				}
 			}
