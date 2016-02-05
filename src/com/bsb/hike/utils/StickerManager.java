@@ -70,6 +70,8 @@ import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -375,9 +377,9 @@ public class StickerManager
 		stickerCategoriesMap.putAll(HikeConversationsDatabase.getInstance().getAllStickerCategoriesWithVisibility(true));
 	}
 
-	public void removeCategory(String removedCategoryId)
+	public void removeCategory(String removedCategoryId, boolean removeFromShopTable)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, removeFromShopTable);
 		StickerCategory cat = stickerCategoriesMap.remove(removedCategoryId);
 		if (!cat.isCustom())
 		{

@@ -1089,8 +1089,8 @@
 	<string name="status_hint">What are you upto?</string>
 	<string name="status_hint_image">Something about this photo</string>
 	<string name="add_mood">Mood</string>
-    <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Change sticker pack order</string>
+    <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
+    <string name="sticker_reorder_setting_header">Change Sticker Pack Order</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
 	<string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
 	<string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
@@ -1503,4 +1503,17 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="deleting">DELETING</string>
+    <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
+    <string name="sticker_delete_setting_header">Delete Stickers</string>
+    <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
+    <string name="sticker_hide_setting_header">Hide Stickers</string>
+    <string name="sticker_update_setting_info">Update the downloaded Sticker Packs</string>
+    <string name="sticker_update_setting_header">Update Stickers</string>
+    <string name="delete_pack_question">Are you sure you want to delete sticker pack?</string>
+    <string name="settings_sticker">Sticker Settings</string>
+    <string name="hide_unhide_pack">Hide/Unhide</string>
+    <string name="deleting_pack">Deleting Pack...</string>
+    <string name="pack_deleted">Deleted pack</string>
+
 </resources>

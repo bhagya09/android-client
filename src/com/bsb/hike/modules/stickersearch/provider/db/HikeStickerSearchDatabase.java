@@ -1231,6 +1231,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		HashSet<String> removingStickerSetInDatabase = new HashSet<String>();
 		Cursor c = null;
+
 		try
 		{
 			String whereConditionToGetAvailableStickers = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
@@ -1253,6 +1254,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 			SQLiteDatabase.releaseMemory();
 		}
+
 		removingStickerSetInDatabase.removeAll(stickerInfoSet);
 
 		ArrayList<Long> primaryKeys = new ArrayList<Long>();

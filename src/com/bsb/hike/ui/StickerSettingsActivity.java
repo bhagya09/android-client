@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -8,7 +9,10 @@ import android.widget.TextView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -21,12 +25,15 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 {
 	private StickerSettingsFragment stickerSettingsFragment;
+	private StickerSettingsTask stickerSettingsTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sticker_settings_page);
+		Intent intent = getIntent();
+		stickerSettingsTask = (StickerSettingsTask) intent.getSerializableExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK);
 		setupSettingsFragment(savedInstanceState);
 		setupActionBar();
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP_SETTINGS.ordinal());
@@ -43,6 +50,11 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		title.setText(R.string.my_stickers);
+		TextView hideOption = (TextView) actionBarView.findViewById(R.id.hide_pack);
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
+		{
+			hideOption.setVisibility(View.VISIBLE);
+		}
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
 		parent.setContentInsetsAbsolute(0,0);
@@ -53,7 +65,13 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		if (savedInstanceState != null)
 			return;
 		else
+		{
+			Bundle stickerSettingsTaskArg = new Bundle();
+			stickerSettingsTaskArg.putSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG, stickerSettingsTask);
 			stickerSettingsFragment = StickerSettingsFragment.newInstance();
+			stickerSettingsFragment.setArguments(stickerSettingsTaskArg);
+		}
+
 		getSupportFragmentManager().beginTransaction().add(R.id.sticker_settings_parent, stickerSettingsFragment).commit();
 
 	}

@@ -2917,7 +2917,7 @@ public class MqttMessagesManager
 			String categoryId = data.getString(StickerManager.CATEGORY_ID);
 			if (HikeConstants.REMOVE_CATEGORY.equals(subType))
 			{
-				StickerManager.getInstance().removeCategory(categoryId);
+				StickerManager.getInstance().removeCategory(categoryId, true);
 			}
 			else
 			{

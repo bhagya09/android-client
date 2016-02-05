@@ -31,6 +31,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -289,6 +290,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.BACKUP_PREF);
 		addOnPreferenceClickListeners(HikeConstants.UNLINK_PREF);
 		addOnPreferenceClickListeners(HikeConstants.STICKER_REORDER_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_DELETE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_HIDE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_UPDATE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.BLOKED_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.SYSTEM_HEALTH_PREF);
 		addOnPreferenceClickListeners(HikeConstants.HELP_FAQS_PREF);
@@ -1148,6 +1152,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
 		{
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_REORDER_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_DELETE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_DELETE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_HIDE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_HIDE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_UPDATE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
 			startActivity(i);
 		}
 		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))

@@ -77,7 +77,7 @@
         android:dividerHeight="0.5dp"
         android:paddingBottom="0dp"
         dslv:collapsed_height="2dp"
-        dslv:drag_enabled="true"
+        dslv:drag_enabled="false"
         dslv:drag_handle_id="@id/drag_handle" 
         dslv:drag_scroll_start="0.33"
         dslv:drag_start_mode="onLongPress"

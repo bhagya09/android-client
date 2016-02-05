@@ -142,6 +142,8 @@ public class HikeDialogFactory
 	
 	public static final int MAPP_DOWNLOAD_DIALOG = 47;
 
+	public static final int DELETE_STICKER_PACK_DIALOG = 48;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -209,7 +211,8 @@ public class HikeDialogFactory
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
-		case ACCESSIBILITY_DIALOG:	
+		case ACCESSIBILITY_DIALOG:
+		case DELETE_STICKER_PACK_DIALOG:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -932,7 +935,13 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
-			
+
+		case DELETE_STICKER_PACK_DIALOG:
+			deleteConfirmDialog.setTitle(context.getString(R.string.delete) + " " + data[0]);
+			deleteConfirmDialog.setMessage(R.string.delete_pack_question);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			break;
 		}
 		deleteConfirmDialog.show();
 		

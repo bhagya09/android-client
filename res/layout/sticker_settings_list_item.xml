@@ -29,7 +29,7 @@
         android:layout_gravity="center"
         android:scaleType="centerInside"
         android:src="@drawable/sticker_069_hi" />
-    
+
     </LinearLayout>
 
     <LinearLayout
@@ -43,14 +43,30 @@
         android:gravity="center"
         android:layout_centerVertical="true" >
 
-        <ImageButton
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
             android:id="@+id/category_checkbox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/sticker_settings_checkbox"
             android:scaleType="centerInside"
-            android:background="@android:color/transparent" />
-        
+            android:background="@android:color/transparent"
+            android:visibility="gone"/>
+
+
+            <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/actionbar_ic_delete"
+            android:scaleType="centerInside"
+            android:clickable="true"
+            android:background="@android:color/darker_gray"
+            android:visibility="gone" />
+
         <ProgressBar
             android:id="@+id/download_progress"
             android:layout_width="24dp"
@@ -59,8 +75,10 @@
             android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
             android:visibility="gone"
             android:layout_gravity="center" />
-        
-</LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/category_description"
@@ -115,6 +133,7 @@
             android:visibility="gone"
             android:textColor="@color/sticker_settings_update_color"
             android:textSize="12sp" />
+
     </LinearLayout>
     
 
