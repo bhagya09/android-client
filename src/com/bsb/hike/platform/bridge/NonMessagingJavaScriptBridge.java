@@ -1391,7 +1391,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		
 		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(url);
 		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{

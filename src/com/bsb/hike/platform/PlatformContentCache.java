@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
-import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;

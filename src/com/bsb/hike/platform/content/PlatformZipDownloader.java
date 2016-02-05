@@ -545,7 +545,7 @@ public class PlatformZipDownloader
 				callbackProgress.remove(callbackId);
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
-				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion,httpException.getErrorCode());
 
 				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);
 //				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
