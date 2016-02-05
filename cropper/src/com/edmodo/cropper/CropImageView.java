@@ -348,7 +348,6 @@ public class CropImageView extends FrameLayout {
 
         if(actualCropHeight < 1 || actualCropWidth < 1)
         {
-            Toast.makeText(getContext(), R.string.crop_failed,Toast.LENGTH_LONG).show();
             return mBitmap;
         }
 
