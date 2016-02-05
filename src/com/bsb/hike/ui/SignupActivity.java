@@ -1085,6 +1085,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		defAvBgColor = bgColorArray.getColor(index, 0);
 
+		if(mActivityState.profileBitmap == null && savedInstanceState != null)
+		{
+			mActivityState.profileBitmap = savedInstanceState.getParcelable(HikeConstants.Extras.BITMAP);
+		}
+
 		if (mActivityState.profileBitmap == null)
 		{
 			Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
@@ -1921,6 +1926,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			outState.putBoolean(HikeConstants.Extras.GENDER, mActivityState.isFemale);
 		}
 		outState.putString(HikeConstants.Extras.RESTORE_STATUS, mActivityState.restoreStatus);
+		outState.putParcelable(HikeConstants.Extras.BITMAP,mActivityState.profileBitmap);
 		super.onSaveInstanceState(outState);
 	}
 
