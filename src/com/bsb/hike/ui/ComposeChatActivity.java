@@ -10,6 +10,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -275,6 +276,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private boolean allImages;
 
+	// null incase of multiple msg objects
 	private String messageToShare;
 
 	@Override
@@ -454,9 +456,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					{
 						JSONObject msgExtrasJson = (JSONObject) multipleMsgFwdArray.get(i);
 
-						if((multipleMsgFwdArray.length() == 1 || (multipleMsgFwdArray.length() == 2 && !imagesToShare.isEmpty())) && msgExtrasJson.has(HikeConstants.MESSAGE))
+						if (msgExtrasJson.has(HikeConstants.MESSAGE))
 						{
-							messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
+							if (multipleMsgFwdArray.length() == 1)
+							{
+								messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
+							}
+							else if (multipleMsgFwdArray.length() == 2)
+							{
+								if(TextUtils.isEmpty(messageToShare))
+								{
+									messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
+								}
+								else
+								{
+									messageToShare = null;
+								}
+							}
 						}
 
 						if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
@@ -820,11 +836,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,((!imagesToShare.isEmpty()) || !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,(allImages || !TextUtils.isEmpty(messageToShare)));
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),((!imagesToShare.isEmpty())|| !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),(allImages || !TextUtils.isEmpty(messageToShare)));
 			break;
 		}
 
