@@ -23,9 +23,7 @@ import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.customtabs.CustomTabsIntent;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -216,7 +214,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		alignAnchorForOverflowMenu();
-
 		checkAndRecordBotOpen();
 	}
 
