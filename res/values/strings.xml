@@ -1513,4 +1513,7 @@
     <string name="delete_pack_question">Are you sure you want to delete sticker pack?</string>
     <string name="settings_sticker">Sticker Settings</string>
     <string name="hide_unhide_pack">Hide/Unhide</string>
+    <string name="deleting_pack">Deleting Pack...</string>
+    <string name="pack_deleted">Deleted pack</string>
+
 </resources>
