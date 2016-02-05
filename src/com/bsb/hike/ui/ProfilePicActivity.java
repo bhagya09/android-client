@@ -52,9 +52,20 @@ public class ProfilePicActivity extends HikeAppStateBaseFragmentActivity
 		getSupportActionBar().hide();
 		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 
-		CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-		startActivityForResult(IntentFactory.getCropActivityIntent(this, filename, getTempProfilePicFile(new File(filename).getName()), compression, true, true), HikeConstants.CROP_RESULT);
+		if(savedState == null)
+		{
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			startActivityForResult(IntentFactory.getCropActivityIntent(this, filename, getTempProfilePicFile(new File(filename).getName()), compression, true, true), HikeConstants.CROP_RESULT);
+		}
 
+	}
+
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		// first saving my state, so the bundle wont be empty.
+		// http://code.google.com/p/android/issues/detail?id=19917
+		outState.putString("WORKAROUND_FOR_BUG_19917_KEY", "WORKAROUND_FOR_BUG_19917_VALUE");
+		super.onSaveInstanceState(outState);
 	}
 
 	public static String getTempProfilePicFile(String mOriginalName)
