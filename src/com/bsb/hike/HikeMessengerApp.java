@@ -777,6 +777,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		_instance = this;
 
+		// We need to set all AppConfig params on the start when _instance have been initialized
+		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
+		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
+		AppConfig.refresh();
+
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
 
