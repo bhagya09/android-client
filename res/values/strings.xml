@@ -1504,4 +1504,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="switch_to_old_key">Switch to your old keyboard</string>
+    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>

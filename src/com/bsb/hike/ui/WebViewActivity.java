@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.support.customtabs.CustomTabsIntent;
-import android.util.Pair;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -25,30 +23,17 @@ import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.util.Pair;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
-import android.webkit.GeolocationPermissions;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.webkit.*;
+import android.widget.*;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -70,24 +55,18 @@ import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.PlatformContentListener;
-import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
@@ -164,6 +143,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private String urlParams;
 
 	private  long time;
+
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -236,7 +216,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		alignAnchorForOverflowMenu();
-		checkAndRecordNotificationAnalytics();
+
+		checkAndRecordBotOpen();
 	}
 
 	private void closeWebViewActivity()
@@ -506,6 +487,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
+
+			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
+			{
+				webView.removeWebViewReferencesFromWebKit();
+				webView.clearWebViewCache(true);
+			}
 		}
 		
 		if (mActionBar != null)
@@ -1497,11 +1484,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	/**
 	 * Used to record analytics for bot opens via push notifications
 	 */
-	private void checkAndRecordNotificationAnalytics()
+	private void checkAndRecordBotOpen()
 	{
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
 
