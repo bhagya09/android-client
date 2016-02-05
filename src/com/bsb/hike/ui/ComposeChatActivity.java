@@ -10,7 +10,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -387,6 +386,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) )
 			{
+				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
+
+				if(!TextUtils.isEmpty(messageToShare))
+				{
+					imageCaptions.add(messageToShare);
+				}
+
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
 				{ 
 					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true);
@@ -400,10 +406,19 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					ArrayList<String> filePathArrayList = new ArrayList<String>();
 					filePathArrayList.add(filePath);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
+
+					Intent i = getIntent();
+					if(HikeFileType.IMAGE.equals(HikeFileType.fromString(getIntent().getType())))
+					{
+						selectedImages = new ArrayList<>();
+						selectedImages.add(new GalleryItem(0, null, GalleryItem.CUSTOM_TILE_NAME, filePath, 0));
+					}
+
 					if((selectedImages!=null))
 					{
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 
+						if(TextUtils.isEmpty(messageToShare))
 						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 
 						//Got images to share
@@ -414,17 +429,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 					}
 				}
-
-				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
-			} 
+			}
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
 			{
 				if (getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM) != null)
 				{
 					ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
-					if ((selectedImages != null))
-					{
+					if ((selectedImages != null)) {
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
 
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
@@ -2086,14 +2098,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void postImagesToShareOnTimeline(final boolean foreground)
 	{
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
-		for (int i=0;i<imagesToShare.size();i++)
+		for (int i = 0; i < imagesToShare.size(); i++)
 		{
-			statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
-		}
-
-		if(!TextUtils.isEmpty(messageToShare))
-		{
-			statusUpdateTasks.add(new StatusUpdateTask(messageToShare, -1, null));
+			statusUpdateTasks.add(new StatusUpdateTask(!TextUtils.isEmpty(messageToShare)?messageToShare:imageCaptions.get(i), -1, imagesToShare.get(i)));
 		}
 
 		if (!statusUpdateTasks.isEmpty())
@@ -2110,9 +2117,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							if (foreground)
 							{
-								ComposeChatActivity.this.runOnUiThread(new Runnable() {
+								ComposeChatActivity.this.runOnUiThread(new Runnable()
+								{
 									@Override
-									public void run() {
+									public void run()
+									{
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 										startActivity(intent);
