@@ -4699,7 +4699,7 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (!TextUtils.isEmpty(info.processName) && info.processName.equals(context.getApplicationInfo().processName) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
+			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
 				
 				Field field = null;
@@ -7724,6 +7724,28 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
+    /*
+     * Returns a interval added string from a given list
+     */
+    public static String listToString(List<String> list, String strInterVal) {
+        if (list == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        boolean flag = false;
+        for (String str : list) {
+            if (flag) {
+                result.append(strInterVal);
+            }
+            if (null == str) {
+                str = "";
+            }
+            result.append(str);
+            flag = true;
+        }
+        return result.toString();
+    }
+
 	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
 	{
 		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
@@ -7779,7 +7801,7 @@ public class Utils
 		}
 		catch(JSONException e)
 		{
-			Logger.e("productpopup","JSON Exception in JSON Array language");
+			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
 		return null;
 	}
