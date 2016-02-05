@@ -216,7 +216,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 		alignAnchorForOverflowMenu();
-
 		checkAndRecordBotOpen();
 	}
 

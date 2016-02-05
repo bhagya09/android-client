@@ -1,5 +1,14 @@
 package com.bsb.hike.platform.content;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -26,15 +35,6 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -172,7 +172,7 @@ public class PlatformZipDownloader
 		{
 			if (null != mRequest.getListener())
 			{
-				mRequest.getListener().onEventOccured(0, EventCode.EMPTY_URL);
+				mRequest.getListener().onEventOccured(0, EventCode.INVALID_DATA);
 			}
 
 			return;
