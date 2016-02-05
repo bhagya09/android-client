@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 
 import org.json.JSONArray;
@@ -1666,8 +1667,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		int titleColor = getResources().getColor(R.color.credits_blue);
 		intentBuilder.setToolbarColor(titleColor);
 		intentBuilder.setShowTitle(true);
-		Bitmap bm;
-		bm = HikeBitmapFactory.drawableToBitmap(getResources().getDrawable(R.drawable.ic_back_arrow));
+		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back));
 		intentBuilder.setCloseButtonIcon(bm);
 		CustomTabActivityHelper.openCustomTab(this, intentBuilder.build(), url, this, title);
 	}
