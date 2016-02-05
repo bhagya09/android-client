@@ -266,6 +266,18 @@ public class HikeConstants
 	public static final String DEVICE_LOCALE = "device_locale";
 
 	public static final String LOCALE = "locale";
+	
+	public static final String KEYBOARD_LANG_DWNLD_APP_FTUE = "app_ftue";
+	
+	public static final String KEYBOARD_LANG_DWNLD_KBD_FTUE = "kbd_ftue";
+	
+	public static final String KEYBOARD_LANG_DWNLD_SETTINGS = "settings";
+	
+	public static final String KEYBOARD_LANGUAGE_CHANGE_SOURCE = "kbd_lng_cg_src";
+	
+	public static final String KEYBOARD_LANG_CHANGE_SETTINGS = "settings";
+	
+	public static final String KEYBOARD_LANG_CHANGE_KBD = "kbd";
 
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
 
@@ -665,6 +677,8 @@ public class HikeConstants
 	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
 	
 	public static final String KEYBOARD_LANGUAGE_CHANGE = "kbd_lng";
+	
+	public static final String LANGUAGE_DOWNLOAD_ERROR_CODE = "er_c";
 
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
@@ -884,7 +898,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -2549,8 +2563,6 @@ public class HikeConstants
 		
 		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "kbd_ftue_chg_lng";
 		
-		public static final String KEYBOARD_FTUE_LANGUAGE_DOWNLOADED = "kbd_ftue_lng_dl";
-		
 		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "kbd_ftue_clos_lang";
 		
 		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "kbd_ftue_inst";
@@ -2561,9 +2573,30 @@ public class HikeConstants
 
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
 
+		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
+
+		public static final String KEYBOARD_LANGUAGE_UNLOADED_EVENT = "lng_ul";
+		
+		public static final String KEYBOARD_LANGUAGE_LOADED_EVENT = "lng_l";
+		
+		public static final String KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT = "lng_uns";
+
+		public static final String APP_LANGUAGE_DIALOG_OPEN_EVENT = "app_lng_dlg";
+		
+		public static final String APP_LANGUAGE_FTUE_SHOWN_EVENT = "app_lng_ftue";
+		
+		public static final String KEYBOARD_FTUE_LANG_LIST_SCREEN = "kbd_ftue_sc_2";
+		
+		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
+		
+		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
+
+		public static final Object APP_FTUE_DONE_BTN = "ap_ft_d";
+
 		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
 
 	}
+
 	public static final class Toast
 	{
 		public static final String TOAST_MESSAGE = "t_msg";
@@ -3384,6 +3417,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3732,19 +3767,50 @@ public class HikeConstants
 	public static final String PHONE_LANGUAGE = "ph_l";
 
 	public static final String APP_LANGUAGE = "ap_l";
-
+	
 	public static final String KEYBOARD_LANGUAGE = "z";
 
 	public static final String LANG_ARRAY = "lan_array";
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
 
+	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
+
+	public static final String OFFSET = "offset";
+
+	public static final String APP_LANG_CHANGED_DEL_ACC = "d_a";
+	
+	public static final String APP_LANG_CHANGED_SETTINGS = "stg";
+	
+	public static final String APP_LANG_CHANGED_FTUE = "ap_f";
+	
+	public static final String APP_LANG_CHANGED_SERVER_SWITCH = "serv";
+
 	public static final String WHITE_SCREEN_FIX = "w_s_f";
 
+	public static final String CHAT_OPENING_BENCHMARK = "chatOpeningBenchmark";
+	
+	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
+	
+	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String SINGLE_STICKER_CDN = "sscdn";
+
+	public static final String STICKER_PACK_CDN = "spcdn";
+
+	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 }

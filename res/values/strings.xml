@@ -1115,7 +1115,7 @@
     <string name="photo_actions_header">Looks great! Use this photo to,</string>
     <string name="profile_header_subtext">Profile photo is visible to everyone</string>
     <string name="sms_with_settings">SMS Settings</string>
-    <string name="sms_credits_with_settings">FREE SMS: %1$d</string>
+    <string name="sms_credits_with_settings">FREE SMS: %1$s</string>
     <string name="free_hike_2_sms_india">Free only to India</string>
     <string name="invite_friends_earn_rewards">Invite friends to hike and earn rewards</string>
     <string name="your_referral_code">Your <b>referral</b> code</string>
@@ -1222,7 +1222,6 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
-    <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
     <string name="watsapp">Add via WhatsApp</string>
@@ -1486,6 +1485,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
+    <string name="group_selected">%1$s/1000 selected</string>		
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
@@ -1504,4 +1505,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="switch_to_old_key">Switch to your old keyboard</string>
+    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>

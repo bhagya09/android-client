@@ -2,6 +2,7 @@ package com.bsb.hike.models;
 
 import android.text.TextUtils;
 
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
@@ -614,5 +615,10 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(msisdn);
 		getHikeJoinTimeTask.execute();
+	}
+
+	public boolean isBot()
+	{
+		return BotUtils.isBot(msisdn);
 	}
 }

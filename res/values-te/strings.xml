@@ -1094,7 +1094,7 @@
     <string name="photo_actions_header">అద్భుతంగా కనిపిస్తుంది! ఈ చిత్రాని దీనికి ఉపయోగించండి,</string>
     <string name="profile_header_subtext">ప్రొఫైల్ ఫోటో ప్రతి ఒక్కరికి కనిపిస్తుంది</string>
     <string name="sms_with_settings">SMS సెట్టింగ్‌లు</string>
-    <string name="sms_credits_with_settings">ఉచిత SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ఉచిత SMS: %1$s</string>
     <string name="free_hike_2_sms_india">ఇండియాకు మాత్రమే ఉచితం</string>
     <string name="invite_friends_earn_rewards">స్నేహితులను hikeకు ఆహ్వానించండి, రివార్డులను పొందండి</string>
     <string name="your_referral_code">మీ <b>రీఫరల్</b> కోడ్</string>
@@ -1202,7 +1202,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">కొత్త ఫోటోలు</string>
     <string name="upgrade_for_larger_files">ఈ ఫైలు అందుకోవడానికి %1$s అప్‌గ్రేడ్ చేయాల్సి ఉంది. Hike డైరెక్ట్ ద్వారా ఇప్పుడు hike తాజా వెర్షన్ అందుకోండి.</string>
-    <string name="group_participant_info">గ్రూపుకు మీరు 500మంది సభ్యుల వరకు జోడించవచ్చు</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">ఇప్పుడు మీరు </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> సభ్యుల వరకు జోడించవచ్చు</font>]]></string>
     <string name="maxContactInGroupErr">గరిష్టంగా %1$s సభ్యులను జోడించవచ్చు</string>
     <string name="added_in_group">ఈ కాంటాక్ట్ ఇప్పటికే సభ్యుడు.</string>
     <string name="watsapp">WhatsApp ద్వారా జోడించు</string>
@@ -1420,5 +1420,7 @@
     <string name="language_ftue_complete_message">మీరు కీబోర్డ్ భాష, \nసెట్టింగ్స్ -> భాష మరియు ఇన్పుట్ లో నుంచి ఎప్పుడైనా మార్చవచ్చు</string>
     <string name="error_message_upgrade_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. మీ స్నేహితుడు Hike డైరెక్ట్ ఉన్న లేటెస్ట్ Hike వెర్షన్ పై లేరు.</string>
     <string name="error_message_unsupported_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. Hike డైరెక్ట్ ఆండ్రాయిడ్ ఫోన్లలో మాత్రమే పని చేస్తుంది.</string>
+    <string name="switch_to_old_key">"మీ పాత కీబోర్డ్ కి మారండి "</string>
+    <string name="switch_to_hike_key">"hike కీబోర్డ్ కి మారండి"</string>
 
 </resources>

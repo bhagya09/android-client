@@ -589,8 +589,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
-
-
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -757,6 +755,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public void onCreate()
 	{
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
+		long time = System.currentTimeMillis();
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -960,9 +959,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-
 		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
+		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)

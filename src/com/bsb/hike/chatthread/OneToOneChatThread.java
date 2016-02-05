@@ -322,6 +322,13 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	}
 
 	@Override
+	protected void showOverflowTip(int stringResId)
+	{
+		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
+			super.showOverflowTip(stringResId);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -1231,7 +1238,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		
 		
 		//When MsgRelLogManager is removed / or when to for GC as well, we can go with super
-		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg), mConversation.isOnHike());
+		ConvMessage convMessage = Utils.makeConvMessage(msisdn, getString(R.string.poke_msg_english_only), mConversation.isOnHike());
 		ChatThreadUtils.setPokeMetadata(convMessage);
 
 		// 1) user double clicked on Chat Screen i.e Sending nudge
@@ -1662,7 +1669,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
 			Logger.d("OfflineAnimationFragment", msisdn);
-			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			if (shouldShowLocationDialog())
 			{
 				showLocationDialog();
@@ -1673,6 +1679,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 				setupOfflineUI();
 				if (showAnimation)
 				{
+					OfflineUtils.sendOfflineRequestPacket(msisdn);
 					startFreeHikeAnimation();
 				}
 			}

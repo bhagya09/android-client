@@ -5,6 +5,9 @@ import android.os.Environment;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.platform.ContentModules.*;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentLoader;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.utils.Logger;
 
 import java.io.File;
@@ -84,8 +87,23 @@ public class PlatformContent
 					{
 						return "unzip_fail";
 					}
+				},
+		INCOMPLETE_ZIP_DOWNLOAD
+		    {
+			        @Override
+			        public String toString()
+			{
+				return "incomplete_zip_download";
+			}
+		    },
+		EMPTY_URL
+				{
+					@Override
+					public String toString()
+					{
+						return "empty_url";
+					}
 				}
-
 	}
 
 	/**
@@ -111,7 +129,7 @@ public class PlatformContent
 	 * @param listener
 	 * @return
 	 */
-	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener, boolean clearRequestInQueue)
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
@@ -120,8 +138,12 @@ public class PlatformContent
 		}
 		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
 
+
 		if (request != null)
 		{
+			if(clearRequestInQueue){
+				PlatformZipDownloader.removeDownloadingRequest(request.getContentData().getLayout_url());
+			}
 			PlatformContentLoader.getLoader().handleRequest(request);
 			return request;
 		}
@@ -132,7 +154,10 @@ public class PlatformContent
 			return null;
 		}
 	}
-
+	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	{
+		return getContent(uniqueId, contentData,listener, false);
+	}
 	public static void init(boolean isProduction)
 	{
 		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:

@@ -109,6 +109,8 @@ public abstract class JavascriptBridge
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
 
+	protected static final int SHARE_EXTERNAL = 5;
+
 	boolean sendIntentData = false;
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
@@ -159,6 +161,11 @@ public abstract class JavascriptBridge
 			}
 			
 			break;
+			case SHARE_EXTERNAL :
+				JSONObject json = (JSONObject)msg.obj;
+				String title = json.optString("title");
+				String caption = json.optString("caption");
+				PlatformUtils.share(title,caption,weakActivity.get(),mWebView);
 
 		default:
 			break;
@@ -332,70 +339,20 @@ public abstract class JavascriptBridge
 	 * @param caption : intent caption
 	 */
 	@JavascriptInterface
-	public void share(String text, String caption)
+	public void share(final String text, final String caption)
 	{
-		FileOutputStream fos = null;
-		File cardShareImageFile = null;
-		Activity mContext = weakActivity.get();
-		if(mContext!=null)
+		JSONObject json = new JSONObject();
+		try
 		{
-			try
-			{
-				if (TextUtils.isEmpty(text))
-				{
-					text = mContext.getString(R.string.cardShareHeading); // fallback
-				}
-
-				cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-				fos = new FileOutputStream(cardShareImageFile);
-				View share = LayoutInflater.from(mContext).inflate(com.bsb.hike.R.layout.web_card_share, null);
-				// set card image
-				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
-				Bitmap b = Utils.viewToBitmap(mWebView);
-				image.setImageBitmap(b);
-
-				// set heading here
-				TextView heading = (TextView) share.findViewById(R.id.heading);
-				heading.setText(text);
-
-				// set description text
-				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
-				tv.setText(Html.fromHtml(mContext.getString(com.bsb.hike.R.string.cardShareDescription)));
-
-				Bitmap shB = Utils.undrawnViewToBitmap(share);
-				Logger.i(tag, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
-				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-				fos.flush();
-				Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
-				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
-						TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
-			}
-
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				showToast(mContext.getString(com.bsb.hike.R.string.error_card_sharing));
-			}
-			finally
-			{
-				if (fos != null)
-				{
-					try
-					{
-						fos.close();
-					}
-					catch (IOException e)
-					{
-						// Do nothing
-						e.printStackTrace();
-					}
-				}
-			}
-			if (cardShareImageFile != null && cardShareImageFile.exists())
-			{
-				cardShareImageFile.deleteOnExit();
-			}
+			json.put("text", text);
+			json.put("caption", caption);
+			sendMessageToUiThread(SHARE_EXTERNAL, json);
 		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "Error in share");
+		}
+
 	}
 
 	/**
@@ -551,11 +508,9 @@ public abstract class JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
 		});
@@ -1192,8 +1147,16 @@ public abstract class JavascriptBridge
 			final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
 			final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
 			final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+			final boolean sendAll=mmObject.optBoolean(ProductPopupsConstants.SENDALL,false);
 			if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
 			{
+
+				if(sendAll)
+				{
+					PlatformUtils.sendStickertoAllHikeContacts(stickerId,categoryId);
+					return;
+				}
+
 				mHandler.post(new Runnable()
 				{
 					

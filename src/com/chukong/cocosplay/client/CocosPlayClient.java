@@ -25,6 +25,9 @@ package com.chukong.cocosplay.client;
 
 import android.app.Activity;
 
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+
+@DoNotObfuscate
 public class CocosPlayClient {
     
     public static boolean init(Activity activity, boolean isDemo) {
