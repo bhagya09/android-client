@@ -1,10 +1,9 @@
 package com.bsb.hike.tasks;
 
-import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
-import com.bsb.hike.adapters.StickerSettingsAdapter;
-import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.adapters.StickerSettingsAdapter.DeletePackListener;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.utils.StickerManager;
 
