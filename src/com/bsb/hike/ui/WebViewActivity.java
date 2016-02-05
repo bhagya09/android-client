@@ -3,7 +3,9 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
+import android.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,9 +25,7 @@ import android.net.MailTo;
 import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.customtabs.CustomTabsIntent;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -1657,8 +1657,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		int titleColor = getResources().getColor(R.color.credits_blue);
 		intentBuilder.setToolbarColor(titleColor);
 		intentBuilder.setShowTitle(true);
-		Bitmap bm;
-		bm = HikeBitmapFactory.drawableToBitmap(getResources().getDrawable(R.drawable.ic_back_arrow));
+		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back));
 		intentBuilder.setCloseButtonIcon(bm);
 		CustomTabActivityHelper.openCustomTab(this, intentBuilder.build(), url, this, title);
 	}
