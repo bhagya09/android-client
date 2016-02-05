@@ -143,7 +143,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private boolean isShortcut = false;
 
 	// Miscellaneous data received in the intent.
-	private String extraData;
+	private String extraData = "";
+
+	private String urlParams;
+
+	private long time;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -158,6 +162,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			return;
 		}
 
+
+		time=System.currentTimeMillis();
+
 		allowLoc = getIntent().getBooleanExtra(HikeConstants.Extras.WEBVIEW_ALLOW_LOCATION, false);
 
 		microappData = getIntent().getStringExtra(HikePlatformConstants.MICROAPP_DATA);
@@ -171,6 +178,17 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
 			initMsisdn();
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+				json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_OPENED);
+				json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+			Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
@@ -196,7 +214,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		alignAnchorForOverflowMenu();
 		
-		checkAndRecordNotificationAnalytics();
+		checkAndRecordBotOpen();
 	}
 
 	private void closeWebViewActivity()
@@ -459,7 +477,14 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
 		if(webView!=null)
 		{
+			webView.stopLoading();
 			webView.onActivityDestroyed();
+
+			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
+			{
+				webView.removeWebViewReferencesFromWebKit();
+				webView.clearWebViewCache(true);
+			}
 		}
 		
 		if (mActionBar != null)
@@ -467,6 +492,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			mActionBar.releseResources();
 			mActionBar = null;
 		}
+
+		mmBridge = null;
+		webView = null;
 		super.onDestroy();
 	}
 
@@ -730,8 +758,21 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			@Override
 			public void onComplete(PlatformContentModel content)
 			{
-				if(null != content)
+				if(null != webView && null != content)
 				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.MICRO_APP_LOADED);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,(System.currentTimeMillis()-time));
+						json.putOpt(AnalyticsConstants.BOT_MSISDN,msisdn);
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
 					webView.loadMicroAppData(content.getFormedData());
 				}
 			}
@@ -1024,7 +1065,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			HAManager.getInstance().endChatSession(msisdn);
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, null);
-		webView.onPause();
+		webView.onPaused();
 	}
 
 	@Override
@@ -1043,7 +1084,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		 */
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.NEW_ACTIVITY, this);
-		webView.onResume();
+		webView.onResumed();
+
+
 	}
 	
 	@Override
@@ -1151,7 +1194,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				try
 				{
-					view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 				}
 				catch (ActivityNotFoundException e)
 				{
@@ -1392,11 +1435,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	/**
 	 * Used to record analytics for bot opens via push notifications
 	 */
-	private void checkAndRecordNotificationAnalytics()
+	private void checkAndRecordBotOpen()
 	{
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
 

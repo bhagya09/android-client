@@ -627,6 +627,33 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+	 * "exception_track", "fld1": "java.io.FileNotFoundException: abc", "fld2": "hikenewsv14", "fld4" : "true", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+	 * "sid": 1453620914078 } } }
+	 *
+	 * @param appName
+	 * @param errorMsg
+	 */
+	public static void microappIOFailedAnalytics(String appName, String errorMsg, boolean isReadException)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, "exception_track");
+			json.put(AnalyticsConstants.LOG_FIELD_1, errorMsg); //Error
+			json.put(AnalyticsConstants.LOG_FIELD_2, appName); //App Name
+			json.put(AnalyticsConstants.LOG_FIELD_4, Boolean.toString(isReadException)); //App Name
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
@@ -1083,8 +1110,7 @@ public class PlatformUtils
 		if (ChatHeadUtils.areWhitelistedPackagesSharable(context))
 		{
 			Toast.makeText(context, context.getString(R.string.sticker_share_popup_activate_toast), Toast.LENGTH_LONG).show();
-			if (ChatHeadUtils.checkDeviceFunctionality())
-			{
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.ENABLE, true);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.USER_CONTROL, true);
 				JSONArray packagesJSONArray;
@@ -1101,7 +1127,7 @@ public class PlatformUtils
 					e.printStackTrace();
 				}
 				ChatHeadUtils.startOrStopService(true);
-			}
+
 		}
 		else
 		{
@@ -1220,15 +1246,16 @@ public class PlatformUtils
 	
 	/**
 	 * Used to record analytics for bot opens via push notifications
-	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+", "bot_source" : "bot_notif" }
 	 */
-	public static void recordBotOpenViaNotification(String msisdn)
+	public static void recordBotOpenSource(String msisdn, String source)
 	{
 		JSONObject json = new JSONObject();
 		try
 		{
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 
@@ -1433,11 +1460,16 @@ public class PlatformUtils
 	 */
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
 	{
+		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+	}
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
 			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(
 					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
@@ -1500,4 +1532,5 @@ public class PlatformUtils
 
 		return jsonObj.optString(HikeConstants.BODY);
 	}
+
 }
