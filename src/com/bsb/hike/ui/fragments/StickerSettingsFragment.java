@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,22 +29,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.Fragment;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragScrollProfile;
 import com.bsb.hike.DragSortListView.DragSortListView.DropListener;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerSettingsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
-import com.bsb.hike.ui.StickerSettingsActivity;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -51,7 +51,7 @@ import com.bsb.hike.utils.Utils;
 
 public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
 {
-	private String[] pubSubListeners = {};
+	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED};
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
@@ -331,12 +331,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	}
 
-	private List<StickerCategory> getStickerCategoriesList() {
-		List<StickerCategory> categoriesList = StickerManager.getInstance().getMyStickerCategoryList();
+	private void initStickerCategoriesList() {
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
 
 		if (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK)
 		{
-			Iterator it = categoriesList.iterator();
+			Iterator it = stickerCategories.iterator();
 			StickerCategory category;
 
 			while (it.hasNext()) {
@@ -347,14 +347,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 			}
 		}
-
-		return categoriesList;
 	}
 
 	private void initAdapterAndList()
 	{
 		View parent = getView();
-		stickerCategories.addAll(getStickerCategoriesList());
+		initStickerCategoriesList();
 		mAdapter = new StickerSettingsAdapter(getActivity(), stickerCategories, stickerSettingsTask);
 		mDslv = (DragSortListView) parent.findViewById(R.id.item_list);
 		//mDslv.setOnScrollListener(this);
@@ -411,8 +409,29 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		// TODO Auto-generated method stub
+		if (HikePubSub.STICKER_PACK_DELETED.equals(type))
+		{
+			final StickerCategory category = (StickerCategory) object;
 
+			if(!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					if(mAdapter == null)
+					{
+						return;
+					}
+					Toast.makeText(getActivity(), getString(R.string.pack_deleted) + " " + category.getCategoryName(), Toast.LENGTH_SHORT).show();
+					mAdapter.onStickerPackDelete(category);
+				}
+			});
+		}
 	}
 
 	public static StickerSettingsFragment newInstance()

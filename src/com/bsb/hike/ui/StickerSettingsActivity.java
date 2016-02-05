@@ -66,10 +66,10 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		else
 		{
-			Bundle taskBundle = new Bundle();
-			taskBundle.putSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG, stickerSettingsTask);
+			Bundle stickerSettingsTaskArg = new Bundle();
+			stickerSettingsTaskArg.putSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG, stickerSettingsTask);
 			stickerSettingsFragment = StickerSettingsFragment.newInstance();
-			stickerSettingsFragment.setArguments(taskBundle);
+			stickerSettingsFragment.setArguments(stickerSettingsTaskArg);
 		}
 
 		getSupportFragmentManager().beginTransaction().add(R.id.sticker_settings_parent, stickerSettingsFragment).commit();
