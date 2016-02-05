@@ -369,7 +369,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	public void onStickerPackDelete(StickerCategory category)
 	{
-		if (deleteDialog.isShowing())
+		if (deleteDialog != null  && deleteDialog.isShowing())
 		{
 			deleteDialog.dismiss();
 		}
