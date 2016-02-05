@@ -407,7 +407,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					filePathArrayList.add(filePath);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
 
-					Intent i = getIntent();
 					if(HikeFileType.IMAGE.equals(HikeFileType.fromString(getIntent().getType())))
 					{
 						selectedImages = new ArrayList<>();
