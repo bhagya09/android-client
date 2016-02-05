@@ -867,8 +867,12 @@ public class MqttMessagesManager
 		{
 			Sticker sticker = convMessage.getMetadata().getSticker();
 
-			if (!StickerManager.getInstance().isStickerExists(sticker.getCategoryId(), sticker.getStickerId()))
+			if (!sticker.isFullStickerAvailable())
 			{
+				if (!sticker.isMiniStickerAvailable())
+				{
+					StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
+				}
 				StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
 			}
 		}

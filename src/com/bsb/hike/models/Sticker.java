@@ -129,10 +129,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void verifyStickerAvailabilityStatus()
 	{
-		if(mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.DEFAULT_AVAILABILITY_STATUS)
-		{
-			setStickerAvailability();
-		}
+		setStickerAvailability();
 	}
 
 	public boolean isStickerAvailable()

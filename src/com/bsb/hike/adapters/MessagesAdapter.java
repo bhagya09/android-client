@@ -1,19 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -101,8 +87,6 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -129,6 +113,20 @@ import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -863,12 +861,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (sticker.isStickerAvailable())
 			{
 
-				if(!sticker.isFullStickerAvailable())
-				{
-					SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
-					singleStickerDownloadTask.execute();
-				}
-
 				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage());
 
 				if (stickerDrawable != null)
@@ -894,7 +886,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					// largeStickerLoader.loadImage(stickerImage.getPath(), holder.stickerImage, isListFlinging);
 
 					stickerHolder.image.setImageDrawable(stickerDrawable);
-
 					// holder.stickerImage.setImageDrawable(IconCacheManager
 					// .getInstance().getSticker(context,
 					// stickerImage.getPath()));

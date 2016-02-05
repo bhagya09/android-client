@@ -65,6 +65,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	public void execute()
 	{
+		Logger.e(TAG, categoryId+":"+stickerId+" : started");
 		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
 		{
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
@@ -279,7 +280,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	{
 		
 		String newCategoryId = (String) result;
-		
+		Logger.e(TAG, categoryId+":"+stickerId+" : done");
 		if(convMessage != null && !(TextUtils.isEmpty(categoryId)))
 		{
 			

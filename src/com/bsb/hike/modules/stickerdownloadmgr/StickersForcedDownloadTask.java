@@ -14,6 +14,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -103,21 +104,21 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
                             switch(stickersData.getInt("image"))
                             {
                                 case 1:
-                                    downloadFullSticker(category,sticker);
+                                    StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker, category, null);
                                     break;
                             }
 
                             switch(stickersData.getInt("mini-image"))
                             {
                                 case 1:
-                                    downloadMiniSticker(category, sticker);
+                                    StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker, category);
                                     break;
                             }
 
                             switch(stickersData.getInt("tags"))
                             {
                                 case 1:
-                                    downloadFullSticker(category,sticker);
+                                    StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker, category, null);
                                     break;
                             }
 
@@ -204,7 +205,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     @Override
     public void doOnSuccess(Object result) {
 
-        StickerSearchManager.getInstance().downloadStickerTags(true,StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD,languagesSet,stickerToDownloadTagsSet);
+        StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD, languagesSet, stickerToDownloadTagsSet);
         if(forcedRecentsStickers!=null)
         {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_PRESENT, true);
@@ -215,20 +216,6 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     @Override
     public void doOnFailure(HttpException exception) {
         Logger.e(TAG, "Forced Download Failed ", exception);
-    }
-
-    //todo discuss where to place this method
-    public void downloadMiniSticker(String categoryId, String stickerId)
-    {
-        MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(categoryId,stickerId);
-        miniStickerImageDownloadTask.execute();
-    }
-
-    //todo discuss where to place this method
-    public void downloadFullSticker(String categoryId, String stickerId)
-    {
-        SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(categoryId,stickerId,null);
-        singleStickerDownloadTask.execute();
     }
 
     private boolean isValidForcedSticker(String catId,String sId)
