@@ -167,6 +167,17 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
+		// Instead of getting an ex
+		if (TextUtils.isEmpty(mRequest.getContentData().getLayout_url()))
+		{
+			if (null != mRequest.getListener())
+			{
+				mRequest.getListener().onEventOccured(0, EventCode.INVALID_DATA);
+			}
+
+			return;
+		}
+
 		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
         if (!isMicroAppExist())
         {
