@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr;
 
+import android.text.TextUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -47,12 +48,24 @@ public class HttpUtils
 	{
 		for(Header header : headers)
 		{
-			if(header.getName().equalsIgnoreCase(headerString))
+			if (!TextUtils.isEmpty(header.getName()) && header.getName().equalsIgnoreCase(headerString))
 			{
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public static Header getHeader(List<Header> headers, String headerString)
+	{
+		for(Header header : headers)
+		{
+			if (!TextUtils.isEmpty(header.getName()) && header.getName().equalsIgnoreCase(headerString))
+			{
+				return header;
+			}
+		}
+		return null;
 	}
 
     public static String requestToString(Request request)

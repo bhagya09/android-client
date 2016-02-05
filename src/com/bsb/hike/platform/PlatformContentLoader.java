@@ -1,13 +1,15 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
-import android.util.Pair;
 
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.platform.content.PlatformRequestManager;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.samskivert.mustache.Template;
@@ -15,7 +17,7 @@ import com.samskivert.mustache.Template;
 /**
  * This class is responsible for handling content requests. Directly communicates with cache, template engine and download task.
  */
-class PlatformContentLoader extends Handler
+public class PlatformContentLoader extends Handler
 {
 	private static String TAG = "PlatformContentLoader";
 
@@ -117,7 +119,8 @@ class PlatformContentLoader extends Handler
 //			}
 //		}
 
-		if (PlatformZipDownloader.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
+		if (PlatformZipDownloader
+				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
 		{
 			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
 

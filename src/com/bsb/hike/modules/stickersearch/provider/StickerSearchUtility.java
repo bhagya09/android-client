@@ -130,7 +130,7 @@ public class StickerSearchUtility
 							while (languages.hasNext())
 							{
 								String languageISOCode = languages.next();
-								String regex = json.getString(languageISOCode);
+								String regex = separatorsData.getString(languageISOCode);
 								if (isValidSeparatorsRegex(regex))
 								{
 									stickerDataSharedPref.saveData(getSharedPrefKeyForSeparatorsRegex(languageISOCode), regex);
@@ -668,6 +668,12 @@ public class StickerSearchUtility
 		return ((source != null) && (source.length() > offset)) ? source.substring(0, (int) (source.length() * predictionRatio + 0.50f)) : source;
 	}
 
+	/* Get ceiling first order moment of 2 numbers */
+	public static int getFirstOrderMoment(int first, int second)
+	{
+		return (int) ((float) (first + second) / 2 + 0.50f);
+	}
+
 	/* Determine if given character is special character */
 	public static boolean isSpecialCharacterForLatin(char c)
 	{
@@ -1035,7 +1041,7 @@ public class StickerSearchUtility
 					sb.append(HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE);
 				}
 
-				// Do not add ' AND ' separator after last element syntax in sub-condition
+				// Do not add ' AND ' separator after sub-condition syntax of last element
 				if (i != lengthBeforeLastElement)
 				{
 					sb.append(HikeStickerSearchBaseConstants.SYNTAX_AND_NEXT);

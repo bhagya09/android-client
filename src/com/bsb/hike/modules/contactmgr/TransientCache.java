@@ -946,6 +946,30 @@ public class TransientCache extends ContactsCache
 		return contact;
 	}
 
+    /**
+     * This method is used for msisdns or phone numbers list. It will make a db call and insert the contacts in the cache
+     */
+    public List<ContactInfo> getContactListFromDb(List<String> msisdnList)
+    {
+        List<ContactInfo> contactInfoList;
+        String msisdnString = Utils.listToString(msisdnList,",");
+
+        contactInfoList = hDb.getContactInfoListFromPhoneNoOrMsisdn(msisdnString);
+
+        if(contactInfoList == null)
+            return null;
+
+        for (ContactInfo contact: contactInfoList)
+        {
+            if (null != contact && null == getContact(contact.getMsisdn()))
+            {
+                insertContact(contact);
+            }
+        }
+        return contactInfoList;
+    }
+
+
 	/**
 	 * clears the transient memory
 	 */

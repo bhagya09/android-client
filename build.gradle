@@ -19,7 +19,7 @@ android {
         minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
-        targetSdkVersion 17
+        targetSdkVersion 22
         multiDexEnabled = true
     }
     lintOptions {
@@ -33,6 +33,7 @@ android {
         jumboMode = true
     }
     dependencies {
+        compile 'com.android.support:support-v4:23.1.+'
         compile(project(':appcompatv7')) {
             exclude module: 'support-v4'
         }
@@ -55,6 +56,9 @@ android {
             exclude module: 'support-v4'
         }
          compile(project(':cropper')) {
+            exclude module: 'support-v4'
+        }
+        compile ('com.android.support:customtabs:23.1.0'){
             exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
