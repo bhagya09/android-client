@@ -3954,6 +3954,11 @@ public class Utils
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		}
 
+		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		{
+			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
+		}
+
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 

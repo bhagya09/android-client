@@ -8,6 +8,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -742,11 +743,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		View backContainer = findViewById(R.id.back);
 		TextView title = (TextView) findViewById(R.id.title);
 		title.setText(titleRes);
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
+		backContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
@@ -1450,6 +1449,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
 				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, HikeConstants.TOGGLE, isChecked);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
+				if (AppConfig.SHOW_LOGS)
+				{
+					Toast.makeText(getApplicationContext(), kptSettings.getKptSdkVersion(), Toast.LENGTH_SHORT).show();
+				}
 			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {
 				kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
 				trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, HikeConstants.TOGGLE, isChecked);
