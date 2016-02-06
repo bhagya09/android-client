@@ -500,7 +500,8 @@ public class StickerManager
 		{
 			if (file.isDirectory())
 			{
-				allCategoryList.add(new StickerCategory(file.getName()));
+				StickerCategory stickerCategory = new StickerCategory.Builder().setCategoryId(file.getName()).build();
+				allCategoryList.add(stickerCategory);
 			}
 		}
 
@@ -958,7 +959,7 @@ public class StickerManager
 			StickerCategory stickerCategory = stickerCategoriesMap.get(stickerCategoryDirectory.getName());
 			if (stickerCategory == null)
 			{
-				stickerCategory = new StickerCategory(stickerCategoryDirectory.getName());
+				stickerCategory = new StickerCategory.Builder().setCategoryId(stickerCategoryDirectory.getName()).build();
 			}
 			for (File stickerFile : stickerCategorySmallDirectory.listFiles())
 			{

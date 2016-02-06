@@ -1,5 +1,9 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,77 +14,196 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-
 public class StickerCategory implements Serializable, Comparable<StickerCategory>
 {
+	public static final int NONE = 0;
+
+	public static final int UPDATE = 1;
+
+	public static final int DOWNLOADING = 2;
+
+	public static final int RETRY = 3;
+
+	public static final int DONE = 4;
+
+	public static final int DONE_SHOP_SETTINGS = 5;
 
 	private String categoryId;
 
+	private String categoryName;
+
+	private int categorySize;
+
+	private String categoryDesc;
+
+	private int totalStickers;
+
 	private boolean updateAvailable;
 
-	private String categoryName;
-	
 	private boolean isVisible;
-	
+
 	private boolean isCustom;
-	
+
 	private boolean isAdded;
-	
+
+	private boolean isPreview;
+
+	private boolean isDownloaded;
+
 	private int catIndex;
-	
-	private int totalStickers;
-	
-	private int categorySize;
-	
-	public static final int NONE = 0;
-	
-	public static final int UPDATE = 1;
-	
-	public static final int DOWNLOADING = 2;
-	
-	public static final int RETRY = 3;
-	
-	public static final int DONE = 4;
-	
-	public static final int DONE_SHOP_SETTINGS = 5;
-	
+
+	private List<Sticker> allStickers;
+
+	private int state = -1;
+
 	private int downloadedStickersCount = -1;
-	
-	private int state;
 
-	public StickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded,
-			int catIndex, int totalStickers, int categorySize)
+	protected StickerCategory (Init<?> builder)
 	{
-		this.categoryId = categoryId;
-		this.updateAvailable = updateAvailable;
-		this.categoryName = categoryName;
-		this.isVisible = isVisible;
-		this.isCustom = isCustom;
-		this.isAdded = isAdded;
-		this.catIndex = catIndex;
-		this.totalStickers = totalStickers;
-		this.categorySize = categorySize;
-		this.state = isMoreStickerAvailable() ? UPDATE : NONE;
+		this.categoryId = builder.categoryId;
+		this.categoryName = builder.categoryName;
+		this.categorySize = builder.categorySize;
+		this.categoryDesc = builder.categoryDesc;
+		this.totalStickers = builder.totalStickers;
+		this.updateAvailable = builder.updateAvailable;
+		this.isVisible = builder.isVisible;
+		this.isCustom = builder.isCustom;
+		this.isAdded = builder.isAdded;
+		this.isPreview = builder.isPreview;
+		this.isDownloaded = builder.isDownloaded;
+		this.catIndex = builder.catIndex;
+		this.allStickers = builder.allStickers;
+		this.state = builder.state;
+		ensureSaneDefaults();
 	}
 
-	// this is mostly used for recents stickers only
-	public StickerCategory(String category)
+	private void ensureSaneDefaults()
 	{
-		this.categoryId = category;
-		this.updateAvailable = false;
-		this.state = NONE;
+		if(categoryId == null)
+		{
+			throw new IllegalStateException("Category cannot be null");
+		}
+		if(state == -1)
+		{
+			state = isDownloaded ? (isMoreStickerAvailable() ? UPDATE : NONE) : NONE;
+		}
 	}
-	
-	public StickerCategory(String categoryId, String categoryName, int totalStickers, int categorySize)
+
+	protected static abstract class Init<S extends Init<S>>
 	{
-		this.categoryId = categoryId;
-		this.categoryName = categoryName;
-		this.totalStickers = totalStickers;
-		this.categorySize = categorySize;
-		this.state = NONE;
+		private String categoryId;
+
+		private String categoryName;
+
+		private int categorySize;
+
+		private String categoryDesc;
+
+		private int totalStickers;
+
+		private boolean updateAvailable;
+
+		private boolean isVisible;
+
+		private boolean isCustom;
+
+		private boolean isAdded;
+
+		private boolean isPreview;
+
+		private boolean isDownloaded;
+
+		private int catIndex;
+
+		private List<Sticker> allStickers;
+
+		private int state;
+
+		protected abstract S self();
+
+		public StickerCategory build()
+	{
+		return new StickerCategory(this);
+	}
+
+		public S setCategoryId(String categoryId) {
+			this.categoryId = categoryId;
+			return  self();
+		}
+
+		public S setCategoryName(String categoryName) {
+			this.categoryName = categoryName;
+			return self();
+		}
+
+		public S setCategorySize(int categorySize) {
+			this.categorySize = categorySize;
+			return self();
+		}
+
+		public S setCategoryDesc(String categoryDesc) {
+			this.categoryDesc = categoryDesc;
+			return self();
+		}
+
+		public S setTotalStickers(int totalStickers) {
+			this.totalStickers = totalStickers;
+			return self();
+		}
+
+		public S setUpdateAvailable(boolean updateAvailable) {
+			this.updateAvailable = updateAvailable;
+			return self();
+		}
+
+		public S setIsVisible(boolean isVisible) {
+			this.isVisible = isVisible;
+			return self();
+		}
+
+		public S setIsCustom(boolean isCustom) {
+			this.isCustom = isCustom;
+			return self();
+		}
+
+		public S setIsAdded(boolean isAdded) {
+			this.isAdded = isAdded;
+			return self();
+		}
+
+		public S setIsPreview(boolean isPreview) {
+			this.isPreview = isPreview;
+			return self();
+		}
+
+		public S setIsDownloaded(boolean isDownloaded) {
+			this.isDownloaded = isDownloaded;
+			return self();
+		}
+
+		public S setCatIndex(int catIndex) {
+			this.catIndex = catIndex;
+			return self();
+		}
+
+		public S setAllStickers(List<Sticker> allStickers) {
+			this.allStickers = allStickers;
+			return self();
+		}
+
+		public S setState(int state) {
+			this.state = state;
+			return self();
+		}
+	}
+
+	public static class Builder extends Init<Builder>
+	{
+		@Override
+		protected Builder self()
+		{
+			return this;
+		}
 	}
 
 	public StickerCategory()
@@ -152,6 +275,22 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.isAdded = isAdded;
 	}
 
+	public boolean isPreview() {
+		return isPreview;
+	}
+
+	public void setIsPreview(boolean isPreview) {
+		this.isPreview = isPreview;
+	}
+
+	public boolean isDownloaded() {
+		return isDownloaded;
+	}
+
+	public void setIsDownloaded(boolean isDownloaded) {
+		this.isDownloaded = isDownloaded;
+	}
+
 	public int getCategoryIndex()
 	{
 		return catIndex;
@@ -192,6 +331,29 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return state;
 	}
 	
+	public String getDescription()
+	{
+		return this.categoryDesc;
+	}
+	
+	public void setDescription(String description)
+	{
+		this.categoryDesc = description;
+	}
+
+	public void setAllStickers(List<Sticker> allStickers) {
+		this.allStickers = allStickers;
+	}
+
+	public List<Sticker> getAllStickers()
+	{
+		if(allStickers == null)
+		{
+			allStickers = StickerManager.getInstance().getStickerListFromDb(categoryId);
+		}
+		return allStickers;
+	}
+
 	public List<Sticker> getStickerList()
 	{
 		final List<Sticker> stickersList;
@@ -292,7 +454,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	}
 	
 	/**
-	 * Checks for the count of stickers from the stickers folder for this category. Returns true if the count is < totalStickers
+	 * Checks for the count of allStickers from the allStickers folder for this category. Returns true if the count is < totalStickers
 	 * @return  
 	 */
 	public boolean isMoreStickerAvailable()

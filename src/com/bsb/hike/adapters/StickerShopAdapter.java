@@ -130,7 +130,12 @@ public class StickerShopAdapter extends CursorAdapter
 		}
 		else
 		{
-			category = new StickerCategory(categoryId, categoryName, totalStickerCount, categorySizeInBytes);
+			category = new StickerCategory.Builder()
+					.setCategoryId(categoryId)
+					.setCategoryName(categoryName)
+					.setCategorySize(categorySizeInBytes)
+					.setTotalStickers(totalStickerCount)
+					.build();
 			stickerCategoriesMap.put(categoryId, category);
 		}
 		viewholder.downloadState.setVisibility(View.VISIBLE);

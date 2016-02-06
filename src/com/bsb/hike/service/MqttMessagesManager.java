@@ -3004,17 +3004,21 @@ public class MqttMessagesManager
 			/**
 			 * Creating the sticker object here
 			 */
-			StickerCategory stickerCategory = new StickerCategory(categoryId);
-			stickerCategory.setCategoryName(categoryName);
-			stickerCategory.setTotalStickers(stickerCount == -1 ? 0 : stickerCount);
-			stickerCategory.setCategorySize(categorySize == -1 ? 0 : categorySize);
 			int pos = (position < 1 ? (HikeConversationsDatabase.getInstance().getMaxStickerCategoryIndex() + 1) : position);
 			pos = (pos < 1 ? StickerManager.DEFAULT_POSITION : pos);
-			stickerCategory.setCategoryIndex(pos);  //Choosing it's index based on the above logic
-			stickerCategory.setUpdateAvailable(true);  //To show the green badge on category
-			stickerCategory.setVisible(true);	//To make it visible in pallete
-			stickerCategory.setState(StickerCategory.NONE);
-			
+
+			StickerCategory stickerCategory = new StickerCategory.Builder()
+					.setCategoryId(categoryId)
+					.setCategoryName(categoryName)
+					.setCategorySize(categorySize == -1 ? 0 : categorySize)
+					.setCategoryDesc(description)
+					.setTotalStickers(stickerCount == -1 ? 0 : stickerCount)
+					.setUpdateAvailable(true)									//To show the green badge on category
+					.setIsVisible(true)											//To make it visible in pallete
+					.setCatIndex(pos)											//Choosing it's index based on the above logic
+					.setState(StickerCategory.NONE)
+					.setAllStickers(stickerList)
+					.build();
 			StickerManager.getInstance().addNewCategoryInPallete(stickerCategory);
 		}
 	}

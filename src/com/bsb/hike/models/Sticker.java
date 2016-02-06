@@ -209,7 +209,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		StickerCategory cat = category;
 		if (cat == null)
 		{
-			cat = new StickerCategory(this.categoryId);
+			cat = new StickerCategory.Builder()
+					.setCategoryId(categoryId)
+					.build();
 		}
 		cat.serializeObj(out);
 	}
