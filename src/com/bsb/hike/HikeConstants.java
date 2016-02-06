@@ -3129,6 +3129,10 @@ public class HikeConstants
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
+	
+	public static final String DESCRIPTION = "desc";
+
+	public static final String STICKER_LIST = "sticker_list";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes

@@ -559,10 +559,10 @@ public class StickerManager
 
 	public void setStickerUpdateAvailable(String categoryId, boolean updateAvailable)
 	{
-		updateStickerCategoryData(categoryId, updateAvailable, -1, -1);
+		updateStickerCategoryData(categoryId, updateAvailable, -1, -1, null, null);
 	}
 
-	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize)
+	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize, String description, String stickerListString)
 	{
 		StickerCategory category = stickerCategoriesMap.get(categoryId);
 		if (category != null)
@@ -591,7 +591,7 @@ public class StickerManager
 			updateAvailable = false;
 		}
 
-		HikeConversationsDatabase.getInstance().updateStickerCategoryData(categoryId, updateAvailable, totalStickerCount, categorySize);
+		HikeConversationsDatabase.getInstance().updateStickerCategoryData(categoryId, updateAvailable, totalStickerCount, categorySize, description, stickerListString);
 	}
 
 	private String getExternalStickerDirectoryForCategoryId(Context context, String catId)
@@ -1505,41 +1505,17 @@ public class StickerManager
 		for (int i = 0; i < length; i++)
 		{
 			JSONObject jsonObj = jsonArray.optJSONObject(i);
+
 			if (jsonObj != null)
 			{
-				String catId = jsonObj.optString(StickerManager.CATEGORY_ID);
 
-				StickerCategory category = stickerCategoriesMap.get(catId);
-				if (category == null)
+				StickerCategory category = parseStickerCategoryMetadata(jsonObj);
+				if (category.isVisible())
 				{
-					category = new StickerCategory(catId);
+					stickerCategoriesMap.put(category.getCategoryId(), category);
 				}
-
-				if (jsonObj.has(HikeConstants.CAT_NAME))
-				{
-					category.setCategoryName(jsonObj.optString(HikeConstants.CAT_NAME, STRING_EMPTY));
-				}
-
-				if (jsonObj.has(HikeConstants.VISIBLITY))
-				{
-					boolean isVisible = jsonObj.optInt(HikeConstants.VISIBLITY) == 1;
-					category.setVisible(isVisible);
-					if (category.isVisible())
-					{
-						stickerCategoriesMap.put(catId, category);
-					}
-					visibleStickerCategories.add(category);
-					category.setCategoryIndex(humanoidCategoryIndex + visibleStickerCategories.size());
-				}
-				if (jsonObj.has(HikeConstants.NUMBER_OF_STICKERS))
-				{
-					category.setTotalStickers(jsonObj.optInt(HikeConstants.NUMBER_OF_STICKERS, 0));
-				}
-
-				if (jsonObj.has(HikeConstants.SIZE))
-				{
-					category.setCategorySize(jsonObj.optInt(HikeConstants.SIZE, 0));
-				}
+				visibleStickerCategories.add(category);
+				category.setCategoryIndex(humanoidCategoryIndex + visibleStickerCategories.size());
 			}
 		}
 		if (!visibleStickerCategories.isEmpty())
@@ -1606,6 +1582,55 @@ public class StickerManager
 		}
 	}
 
+	public StickerCategory parseStickerCategoryMetadata(JSONObject jsonObj)
+	{
+		String catId = jsonObj.optString(StickerManager.CATEGORY_ID);
+
+		StickerCategory category = stickerCategoriesMap.get(catId);
+		if (category == null)
+		{
+			category = new StickerCategory.Builder().setCategoryId(catId).build();
+		}
+
+		if (jsonObj.has(HikeConstants.CAT_NAME))
+		{
+			category.setCategoryName(jsonObj.optString(HikeConstants.CAT_NAME, ""));
+		}
+
+		if (jsonObj.has(HikeConstants.VISIBLITY))
+		{
+			boolean isVisible = jsonObj.optInt(HikeConstants.VISIBLITY) == 1;
+			category.setVisible(isVisible);
+			if (category.isVisible())
+			{
+				stickerCategoriesMap.put(catId, category);
+			}
+		}
+		if (jsonObj.has(HikeConstants.NUMBER_OF_STICKERS))
+		{
+			category.setTotalStickers(jsonObj.optInt(HikeConstants.NUMBER_OF_STICKERS, 0));
+		}
+
+		if (jsonObj.has(HikeConstants.SIZE))
+		{
+			category.setCategorySize(jsonObj.optInt(HikeConstants.SIZE, 0));
+		}
+
+		if (jsonObj.has(HikeConstants.DESCRIPTION))
+		{
+			category.setDescription(jsonObj.optString(HikeConstants.DESCRIPTION, ""));
+		}
+
+		if (jsonObj.has(HikeConstants.STICKER_LIST))
+		{
+			JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
+			List<Sticker> stickerList = getStickerListFromJSONArray(stickerArray, catId);
+			category.setAllStickers(stickerList);
+		}
+
+		return category;
+	}
+
 	private void saveCategoryAsVisible(StickerCategory category)
 	{
 		if (category.isVisible())
@@ -1616,7 +1641,7 @@ public class StickerManager
 		int catIdx = HikeConversationsDatabase.getInstance().getMaxStickerCategoryIndex();
 		category.setCategoryIndex(catIdx == -1 ? stickerCategoriesMap.size() : (catIdx + 1));
 		stickerCategoriesMap.put(category.getCategoryId(), category);
-		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(category);
+		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(category, true);
 	}
 
 	public boolean stickerShopUpdateNeeded()
@@ -2587,4 +2612,65 @@ public class StickerManager
 			Logger.e(TAG, "json exception in logging sticker response time", e);
 		}
 	}
+
+	public List<Sticker> getStickerListFromJSONArray(JSONArray stickerArray, String catId)
+	{
+		List<Sticker> stickerList = null;
+		if (stickerArray != null && stickerArray.length() > 0)
+		{
+			int length = stickerArray.length();
+			stickerList = new ArrayList<>(length);
+			for (int i = 0; i < length; i++)
+			{
+				Sticker sticker = new Sticker(catId, stickerArray.optString(i));
+				stickerList.add(sticker);
+			}
+		}
+		return stickerList;
+	}
+
+	public String getStringListString(List<Sticker> stickers)
+	{
+		if (Utils.isEmpty(stickers))
+		{
+			return null;
+		}
+		String stickerListString = "";
+		for (Sticker sticker : stickers)
+		{
+			stickerListString += sticker.getStickerId();
+			stickerListString += ",";
+		}
+		return stickerListString.substring(0, stickerListString.length() - 1);
+	}
+
+	public List<Sticker> getStickerListFromString(String categoryId, String stickerListString)
+	{
+		if (TextUtils.isEmpty(stickerListString) || TextUtils.isEmpty(categoryId))
+		{
+			return null;
+		}
+		String[] stickerIds = stickerListString.split(",");
+		List<Sticker> stickerList = null;
+
+		if (stickerIds != null && stickerIds.length > 0)
+		{
+			Logger.d("anubhav", "sticker ids : " + stickerIds);
+			stickerList = new ArrayList<>(stickerIds.length);
+			for (int i = 0; i < stickerIds.length; i++)
+			{
+				Sticker sticker = new Sticker(categoryId, stickerIds[i]);
+				Logger.d("anubhav", "adding to sticker list : " + sticker);
+				stickerList.add(sticker);
+			}
+		}
+		return stickerList;
+	}
+
+	public List<Sticker> getStickerListFromDb(String categoryId)
+	{
+		String stickerListString = HikeConversationsDatabase.getInstance().getStickerList(categoryId);
+		return getStickerListFromString(categoryId, stickerListString);
+	}
+
 }
