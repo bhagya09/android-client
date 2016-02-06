@@ -289,7 +289,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
 			showLoadingState(viewHolder);
 			viewHolder.inflationTime = System.currentTimeMillis() - startTime;
-			loadContent(position, convMessage, viewHolder);
+			loadContent(position, convMessage, viewHolder, false);
 		}
 		else
 		{
@@ -313,7 +313,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	}
 
-	private void loadContent(final int position, final ConvMessage convMessage, final WebViewHolder viewHolder)
+	private void loadContent(final int position, final ConvMessage convMessage, final WebViewHolder viewHolder, boolean isFromErrorPress)
 	{
 		Logger.i(tag, "laoding content for "+((int)convMessage.getMsgID()));
 		PlatformContent.getContent(((int)convMessage.getMsgID()),convMessage.webMetadata.JSONtoString(), new PlatformContentListener<PlatformContentModel>()
@@ -375,7 +375,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					Logger.e(tag, "Platform Content returned data view no more exist");
 				}
 			}
-		});
+		},isFromErrorPress);
 	}
 
 	private static void cardLoadAnalytics(ConvMessage message)
@@ -647,7 +647,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					{
 						argViewHolder.loadingFailed.findViewById(R.id.loading_progress_bar).setVisibility(View.VISIBLE);
 						argViewHolder.loadingFailed.findViewById(R.id.progress_bar_image).setVisibility(View.GONE);
-						loadContent(position, convMessage, argViewHolder);
+						loadContent(position, convMessage, argViewHolder, true);
 					}
 				});
 			}

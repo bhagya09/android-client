@@ -1203,7 +1203,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">புதிய ஃபோட்டோ</string>
     <string name="upgrade_for_larger_files">இந்த ஃபைலை பெறுவதற்கு %1$s அப்கிரேட் செய்ய வேண்டியுள்ளது.Hike டைரக்ட் வழியாக Hike-ன் லேட்டஸ்ட் வெர்ஷனை ஷேர் செய்யும்</string>
-    <string name="group_participant_info">குழு ஒன்றுக்கு உம்மால் 500 உறுப்பினர்கள் வரை சேர்க்க முடியும்</string>
+    <string name="group_participant_info"><![CDATA[<font color=\"#000000\">இப்பொது </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> பேர் வரை நீங்கள் ஆட் செய்யலாம்்</font>]]></string>
     <string name="maxContactInGroupErr">அதிகபட்சம் %1$s உறுப்பினர்களைச் சேர்க்க முடியும்</string>
     <string name="added_in_group">இந்த தொடர்பு நபர் ஏற்கெனவே ஒரு உறுப்பினராக இருக்கிறார்</string>
     <string name="watsapp">வாட்ஸ்-app வழியாக ஆட் செய்யும்</string>
@@ -1419,5 +1419,7 @@
     <string name="language_ftue_complete_message">தங்கள் கீபோர்ட் மொழியை மாற்ற \nசெட்டிங்க்ஸ் ->மொழி &amp; உள்ளீடு அழுத்தவும்</string>
     <string name="error_message_upgrade_peer">மன்னிக்கவம், தற்போது இணைக்க முடியவில்லை.தங்களது நண்பர் hike டைரெக்டில் புதிய hike வர்ஷன் அப்டேட் செய்யவில்லை</string>
     <string name="error_message_unsupported_peer">மன்னிக்கவம், இணைக்க முடியவில்லை.hike டைரக்ட்  தற்போது ஆண்ட்ராய்டு மொபைலுக்கு மட்டுமே வேலை செய்யும்</string>
+    <string name="switch_to_old_key">"உங்கள் பழைய கீபோர்டிற்கு மாறுங்கள்"</string>
+    <string name="switch_to_hike_key">"உங்கள் hike கீபோர்டிற்கு மாறுங்கள் "</string>
     
 </resources>
