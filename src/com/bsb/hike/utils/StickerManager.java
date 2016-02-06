@@ -192,7 +192,15 @@ public class StickerManager
 
 	public static final int PALLATE_ICON_SELECTED_TYPE = 1;
 
-	public static final int PREVIEW_IMAGE_TYPE = 2;
+	public static final int PREVIEW_IMAGE_SHOP_TYPE = 2;
+
+	public static final int PREVIEW_IMAGE_PALETTE_TYPE = 3;
+
+	public static final int PREVIEW_IMAGE_EMPTY_PALETTE_TYPE = 4;
+
+	public static final int PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE = 5;
+
+	public static final int PREVIEW_IMAGE_PACK_PREVIEW_PALETTE_TYPE =6;
 
 	public static final String OTHER_ICON_TYPE = ".png";
 
@@ -1345,7 +1353,7 @@ public class StickerManager
 
 	/**
 	 * Returns a category preview {@link Bitmap}
-	 * 
+	 *
 	 * @param ctx
 	 * @param categoryId
 	 * @param downloadIfNotFound
@@ -1369,7 +1377,11 @@ public class StickerManager
 			bitmap = HikeBitmapFactory.decodeFile(baseFilePath);
 			defaultIconResId = R.drawable.misc_sticker_placeholder_selected;
 			break;
-		case PREVIEW_IMAGE_TYPE:
+		case PREVIEW_IMAGE_EMPTY_PALETTE_TYPE:
+		case PREVIEW_IMAGE_SHOP_TYPE:
+		case PREVIEW_IMAGE_PALETTE_TYPE:
+		case PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE:
+		case PREVIEW_IMAGE_PACK_PREVIEW_PALETTE_TYPE:
 			baseFilePath += PREVIEW_IMAGE + OTHER_ICON_TYPE;
 			if (width <= 0 || height <= 0)
 			{
@@ -1396,8 +1408,12 @@ public class StickerManager
 					StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(categoryId);
 					stickerPalleteImageDownloadTask.execute();
 					break;
-				case PREVIEW_IMAGE_TYPE:
-					StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(categoryId);
+				case PREVIEW_IMAGE_EMPTY_PALETTE_TYPE:
+				case PREVIEW_IMAGE_SHOP_TYPE:
+				case PREVIEW_IMAGE_PALETTE_TYPE:
+				case PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE:
+				case PREVIEW_IMAGE_PACK_PREVIEW_PALETTE_TYPE:
+					StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(categoryId, type);
 					stickerPreviewImageDownloadTask.execute();
 					break;
 				default:
@@ -1725,7 +1741,7 @@ public class StickerManager
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
 
-		StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(stickerCategory.getCategoryId());
+		StickerPreviewImageDownloadTask stickerPreviewImageDownloadTask = new StickerPreviewImageDownloadTask(stickerCategory.getCategoryId(), StickerManager.PREVIEW_IMAGE_EMPTY_PALETTE_TYPE);
 		stickerPreviewImageDownloadTask.execute();
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
