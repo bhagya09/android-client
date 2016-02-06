@@ -46,8 +46,8 @@ public class StickerConstants
 		SIGNUP_UPGRADE(5, "ssu"),
 		SHOP(6, "ssp"),
 		TAGS(7, "st"),
-		SINGLE_TAG(8, "sit");
-		
+		SINGLE_TAG(8, "sit"),
+		CATEGORY_DETAIL(9, "scd");
 		private final int type;
 		private final String label;
 		

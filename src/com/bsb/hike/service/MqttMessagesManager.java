@@ -42,6 +42,7 @@ import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
@@ -2940,7 +2941,11 @@ public class MqttMessagesManager
 			String categoryId = data.getString(StickerManager.CATEGORY_ID);
 			int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 			int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
-			StickerManager.getInstance().updateStickerCategoryData(categoryId, true, stickerCount, categorySize);
+			String description  = data.optString(HikeConstants.DESCRIPTION, null);
+			JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
+			List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
+			String stickerListString = StickerManager.getInstance().getStringListString(stickerList);
+			StickerManager.getInstance().updateStickerCategoryData(categoryId, true, stickerCount, categorySize, description, stickerListString);
 		}
 		else if (HikeConstants.REMOVE_STICKER.equals(subType) || HikeConstants.REMOVE_CATEGORY.equals(subType))
 		{
@@ -2961,11 +2966,14 @@ public class MqttMessagesManager
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
+				JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
+
 				/*
 				 * We should not update updateAvailable field in this case
 				 */
-				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize);
-
+				List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
+				String stickerListString = StickerManager.getInstance().getStringListString(stickerList);
+				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
 				// Remove tags being used for sticker search w.r.t. deleted stickers here
 				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
 			}
@@ -3000,7 +3008,10 @@ public class MqttMessagesManager
 			int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 			int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
 			int position = data.optInt(HikeConstants.PALLETE_POSITION, -1);
-			
+			String description = data.optString(HikeConstants.DESCRIPTION, null);
+			JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
+			List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
+
 			/**
 			 * Creating the sticker object here
 			 */

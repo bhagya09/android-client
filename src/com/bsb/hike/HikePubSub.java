@@ -504,6 +504,10 @@ public class HikePubSub implements Runnable
 
 	public static final String LASTMSG_UPDATED ="lastMsgUpdated";
 
+	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS = "stickerCategoryDetailsDownloadSuccess";
+	
+	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE = "stickerCategoryDetailsDownloadFailure";
+	
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
