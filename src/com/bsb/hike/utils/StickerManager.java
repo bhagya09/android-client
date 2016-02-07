@@ -130,6 +130,8 @@ public class StickerManager
 
 	public static final String DELETE_DEFAULT_DOWNLOADED_EXPRESSIONS_STICKER = "delDefaultDownloadedExpressionsStickers";
 
+	public static final String UPGRADE_STICKER_CATEGORIES_TABLE = "updateStickerCategoriesTable";
+
 	public static final String HARCODED_STICKERS = "harcodedStickers";
 
 	public static final String STICKER_IDS = "stickerIds";
@@ -318,6 +320,14 @@ public class StickerManager
 		{
 			updateStickerFolderNames();
 			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
+		}
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			resetSignupUpgradeCallPreference();
+			resetStickerShopLastUpdateTime();
+			HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
+			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
 		}
 
 		setupStickerCategoryList(settings);
@@ -1323,6 +1333,7 @@ public class StickerManager
 		else if (DownloadType.NEW_CATEGORY.equals(downloadType))
 		{
 			Intent i = new Intent(StickerManager.STICKERS_DOWNLOADED);
+			i.putExtra(CATEGORY_ID, categoryId);
 			i.putExtra(StickerManager.STICKER_DATA_BUNDLE, b);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(i);
 		}
@@ -2655,12 +2666,10 @@ public class StickerManager
 
 		if (stickerIds != null && stickerIds.length > 0)
 		{
-			Logger.d("anubhav", "sticker ids : " + stickerIds);
 			stickerList = new ArrayList<>(stickerIds.length);
 			for (int i = 0; i < stickerIds.length; i++)
 			{
 				Sticker sticker = new Sticker(categoryId, stickerIds[i]);
-				Logger.d("anubhav", "adding to sticker list : " + sticker);
 				stickerList.add(sticker);
 			}
 		}
@@ -2673,4 +2682,9 @@ public class StickerManager
 		return getStickerListFromString(categoryId, stickerListString);
 	}
 
+	public String getMiniStickerKey(String stickerId, String categoryId)
+	{
+		stickerId = stickerId.substring(0, stickerId.indexOf("."));
+		return ("mini_" + categoryId + "_" + stickerId).toLowerCase();
+	}
 }

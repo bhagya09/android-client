@@ -8998,6 +8998,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return -1;
 	}
 
+	public void markAllCategoriesAsDownloaded()
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_DOWNLOADED, true);
+		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, null, null);
+	}
 
 	public String getStickerList(String categoryId)
 	{

@@ -310,6 +310,8 @@ public class HikeConstants
 	public static final String STICKER_IDS = "stIds";
 
 	public static final String STICKER = "stk";
+	
+	public static final String STICKER_CATEGORY_ID = "stickerCategoryId";
 
 	public static final String RESOLUTION_ID = "resId";
 

@@ -7868,4 +7868,9 @@ public class Utils
 		// Bound inside min/max size for disk cache.
 		return Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
 	}
+
+	public static int dpToPx(float dp)
+	{
+		return (int) (dp * Utils.densityMultiplier);
+	}
 }

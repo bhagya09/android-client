@@ -1,0 +1,561 @@
+package com.bsb.hike.modules.packPreview;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.tasks.FetchCategoryDetailsTask;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontButton;
+
+/**
+ * Created by anubhavgupta on 04/01/16.
+ */
+public class StickerPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener
+{
+
+	private static final String TAG = StickerPreviewFragment.class.getSimpleName();
+
+	private String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, HikePubSub.STICKER_DOWNLOADED };
+
+	private StickerOtherIconLoader stickerOtherIconLoader;
+
+	private String catId;
+
+	private StickerCategory stickerCategory;
+
+	private View loadingView, loadingFailed, headerDivider, categoryDetailsContainer;
+
+	private RecyclerView rvGrid;
+
+	private GridLayoutManager layoutManager;
+
+	private PackPreviewAdapter mAdapter;
+
+	private ImageView categoryIcon;
+
+	private CustomFontButton downloadBtn;
+
+	private TextView categoryName, categoryDetails, categoryDescription;
+
+	private View header, headerContainer;
+
+	private int NUM_COLUMNS;
+
+	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, downButtonMaxWidth, categoryDescriptionMaxHeight, topMarginForCenterVertical;
+
+	public StickerPreviewFragment()
+	{
+		stickerOtherIconLoader = new StickerOtherIconLoader(HikeMessengerApp.getInstance(), true);
+		NUM_COLUMNS = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
+	}
+
+	public static StickerPreviewFragment newInstance(String catId)
+	{
+		StickerPreviewFragment fragment = new StickerPreviewFragment();
+		Bundle args = new Bundle();
+		args.putString(HikeConstants.STICKER_CATEGORY_ID, catId);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		Bundle args = getArguments();
+		catId = args.getString(HikeConstants.STICKER_CATEGORY_ID);
+	}
+
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		View parent = inflater.inflate(R.layout.sticker_preview, container, false);
+		initView(parent);
+
+		header = LayoutInflater.from(getActivity()).inflate(R.layout.tap_text_header, container, false);
+		headerContainer = header.findViewById(R.id.tap_text_header_container);
+		return parent;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState)
+	{
+		super.onActivityCreated(savedInstanceState);
+		executeFetchCategoryDetailsTask(new FetchCategoryDetailsTask(catId));
+		registerListener();
+	}
+
+	@Override
+	public void onDestroy()
+	{
+        deRegisterListener();
+		super.onDestroy();
+	}
+
+	private void executeFetchCategoryDetailsTask(FetchCategoryDetailsTask fetchCategoryDetailsTask)
+	{
+		loadingView.setVisibility(View.VISIBLE);
+
+		if (Utils.isHoneycombOrHigher())
+		{
+			fetchCategoryDetailsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			fetchCategoryDetailsTask.execute();
+		}
+	}
+
+	protected void initView(View parent)
+	{
+		loadingView = parent.findViewById(R.id.loading);
+		loadingFailed = parent.findViewById(R.id.loading_failed);
+		loadingFailed.setOnClickListener(loadingFailedClickListener);
+		categoryIcon = (ImageView) parent.findViewById(R.id.category_icon);
+		downloadBtn = (CustomFontButton) parent.findViewById(R.id.download_btn);
+		categoryName = (TextView) parent.findViewById(R.id.category_name);
+		categoryDetails = (TextView) parent.findViewById(R.id.category_details);
+		categoryDescription = (TextView) parent.findViewById(R.id.description);
+		rvGrid = (RecyclerView) parent.findViewById(R.id.rvGrid);
+		headerDivider = parent.findViewById(R.id.header_divider);
+		categoryDetailsContainer = parent.findViewById(R.id.category_detail_container);
+	}
+
+	private void registerListener()
+	{
+        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+
+		IntentFilter filter = new IntentFilter(StickerManager.STICKER_PREVIEW_DOWNLOADED);
+		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.STICKERS_UPDATED);
+		filter.addAction(StickerManager.STICKERS_DOWNLOADED);
+		filter.addAction(StickerManager.STICKERS_FAILED);
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
+	}
+
+    private void deRegisterListener()
+    {
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+    }
+
+	private void setDetails()
+	{
+		stickerOtherIconLoader.loadImage(
+				StickerManager.getInstance().getCategoryOtherAssetLoaderKey(stickerCategory.getCategoryId(), StickerManager.PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE), categoryIcon);
+		if (stickerCategory.getTotalStickers() > 0)
+		{
+			categoryDetails.setVisibility(View.VISIBLE);
+			String detailsString = getActivity().getString(R.string.n_stickers, stickerCategory.getTotalStickers());
+			if (stickerCategory.getCategorySize() > 0)
+			{
+				detailsString += ", " + Utils.getSizeForDisplay(stickerCategory.getCategorySize());
+			}
+			categoryDetails.setText(detailsString);
+		}
+		else
+		{
+			categoryDetails.setVisibility(View.GONE);
+		}
+
+		if (TextUtils.isEmpty(stickerCategory.getDescription()))
+		{
+			categoryDescription.setVisibility(View.GONE);
+		}
+		else
+		{
+			categoryDescription.setText(stickerCategory.getDescription());
+		}
+		categoryName.setText(stickerCategory.getCategoryName());
+		downloadBtn.setOnClickListener(getDownloadButtonClickListener());
+
+		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
+		mAdapter = new PackPreviewAdapter(getActivity(), header);
+		rvGrid.setLayoutManager(layoutManager);
+		rvGrid.setAdapter(mAdapter);
+
+		layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup()
+		{
+			@Override
+			public int getSpanSize(int position)
+			{
+				if (position == 0 || position > stickerCategory.getAllStickers().size())
+				{
+					return NUM_COLUMNS;
+				}
+				else
+				{
+					return 1;
+				}
+			}
+		});
+
+		mAdapter.setStickerList(stickerCategory.getAllStickers());
+		mAdapter.notifyDataSetChanged();
+
+		rvGrid.addOnScrollListener(new PackPreviewFragmentScrollListener(NUM_COLUMNS, this));
+
+		setRvGridPadding();
+		layoutCategoryIcon(0);
+		calculateTopMarginForCenterVertical(0);
+		layoutCategoryDetails();
+		layoutCategoryDescription(0, PackPreviewFragmentScrollListener.SCROLL_DOWN);
+		layoutDownloadButton(0);
+		layoutHeaderDivider(0);
+
+		categoryDetailsContainerMaxHeight = Math.max(categoryDetailsContainerMaxHeight, categoryDetailsContainer.getHeight());
+		categoryDescriptionMaxHeight = Math.max(categoryDescriptionMaxHeight, categoryDescription.getHeight());
+	}
+
+	@Override
+	public void onVerticalScrolled(int dy, int scrollDirection)
+	{
+		if (dy < 0)
+		{
+			return;
+		}
+
+		Logger.d("gupta", "scrolled y : " + dy + " direction : " + scrollDirection);
+
+		layoutCategoryIcon(dy);
+		calculateTopMarginForCenterVertical(dy);
+		layoutCategoryDetails();
+		layoutCategoryDescription(dy, scrollDirection);
+		layoutDownloadButton(dy);
+		layoutHeaderDivider(dy);
+
+	}
+
+	private void setRvGridPadding()
+	{
+		int paddingTop = Utils.dpToPx(12) + Utils.dpToPx(128) + Utils.dpToPx(21) + Utils.dpToPx(2);
+		headerContainer.setPadding(0, paddingTop, 0, 0);
+	}
+
+	private void calculateTopMarginForCenterVertical(int scrolly)
+	{
+
+		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
+
+		int containerHeight = categoryIconParams.height;
+
+		int itemsTotalHeightMax = categoryName.getHeight() + categoryDetails.getHeight() + Utils.dpToPx(0.4f) + categoryDescription.getHeight() + Utils.dpToPx(9)
+				+ Utils.dpToPx(30) + Utils.dpToPx(10);
+
+		int itemsTotalHeightMin = categoryName.getHeight() + categoryDetails.getHeight() + Utils.dpToPx(0.4f);
+
+		topMarginForCenterVertical = Math.max(topMarginForCenterVertical, (containerHeight - itemsTotalHeightMax) / 2);
+
+		int minTopMarginForCenterVertical = (Utils.dpToPx(48) - itemsTotalHeightMin) / 2;
+
+		Logger.d(TAG, "max top margin for center vertical : " + topMarginForCenterVertical);
+
+		Logger.d(TAG, "min top margin for center vertical : " + minTopMarginForCenterVertical);
+
+		float minTranslation = -96 * Utils.densityMultiplier;
+		float scaleY = (Math.max(1 - (-scrolly / minTranslation), (float) minTopMarginForCenterVertical / topMarginForCenterVertical));
+
+		Logger.d(TAG, "scale y : " + scaleY);
+		RelativeLayout.LayoutParams categoryNameParams = (RelativeLayout.LayoutParams) categoryName.getLayoutParams();
+		categoryNameParams.topMargin = (int) (topMarginForCenterVertical * scaleY);
+		categoryName.setLayoutParams(categoryNameParams);
+	}
+
+	private void layoutCategoryIcon(int scrolly)
+	{
+		categoryIconMaxHeight = Utils.dpToPx(128);
+		categoryIconMaxWidth = Utils.dpToPx(128);
+
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
+		float minTranslation = -96 * Utils.densityMultiplier;
+		float scaleX = (Math.max(1 - (-scrolly / minTranslation), 48 / 128f));
+		float scaleY = (Math.max(1 - (-scrolly / minTranslation), 48 / 128f));
+		params.height = (int) (categoryIconMaxHeight * scaleY);
+		params.width = (int) (categoryIconMaxWidth * scaleX);
+		params.leftMargin = Utils.dpToPx(15);
+
+		categoryIcon.setLayoutParams(params);
+	}
+
+	private void layoutCategoryDetails()
+	{
+		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
+
+		RelativeLayout.LayoutParams categoryNameParams = (RelativeLayout.LayoutParams) categoryName.getLayoutParams();
+		categoryNameParams.rightMargin = Utils.dpToPx(14);
+		categoryNameParams.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
+		categoryName.setLayoutParams(categoryNameParams);
+
+		RelativeLayout.LayoutParams categoryDetailsParams = (RelativeLayout.LayoutParams) categoryDetails.getLayoutParams();
+		categoryDetailsParams.topMargin = categoryNameParams.topMargin + categoryName.getHeight() + Utils.dpToPx(0.4f);
+		categoryDetailsParams.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
+		categoryDetails.setLayoutParams(categoryDetailsParams);
+	}
+
+	private void layoutCategoryDescription(int scrolly, int scrollDirection)
+	{
+		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
+
+		categoryDescriptionMaxHeight = Math.max(categoryDescriptionMaxHeight, categoryDescription.getHeight());
+
+		RelativeLayout.LayoutParams categoryDetailsParams = (RelativeLayout.LayoutParams) categoryDetails.getLayoutParams();
+
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) categoryDescription.getLayoutParams();
+		params.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
+		params.topMargin = categoryDetailsParams.topMargin + categoryDetails.getHeight() + Math.max(Utils.dpToPx(9) - scrolly, 0);
+
+		float minTranslation = -96 * Utils.densityMultiplier;
+		float scaleY = Math.max(0, 1 - (-scrolly / minTranslation));
+		params.height = (int) (categoryDescriptionMaxHeight * scaleY);
+		categoryDescription.setLayoutParams(params);
+
+		if (scrollDirection == PackPreviewFragmentScrollListener.SCROLL_UP)
+		{
+			categoryDescription.setAlpha(Math.max(0, 0.5f - (-scrolly / minTranslation)));
+		}
+		else
+		{
+			categoryDescription.setAlpha(Math.min(1, 1 - (-scrolly / minTranslation)));
+		}
+
+	}
+
+	private void layoutDownloadButton(int scrolly)
+	{
+		float minTranslation = -96 * Utils.densityMultiplier;
+		downButtonMaxWidth = Utils.dpToPx(175);
+
+		RelativeLayout.LayoutParams categoryDescriptionLayoutParams = (RelativeLayout.LayoutParams) categoryDescription.getLayoutParams();
+		int topMargin = categoryDescriptionLayoutParams.topMargin + categoryDescriptionLayoutParams.height;
+
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) downloadBtn.getLayoutParams();
+		float scaleX = Math.max(1 - (-scrolly / minTranslation), 120 / 175f);
+		params.width = (int) (downButtonMaxWidth * scaleX);
+		params.height = Utils.dpToPx(30);
+		params.leftMargin = Utils.dpToPx(15) + Utils.dpToPx(128) + Utils.dpToPx(20) + Math.min(scrolly, Utils.getDeviceWidth() - Utils.dpToPx(180) - params.width);
+		params.rightMargin = Utils.dpToPx(16);
+		params.topMargin = Math.max(topMargin + Utils.dpToPx(10) - scrolly, categoryName.getTop());
+
+		downloadBtn.setLayoutParams(params);
+	}
+
+	private void layoutHeaderDivider(int scrolly)
+	{
+		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
+
+		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) headerDivider.getLayoutParams();
+		params.topMargin = categoryIconParams.height + Math.max(Utils.dpToPx(21) - scrolly, Utils.dpToPx(17));
+		headerDivider.setLayoutParams(params);
+
+	}
+
+	private View.OnClickListener loadingFailedClickListener = new View.OnClickListener()
+	{
+
+		@Override
+		public void onClick(View v)
+		{
+			executeFetchCategoryDetailsTask(new FetchCategoryDetailsTask(catId));
+		}
+	};
+
+	private View.OnClickListener getDownloadButtonClickListener()
+	{
+		return new View.OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				switch (stickerCategory.getState())
+				{
+				case StickerCategory.NONE:
+				case StickerCategory.DONE_SHOP_SETTINGS:
+				case StickerCategory.DONE:
+					if (stickerCategory.getDownloadedStickersCount() == 0)
+					{
+						StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
+						stickerPalleteImageDownloadTask.execute();
+						StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW,
+								StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance());
+					}
+					break;
+				case StickerCategory.UPDATE:
+				case StickerCategory.RETRY:
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW, HikeMessengerApp.getInstance());
+					break;
+				default:
+					break;
+				}
+
+				updateButtonState();
+				/**
+				 * This is done to remove the green dot for update available state. For a new category added on the fly from the server, the update available is set to true to show
+				 * a green indicator. To remove that, we are doing this.
+				 */
+				if (stickerCategory.isUpdateAvailable())
+				{
+					stickerCategory.setUpdateAvailable(false);
+				}
+			}
+		};
+	}
+
+	private void updateButtonState()
+	{
+		StickerCategory category = StickerManager.getInstance().getStickerCategoryMap().get(catId);
+		if (category != null)
+		{
+			stickerCategory = category;
+		}
+
+		switch (stickerCategory.getState())
+		{
+		case StickerCategory.NONE:
+		case StickerCategory.DONE_SHOP_SETTINGS:
+		case StickerCategory.DONE:
+			if (stickerCategory.getDownloadedStickersCount() == 0)
+			{
+				downloadBtn.setText(getResources().getString(R.string.download));
+			}
+			else
+			{
+				downloadBtn.setText(getResources().getString(R.string.downloaded));
+			}
+			break;
+		case StickerCategory.UPDATE:
+			downloadBtn.setText(getResources().getString(R.string.update_sticker));
+			break;
+		case StickerCategory.RETRY:
+			downloadBtn.setText(getResources().getString(R.string.retry));
+			break;
+		case StickerCategory.DOWNLOADING:
+			downloadBtn.setText(getResources().getString(R.string.downloading));
+			break;
+		}
+	}
+
+	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			if (!isAdded())
+			{
+				return;
+			}
+
+			switch (intent.getAction())
+			{
+			case StickerManager.MORE_STICKERS_DOWNLOADED:
+			case StickerManager.STICKERS_UPDATED:
+			case StickerManager.STICKERS_DOWNLOADED:
+				String categoryId = intent.getStringExtra(StickerManager.CATEGORY_ID);
+				if (categoryId.equalsIgnoreCase(catId))
+				{
+					updateButtonState();
+				}
+				break;
+			case StickerManager.STICKERS_FAILED:
+				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
+				categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
+				if (categoryId.equalsIgnoreCase(catId))
+				{
+					updateButtonState();
+				}
+				break;
+			case StickerManager.STICKER_PREVIEW_DOWNLOADED:
+				stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(catId, StickerManager.PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE),
+						categoryIcon);
+				break;
+			}
+		}
+	};
+
+	@Override
+	public void onEventReceived(String type, final Object object)
+	{
+		switch (type)
+		{
+		case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS:
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					stickerCategory = (StickerCategory) object;
+					setDetails();
+					updateButtonState();
+					loadingView.setVisibility(View.GONE);
+					loadingFailed.setVisibility(View.GONE);
+				}
+			});
+			break;
+		case HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE:
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+
+				@Override
+				public void run()
+				{
+					loadingView.setVisibility(View.GONE);
+					loadingFailed.setVisibility(View.VISIBLE);
+				}
+			});
+			break;
+		case HikePubSub.STICKER_DOWNLOADED:
+			if (!isAdded())
+			{
+				return;
+			}
+			getActivity().runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (mAdapter != null)
+					{
+						mAdapter.notifyDataSetChanged();
+					}
+				}
+			});
+		}
+	}
+}

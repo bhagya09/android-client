@@ -192,6 +192,17 @@ public class StickerShopAdapter extends CursorAdapter
 		viewholder.downloadState.setTag(category);
 	}
 	
+	@Override
+	public String getItem(int position)
+	{
+		Cursor cursor =  (Cursor) super.getItem(position);
+		if(cursor != null)
+		{
+			return cursor.getString(idColoumn);
+		}
+		return null;
+	}
+	
 
 	public StickerOtherIconLoader getStickerPreviewLoader()
 	{

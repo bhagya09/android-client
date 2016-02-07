@@ -41,10 +41,11 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerShopFragment extends Fragment implements OnScrollListener, Listener
+public class StickerShopFragment extends Fragment implements OnScrollListener, Listener, OnItemClickListener
 {
 	private String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE};
 
@@ -213,6 +214,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 		listview.setOnScrollListener(this);
 		listview.removeFooterView(loadingFooterView);
 		listview.removeFooterView(downloadFailedFooterView);
+		listview.setOnItemClickListener(this);
 		
 		downloadFailedFooterView.setOnClickListener(new OnClickListener()
 		{
@@ -546,6 +548,13 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	public void unregisterListeners()
 	{
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+	{
+		String categoryId = mAdapter.getItem(position - 1);
+		IntentFactory.startStickerPreviewIntent(getActivity(), categoryId);
 	}
 	
 }
