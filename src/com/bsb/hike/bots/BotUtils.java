@@ -458,7 +458,7 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
-                botInfo.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS);
+                botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
                 if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))

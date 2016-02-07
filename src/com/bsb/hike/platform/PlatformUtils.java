@@ -485,16 +485,9 @@ public class PlatformUtils
 			}
 		});
 
-		JSONObject cardObjectJson = assocMappJson.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-
-		if (cardObjectJson == null)
-		{
-			rqst.getListener().onEventOccured(0, PlatformContent.EventCode.INVALID_DATA);
-			return;
-		}
-
-		int	mAppPacketversionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
-		rqst.getContentData().cardObj.setMappVersionCode(mAppPacketversionCode);
+        // As this flow is there for MAPP flow, setting the request type to Hike Mapps
+        rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 
 		// Setting up parameters for downloadAndUnzip call
 		boolean isTemplatingEnabled = false;
@@ -548,11 +541,12 @@ public class PlatformUtils
 
 						if (isMicroAppExistForMappPacket(appName, version) && i == assocMappsCount - 1)
 						{
-							// Download micro app for non messaging bot
+                            assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+                            // Download micro app for non messaging bot
 							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
 						}
 
-						else //Download Assocciated mapp
+						else if (!isMicroAppExistForMappPacket(appName, version))//Download Associated mapp
 						{
 							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
 						}
@@ -639,7 +633,7 @@ public class PlatformUtils
 		}
 
 		rqst.setBotType(botInfo.getBotType());
-		rqst.getContentData().cardObj.setMappVersionCode(botInfo.getMAppVersionCode());
+		rqst.getContentData().cardObj.setmAppVersionCode(botInfo.getMAppVersionCode());
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
@@ -734,33 +728,6 @@ public class PlatformUtils
 		}
 
         final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
-
-        // Code to check if micro app already exists or not and make download micro app call if assoc map already exist
-        JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-		if (cardObjectJson != null)
-		{
-			final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
-			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
-
-			if (isMicroAppExistForMappPacket(appName, version))
-			{
-				PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
-				JSONObject jsonObject = new JSONObject();
-				try
-				{
-					jsonObject.put(HikePlatformConstants.ERROR_CODE, event.toString());
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-
-				microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
-				Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
-				return;
-			}
-		}
-
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
 			long fileLength = 0;
@@ -900,11 +867,30 @@ public class PlatformUtils
 	{
         // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
         String mAppName = request.getContentData().cardObj.getAppName();
-        int mAppVersionCode = request.getContentData().cardObj.getMappVersionCode();
+        int mAppVersionCode = request.getContentData().cardObj.getmAppVersionCode();
         byte botType = request.getBotType();
         String msisdn = request.getContentData().getMsisdn();
 
-		if (!PlatformUtils.isMicroAppExistForCbotPacket(mAppName,mAppVersionCode,msisdn,botType))
+        // Code to check if micro app already exists on device based on its bot type and code path structure
+		boolean isMicroAppExist = false;
+        switch (botType)
+        {
+            case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExist(mAppName, mAppVersionCode, msisdn, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExistForPopUps(mAppName, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.NATIVE_APPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExist(mAppName, mAppVersionCode, msisdn, botType);
+                break;
+            case HikePlatformConstants.PlatformBotType.HIKE_MAPPS:
+                isMicroAppExist = PlatformUtils.isMicroAppExistForMappPacket(mAppName, mAppVersionCode);
+                break;
+        }
+
+        // Code to check if micro app already does not exists, then download micro app code
+		if (!isMicroAppExist)
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
                     .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).createPlatformZipDownloader();
@@ -1670,8 +1656,8 @@ public class PlatformUtils
 		// Generate unzip path for the given request type
 		switch (botType)
 		{
-		case HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS:
-			unzipPath += microAppName + File.separator;
+		case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
+			unzipPath += PlatformContentConstants.HIKE_WEB_MICRO_APPS +microAppName + File.separator;
 			break;
 		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
@@ -2006,24 +1992,6 @@ public class PlatformUtils
 	}
 
     /*
-     * Method to determine if mapp sdk exists and compares its version code
-     */
-    public static boolean isMicroAppExistForMappPacket(String mAppName,int mAppVersionCode)
-    {
-        // Generate path for the old mapp directory
-        File unzipPath = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, mAppName);
-
-        int currentMappVersionCode = 0;
-        if(HikeMessengerApp.hikeSdkMap.containsKey(mAppName))
-            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(mAppName);
-        else
-            return false;
-
-        return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
-    }
-
-
-    /*
      * This method would check if assoc mapps required for this cbot are downloaded, then trigger the download of micro app
      */
     private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
@@ -2035,8 +2003,8 @@ public class PlatformUtils
 
             if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == 0)
             {
-                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
                 assocMappRequestStatusMap.remove(botInfo.getMsisdn());
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
             }
         }
     }
@@ -2044,7 +2012,7 @@ public class PlatformUtils
     /*
      * Method to determine if micro app already exists or not and compares its version code
      */
-    public static boolean isMicroAppExistForCbotPacket(String microAppName,int microAppVersionCode,String msisdn,byte botType)
+    public static boolean isMicroAppExist(String microAppName, int microAppVersionCode, String msisdn, byte botType)
     {
         // Generate path and check the case for the old micro app directory
         File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
@@ -2072,11 +2040,49 @@ public class PlatformUtils
         }
         catch (NullPointerException npe)
         {
-            Logger.e("PlatformZipDownloader isMicroAppExistForCbotPacket",npe.toString());
+            Logger.e("PlatformZipDownloader isMicroAppExist",npe.toString());
             npe.printStackTrace();
         }
 
         return false;
+    }
+
+    /*
+     * Method to determine if micro app already exists or not and compares its version code
+     */
+	public static boolean isMicroAppExistForPopUps(String microAppName, byte botType)
+	{
+		// Generate path and check the case for the old micro app directory code
+		File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+
+		// Generate path for versioning path and check the case for the new micro app directory code
+		String newMicroAppFolderUnzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+		newMicroAppFolderUnzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType, newMicroAppFolderUnzipPath, microAppName);
+
+        // First check in the older code path directory, then in the newer path else returns false
+		if (oldMicroAppFolder.exists())
+			return true;
+		else if (new File(newMicroAppFolderUnzipPath).exists())
+			return true;
+		else
+			return false;
+	}
+
+    /*
+    * Method to determine if mapp sdk exists and compares its version code
+    */
+    public static boolean isMicroAppExistForMappPacket(String mAppName,int mAppVersionCode)
+    {
+        // Generate path for the old mapp directory
+        File unzipPath = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, mAppName);
+
+        int currentMappVersionCode = 0;
+        if(HikeMessengerApp.hikeSdkMap.containsKey(mAppName))
+            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(mAppName);
+        else
+            return false;
+
+        return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
     }
 
 }

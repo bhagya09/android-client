@@ -1,22 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -120,6 +103,23 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * 
@@ -798,11 +798,11 @@ public class MqttMessagesManager
 
         //  Parameters to call if micro app already exists method for this case
         String mAppName = rqst.getContentData().cardObj.getAppName();
-        int mAppVersionCode = rqst.getContentData().cardObj.getMappVersionCode();
+        int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
         byte botType = rqst.getBotType();
         String msisdn = rqst.getContentData().getMsisdn();
 
-        if (!PlatformUtils.isMicroAppExistForCbotPacket(mAppName,mAppVersionCode,msisdn,botType))
+        if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
             downloader.downloadAndUnzip();
@@ -1996,6 +1996,7 @@ public class MqttMessagesManager
 				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
                 json.putOpt(AnalyticsConstants.PLATFORM_CONTENT_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false),PlatformContentConstants.PLATFORM_CONTENT_DIR).toString());
                 json.putOpt(AnalyticsConstants.HIKE_MICRO_APPS_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR  + PlatformContentConstants.HIKE_MICRO_APPS).toString());
+                json.putOpt(AnalyticsConstants.HIKE_WEB_MICRO_APPS_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR  + PlatformContentConstants.HIKE_MICRO_APPS  + PlatformContentConstants.HIKE_WEB_MICRO_APPS).toString());
                 json.putOpt(AnalyticsConstants.GAMES_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES).toString());
                 json.putOpt(AnalyticsConstants.MAPPS_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS).toString());
                 json.putOpt(AnalyticsConstants.POPUP_DIRECTORY,PlatformUtils.trimFilePath(PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS, false),PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS).toString());

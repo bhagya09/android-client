@@ -60,7 +60,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 
 		private String metadata, configData, notifData, helperData, botDescription;
 
-        private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
+        private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
 		protected InitBuilder(String msisdn)
 		{

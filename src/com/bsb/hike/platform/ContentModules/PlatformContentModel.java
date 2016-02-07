@@ -2,7 +2,6 @@ package com.bsb.hike.platform.ContentModules;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -54,11 +53,9 @@ public class PlatformContentModel
 
 	private static PlatformContentModel object = null;
 
-	private byte botType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
+	private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
 	private String msisdn = "";
-
-	private String botMsisdn = "";
 
 	/*
 	 * (non-Javadoc)
@@ -138,7 +135,7 @@ public class PlatformContentModel
 
                 // If files are not found in the older content directory path used before versioning , then look for files int the newer structured hierarchy directory path
                 if(!new File(PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath).isDirectory() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false))
-                    basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS, unzipPath, microApp);
+                    basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
@@ -309,16 +306,6 @@ public class PlatformContentModel
 	}
 
 	/**
-	 * Gets the version.
-	 *
-	 * @return the version
-	 */
-	public int getMappVersionCode()
-	{
-		return cardObj.mappVersionCode;
-	}
-
-	/**
 	 * Gets the content data.
 	 * 
 	 * @return the content data
@@ -433,16 +420,6 @@ public class PlatformContentModel
 		this.msisdn = msisdn;
 	}
 
-	public String getBotMsisdn()
-	{
-		return botMsisdn;
-	}
-
-	public void setBotMsisdn(String botMsisdn)
-	{
-		this.botMsisdn = botMsisdn;
-	}
-
 	public class PlatformCardObjectModel
 	{
 
@@ -466,14 +443,14 @@ public class PlatformContentModel
 			this.appVersion = appVersion;
 		}
 
-		public int getMappVersionCode()
+		public int getmAppVersionCode()
 		{
-			return mappVersionCode;
+			return mAppVersionCode;
 		}
 
-		public void setMappVersionCode(int mappVersionCode)
+		public void setmAppVersionCode(int mAppVersionCode)
 		{
-			this.mappVersionCode = mappVersionCode;
+			this.mAppVersionCode = mAppVersionCode;
 		}
 
 		public String getLayoutId()
@@ -566,16 +543,6 @@ public class PlatformContentModel
 			this.notifText = notifText;
 		}
 
-		public String getBotMsisdn()
-		{
-			return botMsisdn;
-		}
-
-		public void setBotMsisdn(String botMsisdn)
-		{
-			this.botMsisdn = botMsisdn;
-		}
-
 		@Expose
 		public String appName;
 
@@ -583,7 +550,7 @@ public class PlatformContentModel
 		public String appVersion;
 
 		@Expose
-		public int mappVersionCode;
+		public int mAppVersionCode;
 
 		@Expose
 		public String layoutId;
@@ -623,9 +590,6 @@ public class PlatformContentModel
 
 		@Expose
 		public String appMarketVersion;
-
-		@Expose
-		public String botMsisdn;
 
 		@Expose
 		public JsonArray lan_array;

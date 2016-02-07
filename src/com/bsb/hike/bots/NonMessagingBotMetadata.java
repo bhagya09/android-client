@@ -340,7 +340,7 @@ public class NonMessagingBotMetadata
         switch (nonMessagingBotType)
 		{
 		case HikePlatformConstants.MICROAPP_MODE:
-			return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + getAppName();
+			return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
 		case HikePlatformConstants.NATIVE_MODE:
             // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
             String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
@@ -355,7 +355,7 @@ public class NonMessagingBotMetadata
                 return PlatformContentConstants.PLATFORM_CONTENT_DIR + getAppName();
             }
 		default:
-            return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + getAppName();
+            return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
 		}
 
 	}

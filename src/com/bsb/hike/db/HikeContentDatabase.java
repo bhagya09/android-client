@@ -717,7 +717,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
             int mAppVersionCode = 0;
 
-            byte requestType = HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS;
+            byte requestType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
             if (botJSON.has(HikePlatformConstants.METADATA))
             {

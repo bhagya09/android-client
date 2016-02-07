@@ -17,6 +17,8 @@ public class PlatformContentConstants
 
 	public static final String HIKE_MICRO_APPS = "HikeMicroApps" + File.separator;
 
+    public static final String HIKE_WEB_MICRO_APPS = "WebMicroApps" + File.separator;
+
     public static final String HIKE_ONE_TIME_POPUPS = "OneTimePopups" + File.separator;
 
     public static final String HIKE_GAMES = "Games" + File.separator;

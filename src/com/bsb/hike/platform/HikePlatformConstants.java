@@ -289,7 +289,7 @@ public interface HikePlatformConstants
 
     public static final class PlatformBotType
     {
-        public static final byte HIKE_MICRO_APPS = 1;
+        public static final byte WEB_MICRO_APPS = 1;
 
         public static final byte ONE_TIME_POPUPS = 2;
 

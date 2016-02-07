@@ -373,7 +373,7 @@ public class PlatformZipDownloader
 		// To determine the path for unzipping zip files based on request type
 		switch (mRequest.getBotType())
 		{
-		case HikePlatformConstants.PlatformBotType.HIKE_MICRO_APPS:
+		case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
 			break;
 		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;

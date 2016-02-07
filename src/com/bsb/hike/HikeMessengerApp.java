@@ -1119,6 +1119,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
         Utils.makeNoMediaFile(folder, true);
 
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
         folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS);
         Utils.makeNoMediaFile(folder, true);
 

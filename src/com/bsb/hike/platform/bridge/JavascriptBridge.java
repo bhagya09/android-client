@@ -1,16 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -79,6 +68,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
 /**
@@ -1493,12 +1483,15 @@ public abstract class JavascriptBridge
         // Check for is Micro App exists in all of the directories path that are being used after the versioning release
 		File fileInMappsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + mapp);
         File fileInGamesDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileInHikeWebMicroAppsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
         File fileInHikeMicroAppsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + mapp);
         File fileInContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
 
         if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
         else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
             callbackToJS(id, "true");
         else if(fileInHikeMicroAppsDirectory.exists())
             callbackToJS(id, "true");
