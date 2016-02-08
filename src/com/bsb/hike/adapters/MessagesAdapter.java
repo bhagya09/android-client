@@ -117,6 +117,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -349,6 +350,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
+
+	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -1528,6 +1531,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					imageHolder.caption.setVisibility(View.VISIBLE);
 					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
 					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
+					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
 				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)

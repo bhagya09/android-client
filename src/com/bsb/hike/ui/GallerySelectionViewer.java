@@ -814,23 +814,10 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 			page.findViewById(R.id.caption_underline).setTag(TAG_CAPTION_LINE + position);
 
-            captionEt.addTextChangedListener(new TextWatcher() {
-				@Override
-				public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-				}
-
-				@Override
-				public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-				}
-
-				@Override
-				public void afterTextChanged(Editable editable) {
-					captions.put(position, editable.toString());
-				}
-			});
-			captionEt.addTextChangedListener(new EmoticonTextWatcher());
+			CaptionTextWatcher captionTextWatcher = new CaptionTextWatcher(position);
+			captionEt.removeTextChangedListener(captionTextWatcher);
+            captionEt.addTextChangedListener(captionTextWatcher);
+			captionEt.addTextChangedListener(emoticonTextWatcher);
 
 			captionEt.setOnLongClickListener(new View.OnLongClickListener()
 			{
@@ -854,6 +841,52 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			return galleryPagerImageLoader;
 		}
 	}
+
+	private class CaptionTextWatcher implements TextWatcher
+	{
+		private final int mPosition;
+
+		public CaptionTextWatcher(int position)
+		{
+			mPosition = position;
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+		}
+
+		@Override
+		public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+		}
+
+		@Override
+		public void afterTextChanged(Editable editable) {
+			captions.put(mPosition, editable.toString());
+		}
+
+		public int getPosition() {
+			return mPosition;
+		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if(o instanceof  CaptionTextWatcher)
+			{
+				CaptionTextWatcher incomingWatcher = (CaptionTextWatcher) o;
+				if(incomingWatcher.getPosition() == this.getPosition())
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+	}
+
+	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	private class GalleryPageLoaderRunnable implements Runnable
 	{
