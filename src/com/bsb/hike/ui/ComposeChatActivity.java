@@ -880,9 +880,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.added_in_broadcast : R.string.added_in_group));
 				return;
 			}
-			else if (adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
+			else if (this.composeMode == CREATE_GROUP_MODE && adapter.getSelectedContactCount()+1 >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
 			{
-				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.maxContactInBroadcastErr : R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				showToast(getString(R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				return;
+			}else if (this.composeMode == CREATE_BROADCAST_MODE &&  adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_BROADCAST && !adapter.isContactAdded(contactInfo))
+			{
+				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
 			}
 			// for SMS users, append SMS text with name
@@ -1039,10 +1043,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			invalidateOptionsMenu();
 		}
 		else
-		{
+        {
+			if (createGroup) {
+				multiSelectTitle.setText(getString(R.string.group_selected,
+						adapter.getCurrentSelection()));
+			} else {
+
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		}
+					}
+		 }
 	}
 
 	@Override
@@ -1063,8 +1073,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setupMultiSelectActionBar();
 			invalidateOptionsMenu();
 		}
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
+	    	multiSelectTitle.setText(getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+			}
 		}
 
 	@Override
@@ -1404,8 +1418,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		}
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);
@@ -1684,6 +1703,37 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONFIRM_FORWARD);
 				}
 				metadata.put(AnalyticsConstants.SELECTED_USER_COUNT_FWD, arrayList.size());
+
+				try
+				{
+					//Sending File Transfer analytics for bots.
+					if (BotUtils.isBot(presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN)))
+					{
+						JSONArray array = new JSONArray(presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT));
+						JSONObject msgObject;
+						for (int i = 0; i < array.length(); i++)
+						{
+							msgObject = array.getJSONObject(i);
+							{
+								if (msgObject.has(HikeConstants.Extras.FILE_KEY))
+								{
+									String fileKey = msgObject.getString(HikeConstants.Extras.FILE_KEY);
+									JSONObject json = new JSONObject();
+									json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+									json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_FORWARDED);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_1, msgObject.optString(HikeConstants.Extras.FILE_TYPE));
+									json.putOpt(AnalyticsConstants.BOT_MSISDN, presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN));
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.e("ComposeChatActivity", "Bot Content Error");
+				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
@@ -2975,7 +3025,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						{
 							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
 						}
-						else
+						else if (mCustomKeyboard != null)
 						{
 							mCustomKeyboard.showCustomKeyboard(searchET, true);
 						}	 						

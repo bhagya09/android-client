@@ -134,7 +134,7 @@ public class PlatformContentUtils
 		}
 	}
 
-	protected static String readDataFromFile(File file)
+	protected static String readDataFromFile(File file, PlatformContentCache.IExceptionHandler listener)
 	{
 
 		Logger.d("READING DATA FROM FILE: ", file.getAbsolutePath());
@@ -157,11 +157,19 @@ public class PlatformContentUtils
 		{
 			// Template not found
 			fnfe.printStackTrace();
+			if (listener != null)
+			{
+				listener.onExceptionOcurred(fnfe);
+			}
 		}
 		catch (IOException e)
 		{
 			// Template not found
 			e.printStackTrace();
+			if (listener != null)
+			{
+				listener.onExceptionOcurred(e);
+			}
 		}
 		finally
 		{
@@ -175,6 +183,10 @@ public class PlatformContentUtils
 			catch (IOException e)
 			{
 				e.printStackTrace();
+				if (listener != null)
+				{
+					listener.onExceptionOcurred(e);
+				}
 			}
 		}
 

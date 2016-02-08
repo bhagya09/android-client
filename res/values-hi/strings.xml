@@ -948,7 +948,7 @@
     <string name="pick_contact_zero">कम से कम एक संपर्क चुनें</string>
     <string name="choose_contact">संपर्क चुनें</string>
     <string name="voip_reconnecting">&#8230;पुन: कनेक्ट कर रहा है</string>
-    <string name="group_creation">ग्रुप निर्माण तिथि </string>
+    <string name="group_creation">ग्रुप निर्माण तिथि %1$s</string>
     <string name="ls_change_failed">आखिरी बार देखा समय का अपडेट फेल!</string>
     <string name="terms_conditions_hint">नियम व शर्तें</string>
     <string name="terms_conditions_title">टी एंड सी</string>
@@ -1420,6 +1420,8 @@
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
     <string name="delete_conversation">चैट हटायें</string>
-    
+    <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
+    <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
+
     
 </resources>

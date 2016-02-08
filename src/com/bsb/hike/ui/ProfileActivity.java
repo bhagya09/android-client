@@ -1099,12 +1099,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				long groupCreation = oneToNConversation.getCreationDateInLong();
 				if (groupCreation != -1l)
 					creation.setText(getResources().getString(
-							R.string.group_creation)
-							+ " "
-							+ OneToNConversationUtils
-									.getGroupCreationTimeAsString(
-											getApplicationContext(),
-											groupCreation));
+							R.string.group_creation, OneToNConversationUtils
+							.getGroupCreationTimeAsString(
+									getApplicationContext(),
+									groupCreation)));
 
 			}
 
@@ -2169,9 +2167,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onGroupNameEditClick(View v)
 	{
+		if(!showingGroupEdit){
 		View parent = (View) v.getParent();
 		initCustomKeyboard(parent);
 		setGroupNameFields(parent);
+		}
 	}
 	
 	public void onBlockGroupOwnerClicked(View v)

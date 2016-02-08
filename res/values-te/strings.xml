@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">కనీసం ఒక్క కాంటాక్ట్‌ను ఎంచుకోండి.</string>
     <string name="choose_contact">కాంటాక్ట్‌‌(లు) ఎంచుకోండి</string>
     <string name="voip_reconnecting">&#8230;తిరిగి కనెక్ట్ చేయబడుతోంది</string>
-    <string name="group_creation">నాడు సృష్టించబడింది </string>
+    <string name="group_creation">నాడు సృష్టించబడింది %1$s</string>
     <string name="ls_change_failed">చివరిగా చూసిన సమయాని అప్‌డేట్ విఫలమైంది</string>
     <string name="terms_conditions_hint">నియమాలు మరియు నిబంధనలు</string>
     <string name="terms_conditions_title">టీ &amp; సీ</string>
@@ -1421,4 +1421,6 @@
     <string name="error_message_upgrade_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. మీ స్నేహితుడు Hike డైరెక్ట్ ఉన్న లేటెస్ట్ Hike వెర్షన్ పై లేరు.</string>
     <string name="error_message_unsupported_peer">క్షమించండి. ఈ కనెక్షన్ పూర్తి అవ్వలేదు. Hike డైరెక్ట్ ఆండ్రాయిడ్ ఫోన్లలో మాత్రమే పని చేస్తుంది.</string>
     <string name="delete_conversation">సంభాషణ తొలగించండి</string>
+    <string name="switch_to_old_key">"మీ పాత కీబోర్డ్ కి మారండి "</string>
+    <string name="switch_to_hike_key">"hike కీబోర్డ్ కి మారండి"</string>
 </resources>

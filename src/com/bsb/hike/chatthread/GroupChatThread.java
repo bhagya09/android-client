@@ -195,7 +195,7 @@ public class GroupChatThread extends OneToNChatThread
 	{
 		return new String[] { HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.LATEST_PIN_DELETED, HikePubSub.CONV_META_DATA_UPDATED,
 				HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.CONVERSATION_REVIVED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV,
-				HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END };
+				HikePubSub.PARTICIPANT_JOINED_SYSTEM_MESSAGE, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.UPDATE_MEMBER_COUNT };
 	}
 
 	private List<OverFlowMenuItem> getOverFlowItems()
@@ -334,6 +334,16 @@ public class GroupChatThread extends OneToNChatThread
 		case HikePubSub.GROUP_END:
 			if (msisdn.equals(((JSONObject) object).optString(HikeConstants.TO)))
 				uiHandler.sendEmptyMessage(GROUP_END);
+			break;
+		case HikePubSub.UPDATE_MEMBER_COUNT:
+			activity.runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					showActiveConversationMemberCount();
+				}
+			});
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToNChatThread. Calling super class' onEventReceived");

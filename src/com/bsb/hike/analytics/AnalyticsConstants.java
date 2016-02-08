@@ -15,6 +15,8 @@ public class AnalyticsConstants
 
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
+	public static final Object MICRO_APP_LOADED ="microAppLoaded";
+	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -212,7 +214,9 @@ public class AnalyticsConstants
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
-		
+	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
+	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
@@ -563,6 +567,14 @@ public class AnalyticsConstants
 	
 	public static final String BOT_NOTIF_TRACKER = "bno";
 	
+	public static final String BOT_OPEN_SOURCE_DISC = "bot_discovery";
+	
+	public static final String BOT_OPEN_SOURCE_NOTIF = "bot_notif";
+	
+	public static final String BOT_OPEN_SOURCE_SHORTCUT = "bot_shortcut";
+	
+	public static final String BOT_OPEN_SOURCE = "bot_source";
+	
 	public static final String BOT_DISCOVERY = "bd";
 	
 	public static final String DISCOVERY_BOT_DOWNLOAD = "dbd";
@@ -576,6 +588,8 @@ public class AnalyticsConstants
 	public static final String EVENT = "event";
 
 	public static final String LOG_FIELD_1 = "fld1";
+
+	public static final String LOG_FIELD_2 = "fld2";
 
 	public static final String LOG_FIELD_4 = "fld4";
 	

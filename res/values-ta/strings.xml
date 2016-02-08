@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">தயவுசெய்து குறைந்தது ஒரு தொடர்பையாவது தேர்ந்தெடுக்கவும்</string>
     <string name="choose_contact">தொடர்பு(களைத்) தேர்ந்தெடுக்கவும்</string>
     <string name="voip_reconnecting">…மறுபடியும் இணைக்கிறது</string>
-    <string name="group_creation">உருவாக்கிய தேதி </string>
+    <string name="group_creation">உருவாக்கிய தேதி %1$s</string>
     <string name="ls_change_failed">‘கடைசியாகப் பார்த்தது’ அப்டேட் தோல்வியடைந்து விட்டது!</string>
     <string name="terms_conditions_hint">விதிகள் மற்றும் நிபந்தனைகள்</string>
     <string name="terms_conditions_title">டி &amp; சி</string>
@@ -1420,4 +1420,7 @@
     <string name="error_message_upgrade_peer">மன்னிக்கவம், தற்போது இணைக்க முடியவில்லை.தங்களது நண்பர் hike டைரெக்டில் புதிய hike வர்ஷன் அப்டேட் செய்யவில்லை</string>
     <string name="error_message_unsupported_peer">மன்னிக்கவம், இணைக்க முடியவில்லை.hike டைரக்ட்  தற்போது ஆண்ட்ராய்டு மொபைலுக்கு மட்டுமே வேலை செய்யும்</string>
      <string name="delete_conversation">உரையாடலை அழிக்கவும்</string>
+    <string name="switch_to_old_key">"உங்கள் பழைய கீபோர்டிற்கு மாறுங்கள்"</string>
+    <string name="switch_to_hike_key">"உங்கள் hike கீபோர்டிற்கு மாறுங்கள் "</string>
+    
 </resources>

@@ -954,7 +954,7 @@
     <string name="pick_contact_zero">ದಯವಿಟ್ಟು ಕನಿಷ್ಠ ಒಂದು ಸಂಪರ್ಕವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="choose_contact">ಸಂಪರ್ಕ(ಗಳನ್ನು) ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="voip_reconnecting">…ಮರು ಸಂಪರ್ಕಗೊಳಿಸಲಾಗುತ್ತಿದೆ</string>
-    <string name="group_creation">ರಚಿಸಲಾಗಿದೆ </string>
+    <string name="group_creation">ರಚಿಸಲಾಗಿದೆ %1$s</string>
     <string name="ls_change_failed">ಕೊನೆಯದಾಗಿ ನೋಡಿದ ಅಪ್‌ಡೇಟ್ ವಿಫಲವಾಗಿದೆ!</string>
     <string name="terms_conditions_hint">ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು</string>
     <string name="terms_conditions_title">ಷರತ್ತು ಮತ್ತು ನಿಯಮಗಳು</string>
@@ -1428,4 +1428,6 @@
     <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
     <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
     <string name="delete_conversation">ಸಂವಾದವನ್ನು ಅಳಿಸುి</string>
+    <string name="switch_to_old_key">"ನಿಮ್ಮ ಹಳೆಯ ಕೀಬೋರ್ಡ್ ಗೆ ಬದಲಾಯಿಸಿ"</string>
+    <string name="switch_to_hike_key">"ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ hikeಗೆ ಬದಲಾಯಿಸಿ"</string>
 </resources>

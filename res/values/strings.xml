@@ -963,7 +963,7 @@
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="voip_reconnecting">&#8230;RECONNECTING</string>
-    <string name="group_creation">Created on </string>
+    <string name="group_creation">Created on %1$s</string>
     <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
@@ -1027,6 +1027,7 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
+	<string name="you_added_as_group_member">%1$s added you</string>
 	<string name="group_member_added">%1$s added %2$s</string>
 	<string name="you_group_member_added">You added %1$s</string>
 	<string name="num_members">%1$d members</string>
@@ -1223,7 +1224,6 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
-    <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
     <string name="watsapp">Add via WhatsApp</string>
@@ -1487,6 +1487,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
+    <string name="group_selected">%1$s/1000 selected</string>		
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
@@ -1506,4 +1508,6 @@
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
     <string name="admin_error">This user is no more a participant of this group</string>
+    <string name="switch_to_old_key">Switch to your old keyboard</string>
+    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>
