@@ -33,7 +33,7 @@
             android:layout_alignParentBottom="true"
             android:background="@color/transparent"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="invisible">
 
 
             <com.bsb.hike.view.CustomFontTextView
