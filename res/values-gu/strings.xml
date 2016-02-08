@@ -1175,7 +1175,7 @@
     <string name="timeline_transition_anim">timeline_image_transit (ટાઈમલાઈન_છબી_ ટ્રાન્ઝીટ)</string>
     <string name="home_overflow_new_photo">નવો ફોટો</string>
     <string name="upgrade_for_larger_files">આ ફાઈલ પ્રાપ્ત કરવા માટે %1$s એ અપગ્રેડ કરવાની જરૂર છે. Hike ડાયરેક્ટ મારફતે હવે Hike ની અદ્યતન  આવૃત્તિ શેર કરો</string>
-    <string name="group_participant_info">તમે એક ગ્રુપમાં 500 સભ્યો સુધી ઉમેરી શકો છો</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">હવે તમે </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> સભ્યો સુધી ઉમેરી શકો છો</font>]]></string>
     <string name="maxContactInGroupErr">વધુમાં વધુ %1$s સભ્યો ઉમેરી શકાય છે</string>
     <string name="added_in_group">આ સંપર્ક પહેલેથી જ સભ્ય છે</string>
     <string name="watsapp">WhatsApp મારફતે ઉમેરો</string>
@@ -1395,4 +1395,6 @@
     <string name="language_ftue_complete_message">તમે તમારી કીબોર્ડ ભાષા \nસેટ્ટિંગ્સ -> ભાષા અને ઈનપુટ થી ગમે ત્યારે બદલી શકો ચો</string>
     <string name="error_message_upgrade_peer">કનેક્ટ કરવામાં અક્ષમ. તમારા મિત્ર Hike ડાયરેક્ટ સાથે તાજેતરની આવૃત્તિ પર નથી.</string>
     <string name="error_message_unsupported_peer">કનેક્ટ કરવામાં અક્ષમ. Hike ડાયરેક્ટ હવે માત્ર અન્દ્રોઇદ ફોન્સ સાથે કામ કરે છે.</string>
+    <string name="switch_to_old_key">"જૂનું કીબોર્ડ વાપરો"</string>
+    <string name="switch_to_hike_key">"hike કીબોર્ડ વાપરો"</string>
 </resources>

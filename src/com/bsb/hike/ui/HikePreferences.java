@@ -576,11 +576,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		View backContainer = findViewById(R.id.back);
 		TextView title = (TextView) findViewById(R.id.title);
 		title.setText(titleRes);
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
+		backContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
