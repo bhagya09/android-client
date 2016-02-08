@@ -2961,6 +2961,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					{
 						if(!contactInfo.isOnhike()){
 							Toast.makeText(ProfileActivity.this, getResources().getString(R.string.sms_admin_toast), Toast.LENGTH_SHORT).show();
+						}else if(!participantMap.containsKey(contactInfo.getMsisdn())){
+							Toast.makeText(ProfileActivity.this, getResources().getString(R.string.admin_error), Toast.LENGTH_SHORT).show();
 						}else{
 					    	makeAdmin(oneToNConversation.getMsisdn(),contactInfo.getMsisdn());
 						}
