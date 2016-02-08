@@ -339,6 +339,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			deviceDetailsSent = savedInstanceState.getBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT);
 			imagesToShare = savedInstanceState.getStringArrayList(IMAGES_TO_SHARE);
 			messageToShare = savedInstanceState.getString(MSG_TO_SHARE);
+
+			if(!Utils.isEmpty(imagesToShare) || !TextUtils.isEmpty(messageToShare))
+			{
+				allImages = true;
+			}
 		}
 		
 		if (!shouldInitiateFileTransfer())
@@ -418,8 +423,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
 
 						if(TextUtils.isEmpty(messageToShare))
-						startActivityForResult(multiIntent,GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
-
+						{
+							allImages = true;
+							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+						}
 						//Got images to share
 						//Keep references to images (these will need to be shared via hike features (timeline,etc)
 						for(GalleryItem item:selectedImages)
@@ -436,8 +443,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					ArrayList<Uri> imageUris = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(imageUris);
 					if ((selectedImages != null)) {
+						allImages = true;
 						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
-
 						startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						// Got images to share
 						// Keep references to images (these will need to be shared via hike features (timeline,etc)
