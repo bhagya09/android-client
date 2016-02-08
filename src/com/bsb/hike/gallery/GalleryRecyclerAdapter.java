@@ -86,6 +86,7 @@ public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 			if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
+				holder.contentLayout.removeAllViews();
 				holder.contentLayout.addView(LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(
 						Utils.getLayoutIdFromName(galleryItem.getLayoutIDName()), null));
 				holder.contentLayout.setVisibility(View.VISIBLE);
