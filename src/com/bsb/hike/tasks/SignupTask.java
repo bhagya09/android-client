@@ -43,6 +43,7 @@ import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
@@ -489,7 +490,19 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			ContactManager conMgr = ContactManager.getInstance();
-			List<ContactInfo> contactinfos = conMgr.getContacts(this.context);
+			List<ContactInfo> contactinfos = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			{
+				contactinfos = conMgr.getContacts(this.context);
+			}
+			else
+			{
+				contactinfos = conMgr.getContactsOld(this.context);
+			}
+			if(contactinfos == null)
+			{
+				return Boolean.FALSE;
+			}
 			conMgr.setGreenBlueStatus(this.context, contactinfos);
 			
 			try

@@ -2701,6 +2701,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+		if (data.has(HikeConstants.ENABLE_AB_SYNC_CHANGE))
+		{
+			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_CHANGE, enableABSyncChange);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2725,7 +2731,19 @@ public class MqttMessagesManager
 		if (data.optBoolean(HikeConstants.POST_AB))
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-			List<ContactInfo> contactinfos = ContactManager.getInstance().getContacts(this.context);
+			List<ContactInfo> contactinfos = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			{
+				contactinfos = ContactManager.getInstance().getContacts(this.context);
+			}
+			else
+			{
+				contactinfos = ContactManager.getInstance().getContactsOld(this.context);
+			}
+			if(contactinfos == null)
+			{
+				return;
+			}
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
