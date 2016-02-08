@@ -300,10 +300,6 @@ public class FileUploadRequest extends Request<JSONObject>
 		{
 			Logger.e(getClass().getSimpleName(), "NumberFormatException while getting bytes uploaded from server : ", ex);
 		}
-		catch (Exception ex)
-		{
-			Logger.e(getClass().getSimpleName(), "exception while getting bytes uploaded from server : ", ex);
-		}
 		return bytesUploaded;
 	}
 

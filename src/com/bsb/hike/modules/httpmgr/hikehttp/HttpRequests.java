@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -1041,6 +1042,7 @@ public class HttpRequests
 				.setFile(destFilePath)
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setId(String.valueOf(msgId))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.build();
 		return token;
 	}
@@ -1054,6 +1056,7 @@ public class HttpRequests
 				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.setFile(filePath)
 				.build();
 
@@ -1069,7 +1072,7 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
 		return requestToken;
 	}
@@ -1082,7 +1085,7 @@ public class HttpRequests
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
 		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;
