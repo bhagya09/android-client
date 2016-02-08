@@ -162,6 +162,7 @@ public class MultipleConvMessage
 	
 	public void sendPubSubForConvScreenMultiMessage()
 	{
+
 		List<ConvMessage> convMessages = getMessageList();
 		long baseId = ((ConvMessage)convMessages.get(0)).getMsgID();
 		int totalMessages = convMessages.size();
@@ -171,6 +172,8 @@ public class MultipleConvMessage
 		int totalRecipient = recipient.size();
 		List<Pair<ContactInfo, ConvMessage>> allPairs = new ArrayList<Pair<ContactInfo,ConvMessage>>(totalRecipient);
 		long timestamp = getTimeStamp();
+		Logger.d("productpopup","timeStamp is "+timestamp);
+
 		for(int i=0;i<totalRecipient;i++)
 		{
 			ConvMessage message = new ConvMessage(lastMessage);
@@ -181,7 +184,9 @@ public class MultipleConvMessage
 			Pair<ContactInfo, ConvMessage> pair = new Pair<ContactInfo, ConvMessage>(contactInfo, message);
 			allPairs.add(pair);
 		}
+		Logger.d("productpopup","final timestamp "+timestamp);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_DB_INSERTED, allPairs);
+
 	}
 	
 }

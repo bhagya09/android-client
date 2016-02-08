@@ -322,6 +322,13 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	}
 
 	@Override
+	protected void showOverflowTip(int stringResId)
+	{
+		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
+			super.showOverflowTip(stringResId);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -1662,17 +1669,18 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 		case NOT_CONNECTED:
 		case DISCONNECTED:
 			Logger.d("OfflineAnimationFragment", msisdn);
-			OfflineUtils.sendOfflineRequestPacket(msisdn);
 			if (shouldShowLocationDialog())
 			{
 				showLocationDialog();
 			}
 			else
 			{
+				OfflineUtils.sendOfflineRequestPacket(msisdn);
 				offlineController.connectAsPerMsisdn(msisdn);
 				setupOfflineUI();
 				if (showAnimation)
 				{
+
 					startFreeHikeAnimation();
 				}
 			}
@@ -2309,7 +2317,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	 * Used for scheduling the H20 Tip after sending a message
 	 * 
 	 */
-	private void scheduleH20Tip()
+	public void scheduleH20Tip()
 	{
 		/**
 		 * If the msisdn is international, then don't show tip
@@ -3347,6 +3355,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			if(offlineAnimationFragment!=null)
