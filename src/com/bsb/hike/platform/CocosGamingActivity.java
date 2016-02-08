@@ -167,10 +167,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						e.printStackTrace();
 					}
                     String appName = json.optString(HikeConstants.NAME);
-                    cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + "/libcocos2d.so";
+                    cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
 				}
 			}
-			cocosGamePath = getAppBasePath() + "libcocos2dcpp.so";
+			cocosGamePath = getAppBasePath()  + PlatformContentConstants.GAME_SO_FILE;
 		}
 
 		loadSoFile(cocosEnginePath, true);

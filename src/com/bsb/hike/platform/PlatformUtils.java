@@ -628,7 +628,8 @@ public class PlatformUtils
 		// Stop the flow and return from here in case any exception occurred and contentData becomes null
 		if (rqst.getContentData() == null)
 		{
-			Logger.e(TAG, "Stop the micro app download flow for incorrect request");
+            invalidDataBotAnalytics(botInfo);
+            Logger.e(TAG, "Stop the micro app download flow for incorrect request");
 			return;
 		}
 
@@ -2085,4 +2086,23 @@ public class PlatformUtils
         return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
     }
 
+    /*
+    * Method to add analytics event to consider this micro app download as failure because of invalid data
+    */
+    public static void invalidDataBotAnalytics(BotInfo botInfo) {
+        // Added analytics event to consider this micro app download as failure because of invalid data
+        PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
+        Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+        JSONObject json = new JSONObject();
+        try
+        {
+            json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+            PlatformUtils.createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+            PlatformUtils.createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }

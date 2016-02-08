@@ -25,6 +25,10 @@ public class PlatformContentConstants
 
     public static final String HIKE_MAPPS = "mApps" + File.separator;
 
+    public static final String GAME_ENGINE_SO_FILE = "/libcocos2d.so";
+
+    public static final String GAME_SO_FILE = "libcocos2dcpp.so";
+
 	public static String PLATFORM_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;
 
     public static final String KEY_TEMPLATE_PATH = "basePath";
