@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -47,6 +48,7 @@ import com.bsb.hike.ui.fragments.PhotoActionsFragment;
 import com.bsb.hike.ui.fragments.PhotoActionsFragment.ActionListener;
 import com.bsb.hike.ui.fragments.PreviewFragment;
 import com.bsb.hike.ui.fragments.ProfilePicFragment;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -214,6 +216,7 @@ public class PictureEditer extends HikeAppStateBaseFragmentActivity
 			startedForProfileUpdate = intent.getBooleanExtra(HikeConstants.HikePhotos.ONLY_PROFILE_UPDATE, false);
 		}
 
+		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 		setupActionBar();
 
 		// We need to create a single destination copy
