@@ -965,7 +965,7 @@
     <string name="pick_contact_zero">Please select minimum one contact</string>
     <string name="choose_contact">Choose Contact(s)</string>
     <string name="voip_reconnecting">&#8230;RECONNECTING</string>
-    <string name="group_creation">Created on </string>
+    <string name="group_creation">Created on %1$s</string>
     <string name="ls_change_failed">Last Seen update failed!</string>
     <string name="terms_conditions_hint">Terms and Conditions</string>
     <string name="terms_conditions_title">T &amp; C</string>
@@ -1029,6 +1029,7 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
+	<string name="you_added_as_group_member">%1$s added you</string>
 	<string name="group_member_added">%1$s added %2$s</string>
 	<string name="you_group_member_added">You added %1$s</string>
 	<string name="num_members">%1$d members</string>

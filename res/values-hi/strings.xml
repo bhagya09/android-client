@@ -948,7 +948,7 @@
     <string name="pick_contact_zero">कम से कम एक संपर्क चुनें</string>
     <string name="choose_contact">संपर्क चुनें</string>
     <string name="voip_reconnecting">&#8230;पुन: कनेक्ट कर रहा है</string>
-    <string name="group_creation">ग्रुप निर्माण तिथि </string>
+    <string name="group_creation">ग्रुप निर्माण तिथि %1$s</string>
     <string name="ls_change_failed">आखिरी बार देखा समय का अपडेट फेल!</string>
     <string name="terms_conditions_hint">नियम व शर्तें</string>
     <string name="terms_conditions_title">टी एंड सी</string>
