@@ -1419,5 +1419,5 @@
     <string name="language_ftue_complete_message">தங்கள் கீபோர்ட் மொழியை மாற்ற \nசெட்டிங்க்ஸ் ->மொழி &amp; உள்ளீடு அழுத்தவும்</string>
     <string name="error_message_upgrade_peer">மன்னிக்கவம், தற்போது இணைக்க முடியவில்லை.தங்களது நண்பர் hike டைரெக்டில் புதிய hike வர்ஷன் அப்டேட் செய்யவில்லை</string>
     <string name="error_message_unsupported_peer">மன்னிக்கவம், இணைக்க முடியவில்லை.hike டைரக்ட்  தற்போது ஆண்ட்ராய்டு மொபைலுக்கு மட்டுமே வேலை செய்யும்</string>
-    
+     <string name="delete_conversation">உரையாடலை அழிக்கவும்</string>
 </resources>

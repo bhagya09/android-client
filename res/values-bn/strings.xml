@@ -1430,5 +1430,5 @@
     <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
     <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
     <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
-    
+    <string name="delete_conversation">বার্তালাপ মুছুন</string>
 </resources>

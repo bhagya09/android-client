@@ -1419,5 +1419,5 @@
     <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
     <string name="error_message_upgrade_peer">ഓക്കേ/സഹായംക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. നിങളുടെ സുഹൃത്ത്‌ hike ഡയറക്റ്റ് ഉള്ള hike-ന്റെ പുതിയ വെർഷനിൽ അല്ല.</string>
     <string name="error_message_unsupported_peer">ക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. hike ഡയറക്റ്റ് ആൻഡ്രോയ്ഡിൽ മാത്രമേ ലഭിക്കുകയുള്ളൂ.</string>
-    
+    <string name="delete_conversation">സംഭാഷണങ്ങള്‍ ഇല്ലാതാക്കുക</string>
 </resources>
