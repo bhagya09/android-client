@@ -65,6 +65,8 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	public static final String FIXED_ASPECT_RATIO = "FixAspRatio";
 
+	private final String INTERIM_IMG_PATH = "InterimImgPath";
+
 	private String mSrcImagePath, mCropImagePath;
 
 	private HikeCropFragment mCropFragment;
@@ -82,6 +84,8 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	private ImageView doneImageView;
 
 	private TextView doneText;
+
+	private String mInterimImagePath;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -123,6 +127,15 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 				{
 					mCropCompression = (CropCompression) parcelable;
 				}
+			}
+		}
+
+		if(savedInstanceState != null)
+		{
+			mInterimImagePath = savedInstanceState.getString(INTERIM_IMG_PATH,null);
+			if(!android.text.TextUtils.isEmpty(mInterimImagePath))
+			{
+				mSrcImagePath = mInterimImagePath;
 			}
 		}
 
@@ -238,6 +251,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			{
 				mCropFragment.setSourceImagePath(mCropImagePath);
 				mCropFragment.loadBitmap();
+				mInterimImagePath = mCropImagePath;
 			}
 		}
 		catch (IOException e)
@@ -257,5 +271,11 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putString(INTERIM_IMG_PATH , mInterimImagePath);
+		super.onSaveInstanceState(outState);
 	}
 }
