@@ -1463,13 +1463,245 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public byte syncUpdates(Context ctx)
 	{
-		List<ContactInfo> newContacts = getContacts(ctx);
+		List<ContactInfo> newContacts = null;
+		byte result = SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		{
+			newContacts = getContacts(ctx);
+		}
+		else
+		{
+			newContacts = getContactsOld(ctx);
+		}
 		if (newContacts == null)
 		{
-			return SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
+			return result;
 		}
 
-		return syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		{
+			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
+		}
+		else
+		{
+			result = syncUpdatesOld(newContacts, transientCache.getAllContactsForSyncing());
+		}
+		return result;
+	}
+
+	/**
+	 * Sync Updates **Deprecated**
+	 * @deprecated
+	 * @param ctx
+	 */
+	public byte syncUpdatesOld(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
+	{
+		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(deviceContacts);
+		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeContacts);
+
+		/*
+		 * iterate over every item in the phone db, items that are equal remove from both maps items that are different, leave in 'new' map and remove from 'hike' map send the
+		 * 'new' map as items to add, and send the 'hike' map as IDs to remove
+		 */
+		Map.Entry<String, List<ContactInfo>> entry = null;
+		Set<String> msisdns = new HashSet<String>();
+		for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = new_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
+		{
+			entry = iterator.next();
+			String id = entry.getKey();
+			List<ContactInfo> contacts_for_id = entry.getValue();
+			List<ContactInfo> hike_contacts_for_id = hike_contacts_by_id.get(id);
+
+			/*
+			 * If id is not present in hike user DB i.e new contact is added to Phone AddressBook. When the items are the same, we remove the item @ the current iterator. This will
+			 * result in the item *not* being sent to the server
+			 */
+			if (hike_contacts_for_id == null)
+			{
+				continue;
+			}
+			else if (areListsEqual(contacts_for_id, hike_contacts_for_id))
+			{
+				/* hike db is up to date, so don't send update */
+				iterator.remove();
+				hike_contacts_by_id.remove(id);
+				for (ContactInfo con : hike_contacts_for_id)
+				{
+					msisdns.add(con.getMsisdn());
+				}
+				continue;
+			}
+			/* item is different than our db, so send an update */
+			for (ContactInfo con : hike_contacts_for_id)
+			{
+				msisdns.add(con.getMsisdn());
+			}
+			hike_contacts_by_id.remove(id);
+		}
+
+		/*
+		 * Google contact ids changes randomly for some contacts in addressbook which causes unnecessary http calls to the server.
+		 * 
+		 * If a contact id of a contact changes from "prev" to "curr" then we make a call to delete "prev" and add "curr".
+		 * 
+		 * To reduce these types of http requests , we are checking for equality of name and number also in following logic and removing these entries to be added and deleted if
+		 * contact name and number are same even if there ids have changed
+		 */
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CONTACT_REMOVE_DUPLICATES_WHILE_SYNCING, true))
+		{
+			Logger.d("ContactUtils", "New contacts :" + new_contacts_by_id.size() + "  deleted contacts : " + hike_contacts_by_id.size() + "  before removing duplicates");
+			Logger.d("ContactUtils", "New contacts Details before removing duplicates :" + new_contacts_by_id);
+			Logger.d("ContactUtils", "Deleted contacts Details before removing duplicates : " + hike_contacts_by_id);
+
+			HashSet<String> hikeContactsSet = new HashSet<String>();
+			for (Entry<String, List<ContactInfo>> en : hike_contacts_by_id.entrySet())
+			{
+				List<ContactInfo> contactsList = en.getValue();
+				for (ContactInfo contact : contactsList)
+				{
+					hikeContactsSet.add(contact.getName() + "_" + contact.getPhoneNum());
+				}
+			}
+
+			HashSet<String> commonContactsSet = new HashSet<String>();
+
+			Map.Entry<String, List<ContactInfo>> newContactEntry = null;
+			for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = new_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
+			{
+				newContactEntry = iterator.next();
+				List<ContactInfo> contactsList = newContactEntry.getValue();
+				for (int index = contactsList.size() - 1; index >= 0; --index)
+				{
+					ContactInfo contact = contactsList.get(index);
+					String key = contact.getName() + "_" + contact.getPhoneNum();
+					if (hikeContactsSet.contains(key))
+					{
+						contactsList.remove(index);
+						commonContactsSet.add(key);
+					}
+				}
+				if (contactsList.isEmpty())
+				{
+					iterator.remove();
+				}
+			}
+
+			Logger.d("ContactUtils", "Common contacts set : " + commonContactsSet);
+
+			Map.Entry<String, List<ContactInfo>> hikeContactEntry = null;
+			for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = hike_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
+			{
+				hikeContactEntry = iterator.next();
+				List<ContactInfo> contactsList = hikeContactEntry.getValue();
+				for (int index = contactsList.size() - 1; index >= 0; --index)
+				{
+					ContactInfo contact = contactsList.get(index);
+					String key = contact.getName() + "_" + contact.getPhoneNum();
+					if (commonContactsSet.contains(key))
+					{
+						contactsList.remove(index);
+					}
+				}
+				if (contactsList.isEmpty())
+				{
+					iterator.remove();
+				}
+			}
+		}
+
+		/*
+		 * our address object should an update dictionary, and a list of IDs to remove
+		 */
+
+		/* return early if things are in sync */
+		if ((new_contacts_by_id.isEmpty()) && (hike_contacts_by_id.isEmpty()))
+		{
+			Logger.d("ContactUtils", "DB in sync");
+			return SYNC_CONTACTS_DB_IN_SYNC;
+		}
+
+		try
+		{
+			JSONArray ids_json = new JSONArray();
+			for (String string : hike_contacts_by_id.keySet())
+			{
+				ids_json.put(string);
+			}
+			Logger.d("ContactUtils", "New contacts:" + new_contacts_by_id.size() + " DELETED contacts: " + ids_json.length());
+			Logger.d("ContactUtils", "New contacts Details :" + new_contacts_by_id);
+			Logger.d("ContactUtils", "DELETED contacts Details : " + ids_json);
+			
+			List<ContactInfo> updatedContacts = null;
+			if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
+			{
+				updatedContacts = new UpdateAddressBookTask(new_contacts_by_id, ids_json).execute();
+			}
+			else
+			{
+				updatedContacts = AccountUtils.updateAddressBook(new_contacts_by_id, ids_json);
+			}
+
+			if (updatedContacts == null)
+			{
+				Logger.e("ContactUtils", " updated contacts is null some error occurred during request execution");
+				return SYNC_CONTACTS_ERROR;
+			}
+
+			List<ContactInfo> contactsToDelete = new ArrayList<ContactInfo>();
+			String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+			
+			if (!hike_contacts_by_id.isEmpty())
+			{
+				for (Entry<String, List<ContactInfo>> mapEntry : new_contacts_by_id.entrySet())
+				{
+					List<ContactInfo> contacts = mapEntry.getValue();
+					for (ContactInfo con : contacts)
+					{
+						msisdns.add(con.getMsisdn());
+					}
+				}
+			}
+
+			for (Entry<String, List<ContactInfo>> mapEntry : hike_contacts_by_id.entrySet())
+			{
+				List<ContactInfo> contacts = mapEntry.getValue();
+				contactsToDelete.addAll(contacts);
+				// Update conversation fragement for deleted ids
+				for (ContactInfo c : contacts)
+				{
+					c.setName(null);
+					c.setId(c.getMsisdn());
+					/*
+					 * not deleting profile icon in case of contact to be deleted 
+					 * 1. is self contact
+					 * 2. has favorite state : friends
+					 * 3. has favorite state : request received
+					 * 4. has favorite state : request received rejected
+					 * 
+					 * Also if one msisdn is saved with more than one name in address book
+					 */
+					if (Utils.shouldDeleteIcon(c, myMsisdn) && !msisdns.contains(c.getMsisdn()))
+					{
+						HikeMessengerApp.getLruCache().deleteIconForMSISDN(c.getMsisdn());
+					}
+					HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_DELETED, c);
+				}
+			}
+
+			deleteContacts(contactsToDelete);
+
+			/* Delete ids from hike user DB */
+			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			updateContactsinDB(updatedContacts);
+			syncContacts(updatedContacts);
+
+		}
+		catch (Exception e)
+		{
+			Logger.e("ContactUtils", "error updating addressbook", e);
+			return SYNC_CONTACTS_ERROR;
+		}
+		return SYNC_CONTACTS_CHANGED;
 	}
 	
 	public byte syncUpdates(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
@@ -1502,7 +1734,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				 * Removing the contact which is already present in hike db with different id on the basis of msisdn.
 				 */
 				Logger.d("ContactUtils", "Contact won't present in hike DB for id = " + id);
-				for (Iterator<ContactInfo> iterator2 = hike_contacts_for_id.iterator(); iterator2.hasNext();)
+				for (Iterator<ContactInfo> iterator2 = contacts_for_id.iterator(); iterator2.hasNext();)
 				{
 					ContactInfo c = (ContactInfo) iterator2.next();
 					if(hike_contacts_by_msisdn.containsKey(c.getPhoneNum()))
@@ -1786,6 +2018,182 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	/**
 	 * This method is used to get the contacts from the phone's address book and used during contact sync up
+	 * @deprecated
+	 * @param ctx
+	 * @return
+	 */
+	public List<ContactInfo> getContactsOld(Context ctx)
+	{
+		HashSet<String> contactsToStore = new HashSet<String>();
+		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
+
+		String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + "='1'";
+		Cursor contacts = null;
+
+		List<ContactInfo> contactinfos = new ArrayList<ContactInfo>();
+		Map<String, String> contactNames = new HashMap<String, String>();
+		try
+		{
+			contacts = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, projection, selection, null, null);
+
+			/*
+			 * Added this check for an issue where the cursor is null in some random cases (We suspect that happens when hotmail contacts are synced.)
+			 */
+			if (contacts == null)
+			{
+				return null;
+			}
+
+			int idFieldColumnIndex = contacts.getColumnIndex(ContactsContract.Contacts._ID);
+			int nameFieldColumnIndex = contacts.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+			Logger.d("ContactUtils", "Starting to scan address book");
+			while (contacts.moveToNext())
+			{
+				String id = contacts.getString(idFieldColumnIndex);
+				String name = contacts.getString(nameFieldColumnIndex);
+				contactNames.put(id, name);
+			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * currently some one plus one users are getting this exception on 5.1. we haven't found
+			 * any particular reason how it can happen. putting a catch block for the same.
+			 *
+			 * In future, when our target sdk version is 23 and user denies contacts permission
+			 * to hike. then we would get a security exception here, if we try to access contacts.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying contacts to name projection", e);
+		}
+		finally
+		{
+			if (contacts != null)
+			{
+				contacts.close();
+			}
+		}
+
+		Cursor phones = null;
+
+		try
+		{
+			phones = ctx.getContentResolver().query(Phone.CONTENT_URI, new String[] { Phone.CONTACT_ID, Phone.NUMBER }, null, null, null);
+			/*
+			 * Added this check for an issue where the cursor is null in some random cases (We suspect that happens when hotmail contacts are synced.)
+			 */
+			if (phones == null)
+			{
+				return null;
+			}
+
+			int numberColIdx = phones.getColumnIndex(Phone.NUMBER);
+			int idColIdx = phones.getColumnIndex(Phone.CONTACT_ID);
+
+			while (phones.moveToNext())
+			{
+				String number = phones.getString(numberColIdx);
+				String id = phones.getString(idColIdx);
+				String name = contactNames.get(id);
+				if ((name != null) && (number != null))
+				{
+					if (contactsToStore.add("_" + name + "_" + number)) // if
+																		// this
+																		// element
+																		// is
+																		// added
+																		// successfully
+																		// , it
+																		// returns
+																		// true
+					{
+						contactinfos.add(new ContactInfo(id, null, name, number));
+					}
+				}
+			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying phone numbers", e);
+		}
+		finally
+		{
+			if (phones != null)
+			{
+				phones.close();
+
+			}
+		}
+
+		/*
+		 * We will catch exceptions here since we do not know which devices support this URI.
+		 */
+		Cursor cursorSim = null;
+		try
+		{
+			Uri simUri = Uri.parse("content://icc/adn");
+			cursorSim = ctx.getContentResolver().query(simUri, null, null, null, null);
+			if(cursorSim != null){
+				while (cursorSim.moveToNext())
+				{
+					try
+					{
+						String id = cursorSim.getString(cursorSim.getColumnIndex("_id"));
+						String name = cursorSim.getString(cursorSim.getColumnIndex("name"));
+						String number = cursorSim.getString(cursorSim.getColumnIndex("number"));
+						if ((name != null) && (number != null))
+						{
+							if (contactsToStore.add("_" + name + "_" + number)) // if
+																				// this
+																				// element
+																				// is
+																				// added
+																				// successfully
+																				// ,
+																				// it
+																				// returns
+																				// true
+							{
+								contactinfos.add(new ContactInfo(id, null, name, number));
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						Logger.w("ContactUtils", "Expection while adding sim contacts", e);
+					}
+				}
+			}
+		}
+		catch (SecurityException e)
+		{
+			/**
+			 * similar reason here as above security exception.
+			 */
+
+			Logger.e("ContactUtils", "Exception while querying sim contacts", e);
+		}
+		catch (Exception e)
+		{
+			Logger.w("ContactUtils", "Expection while querying for sim contacts", e);
+		}
+		finally
+		{
+			if (cursorSim != null)
+			{
+				cursorSim.close();
+			}
+		}
+
+		return contactinfos;
+	}
+
+	/**
+	 * This method is used to read the contacts from the phone's address book and used during contact sync up
 	 * 
 	 * @param ctx
 	 * @return

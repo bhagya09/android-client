@@ -3803,4 +3803,6 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final String ENABLE_AB_SYNC_CHANGE = "ab_sync_change";
 }
