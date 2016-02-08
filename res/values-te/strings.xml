@@ -1202,7 +1202,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">కొత్త ఫోటోలు</string>
     <string name="upgrade_for_larger_files">ఈ ఫైలు అందుకోవడానికి %1$s అప్‌గ్రేడ్ చేయాల్సి ఉంది. Hike డైరెక్ట్ ద్వారా ఇప్పుడు hike తాజా వెర్షన్ అందుకోండి.</string>
-    <string name="group_participant_info">గ్రూపుకు మీరు 500మంది సభ్యుల వరకు జోడించవచ్చు</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">ఇప్పుడు మీరు </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> సభ్యుల వరకు జోడించవచ్చు</font>]]></string>
     <string name="maxContactInGroupErr">గరిష్టంగా %1$s సభ్యులను జోడించవచ్చు</string>
     <string name="added_in_group">ఈ కాంటాక్ట్ ఇప్పటికే సభ్యుడు.</string>
     <string name="watsapp">WhatsApp ద్వారా జోడించు</string>

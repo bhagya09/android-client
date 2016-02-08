@@ -1,7 +1,9 @@
-package com.bsb.hike.platform.content;
+package com.bsb.hike.platform.ContentModules;
 
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -10,8 +12,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
-
-import org.json.JSONArray;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -22,6 +22,7 @@ import java.util.Set;
 /**
  * Content model
  */
+@DoNotObfuscate
 public class PlatformContentModel
 {
 	private static String TAG = "PlatformContentModel";
@@ -323,6 +324,7 @@ public class PlatformContentModel
 		return cardObj.appPackage;
 	}
 
+	@DoNotObfuscate
 	public class PlatformCardObjectModel
 	{
 

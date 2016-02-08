@@ -361,7 +361,7 @@ public class StickerSearchManager
 
 	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ", " + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
 		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
@@ -420,9 +420,9 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
 	}
 
-	public void removeDeletedStickerTags()
+	public void removeDeletedStickerTags(Set<String> infoSet, int removalType)
 	{
-		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
+		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask(infoSet, removalType);
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 
@@ -704,7 +704,7 @@ public class StickerSearchManager
 		}
 	}
 
-	public void increaseRecommendationTotalMatrixForCurrentLanguage()
+	private void increaseRecommendationTotalMatrixForCurrentLanguage()
 	{
 		PairModified<Integer, Integer> accuracyMetrices = null;
 		if (isFromAutoRecommendation())

@@ -1,5 +1,14 @@
 package com.bsb.hike.platform.content;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -19,21 +28,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -54,7 +55,7 @@ public class PlatformZipDownloader
 	// every 1% of the microapp.
 	private static HashMap<String,Float> callbackProgress = new HashMap<String, Float>();
 
-	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the url
+	//This hashmap contains the mapping of every request that Platform Zip Downloader has initiated. Key is the appName
 	// and value is the token.
 	private static HashMap<String, PairModified<RequestToken, Integer>> platformRequests= new HashMap<String, PairModified<RequestToken, Integer>>();
 	
@@ -139,7 +140,7 @@ public class PlatformZipDownloader
 
 	private void setStateFilePath()
 	{
-		stateFilePath=PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
+		stateFilePath= PlatformContentConstants.PLATFORM_CONTENT_DIR+mRequest.getContentData().getId();
 	}
 
 	public  boolean isMicroAppExist()
@@ -166,6 +167,17 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
+		// Instead of getting an ex
+		if (TextUtils.isEmpty(mRequest.getContentData().getLayout_url()))
+		{
+			if (null != mRequest.getListener())
+			{
+				mRequest.getListener().onEventOccured(0, EventCode.INVALID_DATA);
+			}
+
+			return;
+		}
+
 		//When the microapp does not exist, we don't want to replace anything and just unzip the data.
         if (!isMicroAppExist())
         {
@@ -544,7 +556,7 @@ public class PlatformZipDownloader
 				callbackProgress.remove(callbackId);
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
-				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion,httpException.getErrorCode());
 
 				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);
 //				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
