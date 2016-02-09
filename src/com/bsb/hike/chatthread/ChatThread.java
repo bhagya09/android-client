@@ -6715,4 +6715,9 @@ import android.widget.Toast;
 		if (mCustomKeyboard != null)
 			mCustomKeyboard.swtichToDefaultKeyboard(tv);
 	}
+
+	public void onPostResume()
+	{
+
+	}
 }
