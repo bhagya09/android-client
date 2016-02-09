@@ -39,7 +39,7 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 	private RequestToken requestToken;
 
-	public MiniStickerImageDownloadTask(String categoryId, String stickerId)
+	public MiniStickerImageDownloadTask(String stickerId, String categoryId)
 	{
 		this.categoryId = categoryId;
 		this.stickerId = stickerId;
