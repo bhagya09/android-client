@@ -12,7 +12,6 @@ import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
@@ -275,9 +274,10 @@ public class FileUploadRequest extends Request<JSONObject>
 	{
 		int bytesUploaded = 0;
 		ByteArrayRequest req = new ByteArrayRequest.Builder()
-				.setUrl(AccountUtils.fileTransferBase + "/user/pft/")
+				.setUrl(this.getUrl())
 				.addHeader(new Header("X-SESSION-ID", X_SESSION_ID))
-				.setAsynchronous(false).buildRequest();
+				.setAsynchronous(false)
+				.buildRequest();
 
 		DefaultHeaders.applyDefaultHeaders(req);
 
