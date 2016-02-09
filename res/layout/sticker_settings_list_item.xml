@@ -61,10 +61,10 @@
             android:id="@+id/delete_button"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/actionbar_ic_delete"
+            android:src="@drawable/sticker_pack_delete"
             android:scaleType="centerInside"
             android:clickable="true"
-            android:background="@android:color/darker_gray"
+            android:background="@android:color/transparent"
             android:visibility="gone" />
 
         <ProgressBar
