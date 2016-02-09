@@ -608,10 +608,6 @@ public class HikeConstants
 
 	public static final String DELETE_PREF = "deleteAccount";
 
-	// public static final String UNLINK_FB = "unlinkFacebook";
-
-	// public static final String UNLINK_TWITTER = "unlinkTwitter";
-
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
 	public static final String FAV_LIST_PREF = "favoriteList";
@@ -634,50 +630,10 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
-	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
-
-	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
-
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
 
 	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
 
-	public static final String KEYBOARD_PREF = "keyboardPref";
-	
-	public static final String GLIDE_PREF = "glidePref";
-	
-	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
-
-	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
-	
-	public static final String KEYBOARD_ADV_PREF = "advancedPref";
-	
-	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
-	
-	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
-	
-	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
-	
-	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
-	
-	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
-	
-	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
-	
-	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
-	
-	public static final String PRIVATE_MODE_PREF = "privateModePref";
-	
-	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
-	
-	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
-	
-	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
-	
-	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE = "kbd_lng";
-	
 	public static final String LANGUAGE_DOWNLOAD_ERROR_CODE = "er_c";
 
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";

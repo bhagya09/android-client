@@ -29,7 +29,6 @@ public class KptUtils
 {
 	public static void onGlobeKeyPressed(Activity activity, CustomKeyboard mCustomKeyboard)
 	{
-		IntentFactory.openKeyboardLanguageSetting(activity);
 		
 	}
 	
@@ -40,7 +39,6 @@ public class KptUtils
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_CHANGED_EVENT);
-			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, item.getlocaleName());
 			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE_SOURCE, HikeConstants.KEYBOARD_LANG_CHANGE_KBD);
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			Utils.sendLocaleToServer();
