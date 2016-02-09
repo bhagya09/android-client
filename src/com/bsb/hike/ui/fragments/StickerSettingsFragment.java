@@ -341,7 +341,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 			while (it.hasNext()) {
 				category = (StickerCategory) it.next();
-				if (category.getState() != StickerCategory.UPDATE) {
+				// Adding packs in Update, Retry and zero stickers pack due to download failure for updating
+				if (!(category.isVisible() && (category.getState() == StickerCategory.RETRY ||
+						category.getState() == StickerCategory.UPDATE || (category.getState() == StickerCategory.NONE &&
+								category.getDownloadedStickersCount() <= 0))))
+				{
 					it.remove();
 				}
 
