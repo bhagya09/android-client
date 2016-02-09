@@ -861,7 +861,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (sticker.isStickerAvailable())
 			{
 
-				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage());
+				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage(),viewType == ViewType.STICKER_SENT);
 
 				if (stickerDrawable != null)
 				{
@@ -883,12 +883,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					stickerHolder.placeHolder.setBackgroundResource(0);
 					stickerHolder.image.setVisibility(View.VISIBLE);
-					// largeStickerLoader.loadImage(stickerImage.getPath(), holder.stickerImage, isListFlinging);
 
 					stickerHolder.image.setImageDrawable(stickerDrawable);
-					// holder.stickerImage.setImageDrawable(IconCacheManager
-					// .getInstance().getSticker(context,
-					// stickerImage.getPath()));
 				}
 				else
 				{
@@ -906,7 +902,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				StickerManager.getInstance().initiateMiniStickerDownloadTask(stickerId, categoryId);
 				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId,categoryId, convMessage);
 			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);

@@ -379,9 +379,9 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		evictAll();
 	}
 
-	public Drawable getSticker(Sticker sticker,boolean lookForOffline)
+	public Drawable getSticker(Sticker sticker,boolean lookForOffline,boolean lookForMini)
 	{
-		String path = "";
+		String path = null;
 
 		if(sticker.isFullStickerAvailable())
 		{
@@ -391,22 +391,27 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		{
 			path = sticker.getStickerOfflinePath();
 		}
-		else
+		else if(lookForMini)
 		{
 			path = sticker.getMiniStickerPath();
+		}
+
+		if(path ==null)
+		{
+			return null;
 		}
 
 		BitmapDrawable bd = get(path);
 		if (bd != null)
 			return bd;
 
-		Bitmap stickerBitmap ;
+		Bitmap stickerBitmap = null;
 
 		if(sticker.isFullStickerAvailable() || sticker.isStickerOffline())
 		{
 			stickerBitmap = HikeBitmapFactory.decodeFile(path);
 		}
-		else
+		else if(lookForMini)
 		{
 			stickerBitmap = HikeBitmapFactory.getMiniStickerBitmap(path);
 		}
