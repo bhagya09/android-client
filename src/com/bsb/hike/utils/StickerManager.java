@@ -372,9 +372,9 @@ public class StickerManager
 		stickerCategoriesMap.putAll(HikeConversationsDatabase.getInstance().getAllStickerCategoriesWithVisibility(true));
 	}
 
-	public void removeCategory(String removedCategoryId, boolean removeFromShopTable)
+	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, removeFromShopTable);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
 		stickerCategoriesMap.remove(removedCategoryId);
 		StickerCategory cat = new StickerCategory(removedCategoryId); 	//creating new instance because of invisible category
 
@@ -384,7 +384,12 @@ public class StickerManager
 			if (categoryDirPath != null)
 			{
 				File smallCatDir = new File(categoryDirPath + HikeConstants.SMALL_STICKER_ROOT);
-				File bigCatDir = new File(categoryDirPath);
+				String bigCatDirPath = categoryDirPath;
+				if (!forceRemoveCategory)
+				{
+					bigCatDirPath += HikeConstants.LARGE_STICKER_ROOT;
+				}
+				File bigCatDir = new File(bigCatDirPath);
 				if (smallCatDir.exists())
 				{
 					String[] stickerIds = smallCatDir.list();
