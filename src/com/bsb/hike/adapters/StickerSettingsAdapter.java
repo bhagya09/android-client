@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
