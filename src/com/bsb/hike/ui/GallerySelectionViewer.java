@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -66,7 +67,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 import com.edmodo.cropper.CropImageView;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
@@ -801,7 +801,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			// Using edited filepath if user has edited the current selection other wise the original
 			final String filePath = new String(getFinalFilePathAtPosition(position));
 
-			MyAsyncTask.THREAD_POOL_EXECUTOR.execute( new GalleryPageLoaderRunnable(galleryImageView,filePath));
+			AsyncTask.THREAD_POOL_EXECUTOR.execute( new GalleryPageLoaderRunnable(galleryImageView,filePath));
 
 			((ViewPager) container).addView(page);
 

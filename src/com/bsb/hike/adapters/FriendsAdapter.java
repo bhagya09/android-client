@@ -1,17 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -56,6 +44,18 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
@@ -113,6 +113,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	public static final String HIKE_FEATURES_TIMELINE_ID = "-135";
 
+	public static final String CONTACT_FILTERED_NUM = "--133";
+
 	/*stores the regex for matching number during search*/
 	public static Pattern numberPattern;
 
@@ -130,6 +132,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> hikeContactsList;
 
 	protected List<ContactInfo> smsContactsList;
+
+    protected List<ContactInfo> suggestedContactsList;
 	
 	protected List<ContactInfo> recentContactsList;
 	
@@ -148,6 +152,8 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 	protected List<ContactInfo> filteredHikeContactsList;
 
 	protected List<ContactInfo> filteredSmsContactsList;
+
+    protected List<ContactInfo> filteredSuggestedContactsList;
 
 	protected List<ContactInfo> filteredRecentlyJoinedHikeContactsList;
 
@@ -179,7 +185,9 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	private ContactInfo smsContactsSection;
 
-	private ContactInfo inviteExtraItem;
+    private ContactInfo suggestedContactsSection;
+
+    private ContactInfo inviteExtraItem;
 
 	private ContactInfo groupExtraItem;
 
@@ -211,6 +219,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 	protected Map<String, Integer> contactSpanStartIndexes;
 
+    /*
+     * Variables added for showing friends list based on a given csv
+     */
+    private boolean showFilteredContacts;
+
+    private String msisdnList;
+
 	public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator)
 	{
 		this.listView = listView;
@@ -235,6 +250,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		friendsList = new ArrayList<ContactInfo>(0);
 		hikeContactsList = new ArrayList<ContactInfo>(0);
 		smsContactsList = new ArrayList<ContactInfo>(0);
+        suggestedContactsList = new ArrayList<ContactInfo>(0);
 		recentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxRecommendedList = new ArrayList<ContactInfo>(0);
 		microappShowcaseList = new ArrayList<BotInfo>(0);
@@ -249,6 +265,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		filteredFriendsList = new ArrayList<ContactInfo>(0);
 		filteredHikeContactsList = new ArrayList<ContactInfo>(0);
 		filteredSmsContactsList = new ArrayList<ContactInfo>(0);
+        filteredSuggestedContactsList = new ArrayList<ContactInfo>(0);
 		filteredRecentlyJoinedHikeContactsList = new ArrayList<ContactInfo>(0);
 		nuxFilteredRecoList = new ArrayList<ContactInfo>(0);
 		lastStatusMessagesMap = new HashMap<String, StatusMessage>();
@@ -266,12 +283,28 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		numberPattern = Pattern.compile("^\\+?((?>[0-9]+)[-.\\s/]?)*");
 	}
 
+    public FriendsAdapter(Context context, ListView listView, FriendsListFetchedCallback friendsListFetchedCallback, LastSeenComparator lastSeenComparator,boolean showFilteredContacts,String msisdnList)
+    {
+        this(context,listView,friendsListFetchedCallback,lastSeenComparator);
+        /*
+         * Initializing instance variables for retrieval of contacts based on given msisdns and phone nos list
+         */
+        this.showFilteredContacts = showFilteredContacts;
+        this.msisdnList = msisdnList;
+    }
+
+
 	public void executeFetchTask()
 	{
 		setLoadingView();
-		FetchFriendsTask fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
-				smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, false, true, false, false, false);
-		Utils.executeAsyncTask(fetchFriendsTask);
+
+        FetchFriendsTask fetchFriendsTask;
+
+        msisdnList = showFilteredContacts ? (msisdnList) : "";
+
+        fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList, recentlyJoinedHikeContactsList,friendsStealthList, hikeStealthContactsList,
+                smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList,suggestedContactsList,filteredSuggestedContactsList, false, true, false, false, false,true,true,showFilteredContacts,msisdnList);
+        Utils.executeAsyncTask(fetchFriendsTask);
 	}
 
 	public void setListFetchedOnce(boolean b)
@@ -315,13 +348,17 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				List<ContactInfo> filteredRecentsList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredRecentlyJoinedList = new ArrayList<ContactInfo>();
 				List<ContactInfo> filteredFeaturesList = new ArrayList<ContactInfo>();
+                List<ContactInfo> filteredSuggestedContactsList = new ArrayList<ContactInfo>();
+
 				List<ContactInfo> nuxFilteredRecoList = new ArrayList<ContactInfo>();
 
 				filterList(friendsList, filteredFriendsList, textToBeFiltered);
 				filterList(hikeContactsList, filteredHikeContactsList, textToBeFiltered);
 				filterList(smsContactsList, filteredSmsContactsList, textToBeFiltered);
+                filterList(suggestedContactsList, filteredSuggestedContactsList, textToBeFiltered);
 
-				if (groupsList != null && !groupsList.isEmpty())
+
+                if (groupsList != null && !groupsList.isEmpty())
 				{
 					filterList(groupsList, filteredGroupList, textToBeFiltered);
 				}
@@ -336,6 +373,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					filterList(recentlyJoinedHikeContactsList, filteredRecentlyJoinedList, textToBeFiltered);
 				}
 
+                if(suggestedContactsList != null && !suggestedContactsList.isEmpty())
+                {
+                    filteredSuggestedContactsList.clear();
+                    filterList(suggestedContactsList, filteredSuggestedContactsList, textToBeFiltered);
+                }
+				
 				if(nuxRecommendedList != null && !nuxRecommendedList.isEmpty())
 				{
 
@@ -357,6 +400,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				resultList.add(filteredRecentsList);
 				resultList.add(filteredRecentlyJoinedList);
 				resultList.add(nuxFilteredRecoList);
+                resultList.add(filteredSuggestedContactsList);
 
 				results.values = resultList;
 				isFiltered = true;
@@ -476,7 +520,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				nuxFilteredRecoList.clear();
 				nuxFilteredRecoList.addAll(resultList.get(7));
 			}
-
+            if(suggestedContactsList != null && !suggestedContactsList.isEmpty())
+            {
+                filteredSuggestedContactsList.clear();
+                filteredSuggestedContactsList.addAll(resultList.get(7));
+            }
+			
 			makeCompleteList(true);
 		}
 	}
@@ -492,7 +541,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		resultList.add(recentContactsList);
 		resultList.add(recentlyJoinedHikeContactsList);
 		resultList.add(nuxRecommendedList);
-		
+		resultList.add(suggestedContactsList);
 		return resultList;
 	}
 
@@ -580,9 +629,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		 * removed extra items from friends screen
 		 */
 
-		friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
-		updateFriendsList(friendsSection, true, true);
-		if (isHikeContactsPresent())
+        if(!showFilteredContacts)
+        {
+            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+            updateFriendsList(friendsSection, true, true);
+        }
+
+        if (isHikeContactsPresent())
 		{
 			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
@@ -592,6 +645,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			smsContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSmsContactsList.size()), context.getString(R.string.sms_contacts), CONTACT_SMS_NUM);
 			updateSMSContacts(smsContactsSection);
 		}
+        if(showFilteredContacts)
+        {
+            suggestedContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredSuggestedContactsList.size()), context.getString(R.string.contacts), CONTACT_FILTERED_NUM);
+            updateSuggestedContacts(suggestedContactsSection);
+        }
 
 		notifyDataSetChanged();
 		setEmptyView();
@@ -732,6 +790,19 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			completeList.addAll(filteredSmsContactsList);
 		}
 	}
+
+    protected void updateSuggestedContacts(ContactInfo section)
+    {
+        if (!filteredSuggestedContactsList.isEmpty())
+        {
+            if (section != null)
+            {
+                completeList.add(section);
+            }
+            completeList.addAll(filteredSuggestedContactsList);
+        }
+    }
+
 
 	protected boolean isHikeContactsPresent()
 	{
@@ -1394,15 +1465,15 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 					setInviteButton(contactInfo, inviteBtn, inviteIcon);
 
-					LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
-					if (inviteIcon.getVisibility() == View.VISIBLE)
-					{
-						layoutParams.addRule(RelativeLayout.LEFT_OF, inviteIcon.getId());
-					}
-					else
-					{
-						layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
-					}
+                    LayoutParams layoutParams = (LayoutParams) infoContainer.getLayoutParams();
+                    if (inviteIcon.getVisibility() == View.VISIBLE)
+                    {
+                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteIcon.getId());
+                    }
+                    else
+                    {
+                        layoutParams.addRule(RelativeLayout.LEFT_OF, inviteBtn.getId());
+                    }
 				}
 			}
 			break;
@@ -1426,8 +1497,12 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					break;
 
 				case CONTACT_SMS_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
-					break;
+                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_sms_contact), null, null, null);
+                    break;
+
+                case CONTACT_FILTERED_NUM:
+                    headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_people_on_hike), null, null, null);
+                    break;
 				}
 
 				headerName.setCompoundDrawablePadding((int) context.getResources().getDimension(R.dimen.favorites_star_icon_drawable_padding));

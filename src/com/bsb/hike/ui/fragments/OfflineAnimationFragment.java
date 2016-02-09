@@ -804,7 +804,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 
 
 	@Override
-	public void connectedToMsisdn(String connectedDevice)
+	public void connectedToMsisdn(final String connectedDevice)
 	{
 		removePostedMessages();
 		
@@ -819,7 +819,7 @@ public class OfflineAnimationFragment extends DialogFragment implements IOffline
 				{
 					return;
 				}
-				
+				Logger.d(TAG,"OAF connected to msisdn"+connectedDevice);
 				frame.setVisibility(View.INVISIBLE);
 				connectionHintTextView.setVisibility(View.INVISIBLE);
 				if(rotateAnimation!=null)

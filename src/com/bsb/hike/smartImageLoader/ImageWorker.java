@@ -34,12 +34,11 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TextDrawable.Builder;
 
@@ -236,7 +235,7 @@ public abstract class ImageWorker
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
-			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, key);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, key);
 		}
 	}
 
@@ -449,7 +448,7 @@ public abstract class ImageWorker
 	/**
 	 * The actual AsyncTask that will asynchronously process the image.
 	 */
-	private class BitmapWorkerTask extends MyAsyncTask<String, Void, BitmapDrawable>
+	private class BitmapWorkerTask extends AsyncTask<String, Void, BitmapDrawable>
 	{
 		private String data;
 

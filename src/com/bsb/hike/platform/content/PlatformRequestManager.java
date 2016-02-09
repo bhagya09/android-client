@@ -1,11 +1,14 @@
 package com.bsb.hike.platform.content;
 
+import static com.bsb.hike.platform.PlatformContentLoader.getLoader;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import android.os.Handler;
 import android.os.Looper;
 
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.Logger;
 
@@ -37,12 +40,12 @@ public class PlatformRequestManager
 		};
 	};
 
-	private static volatile ArrayList<Integer> currentDownloadingTemplates = new ArrayList<Integer>();
+//	private static volatile ArrayList<Integer> currentDownloadingTemplates = new ArrayList<Integer>();
 
-	public static ArrayList<Integer> getCurrentDownloadingTemplates()
-	{
-		return currentDownloadingTemplates;
-	}
+//	public static ArrayList<Integer> getCurrentDownloadingTemplates()
+//	{
+//		return currentDownloadingTemplates;
+//	}
 
 	/**
 	 * Add request to executing pool. Check for wait states. Check for duplicates (change priority)
@@ -51,7 +54,7 @@ public class PlatformRequestManager
 	 */
 	public static void addRequest(final PlatformContentRequest argRequest)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -98,7 +101,7 @@ public class PlatformRequestManager
 
 			if (nextRequest != null)
 			{
-				PlatformContentLoader.getLoader().loadData(nextRequest);
+				getLoader().loadData(nextRequest);
 			}
 		}
 
@@ -130,7 +133,7 @@ public class PlatformRequestManager
 
 	public static synchronized void setReadyState(final PlatformContentRequest argRequest)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -144,7 +147,7 @@ public class PlatformRequestManager
 	public static void remove(final PlatformContentRequest argRequest)
 	{
 
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -159,7 +162,7 @@ public class PlatformRequestManager
 
 				Logger.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
 
-				getCurrentDownloadingTemplates().clear();
+				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getLayout_url());
 
 				requestQueue.remove(argRequest);
 
@@ -181,7 +184,7 @@ public class PlatformRequestManager
 
 	public static void reportFailure(final PlatformContentRequest argRequest, final EventCode error)
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()
@@ -250,7 +253,7 @@ public class PlatformRequestManager
 	
 	public static void onDestroy()
 	{
-		PlatformContentLoader.getLoader().post(new Runnable()
+		getLoader().post(new Runnable()
 		{
 			@Override
 			public void run()

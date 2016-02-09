@@ -29,6 +29,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -62,12 +63,23 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -78,7 +90,7 @@ import com.bsb.hike.utils.Utils;
  */
 
 
-
+@DoNotObfuscate
 public abstract class JavascriptBridge
 {
 	protected CustomWebView mWebView;
@@ -495,11 +507,9 @@ public abstract class JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
 		});
@@ -527,13 +537,83 @@ public abstract class JavascriptBridge
 		}
 	}
 
+    /**
+     * Platform Bridge Version 8
+     * This function can be used to start a hike native contact chooser/picker which will show hike contacts to user based on the given msisdn in requestJson
+     * It will call JavaScript function callbackFromNative "(String functionCallbackId , JSON : [{(int resultCode,JsonArray array)})]". As of now
+     * JSON will have name,platform_id,thumbnail,msisdn e.g : [{'name':'Paul','platform_id':'dvgd78as','msisdn':'9988776554','thumbnail':''}].
+     * ResultCode will be 0 for fail and 1 for success NOTE : JSONArray could be null as well
+     */
+    @JavascriptInterface
+    public void startContactChooserForMsisdnFilter(String id,String requestJson) {
+        Activity activity = weakActivity.get();
+        String msisdns = "";
+        String title = "";
+
+        if(!TextUtils.isEmpty(requestJson)) {
+            try {
+                JSONObject json = new JSONObject(requestJson);
+                msisdns = json.getString(HikeConstants.Extras.LIST);
+                title = json.getString(HikeConstants.Extras.TITLE);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (activity != null) {
+
+            if (TextUtils.isEmpty(msisdns)) {
+                Intent intent = new Intent(activity, ComposeChatActivity.class);
+                intent.putExtra(HikeConstants.Extras.EDIT, true);
+                intent.putExtra(REQUEST_CODE, ComposeChatActivity.PICK_CONTACT_SINGLE_MODE);
+                intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
+                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
+                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
+            } else {
+                Intent intent = IntentFactory.getFavouritesIntent(activity);
+                intent.putExtra(tag, JavascriptBridge.this.hashCode());
+                intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+                intent.putExtra(HikeConstants.Extras.MSISDN, msisdns);
+                intent.putExtra(HikeConstants.Extras.TITLE, title);
+                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
+                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
+            }
+        }
+    }
+
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logger.d(tag, "onactivity result of javascript");
+
 		if (requestCode != -1)
 		{
-			if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
+            if(requestCode == HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST)
+            {
+                JSONObject responseJsonObj = new JSONObject();
+                if (!TextUtils.isEmpty(data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT)))
+                {
+                    try {
+                        responseJsonObj.put(HikeConstants.Extras.RESULT_CODE, "1");
+                        responseJsonObj.put(HikeConstants.Extras.CONTACT_INFO, data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    try {
+                        responseJsonObj.put(HikeConstants.Extras.RESULT_CODE, "0");
+                        responseJsonObj.put(HikeConstants.Extras.CONTACT_INFO, "'[]'");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                callbackToJS(data.getStringExtra(HikeConstants.Extras.FUNCTION_ID),responseJsonObj.toString());
+                return;
+            }
+            else if (requestCode == HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST)
 
 				handlePickFileResult(resultCode, data);
 			else
@@ -590,7 +670,7 @@ public abstract class JavascriptBridge
 
 	private void handlePickContactResult(int resultCode, Intent data)
 	{
-		Logger.i(tag, "pick contact result " + data.getExtras().toString());
+        Logger.i(tag, "pick contact result " + data.getExtras().toString());
 		if (resultCode == Activity.RESULT_OK)
 		{
 			mWebView.loadUrl("javascript:onContactChooserResult('1','" + data.getStringExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT) + "')");
@@ -626,8 +706,22 @@ public abstract class JavascriptBridge
 			{
 				if (!mWebView.isWebViewDestroyed())
 				{
-					Logger.d(tag, "Inside call back to js with id " + id);
-					mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					if (Utils.isKitkatOrHigher())
+					{
+						Logger.d(tag, "Inside call back to js with id " + id);
+						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						{
+							@Override
+							public void onReceiveValue(String value)
+							{
+								Logger.d("JavascriptBridge",value);
+							}
+						});
+					}
+					else
+					{
+						mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')");
+					}
 				} else
 				{
 					Logger.e(tag, "CallBackToJs>>WebView not showing");
@@ -828,7 +922,16 @@ public abstract class JavascriptBridge
 			JSONObject jsonObject = new JSONObject(data);
 			String url = jsonObject.optString(HikePlatformConstants.URL);
 			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			RequestToken token = HttpRequests.microAppPostRequest(url, new JSONObject(params), new PlatformMicroAppRequestListener(functionId));
+			JSONObject json;
+			if(TextUtils.isEmpty(params))
+			{
+				json=null;
+			}
+			else
+			{
+				json=new JSONObject(params);
+			}
+			RequestToken token = HttpRequests.microAppPostRequest(url, json, new PlatformMicroAppRequestListener(functionId));
 			if (!token.isRequestRunning())
 			{
 				token.execute();
@@ -1043,8 +1146,16 @@ public abstract class JavascriptBridge
 			final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
 			final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
 			final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+			final boolean sendAll=mmObject.optBoolean(ProductPopupsConstants.SENDALL,false);
 			if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
 			{
+
+				if(sendAll)
+				{
+					PlatformUtils.sendStickertoAllHikeContacts(stickerId,categoryId);
+					return;
+				}
+
 				mHandler.post(new Runnable()
 				{
 					

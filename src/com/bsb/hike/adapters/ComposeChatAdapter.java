@@ -91,7 +91,9 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	
 	private MicroappsListAdapter microappsListAdapter;
 
-	public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase, boolean showTimeline)
+    private boolean isContactChooserFilter = false;
+
+    public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
 		selectedPeople = new LinkedHashMap<String, ContactInfo>();
@@ -122,7 +124,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		 * We should show sms contacts section in new compose
 		 */
 		this.showSMSContacts = showSMSContacts;
+
 		this.showTimeline = showTimeline;
+
+        this.isContactChooserFilter = isContactChooserFilter;
 	}
 
 	public void setIsCreatingOrEditingGroup(boolean b)
@@ -834,7 +839,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		// to add new section and number for user typed number
 		String text = constraint.toString().trim();
 	
-		if (isIntegers(text))
+		if (isIntegers(text) && !isContactChooserFilter)
 		{
 			newContactsList = new ArrayList<ContactInfo>();
 			ContactInfo section = new ContactInfo(SECTION_ID, null, context.getString(R.string.compose_chat_other_contacts), null);

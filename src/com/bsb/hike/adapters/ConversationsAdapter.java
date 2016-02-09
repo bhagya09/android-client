@@ -922,6 +922,7 @@ public class ConversationsAdapter extends BaseAdapter
 		updateViewsRelatedToMessageState(parentView, message, convInfo);
 		
 		TextView tsView = viewHolder.timeStamp;
+		Logger.d("productpopup",message.getTimestampFormatted(true, context));
 		tsView.setText(message.getTimestampFormatted(true, context));
 	}
 

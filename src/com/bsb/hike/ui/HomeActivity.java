@@ -185,7 +185,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -312,6 +312,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
+
+		moveToComposeChatScreen();
 		
 	}
 	
@@ -1819,6 +1821,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		else if(HikePubSub.OPEN_COMPOSE_CHAT_SCREEN.equals(type))
+		{
+			if(isActivityVisible())
+			{
+				moveToComposeChatScreen();
+			}
+		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
@@ -1876,6 +1885,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
+		}
+	}
+
+	private void moveToComposeChatScreen()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, false))
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER);
+			Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
+			startActivity(intent);
 		}
 	}
 

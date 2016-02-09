@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -44,6 +45,7 @@ import com.bsb.hike.gallery.GalleryRecyclerAdapter;
 import com.bsb.hike.gallery.MarginDecoration;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
@@ -262,6 +264,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		recyclerView.setLayoutManager(new GridLayoutManager(this, numColumns));
 		recyclerView.setAdapter(recyclerAdapter);
 		recyclerView.setVisibility(View.VISIBLE);
+
+		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
 
 		if (!multiSelectMode)
 		{
@@ -561,7 +565,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			data.setAction(GALLERY_RESULT_ACTION);
 		}
-		setResult(resultCode,data);
+		setResult(resultCode, data);
 	}
 
 
@@ -587,10 +591,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			e.printStackTrace();
 		}
 	}
-	@Override
-	protected void setStatusBarColor(Window window, String color) {
-		return;
-	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{

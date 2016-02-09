@@ -19,6 +19,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopUpAction;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -28,6 +29,7 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+@DoNotObfuscate
 public class ProductJavaScriptBridge extends JavascriptBridge
 {
 	WeakReference<HikeDialogFragment> mHikeDialogFragment;

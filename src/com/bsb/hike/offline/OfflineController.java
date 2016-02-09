@@ -31,13 +31,13 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
 import com.bsb.hike.offline.OfflineConstants.HandlerConstants;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.google.ads.AdRequest.ErrorCode;
@@ -601,8 +601,8 @@ public class OfflineController
 		
 		offlineManager.sendInfoPacket(connectionId);
 		OfflineUtils.showToastForBatteryLevel();
-		
-		
+
+
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
@@ -711,5 +711,9 @@ public class OfflineController
 			return;
 		}
 		offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, configuration), OfflineParameters.class);
+	}
+
+	public  void setConnectingDeviceAsConnected() {
+		offlineManager.setConnectingDeviceAsConnected();
 	}
 }
