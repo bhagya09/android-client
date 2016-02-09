@@ -118,8 +118,10 @@ public class FileDownloadRequest extends Request<File>
 				state.setTotalSize(totalSize);
 			}
 
+			long time = 0;
 			while (state.getFTState() != FTState.PAUSED)
 			{
+				time = System.currentTimeMillis();
 				chunkSize = chunkSizePolicy.getChunkSize();
 				buffer = new byte[chunkSize];
 				int byteRead = 0;
@@ -149,6 +151,7 @@ public class FileDownloadRequest extends Request<File>
 				FileSavedState fss = new FileSavedState(state);
 				fss.setFTState(FTState.ERROR);
 				saveStateInDB(fss);
+				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time));
 			}
 			fos.flush();
 			fos.getFD().sync();
