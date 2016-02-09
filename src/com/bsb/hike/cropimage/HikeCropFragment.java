@@ -266,6 +266,11 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 			setCropViewVisibility(false);
 			break;
 		case R.id.cancel:
+			int rotation = mCropImageView.getDegreesRotated();
+			if(rotation != 0)
+			{
+				mCropImageView.rotateImage(-1*rotation);
+			}
 			setCropViewVisibility(false);
 			break;
 		}
@@ -306,8 +311,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 	private float btnXorig = 0;
 
-	private void setCropViewVisibility(boolean enableCrop)
-	{
+	private void setCropViewVisibility(boolean enableCrop) {
 		recordOriginalXY();
 
 		btnEdit.animate().setStartDelay(50).x(enableCrop ? btnXorig + 200f : btnXorig);
@@ -324,6 +328,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
 		cropDivider.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
+		containerRotate.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
 
 		mListener.toggleDoneButtonVisibility(!enableCrop);
 
