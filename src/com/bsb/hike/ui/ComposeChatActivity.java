@@ -2104,11 +2104,18 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private void postImagesToShareOnTimeline(final boolean foreground)
 	{
 		final ArrayList<StatusUpdateTask> statusUpdateTasks = new ArrayList<StatusUpdateTask>();
-		for (int i = 0; i < imagesToShare.size(); i++)
-		{
-			statusUpdateTasks.add(new StatusUpdateTask(!TextUtils.isEmpty(messageToShare)?messageToShare:imageCaptions.get(i), -1, imagesToShare.get(i)));
-		}
 
+		if(Utils.isEmpty(imagesToShare) && !TextUtils.isEmpty(messageToShare))
+		{
+			statusUpdateTasks.add(new StatusUpdateTask(messageToShare, -1, null));
+		}
+		else
+		{
+			for (int i = 0; i < imagesToShare.size(); i++)
+			{
+				statusUpdateTasks.add(new StatusUpdateTask(!TextUtils.isEmpty(messageToShare) ? messageToShare : imageCaptions.get(i), -1, imagesToShare.get(i)));
+			}
+		}
 		if (!statusUpdateTasks.isEmpty())
 		{
 			HikeHandlerUtil.getInstance().postRunnable(new Runnable()

@@ -15,6 +15,6 @@
         android:gravity="center"
         android:text="@string/home_overflow_new_photo"
         android:textColor="@color/white_alpha_48"
-        android:textSize="8sp" />
+        android:textSize="10sp" />
 
 </LinearLayout>
