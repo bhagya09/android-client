@@ -375,7 +375,9 @@ public class StickerManager
 	public void removeCategory(String removedCategoryId, boolean removeFromShopTable)
 	{
 		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, removeFromShopTable);
-		StickerCategory cat = stickerCategoriesMap.remove(removedCategoryId);
+		stickerCategoriesMap.remove(removedCategoryId);
+		StickerCategory cat = new StickerCategory(removedCategoryId); 	//creating new instance because of invisible category
+
 		if (!cat.isCustom())
 		{
 			String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);
