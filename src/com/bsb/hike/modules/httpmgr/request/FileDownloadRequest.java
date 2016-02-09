@@ -90,6 +90,9 @@ public class FileDownloadRequest extends Request<File>
 	{
 		FileOutputStream fos = null;
 		File file;
+		long transferredSize = 0;
+		int byteRead = 0;
+		FileSavedState state = getState();
 		try
 		{
 			if (contentLength > Utils.getFreeSpace())
@@ -103,9 +106,8 @@ public class FileDownloadRequest extends Request<File>
 			byte[] buffer;
 			int len = 0;
 			int chunkSize;
-			long transferredSize = start;
+			transferredSize = start;
 			long totalSize = start + contentLength;
-			FileSavedState state = getState();
 			if (state == null)
 			{
 				state = new FileSavedState(FTState.IN_PROGRESS, totalSize, transferredSize, 0);
@@ -124,7 +126,7 @@ public class FileDownloadRequest extends Request<File>
 				time = System.currentTimeMillis();
 				chunkSize = chunkSizePolicy.getChunkSize();
 				buffer = new byte[chunkSize];
-				int byteRead = 0;
+				byteRead = 0;
 
 				if (len == -1)
 				{
@@ -156,6 +158,16 @@ public class FileDownloadRequest extends Request<File>
 			fos.flush();
 			fos.getFD().sync();
 			return file;
+		}
+		catch (Throwable th)
+		{
+			if (state != null)
+			{
+				FileSavedState fss = new FileSavedState(state);
+				fss.setFTState(FTState.ERROR);
+				saveStateInDB(fss);
+			}
+			throw th;
 		}
 		finally
 		{

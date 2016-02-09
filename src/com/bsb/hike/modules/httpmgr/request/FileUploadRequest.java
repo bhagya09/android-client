@@ -261,6 +261,13 @@ public class FileUploadRequest extends Request<JSONObject>
 			LogFull.d("while loop ended");
 			return response;
 		}
+		catch (Throwable th)
+		{
+			FileSavedState fss = new FileSavedState(getState());
+			fss.setFTState(FTState.ERROR);
+			saveStateInDB(fss);
+			throw th;
+		}
 		finally
 		{
 			if (raf != null)
