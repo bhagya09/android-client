@@ -546,11 +546,4 @@ public class KeyboardPopupLayout extends PopUpLayout implements OnDismissListene
 		customKeyBoardHeight = height;
 	}
 	
-	public int getOriginalBottomPadding() {
-		return originalBottomPadding;
-	}
-
-	public void setOriginalBottomPadding(int originalBottomPadding) {
-		this.originalBottomPadding = originalBottomPadding;
-	}
 }
