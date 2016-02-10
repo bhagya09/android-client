@@ -950,7 +950,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				{
 					Utils.deleteFile(getApplicationContext(), editedImages.get(position), HikeFileType.IMAGE);
 				}
-				editedImages.remove(position);
+
+				if(editedImages.size() > position)
+				{
+					editedImages.remove(position);
+				}
 			}
 			gridAdapter.notifyDataSetChanged();
 			pagerAdapter.notifyDataSetChanged();
