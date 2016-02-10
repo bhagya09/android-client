@@ -3811,4 +3811,8 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final String MINI_STICKER_ENABLED = "m_stk_st";
+
+	public static final String UNDOWNLOADED_DATA = "ud_d";
 }

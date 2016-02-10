@@ -81,6 +81,7 @@ import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
@@ -3063,7 +3064,21 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.STICKER_FORCE_DOWNLOAD.equals(subType))
 		{
-			StickerSearchManager.getInstance().downloadForcedStickers();
+			boolean badge = data.optBoolean(HikeConstants.BADGE, false);
+			if(badge)
+			{
+				StickerSearchManager.getInstance().downloadForcedStickers();
+			}
+		}
+		else if (HikeConstants.MINI_STICKER_ENABLED.equals(subType))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MINI_STICKER_ENABLED, data.optBoolean(HikeConstants.BADGE, false));
+		}
+		else if (HikeConstants.UNDOWNLOADED_DATA.equals(subType))
+		{
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, data.optInt(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, data.optInt(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, 0));
 		}
 	}
 
