@@ -47,8 +47,8 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+import android.support.v7.widget.SearchView;		
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -60,11 +60,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -113,7 +108,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -133,8 +128,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View parentLayout;
 	
-	private HikeCustomKeyboard mCustomKeyboard;
-
 	private TextView networkErrorPopUp;
 
 	private Dialog dialog;
@@ -209,8 +202,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private TextView timelineUpdatesIndicator;
 
-	private AdaptxtEditText searchET;
-	
 	private long time;
 	
 	@Override
@@ -489,8 +480,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		setupCustomKeyboard();
-		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
 		if (savedInstanceState != null)
@@ -609,7 +598,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		Logger.d(TAG, "onDestroy");
 		
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -726,10 +714,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.setQueryHint(getString(R.string.search));
 			searchView.clearFocus();
-			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
-			setupSearchTextKeyboard();
-
 			searchOptionID = searchMenuItem.getItemId();
 			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
@@ -757,10 +741,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				if(mainFragment!=null)
 		        {
-					if(mCustomKeyboard!=null && searchET!=null)
-					{
-						mCustomKeyboard.showCustomKeyboard(searchET, false);
-					}
 					mainFragment.removeSearch();
 		        }
 				toggleMenuItems(menu, true);
@@ -853,103 +833,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	private boolean setupCustomKeyboard()
-	{
-		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard())
-		{
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
-		}
-		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
-	}
-
-	View.OnTouchListener searchTextOnTouchListener = new View.OnTouchListener()
-	{
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			if (MotionEvent.ACTION_UP == event.getAction()){
-				showKeyboard();
-			}
-			return false;
-		}
-	};
-
-	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
-	{
-		@Override
-		public void onFocusChange(View v, boolean hasFocus)
-		{
-			if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
-			{
-				if (hasFocus)
-				{
-					mCustomKeyboard.showCustomKeyboard(v, true);
-				}
-				else
-				{
-					mCustomKeyboard.showCustomKeyboard(v, false);
-					mCustomKeyboard.updateCore();
-				}
-			}
-			else
-			{
-				if (hasFocus)
-				{
-					Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
-				}
-			}
-		}
-	};
-	
-	View.OnClickListener searchTextClickChangeListener = new View.OnClickListener()
-	{
-		
-		@Override
-		public void onClick(View v)
-		{
-			
-			showKeyboard();
-		}
-	} ;
-
-
-	private void setupSearchTextKeyboard()
-	{
-		if (searchET == null)
-			return;
-
-		if (setupCustomKeyboard())
-		{
-			mCustomKeyboard.registerEditText(searchET);
-			mCustomKeyboard.init(searchET);
-		}
-		else
-		{
-			resetSearchTextKeyboard();
-		}
-		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
-		searchET.setOnClickListener(searchTextClickChangeListener);
-		searchET.setOnTouchListener(searchTextOnTouchListener);
-	}
-
-	private void resetSearchTextKeyboard()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.unregister(searchET);
-	}
-
-	private void onKeyboardSwitched()
-	{
-		runOnUiThread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				setupCustomKeyboard();
-				setupSearchTextKeyboard();
-			}
-		});
-	}
 
 	private void recordSearchOptionClick()
 	{
@@ -1204,11 +1087,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onResume()
 	{
 		Logger.d(TAG,"onResume");
-		KptUtils.resumeKeyboard(mCustomKeyboard);
-		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
-		{
-			showKeyboard();
-		}
 		super.onResume();
 
 		checkNShowNetworkError();
@@ -1224,18 +1102,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
 
-	private void showKeyboard()
-	{
-		if (!KptUtils.isSystemKeyboard())
-		{
-			if (mCustomKeyboard != null && searchET != null)
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}else{
-			Utils.showSoftKeyboard(getApplicationContext(), searchET);
-		}
-	}
 	
 	private void acceptGroupMembershipConfirmation(Intent intent)
 	{
@@ -1353,7 +1219,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard, searchET);
 		Logger.d(TAG,"onPause");
 		String data = getIntent().getDataString();
 		boolean isDataSet = TextUtils.isEmpty(data)  ? false : data.contains(HttpRequestConstants.BASE_LINK_SHARING_URL);
@@ -1866,10 +1731,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 		}
-		else if (HikePubSub.KEYBOARD_SWITCHED.equals(type))
-		{
-			onKeyboardSwitched();
-		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
 			if (isActivityVisible())
@@ -2343,13 +2204,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard()&&mCustomKeyboard!=null)
-		{
-			if (mCustomKeyboard != null)
-			{
-				mCustomKeyboard.onConfigurationChanged(newConfig);				
-			}
-		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
 		if(progDialog != null && progDialog.isShowing())
@@ -2496,48 +2350,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showGlobeKeyView() 
-	{
-		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView() 
-	{
-		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }
