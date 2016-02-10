@@ -55,7 +55,7 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 	@Override
 	public void execute()
 	{
-		Logger.e(TAG, categoryId+":"+stickerId+" : started");
+		Logger.e(TAG, categoryId + ":" + stickerId + " : started");
 		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
 		{
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
@@ -64,12 +64,7 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 		String requestId = getRequestId();
 
-		requestToken = singleStickerImageDownloadRequest(
-				requestId,
-				stickerId,
-				categoryId,
-				true,
-				getRequestListener());
+		requestToken = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, true, getRequestListener());
 
 		if (requestToken.isRequestRunning()) // return if request is running
 		{
@@ -188,7 +183,7 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 	@Override
 	public void doOnSuccess(Object result)
 	{
-		Logger.e(TAG, categoryId+":"+stickerId+" : done");
+		Logger.e(TAG, categoryId + ":" + stickerId + " : done");
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
 	}
 
