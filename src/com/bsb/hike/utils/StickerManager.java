@@ -2626,7 +2626,11 @@ public class StickerManager
 
 				if (System.currentTimeMillis() > startdate && System.currentTimeMillis() < endDate)
 				{
-					resultSet.add(recentSticker.getInt("rank"), new Sticker(recentSticker.getString("catId"), recentSticker.getString("sId")));
+					Sticker temp = new Sticker(recentSticker.getString("catId"), recentSticker.getString("sId"));
+					if(temp.isStickerAvailable())
+					{
+						resultSet.add(recentSticker.getInt("rank"),temp);
+					}
 				}
 				else
 				{
