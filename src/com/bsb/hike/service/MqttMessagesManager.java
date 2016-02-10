@@ -739,29 +739,21 @@ public class MqttMessagesManager
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(convMessage.webMetadata.JSONtoString()),
-				new PlatformContentListener<PlatformContentModel>()
-				{
+				new PlatformContentListener<PlatformContentModel>() {
 
 					@Override
-					public void onComplete(PlatformContentModel content)
-					{
+					public void onComplete(PlatformContentModel content) {
 						saveMessage(convMessage);
 					}
 
 					@Override
-					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
-					{
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-						{
+					public void onEventOccured(int uniqueId, PlatformContent.EventCode event) {
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED) {
 							// do nothing
 							return;
-						}
-						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-						{
+						} else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED) {
 							Logger.d(HikePlatformConstants.TAG, "microapp already exists");
-						}
-						else
-						{
+						} else {
 							saveMessage(convMessage);
 							HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
 						}
