@@ -1,7 +1,11 @@
 package com.bsb.hike.ui;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,9 +42,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.WindowManager;
-import android.view.*;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -57,9 +58,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.*;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -82,8 +80,9 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFeatureInfo;
@@ -92,7 +91,6 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
@@ -110,8 +108,6 @@ import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
 import com.bsb.hike.tasks.MultipleStatusUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -124,7 +120,6 @@ import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.*;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
@@ -412,39 +407,36 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
-				{ 
-					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true);
+				{
+					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true, false);
 
-					if(!new File(filePath).exists())
+					if (filePath != null && new File(filePath).exists())
 					{
-						onError();
-						return;
-					}
+						ArrayList<String> filePathArrayList = new ArrayList<String>();
+						filePathArrayList.add(filePath);
+						ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
 
-					ArrayList<String> filePathArrayList = new ArrayList<String>();
-					filePathArrayList.add(filePath);
-					ArrayList<GalleryItem> selectedImages = GalleryItem.getGalleryItemsFromFilepaths(filePathArrayList);
-
-					if(HikeFileType.IMAGE.equals(HikeFileType.fromString(getIntent().getType())))
-					{
-						selectedImages = new ArrayList<>();
-						selectedImages.add(new GalleryItem(0, null, GalleryItem.CUSTOM_TILE_NAME, filePath, 0));
-					}
-
-					if((selectedImages!=null))
-					{
-						Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(),selectedImages,true);
-
-						if(TextUtils.isEmpty(messageToShare))
+						if (HikeFileType.IMAGE.equals(HikeFileType.fromString(getIntent().getType())))
 						{
-							allImages = true;
-							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+							selectedImages = new ArrayList<>();
+							selectedImages.add(new GalleryItem(0, null, GalleryItem.CUSTOM_TILE_NAME, filePath, 0));
 						}
-						//Got images to share
-						//Keep references to images (these will need to be shared via hike features (timeline,etc)
-						for(GalleryItem item:selectedImages)
+
+						if ((selectedImages != null))
 						{
-							imagesToShare.add(item.getFilePath());
+							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
+
+							if (TextUtils.isEmpty(messageToShare))
+							{
+								allImages = true;
+								startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+							}
+							// Got images to share
+							// Keep references to images (these will need to be shared via hike features (timeline,etc)
+							for (GalleryItem item : selectedImages)
+							{
+								imagesToShare.add(item.getFilePath());
+							}
 						}
 					}
 				}

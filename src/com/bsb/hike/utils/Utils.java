@@ -1602,8 +1602,15 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
+		return getAbsolutePathFromUri(uri, mContext, checkForPicassaUri, true);
+
+	}
+
+	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri, boolean showToasts)
+	{
 		if(uri == null)
 		{
+			if(showToasts)
 			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 			return null;
 		}
@@ -1646,17 +1653,17 @@ public class Utils
 			}
 			else
 			{
+				if(showToasts)
 				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
 				return null;
 			}
 		}
 
-		if(returnFilePath == null)
+		if(returnFilePath == null && showToasts)
 			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
 	}
-
 	public static enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
