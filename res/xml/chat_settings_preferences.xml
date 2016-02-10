@@ -2,19 +2,15 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_chat">
- 
-      <PreferenceCategory
-          android:selectable="false"
-          android:layout="@layout/settings_section_header">
 
-	<com.bsb.hike.view.SwitchPreferenceCompat
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="doubleTapPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/nudge_setting_info"
         android:title="@string/nudge_setting_header"
         android:widgetLayout="@layout/switch_widget" />
-    
+
     <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="enterSendPref"
@@ -22,7 +18,5 @@
         android:summary="@string/enter_setting_info"
         android:title="@string/enter_setting_header"
         android:widgetLayout="@layout/switch_widget" />
-    
-    </PreferenceCategory>
-   
+
 </PreferenceScreen>
