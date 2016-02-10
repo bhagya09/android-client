@@ -95,7 +95,11 @@ public class StickerSearchUtils
 			result = result || sticker.isStickerAvailable();
 		}
 
-		if(result)
+		if(!StickerManager.getInstance().isMiniStickersEnabled())
+		{
+			return new Pair<Boolean, List<Sticker>>(stickerList.get(0).isFullStickerAvailable(), stickerList);
+		}
+		else if(result)
 		{
 			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList));
 		}

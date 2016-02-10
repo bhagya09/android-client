@@ -21,6 +21,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
 
@@ -391,7 +392,7 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		{
 			path = sticker.getStickerOfflinePath();
 		}
-		else if(lookForMini)
+		else if(lookForMini && StickerManager.getInstance().isMiniStickersEnabled())
 		{
 			path = sticker.getMiniStickerPath();
 		}
@@ -411,7 +412,7 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 		{
 			stickerBitmap = HikeBitmapFactory.decodeFile(path);
 		}
-		else if(lookForMini)
+		else if(lookForMini  && StickerManager.getInstance().isMiniStickersEnabled())
 		{
 			stickerBitmap = HikeBitmapFactory.getMiniStickerBitmap(path);
 		}

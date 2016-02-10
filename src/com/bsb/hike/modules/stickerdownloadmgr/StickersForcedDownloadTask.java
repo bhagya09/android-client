@@ -234,7 +234,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
     {
         Sticker current = new Sticker(catId,sId);
 
-        return !current.isStickerAvailable();
+        return !current.isFullStickerAvailable();
     }
 
 }

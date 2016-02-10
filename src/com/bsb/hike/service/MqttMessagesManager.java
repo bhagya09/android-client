@@ -870,10 +870,11 @@ public class MqttMessagesManager
 
 			if (!sticker.isFullStickerAvailable())
 			{
-				if (!sticker.isMiniStickerAvailable())
+				if (!sticker.isMiniStickerAvailable() && StickerManager.getInstance().isMiniStickersEnabled())
 				{
 					StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
 				}
+
 				StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
 			}
 		}

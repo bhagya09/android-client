@@ -33,6 +33,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
@@ -108,6 +109,8 @@ public class HttpRequests
 
 	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener)
 	{
+		miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
+
 		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk;
 
 		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(url).setId(requestId).setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)

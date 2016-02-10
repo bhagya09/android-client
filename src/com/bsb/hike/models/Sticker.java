@@ -134,7 +134,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	public boolean isStickerAvailable()
 	{
 		verifyStickerAvailabilityStatus();
-		return ((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE));
+		return(((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) || (mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.LARGE_AND_MINI_STICKERS_AVAILABLE))|| ((mStickerAvailabilityStatus == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY) && StickerManager.getInstance().isMiniStickersEnabled()));
 	}
 
 	public boolean isFullStickerAvailable()

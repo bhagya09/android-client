@@ -2579,7 +2579,7 @@ public class StickerManager
 		return ("mini_" + categoryId + "_" + stickerId).toLowerCase();
 	}
 
-	public String getStickerPathKey(Sticker s)
+	public String getStickerDisplayPathKey(Sticker s)
 	{
 		if (s == null)
 		{
@@ -2590,7 +2590,7 @@ public class StickerManager
 		{
 			return s.getSmallStickerPath();
 		}
-		else if (s.isMiniStickerAvailable())
+		else if (s.isMiniStickerAvailable() && StickerManager.getInstance().isMiniStickersEnabled())
 		{
 			return s.getMiniStickerPath();
 		}
@@ -2695,5 +2695,10 @@ public class StickerManager
 	public String getUniqueStickerID(String stickerId, String categoryId)
 	{
 		return (categoryId + ":" + stickerId).toLowerCase();
+	}
+
+	public boolean isMiniStickersEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, false);
 	}
 }
