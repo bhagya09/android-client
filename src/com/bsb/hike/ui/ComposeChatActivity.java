@@ -42,8 +42,6 @@ import com.bsb.hike.models.MultipleConvMessage;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
@@ -53,9 +51,8 @@ import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeService;
+import com.bsb.hike.tasks.ConvertToJsonArrayTask;
 import com.bsb.hike.tasks.InitiateMultiFileTransferTask;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -71,13 +68,6 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
-import com.kpt.adaptxt.beta.CustomKeyboard;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtEditTextEventListner;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -96,7 +86,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -104,7 +93,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -122,19 +110,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,
-		AdaptxtKeyboordVisibilityStatusListner
+public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback
 {
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-	
 	private static final String SELECT_ALL_MSISDN="all";
 	
 	private final String HORIZONTAL_FRIEND_FRAGMENT = "horizontalFriendFragment";
@@ -158,6 +140,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public static final int PICK_CONTACT_AND_SEND_MODE = 9;
 	
 	public static final int HIKE_DIRECT_MODE = 10;
+
+    public static final int PICK_CONTACT_SINGLE_MODE = 11;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -245,8 +229,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	private boolean thumbnailsRequired= false;
 	
 	private boolean hasMicroappShowcaseIntent = false;
-	 
-	@Override
+
+    private boolean isContactChooserFilter = false;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
@@ -272,7 +258,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
 			addToConference = true;
 		}
-		
+
 		isForwardingMessage = getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, false);
 		isSharingFile = getIntent().getType() != null;
 		nuxIncentiveMode = getIntent().getBooleanExtra(HikeConstants.Extras.NUX_INCENTIVE_MODE, false);
@@ -301,8 +287,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			oneToNConvId = bundle.getString(HikeConstants.Extras.CONVERSATION_ID);
 			gcSettings = bundle.getInt(HikeConstants.Extras.CREATE_GROUP_SETTINGS);
 		}
-		
-		if (savedInstanceState != null)
+
+        if (getIntent().hasExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT))
+        {
+            isContactChooserFilter = getIntent().getBooleanExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,false);
+            composeMode = PICK_CONTACT_SINGLE_MODE;
+        }
+
+        if (savedInstanceState != null)
 		{
 			deviceDetailsSent = savedInstanceState.getBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT);
 		}
@@ -394,54 +386,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 	}
 
-	private void initCustomKeyboard()
-	{	
-		LinearLayout parentView = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(this, parentView, KPTConstants.MULTILINE_LINE_EDITOR, null, ComposeChatActivity.this);
-		mCustomKeyboard.registerEditText(R.id.composeChatNewGroupTagET);
-		mCustomKeyboard.init(tagEditText);
-		tagEditText.setOnClickListener(new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				if (mCustomKeyboard.isCustomKeyboardVisible())
-				{
-					return;
-				}
-				mCustomKeyboard.showCustomKeyboard(tagEditText, true);
-			}
-		});
-		tagEditText.setCustomSelectionActionModeCallback(new ActionMode.Callback()
-		{
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu)
-			{
-				mCustomKeyboard.showCustomKeyboard(tagEditText, true);
-				return true;
-			}
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, Menu menu)
-			{
-				return false;
-			}
-
-			@Override
-			public boolean onActionItemClicked(ActionMode mode, MenuItem item)
-			{
-				return false;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode)
-			{
-
-			}
-		});
-	}
-	
 	boolean isOpened = false;
 
 	private HikeDialog contactDialog;
@@ -480,7 +424,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		super.onSaveInstanceState(outState);
 		outState.putBoolean(HikeConstants.Extras.DEVICE_DETAILS_SENT, deviceDetailsSent);
-		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>)adapter.getAllSelectedContactsMsisdns());
+		outState.putStringArrayList(HikeConstants.Extras.BROADCAST_RECIPIENTS, (ArrayList<String>) adapter.getAllSelectedContactsMsisdns());
 	}
 	
 	@Override
@@ -609,13 +553,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		if(item.getItemId()==android.R.id.home)
 		{
-			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-			{
-				if (tagEditText != null)
-				{
-					mCustomKeyboard.showCustomKeyboard(tagEditText, false);
-				}
-			}
 			onBackPressed();
 			return true;
 		}
@@ -699,11 +636,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false);
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter);
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter);
 			break;
 		}
 
@@ -729,12 +666,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			tagEditText.setVisibility(View.GONE);
 		}
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-		if (!systemKeyboard)
-		{
-			initCustomKeyboard();
-		}
-
 		if (existingGroupOrBroadcastId != null)
 		{
 			MIN_MEMBERS_GROUP_CHAT = 1;
@@ -771,9 +702,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard, tagEditText, searchET);
-		KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-		Utils.hideSoftKeyboard(getApplicationContext(), searchET);
 		super.onPause();
 		if(adapter != null)
 		{
@@ -785,18 +713,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	protected void onResume()
 	{
 		// TODO Auto-generated method stub
-		KptUtils.resumeKeyboard(mCustomKeyboard);
-		if(composeMode != CREATE_GROUP_MODE && composeMode != CREATE_BROADCAST_MODE && composeMode != MULTIPLE_FWD){
-			if (!KptUtils.isSystemKeyboard())
-			{
-				if (mCustomKeyboard != null &&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE&& tagEditText != null)
-				{
-					mCustomKeyboard.showCustomKeyboard(tagEditText, true);
-				}else if(mCustomKeyboard != null&&searchET!=null&&searchMenuItem.isActionViewExpanded()){
-					mCustomKeyboard.showCustomKeyboard(searchET, true);
-				}
-			}
-		}
 		super.onResume();
 		if(adapter != null)
 		{
@@ -808,8 +724,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.composeChatNewGroupTagET, R.id.search_src_text);
-		
 		if (progressDialog != null)
 		{
 			progressDialog.dismiss();
@@ -834,10 +748,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-		}
 		super.onConfigurationChanged(newConfig);
 	}
 	
@@ -862,6 +772,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		final ContactInfo contactInfo = adapter.getItem(arg2);
 
+        if(isContactChooserFilter)
+        {
+            ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
+            contactInfos.add(contactInfo);
+            ConvertToJsonArrayTask convertToJsonArrayTask = new ConvertToJsonArrayTask(this,contactInfos,true);
+            Utils.executeJSONArrayResultTask(convertToJsonArrayTask);
+            return;
+        }
+
+
 		// jugaad , coz of pinned listview , discussed with team
 		if (ComposeChatAdapter.EXTRA_ID.equals(contactInfo.getId()))
 		{
@@ -880,9 +800,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.added_in_broadcast : R.string.added_in_group));
 				return;
 			}
-			else if (adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
+			else if (this.composeMode == CREATE_GROUP_MODE && adapter.getSelectedContactCount()+1 >= HikeConstants.MAX_CONTACTS_IN_GROUP && !adapter.isContactAdded(contactInfo))
 			{
-				showToast(getString(this.composeMode == CREATE_BROADCAST_MODE ? R.string.maxContactInBroadcastErr : R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				showToast(getString(R.string.maxContactInGroupErr, HikeConstants.MAX_CONTACTS_IN_GROUP));
+				return;
+			}else if (this.composeMode == CREATE_BROADCAST_MODE &&  adapter.getSelectedContactCount() >= HikeConstants.MAX_CONTACTS_IN_BROADCAST && !adapter.isContactAdded(contactInfo))
+			{
+				showToast(getString(R.string.maxContactInBroadcastErr, HikeConstants.MAX_CONTACTS_IN_BROADCAST));
 				return;
 			}
 			// for SMS users, append SMS text with name
@@ -916,6 +840,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			break;
 		case PICK_CONTACT_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
+			if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()))
+			{
+				if (!StealthModeManager.getInstance().isActive())
+				{
+					return;
+				}
+			}
+
 			if(selectAllMode)
 			{
 				onItemClickDuringSelectAllMode(contactInfo);
@@ -1016,7 +948,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		int selected = adapter.getSelectedContactCount();
 		if(selected>0){
-		toggleTag(getString(selected==1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
+		toggleTag(getString(selected == 1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural, selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
 		}else{
 			((CheckBox)findViewById(R.id.select_all_cb)).setChecked(false); // very rare case
 		}
@@ -1039,10 +971,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			invalidateOptionsMenu();
 		}
 		else
-		{
+        {
+			if (createGroup) {
+				multiSelectTitle.setText(getString(R.string.group_selected,
+						adapter.getCurrentSelection()));
+			} else {
+
 			multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
-		}
+					}
+		 }
 	}
 
 	@Override
@@ -1063,8 +1001,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			setupMultiSelectActionBar();
 			invalidateOptionsMenu();
 		}
-		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) :
-				getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
+	    	multiSelectTitle.setText(getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+			}
 		}
 
 	@Override
@@ -1130,6 +1072,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 		case CREATE_GROUP_MODE:
 		case PICK_CONTACT_MODE:
+        case PICK_CONTACT_SINGLE_MODE:
 		case PICK_CONTACT_AND_SEND_MODE:
 		case CREATE_BROADCAST_MODE:
 			// createGroupHeader.setVisibility(View.GONE);
@@ -1198,7 +1141,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		final TextView tv = (TextView) selectAllCont.findViewById(R.id.select_all_text);
 		CheckBox cb = (CheckBox) selectAllCont.findViewById(R.id.select_all_cb);
 		cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked){
@@ -1219,7 +1162,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					tagEditText.clear(false);
 					int selected = adapter.getCurrentSelection();
 					toggleTag( getString(selected <=1 ? R.string.selected_contacts_count_singular : R.string.selected_contacts_count_plural,selected), SELECT_ALL_MSISDN, SELECT_ALL_MSISDN);
-					
+
 				}else{
 					// call adapter unselect all
 					selectAllMode = false;
@@ -1228,9 +1171,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					tagEditText.clear(true);
 					setActionBar();
 					invalidateOptionsMenu();
-					
+
 				}
-				
+
 			}
 		});
 		
@@ -1380,6 +1323,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			title.setText(R.string.add_broadcast);
 		}
+        else if (this.composeMode == PICK_CONTACT_SINGLE_MODE)
+        {
+            title.setText(R.string.contacts);
+        }
 		else
 		{
 			title.setText(R.string.new_chat);
@@ -1404,8 +1351,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		ViewGroup closeContainer = (ViewGroup) multiSelectActionBar.findViewById(R.id.close_container);
 
 		multiSelectTitle = (TextView) multiSelectActionBar.findViewById(R.id.title);
+		if (createGroup) {
+			multiSelectTitle.setText(getString(R.string.group_selected,
+					adapter.getCurrentSelection()));
+		} else {
 		multiSelectTitle.setText(createBroadcast ? getString(R.string.broadcast_selected, adapter.getCurrentSelection()) : 
 			getString(R.string.gallery_num_selected, adapter.getCurrentSelection()));
+		}
 		if (isForwardingMessage)
 		{
 			TextView send = (TextView) multiSelectActionBar.findViewById(R.id.save);
@@ -1530,70 +1482,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		dialog.setCancelable(false);
 		dialog.setTitle(getResources().getString(R.string.please_wait));
 		dialog.setMessage(getResources().getString(R.string.loading_data));
-		ConvertToJSONArrayTask task = new ConvertToJSONArrayTask(adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
+		ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
 		Utils.executeJSONArrayResultTask(task);
-	}
-	
-	private JSONArray convertToJSONArray(List<ContactInfo> list, boolean thumbnailsRequired)
-	{
-		JSONArray array = new JSONArray();
-		JSONObject platformInfo;
-		for(ContactInfo contactInfo : list)
-		{
-			try
-			{
-				platformInfo = contactInfo.getPlatformInfo();
-				if (thumbnailsRequired)
-				{
-					platformInfo.put(HikePlatformConstants.THUMBNAIL, ContactManager.getInstance().getImagePathForThumbnail(contactInfo.getMsisdn()));
-				}
-				array.put(platformInfo);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return array;
-	}
-	
-	private class ConvertToJSONArrayTask extends AsyncTask<Void, Void, JSONArray>
-	{
-		ArrayList<ContactInfo> list;
-		ProgressDialog dialog;
-		boolean thumbnailsRequired;
-		
-		public ConvertToJSONArrayTask(ArrayList<ContactInfo> list, ProgressDialog dialog, boolean thumbnailsRequired)
-		{
-			this.list = list;
-			this.dialog = dialog;
-			this.thumbnailsRequired = thumbnailsRequired;
-		}
-		
-		@Override
-		protected void onPreExecute()
-		{
-			dialog.show();
-			super.onPreExecute();
-		}
-		
-		@Override
-		protected JSONArray doInBackground(Void... params)
-		{
-			return convertToJSONArray(this.list, thumbnailsRequired);
-		}
-
-		@Override
-		protected void onPostExecute(JSONArray array)
-		{
-			Intent intent = getIntent();
-			intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
-			setResult(RESULT_OK,intent);
-			ComposeChatActivity.this.finish();
-			dialog.dismiss();
-			super.onPostExecute(array);
-		}
-		
 	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
@@ -1684,6 +1574,37 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CONFIRM_FORWARD);
 				}
 				metadata.put(AnalyticsConstants.SELECTED_USER_COUNT_FWD, arrayList.size());
+
+				try
+				{
+					//Sending File Transfer analytics for bots.
+					if (BotUtils.isBot(presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN)))
+					{
+						JSONArray array = new JSONArray(presentIntent.getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT));
+						JSONObject msgObject;
+						for (int i = 0; i < array.length(); i++)
+						{
+							msgObject = array.getJSONObject(i);
+							{
+								if (msgObject.has(HikeConstants.Extras.FILE_KEY))
+								{
+									String fileKey = msgObject.getString(HikeConstants.Extras.FILE_KEY);
+									JSONObject json = new JSONObject();
+									json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+									json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_FORWARDED);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+									json.putOpt(AnalyticsConstants.LOG_FIELD_1, msgObject.optString(HikeConstants.Extras.FILE_TYPE));
+									json.putOpt(AnalyticsConstants.BOT_MSISDN, presentIntent.getStringExtra(HikeConstants.Extras.PREV_MSISDN));
+									HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.e("ComposeChatActivity", "Bot Content Error");
+				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch(JSONException e)
@@ -2547,13 +2468,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible()&&findViewById(R.id.composeChatNewGroupTagET).getVisibility()==View.VISIBLE)
-		{
-			mCustomKeyboard.showCustomKeyboard(tagEditText, false);
-			KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-			return;
-		}
-
 		if (composeMode == CREATE_GROUP_MODE || composeMode == CREATE_BROADCAST_MODE)
 		{
 			if (existingGroupOrBroadcastId != null || createGroup || createBroadcast || addToConference)
@@ -2744,8 +2658,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return recentContacts;
 	}
-	
-	public static class FileTransferData{
+
+    @Override
+    public void onCallBack(JSONArray array) {
+        Intent intent = getIntent();
+        intent.putExtra(HikeConstants.HIKE_CONTACT_PICKER_RESULT, array == null ? "" : array.toString());
+        intent.putExtra(HikeConstants.Extras.FUNCTION_ID,getIntent().getStringExtra(HikeConstants.Extras.FUNCTION_ID));
+        setResult(RESULT_OK, intent);
+        ComposeChatActivity.this.finish();
+    }
+
+    public static class FileTransferData{
 		public String filePath,fileKey,fileType;
 		public HikeFileType hikeFileType;
 		public boolean isRecording,isForwardingFile;
@@ -2780,8 +2703,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			this.fileType = fileType;
 					
 		}
-		
-		
+
+
 	
 		@Override
 		protected void onPreExecute() {
@@ -2924,7 +2847,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return super.onKeyUp(keyCode, event);
 	}
 	
-	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	private com.bsb.hike.ui.v7.SearchView.OnQueryTextListener onQueryTextListener = new com.bsb.hike.ui.v7.SearchView.OnQueryTextListener()
 	{
 		@Override
 		public boolean onQueryTextSubmit(String query)
@@ -2946,8 +2869,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 	};
 
-	private AdaptxtEditText searchET;
-	
 	private void initSearchMenu(Menu menu)
 	{
 		searchMenuItem = menu.findItem(R.id.search);
@@ -2955,40 +2876,37 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			searchMenuItem.setVisible(true);
 
-			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+			{
+
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
+				{
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(true);
+					}
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem item)
+				{
+
+					if (adapter != null)
+					{
+						adapter.setSearchModeOn(false);
+						adapter.refreshBots();
+					}
+
+					return true;
+				}
+			});
+
+			com.bsb.hike.ui.v7.SearchView searchView = (com.bsb.hike.ui.v7.SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.setQueryHint(getString(R.string.search));
-			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
-			if (!systemKeyboard)
-			{
-				searchView.clearFocus();
-				mCustomKeyboard.registerEditText(searchET);
-				mCustomKeyboard.init(searchET);
-			}
-			searchET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-	 			
-	 			@Override
-	 			public void onFocusChange(View v, boolean hasFocus) {
-	 				if(hasFocus){
-	 					if (KptUtils.isSystemKeyboard())
-						{
-							Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
-						}
-						else
-						{
-							mCustomKeyboard.showCustomKeyboard(searchET, true);
-						}	 						
-	 				}else{
-						if (!KptUtils.isSystemKeyboard())
-						{
-							mCustomKeyboard.showCustomKeyboard(searchET, false);
-							KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-							mCustomKeyboard.updateCore();
-						}
-					}
-	 			}
-	 		});
+
 			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
 			{
 
@@ -3020,63 +2938,4 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
-	{
-		// Adding safety null checks for bug: AND-3867. No time to debug. Don't even know why the visibility check is here in first place.
-		// TODO:: debug this
-		if ((findViewById(R.id.composeChatNewGroupTagET) != null && findViewById(R.id.composeChatNewGroupTagET).getVisibility() == View.VISIBLE)
-				|| (searchET != null && searchET.getVisibility() == View.VISIBLE))
-		{
-			if (kptVisible)
-			{
-				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, height);
-			}
-			else
-			{
-				KptUtils.updatePadding(ComposeChatActivity.this, R.id.ll_compose, 0);
-			}
-		}
-	}
-
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
-	}
-
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(ComposeChatActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

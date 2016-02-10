@@ -931,7 +931,6 @@
     <string name="enter_setting_info">एंटर बटन दबाने से संदेश भेज दिया जाएगा</string>
     <string name="settings_chat">चैट सेटिंग्स</string>
     <string name="settings_localization">भाषा और इनपुट</string>
-    <string name="keyboard_settings_header">कीबोर्ड सेटिंग्स</string>
     <string name="new_line_setting_info">एंटर कुंजी दबाने से नई लाइन जोड़ दी जाएगी</string>
     <string name="nudge_toast"> नज भेजना बंद है।\nआप सेटिंग्स > चैट सेटिंग्स में उसे चालू कर सकते हैं।</string>
     <string name="select_all_hike">सभी चुनें</string>
@@ -1141,34 +1140,7 @@
     <string name="language_summary">अंग्रेज़ी</string>
     <string name="language">भाषा</string>
     <string name="app_language">ऐप भाषा</string>
-    <string name="keyboard_summary">Hike कीबोर्ड दिखाएँ/हटायें</string>
-    <string name="keyboard_title">Hike कीबोर्ड</string>
-    <string name="glide_summary">सतत जेस्चर टाइपिंग</string>
-    <string name="glide_title">ग्लाइड</string>
-    <string name="kpt_adv_summary">स्वत: सुधार, टच फ़ीडबैक और भी बहुत कुछ</string>
-    <string name="keyboard_preference_title">प्राथमिकताएँ</string>
-    <string name="text_correction_pref_title">विषय वाक्य</string>
-    <string name="kpt_adv_title">एडवांस्ड</string>
-    <string name="advanced_keyboard_settings">एडवांस्ड सेटिंग्स</string>
-    <string name="private_mode_title">निजी मोड</string>
-    <string name="private_mode_summary">निजी मोड में सीखे गए शब्द केवल निजी मोड में उपलब्ध होंगे</string>
-    <string name="auto_correct_title">स्वत: सुधार</string>
-    <string name="auto_correct_summary">ग़लत लिखे शब्दों को स्वत: सुधारें</string>
-    <string name="auto_caps_summary">प्रत्येक वाक्य के पहले अक्षर को कैपिटल करें</string>
-    <string name="auto_caps_title">स्वत: कैपिटलाइज़ेशन</string>
-    <string name="auto_spacing_summary">प्रत्येक वाक्य के आरंभ में एक स्पेस जोड़ें</string>
-    <string name="auto_spacing_title">स्वत: स्पेस</string>
-    <string name="display_suggestion_title">सुझाव प्रदर्शित करें</string>
-    <string name="display_suggestion_summary">शब्द सुझाव प्रदर्शित करें</string>
-    <string name="display_accents_title">बोली प्रदर्शित करें</string>
-    <string name="display_accents_summary">अक्षरों की उपलब्ध बोलियां हटाएं</string>
-    <string name="popup_on_keypress_title">की-प्रेस पर पॉपअप</string>
-    <string name="sound_on_keypress_title">की-प्रेस पर ध्वनि</string>
-    <string name="vibrate_on_keypress_title">की-प्रेस पर वाइब्रेट करें</string>
     <string name="delete_all">सभी हटाएं</string>
-    <string name="long_press_duration_title">लंबा दबाने की अवधि</string>
-    <string name="keypress_sound_vol_title">की-प्रेस ध्वनि वॉल्यूम</string>
-    <string name="keypress_vib_duration_title">की-प्रेस वाइब्रेट अवधि</string>
     <string name="like_count_by_unknow_contacts">%2$s के +%1$d मित्र</string>
     <string name ="connection_established_inline_msg">Hike डायरेक्ट कनेक्टेड</string>
     <string name ="connection_deestablished_inline_msg">Hike डायरेक्ट डिस्कनेक्टेड</string>
@@ -1201,7 +1173,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">नई फ़ोटो</string>
     <string name = "upgrade_for_larger_files">यह फ़ाइल प्राप्त करने के लिए %1$s को अपग्रेड करना आवश्यक है। Hike डायरेक्ट द्वारा Hike का नवीनतम संस्करण शेयर करें</string>
-    <string name="group_participant_info">आप किसी ग्रुप में 500 सदस्य तक जोड़ सकते हैं</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">अब आप </font><font color=\"#1090e0\"><b>१०००</b> </font><font color=\"#000000\"> सदस्यों तक को जोड़ सकते हैं। </font>]]></string>
     <string name="maxContactInGroupErr">अधिकतम %1$s सदस्य जोड़े जा सकते हैं</string>
     <string name="added_in_group">यह संपर्क पहले से एक सदस्य है</string>
     <string name="watsapp">WhatsApp द्वारा जोड़ें</string>
@@ -1286,7 +1258,6 @@
     <string name="no_results_found">कोई परिणाम नहीं मिले</string>
     <string name="APPLY">लागू करें</string>
     <string name="level">स्तर</string>
-    <string name="milliseconds">ms</string>
     <string name="contact_name">संपर्क नाम</string>
     <string name="mobile">मोबाइल</string>
     <string name="your_contact">आपका संपर्क</string>
@@ -1419,5 +1390,7 @@
     <string name="language_ftue_complete_message">कीबोर्ड की भाषा बदलने के लिए \nसेटिंग्स -> भाषा &amp; इनपुट में जाऐं</string>
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
+    <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
+    <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
     
 </resources>

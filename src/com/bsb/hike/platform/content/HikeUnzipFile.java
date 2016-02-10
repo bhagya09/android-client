@@ -1,17 +1,17 @@
 package com.bsb.hike.platform.content;
 
-import com.bsb.hike.utils.Logger;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import com.bsb.hike.platform.PlatformContentUtils;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.utils.Logger;
 
 /**
  * Unzips ZIP file.
@@ -24,13 +24,20 @@ public class HikeUnzipFile extends Observable
 
 	private static final String TAG = "HikeUnzipFile";
 
-	private String mFilePath, mDestinationPath;
+	private String mFilePath, mDestinationPath,mAppName;
 
 	public HikeUnzipFile(String filePath, String destinationPath)
 	{
 		mFilePath = filePath;
 		mDestinationPath = destinationPath;
 	}
+
+    public HikeUnzipFile(String filePath, String destinationPath,String appName)
+    {
+        mFilePath = filePath;
+        mDestinationPath = destinationPath;
+        mAppName = appName;
+    }
 
 	public String getFilePath()
 	{
@@ -72,7 +79,9 @@ public class HikeUnzipFile extends Observable
 		}
 		catch (Exception e)
 		{
-			return false;
+            // Adding analytics call here on any exception and failure in unzip code base
+            PlatformUtils.microappIOFailedAnalytics(mAppName,e.toString(), false);
+            return false;
 		}
 
 		return true;
@@ -81,7 +90,7 @@ public class HikeUnzipFile extends Observable
 	/*
 	 * This method called from the above method does the actual unzip of each file and directorie present within the zip file and copy them to the destination
 	 */
-	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws IOException
+	private void unzipEachEntry(ZipFile zipfile, ZipEntry entry, String outputDir) throws Exception
 	{
 		if (entry.isDirectory())
 		{
@@ -98,17 +107,13 @@ public class HikeUnzipFile extends Observable
 		BufferedInputStream inputStream = null;
 		BufferedOutputStream outputStream = null;
 
+        // Any exception got while deflating micro app would be considered as micro app unzip failure
 		try
 		{
 			Logger.v(TAG, "Extracting: " + entry);
 			inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
 			outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-
 			PlatformContentUtils.copyFile(inputStream, outputStream);
-		}
-		catch (FileNotFoundException fnfe)
-		{
-			fnfe.printStackTrace();
 		}
 		finally
 		{

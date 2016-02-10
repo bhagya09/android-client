@@ -12,7 +12,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestTy
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -24,12 +23,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Set;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForCategoriesRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.tagsForMultiStickerRequest;
 
-public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class MultiStickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
-	private static String TAG = StickerTagDownloadTask.class.getSimpleName();
+	private static String TAG = MultiStickerTagDownloadTask.class.getSimpleName();
 
 	private static int requestStep = 0;
 
@@ -42,7 +41,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	private int state;
 	
 
-	public StickerTagDownloadTask(Set<String> stickerSet, int state, Set<String> languagesSet)
+	public MultiStickerTagDownloadTask(Set<String> stickerSet, int state, Set<String> languagesSet)
 	{
 		this.stickerCategoryList = new ArrayList<String>(stickerSet);
 		this.languagesList = new ArrayList<>(languagesSet);
@@ -112,7 +111,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesList));
 
 
-			RequestToken requestToken = tagsForCategoriesRequest(getRequestId(), json, getResponseListener());
+			RequestToken requestToken = tagsForMultiStickerRequest(getRequestId(), json, getResponseListener());
 
 			if (requestToken.isRequestRunning())
 			{
@@ -166,7 +165,7 @@ public class StickerTagDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResul
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				Logger.d(StickerTagWatcher.TAG, "response failed.");
+				Logger.d(TAG, "response failed.");
 			}
 		};
 	}

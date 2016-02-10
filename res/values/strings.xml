@@ -296,6 +296,7 @@
     <string name="invite_friends_hike">Invite friends to hike</string>
     <string name="hike_contacts">PEOPLE ON HIKE</string>
     <string name="sms_contacts">SMS CONTACTS</string>
+    <string name="contacts">CONTACTS</string>
     <string name="invite_subtext">Earn additional free SMS for every friend that joins hike through your SMS invite.</string>
     <string name="india_only">Free SMS can only be sent to India.</string>
     <string name="feedback_on_hike">Feedback on hike for Android</string>
@@ -947,7 +948,6 @@
     <string name="enter_setting_info">Pressing enter key will send the message</string>
     <string name="settings_chat">Chat Settings</string>
     <string name="settings_localization">Language &amp; Input</string>
-    <string name="keyboard_settings_header">KEYBOARD SETTINGS</string>
     <string name="new_line_setting_info">Pressing enter key will add a new line</string>
     <string name="nudge_toast"> Sending nudges has been turned off.\nYou can turn it on in Settings > Chat Settings.</string>
     <string name="select_all_hike">Select all</string>
@@ -1162,33 +1162,7 @@
     <string name="language_summary">English</string>
     <string name="language">Language</string>
     <string name="app_language">App Language</string>
-    <string name="keyboard_summary">Enable/disable Hike keyboard</string>
-    <string name="keyboard_title">Hike Keyboard</string>
-    <string name="glide_summary">Continuous gesture typing</string>
-    <string name="glide_title">Glide</string>
-    <string name="keyboard_preference_title">Preferences</string>
-    <string name="text_correction_pref_title">Text Correction</string>
-    <string name="kpt_adv_title">Advanced</string>
-    <string name="advanced_keyboard_settings">Advanced Settings</string>
-    <string name="private_mode_title">Private Mode</string>
-    <string name="private_mode_summary">Words learned in Private Mode will be available only in Private Mode</string>
-    <string name="auto_correct_title">Auto Correct</string>
-    <string name="auto_correct_summary">Automatically correct mistyped words</string>
-    <string name="auto_caps_summary">Capitalize the first word of each sentence</string>
-    <string name="auto_caps_title">Auto Capitalization</string>
-    <string name="auto_spacing_summary">Add a space at the start of every sentence</string>
-    <string name="auto_spacing_title">Auto Spacing</string>
-    <string name="display_suggestion_title">Display Suggestions</string>
-    <string name="display_suggestion_summary">Display word Suggestion</string>
-    <string name="display_accents_title">Display accents</string>
-    <string name="display_accents_summary">Removes available accents for alphabets</string>
-    <string name="popup_on_keypress_title">Popup on Keypress</string>
-    <string name="sound_on_keypress_title">Sound on keypress</string>
-    <string name="vibrate_on_keypress_title">Vibrate on keypress</string>
     <string name="delete_all">Delete All</string>
-    <string name="long_press_duration_title">Long Press Duration</string>
-    <string name="keypress_sound_vol_title">Keypress Sound Volume</string>
-    <string name="keypress_vib_duration_title">Keypress Vibration Duration</string>
     <string name="like_count_by_unknow_contacts">+%1$d Friends of %2$s</string>
     <string name ="connection_established_inline_msg">Hike Direct Connected</string>
     <string name ="connection_deestablished_inline_msg">Hike Direct Disconnected</string>
@@ -1221,7 +1195,6 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
-    <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
     <string name="watsapp">Add via WhatsApp</string>
@@ -1297,7 +1270,6 @@
     <string name="and">and</string>
 	<string name="others_smallcase">others</string>
 	<string name="level">Level</string>
-	<string name="milliseconds">ms</string>
     <string name="yesterday">yesterday</string>
     <string name="tomorrow">tomorrow</string>
     <string name="today">today</string>
@@ -1485,6 +1457,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
+    <string name="group_selected">%1$s/1000 selected</string>		
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
@@ -1503,4 +1477,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="switch_to_old_key">Switch to your old keyboard</string>
+    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>

@@ -402,6 +402,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString() +"and "+messageJSON.opt(OfflineConstants.CONNECTION_ID));
 				OfflineSessionTracking.getInstance().updateConnectionId(messageJSON.optLong(OfflineConstants.CONNECTION_ID));
 				OfflineController.getInstance().setConnectedClientInfo(messageJSON);
+				OfflineController.getInstance().setConnectingDeviceAsConnected();
+				OfflineController.getInstance().setOfflineState(OfflineConstants.OFFLINE_STATE.CONNECTED);
 				OfflineController.getInstance().sendConnectedCallback();
 			}
 			else if(OfflineUtils.isVoipPacket(messageJSON))

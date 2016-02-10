@@ -2,11 +2,7 @@ package com.bsb.hike.platform;
 
 import java.io.File;
 
-import org.cocos2dx.lib.Cocos2dxActivity;
-import org.cocos2dx.lib.Cocos2dxHandler;
-import org.cocos2dx.lib.Cocos2dxHelper;
-import org.cocos2dx.lib.Cocos2dxVideoHelper;
-import org.cocos2dx.lib.Cocos2dxWebViewHelper;
+import org.cocos2dx.lib.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +21,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -33,6 +30,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -43,6 +41,7 @@ import com.chukong.cocosplay.client.CocosPlayClient;
  * @author sk
  * 
  */
+@DoNotObfuscate
 public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
@@ -82,6 +81,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private final String GAME_ANALYTICS_ENGINE_FAILED = "engine_load_failed";
 	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
 	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
+	SharedPreferences settings;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -99,7 +99,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onCreateDuplicate(savedInstanceState);
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
-		SharedPreferences settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
 		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
@@ -140,6 +140,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 		}
+
+		checkAndRecordBotOpen();
 
 		loadGame();
 	}
@@ -317,6 +319,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
+		nativeBridge.sendAppState(true);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
 	@Override
@@ -326,11 +330,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+		nativeBridge.sendAppState(false);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		nativeBridge.sendAppState(false);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
@@ -383,6 +391,28 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
 
 		return path + File.separator;
+	}
+
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikesnake+", "bot_source" : "bot_notif" }
+	 */
+	private void checkAndRecordBotOpen()
+	{
+		String source = (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER)) ? getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER) : "default";
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

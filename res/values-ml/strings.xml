@@ -933,7 +933,6 @@
     <string name="enter_setting_info">എന്റർ കീ അമർത്തുന്നത് സന്ദേശം അയയ്ക്കും</string>
     <string name="settings_chat">ചാറ്റ് സെറ്റിംഗ്</string>
     <string name="settings_localization">ഭാഷയും &amp; ഇൻപുട്ടും</string>
-    <string name="keyboard_settings_header">കീബോർഡ് സെറ്റിംഗ്സ് </string>
     <string name="new_line_setting_info">എന്റർ കീ അമർത്തുന്നത് പുതിയ ലൈൻ ചേർക്കും</string>
     <string name="nudge_toast"> നഡ്ജുകൾ അയയ്ക്കുന്നത് ഓഫാക്കിയിരിക്കുന്നു.\nസെറ്റിംഗ് > ചാറ്റ് സെറ്റിംഗ് എന്നതിൽ നിങ്ങൾക്കിത് ഓണാക്കാവുന്നതാണ്.</string>
     <string name="select_all_hike">എല്ലാം തിരഞ്ഞെടുക്കുക</string>
@@ -1143,34 +1142,7 @@
     <string name="language_summary">ഇംഗ്ലീഷ്</string>
     <string name="language">ഭാഷ</string>
     <string name="app_language">അപ്ലിക്കേഷൻ ഭാഷാ</string>
-    <string name="keyboard_summary">Hike കീബോർഡ് പ്രാപ്തമാക്കുക/അപ്രാപ്തമാക്കുക</string>
-    <string name="keyboard_title">Hike കീബോർഡ്</string>
-    <string name="glide_summary">തുടർച്ചയായ ഗെസ്ച്വർ ടൈപ്പിംഗ്</string>
-    <string name="glide_title">ഗ്ലൈഡ്</string>
-    <string name="kpt_adv_summary">സ്വയം തിരുത്തലും സ്പർശ ഫീഡ്‌ബാക്കും മറ്റും</string>
-    <string name="keyboard_preference_title">മുൻഗണനകൾ</string>
-    <string name="text_correction_pref_title">ടെക്സ്റ്റ് തിരുത്തൽ</string>
-    <string name="kpt_adv_title">വിപുലം</string>
-    <string name="advanced_keyboard_settings">അഡ്വാൻസ്‌  സെറ്റിംഗ്സ് </string>
-    <string name="private_mode_title">സ്വകാര്യ മോഡ്</string>
-    <string name="private_mode_summary">സ്വകാര്യ മോഡിൽ പഠിച്ചെടുത്ത വാക്കുകൾ സ്വകാര്യ മോഡിൽ മാത്രമേ ലഭ്യമാവുകയുള്ളൂ.</string>
-    <string name="auto_correct_title">സ്വയമേവ തിരുത്തൽ</string>
-    <string name="auto_correct_summary">അക്ഷരത്തെറ്റുള്ള വാക്കുകൾ സ്വയമേവ തിരുത്തുക</string>
-    <string name="auto_caps_summary">ഓരോ വാചകത്തിന്റെയും ആദ്യത്തെ വാക്ക് വലിയക്ഷരമാക്കുക</string>
-    <string name="auto_caps_title">സ്വയം വലിയക്ഷരമാക്കൽ</string>
-    <string name="auto_spacing_summary">ഓരോ വാചകത്തിന്റെയും ആരംഭത്തിൽ ഒരു സ്പെയ്സ് ചേർക്കുക.</string>
-    <string name="auto_spacing_title">സ്വയം സ്പെയ്സിടൽ</string>
-    <string name="display_suggestion_title">നിർദ്ദേശങ്ങൾ പ്രദർശിപ്പിക്കുക</string>
-    <string name="display_suggestion_summary">വാക്ക് നിർദ്ദേശം പ്രദർശിപ്പിക്കുക</string>
-    <string name="display_accents_title">ആക്സന്റുകൾ പ്രദർശിപ്പിക്കുക</string>
-    <string name="display_accents_summary">ആൽബബെറ്റുകൾക്കായി ലഭ്യമായ ആക്സന്റുകൾ നീക്കംചെയ്യുന്നു</string>
-    <string name="popup_on_keypress_title">കീപ്രസ്സിൽ പോപ്പപ്പ്</string>
-    <string name="sound_on_keypress_title">കീപ്രസ്സിൽ ശബ്ദം</string>
-    <string name="vibrate_on_keypress_title">കീപ്രസ്സിൽ വൈബ്രേറ്റ്</string>
     <string name="delete_all">എല്ലാം ഇല്ലാതാക്കുക</string>
-    <string name="long_press_duration_title">ദീർഘ അമർത്തൽ ദൈർഘ്യം</string>
-    <string name="keypress_sound_vol_title">കീപ്രസ്സ് ശബ്ദ വോളിയം</string>
-    <string name="keypress_vib_duration_title">കീപ്രസ്സ് വൈബ്രേഷൻ ദൈർഘ്യം</string>
     <string name="like_count_by_unknow_contacts">%2$s സുഹൃത്തുകളിലെ +%1$d പേർ</string>
     <string name="connection_established_inline_msg">Hike ഡയറക്റ്റ് ബന്ധിപ്പിച്ചു</string>
     <string name="connection_deestablished_inline_msg">Hike ഡയറക്റ്റ് വിച്ഛേദിച്ചു</string>
@@ -1203,7 +1175,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">പുതിയ ഫോട്ടോ</string>
     <string name="upgrade_for_larger_files">ഈ ഫയൽ സ്വീകരിക്കുന്നതിന് %1$s അപ്‌ഗ്രേഡ് ചെയ്യേണ്ടതുണ്ട്. Hike ഡയറക്റ്റ് വഴിയായി ഏറ്റവും പുതിയ Hike പതിപ്പ് പങ്കിടുക</string>
-    <string name="group_participant_info">നിങ്ങൾക്ക് ഗ്രൂപ്പിലേക്ക് 500 അംഗങ്ങളെ ചേർക്കാനാകും</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">ഇപ്പോൾ നിങ്ങൾക്ക് </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> അംഗങ്ങളെ  ചേർക്കാൻ കഴിയും</font>]]></string>
     <string name="maxContactInGroupErr">പരമാവധി %1$s അംഗങ്ങളെ ചേർക്കാം</string>
     <string name="added_in_group">ഈ കൊണ്ടാക്ട് ഇതിനകം അംഗമാണ്</string>
     <string name="watsapp">WhatsApp വഴി ചേർക്കുക</string>
@@ -1288,7 +1260,6 @@
     <string name="no_results_found">ഫലങ്ങളൊന്നും കണ്ടെത്തിയില്ല</string>
     <string name="APPLY">പ്രയോഗിക്കുക</string>
     <string name="level">നില</string>
-    <string name="milliseconds">എംഎസ്</string>
     <string name="contact_name">കോണ്ടാക്ട്റ്റിന്റെ പേര്</string>
     <string name="mobile">മൊബൈൽ</string>
     <string name="your_contact">നിങ്ങളുടെ കൊണ്ടാക്റ്റ്സ് </string>
@@ -1419,5 +1390,7 @@
     <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
     <string name="error_message_upgrade_peer">ഓക്കേ/സഹായംക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. നിങളുടെ സുഹൃത്ത്‌ hike ഡയറക്റ്റ് ഉള്ള hike-ന്റെ പുതിയ വെർഷനിൽ അല്ല.</string>
     <string name="error_message_unsupported_peer">ക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. hike ഡയറക്റ്റ് ആൻഡ്രോയ്ഡിൽ മാത്രമേ ലഭിക്കുകയുള്ളൂ.</string>
+    <string name="switch_to_old_key">"ഫോൺ കീബോർഡ് ഉപയോഗിക്കുക"</string>
+    <string name="switch_to_hike_key">"hike കീബോർഡ് ഉപയോഗിക്കുക"</string>
     
 </resources>

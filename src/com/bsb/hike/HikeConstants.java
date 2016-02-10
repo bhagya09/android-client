@@ -165,6 +165,8 @@ public class HikeConstants
 
 	public static final String LONGITUDE = "long";
 
+	public static final String LOCATION_PROIVDER = "provider";
+
 	public static final String ZOOM_LEVEL = "zoom";
 
 	public static final String ADDRESS = "add";
@@ -606,10 +608,6 @@ public class HikeConstants
 
 	public static final String DELETE_PREF = "deleteAccount";
 
-	// public static final String UNLINK_FB = "unlinkFacebook";
-
-	// public static final String UNLINK_TWITTER = "unlinkTwitter";
-
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
 	public static final String FAV_LIST_PREF = "favoriteList";
@@ -632,50 +630,10 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
-	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
-
-	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
-
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
 
 	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
 
-	public static final String KEYBOARD_PREF = "keyboardPref";
-	
-	public static final String GLIDE_PREF = "glidePref";
-	
-	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
-
-	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
-	
-	public static final String KEYBOARD_ADV_PREF = "advancedPref";
-	
-	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
-	
-	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
-	
-	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
-	
-	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
-	
-	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
-	
-	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
-	
-	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
-	
-	public static final String PRIVATE_MODE_PREF = "privateModePref";
-	
-	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
-	
-	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
-	
-	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
-	
-	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE = "kbd_lng";
-	
 	public static final String LANGUAGE_DOWNLOAD_ERROR_CODE = "er_c";
 
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
@@ -749,7 +707,6 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-	public static final String FORCE_BG = "force_bg";
 
 	public class InviteSection
 	{
@@ -897,7 +854,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -931,7 +888,9 @@ public class HikeConstants
 
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
-	public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
+    public static final int PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST = 1197;
+
+    public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1899,7 +1858,17 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
-	}
+
+        public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
+
+        public static final String LIST = "list";
+
+        public static final String MICRO_APPS_REQUEST_CODE = "microapps_request_code";
+
+        public static final String FUNCTION_ID = "function_id";
+
+        public static final String RESULT_CODE = "result_code";
+    }
 
 	public static final class LogEvent
 	{
@@ -3404,6 +3373,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3759,13 +3730,17 @@ public class HikeConstants
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
+
+	public static final String OFFSET = "offset";
 
 	public static final String APP_LANG_CHANGED_DEL_ACC = "d_a";
 	
@@ -3782,4 +3757,14 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final String SINGLE_STICKER_CDN = "sscdn";
+
+	public static final String STICKER_PACK_CDN = "spcdn";
+
+	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
 }
