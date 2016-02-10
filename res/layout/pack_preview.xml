@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/sticker_preview_container"
+<com.bsb.hike.modules.packPreview.PackPreviewRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pack_preview_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
 
 
-    <android.support.v7.widget.RecyclerView
+    <com.bsb.hike.modules.packPreview.PackPreviewRecyclerView
         android:id="@+id/rvGrid"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/sticker_padding"
+        android:paddingRight="@dimen/sticker_padding">
+    </com.bsb.hike.modules.packPreview.PackPreviewRecyclerView>
+
+    <com.bsb.hike.media.StickerPreviewContainer
+        android:id="@+id/sticker_preview_container"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-    </android.support.v7.widget.RecyclerView>
-
-
+    </com.bsb.hike.media.StickerPreviewContainer>
 
     <RelativeLayout
         android:id="@+id/category_detail_container"
@@ -90,7 +96,7 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-</RelativeLayout>
+</com.bsb.hike.modules.packPreview.PackPreviewRelativeLayout>
 
 
 

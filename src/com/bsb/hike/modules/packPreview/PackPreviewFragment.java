@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -24,6 +25,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.media.StickerPreviewContainer;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
@@ -37,10 +40,11 @@ import com.bsb.hike.view.CustomFontButton;
 /**
  * Created by anubhavgupta on 04/01/16.
  */
-public class StickerPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener
+public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
+		PackPreviewRelativeLayout.TouchListener, View.OnClickListener
 {
 
-	private static final String TAG = StickerPreviewFragment.class.getSimpleName();
+	private static final String TAG = PackPreviewFragment.class.getSimpleName();
 
 	private String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE, HikePubSub.STICKER_DOWNLOADED };
 
@@ -64,21 +68,25 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 
 	private TextView categoryName, categoryDetails, categoryDescription;
 
+	private StickerPreviewContainer stickerPreviewContainer;
+
 	private View header, headerContainer;
+
+	private PackPreviewRelativeLayout packPreviewContainer;
 
 	private int NUM_COLUMNS;
 
 	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, downButtonMaxWidth, categoryDescriptionMaxHeight, topMarginForCenterVertical;
 
-	public StickerPreviewFragment()
+	public PackPreviewFragment()
 	{
 		stickerOtherIconLoader = new StickerOtherIconLoader(HikeMessengerApp.getInstance(), true);
 		NUM_COLUMNS = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
 
-	public static StickerPreviewFragment newInstance(String catId)
+	public static PackPreviewFragment newInstance(String catId)
 	{
-		StickerPreviewFragment fragment = new StickerPreviewFragment();
+		PackPreviewFragment fragment = new PackPreviewFragment();
 		Bundle args = new Bundle();
 		args.putString(HikeConstants.STICKER_CATEGORY_ID, catId);
 		fragment.setArguments(args);
@@ -97,7 +105,7 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		View parent = inflater.inflate(R.layout.sticker_preview, container, false);
+		View parent = inflater.inflate(R.layout.pack_preview, container, false);
 		initView(parent);
 
 		header = LayoutInflater.from(getActivity()).inflate(R.layout.tap_text_header, container, false);
@@ -116,7 +124,7 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 	@Override
 	public void onDestroy()
 	{
-        deRegisterListener();
+		deRegisterListener();
 		super.onDestroy();
 	}
 
@@ -136,6 +144,8 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 
 	protected void initView(View parent)
 	{
+		packPreviewContainer = (PackPreviewRelativeLayout) parent.findViewById(R.id.pack_preview_container);
+		packPreviewContainer.setTouchListener(this);
 		loadingView = parent.findViewById(R.id.loading);
 		loadingFailed = parent.findViewById(R.id.loading_failed);
 		loadingFailed.setOnClickListener(loadingFailedClickListener);
@@ -147,11 +157,13 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 		rvGrid = (RecyclerView) parent.findViewById(R.id.rvGrid);
 		headerDivider = parent.findViewById(R.id.header_divider);
 		categoryDetailsContainer = parent.findViewById(R.id.category_detail_container);
+		stickerPreviewContainer = (StickerPreviewContainer) parent.findViewById(R.id.sticker_preview_container);
+		stickerPreviewContainer.initialise(rvGrid, this);
 	}
 
 	private void registerListener()
 	{
-        HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 
 		IntentFilter filter = new IntentFilter(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
@@ -161,11 +173,11 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
 	}
 
-    private void deRegisterListener()
-    {
-        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
-    }
+	private void deRegisterListener()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+	}
 
 	private void setDetails()
 	{
@@ -198,7 +210,7 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 		downloadBtn.setOnClickListener(getDownloadButtonClickListener());
 
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
-		mAdapter = new PackPreviewAdapter(getActivity(), header);
+		mAdapter = new PackPreviewAdapter(getActivity(), header, this);
 		rvGrid.setLayoutManager(layoutManager);
 		rvGrid.setAdapter(mAdapter);
 
@@ -233,6 +245,27 @@ public class StickerPreviewFragment extends Fragment implements HikePubSub.Liste
 
 		categoryDetailsContainerMaxHeight = Math.max(categoryDetailsContainerMaxHeight, categoryDetailsContainer.getHeight());
 		categoryDescriptionMaxHeight = Math.max(categoryDescriptionMaxHeight, categoryDescription.getHeight());
+	}
+
+	@Override
+	public void onTouch(MotionEvent event)
+	{
+		if(stickerPreviewContainer != null)
+		{
+			stickerPreviewContainer.dismiss();
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		int position = rvGrid.getChildAdapterPosition(v) - 1;
+		if (position < 0 || position >= stickerCategory.getAllStickers().size())
+		{
+			return;
+		}
+
+		Sticker sticker = stickerCategory.getAllStickers().get(position);
+		stickerPreviewContainer.show(v, sticker);
 	}
 
 	@Override

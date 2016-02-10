@@ -298,7 +298,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
-            android:name=".modules.packPreview.StickerPreviewActivity"
+            android:name=".modules.packPreview.PackPreviewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity

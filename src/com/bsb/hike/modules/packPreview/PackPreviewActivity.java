@@ -11,9 +11,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 
-public class StickerPreviewActivity extends HikeAppStateBaseFragmentActivity
+public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 {
-	public StickerPreviewActivity()
+	public PackPreviewActivity()
 	{
 		
 	}
@@ -54,7 +54,7 @@ public class StickerPreviewActivity extends HikeAppStateBaseFragmentActivity
 		
 		Intent intent = getIntent();
 		String catId = intent.getStringExtra(HikeConstants.STICKER_CATEGORY_ID);
-		StickerPreviewFragment stickerPreviewFragment = StickerPreviewFragment.newInstance(catId);
+		PackPreviewFragment stickerPreviewFragment = PackPreviewFragment.newInstance(catId);
 		getSupportFragmentManager().beginTransaction().replace(R.id.sticker_preview_parent, stickerPreviewFragment).commit();
 	}
 	

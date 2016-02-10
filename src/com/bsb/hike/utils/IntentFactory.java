@@ -76,7 +76,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.modules.packPreview.StickerPreviewActivity;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -1321,7 +1321,7 @@ public class IntentFactory
 
 	public static void startStickerPreviewIntent(Context context, String catId)
 	{
-		Intent intent = new Intent(context, StickerPreviewActivity.class);
+		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
 		context.startActivity(intent);
 	}

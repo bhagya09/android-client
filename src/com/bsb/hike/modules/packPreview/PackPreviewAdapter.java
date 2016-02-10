@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
@@ -38,6 +39,8 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private int sizeEachImage;
 
+	private View.OnClickListener onClickListener;
+
 	private final int VIEW_TYPE_TAP_TEXT_HEADER = 0;
 
 	private final int VIEW_TYPE_STICKER = 1;
@@ -46,13 +49,20 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 3;
 
-	public PackPreviewAdapter(Context context, View header)
+	private int rowSize;
+
+	public PackPreviewAdapter(Context context, View header, View.OnClickListener onClickListener)
 	{
 		mContext = context;
+		this.onClickListener = onClickListener;
 		this.header = header;
 		miniStickerLoader = new MiniStickerLoader(true);
+		miniStickerLoader.setLoadingImage(defaultDrawable);
+		miniStickerLoader.setImageFadeIn(false);
 		defaultDrawable = mContext.getResources().getDrawable(R.drawable.shop_placeholder, null);
 		sizeEachImage = StickerSearchUtils.getStickerSize();
+		rowSize =  StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
+
 
 	}
 
@@ -99,15 +109,79 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		switch (viewType)
 		{
 		case VIEW_TYPE_STICKER:
-			Sticker sticker = stickerList.get(position - 1);
+			position = position - 1;
+			Sticker sticker = stickerList.get(position);
 			StickerViewHolder stickerViewHolder = (StickerViewHolder) viewHolder;
-			int padding = Utils.dpToPx(5);
 			ImageView stickerIv = stickerViewHolder.stickerIv;
-			stickerIv.setScaleType(ImageView.ScaleType.FIT_XY);
-			stickerIv.setPadding(padding, padding, padding, padding);
-			stickerIv.setImageDrawable(defaultDrawable);
+			stickerIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+			applyPadding(stickerIv, position);
 			miniStickerLoader.loadImage(StickerManager.getInstance().getStickerSetString(sticker.getStickerId(), sticker.getCategoryId()), stickerIv);
+			break;
 		}
+	}
+
+	private void applyPadding(View view, int position)
+	{
+		int totalSize = getItemCount();
+		int rows = (int) Math.ceil(totalSize/(double) rowSize);
+		int bottomRowStart = (rows - 1) * rowSize;
+		int bottomRowEnd = totalSize - 1;
+
+		int verticalSpacing = Utils.dpToPx(16);
+		int horizontalSpacing = Utils.dpToPx(8);
+
+		int padding = Utils.dpToPx(0);
+
+		int paddingLeft = padding + horizontalSpacing/2;
+		int paddingTop = padding + verticalSpacing/2;
+		int paddingRight = padding + horizontalSpacing/2;
+		int paddingBottom = padding + verticalSpacing/2;
+
+		if (position < 0 || position >= totalSize)
+		{
+			paddingLeft = 0;
+			paddingTop = 0;
+			paddingRight = 0;
+			paddingBottom = 0;
+		}
+		if(position == 0)
+		{
+			paddingLeft -= horizontalSpacing/2;
+			paddingTop -= verticalSpacing/2;
+		}
+		if(position > 0 && position < rowSize - 1)
+		{
+			paddingTop -= verticalSpacing/2;
+		}
+		if(position == rowSize -1)
+		{
+			paddingTop -= verticalSpacing/2;
+			paddingRight -= horizontalSpacing/2;
+		}
+		if(position == bottomRowStart)
+		{
+			paddingLeft -= horizontalSpacing/2;
+			paddingBottom -= verticalSpacing/2;
+		}
+		if(position == bottomRowEnd)
+		{
+			paddingRight -= horizontalSpacing/2;
+			paddingBottom -= verticalSpacing/2;
+		}
+		if(position > bottomRowStart && position < bottomRowEnd)
+		{
+			paddingBottom -= verticalSpacing/2;
+		}
+		if(position % rowSize == 0)
+		{
+			paddingLeft -= horizontalSpacing/2;
+		}
+		if(position % rowSize == (rowSize - 1))
+		{
+			paddingRight -= horizontalSpacing/2;
+		}
+
+		view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
@@ -166,7 +240,10 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		@Override
 		public void onClick(View v)
 		{
-
+			if(onClickListener != null)
+			{
+				onClickListener.onClick(v);
+			}
 		}
 	}
 
@@ -180,6 +257,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private class RecommendedPacksFooterViewHolder extends RecyclerView.ViewHolder
 	{
+
 		public RecommendedPacksFooterViewHolder(View row)
 		{
 			super(row);
