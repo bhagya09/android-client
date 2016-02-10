@@ -7,7 +7,6 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
@@ -199,7 +198,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getMiniStickerPath()
 	{
-		return StickerSearchConstants.MINI_STICKER_KEY_CODE+"_"+categoryId+"_"+stickerId.substring(0,stickerId.indexOf("."));
+		return StickerManager.getInstance().getMiniStickerKey(stickerId,categoryId);
 	}
 
 	public String getStickerOfflinePath()

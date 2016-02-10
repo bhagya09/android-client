@@ -1,32 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -79,6 +52,33 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StickerManager
 {
@@ -2013,11 +2013,9 @@ public class StickerManager
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		mThread.postRunnableWithDelay(new Runnable()
-		{
+		mThread.postRunnableWithDelay(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				Logger.d("StickerCaching", "CachingStickersOnStart");
 				cacheStickersForGivenCategory(StickerManager.RECENT);
 				cacheStickerPaletteIcons();
@@ -2692,5 +2690,10 @@ public class StickerManager
 		{
 			Logger.e(TAG, "json exception in logging sticker response time", e);
 		}
+	}
+
+	public String getUniqueStickerID(String stickerId, String categoryId)
+	{
+		return (categoryId + ":" + stickerId).toLowerCase();
 	}
 }
