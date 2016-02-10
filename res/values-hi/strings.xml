@@ -1422,6 +1422,6 @@
     <string name="delete_conversation">चैट हटायें</string>
     <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
     <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
-
+    <string name="admin_error">यह सदस्य अब इस ग्रुप चैट का हिस्सा नहीं है</string>
     
 </resources>

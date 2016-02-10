@@ -1433,4 +1433,5 @@
     <string name="delete_conversation">বার্তালাপ মুছুন</string>
     <string name="switch_to_old_key">"পুরোনো কীবোর্ড এ ফেরত যান"</string>
     <string name="switch_to_hike_key">"hike কীবোর্ড ব্যবহার করুন"</string>
+     <string name="admin_error">এই ইউসার আর এই গ্রুপের অংশগ্রাহক নন</string>
 </resources>

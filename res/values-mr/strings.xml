@@ -1426,4 +1426,5 @@
     <string name="delete_conversation">संभाषण हटवा</string>
     <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
     <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
+    <string name="admin_error">हा वापरकर्ता आता या ग्रुप चा सभासद नाही</string>
 </resources>
