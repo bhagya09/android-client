@@ -1422,4 +1422,5 @@
     <string name="delete_conversation">സംഭാഷണങ്ങള്‍ ഇല്ലാതാക്കുക</string>
     <string name="switch_to_old_key">"ഫോൺ കീബോർഡ് ഉപയോഗിക്കുക"</string>
     <string name="switch_to_hike_key">"hike കീബോർഡ് ഉപയോഗിക്കുക"</string>
+    <string name="admin_error">ഈ വ്യക്തി ഇനി ഈ ഗ്രൂപ്പിലെ അംഗമല്ല</string>
 </resources>

@@ -1430,4 +1430,5 @@
     <string name="delete_conversation">ಸಂವಾದವನ್ನು ಅಳಿಸುి</string>
     <string name="switch_to_old_key">"ನಿಮ್ಮ ಹಳೆಯ ಕೀಬೋರ್ಡ್ ಗೆ ಬದಲಾಯಿಸಿ"</string>
     <string name="switch_to_hike_key">"ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ hikeಗೆ ಬದಲಾಯಿಸಿ"</string>
+    <string name="admin_error">ಈ ವ್ಯಕ್ತಿ  ಗ್ರೂಪ್ ಚಾಟಿನಲ್ಲಿ ಭಾಗವಹಿಸುತ್ತಿಲ್ಲు</string>
 </resources>

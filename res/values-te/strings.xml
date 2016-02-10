@@ -1423,4 +1423,5 @@
     <string name="delete_conversation">సంభాషణ తొలగించండి</string>
     <string name="switch_to_old_key">"మీ పాత కీబోర్డ్ కి మారండి "</string>
     <string name="switch_to_hike_key">"hike కీబోర్డ్ కి మారండి"</string>
+    <string name="admin_error">ఈ వినియోగదారుడు ఇంక ఏ మాత్రము ఈ గ్రూప్  లో పాల్గొనుట  లేదు</string>
 </resources>

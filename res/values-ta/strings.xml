@@ -1422,5 +1422,6 @@
      <string name="delete_conversation">உரையாடலை அழிக்கவும்</string>
     <string name="switch_to_old_key">"உங்கள் பழைய கீபோர்டிற்கு மாறுங்கள்"</string>
     <string name="switch_to_hike_key">"உங்கள் hike கீபோர்டிற்கு மாறுங்கள் "</string>
+    <string name="admin_error">இந்த நபர் குரூப்பில் இருந்து விலகிவிட்டார்</string>
     
 </resources>
