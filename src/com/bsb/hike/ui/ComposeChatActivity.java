@@ -514,6 +514,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									imageFilePathArray.add(filePath);
 								}
 							}
+							else
+							{
+								allImages = false;
+							}
 						}
 						else
 						{
