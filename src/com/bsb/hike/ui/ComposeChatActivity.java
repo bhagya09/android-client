@@ -487,7 +487,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							}
 							else if (multipleMsgFwdArray.length() == 2)
 							{
-								if(TextUtils.isEmpty(messageToShare))
+								if(TextUtils.isEmpty(messageToShare) && allImages)
 								{
 									messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
 								}
