@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -28,6 +29,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -67,6 +70,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public static final byte SYNC_CONTACTS_DB_IN_SYNC = 2;
 
 	public static final byte SYNC_CONTACTS_ERROR = 3;
+
+	private static final String ADDRESSBOOK_AREA = "ab";
+
+	private static final String AB_SYNC = "sync";
+
+	private static final String HIKE_CONTACT_LIST = "hikeList";
+
+	private static final String DEVICE_CONTACT_LIST = "deviceList";
+
+	private static final String NEW_CONTACT_LIST = "newList";
+
+	private static final String REMOVE_CONTACT_LIST = "remList";
+
+	private static final String SERVER_RESPONSE_CONTACT_LIST = "sResponseList";
 
 	private ContactManager()
 	{
@@ -1844,6 +1861,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			else
 			{
 				updatedContacts = AccountUtils.updateAddressBook(new_contacts_by_id, ids_json);
+			}
+
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_DEBUGING, false))
+			{
+				JSONObject debugData = new JSONObject();
+				try
+				{
+					debugData.put(HIKE_CONTACT_LIST, hikeContacts);
+					debugData.put(DEVICE_CONTACT_LIST, deviceContacts);
+					debugData.put(NEW_CONTACT_LIST, ContactUtils.getJsonContactList(new_contacts_by_id, false));
+					debugData.put(REMOVE_CONTACT_LIST, ContactUtils.getJsonContactList(hike_contacts_by_id, false));
+					debugData.put(SERVER_RESPONSE_CONTACT_LIST, updatedContacts);
+				} catch (JSONException e) {
+					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "AB : Exception occurred while logging dev debug log : "+ e);
+				}
+				HAManager.getInstance().logDevEvent(ADDRESSBOOK_AREA, AB_SYNC, debugData);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_DEBUGING, false);
 			}
 
 			if (updatedContacts == null)

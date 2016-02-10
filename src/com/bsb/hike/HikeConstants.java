@@ -2595,6 +2595,12 @@ public class HikeConstants
 
 		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
 
+		public static final String NET_INFO_MOBILE = "mobile";
+
+		public static final String NET_INFO_WIFI = "wifi";
+
+		public static final String NET_INFO = "none";
+
 	}
 
 	public static final class Toast
@@ -3805,4 +3811,8 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
 
 	public static final String ENABLE_AB_SYNC_CHANGE = "ab_sync_change";
+
+	public static final String ENABLE_AB_SYNC_DEBUGING = "ab_sync_debug";
+
+	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
 }
