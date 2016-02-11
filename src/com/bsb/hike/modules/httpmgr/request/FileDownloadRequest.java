@@ -105,7 +105,6 @@ public class FileDownloadRequest extends Request<File>
 
 			byte[] buffer;
 			int len = 0;
-			int chunkSize;
 			transferredSize = start;
 			long totalSize = start + contentLength;
 			if (state == null)

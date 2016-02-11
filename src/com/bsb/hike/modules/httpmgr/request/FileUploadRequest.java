@@ -142,7 +142,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		long bytesTransferred = mStart;
 		// RandomAccessFile pointer on file to read data in bytes from files
 		RandomAccessFile raf = null;
-		int chunkSize = 0;
+		chunkSize = 0;
 		try
 		{
 			raf = new RandomAccessFile(srcFile, "r");

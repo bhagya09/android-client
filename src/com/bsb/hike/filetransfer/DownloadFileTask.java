@@ -1,9 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,10 +18,15 @@ import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class DownloadFileTask extends FileTransferBase
 {
@@ -64,7 +65,7 @@ public class DownloadFileTask extends FileTransferBase
 
 		if (requestToken == null)
 		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener, chunkSizePolicy);
+			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener, new FileTransferChunkSizePolicy(context));
 		}
 		requestToken.execute();
 	}

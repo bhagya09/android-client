@@ -29,6 +29,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.FileTransferCancelledException;
 import com.bsb.hike.utils.Logger;
@@ -618,7 +619,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 
 				}
-			}, getUploadFileInterceptor(), chunkSizePolicy);
+			}, getUploadFileInterceptor(), new FileTransferChunkSizePolicy(context));
 		}
 		requestToken.execute();
 	}
