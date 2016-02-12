@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
@@ -40,6 +41,12 @@ public class RequestProcessor
 	 */
 	public void addRequest(final Request<?> request, ClientOptions options)
 	{
+		if(request.isWrongRequest())
+		{
+			requestListenerNotifier.notifyListenersOfRequestFailure(request, new HttpException(request.getWrongRequestErrorCode()));
+			return;
+		}
+
 		String requestId = request.getId();
 		
 		Request<?> req = requestMap.get(requestId);

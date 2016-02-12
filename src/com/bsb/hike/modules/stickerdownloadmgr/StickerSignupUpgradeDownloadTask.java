@@ -92,7 +92,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 			{
 				postObject.put(StickerManager.CATEGORY_IDS, categoryList);
 				postObject.put("resId", Utils.getResolutionId());
-				postObject.put("lang", StickerSearchUtils.getCurrentLanguageISOCode());
+				postObject.put("lang", StickerSearchUtils.getISOCodeFromLocale(Utils.getCurrentLanguageLocale()));
 
 				if(!Utils.isEmpty(unSupportedLanguages))
 				{

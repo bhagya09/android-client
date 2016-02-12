@@ -349,7 +349,7 @@ public class OfflineController
 	public void sendImage(String imagePath, String msisdn, int attachementType)
 	{
 	   hikeConverter.buildFileConsignment(imagePath, null, HikeFileType.IMAGE, null, false, -1, FTAnalyticEvents.CAMERA_ATTACHEMENT, msisdn,
-				null);
+			   null);
 	}
 
 	public void createHotspot(String msisdn)
@@ -600,8 +600,8 @@ public class OfflineController
 		
 		offlineManager.sendInfoPacket(connectionId);
 		OfflineUtils.showToastForBatteryLevel();
-		
-		
+
+
 	}
 
 	public SenderConsignment getSenderConsignment(ConvMessage convMessage, boolean persistence)
@@ -710,5 +710,9 @@ public class OfflineController
 			return;
 		}
 		offlineParamerterPojo = new Gson().fromJson(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, configuration), OfflineParameters.class);
+	}
+
+	public  void setConnectingDeviceAsConnected() {
+		offlineManager.setConnectingDeviceAsConnected();
 	}
 }

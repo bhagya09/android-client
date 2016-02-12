@@ -27,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.engine.ProgressByteProcessor;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
@@ -75,6 +76,10 @@ public abstract class Request<T> implements IRequestFacade
 
 	private volatile boolean isFinished;
 
+	private volatile boolean wrongRequest;
+
+	private short wrongRequestErrorCode;
+
 	private Pipeline<IRequestInterceptor> requestInteceptors;
 
 	private Pipeline<IResponseInterceptor> responseInteceptors;
@@ -106,25 +111,15 @@ public abstract class Request<T> implements IRequestFacade
 		this.priority = builder.priority;
 		this.requestType = builder.requestType;
 		this.retryPolicy = builder.retryPolicy;
-		this.retryPolicy.setHostUris(url);
 		addRequestListeners(builder.requestListeners);
 		this.responseOnUIThread = builder.responseOnUIThread;
 		this.asynchronous = builder.asynchronous;
 		ensureSaneDefaults();
+		setHostUris();
 	}
 
 	private void ensureSaneDefaults()
 	{
-		if (url == null)
-		{
-			throw new IllegalStateException("Url must not be null and its length must be greater than 0");
-		}
-
-		if (priority > PRIORITY_LOW || priority < PRIORITY_HIGH)
-		{
-			throw new IllegalArgumentException("Priority can be between " + PRIORITY_LOW + " to " + PRIORITY_HIGH);
-		}
-
 		if (TextUtils.isEmpty(method))
 		{
 			method = GET;
@@ -133,6 +128,11 @@ public abstract class Request<T> implements IRequestFacade
 		if (null == headers)
 		{
 			headers = new ArrayList<Header>();
+		}
+
+		if (priority > PRIORITY_LOW || priority < PRIORITY_HIGH)
+		{
+			priority = PRIORITY_NORMAL;
 		}
 
 		md5Id = generateId();
@@ -145,6 +145,21 @@ public abstract class Request<T> implements IRequestFacade
 		if (responseInteceptors == null)
 		{
 			responseInteceptors = new Pipeline<IResponseInterceptor>();
+		}
+
+		if (url == null)
+		{
+			setWrongRequest(true);
+			setWrongRequestErrorCode(HttpException.REASON_CODE_WRONG_URL);
+			return;
+		}
+	}
+
+	private void setHostUris()
+	{
+		if(retryPolicy != null && url != null)
+		{
+			this.retryPolicy.setHostUris(url);
 		}
 	}
 
@@ -595,6 +610,39 @@ public abstract class Request<T> implements IRequestFacade
 	public void setFuture(Future<?> future)
 	{
 		this.future = future;
+	}
+
+	/**
+	 * Sets the wrongRequest boolean to true when request is wrong
+	 *
+	 * @param wrongRequest
+	 */
+	public void setWrongRequest(boolean wrongRequest) {
+		this.wrongRequest = wrongRequest;
+	}
+
+	/**
+	 * return wrongRequest boolean which denotes whether request is wrong or not
+	 * @return wrongRequest
+	 */
+	public boolean isWrongRequest() {
+		return wrongRequest;
+	}
+
+	/**
+	 * Sets the wrongRequestErrorCode when request is wrong
+	 * @param wrongRequestErrorCode
+	 */
+	public void setWrongRequestErrorCode(short wrongRequestErrorCode) {
+		this.wrongRequestErrorCode = wrongRequestErrorCode;
+	}
+
+	/**
+	 * Gets the wrongRequestErrorCode when request is wrong
+	 * @return
+	 */
+	public short getWrongRequestErrorCode() {
+		return wrongRequestErrorCode;
 	}
 
 	/**
