@@ -3032,7 +3032,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 					{
-						holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), progress, 300);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
 					}
 					else
 					{
