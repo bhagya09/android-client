@@ -3793,6 +3793,12 @@ public class MqttMessagesManager
 
 	private void addToLists(String msisdn, ConvMessage convMessage)
 	{
+		// We were not checking for blocked list here while processing the bulk packet.
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			return;
+		}
+
 		messageList.add(convMessage);
 	}
 
