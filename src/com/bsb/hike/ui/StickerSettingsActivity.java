@@ -40,6 +40,30 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		
 	}
 
+	private void setTitle(TextView title)
+	{
+		switch(stickerSettingsTask) {
+			case STICKER_REORDER_TASK:
+				title.setText(R.string.reorder_stickers);
+				break;
+
+			case STICKER_DELETE_TASK:
+				title.setText(R.string.sticker_delete_setting_header);
+				break;
+
+			case STICKER_HIDE_TASK:
+				title.setText(R.string.sticker_hide_setting_header);
+				break;
+
+			case STICKER_UPDATE_TASK:
+				title.setText(R.string.sticker_update_setting_header);
+				break;
+
+			default:
+				title.setText(R.string.my_stickers);
+		}
+	}
+
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -49,7 +73,7 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
 		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText(R.string.my_stickers);
+		setTitle(title);
 		TextView hideOption = (TextView) actionBarView.findViewById(R.id.hide_pack);
 		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
 		{

@@ -1515,5 +1515,6 @@
     <string name="hide_unhide_pack">Hide/Unhide</string>
     <string name="deleting_pack">Deleting Pack...</string>
     <string name="pack_deleted">Deleted pack</string>
+    <string name="reorder_stickers">Reorder Stickers</string>
 
 </resources>
