@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1588"
-    android:versionName="4.1.0.27.5.http_resume" >
+    android:versionCode="1599"
+    android:versionName="4.2.0.81" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="17"
+        tools:overrideLibrary = "android.support.customtabs"/>
 
     <permission
         android:name="com.bsb.hike.ui.permission.MAPS_RECEIVE"

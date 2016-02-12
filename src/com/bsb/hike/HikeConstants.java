@@ -165,6 +165,8 @@ public class HikeConstants
 
 	public static final String LONGITUDE = "long";
 
+	public static final String LOCATION_PROIVDER = "provider";
+
 	public static final String ZOOM_LEVEL = "zoom";
 
 	public static final String ADDRESS = "add";
@@ -749,7 +751,6 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
-	public static final String FORCE_BG = "force_bg";
 
 	public class InviteSection
 	{
@@ -897,7 +898,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -931,7 +932,9 @@ public class HikeConstants
 
 	public static final int PLATFORM_FILE_CHOOSE_REQUEST = 1196;
 
-	public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
+    public static final int PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST = 1197;
+
+    public static final int ADD_TO_CONFERENCE_REQUEST = 1196;
 
 	public static final int FACEBOOK_REQUEST_CODE = 64206;
 
@@ -1899,7 +1902,17 @@ public class HikeConstants
 		public static final String GROUP_CHAT_DP = "group_chat_dp";
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
-	}
+
+        public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
+
+        public static final String LIST = "list";
+
+        public static final String MICRO_APPS_REQUEST_CODE = "microapps_request_code";
+
+        public static final String FUNCTION_ID = "function_id";
+
+        public static final String RESULT_CODE = "result_code";
+    }
 
 	public static final class LogEvent
 	{
@@ -3404,6 +3417,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3759,7 +3774,9 @@ public class HikeConstants
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
@@ -3784,6 +3801,10 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 

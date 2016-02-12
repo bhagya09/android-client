@@ -86,8 +86,6 @@ public class StickerManager
 
 	public static final String RECENT_STICKER_SERIALIZATION_LOGIC_CORRECTED = "recentStickerSerializationCorrected";
 
-	public static final String REMOVED_CATGORY_IDS = "removedCategoryIds";
-
 	public static final String RESET_REACHED_END_FOR_DEFAULT_STICKERS = "resetReachedEndForDefaultStickers";
 
 	public static final String CORRECT_DEFAULT_STICKER_DIALOG_PREFERENCES = "correctDefaultStickerDialogPreferences";
@@ -365,7 +363,6 @@ public class StickerManager
 
 	public Map<String, StickerCategory> getStickerCategoryMap()
 	{
-		// TODO Auto-generated method stub
 		return stickerCategoriesMap;
 	}
 
@@ -403,6 +400,16 @@ public class StickerManager
 			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
+
+		// Remove tags being used for sticker search w.r.t. deleted sticker category here
+		Set<String> removedCategorySet = new HashSet<String>();
+		removedCategorySet.add(removedCategoryId);
+		StickerSearchManager.getInstance().removeDeletedStickerTags(removedCategorySet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
+	}
+
+	public void removeTagForDeletedStickers(Set<String> removedStickerInfoSet)
+	{
+		StickerSearchManager.getInstance().removeDeletedStickerTags(removedStickerInfoSet, StickerSearchConstants.REMOVAL_BY_STICKER_DELETED);
 	}
 
 	public void addNoMediaFilesToStickerDirectories()
@@ -527,10 +534,9 @@ public class StickerManager
 		}
 		Sticker st = new Sticker(categoryId, stickerId);
 		removeStickerFromCustomCategory(st);
-
 	}
 
-	public void removeStickerFromCustomCategory(Sticker st)
+	private void removeStickerFromCustomCategory(Sticker st)
 	{
 		for (StickerCategory category : stickerCategoriesMap.values())
 		{
@@ -2484,7 +2490,6 @@ public class StickerManager
 
             case StickerSearchConstants.STATE_LANGUAGE_TAGS_DOWNLOAD:
                 HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.STICKER_SET_FOR_LANGUAGE);
-
         }
 	}
 	

@@ -1,11 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.support.v4.view.MenuItemCompat;
 import android.util.Pair;
 import android.view.Menu;
@@ -30,6 +24,12 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.view.CustomFontButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
@@ -216,6 +216,12 @@ public class BotChatThread extends OneToOneChatThread
 
 		menu.findItem(R.id.attachment).setVisible(configuration.isAttachmentPickerEnabled());
 
+		return true;
+	}
+
+	@Override
+	protected boolean showOverflowMenuKeyboardTipIfRequired()
+	{
 		return true;
 	}
 
@@ -446,8 +452,16 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		if (activity.getIntent() != null && activity.getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
-			PlatformUtils.recordBotOpenViaNotification(msisdn);
+			PlatformUtils.recordBotOpenSource(msisdn, activity.getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
 		}
 	}
-	
+
+	/**
+	 * Returning here since we do not want to show the h20 tip here.
+	 */
+	@Override
+	public void scheduleH20Tip()
+	{
+		return;
+	}
 }
