@@ -12,7 +12,6 @@ import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 
 import org.json.JSONException;
@@ -121,7 +120,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			// if paused or error
 			// get session id from state file
 			X_SESSION_ID = fileSavedState.getSessionId();
-			if (X_SESSION_ID == null)
+			if (TextUtils.isEmpty(X_SESSION_ID))
 			{
 				X_SESSION_ID = UUID.randomUUID().toString();
 				mStart = 0;
@@ -143,7 +142,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		long bytesTransferred = mStart;
 		// RandomAccessFile pointer on file to read data in bytes from files
 		RandomAccessFile raf = null;
-		int chunkSize = 0;
+		chunkSize = 0;
 		try
 		{
 			raf = new RandomAccessFile(srcFile, "r");
@@ -210,9 +209,33 @@ public class FileUploadRequest extends Request<JSONObject>
 
 				if (end == (length - 1) && response != null)
 				{
+					bytesTransferred += chunkSize;
+					this.getState().setTransferredSize(bytesTransferred);
 					// upload successful
-					getState().setFTState(FTState.COMPLETED);
-					saveStateInDB(getState());
+					try
+					{
+						byte[] bytes = (byte[]) response.getBody().getContent();
+						JSONObject responseJson = new JSONObject(new String(bytes));
+						getState().setResponseJson(responseJson);
+						publishProgress((float) bytesTransferred / length);
+						try
+						{
+							Thread.sleep(200);
+						}
+						catch (InterruptedException ex)
+						{
+
+						}
+						if (getState().getFTState() != FTState.PAUSED)
+						{
+							getState().setFTState(FTState.COMPLETED);
+						}
+						saveStateInDB(getState());
+					}
+					catch (Exception ex)
+					{
+						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
+					}
 					break;
 				}
 
@@ -248,6 +271,13 @@ public class FileUploadRequest extends Request<JSONObject>
 			LogFull.d("while loop ended");
 			return response;
 		}
+		catch (Throwable th)
+		{
+			FileSavedState fss = new FileSavedState(getState());
+			fss.setFTState(FTState.ERROR);
+			saveStateInDB(fss);
+			throw th;
+		}
 		finally
 		{
 			if (raf != null)
@@ -261,9 +291,10 @@ public class FileUploadRequest extends Request<JSONObject>
 	{
 		int bytesUploaded = 0;
 		ByteArrayRequest req = new ByteArrayRequest.Builder()
-				.setUrl(AccountUtils.fileTransferBase + "/user/pft/")
+				.setUrl(this.getUrl())
 				.addHeader(new Header("X-SESSION-ID", X_SESSION_ID))
-				.setAsynchronous(false).buildRequest();
+				.setAsynchronous(false)
+				.buildRequest();
 
 		DefaultHeaders.applyDefaultHeaders(req);
 
@@ -285,10 +316,6 @@ public class FileUploadRequest extends Request<JSONObject>
 		catch (NumberFormatException ex)
 		{
 			Logger.e(getClass().getSimpleName(), "NumberFormatException while getting bytes uploaded from server : ", ex);
-		}
-		catch (Exception ex)
-		{
-			Logger.e(getClass().getSimpleName(), "exception while getting bytes uploaded from server : ", ex);
 		}
 		return bytesUploaded;
 	}

@@ -1,20 +1,14 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.File;
-
 import android.content.Context;
 import android.os.Handler;
-import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.request.IGetChunkSize;
-import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 public class FileTransferBase
 {
@@ -79,33 +73,6 @@ public class FileTransferBase
 		handler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	}
 
-	protected IGetChunkSize chunkSizePolicy = new IGetChunkSize()
-	{
-		@Override
-		public int getChunkSize()
-		{
-			NetworkType networkType = FTUtils.getNetworkType(context);
-			if (Utils.scaledDensityMultiplier > 1)
-				chunkSize = networkType.getMaxChunkSize();
-			else if (Utils.scaledDensityMultiplier == 1)
-				chunkSize = networkType.getMinChunkSize() * 2;
-			else
-				chunkSize = networkType.getMinChunkSize();
-			// chunkSize = NetworkType.WIFI.getMaxChunkSize();
-			try
-			{
-				long mem = Runtime.getRuntime().maxMemory() - Runtime.getRuntime().totalMemory();
-				if (chunkSize > (int) (mem / 8))
-					chunkSize = (int) (mem / 8);
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			return chunkSize;
-		}
-	};
-
 	public Object getUserContext()
 	{
 		return userContext;
@@ -113,7 +80,9 @@ public class FileTransferBase
 
 	public int getChunkSize()
 	{
-		return chunkSize;
+		if (requestToken != null)
+			return requestToken.getChunkSize();
+		return 0;
 	}
 
 	public int getAnimatedProgress()

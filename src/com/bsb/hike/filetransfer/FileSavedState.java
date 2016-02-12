@@ -170,6 +170,11 @@ public class FileSavedState implements Serializable
 		}
 	}
 
+	public void setResponseJson(JSONObject json)
+	{
+		this._responseJson = json.toString();
+	}
+
 	@Override
 	public String toString()
 	{

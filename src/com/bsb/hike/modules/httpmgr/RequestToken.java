@@ -135,4 +135,9 @@ public class RequestToken
 	{
 		return request.getState();
 	}
+
+	public int getChunkSize()
+	{
+		return request.getChunkSize();
+	}
 }

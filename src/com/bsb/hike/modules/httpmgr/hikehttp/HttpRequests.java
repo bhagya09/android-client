@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -1041,11 +1042,12 @@ public class HttpRequests
 				.setFile(destFilePath)
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setId(String.valueOf(msgId))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.build();
 		return token;
 	}
 	
-	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
 				.setUrl(getUploadFileBaseUrl())
@@ -1054,8 +1056,12 @@ public class HttpRequests
 				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.setFile(filePath)
 				.build();
+
+		requestToken.getRequestInterceptors().addFirst("uploadFileInterceptor", interceptor);
+
 		return requestToken;
 	}
 	
@@ -1066,7 +1072,7 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
 		return requestToken;
 	}
@@ -1079,7 +1085,7 @@ public class HttpRequests
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
 				.head()
-				.setRetryPolicy(new BasicRetryPolicy(3, 0, 1))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
 				.build();
 		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
 		return requestToken;

@@ -93,6 +93,8 @@ public abstract class Request<T> implements IRequestFacade
 
 	private volatile FileSavedState state = null;
 
+	protected int chunkSize;
+
 	protected Request(Init<?> builder)
 	{
 		this.defaultId = builder.id;
@@ -204,6 +206,11 @@ public abstract class Request<T> implements IRequestFacade
 			}
 		}
 		return state;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
 	}
 
 	public void deleteState()
