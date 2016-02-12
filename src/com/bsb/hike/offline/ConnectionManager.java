@@ -69,11 +69,52 @@ public class ConnectionManager
 		String ssid = OfflineUtils.getSsidForMsisdn(OfflineUtils.getMyMsisdn(),targetMsisdn);
 	//	wifiManager.saveConfiguration();
 		Logger.d("OfflineManager","SSID is "+ssid);
-		WifiConfiguration wifiConfig = new WifiConfiguration();
-		wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
-		wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
-		wifiManager.addNetwork(wifiConfig);
-		connectToWifi(wifiConfig.SSID);
+		WifiConfiguration wificonfiguration = new WifiConfiguration();
+		wificonfiguration.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
+		wificonfiguration.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
+		
+		 wificonfiguration.hiddenSSID = false;
+	        wificonfiguration.status = 2;
+	        wificonfiguration.allowedKeyManagement.set(1);
+            wificonfiguration.allowedProtocols.set(0);
+            wificonfiguration.allowedAuthAlgorithms.set(0);
+            wificonfiguration.hiddenSSID = true;
+            wificonfiguration.allowedProtocols.set(0);
+            wificonfiguration.allowedProtocols.set(1);
+            wificonfiguration.allowedPairwiseCiphers.set(1);
+            wificonfiguration.allowedPairwiseCiphers.set(2);
+            wificonfiguration.allowedGroupCiphers.set(0);
+            wificonfiguration.allowedGroupCiphers.set(1);
+            wificonfiguration.allowedGroupCiphers.set(2);
+            wificonfiguration.allowedGroupCiphers.set(3);
+            int i1 = wifiManager.addNetwork(wificonfiguration);
+            if (i1 != -1) {
+				wifiManager.enableNetwork(i1, false);
+				wificonfiguration.networkId = i1;
+				wifiManager.updateNetwork(wificonfiguration);
+				wifiManager.saveConfiguration();
+
+				wifiManager.enableNetwork(i1, true);
+				wifiManager.reconnect();
+			}
+		else
+			{
+				//fallback try
+
+				WifiConfiguration wifiConfig = new WifiConfiguration();
+				wifiConfig.SSID = "\"" +OfflineUtils.encodeSsid(ssid) +"\"";
+				wifiConfig.preSharedKey  = "\"" + OfflineUtils.generatePassword(ssid)  +  "\"";
+				int status=wifiManager.addNetwork(wifiConfig);
+				if(status!=-1)
+				connectToWifi(wifiConfig.SSID);
+
+			}
+		// stack overflow
+	
+		
+		
+      //  int result=wifiManager.addNetwork(wifiConfig);
+		//connectToWifi(wifiConfig.SSID);
 	}
 	
 	
@@ -568,8 +609,8 @@ public class ConnectionManager
 	private void forgetWifiNetwork()
 	{
 		boolean success = wifiManager.removeNetwork(connectedNetworkId);
+		wifiManager.disconnect();
 		wifiManager.saveConfiguration();
-		wifiManager.disconnect();	
 		Logger.d(TAG, "Forget Netwrork was " + success);
 		connectedNetworkId = -1;
 	}
@@ -612,12 +653,13 @@ public class ConnectionManager
 				else
 					currentSsid = wifiConfiguration.SSID;
 
-				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid);
+				Logger.d(TAG, "currentssid is " + currentSsid + "and ssid is " + ssid+"BSSID is "+wifiConfiguration.BSSID);
 				if (currentSsid.equals(ssid))
 				{
-					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID);
+					Logger.d("OfflineManager", "Disconnecting existing ssid. Current ssid is  " + currentSsid + " Ssid in list is  " + wifiConfiguration.SSID + "BSSID is " + wifiConfiguration.BSSID);
 					wifiManager.disconnect();
 					boolean status = wifiManager.enableNetwork(wifiConfiguration.networkId, true);
+					wifiManager.saveConfiguration();
 					Logger.d("OfflineManager", "Enabled network" + status);
 					connectedNetworkId = wifiConfiguration.networkId;
 					wifiManager.reconnect();

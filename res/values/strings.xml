@@ -296,6 +296,7 @@
     <string name="invite_friends_hike">Invite friends to hike</string>
     <string name="hike_contacts">PEOPLE ON HIKE</string>
     <string name="sms_contacts">SMS CONTACTS</string>
+    <string name="contacts">CONTACTS</string>
     <string name="invite_subtext">Earn additional free SMS for every friend that joins hike through your SMS invite.</string>
     <string name="india_only">Free SMS can only be sent to India.</string>
     <string name="feedback_on_hike">Feedback on hike for Android</string>
@@ -1221,7 +1222,6 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">New Photo</string>
     <string name = "upgrade_for_larger_files">%1$s needs to upgrade to receive this file.Share the latest version of Hike now via Hike Direct</string>
-    <string name="group_participant_info">You can add upto 500 members to a group</string>
     <string name="maxContactInGroupErr">Max %1$s members can be added</string>
     <string name="added_in_group">This contact is already a member</string>
     <string name="watsapp">Add via WhatsApp</string>
@@ -1485,6 +1485,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
+    <string name="group_selected">%1$s/1000 selected</string>		
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
