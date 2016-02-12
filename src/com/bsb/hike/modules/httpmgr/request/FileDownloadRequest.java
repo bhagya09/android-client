@@ -129,6 +129,15 @@ public class FileDownloadRequest extends Request<File>
 
 				if (len == -1)
 				{
+					publishProgress((float) transferredSize / totalSize);
+					try
+					{
+						Thread.sleep(200);
+					}
+					catch (InterruptedException ex)
+					{
+
+					}
 					state.setFTState(FTState.COMPLETED);
 					saveStateInDB(state);
 					break;
