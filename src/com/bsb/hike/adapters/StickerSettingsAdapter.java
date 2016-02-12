@@ -24,6 +24,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
@@ -56,6 +57,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	private StickerSettingsTask stickerSettingsTask;
 
 	private HikeDialog deleteDialog;
+
+	private final int FULLY_DOWNLOADED = 0;
+
+	private final int UPDATE_AVAILABLE = 2;
 
 	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask)
 	{
@@ -146,9 +151,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.updateAvailable = (TextView) convertView.findViewById(R.id.update_available);
 			viewHolder.downloadProgress = (ProgressBar) convertView.findViewById(R.id.download_progress);
 			viewHolder.checkBox.setOnClickListener(this);
-
 			viewHolder.deleteButton = (ImageButton) convertView.findViewById(R.id.delete_button);
 			viewHolder.deleteButton.setOnClickListener(this);
+			viewHolder.updateButton = (ImageView) convertView.findViewById(R.id.update_button);
+			viewHolder.updateButton.setOnClickListener(this);
 
 			convertView.setTag(viewHolder);
 			
@@ -160,6 +166,11 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		}
 
 		checkAndEnableDeleteButton(category.getCategoryId(), viewHolder.deleteButton);
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK)
+		{
+			viewHolder.updateButton.setVisibility(View.VISIBLE);
+			viewHolder.updateButton.setImageLevel(UPDATE_AVAILABLE);
+		}
 		viewHolder.downloadProgress.setVisibility(View.GONE); //This is being done to clear the spinner animation.
 		viewHolder.downloadProgress.clearAnimation();
 		
@@ -182,7 +193,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setText(mContext.getResources().getString(R.string.update_sticker));
 				viewHolder.downloadProgress.setVisibility(View.GONE);
 				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
-				
+
 				break;
 			case StickerCategory.DOWNLOADING:
 				viewHolder.updateAvailable.setTextColor(category.isVisible() ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
@@ -191,12 +202,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.deleteButton.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
 				viewHolder.checkBox.setVisibility(View.GONE);
+				viewHolder.updateButton.setVisibility(View.GONE);
 
 				break;
 			case StickerCategory.DONE_SHOP_SETTINGS:  //To be treated as same
 			case StickerCategory.DONE:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
-				
+				viewHolder.updateButton.setImageLevel(FULLY_DOWNLOADED);
+
 				break;
 			case StickerCategory.RETRY:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
@@ -212,6 +225,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			
 		viewHolder.checkBox.setTag(category);
 		viewHolder.deleteButton.setTag(category);
+		viewHolder.updateButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
 		viewHolder.checkBox.setSelected(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
@@ -364,6 +378,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		TextView categorySize;
 		
 		ProgressBar downloadProgress;
+
+		ImageView updateButton;
 	}
 
 	public void onStickerPackDelete(StickerCategory category)
@@ -398,41 +414,51 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	{
 			final StickerCategory category = (StickerCategory) v.getTag();
 
-			if (v.getId() == R.id.delete_button)
+			switch(v.getId())
 			{
-				final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(category);
-				deleteDialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,
-						new HikeDialogListener() {
+				case R.id.delete_button:
+					final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(category);
+					deleteDialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,
+							new HikeDialogListener() {
 
-							@Override
-							public void positiveClicked(HikeDialog hikeDialog)
-							{
-								Utils.executeAsyncTask(deletePackTask);
-								//Displaying delete progress bar and deleting message in delete dialog box
-								CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
-								ProgressBar deletingProgress = (ProgressBar) deleteDialog.findViewById(R.id.loading_progress);
-								deletingProgress.setVisibility(View.VISIBLE);
-								deleteDialog.setMessage(R.string.deleting_pack);
+								@Override
+								public void positiveClicked(HikeDialog hikeDialog)
+								{
+									Utils.executeAsyncTask(deletePackTask);
+									//Displaying delete progress bar and deleting message in delete dialog box
+									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
+									ProgressBar deletingProgress = (ProgressBar) deleteDialog.findViewById(R.id.loading_progress);
+									deletingProgress.setVisibility(View.VISIBLE);
+									deleteDialog.setMessage(R.string.deleting_pack);
+								}
+
+								@Override
+								public void neutralClicked(HikeDialog hikeDialog)
+								{
+
+								}
+
+								@Override
+								public void negativeClicked(HikeDialog hikeDialog)
+								{
+									hikeDialog.dismiss();
+								}
+
 							}
+							,category.getCategoryName());
+					break;
 
-							@Override
-							public void neutralClicked(HikeDialog hikeDialog)
-							{
+				case R.id.update_button:
+					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SETTINGS, mContext);
+					this.notifyDataSetChanged();
+					break;
 
-							}
+				case R.id.category_checkbox:
+					onStickerPackHide(v, category);
+					break;
 
-							@Override
-							public void negativeClicked(HikeDialog hikeDialog)
-							{
-								hikeDialog.dismiss();
-							}
-
-						}
-					,category.getCategoryName());
-			}
-			else
-			{
-				onStickerPackHide(v, category);
+				default:
+					break;
 			}
 	}
 
@@ -479,7 +505,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			cb.setVisibility(View.VISIBLE);
 		}
 	}
-	
+
 	public int getLastVisibleIndex()
 	{
 		return lastVisibleIndex;

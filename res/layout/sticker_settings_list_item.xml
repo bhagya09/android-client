@@ -67,7 +67,15 @@
             android:background="@android:color/transparent"
             android:visibility="gone" />
 
-        <ProgressBar
+            <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/update_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:src="@drawable/sticker_shop_download_drawable_selector"
+            android:visibility="gone"/>
+
+            <ProgressBar
             android:id="@+id/download_progress"
             android:layout_width="24dp"
             android:layout_height="24dp"
