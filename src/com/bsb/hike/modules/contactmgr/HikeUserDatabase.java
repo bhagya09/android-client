@@ -294,9 +294,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
 	{
-		Cursor cursor = mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, DBConstants.MSISDN + "=? ", new String[] { msisdn }, null, null, null, "1");
 		try
 		{
+			Cursor cursor = mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, DBConstants.MSISDN + "=? ", new String[] { msisdn }, null, null, null, "1");
 			cursor.moveToFirst();
 			CallerContentModel callerContentModel = new CallerContentModel();
 			callerContentModel.setBlock(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK))
