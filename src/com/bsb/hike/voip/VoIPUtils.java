@@ -289,14 +289,36 @@ public class VoIPUtils {
 		
 		return source;
 	}
-	
+
+	/**
+	 * Whether to show the ratings popup or not. It is controlled by -
+	 * 1. There is a upper limit on how many times we can ask a user to rate. This is hard coded
+	 * in {@link VoIPConstants#DEFAULT_MAX_RATINGS_REQUESTS}, but can also be set by the server
+	 * by sending a {@link HikeConstants#VOIP_RATINGS_LEFT} config packet.
+	 * 2. We can set a probability of the ratings popup showing up. Also controlled by a config
+	 * packet from the server.
+	 * @return
+	 */
 	public static boolean shouldShowCallRatePopupNow()
 	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance();
-		int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
-		if (frequency > 0)
-			return ((new Random().nextInt(frequency) + 1) == frequency);
-		else 
+
+		int ratingsLeft = sharedPref.getData(HikeConstants.VOIP_RATINGS_LEFT, VoIPConstants.DEFAULT_MAX_RATINGS_REQUESTS);
+
+		if (ratingsLeft > 0) {
+			int frequency = sharedPref.getData(HikeMessengerApp.VOIP_CALL_RATE_POPUP_FREQUENCY, -1);
+			if (frequency > 0) {
+				boolean showNow = ((new Random().nextInt(frequency) + 1) == frequency);
+				if (showNow) {
+					sharedPref.saveData(HikeConstants.VOIP_RATINGS_LEFT, --ratingsLeft);
+					Logger.d(tag, "Showing rating popup. Ratings left: " + ratingsLeft);
+					return true;
+				} else
+					return false;
+			}
+			else
+				return false;
+		} else
 			return false;
 	}
 	
@@ -385,8 +407,8 @@ public class VoIPUtils {
 		boolean enabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_GROUP_CALL_ENABLED, false);
 		return enabled;
 	}
-	
-	public static boolean isBluetoothEnabled(Context context) 
+
+	public static boolean isBluetoothEnabled(Context context)
 	{
 		boolean bluetoothEnabled = true;
 		return bluetoothEnabled;
