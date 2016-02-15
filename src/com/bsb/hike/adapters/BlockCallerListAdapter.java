@@ -3,19 +3,17 @@ package com.bsb.hike.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bsb.hike.HikeMessengerApp;
+
 import com.bsb.hike.R;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.smartImageLoader.IconLoader;
-import com.bsb.hike.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +21,7 @@ import java.util.Map;
 /**
  * Created by ashishagarwal on 07/12/15.
  */
-public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCallerListAdapter.ViewHolder>
+public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCallerListAdapter.BlocklistItemViewHolder>
 {
 
 	private Context mContext;
@@ -45,7 +43,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 	}
 
 
-	class ViewHolder extends RecyclerView.ViewHolder
+	class BlocklistItemViewHolder extends RecyclerView.ViewHolder
 	{
 		CheckBox checkBox;
 
@@ -57,7 +55,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 
 		View item;
 
-		public ViewHolder(View view)
+		public BlocklistItemViewHolder(View view)
 		{
 			super(view);
 			checkBox = (CheckBox) view.findViewById(R.id.checkbox);
@@ -65,6 +63,8 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 			msisdn = (TextView) view.findViewById(R.id.number);
 			contactImage = (ImageView) view.findViewById(R.id.contact_image);
 			item = view.findViewById(R.id.hike_list_item);
+			item.setOnClickListener(onClickListener);
+
 		}
 	}
 
@@ -81,7 +81,7 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor)
+	public void onBindViewHolder(BlocklistItemViewHolder viewHolder, Cursor cursor)
 	{
 		if (cursor != null)
 		{
@@ -105,7 +105,6 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 				viewHolder.checkBox.setChecked(false);
 			}
 			iconLoader.loadImage(msisdn, viewHolder.contactImage, false, true, true);
-			viewHolder.item.setOnClickListener(onClickListener);
 		}
 	}
 
@@ -116,11 +115,11 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 	}
 
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+	public BlocklistItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 	{
 		View convertView;
 		convertView = mInflater.inflate(R.layout.hike_list_item_caller, parent, false);
-		return new ViewHolder(convertView);
+		return new BlocklistItemViewHolder(convertView);
 	}
 
 }
