@@ -89,17 +89,20 @@ public class StickerSearchUtils
 
 		boolean result = false;
 
-		for (int i = 0; i < stickerList.size(); i++)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0) == 0)
 		{
-			Sticker sticker = stickerList.get(i);
-			result = result || sticker.isStickerAvailable();
+			result = stickerList.get(0).isFullStickerAvailable();
+		}
+		else
+		{
+			for (int i = 0; i < stickerList.size(); i++)
+			{
+				Sticker sticker = stickerList.get(i);
+				result = result || sticker.isStickerAvailable();
+			}
 		}
 
-		if(!StickerManager.getInstance().isMiniStickersEnabled())
-		{
-			return new Pair<Boolean, List<Sticker>>(stickerList.get(0).isFullStickerAvailable(), stickerList);
-		}
-		else if(result)
+		if (result)
 		{
 			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList));
 		}
@@ -112,7 +115,7 @@ public class StickerSearchUtils
 
 	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList)
 	{
-		int length = stickerList.size(),count =0;
+		int length = stickerList.size(), count = 0;
 
 		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
 
