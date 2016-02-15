@@ -87,6 +87,7 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -862,6 +863,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (sticker.isStickerAvailable())
 			{
 
+
 				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage(),viewType == ViewType.STICKER_SENT);
 
 				if (stickerDrawable != null)
@@ -894,6 +896,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					stickerHolder.image.setVisibility(View.GONE);
 					stickerHolder.image.setImageDrawable(null);
 					stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker),stickerHolder.image);
+				}
+
+				if(sticker.getStickerCurrentAvailabilityStatus() == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY)
+				{
+					StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, convMessage);
 				}
 			}
 			else
