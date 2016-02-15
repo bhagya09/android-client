@@ -43,13 +43,9 @@ public class CallerContentModel
 
     private long updation_time, creation_time;
 
-	public String getLastName()
+	private String getLastName()
 	{
-		if (full_name != null)
-		{
-			return null;
-		}
-		if (name != null && name.has(LAST_NAME))
+		if (name != null && name.has(LAST_NAME) && !name.get(LAST_NAME).isJsonNull())
 		{
 			return name.get(LAST_NAME).getAsString();
 		}
@@ -59,14 +55,9 @@ public class CallerContentModel
 		}
 	}
 
-	public String getFirstName()
+	private String getFirstName()
 	{
-		if (full_name != null)
-		{
-			return  full_name;
-		}
-		
-		if (name != null && name.has(FIRST_NAME))
+		if (name != null && name.has(FIRST_NAME) && !name.get(FIRST_NAME).isJsonNull())
 		{
 			return name.get(FIRST_NAME).getAsString();
 		}
@@ -80,7 +71,7 @@ public class CallerContentModel
 	{
 		if (!TextUtils.isEmpty(full_name))
 		{
-			return  full_name;
+			return full_name;
 		}
 
 		String firstName = getFirstName();
