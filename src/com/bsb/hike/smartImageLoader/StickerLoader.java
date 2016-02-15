@@ -1,14 +1,14 @@
 package com.bsb.hike.smartImageLoader;
 
-import java.io.File;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+
+import java.io.File;
 
 public class StickerLoader extends ImageWorker
 {
@@ -61,8 +61,7 @@ public class StickerLoader extends ImageWorker
 				String stickerId = args[length - 1];
 				String categoryId = args[length - 3];
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null);
-				singleStickerDownloadTask.execute();
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, null);
 			}
 		}
 		catch(Exception e)
