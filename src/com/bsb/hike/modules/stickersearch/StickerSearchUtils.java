@@ -120,6 +120,7 @@ public class StickerSearchUtils
 		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
 
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
+		List<Sticker> undownloadedList = new ArrayList<Sticker>();
 
 		for (int i = 0; i < length; i++)
 		{
@@ -130,13 +131,18 @@ public class StickerSearchUtils
 			}
 			else if (count < allowedUndownloadedLimit)
 			{
-				resultList.add(sticker);
+				undownloadedList.add(count,sticker);
 				count++;
 			}
 			else
 			{
 				Logger.i(TAG, "Undownloaded sticker found but not shown : " + sticker.getCategoryId() + " : " + sticker.getStickerId());
 			}
+		}
+
+		if(undownloadedList.size()>0)
+		{
+			resultList.addAll(undownloadedList);
 		}
 
 		return resultList;
