@@ -128,23 +128,23 @@ public class StickerSearchUtils
 			{
 				resultList.add(sticker);
 			}
-			else if(count < allowedUndownloadedLimit)
+			else if (count < allowedUndownloadedLimit)
 			{
 				resultList.add(sticker);
-				count ++;
+				count++;
 			}
 			else
 			{
-				Logger.i(TAG,"Undownloaded sticker found but not shown : "+sticker.getCategoryId()+" : "+sticker.getStickerId());
+				Logger.i(TAG, "Undownloaded sticker found but not shown : " + sticker.getCategoryId() + " : " + sticker.getStickerId());
 			}
 		}
 
 		return resultList;
 	}
 
-    /***
-     * @return current keyboard language in ISO 639-2/T format
-     */
+	/***
+	 * @return current keyboard language in ISO 639-2/T format
+	 */
 	public static String getCurrentLanguageISOCode()
 	{
 		if (!HikeMessengerApp.isSystemKeyboard())
@@ -175,10 +175,10 @@ public class StickerSearchUtils
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
 
-		switch(tagType)
+		switch (tagType)
 		{
-			case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
-				return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
+		case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+			return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
 		}
 
 		return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
@@ -193,6 +193,6 @@ public class StickerSearchUtils
 
 	public static boolean tagCacheLimitReached(int tagType)
 	{
-		return getUndownloadedTagsStickersCount() - getTagCacheLimit( tagType)>0;
+		return getUndownloadedTagsStickersCount() - getTagCacheLimit(tagType) > 0;
 	}
 }
