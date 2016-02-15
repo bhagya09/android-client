@@ -164,7 +164,7 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 				isEmptyViewVisible(false);
 				if (blockCallerAdapter == null)
 				{
-					blockCallerAdapter = new BlockCallerListAdapter(result, nameNumberMap, BlockCallerActivity.this, 0);
+					blockCallerAdapter = new BlockCallerListAdapter(BlockCallerActivity.this ,result, nameNumberMap, BlockCallerActivity.this, 0);
 					mCallerBlockListRecyclerView.setAdapter(blockCallerAdapter);
 				}
 				else

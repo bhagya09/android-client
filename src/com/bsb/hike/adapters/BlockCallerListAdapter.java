@@ -68,10 +68,10 @@ public class BlockCallerListAdapter extends RecyclerViewCursorAdapter<BlockCalle
 		}
 	}
 
-	public BlockCallerListAdapter(Cursor c, Map<String, String> nameNumberMap, View.OnClickListener onClickListener, int flags)
+	public BlockCallerListAdapter(Context context, Cursor c, Map<String, String> nameNumberMap, View.OnClickListener onClickListener, int flags)
 	{
-		super(HikeMessengerApp.getInstance().getApplicationContext(), c, flags);
-		mContext = HikeMessengerApp.getInstance().getApplicationContext();
+		super(context, c, flags);
+		mContext = context;
 		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.nameNumberMap = nameNumberMap;
 		mIconImageSize = mContext.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
