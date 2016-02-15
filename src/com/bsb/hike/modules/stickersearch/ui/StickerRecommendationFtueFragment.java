@@ -1,8 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +33,9 @@ import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StickerRecommendationFtueFragment extends Fragment implements Listener, SuccessfulImageLoadingListener
 {
@@ -93,7 +93,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	{
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
+		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true,true);
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 	}
 	
@@ -146,7 +146,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private void loadStickerImage(boolean stickerLoaded)
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), ivSticker, false);
+		stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker), ivSticker, false);
 	}
 	
 	

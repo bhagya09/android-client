@@ -376,6 +376,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 		this.stickerLoader = new StickerLoader(this.context,false,true);
+		this.stickerLoader.laodLargeSticker(true);
 
 	}
 
@@ -892,7 +893,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					stickerHolder.placeHolder.setBackgroundResource(R.drawable.bg_sticker_placeholder);
 					stickerHolder.image.setVisibility(View.GONE);
 					stickerHolder.image.setImageDrawable(null);
-					stickerLoader.loadImage(sticker.getLargeStickerPath(),stickerHolder.image);
+					stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker),stickerHolder.image);
 				}
 			}
 			else

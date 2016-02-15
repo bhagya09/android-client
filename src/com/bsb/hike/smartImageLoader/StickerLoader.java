@@ -2,14 +2,11 @@ package com.bsb.hike.smartImageLoader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-
-import java.io.File;
 
 public class StickerLoader extends ImageWorker
 {
@@ -17,7 +14,7 @@ public class StickerLoader extends ImageWorker
 	
 	private Context ctx;
 	
-	private boolean downloadIfNotFound,lookInDiskCache;
+	private boolean downloadIfNotFound,lookInDiskCache,loadFullSticker;
 
 	public StickerLoader(Context ctx, boolean downloadIfNotFound)
 	{
@@ -37,22 +34,43 @@ public class StickerLoader extends ImageWorker
 		this.lookInDiskCache = lookInDiskCache;
 	}
 
+	public void laodLargeSticker(boolean loadFullSticker)
+	{
+		this.loadFullSticker = loadFullSticker;
+	}
+
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
+
+
 		if (data.contains("res:"))
 		{
 			int id = Integer.parseInt(data.substring(data.indexOf(":") + 1));
 			return HikeBitmapFactory.decodeResource(mResources, id);
 		}
-		else if(lookInDiskCache && data.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE))
+
+		Bitmap bitmap = null;
+
+		Sticker sticker = new Sticker(data);
+
+		if(sticker.isFullStickerAvailable())
 		{
-			return HikeBitmapFactory.getMiniStickerBitmap(data);
+			bitmap = HikeBitmapFactory.decodeFile(loadFullSticker?sticker.getLargeStickerPath():sticker.getSmallStickerPath());
+		}
+
+		else if(lookInDiskCache && StickerManager.getInstance().isMiniStickersEnabled())
+		{
+			bitmap =  HikeBitmapFactory.getMiniStickerBitmap(sticker.getMiniStickerPath());
+		}
+
+		if(bitmap == null)
+		{
+			bitmap = checkAndDownload(bitmap, sticker);
+			return bitmap;
 		}
 		else
 		{
-			Bitmap bitmap = HikeBitmapFactory.decodeFile(data);
-			bitmap = checkAndDownload(bitmap, data);
 			return bitmap;
 		}
 	}
@@ -64,7 +82,7 @@ public class StickerLoader extends ImageWorker
 		return null;
 	}
 
-	private Bitmap checkAndDownload(Bitmap bitmap, String dataKey)
+	private Bitmap checkAndDownload(Bitmap bitmap, Sticker sticker)
 	{
 
 		if(bitmap != null)
@@ -74,39 +92,15 @@ public class StickerLoader extends ImageWorker
 
 		try
 		{
-			if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(dataKey))
+			if((bitmap == null) && downloadIfNotFound && sticker != null)
 			{
-				boolean isMini =  dataKey.contains(StickerSearchConstants.MINI_STICKER_KEY_CODE);
-
-				String data = isMini?dataKey.substring(dataKey.indexOf("_") + 1):dataKey;
-
-				String[] args = null;
-				int length =0;
-				String stickerId = null;
-				String categoryId = null;
-				if(isMini)
+				if( StickerManager.getInstance().isMiniStickersEnabled())
 				{
-					args = data.split(":");
-					length = args.length;
-					stickerId = args[length - 1];
-					categoryId = args[length - 2];
+					StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
 				}
 				else
 				{
-					args = data.split(File.separator);
-					length = args.length;
-					stickerId = args[length - 1];
-					categoryId = args[length - 3];
-				}
-
-
-				if(isMini)
-				{
-					StickerManager.getInstance().initiateMiniStickerDownloadTask(stickerId, categoryId);
-				}
-				else
-				{
-					StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, null);
+					StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
 				}
 
 			}
@@ -117,6 +111,6 @@ public class StickerLoader extends ImageWorker
 			Logger.e(TAG, "exception in downloading sticker from loader : ", e);
 		}
 
-		return bitmap;
+		return null;
 	}
 }

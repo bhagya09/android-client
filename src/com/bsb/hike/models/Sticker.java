@@ -56,6 +56,15 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = (StickerCategory) in.readSerializable();
 	}
 
+	public Sticker(String USID)
+	{
+		String[] data = USID.split(":");
+		this.categoryId = data[0];
+		this.stickerId = data[1];
+		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
+
+	}
+
 	public Sticker()
 	{
 

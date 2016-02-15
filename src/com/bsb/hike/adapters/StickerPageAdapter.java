@@ -1,7 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +12,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -25,6 +23,8 @@ import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.util.List;
 
 
 public class StickerPageAdapter extends BaseAdapter implements OnClickListener
@@ -194,7 +194,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 		{
 		case STICKER:
 			Sticker sticker = (Sticker) item.getSticker();
-			stickerLoader.loadImage(sticker.getSmallStickerPath(), ((ImageView) convertView), isListFlinging);
+			stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker), ((ImageView) convertView), isListFlinging);
 			convertView.setOnClickListener(this);
 				
 			break;
