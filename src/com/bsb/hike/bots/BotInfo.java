@@ -1,16 +1,18 @@
 package com.bsb.hike.bots;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by shobhit on 22/04/15.
  */
+@DoNotObfuscate
 public class BotInfo extends ConvInfo implements Cloneable
 {
 	public static final int MESSAGING_BOT = 1;

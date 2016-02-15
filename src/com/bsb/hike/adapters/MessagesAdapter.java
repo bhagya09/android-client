@@ -92,7 +92,6 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -925,10 +924,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
-				singleStickerDownloadTask.execute();
-
-
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId,categoryId, convMessage);
 			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
@@ -999,7 +995,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, R.anim.valetines_nudge_anim));
+					int animId = chatTheme.getAnimationId();
+					if(animId != -1)
+					{
+						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
+					}
 				}
 			}
 			setTimeNStatus(position, nudgeHolder, true, nudgeHolder.nudge);
