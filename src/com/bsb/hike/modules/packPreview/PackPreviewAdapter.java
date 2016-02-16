@@ -2,9 +2,8 @@ package com.bsb.hike.modules.packPreview;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,9 +28,13 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private Context mContext;
 
-	private View header;
-
 	private List<Sticker> stickerList;
+
+	private List<Pair<Integer, BasePackPreviewAdapterItem>> headerList;
+
+	private List<Pair<Integer, BasePackPreviewAdapterItem>> footerList;
+
+	private int stickerListSize, headerListSize, footerListSize;
 
 	private MiniStickerLoader miniStickerLoader;
 
@@ -41,64 +44,57 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private View.OnClickListener onClickListener;
 
-	private final int VIEW_TYPE_TAP_TEXT_HEADER = 0;
+	public static final int VIEW_TYPE_TAP_TEXT_HEADER = 0;
 
-	private final int VIEW_TYPE_STICKER = 1;
+	public static final int VIEW_TYPE_STICKER = 1;
 
-	private final int VIEW_TYPE_COPYRIGHT_FOOTER = 2;
+	public static final int VIEW_TYPE_AUTHOR_FOOTER = 2;
 
-	private final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 3;
+	public static final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 3;
 
 	private int rowSize;
 
-	public PackPreviewAdapter(Context context, View header, View.OnClickListener onClickListener)
+	public PackPreviewAdapter(Context context, List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList, List<Pair<Integer, BasePackPreviewAdapterItem>> footerList, View.OnClickListener onClickListener)
 	{
-		mContext = context;
+		this.mContext = context;
 		this.onClickListener = onClickListener;
-		this.header = header;
+
+		this.stickerList = stickerList;
+		this.headerList = headerList;
+		this.footerList = footerList;
+
+		stickerListSize = Utils.isEmpty(stickerList) ? 0 : stickerList.size();
+		headerListSize = Utils.isEmpty(headerList) ? 0 : headerList.size();
+		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
+
+		init();
+
+	}
+
+	private void init()
+	{
 		miniStickerLoader = new MiniStickerLoader(true);
 		miniStickerLoader.setLoadingImage(defaultDrawable);
 		miniStickerLoader.setImageFadeIn(false);
 		defaultDrawable = mContext.getResources().getDrawable(R.drawable.shop_placeholder, null);
 		sizeEachImage = StickerSearchUtils.getStickerSize();
 		rowSize =  StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
-
-
 	}
 
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
 	{
-		switch (viewType)
+		if(viewType == VIEW_TYPE_STICKER)
 		{
-		case VIEW_TYPE_TAP_TEXT_HEADER:
-			viewGroup.addView(header);
-			return new TapTextHeaderViewHolder(header);
-		case VIEW_TYPE_STICKER:
 			ImageView stickerIv = new ImageView(mContext);
 			RecyclerView.LayoutParams ll = new RecyclerView.LayoutParams(sizeEachImage, sizeEachImage);
 			stickerIv.setLayoutParams(ll);
 			return new StickerViewHolder(stickerIv);
-		case VIEW_TYPE_COPYRIGHT_FOOTER:
-			View copyrightFooter = LayoutInflater.from(mContext).inflate(R.layout.copyright_footer, viewGroup, false);
-			return new CopyrightFooterViewHolder(copyrightFooter);
-		case VIEW_TYPE_RECOMMENDED_PACKS_FOOTER:
-			View recommendedPacksFooter = LayoutInflater.from(mContext).inflate(R.layout.recommended_packs_footer, viewGroup, false);
-			RecyclerView rvRecommendedPacksGrid = (RecyclerView) recommendedPacksFooter.findViewById(R.id.rvRecommendedPacksGrid);
-			int height = StickerSearchUtils.getStickerSize();
-			rvRecommendedPacksGrid.getLayoutParams().height = height;
-			LinearLayoutManager recommendedPacksLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false);
-			RecommendedPacksAdapter mRecommendedPacksAdapter = new RecommendedPacksAdapter(mContext);
-			rvRecommendedPacksGrid.setLayoutManager(recommendedPacksLayoutManager);
-			rvRecommendedPacksGrid.setAdapter(mRecommendedPacksAdapter);
-			mRecommendedPacksAdapter.setStickerList(stickerList);
-			mRecommendedPacksAdapter.notifyDataSetChanged();
-			return new RecommendedPacksFooterViewHolder(recommendedPacksFooter);
-		default:
-			stickerIv = new ImageView(mContext);
-			ll = new RecyclerView.LayoutParams(sizeEachImage, sizeEachImage);
-			stickerIv.setLayoutParams(ll);
-			return new StickerViewHolder(stickerIv);
+		}
+		else
+		{
+			BasePackPreviewAdapterItem item = getItem(viewType);
+			return item.getViewHolder();
 		}
 	}
 
@@ -130,6 +126,9 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		int verticalSpacing = Utils.dpToPx(16);
 		int horizontalSpacing = Utils.dpToPx(8);
 
+		int leftSpacing = Utils.dpToPx(16);
+		int rightSpacing = Utils.dpToPx(16);
+
 		int padding = Utils.dpToPx(0);
 
 		int paddingLeft = padding + horizontalSpacing/2;
@@ -137,48 +136,50 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		int paddingRight = padding + horizontalSpacing/2;
 		int paddingBottom = padding + verticalSpacing/2;
 
-		if (position < 0 || position >= totalSize)
+		if (position < 0 || position >= totalSize)							//header or footer
 		{
 			paddingLeft = 0;
 			paddingTop = 0;
 			paddingRight = 0;
 			paddingBottom = 0;
 		}
-		if(position == 0)
+		if(position == 0)													// top left
 		{
 			paddingLeft -= horizontalSpacing/2;
 			paddingTop -= verticalSpacing/2;
 		}
-		if(position > 0 && position < rowSize - 1)
+		if(position > 0 && position < rowSize - 1)							// middle element of top row
 		{
 			paddingTop -= verticalSpacing/2;
 		}
-		if(position == rowSize -1)
+		if(position == rowSize -1)											// top right
 		{
 			paddingTop -= verticalSpacing/2;
 			paddingRight -= horizontalSpacing/2;
 		}
-		if(position == bottomRowStart)
+		if(position == bottomRowStart)										// bottom left
 		{
 			paddingLeft -= horizontalSpacing/2;
 			paddingBottom -= verticalSpacing/2;
 		}
-		if(position == bottomRowEnd)
+		if(position == bottomRowEnd)										// bottom right
 		{
 			paddingRight -= horizontalSpacing/2;
 			paddingBottom -= verticalSpacing/2;
 		}
-		if(position > bottomRowStart && position < bottomRowEnd)
+		if(position > bottomRowStart && position < bottomRowEnd)			// middle element of bottom row
 		{
 			paddingBottom -= verticalSpacing/2;
 		}
-		if(position % rowSize == 0)
+		if(position % rowSize == 0)											// leftmost	column
 		{
 			paddingLeft -= horizontalSpacing/2;
+			paddingLeft += leftSpacing;
 		}
-		if(position % rowSize == (rowSize - 1))
+		if(position % rowSize == (rowSize - 1))								// rightmost column
 		{
 			paddingRight -= horizontalSpacing/2;
+			paddingRight += rightSpacing;
 		}
 
 		view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
@@ -187,43 +188,47 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	@Override
 	public int getItemViewType(int position)
 	{
-		if (position == 0)
+		if (position < headerListSize)
 		{
-			return VIEW_TYPE_TAP_TEXT_HEADER;
+			return headerList.get(position).first;
 		}
-		else if (position == stickerList.size() + 1)
+		else if (position >= headerList.size() && position < (headerListSize + stickerListSize))
 		{
-			return VIEW_TYPE_COPYRIGHT_FOOTER;
-		}
-		else if (position == stickerList.size() + 2)
-		{
-			return VIEW_TYPE_RECOMMENDED_PACKS_FOOTER;
+			return VIEW_TYPE_STICKER;
 		}
 		else
 		{
-			return VIEW_TYPE_STICKER;
+			position = position - (headerListSize + stickerListSize);
+			return footerList.get(position).first;
 		}
 	}
 
 	@Override
 	public int getItemCount()
 	{
-		if (Utils.isEmpty(stickerList))
-			return 3;
-		return stickerList.size() + 3;
+		return (headerListSize + stickerListSize + footerListSize);
 	}
 
-	public void setStickerList(List<Sticker> stickerList)
-	{
-		this.stickerList = stickerList;
-	}
 
-	private class TapTextHeaderViewHolder extends RecyclerView.ViewHolder
+	public BasePackPreviewAdapterItem getItem(int viewType)
 	{
-		public TapTextHeaderViewHolder(View row)
+		for(Pair<Integer, BasePackPreviewAdapterItem> item : headerList)
 		{
-			super(row);
+			if(item.first == viewType)
+			{
+				return item.second;
+			}
 		}
+
+		for(Pair<Integer, BasePackPreviewAdapterItem> item : footerList)
+		{
+			if(item.first == viewType)
+			{
+				return item.second;
+			}
+		}
+
+		return null;
 	}
 
 	private class StickerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
@@ -247,20 +252,4 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		}
 	}
 
-	private class CopyrightFooterViewHolder extends RecyclerView.ViewHolder
-	{
-		public CopyrightFooterViewHolder(View row)
-		{
-			super(row);
-		}
-	}
-
-	private class RecommendedPacksFooterViewHolder extends RecyclerView.ViewHolder
-	{
-
-		public RecommendedPacksFooterViewHolder(View row)
-		{
-			super(row);
-		}
-	}
 }

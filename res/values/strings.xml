@@ -1510,4 +1510,5 @@
     <string name="recommended_packs">recommended packs</string>
     <string name="pack_preview_activity_actionbar_text">Sticker Details</string>
     <string name="downloaded">Downloaded</string>
+    <string name="downloading_sticker">Downloading</string>
 </resources>

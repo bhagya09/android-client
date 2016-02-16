@@ -13,6 +13,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,6 +37,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by anubhavgupta on 04/01/16.
@@ -70,7 +74,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private StickerPreviewContainer stickerPreviewContainer;
 
-	private View header, headerContainer;
+	private View headerContainer;
 
 	private PackPreviewRelativeLayout packPreviewContainer;
 
@@ -107,9 +111,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		View parent = inflater.inflate(R.layout.pack_preview, container, false);
 		initView(parent);
-
-		header = LayoutInflater.from(getActivity()).inflate(R.layout.tap_text_header, container, false);
-		headerContainer = header.findViewById(R.id.tap_text_header_container);
 		return parent;
 	}
 
@@ -210,7 +211,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		downloadBtn.setOnClickListener(getDownloadButtonClickListener());
 
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
-		mAdapter = new PackPreviewAdapter(getActivity(), header, this);
+		mAdapter = new PackPreviewAdapter(getActivity(), stickerCategory.getAllStickers(), getHeaderList(), getFooterList(), this);
 		rvGrid.setLayoutManager(layoutManager);
 		rvGrid.setAdapter(mAdapter);
 
@@ -230,9 +231,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			}
 		});
 
-		mAdapter.setStickerList(stickerCategory.getAllStickers());
-		mAdapter.notifyDataSetChanged();
-
 		rvGrid.addOnScrollListener(new PackPreviewFragmentScrollListener(NUM_COLUMNS, this));
 
 		setRvGridPadding();
@@ -245,6 +243,33 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 		categoryDetailsContainerMaxHeight = Math.max(categoryDetailsContainerMaxHeight, categoryDetailsContainer.getHeight());
 		categoryDescriptionMaxHeight = Math.max(categoryDescriptionMaxHeight, categoryDescription.getHeight());
+	}
+
+	public List<Pair<Integer, BasePackPreviewAdapterItem>> getHeaderList()
+	{
+		List<Pair<Integer, BasePackPreviewAdapterItem>> headerList = new ArrayList<>(1);
+
+		BasePackPreviewAdapterItem tapTextHeaderItem = new TapTextHeaderItem(getActivity());
+		headerContainer = ((TapTextHeaderItem) tapTextHeaderItem).getHeaderContainer();
+
+		headerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_TAP_TEXT_HEADER, tapTextHeaderItem));
+
+		return headerList;
+	}
+
+	public List<Pair<Integer, BasePackPreviewAdapterItem>> getFooterList()
+	{
+		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(2);
+		BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), null);
+		footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
+
+		if(!Utils.isEmpty(stickerCategory.getRecommendedPacks()))
+		{
+			BasePackPreviewAdapterItem recommendedPacksFooterItem = new RecommendedPacksFooterItem(getActivity(), getActivity(), stickerCategory);
+			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_RECOMMENDED_PACKS_FOOTER, recommendedPacksFooterItem));
+		}
+
+		return footerList;
 	}
 
 	@Override
@@ -275,8 +300,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		{
 			return;
 		}
-
-		Logger.d("gupta", "scrolled y : " + dy + " direction : " + scrollDirection);
 
 		layoutCategoryIcon(dy);
 		calculateTopMarginForCenterVertical(dy);
@@ -491,7 +514,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			downloadBtn.setText(getResources().getString(R.string.retry));
 			break;
 		case StickerCategory.DOWNLOADING:
-			downloadBtn.setText(getResources().getString(R.string.downloading));
+			downloadBtn.setText(getResources().getString(R.string.downloading_sticker));
 			break;
 		}
 	}

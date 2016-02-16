@@ -516,4 +516,22 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	{
 		this.downloadedStickersCount = count;
 	}
+
+	public List<StickerCategory> getRecommendedPacks()
+	{
+		List<StickerCategory> stickerCategoryList = new ArrayList<>(10);
+
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
+		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
+
+		return stickerCategoryList;
+	}
 }

@@ -10,9 +10,7 @@
     <com.bsb.hike.modules.packPreview.PackPreviewRecyclerView
         android:id="@+id/rvGrid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/sticker_padding"
-        android:paddingRight="@dimen/sticker_padding">
+        android:layout_height="wrap_content">
     </com.bsb.hike.modules.packPreview.PackPreviewRecyclerView>
 
     <com.bsb.hike.media.StickerPreviewContainer

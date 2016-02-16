@@ -7873,4 +7873,9 @@ public class Utils
 	{
 		return (int) (dp * Utils.densityMultiplier);
 	}
+
+	public static int spToPx(float sp)
+	{
+		return (int) (sp * Utils.scaledDensityMultiplier);
+	}
 }
