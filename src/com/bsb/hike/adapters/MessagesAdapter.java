@@ -16,6 +16,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -349,6 +350,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private StickerLoader stickerLoader;
 
+	private short mConnectionType;
+
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
@@ -378,6 +381,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 		this.stickerLoader = new StickerLoader(this.context,false,true);
 		this.stickerLoader.laodLargeSticker(true);
+		this.mConnectionType = Utils.getNetworkType(context);
 
 	}
 
@@ -862,7 +866,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			 */
 			if (sticker.isStickerAvailable())
 			{
-				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage(),viewType == ViewType.STICKER_SENT);
+				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage(),viewType == ViewType.STICKER_SENT || mConnectionType == ConnectivityManager.TYPE_MOBILE_MMS);
 
 				if (stickerDrawable != null)
 				{
