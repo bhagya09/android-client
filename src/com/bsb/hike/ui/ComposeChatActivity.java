@@ -10,7 +10,8 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.support.v7.widget.SearchView;		
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
 import com.bsb.hike.HikeMessengerApp;
@@ -2207,7 +2208,27 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return arrayList;
 	}
+	private OnQueryTextListener onQueryTextListener = new OnQueryTextListener()
+	{
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			Utils.hideSoftKeyboard(getApplicationContext(), searchMenuItem.getActionView());
+			return false;
+		}
+		
+		@Override
+		public boolean onQueryTextChange(String newText)
+		{
+			if (newText != null)
+				newText = newText.trim();
+			adapter.onQueryChanged(newText);
 
+			return true;
+		}
+		
+		
+	};
 	private void onSendContactAndPick(ArrayList<ContactInfo> arrayList)
 	{
 		Intent presentIntent = getIntent();
@@ -2847,27 +2868,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		return super.onKeyUp(keyCode, event);
 	}
 	
-	private com.bsb.hike.ui.v7.SearchView.OnQueryTextListener onQueryTextListener = new com.bsb.hike.ui.v7.SearchView.OnQueryTextListener()
-	{
-		@Override
-		public boolean onQueryTextSubmit(String query)
-		{
-			Utils.hideSoftKeyboard(getApplicationContext(), searchMenuItem.getActionView());
-			return false;
-		}
-		
-		@Override
-		public boolean onQueryTextChange(String newText)
-		{
-			if (newText != null)
-				newText = newText.trim();
-			adapter.onQueryChanged(newText);
-
-			return true;
-		}
-		
-		
-	};
 
 	private void initSearchMenu(Menu menu)
 	{
@@ -2876,34 +2876,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			searchMenuItem.setVisible(true);
 
-			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
-			{
-
-				@Override
-				public boolean onMenuItemActionExpand(MenuItem item)
-				{
-					if (adapter != null)
-					{
-						adapter.setSearchModeOn(true);
-					}
-					return true;
-				}
-
-				@Override
-				public boolean onMenuItemActionCollapse(MenuItem item)
-				{
-
-					if (adapter != null)
-					{
-						adapter.setSearchModeOn(false);
-						adapter.refreshBots();
-					}
-
-					return true;
-				}
-			});
-
-			com.bsb.hike.ui.v7.SearchView searchView = (com.bsb.hike.ui.v7.SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.setQueryHint(getString(R.string.search));
 
