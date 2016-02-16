@@ -8314,6 +8314,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String helperData = c.getString(helperDataIdx);
 		int version = c.getInt(versionIdx);
         int mAppVersionCode = 0;
+        // Keeping default bot type as web micro apps
+        byte nmBotType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
 		// Get mAppVersionCode from the metadata to store in Bot Info Object
 		if (!TextUtils.isEmpty(metadata))
@@ -8324,7 +8326,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				if (mdJsonObject != null)
 				{
-					JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                    String nonMessagingBotType = mdJsonObject.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE);
+
+                    if(!TextUtils.isEmpty(nonMessagingBotType) && nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE))
+                        nmBotType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 					if (cardObjectJson != null)
 						mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
 				}
@@ -8336,7 +8343,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
         
 		BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setMAppVersionCode(mAppVersionCode).build();
+				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setMAppVersionCode(mAppVersionCode).setBotType(nmBotType).build();
 
 		botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		return botInfo;

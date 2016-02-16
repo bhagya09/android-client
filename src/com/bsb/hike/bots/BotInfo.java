@@ -48,7 +48,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 	
 	private int updatedVersion;
 
-    private byte botType;
+    private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
     private int mAppVersionCode;
 
