@@ -427,30 +427,8 @@ public enum StickerSearchDataController
 									}
 									else if (key.equalsIgnoreCase("*afestival"))
 									{
-										JSONArray festivalArray = attributeData.optJSONArray(key);
-										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", festivals: " + festivalArray);
-										StringBuilder sb = new StringBuilder();
-
-										if (festivalArray != null)
-										{
-											String festivalString;
-											for (int i = 0; i < festivalArray.length(); i++)
-											{
-												festivalString = festivalArray.optString(i);
-												if (!Utils.isBlank(festivalString))
-												{
-													sb.append(festivalString.trim().toUpperCase(Locale.ENGLISH));
-													sb.append(StickerSearchConstants.STRING_DISSOCIATOR);
-												}
-											}
-
-											if (sb.length() > 0)
-											{
-												sb.setLength(sb.length() - 1);
-											}
-										}
-
-										stickerFestivals = sb.toString();
+										JSONObject festivalData = attributeData.optJSONObject(key);
+										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", events: " + festivalData);
 									}
 								}
 								else
