@@ -167,7 +167,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 				}
 				catch (JSONException e)
 				{
-					Logger.d(TAG, "Exception in JSON" + e.getMessage());
+					Logger.w(TAG, "Exception in JSON" + e.getMessage());
 					e.printStackTrace();
 				}
 
@@ -183,7 +183,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				Logger.d(StickerTagWatcher.TAG, "Request failed.");
+				Logger.e(StickerTagWatcher.TAG, "Request failed.");
 				doOnFailure(httpException);
 			}
 		};
