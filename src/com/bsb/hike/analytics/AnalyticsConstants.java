@@ -170,8 +170,6 @@ public class AnalyticsConstants
 
 	public static final String HIKE_SDK_INSTALL_DECLINE = "hikeSDKInstallDecline";
 
-	public static final String ANALYTICS_THREAD_WRITER = "THREAD-WRITER";
-
 	// Added For Session
 	public static final String SESSION_ID = "sid";
 
@@ -214,7 +212,6 @@ public class AnalyticsConstants
 	public static String UPGRADE_EVENT = "upgrade";
 	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
 	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
-
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
