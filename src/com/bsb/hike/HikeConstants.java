@@ -1303,6 +1303,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 
+	public static final String VOIP_RATINGS_LEFT = "vrl";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
