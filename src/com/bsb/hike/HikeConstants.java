@@ -898,7 +898,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -1346,6 +1346,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+
+	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final class ChatHead
 	{
@@ -3417,6 +3419,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3772,7 +3776,9 @@ public class HikeConstants
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
@@ -3797,6 +3803,10 @@ public class HikeConstants
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
