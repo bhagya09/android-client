@@ -166,6 +166,7 @@ public class GCMIntentService extends GCMBaseIntentService
 	protected void onUnregistered(Context context, String regId)
 	{
 		Logger.d(getClass().getSimpleName(), "UNREGISTERED ID: " + regId);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikeService.REGISTER_TO_GCM_ACTION));
 	}
 	
 	/**
