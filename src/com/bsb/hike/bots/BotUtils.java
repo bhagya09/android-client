@@ -295,6 +295,11 @@ public class BotUtils
             for (int i = 0; i< appsToBeRemoved.length(); i++) {
                 String msisdn = appsToBeRemoved.get(i).toString();
                 BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+                // If botInfo is null i.e bot is not present, ignore this request and continue with further requests
+                if(botInfo == null)
+                    continue;
+
                 byte botType = botInfo.getBotType();
                 String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
                 String appName = msisdn.substring(1, msisdn.length() - 1);
