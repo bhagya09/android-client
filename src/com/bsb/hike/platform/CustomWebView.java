@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -141,7 +142,13 @@ public class CustomWebView extends WebView
 			{
 				getSettings().setJavaScriptEnabled(false);
 				removeAllViews();
-				setWebViewClient(null);
+				if(Utils.isKitkatOrHigher()){
+					setWebViewClient(null);
+				}else{
+					//Giving a dummy object to avoid
+					//android.util.AndroidRuntimeException: Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag
+					setWebViewClient(new WebViewClient());
+				}
 				setWebChromeClient(null);
 				isDestroyed = true;
 			}
