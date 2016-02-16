@@ -7830,7 +7830,7 @@ public class Utils
 
 	/**
 	 * Sample logging JSON :
-	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512,"fld6":12422 }
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
 	 * @param dbObj
 	 */
 	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
@@ -7843,10 +7843,6 @@ public class Utils
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
-			if(dbObj.isOpen())
-			{
-				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
-			}
 
 			Logger.d("db", json.toString());
 
