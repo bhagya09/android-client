@@ -59,9 +59,9 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
 					String botName = entry.getValue().getMsisdn();
                     botName =  botName.substring(1, botName.length()-1);
-					unzipPath += botName;
+                    String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, botName);
 
-					File newFilePath = new File(unzipPath);
+					File newFilePath = new File(newVersioningCodePath);
 
 					// File instance for source file directory path that was in use before versioning release
 					String microAppName = botMetadata.getAppName();

@@ -6,12 +6,10 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -133,8 +131,8 @@ public class PlatformContentModel
 				String basePath = microApp + File.separator;
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
-                // If files are not found in the older content directory path used before versioning , then look for files int the newer structured hierarchy directory path
-                if(!new File(PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath).isDirectory() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false))
+                // If files are not found in the newer structured hierarchy directory path used after versioning , then update base path
+                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp)).isDirectory())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
@@ -186,8 +184,8 @@ public class PlatformContentModel
 				String basePath = microApp + File.separator;
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
-                // If files are not found in the older content directory path used before versioning , then look for files int the newer structured hierarchy directory path
-                if(!new File(PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath).isDirectory() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false))
+                // If files are not found in the newer structured hierarchy directory path used after versioning , then update base path
+                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).isDirectory())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
