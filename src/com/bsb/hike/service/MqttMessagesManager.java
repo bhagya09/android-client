@@ -2800,7 +2800,7 @@ public class MqttMessagesManager
 		}
                 if (data.optBoolean(HikeConstants.GCM_STALE_REGISTRATION_REFRESH))
                 {
-                    GCMRegistrar.unregister(context);
+                    GCMRegistrar.unregister(context.getApplicationContext());
                 }
 		if (data.optBoolean(HikeConstants.DEFAULT_SMS_CLIENT_TUTORIAL))
 		{
