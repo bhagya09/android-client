@@ -159,7 +159,7 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 					CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(StickerManager.getInstance().getMiniStickerKey(stickerId, categoryId))
-							.setString(stickerImage).setTtl(StickerConstants.DEFAULT_TTL_MINI_STICKERS).build();
+							.setString(stickerImage).build();
 					HikeMessengerApp.getDiskCache().put(cacheRequest);
 					doOnSuccess(categoryId);
 				}
