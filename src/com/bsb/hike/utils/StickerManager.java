@@ -68,7 +68,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2601,18 +2600,20 @@ public class StickerManager
 
 				JSONObject recentSticker = new JSONObject(resultsStickers.next());
 
-				long startdate = new Date(recentSticker.getString("start")).getTime();
-				long endDate = new Date(recentSticker.getString("end")).getTime();
+				long startdate = recentSticker.getLong("start");
+				long endDate = recentSticker.getLong("end");
 
 				if (System.currentTimeMillis() > startdate && System.currentTimeMillis() < endDate)
 				{
 					Sticker temp = new Sticker(recentSticker.getString("catId"), recentSticker.getString("sId"));
 					if(temp.isStickerAvailable())
 					{
-						resultSet.add(recentSticker.getInt("rank"),temp);
+						int rank = recentSticker.getInt("rank");
+						resultSet.ensureCapacity(rank);
+						resultSet.add(rank-1,temp);
 					}
 				}
-				else
+				else if(System.currentTimeMillis() > endDate)
 				{
 					resultsStickers.remove();
 				}
@@ -2631,6 +2632,14 @@ public class StickerManager
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_LIST, input);
+
+		for(int i =resultSet.size()-1;i>=0;i--)
+		{
+			if(resultSet.get(i) == null)
+			{
+				resultSet.remove(i);
+			}
+		}
 
 		return resultSet;
 	}

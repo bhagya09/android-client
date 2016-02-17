@@ -1,6 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -113,41 +115,43 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 								continue;
 							}
 
-							if (!isValidForcedSticker(category, sticker))
+							if (isValidForcedSticker(category, sticker))
 							{
-								Logger.e(TAG, "Invalid forced sticker JSON" + StickerManager.getInstance().getUniqueStickerID(sticker, category));
-								continue;
-							}
-
-							if (stickersMetaData.has("image"))
-							{
-								switch (stickersMetaData.getInt("image"))
+								if (stickersMetaData.has("image"))
 								{
-								case 1:
-									StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker, category, null);
-									break;
+									switch (stickersMetaData.getInt("image"))
+									{
+										case 1:
+											StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker, category, null);
+											break;
+									}
+								}
+
+								if (stickersMetaData.has("mini_image"))
+								{
+									switch (stickersMetaData.getInt("mini_image"))
+									{
+										case 1:
+											StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker, category);
+											break;
+									}
+								}
+
+								if (stickersMetaData.has("tags"))
+								{
+									switch (stickersMetaData.getInt("tags"))
+									{
+										case 1:
+											stickerToDownloadTagsSet.add(StickerManager.getInstance().getUniqueStickerID(sticker, category));
+											break;
+									}
 								}
 							}
-
-							if (stickersMetaData.has("mini_image"))
+							else
 							{
-								switch (stickersMetaData.getInt("mini_image"))
-								{
-								case 1:
-									StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker, category);
-									break;
-								}
+								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + StickerManager.getInstance().getUniqueStickerID(sticker, category));
 							}
 
-							if (stickersMetaData.has("tags"))
-							{
-								switch (stickersMetaData.getInt("tags"))
-								{
-								case 1:
-									stickerToDownloadTagsSet.add(StickerManager.getInstance().getUniqueStickerID(sticker, category));
-									break;
-								}
-							}
 
 							if (stickersMetaData.has("recents"))
 							{
@@ -156,7 +160,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 									forcedRecentsStickers = new HashSet<String>();
 								}
 
-								JSONObject recentsSticker = stickersData.getJSONObject("recents");
+								JSONObject recentsSticker = stickersMetaData.getJSONObject("recents");
 								recentsSticker.put("catId", category);
 								recentsSticker.put("sId", sticker);
 
@@ -239,6 +243,9 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_PRESENT, true);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_LIST, forcedRecentsStickers);
+
+			//ToDo Add correct PubSub for recent updated
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 		}
 	}
 
