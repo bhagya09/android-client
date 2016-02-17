@@ -3702,9 +3702,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
 				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
 						.getGroupParticipantMsisdn()));
-				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
-					((ChatThreadActivity)mActivity).hideKeyboard();
-				}
 				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 			}
 			else

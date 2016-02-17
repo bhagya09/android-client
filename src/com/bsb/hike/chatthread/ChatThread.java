@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,8 +35,6 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.localisation.LocalLanguage;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
 import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
@@ -70,11 +67,6 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
@@ -113,12 +105,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -127,7 +114,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -162,21 +148,17 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -186,7 +168,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
@@ -344,8 +325,6 @@ import android.widget.Toast;
 
 	protected CustomFontEditText mComposeView;
 
-	protected LinearLayout keyboardParentView;
-
 	private GestureDetector mGestureDetector;
 
 	protected View mActionBarView;
@@ -374,8 +353,6 @@ import android.widget.Toast;
 	
 	protected HikeDialog dialog;
 	
-	protected HikeCustomKeyboard mCustomKeyboard;
-
 	protected IChannelSelector channelSelector;
 
 	private StickerTagWatcher stickerTagWatcher;
@@ -383,16 +360,6 @@ import android.widget.Toast;
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
-	
-	protected int keyboardHeight;
-
-	protected KeyboardFtue keyboardFtue;
-	
-	protected boolean changeKbdClicked = false;
-
-	protected boolean keyboardSelectedLanguageChanged;
-
-	ObjectAnimator tipFadeInAnimation;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -631,22 +598,9 @@ import android.widget.Toast;
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
-		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
-		removeLocalisationFtueKeyboardDownloadCallback();
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-		}
 		StickerSearchManager.getInstance().downloadTagsForCurrentLanguage();
 	}
 
-	private void removeLocalisationFtueKeyboardDownloadCallback()
-	{
-		KptKeyboardManager.getInstance().setInstallListener(null);
-	}
-	
 	/**
 	 * Setting window background as black to avoid jarring effect when keyboard or sticker or emoticon pallete is opened.
 	 * Source : http://android-developers.blogspot.ca/2009/03/window-backgrounds-ui-speed.html
@@ -676,7 +630,6 @@ import android.widget.Toast;
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
-		keyboardFtue = new KeyboardFtue();
 	}
 
 	
@@ -718,19 +671,13 @@ import android.widget.Toast;
 	protected void initView()
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
-
-		keyboardParentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-
-		if (!isSystemKeyboard())
-			initCustomKeyboard();
-		
+		mComposeView.setOnClickListener(this);
 		audioRecordView = new AudioRecordView(activity, this);
 
 		initShareablePopup();
 
 		initActionMode();
 
-		initKeyboardFtue();
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -739,21 +686,6 @@ import android.widget.Toast;
 		setupStickerSearch();
 	}
 
-	protected void bindCustomKeyboard()
-	{
-		if(mCustomKeyboard!=null)
-		{
-			return;
-		}
-		mCustomKeyboard= new HikeCustomKeyboard(activity, keyboardParentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
-	}
-
-	protected void initCustomKeyboard()
-	{
-		bindCustomKeyboard();
-		registerCustomKeyboardEditText(R.id.msg_compose);
-		mCustomKeyboard.init(mComposeView);
-	}
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -762,7 +694,6 @@ import android.widget.Toast;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
-				mComposeView.setInputType(mComposeView.getInputType()| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
@@ -771,8 +702,6 @@ import android.widget.Toast;
 						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-			mComposeView.setHorizontallyScrolling(false);		
-		    mComposeView.setMaxLines(4);
 
 		}
 	}
@@ -797,8 +726,7 @@ import android.widget.Toast;
 			initStickerPicker();
 			initEmoticonPicker();
 			
-			int firstTimeHeight = (isSystemKeyboard()?((int) (activity.getResources().getDimension(R.dimen.emoticon_pallete))) : 
-					((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight));
+			int firstTimeHeight = (int) (activity.getResources().getDimension(R.dimen.emoticon_pallete));
 
 			mShareablePopupLayout = new ShareablePopupLayout(activity.getApplicationContext(), activity.findViewById(R.id.chatThreadParentLayout),
 					
@@ -808,7 +736,6 @@ import android.widget.Toast;
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
 			}
 			
-			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 
 		else
@@ -829,61 +756,6 @@ import android.widget.Toast;
 		mActionMode = new HikeActionMode(activity, this);
 	}
 
-	private void initKeyboardFtue()
-	{
-		if (keyboardFtue.shouldShowFTUE())
-			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
-	}
-
-	private KeyboardFtue.OnKeyboardFTUEStateChangeListener keyboardFTUEdestroyedListener = new KeyboardFtue.OnKeyboardFTUEStateChangeListener()
-	{
-		@Override
-		public void onStateChange(int state)
-		{
-			if (state == KeyboardFtue.LANGUAGE_SELECTION_COMPLETE)
-			{
-				if (KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
-				{
-					if (isSystemKeyboard())
-					{
-						changeKeyboard(false);
-					}
-					else
-					{
-						//TODO::doing this because we need to show the arrows on the spacebar. These do not show up otherwise. Forceful hackish refresh
-						hideCustomKeyboard(mComposeView);
-						showCustomKeyboard(mComposeView);
-					}
-					//changeKeybaordSelectedLanguage();
-				}
-			}
-			else if (state == KeyboardFtue.COMPLETE)
-			{
-				//changeKeybaordSelectedLanguage();
-			}
-		}
-
-		@Override
-		public void onDestroyed()
-		{
-			Utils.unblockOrientationChange(activity);
-			showOverflowMenuKeyboardTipIfRequired();
-		}
-	};
-
-	private void changeKeybaordSelectedLanguage()
-	{
-		if (!keyboardSelectedLanguageChanged && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
-		{
-			if (LocalLanguageUtils.isLocalLanguageSelected() &&
-					!LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale().equals(LocalLanguage.English.getLocale())) {
-				KptKeyboardManager.getInstance().topPriorityForLanguage(LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale());
-			} else {
-				KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
-			}
-			keyboardSelectedLanguageChanged = true;
-		}
-	}
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
@@ -928,117 +800,9 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
-			showOverflowMenuIndicatorsIfRequired();
 			return true;
 		}
 		return false;
-	}
-
-	private void showOverflowMenuIndicatorsIfRequired()
-	{
-		showOverflowMenuKeyboardTipIfRequired();
-	}
-
-	protected boolean showOverflowMenuKeyboardTipIfRequired()
-	{
-		// Show Ist keyboard change tip if:
-		// - it is not done yet
-		// - already the indicator is not in use
-		// - already the tip is not in use
-		// - user is Indian
-		// - keyboard ftue will not be shown in this session
-		// - if custom keyboard is enabled in the app
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
-				&& !mActionBar.isOverflowMenuIndicatorInUse()
-				&& !isOverflowTipShowing()
-				&& HikeMessengerApp.isIndianUser()
-				&& !keyboardFtue.isReadyForFTUE()
-				&& !HikeMessengerApp.isSystemKeyboard())
-		{
-			showOverflowTip(R.string.switch_to_old_key);
-			return true;
-		}
-		// Show IInd keyboard change tip if:
-		// - first keyboard tip is successfully done.
-		// - second keyboard tip is not yet done.
-		// - already the indicator is not in use
-		// - already the tip is not in use
-		// - keyboard ftue will not be shown in this session
-		// - system keyboard is selected.
-		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
-				&& !mActionBar.isOverflowMenuIndicatorInUse()
-				&& !isOverflowTipShowing()
-				&& !keyboardFtue.isReadyForFTUE()
-				&& HikeMessengerApp.isSystemKeyboard())
-		{
-			showOverflowTip(R.string.switch_to_hike_key);
-			return true;
-		}
-		return false;
-	}
-
-	protected void showOverflowTip(final int stringResId)
-	{
-		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		tipFadeInAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
-		tipFadeInAnimation.setDuration(600);
-		tipFadeInAnimation.setStartDelay(1200);
-		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
-			@Override
-			public void onAnimationStart(Animator animation) {
-				if (activity == null || activity.isFinishing() || (mActionMode != null && mActionMode.isActionModeOn()))
-				{
-					return;
-				}
-				tip.setText(stringResId);
-				tip.setVisibility(View.VISIBLE);
-			}
-
-			@Override
-			public void onAnimationEnd(Animator animation) {}
-
-			@Override
-			public void onAnimationCancel(Animator animation) {}
-
-			@Override
-			public void onAnimationRepeat(Animator animation) {}
-		});
-		tipFadeInAnimation.start();
-
-		tip.setOnClickListener(this);
-	}
-
-	private boolean isOverflowTipShowing()
-	{
-		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		if (tip != null && tip.getVisibility() == View.VISIBLE)
-			return true;
-
-		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
-			return true;
-
-		return false;
-	}
-	private void dismissOverflowTipIfShowing()
-	{
-		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
-		if (isOverflowTipShowing())
-		{
-			tip.setVisibility(View.GONE);
-			tip.setOnClickListener(null);
-
-			if (!TextUtils.isEmpty(tip.getText()))
-			{
-				if (tip.getText().equals(getString(R.string.switch_to_old_key)))
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, true);
-				} else if (tip.getText().equals(getString(R.string.switch_to_hike_key)))
-				{
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, true);
-				}
-			}
-		}
 	}
 
 	public boolean onPrepareOptionsMenu(Menu menu)
@@ -1091,19 +855,6 @@ import android.widget.Toast;
 			case R.string.clear_chat:
 			case R.string.email_chat:
 				overFlowMenuItem.enabled = !isMessageListEmpty;
-				break;
-			case R.string.hike_keyboard:
-				if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
-						&& HikeMessengerApp.isIndianUser())
-				{
-					overFlowMenuItem.drawableId = R.drawable.ic_red_dot_overflow_item_key;
-				}
-				else
-				{
-					overFlowMenuItem.drawableId = 0;
-				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
-				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ?
@@ -1214,23 +965,6 @@ import android.widget.Toast;
 	{
 		switch (item.id)
 		{
-		case R.string.hike_keyboard:
-			changeKbdClicked = true;
-			if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
-			{
-				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
-			}
-			recordKeyboardChangeEvent(item,isSystemKeyboard());
-			if (isSystemKeyboard() && isKeyboardOpen())
-			{
-				Utils.hideSoftKeyboard(activity, mComposeView);
-			}
-			else
-			{
-				onHidden();
-			}
-
-			return;
 		case R.string.clear_chat:
 			showClearConversationDialog();
 			break;
@@ -1290,12 +1024,6 @@ import android.widget.Toast;
 		Utils.executeAsyncTask(automateMessages);
 	}
 
-	/**
-	 * //TODO
-	 * Please note here analytics event tag will change if language is changed since you are using
-	 * overflowmenu item 's text as key .This needs to be handled
-	 * @param item
-	 */
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
 	{
 
@@ -1314,23 +1042,8 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
-	protected void recordKeyboardChangeEvent(OverFlowMenuItem item, boolean systemKeyboardClicked)
-	{
 
-		// To track Analytics event for changing of keyboard even when language is changed since
-		// overflow menu item text was being converted to the local language and analytics key was being changed
-		if (item.text.equalsIgnoreCase(getString(R.string.hike_keyboard)) || item.text.equalsIgnoreCase(getString(R.string.system_keyboard)))
-		{
-			String analytics="";
-			if (systemKeyboardClicked)
-				analytics = HikeConstants.HIKE_KEYBOARD;
-			else
-				analytics = HikeConstants.SYSTEM_KEYBOARD;
-			recordOverflowItemClicked(analytics);
-		}
-
-	}
-	protected String getString(int stringId)
+    protected String getString(int stringId)
 	{
 		return activity.getString(stringId);
 	}
@@ -1352,8 +1065,6 @@ import android.widget.Toast;
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.hide_chat), 0, 0, R.string.hide_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.clear_chat), 0, 0, true, R.string.clear_chat));
 		listOverFlow.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, true, R.string.email_chat));
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardUsable())
-			listOverFlow.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
 
 		return listOverFlow;
 
@@ -1373,9 +1084,6 @@ import android.widget.Toast;
 
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0,false);
-
-		// Dismiss Overflow Tip
-		dismissOverflowTipIfShowing();
 
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
@@ -1403,7 +1111,6 @@ import android.widget.Toast;
 			{//  previous task is running don't accept this event
 				return;
 			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			setEmoticonButtonSelected(false);
 			setStickerButtonSelected(true);
 			stickerClicked();
@@ -1413,7 +1120,6 @@ import android.widget.Toast;
 			{// previous task is running don't accept this event
 				return;
 			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1453,13 +1159,6 @@ import android.widget.Toast;
 			break;
 		case R.id.search_clear_btn:
 			mComposeView.setText("");
-			customKeyboardUpdateCore();
-			break;
-		case R.id.search_text:
-			showKeyboard();
-			break;
-		case R.id.overflow_tip:
-			showOverflowMenu();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -1478,7 +1177,6 @@ import android.widget.Toast;
 		{
 			sendMessageForStickerRecommendLearning();
 			sendMessage();
-			customKeyboardUpdateCore();
 			dismissStickerRecommendationPopup();
 			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 		}
@@ -1495,23 +1193,6 @@ import android.widget.Toast;
 		sendMessage(convMessage);
 	}
 
-	protected void addLanguageAnalytics(ConvMessage convMessage)
-	{
-		JSONObject metadata = new JSONObject();
-		try 
-		{
-			if(!isSystemKeyboard()) {
-				metadata.put(HikeConstants.KEYBOARD_LANGUAGE, KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName());
-				convMessage.setfromCustomKeyboard(true);
-				convMessage.setMetadata(metadata);
-			}
-		} 
-		catch (JSONException e) 
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	protected ConvMessage createConvMessageFromCompose()
 	{
 		String message = mComposeView.getText().toString();
@@ -1521,7 +1202,6 @@ import android.widget.Toast;
 			return null; // Do not create message
 		}
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, mConversation.isOnHike());
-		addLanguageAnalytics(convMessage);
 
 		// TODO : PinShowing related code -gaurav
 		mComposeView.setText("");
@@ -1819,15 +1499,9 @@ import android.widget.Toast;
 
 	public boolean onBackPressed()
 	{
-		boolean backPressedConsumed = false;
 		mShareablePopupLayout.onBackPressed();
 
-		// check if back pressed can be consumed by keyboardftue. Its not supposed to return from here as other objects are also using it.
-		// Prospect: there can be more requirements where you need share this callback with others instead of consuming it alone.
-		// Ex boolean backConsumedByXyzPopup.
-		boolean backConsumedByKeyboardFtue = removeKeyboardFtueIfShowing();
-
-		if(handleImageFragmentBackPressed()){
+		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return true;
 		}
 		
@@ -1847,39 +1521,15 @@ import android.widget.Toast;
 			return themePicker.onBackPressed();
 		}
 		
-		if (isCustomKeyboardVisible())
-		{
-			hideKptKeyboard();
-			return true;
-		}
-		closeAnyCustomKeyboardDialogIfShowing();
-
 		if (mActionMode.isActionModeOn())
 		{
 			mActionMode.finish();
 			return true;
 		}
 
-		// there can be an 'OR' among all the backConsumptions.
-		// Ex: backPressedConsumed = (backConsumedByKeyboardFtue || backConsumedByXyzPopup)
-		backPressedConsumed = backConsumedByKeyboardFtue;
-		return backPressedConsumed;
-	}
-
-	private boolean handleImageFragmentBackPressed(){
-		if (removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true))
-		{
-			if(mActionMode.isActionModeOn() && isCustomKeyboardVisible()){
-				if(mActionMode.whichActionModeIsOn() == this.SEARCH_ACTION_MODE) {
-					mActionMode.finish();
-					setupSearchMode(searchText);
-				}
-			}
-			return true;
-		}
 		return false;
 	}
-	
+
 	private void actionBarBackPressed()
 	{
 		if (mShareablePopupLayout.isShowing())
@@ -1888,7 +1538,7 @@ import android.widget.Toast;
 			return;
 		}
 
-		if(handleImageFragmentBackPressed()){
+		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return;
 		}
 
@@ -2030,7 +1680,6 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
-		removeKeyboardFtueIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -2040,21 +1689,6 @@ import android.widget.Toast;
 		mActionMode.showActionMode(SEARCH_ACTION_MODE, R.layout.search_action_bar);
 		setUpSearchViews();
 
-		if (isSystemKeyboard())
-		{
-			mComposeView.requestFocus();
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-		}
-		else
-		{
-			registerCustomKeyboardEditText(R.id.search_text);
-			showCustomKeyboard(mComposeView);
-        	KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		}
-
-		mComposeView.setOnClickListener(this);
-		
 		// Creating new instance every time.
 		// No need to modify existing instance. It might still be in the process of exiting.
 		messageSearchManager = new SearchManager();
@@ -2069,23 +1703,6 @@ import android.widget.Toast;
 		}
 	}
 	
-	public void hideKeyboard(){
-		if(KptUtils.isSystemKeyboard()){
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-		else if (mCustomKeyboard!=null)
-		{
-			hideKptKeyboard();
-		}
-		removeKeyboardFtueIfShowing();
-	}
-
-	private void hideKptKeyboard()
-	{
-		hideCustomKeyboard(mComposeView);
-		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-	}
-
 	private void setUpSearchViews()
 	{
 		int id = mComposeView.getId();
@@ -2093,6 +1710,7 @@ import android.widget.Toast;
 		mComposeView.setTag(id);
 
 		mComposeView.requestFocus();
+		Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		mComposeView.addTextChangedListener(searchTextWatcher);
 		mComposeView.setOnEditorActionListener(this);
 		activity.findViewById(R.id.next).setOnClickListener(this);
@@ -2100,18 +1718,16 @@ import android.widget.Toast;
 		activity.findViewById(R.id.search_clear_btn).setOnClickListener(this);
 		
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
-		if (isSystemKeyboard())
+		if (mShareablePopupLayout.isKeyboardOpen())
+		{ 		
+			// ifkeyboard is not open, then keyboard will come which will make so much animation on screen		
+			mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));		
+		}		
+		else		
 		{
-			if (mShareablePopupLayout.isKeyboardOpen())
-			{ 
-				// ifkeyboard is not open, then keyboard will come which will make so much animation on screen
-				mBottomView.startAnimation(AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.up_down_lower_part));
-			}
-			else
-			{
-				Utils.toggleSoftKeyboard(activity.getApplicationContext());
-			}
+			Utils.toggleSoftKeyboard(activity.getApplicationContext());
 		}
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -2119,76 +1735,6 @@ import android.widget.Toast;
 		mBottomView.setVisibility(View.GONE);
 	}
 
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			switch (adaptxtEditText.getId())
-			{
-			case R.id.msg_compose:
-				if (!TextUtils.isEmpty(mComposeView.getText())) {
-					sendButtonClicked();
-				}
-				break;
-			case R.id.search_text:
-				searchMessage(false,true);
-				break;
-			}
-		}
-	};
-
-	HikeAdaptxtKeyboardVisibilityStatusListner kptKeyboardVisibilityStatusListner = new HikeAdaptxtKeyboardVisibilityStatusListner()
-	{
-		@Override
-		public void onInputviewVisbility(boolean kptVisible, int height)
-		{
-			if (kptVisible)
-			{
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, height);
-				if (mShareablePopupLayout != null)
-				{
-					mShareablePopupLayout.setCustomKeyBoardHeight(height);
-				}
-				keyboardHeight = height;
-
-				if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-				{
-					mComposeView.setMaxLines(1);
-				}
-				else
-				{
-					mComposeView.setMaxLines(4);
-				}
-				onShown();
-			}
-			else
-			{
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-				mComposeView.setMaxLines(4);
-			}
-		}
-
-		@Override
-		public void analyticalData(KPTAddonItem kptAddonItem)
-		{
-			KptUtils.generateKeyboardAnalytics(kptAddonItem);
-			StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getISOCodeFromLocale(new Locale(kptAddonItem.getlocaleName())));
-		}
-
-		@Override
-		public void showGlobeKeyView()
-		{
-			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-		}
-
-		@Override
-		public void showQuickSettingView()
-		{
-			KptUtils.onGlobeKeyPressed(activity, mCustomKeyboard);
-		}
-	};
-	
 	TextWatcher searchTextWatcher = new TextWatcher()
 	{
 		
@@ -2233,8 +1779,8 @@ import android.widget.Toast;
 	private void searchMessage(boolean searchNext, boolean loop)
 	{
 		mConversationsView.setOnScrollListener(null);
-		
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
+
 		if (!TextUtils.isEmpty(searchText) &&
 				// For some devices like micromax A120, one can get multiple calls from one user-input.
 				// Check on the dialog is optimal here as it directly reflects the user intentions.
@@ -2283,7 +1829,6 @@ import android.widget.Toast;
 		{
 			mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 			mComposeView.requestFocus();
-			mComposeView.setOnClickListener(mComposeChatOnClickListener);
 			mComposeView.removeTextChangedListener(searchTextWatcher);
 			if (mEmoticonPicker != null)
 			{
@@ -2732,15 +2277,7 @@ import android.widget.Toast;
 		 */
 		if (shouldShowKeyboard())
 		{
-			if (!isSystemKeyboard())
-			{
-				showCustomKeyboard(mComposeView);
-				KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			}
-			else
-			{
-				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-			}
+			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 	}
 	
@@ -2758,15 +2295,14 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) 
-				&& !keyboardFtue.isReadyForFTUE()) || shouldShowKeyboardInActionMode());
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false)) || shouldShowKeyboardInActionMode());
 	}
 	
 	protected boolean shouldShowKeyboardInActionMode()
 	{
 		return (mActionMode.whichActionModeIsOn() == SEARCH_ACTION_MODE);
 	}
-
+	
 	/**
 	 * Checks if there is any typing notification present for the given msisdn, if present, it adds it to the ConvMessages
 	 */
@@ -2792,23 +2328,6 @@ import android.widget.Toast;
 
 		mComposeView.setOnKeyListener(this);
 
-		mComposeView.setSelectAllOnFocus(true);
-
-		mComposeView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (!isSystemKeyboard())
-				{
-					showCustomKeyboard(mComposeView);
-				/*
-				 * This is an approximate height given by kpt until we get keyboard visibility call. The final height is set in onInputViewVisibility().
-				 * This calls is to avoid the seeming delay in appearance of edittext.
-				 */
-					KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-					showKeyboardFtueIfReady();
-				}
-			}
-		});
 	}
 
 	/*
@@ -3876,26 +3395,6 @@ import android.widget.Toast;
 		currentFirstVisibleItem = firstVisibleItem;
 	}
 
-	protected boolean removeKeyboardFtueIfShowing()
-	{
-		if (keyboardFtue!=null && keyboardFtue.isShowing())
-		{
-			keyboardFtue.destroy();
-			return true;
-		}
-		return false;
-	}
-
-	private void showKeyboardFtueIfReady()
-	{
-		if (keyboardFtue.isReadyForFTUE() && !mActionMode.isActionModeOn())
-		{
-			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-			keyboardFtue.showNextFtue();
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-	}
-
 	@Override
 	public boolean onTouch(View v, MotionEvent event)
 	{
@@ -4436,14 +3935,10 @@ import android.widget.Toast;
 
 	public void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.msg_compose, R.id.search_text, R.id.messageedittext);
-
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 
-		keyboardFtue.destroy();
-		
 		hideActionMode();
 
 		removePubSubListeners();
@@ -4472,8 +3967,6 @@ import android.widget.Toast;
 		
 		releaseStickerSearchResources();
 
-		if (tipFadeInAnimation != null)
-			tipFadeInAnimation.cancel();
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4543,24 +4036,12 @@ import android.widget.Toast;
 		}
 	}
 
-	protected void pauseKeyboardResources()
-	{
-		if (mCustomKeyboard != null)
-		{
-			if (isCustomKeyboardVisible())
-				hideKptKeyboard();
-			KptUtils.pauseKeyboardResources(mCustomKeyboard, mComposeView);
-		}
-	}
-	
 	/**
 	 * Mimics the onPause method of an Activity.
 	 */
 
 	public void onPause()
 	{
-		pauseKeyboardResources();
-		
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
 		isActivityVisible = false;
@@ -4576,12 +4057,10 @@ import android.widget.Toast;
 
 	public void onResume()
 	{
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
 		}
-		showKeyboardIfRequired();
 
 		isActivityVisible = true;
 
@@ -4623,44 +4102,6 @@ import android.widget.Toast;
 		}
 	}
 
-	protected void showKeyboard()
-	{
-
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-		}
-		else
-		{
-			showCustomKeyboard(mComposeView);
-		}
-	}
-
-	protected void resetKeyboard()
-	{
-		if (isSystemKeyboard())
-		{
-			changeKeyboard(isSystemKeyboard());
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		}
-		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
-	}
-
-	protected void showKeyboardIfRequired()
-	{
-		if (shouldShowKeyboard())
-		{
-			tryToDismissAnyOpenPanels();
-			showKeyboard();
-		}
-		else
-		{
-			resetKeyboard();
-		}
-	}
 	public void onRestart()
 	{
 		isActivityVisible = true;
@@ -5947,11 +5388,6 @@ import android.widget.Toast;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-			keyboardHeight = 0;
-		}
 
 		/* AND-3521: calling onConfigurationChange when mShareablePopupLayout is not null,
 		   so that bottomNavBar(width/height) can be updated according to orientation */
@@ -5961,11 +5397,6 @@ import android.widget.Toast;
 				mShareablePopupLayout.dismiss();
 			}
 			mShareablePopupLayout.onConfigurationChanged();
-		}
-		
-		if (!isSystemKeyboard() && !isCustomKeyboardVisible())
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 		}
 		
 		if (stickerTagWatcher != null)
@@ -6104,10 +5535,6 @@ import android.widget.Toast;
 	@Override
 	public void onPopupDismiss()
 	{
-		if (isCustomKeyboardVisible())
-		{
-			KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		}
 		Logger.i(TAG, "onPopup Dismiss");
 		if(activity.findViewById(R.id.sticker_btn).isSelected())
 		{
@@ -6144,7 +5571,7 @@ import android.widget.Toast;
 			return;
 		}
 		
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		saveCurrentActionMode();
 		if (mShareablePopupLayout != null)
@@ -6180,12 +5607,7 @@ import android.widget.Toast;
 	
 	public boolean isKeyboardOpen()
 	{
-		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen() || isCustomKeyboardVisible()));
-//		if(mShareablePopupLayout == null || !mShareablePopupLayout.isKeyboardOpen())
-//		{
-//			return false;
-//		}
-//		return true;
+		return ((mShareablePopupLayout != null) && (mShareablePopupLayout.isKeyboardOpen()));
 	}
 	
 	@Override
@@ -6210,12 +5632,6 @@ import android.widget.Toast;
 	@Override
 	public void onHidden()
 	{
-		if (changeKbdClicked == true)
-		{
-			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			changeKbdClicked = false;
-		}
 	}
 
 	public void dismissResidualAcitonMode()
@@ -6238,7 +5654,7 @@ import android.widget.Toast;
 
 	protected void showOverlay(String label, String formatString, String overlayBtnText, SpannableString str, int drawableResId, int viewTag)
 	{
-		hideKeyboard();
+		Utils.hideSoftKeyboard(activity.getApplicationContext(), mComposeView);
 
 		View mOverlayLayout = activity.findViewById(R.id.overlay_layout);
 		mOverlayLayout.setTag(viewTag);
@@ -6447,10 +5863,8 @@ import android.widget.Toast;
 	protected void showThemePicker(int footerTextId)
 	{
 		/**
-		 * //TODO::Hiding KeyboardIfNeeded while showing themepicker
+		 * Hiding soft keyboard
 		 */
-		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
-		hideKeyboardIfNeeded();
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
@@ -6520,7 +5934,6 @@ import android.widget.Toast;
 		if(mComposeView != null)
 		{
 			mComposeView.setText("");
-			customKeyboardUpdateCore();
 		}
 	}
 	
@@ -6533,57 +5946,6 @@ import android.widget.Toast;
 	{
 		hideOverflowMenu();
 		hideThemePicker();
-	}
-
-	private void changeKeyboard(boolean systemKeyboard)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, systemKeyboard);
-		
-		if (systemKeyboard)
-		{
-			removeKeyboardFtueIfShowing();
-			hideKptKeyboard();
-			swtichCustomKeyboardToDefaultKeyboard(mComposeView);
-			unregisterCustomKeyboardEditText(R.id.msg_compose);
-			resetSharablePopup();
-			mComposeView.setOnClickListener(new OnClickListener()
-			{
-				@Override
-				public void onClick(View v)
-				{
-					Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-					showKeyboardFtueIfReady();
-				}
-			});
-		}
-		else
-		{
-			bindCustomKeyboard();
-			mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
-			registerCustomKeyboardEditText(R.id.msg_compose);
-			resetSharablePopup();
-			mCustomKeyboard.init(mComposeView);
-			showCustomKeyboard(mComposeView);
-			setEditTextListeners();
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-		showOverflowMenuKeyboardTipIfRequired();
-		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
-	}
-	
-	private void resetSharablePopup()
-	{
-		if (mShareablePopupLayout != null)
-		{
-			mShareablePopupLayout.dismiss();
-			releaseShareablePopUpResources();
-		}
-		initShareablePopup();
-	}
-
-	public boolean isSystemKeyboard()
-	{
-		return HikeMessengerApp.isSystemKeyboard();
 	}
 
 	/**
@@ -6609,35 +5971,6 @@ import android.widget.Toast;
 	}
 
 	/**
-	 * This will take care of setting onClick issue ID  AND-3924 this is to be set only when we want set on click for Chat compose view
-	 */
-	protected View.OnClickListener mComposeChatOnClickListener = new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			if(isSystemKeyboard()){
-				Utils.showSoftKeyboard(mComposeView, InputMethodManager.SHOW_FORCED);
-				showKeyboardFtueIfReady();
-			}else{
-				mCustomKeyboard.swtichToKPTKeyboard(mComposeView, KPTConstants.MULTILINE_LINE_EDITOR, null, kptKeyboardVisibilityStatusListner);
-				registerCustomKeyboardEditText(R.id.msg_compose);
-				resetSharablePopup();
-				mCustomKeyboard.init(mComposeView);
-				showCustomKeyboard(mComposeView);
-				setEditTextListeners();
-			}
-		}
-	};
-
-
-	public void hideKeyboardIfNeeded() {
-		if (KptUtils.isSystemKeyboard()) {
-			Utils.hideSoftKeyboard(activity, mComposeView);
-		} else if (mCustomKeyboard != null && isCustomKeyboardVisible() && (mShareablePopupLayout == null || !mShareablePopupLayout.isShowing())) {
-			hideKptKeyboard();
-		}
-		removeKeyboardFtueIfShowing();
-	}
-	/**
 	 * This method changes the state of a ConvMessage after a general event is sent or received
 	 * @param object
 	 */
@@ -6659,63 +5992,7 @@ import android.widget.Toast;
 			}
 		}
 	}
-
-	protected boolean isCustomKeyboardVisible()
-	{
-		return mCustomKeyboard != null ? mCustomKeyboard.isCustomKeyboardVisible() : false;
-	}
-
-	protected void showCustomKeyboard(View view)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.showCustomKeyboard(view, true);
-		}
-	}
-
-	protected void hideCustomKeyboard(View view)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.showCustomKeyboard(view, false);
-		}
-	}
-
-	protected void registerCustomKeyboardEditText(int resId)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.registerEditText(resId);
-	}
-
-	protected void unregisterCustomKeyboardEditText(int resId)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.unregister(resId);
-	}
-
-	protected void customKeyboardUpdateCore()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.updateCore();
-	}
-
-	protected int getKeyBoardAndCVHeight()
-	{
-		return mCustomKeyboard != null ? mCustomKeyboard.getKeyBoardAndCVHeight() : 0;
-	}
-
-	protected void closeAnyCustomKeyboardDialogIfShowing()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.closeAnyDialogIfShowing();
-	}
-
-	protected void swtichCustomKeyboardToDefaultKeyboard(AdaptxtEditText tv)
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.swtichToDefaultKeyboard(tv);
-	}
-
+	
 	public void onPostResume()
 	{
 
