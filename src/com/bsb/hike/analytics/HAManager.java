@@ -51,9 +51,7 @@ public class HAManager
 	private static HAManager instance;
 	
 	private Context context;
-	
-	private ArrayList<JSONObject> eventsList;
-		
+
 	public static final String ANALYTICS_SETTINGS = "analyticssettings";
 
 	private boolean isAnalyticsEnabled = true;
@@ -73,7 +71,7 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
-	
+
 	private ArrayList<JSONObject> imageConfigEventsList;
 	
 	private	File imageLogsEventFile;
@@ -88,8 +86,6 @@ public class HAManager
 		analyticsDirectory = context.getFilesDir().toString() + AnalyticsConstants.EVENT_FILE_DIR;
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Storage dir :" + analyticsDirectory);
 
-		eventsList = new ArrayList<JSONObject>();
-						
 		isAnalyticsEnabled = getPrefs().getBoolean(AnalyticsConstants.ANALYTICS, AnalyticsConstants.IS_ANALYTICS_ENABLED);
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Analytics service status :"+ isAnalyticsEnabled);
@@ -256,32 +252,17 @@ public class HAManager
 		{
 			throw new NullPointerException("Type and Context of event cannot be null.");
 		}
-		eventsList.add(generateAnalticsJson(type, eventContext, priority, metadata, tag));
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, metadata.toString());
-		
-		if (eventsList.size() >= maxInMemorySize) 
-		{			
-			// clone a local copy and send for writing
-			ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
-			
-			eventsList.clear();
-			
-			AnalyticsStore.getInstance(this.context).dumpEvents(jsons, false, false);
 
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "writer thread started!");
-		}
+		AnalyticsStore.getInstance(this.context).storeEvent(generateAnalticsJson(type, eventContext,
+				priority, metadata, tag));
 	}
 
 	private synchronized void dumpInMemoryEventsAndTryToUpload(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
-		
-		eventsList.clear();
-		
-		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Dumping in-memory events :" + jsons.size());
-		AnalyticsStore.getInstance(this.context).dumpEvents(jsons, sendNow, isOnDemandFromServer);
+		AnalyticsStore.getInstance(this.context).sendEvents();
 	}
-	
+
 	/**
 	 * Returns current max log file size 
 	 * @return log file size in bytes
@@ -578,8 +559,6 @@ public class HAManager
 		 */
 		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 
-		dumpInMemoryEventsAndTryToUpload(false, false);
-		
 		fgSessionInstance.reset();
 		
 		return metadata; 
@@ -1089,5 +1068,4 @@ public class HAManager
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
-
 }
