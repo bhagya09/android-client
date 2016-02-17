@@ -929,7 +929,7 @@
     <string name="change_password_from_privacy">હિડીન મોડ સેટિંગ્સ</string>
     <string name="nudge_setting_header">નજ કરવા માટે બે વાર ટૅપ કરો</string>
     <string name="nudge_setting_info">ચેટિંગ કરતા વખતે બે વાર ટૅપ દ્વારા નજ મોકલો</string>
-    <string name="enter_setting_header">એન્ટર કી પર મોકલો</string>
+    <string name="enter_setting_header">એન્ટર કી સેન્ડ છે</string>
     <string name="enter_setting_info">એન્ટર કી દબાવવાથી મેસેજ મોકલાશે</string>
     <string name="settings_chat">ચેટ સેટિંગ્સ</string>
     <string name="settings_localization">ભાષા અને ઈનપુટ</string>
@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">ઓછામાં ઓછો એક સંપર્ક પસંદ કરો</string>
     <string name="choose_contact">સંપર્ક(સંપર્કો) પસંદ કરો</string>
     <string name="voip_reconnecting">... ફરી થી જોડાણ થઈ રહ્યું છે</string>
-    <string name="group_creation">પર બનાવવામાં આવ્યુ છે %1$s</string>
+    <string name="group_creation">પર બનાવવામાં આવ્યુ છે </string>
     <string name="ls_change_failed">છેલ્લા જોવાયાનું અપડેટ નિષ્ફળ ગયું!</string>
     <string name="terms_conditions_hint">નિયમો અને શરતો</string>
     <string name="terms_conditions_title">ટી એન્ડ સી</string>

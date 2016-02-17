@@ -929,7 +929,7 @@
     <string name="change_password_from_privacy">गोपनीय मोड सेटिंग्ज</string>
     <string name="nudge_setting_header">कोपरखळी मारण्यासाठी दोनदा टॅप करा</string>
     <string name="nudge_setting_info">चॅटिंग करताना दोनदा टॅप करून एक कोपरखळी पाठवा</string>
-    <string name="enter_setting_header">एंटर बटणाने पाठवा</string>
+    <string name="enter_setting_header">एंटर की पाठवली</string>
     <string name="enter_setting_info">एंटर की दाबल्याने संदेश पाठवला जाईल</string>
     <string name="settings_chat">चॅट सेटिंग्ज</string>
     <string name="settings_localization">भाषा आणि इनपुट</string>
@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">कृपया किमान एक संपर्क निवडा</string>
     <string name="choose_contact">संपर्क निवडा</string>
     <string name="voip_reconnecting">…पुन्हा कनेक्ट करत आहे</string>
-    <string name="group_creation">रोजी तयार केले %1$s</string>
+    <string name="group_creation">रोजी तयार केले </string>
     <string name="ls_change_failed">शेवटचे पाहिले अद्यतन अयशस्वी!</string>
     <string name="terms_conditions_hint">अटी आणि नियम</string>
     <string name="terms_conditions_title">टी &amp; सी</string>

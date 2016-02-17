@@ -930,7 +930,7 @@
     <string name="change_password_from_privacy">লুকানো মোডের সেটিংস</string>
     <string name="nudge_setting_header">ঠেলা দিতে দুইবার আলতো চাপুন</string>
     <string name="nudge_setting_info">চ্যাট করার সময় দুইবার আলতো চাপার মাধ্যমে ঠেলা দিন</string>
-    <string name="enter_setting_header">মেসেজ পাঠানোর জন্যে এন্টার টিপুন</string>
+    <string name="enter_setting_header">এন্টার কী মানে মেসেজ পাঠানো</string>
     <string name="enter_setting_info">এন্টার কী টিপলে মেসেজ পাঠানো হবে</string>
     <string name="settings_chat">চ্যাট সেটিংস</string>
     <string name="settings_localization">ভাষা &amp; ইনপুট</string>
@@ -951,7 +951,7 @@
     <string name="pick_contact_zero">অন্তত একটি যোগাযোগ নির্বাচন করুন</string>
     <string name="choose_contact">যোগাযোগ (গুলি) চয়ন করুন</string>
     <string name="voip_reconnecting">&#8230;পুনঃ সংযোগ করা হচ্ছে</string>
-    <string name="group_creation">তৈরির তারিখ %1$s</string>
+    <string name="group_creation">তৈরির তারিখ </string>
     <string name="ls_change_failed">শেষ কখন দেখা হয়েছে তা ব্যর্থ হয়েছে!</string>
     <string name="terms_conditions_hint">শর্তাবলী</string>
     <string name="terms_conditions_title">শর্তাবলী</string>

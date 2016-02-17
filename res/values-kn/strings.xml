@@ -954,7 +954,7 @@
     <string name="pick_contact_zero">ದಯವಿಟ್ಟು ಕನಿಷ್ಠ ಒಂದು ಸಂಪರ್ಕವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="choose_contact">ಸಂಪರ್ಕ(ಗಳನ್ನು) ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="voip_reconnecting">…ಮರು ಸಂಪರ್ಕಗೊಳಿಸಲಾಗುತ್ತಿದೆ</string>
-    <string name="group_creation">ರಚಿಸಲಾಗಿದೆ %1$s</string>
+    <string name="group_creation">ರಚಿಸಲಾಗಿದೆ </string>
     <string name="ls_change_failed">ಕೊನೆಯದಾಗಿ ನೋಡಿದ ಅಪ್‌ಡೇಟ್ ವಿಫಲವಾಗಿದೆ!</string>
     <string name="terms_conditions_hint">ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು</string>
     <string name="terms_conditions_title">ಷರತ್ತು ಮತ್ತು ನಿಯಮಗಳು</string>

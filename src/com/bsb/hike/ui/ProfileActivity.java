@@ -1099,10 +1099,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				long groupCreation = oneToNConversation.getCreationDateInLong();
 				if (groupCreation != -1l)
 					creation.setText(getResources().getString(
-							R.string.group_creation, OneToNConversationUtils
-							.getGroupCreationTimeAsString(
-									getApplicationContext(),
-									groupCreation)));
+							R.string.group_creation)
+							+ " "
+							+ OneToNConversationUtils
+									.getGroupCreationTimeAsString(
+											getApplicationContext(),
+											groupCreation));
 
 			}
 
