@@ -20,13 +20,11 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -144,26 +142,6 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
         if (flipper.getDisplayedChild() == LOCALIZATION)
         {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, true);
-            if (LocalLanguageUtils.isLocalLanguageSelected())
-            {
-                selectedLocalLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HomeFtueActivity.this);
-                // download and install language only if custem language selected is not English
-                if (!selectedLocalLanguage.getLocale().equals(LocalLanguage.English.getLocale()))
-                {
-                    KptKeyboardManager.getInstance().setInstallListener(
-                            new KptKeyboardManager.KptLanguageInstallListener() {
-                                @Override
-                                public void onError(KPTAddonItem item, String message) {
-                                }
-
-                                @Override
-                                public void onSuccess(KPTAddonItem item) {
-                                }
-                            }
-                    );
-                    KptKeyboardManager.getInstance().downloadAndInstallLanguage(selectedLocalLanguage.getLocale(), HikeConstants.KEYBOARD_LANG_DWNLD_APP_FTUE);
-                }
-            }
             addAnalyticsForDoneButton();
             showNextFtue();
         }

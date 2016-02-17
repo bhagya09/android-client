@@ -265,18 +265,6 @@ public class HikeConstants
 
 	public static final String LOCALE = "locale";
 	
-	public static final String KEYBOARD_LANG_DWNLD_APP_FTUE = "app_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_KBD_FTUE = "kbd_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE_SOURCE = "kbd_lng_cg_src";
-	
-	public static final String KEYBOARD_LANG_CHANGE_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANG_CHANGE_KBD = "kbd";
-
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
 
 	public static final String PUSH_SU = "pushsu";
