@@ -15,14 +15,12 @@ import android.widget.ViewFlipper;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -156,15 +154,10 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
                             new KptKeyboardManager.KptLanguageInstallListener() {
                                 @Override
                                 public void onError(KPTAddonItem item, String message) {
-                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
 
                                 @Override
                                 public void onSuccess(KPTAddonItem item) {
-                                    // change keyboard to custom keyboard if the language selected is successfully downloaded
-                                    HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, false);
-                                    HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
-                                    KptKeyboardManager.getInstance().setInstallListener(null);
                                 }
                             }
                     );
