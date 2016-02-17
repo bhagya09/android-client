@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -116,10 +115,6 @@ public class StickerSearchUtils
      */
 	public static String getCurrentLanguageISOCode()
 	{
-		if (!HikeMessengerApp.isSystemKeyboard())
-		{
-			return StickerSearchUtils.getISOCodeFromLocale(new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()));
-		}
 
 		try
 		{

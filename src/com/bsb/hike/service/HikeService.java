@@ -24,8 +24,6 @@ import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -36,9 +34,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.IncomingCallReceiver;
-import com.bsb.hike.chatHead.OutgoingCallReceiver;
-import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -57,7 +52,6 @@ import com.bsb.hike.offline.CleanFileRunnable;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
-import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -66,7 +60,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.TException;
 
 public class HikeService extends Service
 {
@@ -611,10 +604,6 @@ public class HikeService extends Service
 						if (response.has(HikeConstants.LOCALIZATION_ENABLED))
 						{
 							Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
-						}
-						if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-						{
-							Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 						}
 					}
 					editor.commit();

@@ -107,7 +107,7 @@ public class KptUtils
 	
 	public static boolean isSystemKeyboard()
 	{
-		return HikeMessengerApp.isSystemKeyboard();
+		return false;
 	}
 	
 }

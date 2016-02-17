@@ -2635,16 +2635,6 @@ public class MqttMessagesManager
 			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
 		}
-		if (data.has(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
-		}
-		if (data.has(HikeConstants.RESET_CHAT_KEY_TIP))
-		{
-			boolean bool = data.getBoolean(HikeConstants.RESET_CHAT_KEY_TIP);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, bool);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, bool);
-		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
@@ -2680,15 +2670,6 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
 			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
-		}
-		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
-		}
-		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-		{
-			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 		}
         if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
         {

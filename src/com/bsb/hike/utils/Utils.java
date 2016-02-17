@@ -2996,12 +2996,6 @@ public class Utils
 			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
-			String keyBoardLang;
-			if (!HikeMessengerApp.isSystemKeyboard())
-				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
-			else
-				keyBoardLang = "";
-			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
 			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
 			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
@@ -7816,16 +7810,6 @@ public class Utils
 		if (!enable)
 			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge, HikeConstants.APP_LANG_CHANGED_SERVER_SWITCH);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
-	}
-
-	public static void setCustomKeyboardEnable(boolean enable)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
-	}
-
-	public static void setCustomKeyboardSupported(boolean supported)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
 
 	/**
