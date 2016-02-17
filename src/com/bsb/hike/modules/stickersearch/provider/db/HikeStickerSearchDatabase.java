@@ -1232,7 +1232,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
-
 		try
 		{
 			String whereConditionToGetSavedStickers = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
@@ -1285,7 +1284,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
 		}
-		
+
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
@@ -1319,7 +1318,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			return;
 		}
->>>>>>> 473944bdd9e5b8619d724db581764c6b4f553a43
 
 		ArrayList<Long> primaryKeys = new ArrayList<Long>();
 		Iterator<String> iterator = deletedStickerInfoSet.iterator();
@@ -1534,7 +1532,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
 				: stickerDataSharedPref.getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT,
-						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
+				HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : stickerDataSharedPref.getData(
 				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
