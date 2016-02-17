@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">தயவுசெய்து குறைந்தது ஒரு தொடர்பையாவது தேர்ந்தெடுக்கவும்</string>
     <string name="choose_contact">தொடர்பு(களைத்) தேர்ந்தெடுக்கவும்</string>
     <string name="voip_reconnecting">…மறுபடியும் இணைக்கிறது</string>
-    <string name="group_creation">உருவாக்கிய தேதி %1$s</string>
+    <string name="group_creation">உருவாக்கிய தேதி </string>
     <string name="ls_change_failed">‘கடைசியாகப் பார்த்தது’ அப்டேட் தோல்வியடைந்து விட்டது!</string>
     <string name="terms_conditions_hint">விதிகள் மற்றும் நிபந்தனைகள்</string>
     <string name="terms_conditions_title">டி &amp; சி</string>

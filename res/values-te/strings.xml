@@ -950,7 +950,7 @@
     <string name="pick_contact_zero">కనీసం ఒక్క కాంటాక్ట్‌ను ఎంచుకోండి.</string>
     <string name="choose_contact">కాంటాక్ట్‌‌(లు) ఎంచుకోండి</string>
     <string name="voip_reconnecting">&#8230;తిరిగి కనెక్ట్ చేయబడుతోంది</string>
-    <string name="group_creation">నాడు సృష్టించబడింది %1$s</string>
+    <string name="group_creation">నాడు సృష్టించబడింది </string>
     <string name="ls_change_failed">చివరిగా చూసిన సమయాని అప్‌డేట్ విఫలమైంది</string>
     <string name="terms_conditions_hint">నియమాలు మరియు నిబంధనలు</string>
     <string name="terms_conditions_title">టీ &amp; సీ</string>
