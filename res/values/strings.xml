@@ -1028,7 +1028,6 @@
 	<string name="add_members">Add Members</string>
 	<string name="add_members_to_conference">Add To Conference</string>
 	<string name="created_group_text">You created the group chat</string>
-	<string name="you_added_as_group_member">%1$s added you</string>
 	<string name="group_member_added">%1$s added %2$s</string>
 	<string name="you_group_member_added">You added %1$s</string>
 	<string name="num_members">%1$d members</string>

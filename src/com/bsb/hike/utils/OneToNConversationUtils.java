@@ -89,11 +89,7 @@ public class OneToNConversationUtils
 						participantAddedMessage = context.getString(
 								R.string.created_group_text, highlight);
 					}else{
-						if (highlight.equals(context.getString(R.string.you))) {
-							participantAddedMessage = String.format(context.getString(R.string.you_added_as_group_member), adder);
-						} else {
-							participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
-						}
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
 				
 				}
@@ -116,11 +112,7 @@ public class OneToNConversationUtils
 								adder = contact.getFirstNameAndSurname();
 							}
 						}
-						if (highlight.equals(context.getString(R.string.you))) {
-							participantAddedMessage = String.format(context.getString(R.string.you_added_as_group_member), adder);
-						} else {
-							participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
-						}
+						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
 					}
 				}
 			}
