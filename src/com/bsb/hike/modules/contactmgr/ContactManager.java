@@ -3,6 +3,15 @@
  */
 package com.bsb.hike.modules.contactmgr;
 
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -19,7 +28,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -29,32 +37,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.Utils;
-import com.haibison.android.lockpattern.util.Sys;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.bsb.hike.utils.*;
 
 /**
  * @author Gautam & Sidharth
@@ -798,6 +781,59 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		}
 		
 		return contact;
+	}
+
+
+    /**
+     * The parameter <code>number</code> would be array of Phone numbers and array of msisdn, so this method returns {@link List<ContactInfo>} object in which either Phone number matches number or
+     * msisdn matches number.
+     *
+     * @param
+     * @return
+     */
+	public List<ContactInfo> getContactInfoListForMsisdnFilter(String msisdnList)
+	{
+
+		List<String> msisdns = new ArrayList<String>(Arrays.asList(msisdnList.split(",")));
+
+		List<ContactInfo> contactInfoList = new ArrayList<>();
+
+		// Traversing and checking in both persistent and transient cache for msisdns list
+		Iterator<String> it = msisdns.iterator();
+		while (it.hasNext())
+		{
+			String number = it.next();
+			if (!TextUtils.isEmpty(number))
+			{
+				ContactInfo contact = persistenceCache.getContactInfoFromPhoneNoOrMsisdn(number);
+				if (null != contact)
+				{
+					contactInfoList.add(contact);
+					it.remove();
+				}
+				else
+				{
+					contact = transientCache.getContactInfoFromPhoneNoOrMsisdn(number);
+					if (null != contact)
+					{
+						contactInfoList.add(contact);
+						it.remove();
+					}
+				}
+			}
+		}
+
+		List contactsInfoListFromDbCall = new ArrayList();
+
+		if (msisdns.size() > 0)
+		{
+			contactsInfoListFromDbCall = transientCache.getContactListFromDb(msisdns);
+		}
+
+		if (contactsInfoListFromDbCall != null)
+			contactInfoList.addAll(contactsInfoListFromDbCall);
+
+		return contactInfoList;
 	}
 
 	@Override

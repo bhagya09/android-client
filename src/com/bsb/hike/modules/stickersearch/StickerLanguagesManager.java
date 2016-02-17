@@ -257,7 +257,7 @@ public class StickerLanguagesManager {
 
         for (Locale locale : LOCALES_SET) {
             try {
-                String currLang = locale.getISO3Language();
+                String currLang = StickerSearchUtils.getISOCodeFromLocale(locale);
                 ISO_LANGUAGES.add(currLang);
             } catch (MissingResourceException e) {
                 Logger.e(TAG, "missing local language code for locale : " + locale);
@@ -390,7 +390,7 @@ public class StickerLanguagesManager {
         List<String> unsupportedLanguages = new ArrayList<>(unsupportedItems.size());
         for(KPTAddonItem addOnItem : unsupportedItems)
         {
-            unsupportedLanguages.add(new Locale(addOnItem.getlocaleName()).getISO3Language());
+            unsupportedLanguages.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(addOnItem.getlocaleName())));
         }
 
         return unsupportedLanguages;
@@ -402,7 +402,7 @@ public class StickerLanguagesManager {
 
         for(KPTAddonItem item : KptKeyboardManager.getInstance().getSupportedLanguagesList())
         {
-            kptList.add(new Locale(item.getlocaleName()).getISO3Language());
+            kptList.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(item.getlocaleName())));
         }
 
         Logger.d(TAG, "kpt list of languages : " + kptList);

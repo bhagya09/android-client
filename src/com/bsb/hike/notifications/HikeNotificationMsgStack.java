@@ -381,7 +381,7 @@ public class HikeNotificationMsgStack implements Listener
 						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 					}
 					// Adding the notif tracker to bot notifications
-					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
+					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF);
 				}
 				else
 				{
