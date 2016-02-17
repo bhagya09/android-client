@@ -31,6 +31,12 @@ public class HttpException extends Exception
 
 	public static final short REASON_CODE_SOCKET_EXCEPTION = 0x12;
 
+	public static final short REASON_CODE_IO_EXCEPTION = 13;
+
+	public static final short REASON_CODE_WRONG_URL = 14;
+
+    public static final short REASON_CODE_INCOMPLETE_REQUEST = 19;
+
 	private int errorCode;
 
 	public HttpException(short errorCode)

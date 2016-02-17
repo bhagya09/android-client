@@ -1,5 +1,22 @@
 package com.bsb.hike.platform;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -7,18 +24,16 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.R;
+import com.bsb.hike.*;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -27,13 +42,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.MessageEvent;
-import com.bsb.hike.models.MultipleConvMessage;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.*;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -48,11 +57,9 @@ import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.platform.content.PlatformContentListener;
-import com.bsb.hike.platform.content.PlatformContentModel;
-import com.bsb.hike.platform.content.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
@@ -62,38 +69,7 @@ import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.TellAFriend;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import com.bsb.hike.utils.*;
 
 /**
  * @author piyush
@@ -418,7 +394,8 @@ public class PlatformUtils
 	public static void downloadZipForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType, NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
+				PlatformContentModel
+						.make(botInfo.getMetadata()), new PlatformContentListener<PlatformContentModel>()
 				{
 
 					long zipFileSize = 0;
@@ -650,6 +627,33 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.EVENT_KEY, key);
 			json.put(AnalyticsConstants.APP_NAME, content.getId());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+	 * "exception_track", "fld1": "java.io.FileNotFoundException: abc", "fld2": "hikenewsv14", "fld4" : "true", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+	 * "sid": 1453620914078 } } }
+	 *
+	 * @param appName
+	 * @param errorMsg
+	 */
+	public static void microappIOFailedAnalytics(String appName, String errorMsg, boolean isReadException)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, "exception_track");
+			json.put(AnalyticsConstants.LOG_FIELD_1, errorMsg); //Error
+			json.put(AnalyticsConstants.LOG_FIELD_2, appName); //App Name
+			json.put(AnalyticsConstants.LOG_FIELD_4, Boolean.toString(isReadException)); //App Name
 			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
@@ -1103,7 +1107,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.POPUP, DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
 
 	}
 	
@@ -1249,15 +1253,16 @@ public class PlatformUtils
 	
 	/**
 	 * Used to record analytics for bot opens via push notifications
-	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+"}
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikecricketnew+", "bot_source" : "bot_notif" }
 	 */
-	public static void recordBotOpenViaNotification(String msisdn)
+	public static void recordBotOpenSource(String msisdn, String source)
 	{
 		JSONObject json = new JSONObject();
 		try
 		{
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 
@@ -1462,11 +1467,16 @@ public class PlatformUtils
 	 */
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
 	{
+		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+	}
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
 			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(
 					HttpRequestConstants.getMicroAppLoggingUrl(success), body,
@@ -1499,6 +1509,106 @@ public class PlatformUtils
 
 	}
 
+	public static void requestRecurringLocationUpdates(JSONObject json)
+	{
+		long duration = json.optInt(HikePlatformConstants.DURATION, 0);
+		final long interval = json.optInt(HikePlatformConstants.TIME_INTERVAL, 0);
+
+		// Checking if a request is already running
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= 0L && interval >= 0)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) >= System.currentTimeMillis() + duration)
+				return;
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, System.currentTimeMillis() + duration);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
+		}
+
+		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
+
+		final GpsLocation gps = GpsLocation.getInstance();
+
+		gps.requestRecurringLocation(new LocationListener()
+		{
+			@Override
+			public void onLocationChanged(Location location)
+			{
+				Logger.i(TAG, "Location available : "+location.getLatitude()+" , "+location.getLongitude() + " Source : "+location.getProvider());
+				locationAnalytics(location);
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval)
+				{
+					Logger.i(TAG, "Stopping recurring location updates at time : " + System.currentTimeMillis());
+					gps.removeUpdates(this);
+					HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+				}
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras)
+			{
+
+			}
+
+			@Override
+			public void onProviderEnabled(String provider)
+			{
+
+			}
+
+			@Override
+			public void onProviderDisabled(String provider)
+			{
+
+			}
+		}, interval, duration);
+	}
+
+	/**
+	 * Method to send log location updates to analytics.
+	 * @param location
+     */
+	public static void locationAnalytics(Location location)
+	{
+		JSONObject json = new JSONObject();
+		double latitude = location.getLatitude();
+		double longitude = location.getLongitude();
+		String provider = location.getProvider();
+
+		try
+		{
+			json.put(HikeConstants.LATITUDE, latitude);
+			json.put(HikeConstants.LONGITUDE, longitude);
+			json.put(HikeConstants.LOCATION_PROIVDER, provider);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.USER_LOCATION, json);
+	}
+
+	public static void resumeLoggingLocationIfRequired()
+	{
+		long endTime = HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
+		if (endTime >= 0 && System.currentTimeMillis() < endTime)
+		{
+			Logger.i("PlatformUtils", "Resuming location updates");
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put(HikePlatformConstants.DURATION, endTime - System.currentTimeMillis());
+				json.put(HikePlatformConstants.TIME_INTERVAL, HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.TIME_INTERVAL, 0L));
+
+				PlatformUtils.requestRecurringLocationUpdates(json);
+			} catch (JSONException e)
+			{
+				Logger.e("PlatformUtils", "JSONException in resumeLoggingLocationIfRequired : "+e.getMessage());
+				e.printStackTrace();
+			}
+
+		}
+	}
+
 	public static void addLocaleToInitJSON(JSONObject jsonObject) throws JSONException
 	{
 		jsonObject.put(HikeConstants.LOCALE, LocalLanguageUtils.getApplicationLocalLanguageLocale());
@@ -1528,6 +1638,34 @@ public class PlatformUtils
 		}
 
 		return jsonObj.optString(HikeConstants.BODY);
+	}
+
+
+
+	public static String getRunningGame(Context context)
+	{
+		String gameId = "";
+		String lastGame = getLastGame();
+
+		if (context == null || TextUtils.isEmpty(lastGame))
+		{
+			Logger.e(TAG, "Either activity is null or lastgame is null in getRunningGame");
+			return gameId;
+		}
+
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(context.ACTIVITY_SERVICE);
+		List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		for (int i = 0; i < procInfos.size(); i++)
+		{
+			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS))
+			{
+				gameId = lastGame;
+				break;
+			}
+		}
+		Logger.d(TAG, "getRunningGame: " + gameId);
+		return gameId;
 	}
 
     public static void sendStickertoAllHikeContacts(String stickerId, String categoryId) {
@@ -1567,7 +1705,6 @@ public class PlatformUtils
         } else {
             Logger.wtf("productpopup", "ConvMessage is Null");
         }
-
     }
 
 	private static void sendMultiMessages(List<ConvMessage> multipleMessageList, List<ContactInfo> arrayList)

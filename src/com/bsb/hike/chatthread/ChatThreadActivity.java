@@ -398,4 +398,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 		return;
 	}
+
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		Logger.i(TAG, "onPostResume");
+		if (chatThread != null) {
+			chatThread.onPostResume();
+		}
+	}
 }

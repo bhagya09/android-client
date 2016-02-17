@@ -216,11 +216,11 @@ public class StickerShopAdapter extends CursorAdapter
 			case NOT_DOWNLOADED:
 				StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 				stickerPalleteImageDownloadTask.execute();
-				StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SHOP, DownloadType.NEW_CATEGORY, mContext);
+				StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SHOP, DownloadType.NEW_CATEGORY, mContext);
 				break;
 			case UPDATE_AVAILABLE:
 			case RETRY:
-				StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SHOP, mContext);
+				StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SHOP, mContext);
 				break;
 
 			default:

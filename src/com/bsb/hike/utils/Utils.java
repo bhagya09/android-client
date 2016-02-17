@@ -3954,6 +3954,11 @@ public class Utils
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		}
 
+		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		{
+			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
+		}
+
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -4699,7 +4704,7 @@ public class Utils
 		{
 			RunningAppProcessInfo info = i.next();
 
-			if (!TextUtils.isEmpty(info.processName) && info.processName.equals(context.getApplicationInfo().processName) && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
+			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
 				
 				Field field = null;
@@ -7724,6 +7729,28 @@ public class Utils
 		return isAndroidDataStorageDir;
 	}
 
+    /*
+     * Returns a interval added string from a given list
+     */
+    public static String listToString(List<String> list, String strInterVal) {
+        if (list == null) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        boolean flag = false;
+        for (String str : list) {
+            if (flag) {
+                result.append(strInterVal);
+            }
+            if (null == str) {
+                str = "";
+            }
+            result.append(str);
+            flag = true;
+        }
+        return result.toString();
+    }
+
 	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
 	{
 		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
@@ -7779,7 +7806,7 @@ public class Utils
 		}
 		catch(JSONException e)
 		{
-			Logger.e("productpopup","JSON Exception in JSON Array language");
+			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
 		return null;
 	}
@@ -7803,7 +7830,7 @@ public class Utils
 
 	/**
 	 * Sample logging JSON :
-	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512,"fld6":12422 }
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
 	 * @param dbObj
 	 */
 	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
@@ -7816,10 +7843,6 @@ public class Utils
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
-			if(dbObj.isOpen())
-			{
-				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
-			}
 
 			Logger.d("db", json.toString());
 
