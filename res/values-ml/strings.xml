@@ -501,7 +501,6 @@
     <string name="confirm_delete_chat_msg">\"%1$s\" എന്ന വ്യക്തിയുമായുള്ള ചാറ്റ് ഇല്ലാതാക്കണോ? </string>
     <string name="confirm_delete_group_msg">\"%1$s\"എന്ന ഗ്രൂപ്പ് ഇല്ലാതാക്കുകയും അതിൽനിന്ന് പുറത്തുകടക്കുകയും വേണോ?</string>
     <string name="email_chat">ഇമെയിൽ ചാറ്റ്</string>
-    <string name="change_keyboard">കീബോർഡ് മാറ്റുക</string>
     <string name="clear_chat">ചാറ്റ് മായ്ക്കുക</string>
     <string name="add_shortcut">കുറുക്കുവഴി ചേർക്കുക</string>
     <string name="timeline">ടൈംലൈൻ</string>
@@ -932,7 +931,6 @@
     <string name="enter_setting_header">എന്റർ കീ എന്നാൽ അയയ്ക്കുകയാണ്</string>
     <string name="enter_setting_info">എന്റർ കീ അമർത്തുന്നത് സന്ദേശം അയയ്ക്കും</string>
     <string name="settings_chat">ചാറ്റ് സെറ്റിംഗ്</string>
-    <string name="settings_localization">ഭാഷയും &amp; ഇൻപുട്ടും</string>
     <string name="new_line_setting_info">എന്റർ കീ അമർത്തുന്നത് പുതിയ ലൈൻ ചേർക്കും</string>
     <string name="nudge_toast"> നഡ്ജുകൾ അയയ്ക്കുന്നത് ഓഫാക്കിയിരിക്കുന്നു.\nസെറ്റിംഗ് > ചാറ്റ് സെറ്റിംഗ് എന്നതിൽ നിങ്ങൾക്കിത് ഓണാക്കാവുന്നതാണ്.</string>
     <string name="select_all_hike">എല്ലാം തിരഞ്ഞെടുക്കുക</string>
@@ -1244,8 +1242,6 @@
     <string name="is_typing">ടൈപ്പുചെയ്യുന്നു...</string>
     <string name="are_typing">ടൈപ്പുചെയ്യുന്നു...</string>
     <string name="you_chat_bg_changed">നിങ്ങൾ ചാറ്റ് തീം മാറ്റി</string>
-    <string name="hike_keyboard">Hike കീബോർഡ്</string>
-    <string name="system_keyboard">ഫോണ്‍ കീബോർഡ്</string>
     <string name="you_xyz_posted_pin">നിങ്ങളൊരു പിന് പോസ്റ്റുചെയ്തു</string>
     <string name="voip_hang_up">വയ്ക്കുക</string>
     <string name="voip_decline">നിരസിക്കുക</string>
@@ -1390,7 +1386,5 @@
     <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
     <string name="error_message_upgrade_peer">ഓക്കേ/സഹായംക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. നിങളുടെ സുഹൃത്ത്‌ hike ഡയറക്റ്റ് ഉള്ള hike-ന്റെ പുതിയ വെർഷനിൽ അല്ല.</string>
     <string name="error_message_unsupported_peer">ക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. hike ഡയറക്റ്റ് ആൻഡ്രോയ്ഡിൽ മാത്രമേ ലഭിക്കുകയുള്ളൂ.</string>
-    <string name="switch_to_old_key">"ഫോൺ കീബോർഡ് ഉപയോഗിക്കുക"</string>
-    <string name="switch_to_hike_key">"hike കീബോർഡ് ഉപയോഗിക്കുക"</string>
     
 </resources>

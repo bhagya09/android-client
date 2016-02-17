@@ -501,7 +501,6 @@
     <string name="confirm_delete_chat_msg">\”%1$s\”ನೊಂದಿಗೆ ಚಾಟ್‌ ಅಳಿಸುವುದೇ? </string>
     <string name="confirm_delete_group_msg">\”%1$s\” ಗ್ಗುಂಪಿನಲ್ಲಿ ಅಳಿಸಿ ಹೊರಬರುವುದೇ?</string>
     <string name="email_chat">ಇಮೇಲ್ ಚಾಟ್‌</string>
-    <string name="change_keyboard">ಕೀಬೋರ್ಡ‌ ಬದಲಿಸಿ</string>
     <string name="clear_chat">ಚಾಟ್‌ ಕ್ಲಿಯರ್ ಮಾಡಿ</string>
     <string name="add_shortcut">ಶಾರ್ಟ್‌ಕಟ್‌ ಸೇರಿಸಿ</string>
     <string name="timeline">ಟೈಮ್‌ಲೈನ್‌</string>
@@ -934,7 +933,6 @@
     <string name="enter_setting_header">ಕಳುಹಿಸಲು ಎಂಟರ್‌ ಕೀ ಒತ್ತಿ</string>
     <string name="enter_setting_info">ಎಂಟರ್‌ ಕೀ ಒತ್ತುವುದರಿಂದ ಸಂದೇಶ ರವಾನೆಯಾಗುತ್ತದೆ</string>
     <string name="settings_chat">ಚಾಟ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="settings_localization">ಭಾಷೆ &amp; ಇನ್‌ಪುಟ್‌</string>
     <string name="new_line_setting_info">ಎಂಟರ್‌ ಕೀ ಒತ್ತುವುದರಿಂದ ಹೊಸ ಲೈನ್‌ ಸೇರಿಕೊಳ್ಳುತ್ತದೆ</string>
     <string name="nudge_toast"> ನಡ್ಜ್‌ಗಳನ್ನು ಕಳುಹಿಸುವುದನ್ನು ಆಫ್‌ ಮಾಡಲಾಗಿದೆ.\nನೀವು ಇದನ್ನು ಸೆಟ್ಟಿಂಗ್ಸ್‌ >  ಚಾಟ್‌ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್‌ ಮಾಡಬಹುದಾಗಿದೆ.</string>
     <string name="select_all_hike">ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆ ಮಾಡಿ</string>
@@ -1252,8 +1250,6 @@
     <string name="is_typing">ಅವರು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
     <string name="are_typing">ಅವರುಗಳು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
     <string name="you_chat_bg_changed">ನೀವು ಚಾಟ್ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ</string>
-    <string name="hike_keyboard">Hike ಕೀಬೋರ್ಡ</string>
-    <string name="system_keyboard">ಫೋನ್ ಕೀಬೋರ್ಡ್</string>
     <string name="you_xyz_posted_pin">ನೀವು ಪಿನ್ ಪೋಸ್ಟ್ ಮಾಡಿದ್ದೀರಿ</string>
     <string name="voip_hang_up">ಹ್ಯಾಂಗ್ ಅಪ್</string>
     <string name="voip_decline">ನಿರಾಕರಿಸಿ</string>
@@ -1398,7 +1394,5 @@
     <string name="language_ftue_complete_message">ಕೀಬೋರ್ಡ ಭಾಷೆ ಬದಲಿಸಲು \nಸೆಟ್ಟಿಂಗ್ಸ -> ಭಾಷೆ &amp; ಇನ್ಪುಟ್ ಗೆ ಹೋಗಿ</string>
     <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
     <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
-    <string name="switch_to_old_key">"ನಿಮ್ಮ ಹಳೆಯ ಕೀಬೋರ್ಡ್ ಗೆ ಬದಲಾಯಿಸಿ"</string>
-    <string name="switch_to_hike_key">"ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ hikeಗೆ ಬದಲಾಯಿಸಿ"</string>
 
 </resources>

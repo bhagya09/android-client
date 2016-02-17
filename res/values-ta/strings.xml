@@ -501,7 +501,6 @@
     <string name="confirm_delete_chat_msg">%1$s உடனான சேட்-ஐ அழிக்கவும் </string>
     <string name="confirm_delete_group_msg">அழித்து விட்டு \'%1$s\'குழுவை விட்டு வெளியேறு</string>
     <string name="email_chat">சேட்-ஐ ஈமெயில் செய்க</string>
-    <string name="change_keyboard">கீபோர்டை மாற்றுக</string>
     <string name="clear_chat">சேட்டை கிளியர் செய்க</string>
     <string name="add_shortcut">ஷார்ட்கட்டை ஆட் செய்க</string>
     <string name="timeline">டைம்லைன்</string>
@@ -932,7 +931,6 @@
     <string name="enter_setting_header">எண்டர் சாவி தான் அனுப்பு</string>
     <string name="enter_setting_info">எண்டர் சாவியை அழுத்துவது தான் மெஸ்சேஜை அனுப்பும்</string>
     <string name="settings_chat">சேட் செட்டிங்ஸ்</string>
-    <string name="settings_localization">மொழி &amp; உள்ளீடு</string>
     <string name="new_line_setting_info">எண்டர் சாவியை அழுத்துவது புதிய வரியை சேர்க்கும்</string>
     <string name="nudge_toast"> நட்ஜ்களை அனுப்புவதை ஆஃப் செய்துள்ளார்கள்.\nநீர்  அதனை செட்டிங்ஸ் > சேட் செட்டிங்ஸில் ஆன் செய்து கொள்ள முடியும்.</string>
     <string name="select_all_hike">அனைத்தும் தேர்வுசெய்</string>
@@ -1245,8 +1243,6 @@
     <string name="is_typing">டைப் செய்கிறார்...</string>
     <string name="are_typing">டைப் செய்கிறார்கள்...</string>
     <string name="you_chat_bg_changed">நீங்கள் சேட் தீம்-ஐ மாற்றி விட்டீர்</string>
-    <string name="hike_keyboard">Hike கீபோர்டு</string>
-    <string name="system_keyboard">போன் கீபோர்டு</string>
     <string name="you_xyz_posted_pin">நீங்கள் ஓர் பின்-ஐ போஸ்ட் செய்தீர்</string>
     <string name="voip_hang_up">ஹேங் அப்</string>
     <string name="voip_decline">மறுக்கவும்</string>
@@ -1390,7 +1386,5 @@
     <string name="language_ftue_complete_message">தங்கள் கீபோர்ட் மொழியை மாற்ற \nசெட்டிங்க்ஸ் ->மொழி &amp; உள்ளீடு அழுத்தவும்</string>
     <string name="error_message_upgrade_peer">மன்னிக்கவம், தற்போது இணைக்க முடியவில்லை.தங்களது நண்பர் hike டைரெக்டில் புதிய hike வர்ஷன் அப்டேட் செய்யவில்லை</string>
     <string name="error_message_unsupported_peer">மன்னிக்கவம், இணைக்க முடியவில்லை.hike டைரக்ட்  தற்போது ஆண்ட்ராய்டு மொபைலுக்கு மட்டுமே வேலை செய்யும்</string>
-    <string name="switch_to_old_key">"உங்கள் பழைய கீபோர்டிற்கு மாறுங்கள்"</string>
-    <string name="switch_to_hike_key">"உங்கள் hike கீபோர்டிற்கு மாறுங்கள் "</string>
     
 </resources>
