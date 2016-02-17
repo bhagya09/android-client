@@ -1660,16 +1660,6 @@ public class MqttMessagesManager
 			int port = data.getInt(HikeConstants.VOIP_RELAY_SERVER_PORT);
 			editor.putInt(HikeConstants.VOIP_RELAY_SERVER_PORT, port);
 		}
-		if (data.has(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS))
-		{
-			int apl = data.getInt(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS);
-			editor.putInt(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS, apl);
-		}
-		if (data.has(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION))
-		{
-			int scd = data.getInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION);
-			editor.putInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION, scd);
-		}
 		if (data.has(HikeConstants.VOIP_AEC_ENABLED))
 		{
 			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
@@ -1684,11 +1674,6 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED, enabled);
-		}
-		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
-		{
-			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
-			editor.putBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.VOIP_AEC_CPU_NR))
 		{
