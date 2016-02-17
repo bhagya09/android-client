@@ -24,7 +24,11 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
@@ -32,6 +36,8 @@ import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
@@ -576,4 +582,43 @@ public class OneToNConversationUtils
 		RequestToken requestToken = HttpRequests.editGroupProfileAvatarRequest(groupImageFile.getPath(), requestListener, groupId);
 		requestToken.execute();
 	}
+	public static void saveStatusMesg(ConvInfo conv, Context ctx)
+	{
+		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
+		Conversation conversation = convDb.getConversationWithLastMessage(conv.getMsisdn());
+		ConvMessage convMessage;
+		try
+		{
+			convMessage = new ConvMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END), conversation, ctx, false);
+			ContactManager.getInstance().updateGroupRecency(convMessage.getMsisdn(), convMessage.getTimestamp());
+
+			convDb.addConversationMessages(convMessage, true);
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_RECEIVED, convMessage);
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void leaveGCAnalyticEvent(HikeDialog hikeDialog, boolean confirm, String event)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EXIT_GC_CONVERSATION);
+			metadata.put(HikeConstants.EVENT_PATH, event);
+			metadata.put(HikeConstants.EVENT_CHECKED, ((CustomAlertDialog) hikeDialog).isChecked());
+			metadata.put(HikeConstants.EVENT_CONFIRM, confirm);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+	
+
 }
