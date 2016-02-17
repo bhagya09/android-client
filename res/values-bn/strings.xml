@@ -930,7 +930,7 @@
     <string name="change_password_from_privacy">লুকানো মোডের সেটিংস</string>
     <string name="nudge_setting_header">ঠেলা দিতে দুইবার আলতো চাপুন</string>
     <string name="nudge_setting_info">চ্যাট করার সময় দুইবার আলতো চাপার মাধ্যমে ঠেলা দিন</string>
-    <string name="enter_setting_header">মেসেজ পাঠানোর জন্যে এন্টার টিপুন</string>
+    <string name="enter_setting_header">এন্টার কী মানে মেসেজ পাঠানো</string>
     <string name="enter_setting_info">এন্টার কী টিপলে মেসেজ পাঠানো হবে</string>
     <string name="settings_chat">চ্যাট সেটিংস</string>
     <string name="settings_localization">ভাষা &amp; ইনপুট</string>
