@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="12dp"
             android:orientation="vertical"
-            android:paddingBottom="1dp" >
+            android:paddingBottom="3dp" >
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -60,13 +60,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="1.0"
-                android:layout_marginTop="3dp">
+                android:layout_marginTop=".5dp">
 
                 <ImageView
                     android:id="@+id/msg_status_indicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="3.5dp"
+                    android:layout_marginBottom=".5dp"
                     android:scaleType="centerInside"
                     android:layout_gravity="bottom"
                     android:visibility="gone" />
@@ -101,6 +102,7 @@
                         android:textColor="@color/white"
                         android:textSize="11sp"
                         android:textStyle="normal"
+                        android:paddingBottom="1.5dp"
                         style="@style/BaseStyleTextView" />
                
             </LinearLayout>

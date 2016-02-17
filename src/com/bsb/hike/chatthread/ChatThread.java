@@ -36,6 +36,8 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
 import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
@@ -115,6 +117,8 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -340,6 +344,8 @@ import android.widget.Toast;
 
 	protected CustomFontEditText mComposeView;
 
+	protected LinearLayout keyboardParentView;
+
 	private GestureDetector mGestureDetector;
 
 	protected View mActionBarView;
@@ -383,6 +389,10 @@ import android.widget.Toast;
 	protected KeyboardFtue keyboardFtue;
 	
 	protected boolean changeKbdClicked = false;
+
+	protected boolean keyboardSelectedLanguageChanged;
+
+	ObjectAnimator tipFadeInAnimation;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -621,8 +631,7 @@ import android.widget.Toast;
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
-		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard());
+		mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		// if the localization ftue is not yet done with the download and install(and then change keyboard), dont let it change the keyboard now.
 		// chat thread has its own change keyboard mechanism. External change keyboard calls messes up with chat thread
 		removeLocalisationFtueKeyboardDownloadCallback();
@@ -710,6 +719,8 @@ import android.widget.Toast;
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 
+		keyboardParentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
+
 		if (!isSystemKeyboard())
 			initCustomKeyboard();
 		
@@ -734,8 +745,7 @@ import android.widget.Toast;
 		{
 			return;
 		}
-		LinearLayout parentView = (LinearLayout) activity.findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(activity, parentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
+		mCustomKeyboard= new HikeCustomKeyboard(activity, keyboardParentView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, kptKeyboardVisibilityStatusListner);
 	}
 
 	protected void initCustomKeyboard()
@@ -797,6 +807,8 @@ import android.widget.Toast;
 			{
 				mShareablePopupLayout.setWindowSystemBarBgFlag(Utils.isWindowFlagEnabled(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, activity.getWindow()));
 			}
+			
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 		}
 
 		else
@@ -819,7 +831,7 @@ import android.widget.Toast;
 
 	private void initKeyboardFtue()
 	{
-		if (!keyboardFtue.isFTUEComplete())
+		if (keyboardFtue.shouldShowFTUE())
 			keyboardFtue.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),(ViewGroup)activity.findViewById(R.id.keyboard_ftue_container),keyboardFTUEdestroyedListener);
 	}
 
@@ -842,7 +854,12 @@ import android.widget.Toast;
 						hideCustomKeyboard(mComposeView);
 						showCustomKeyboard(mComposeView);
 					}
+					//changeKeybaordSelectedLanguage();
 				}
+			}
+			else if (state == KeyboardFtue.COMPLETE)
+			{
+				//changeKeybaordSelectedLanguage();
 			}
 		}
 
@@ -850,9 +867,23 @@ import android.widget.Toast;
 		public void onDestroyed()
 		{
 			Utils.unblockOrientationChange(activity);
+			showOverflowMenuKeyboardTipIfRequired();
 		}
 	};
 
+	private void changeKeybaordSelectedLanguage()
+	{
+		if (!keyboardSelectedLanguageChanged && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
+		{
+			if (LocalLanguageUtils.isLocalLanguageSelected() &&
+					!LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale().equals(LocalLanguage.English.getLocale())) {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale());
+			} else {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
+			}
+			keyboardSelectedLanguageChanged = true;
+		}
+	}
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
@@ -897,36 +928,119 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
-			showOverflowMenuIndicatorIfRequired();
+			showOverflowMenuIndicatorsIfRequired();
 			return true;
 		}
 		return false;
 	}
 
-	private void showOverflowMenuIndicatorIfRequired()
+	private void showOverflowMenuIndicatorsIfRequired()
 	{
-		showOverflowMenuKeyboardIndicatorIfRequired();
+		showOverflowMenuKeyboardTipIfRequired();
 	}
 
-	private boolean showOverflowMenuKeyboardIndicatorIfRequired()
+	protected boolean showOverflowMenuKeyboardTipIfRequired()
 	{
-		// Show keyboard change discoverability option if:
+		// Show Ist keyboard change tip if:
+		// - it is not done yet
 		// - already the indicator is not in use
+		// - already the tip is not in use
+		// - user is Indian
 		// - keyboard ftue will not be shown in this session
-		// - it has not been shown before
-		// - if keyboard option is not yet used
 		// - if custom keyboard is enabled in the app
-		if (!mActionBar.isOverflowMenuIndicatorInUse() && !keyboardFtue.isReadyForFTUE()
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, false)
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
-				&& HikeMessengerApp.isCustomKeyboardUsable())
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
+				&& HikeMessengerApp.isIndianUser()
+				&& !keyboardFtue.isReadyForFTUE()
+				&& !HikeMessengerApp.isSystemKeyboard())
 		{
-			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot_overflow_key, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, true);
+			showOverflowTip(R.string.switch_to_old_key);
+			return true;
+		}
+		// Show IInd keyboard change tip if:
+		// - first keyboard tip is successfully done.
+		// - second keyboard tip is not yet done.
+		// - already the indicator is not in use
+		// - already the tip is not in use
+		// - keyboard ftue will not be shown in this session
+		// - system keyboard is selected.
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
+				&& !keyboardFtue.isReadyForFTUE()
+				&& HikeMessengerApp.isSystemKeyboard())
+		{
+			showOverflowTip(R.string.switch_to_hike_key);
 			return true;
 		}
 		return false;
 	}
+
+	protected void showOverflowTip(final int stringResId)
+	{
+		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		tipFadeInAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
+		tipFadeInAnimation.setDuration(600);
+		tipFadeInAnimation.setStartDelay(1200);
+		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+				if (activity == null || activity.isFinishing() || (mActionMode != null && mActionMode.isActionModeOn()))
+				{
+					return;
+				}
+				tip.setText(stringResId);
+				tip.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {}
+		});
+		tipFadeInAnimation.start();
+
+		tip.setOnClickListener(this);
+	}
+
+	private boolean isOverflowTipShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		if (tip != null && tip.getVisibility() == View.VISIBLE)
+			return true;
+
+		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
+			return true;
+
+		return false;
+	}
+	private void dismissOverflowTipIfShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		if (isOverflowTipShowing())
+		{
+			tip.setVisibility(View.GONE);
+			tip.setOnClickListener(null);
+
+			if (!TextUtils.isEmpty(tip.getText()))
+			{
+				if (tip.getText().equals(getString(R.string.switch_to_old_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, true);
+				} else if (tip.getText().equals(getString(R.string.switch_to_hike_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, true);
+				}
+			}
+		}
+	}
+
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		return false;
@@ -979,7 +1093,8 @@ import android.widget.Toast;
 				overFlowMenuItem.enabled = !isMessageListEmpty;
 				break;
 			case R.string.hike_keyboard:
-				if (! sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false))
+				if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
+						&& HikeMessengerApp.isIndianUser())
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_red_dot_overflow_item_key;
 				}
@@ -1259,6 +1374,9 @@ import android.widget.Toast;
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
+		// Dismiss Overflow Tip
+		dismissOverflowTipIfShowing();
+
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
 		 */
@@ -1281,7 +1399,6 @@ import android.widget.Toast;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			if (mShareablePopupLayout.isBusyInOperations())
 			{//  previous task is running don't accept this event
 				return;
@@ -1340,6 +1457,9 @@ import android.widget.Toast;
 			break;
 		case R.id.search_text:
 			showKeyboard();
+			break;
+		case R.id.overflow_tip:
+			showOverflowMenu();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -1466,8 +1586,7 @@ import android.widget.Toast;
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
 		}
-		
-		else 
+		else
 		{
 			if (!retryToInflateStickers())
 			{
@@ -1475,6 +1594,7 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+
 		Logger.v(TAG, "Time taken to open sticker pallete : " + (System.currentTimeMillis() - time));
 	}
 	
@@ -1543,7 +1663,6 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
-		
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -1954,7 +2073,7 @@ import android.widget.Toast;
 		if(KptUtils.isSystemKeyboard()){
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
-		else if (mCustomKeyboard!=null && isCustomKeyboardVisible())
+		else if (mCustomKeyboard!=null)
 		{
 			hideKptKeyboard();
 		}
@@ -1963,10 +2082,7 @@ import android.widget.Toast;
 
 	private void hideKptKeyboard()
 	{
-		if (!isSystemKeyboard())
-		{
-			hideCustomKeyboard(mComposeView);
-		}
+		hideCustomKeyboard(mComposeView);
 		KptUtils.updatePadding(activity, R.id.chatThreadParentLayout, 0);
 	}
 
@@ -2057,7 +2173,7 @@ import android.widget.Toast;
 		public void analyticalData(KPTAddonItem kptAddonItem)
 		{
 			KptUtils.generateKeyboardAnalytics(kptAddonItem);
-			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
+			StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getISOCodeFromLocale(new Locale(kptAddonItem.getlocaleName())));
 		}
 
 		@Override
@@ -2549,7 +2665,10 @@ import android.widget.Toast;
 	
 	protected List<ConvMessage> loadMoreMessages(int messageCountToLoad, long maxSortId, long minSortId)
 	{
-		return mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
+		Long time = System.currentTimeMillis();
+		List<ConvMessage> list = mConversationDb.getConversationThread(msisdn, messageCountToLoad, mConversation, maxSortId, minSortId);
+		Logger.d(HikeConstants.CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK, "Time taken to loadMore Messages in background thread = " + (System.currentTimeMillis() - time));
+		return list;
 	}
 
 	protected abstract int getContentView();
@@ -3769,7 +3888,7 @@ import android.widget.Toast;
 
 	private void showKeyboardFtueIfReady()
 	{
-		if (keyboardFtue.isReadyForFTUE())
+		if (keyboardFtue.isReadyForFTUE() && !mActionMode.isActionModeOn())
 		{
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			keyboardFtue.showNextFtue();
@@ -4322,6 +4441,8 @@ import android.widget.Toast;
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
+
+		keyboardFtue.destroy();
 		
 		hideActionMode();
 
@@ -4334,24 +4455,25 @@ import android.widget.Toast;
 		releaseMessageAdapterResources();
 
 		StickerManager.getInstance().saveCustomCategories();
-		
+
 		releaseMessageMap();
 		
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
 		
 		releaseActionBarResources();
-		
+
 		releaseOfflineListeners();
 
 		releaseShareablePopUpResources();
-		
+
 		releaseStickerResources();
 		
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
 
-		keyboardFtue.destroy();
+		if (tipFadeInAnimation != null)
+			tipFadeInAnimation.cancel();
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -5978,7 +6100,7 @@ import android.widget.Toast;
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
-	
+
 	@Override
 	public void onPopupDismiss()
 	{
@@ -6091,7 +6213,7 @@ import android.widget.Toast;
 		if (changeKbdClicked == true)
 		{
 			changeKeyboard(!isSystemKeyboard());
-			mShareablePopupLayout.setCustomKeyBoard(isSystemKeyboard());
+			mShareablePopupLayout.setCustomKeyBoard(!isSystemKeyboard(), (keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
 			changeKbdClicked = false;
 		}
 	}
@@ -6257,6 +6379,10 @@ import android.widget.Toast;
 		{
 			Utils.logEvent(activity.getApplicationContext(), HikeConstants.LogEvent.MENU_BLOCK);
 			showBlockOverlay(getBlockedUserLabel());
+			if (mShareablePopupLayout.isShowing())
+			{
+				mShareablePopupLayout.dismiss();
+			}
 		}
 
 		else
@@ -6441,7 +6567,7 @@ import android.widget.Toast;
 			setEditTextListeners();
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-
+		showOverflowMenuKeyboardTipIfRequired();
 		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
@@ -6542,13 +6668,17 @@ import android.widget.Toast;
 	protected void showCustomKeyboard(View view)
 	{
 		if (mCustomKeyboard != null)
+		{
 			mCustomKeyboard.showCustomKeyboard(view, true);
+		}
 	}
 
 	protected void hideCustomKeyboard(View view)
 	{
 		if (mCustomKeyboard != null)
+		{
 			mCustomKeyboard.showCustomKeyboard(view, false);
+		}
 	}
 
 	protected void registerCustomKeyboardEditText(int resId)
@@ -6584,5 +6714,10 @@ import android.widget.Toast;
 	{
 		if (mCustomKeyboard != null)
 			mCustomKeyboard.swtichToDefaultKeyboard(tv);
+	}
+
+	public void onPostResume()
+	{
+
 	}
 }

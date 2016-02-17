@@ -237,10 +237,7 @@ public class IntentFactory
 	
 	public static void openStickerSettings(Context context)
 	{
-		if (ChatHeadUtils.checkDeviceFunctionality())
-		{
-			context.startActivity(getStickerShareSettingsIntent(context));
-		}
+		context.startActivity(getStickerShareSettingsIntent(context));
 	}
 	
 	public static void openSettingHelp(Context context)
@@ -940,7 +937,6 @@ public class IntentFactory
 					Intent i = new Intent(context,CocosGamingActivity.class);
 					i.putExtra(HikeConstants.MSISDN, msisdn);
 					i.putExtra(HikeConstants.DATA,data);
-					i.putExtra(HikeConstants.FORCE_BG, true);
 					return i;
 				}
 				else

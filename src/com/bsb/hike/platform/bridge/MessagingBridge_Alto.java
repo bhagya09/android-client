@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 import android.widget.BaseAdapter;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -19,11 +18,12 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +38,7 @@ import org.json.JSONObject;
  *  Platform Bridge Version Start = 0
  *  Platform Bridge Version End = ~
  */
+@DoNotObfuscate
 public class MessagingBridge_Alto extends MessagingBridge_Nano
 {
 

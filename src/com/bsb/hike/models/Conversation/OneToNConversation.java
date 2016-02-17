@@ -13,6 +13,8 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -135,6 +137,7 @@ public abstract class OneToNConversation extends Conversation
 			String msisdn = convParticipant.getFirst().getContactInfo().getMsisdn();
 			this.conversationParticipantList.put(msisdn, convParticipant);
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_MEMBER_COUNT, conversationParticipantList.size());
 	}
 
 	public PairModified<GroupParticipant, String> getConversationParticipant(String msisdn)

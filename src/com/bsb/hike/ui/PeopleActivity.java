@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,9 +33,17 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
+
 public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
 	FriendsFragment mainFragment;
+
+    public String msisdnList;
+
+    public boolean showFilteredContacts = false;
+
+    private String actionBarTitle;
+
 	private HikeCustomKeyboard mCustomKeyboard;
 	private AdaptxtEditText searchET;
 	private MenuItem searchMenuItem;
@@ -44,6 +52,17 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
+        if(getIntent() != null)
+        {
+            if(getIntent().hasExtra(HikeConstants.Extras.FORWARD_MESSAGE) && getIntent().getBooleanExtra(HikeConstants.Extras.FORWARD_MESSAGE, true))
+            {
+                msisdnList = getIntent().getStringExtra(HikeConstants.Extras.MSISDN);
+                actionBarTitle = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
+                showFilteredContacts = true;
+            }
+        }
+
 		initialisePeopleScreen(savedInstanceState);
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.FAVOURITES.ordinal());
 		
@@ -75,7 +94,11 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText(R.string.favorites);
+
+        if(!TextUtils.isEmpty(actionBarTitle))
+            title.setText(actionBarTitle);
+        else
+            title.setText(R.string.favorites);
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();

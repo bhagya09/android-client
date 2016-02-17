@@ -44,6 +44,7 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
@@ -63,7 +64,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	
 	private HikeUserDatabase(Context context)
 	{
-		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION);
+		super(context, DBConstants.USERS_DATABASE_NAME, null, DBConstants.USERS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
 		this.mContext = context;
 		mDb = getWritableDatabase();
 		mReadDb = getReadableDatabase();
@@ -1483,6 +1484,42 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			}
 		}
 	}
+
+    List<ContactInfo> getContactInfoListFromPhoneNoOrMsisdn(String msisdnsIn)
+    {
+        Cursor c = null;
+        List<ContactInfo> contactInfos = null;
+
+        if(TextUtils.isEmpty(msisdnsIn))
+            return contactInfos;
+
+        try
+        {
+            StringBuilder selectionBuilder = new StringBuilder();
+
+            selectionBuilder.append(DBConstants.MSISDN + " IN ('" + msisdnsIn + "') AND ");
+
+            c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
+                    DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
+                    DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+                    + DBConstants.MSISDN + "!='null'" , null, null, null, null);
+
+            contactInfos = extractContactInfo(c, true);
+
+            return contactInfos;
+        }
+        finally
+        {
+            if (c != null)
+            {
+                c.close();
+            }
+        }
+
+    }
+
+
+
 
 	void unblock(String msisdn)
 	{

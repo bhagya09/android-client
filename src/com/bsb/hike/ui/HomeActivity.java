@@ -38,6 +38,7 @@ import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
 import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -182,7 +183,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -210,9 +211,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private AdaptxtEditText searchET;
 	
+	private long time;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		time = System.currentTimeMillis();
 		Logger.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 		
@@ -305,6 +309,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
+
+		moveToComposeChatScreen();
 		
 	}
 	
@@ -1215,6 +1221,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			acceptGroupMembershipConfirmation(getIntent());
 		}
+		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
 
 	private void showKeyboard()
@@ -1805,6 +1812,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				}
 			});
 		}
+		else if(HikePubSub.OPEN_COMPOSE_CHAT_SCREEN.equals(type))
+		{
+			if(isActivityVisible())
+			{
+				moveToComposeChatScreen();
+			}
+		}
 		else if(HikePubSub.STEALTH_INDICATOR.equals(type))
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE);
@@ -1862,6 +1876,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
+		}
+	}
+
+	private void moveToComposeChatScreen()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, false))
+		{
+			HikeSharedPreferenceUtil.getInstance().removeData(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER);
+			Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(HomeActivity.this);
+			startActivity(intent);
 		}
 	}
 
@@ -2129,6 +2153,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.scan_free_hike:
 					intent = IntentFactory.getComposeChatActivityIntent(HomeActivity.this);
 					intent.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
+					OfflineUtils.recordHikeDirectOverFlowClicked();
 					break;
 				case R.string.invite_friends:
 					intent = new Intent(HomeActivity.this, TellAFriend.class);

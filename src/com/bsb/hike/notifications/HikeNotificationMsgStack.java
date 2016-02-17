@@ -68,7 +68,7 @@ public class HikeNotificationMsgStack implements Listener
 	// This is cleared once getNotificationTickerText() is called.
 	private StringBuilder mTickerText;
 
-	public String lastAddedMsisdn;
+	public String lastAddedMsisdn = "";  // FIX FOR AND - 4316
 
 	private long latestAddedTimestamp;
 
@@ -381,7 +381,7 @@ public class HikeNotificationMsgStack implements Listener
 						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
 					}
 					// Adding the notif tracker to bot notifications
-					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
+					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF);
 				}
 				else
 				{
@@ -605,7 +605,7 @@ public class HikeNotificationMsgStack implements Listener
 	public void resetMsgStack()
 	{
 		mMessagesMap.clear();
-		lastAddedMsisdn = null;
+		lastAddedMsisdn = ""; // FIX FOR AND-4316
 		totalNewMessages = 0;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MAX_REPLY_RETRY_NOTIF_COUNT, 0);
 		maxRetryCount=0;
