@@ -1510,4 +1510,20 @@
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
+    <string name="intercept_title_screen_shot">Screenshot captured!</string>
+    <string name="intercept_message_screen_shot">Edit it and share with your friends on hike</string>
+    <string name="intercept_title_image">Great Picture!</string>
+    <string name="intercept_message_image">Share it with your friends on hike</string>
+    <string name="intercept_lable_set_dp">Set DP</string>
+    <string name="intercept_lable_screenshot_share">Edit &amp; Share</string>
+    <string name="intercept_lable_image_share">Share</string>
+    <string name="intercept_title_video">Awesome video!</string>
+    <string name="intercept_message_video">Share it with your friends on hike</string>
+    <string name="intercept_lable_video_share">Share on hike</string>
+    <string name="screenshot_intercept_settings_header">Screenshot notification</string>
+    <string name="screenshot_intercept_settings_content">Notify to share when a screenshot is captured</string>
+    <string name="image_intercept_settings_header">Picture notification</string>
+    <string name="image_intercept_settings_content">Notify when a picture is taken</string>
+    <string name="video_intercept_settings_header">Video notification</string>
+    <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
 </resources>
