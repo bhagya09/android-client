@@ -12,6 +12,8 @@ import android.preference.PreferenceManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -192,6 +194,9 @@ public class DeleteAccountTask implements ActivityCallableTask
 
 	private void doOnSuccess()
 	{
+		HAManager.getInstance().record(AnalyticsConstants.EVENT_DELETE_ACCOUNT, AnalyticsConstants.NON_UI_EVENT,
+                delete ? AnalyticsConstants.DELETE_ACCOUNT : AnalyticsConstants.RESET_ACCOUNT,
+                HAManager.EventPriority.HIGH);
 		if (delete)
 		{
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();

@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -46,6 +47,7 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				return;
 			}
 
+			HAManager.getInstance().logUserGoogleAccounts();
 			/*
 			 * Checking if the current version is the latest version. If it is we reset the preference which prompts the user to update the app.
 			 */

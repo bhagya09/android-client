@@ -6757,4 +6757,9 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		if (mCustomKeyboard != null)
 			mCustomKeyboard.swtichToDefaultKeyboard(tv);
 	}
+
+	public void onPostResume()
+	{
+
+	}
 }

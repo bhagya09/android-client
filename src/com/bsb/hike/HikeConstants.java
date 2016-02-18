@@ -426,6 +426,12 @@ public class HikeConstants
 	public static final String EVENT_TYPE = "et";
 
 	public static final String EVENT_KEY = "ek";
+	
+	public static final String EVENT_PATH = "src";
+	
+	public static final String EVENT_CHECKED = "check";
+	
+	public static final String EVENT_CONFIRM = "cnfrm";
 
 	public static final String PACKAGE = "pkg";
 
@@ -1358,6 +1364,8 @@ public class HikeConstants
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 
+	public static final String VOIP_RATINGS_LEFT = "vrl";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
@@ -1959,7 +1967,15 @@ public class HikeConstants
 		public static final String DELETE_ALL_CONVERSATIONS_MENU = "hoSdelAC";
 
 		public static final String DELETE_CONVERSATION = "hoSdelC";
-
+		
+		public static final String EXIT_GC_CONVERSATION = "exitgc";
+		
+		public static final String DELETE_GC_CONVERSATION = "delgc";
+		
+		public static final String LEAVE_GROUP_VIA_PROFILE = "gcinfo";
+		
+		public static final String LEAVE_GROUP_VIA_HOME = "cvl";
+		
 		public static final String COMPOSE_BUTTON = "hoScompB";
 
 		public static final String ADD_SHORTCUT = "hoSaddSC";
@@ -3820,13 +3836,13 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
-
-	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
-
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+	
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 }
