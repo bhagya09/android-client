@@ -16,6 +16,8 @@ import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -1067,5 +1069,45 @@ public class HAManager
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+
+	/**
+	 * Used for logging user's google accounts at the time of signup OR upgrade.
+	 */
+	public void logUserGoogleAccounts() {
+	    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "logUserGoogleAccounts");
+
+		if(getPrefs().getBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, false)) return;
+
+		final AccountManager am = AccountManager.get(context);
+		Account[] accounts = am.getAccountsByType(AnalyticsConstants.ACCOUNT_TYPE_GOOGLE);
+
+		if(accounts == null || accounts.length == 0) {
+		    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "No google accounts!!");
+		    return;
+		}
+
+		StringBuilder userAccounts = new StringBuilder();
+	    for(Account account:accounts) {
+		    userAccounts.append(account.name);
+		    userAccounts.append(",");
+		}
+	    userAccounts.deleteCharAt(userAccounts.length()-1);
+
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "User google accounts: " + userAccounts);
+	    try {
+		    JSONObject metadata = new JSONObject();
+		    metadata.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.EVENT_USER_GOOGLE_ACCOUNTS);
+		    metadata.put(AnalyticsConstants.USER_GOOGLE_ACCOUNTS, userAccounts.toString());
+		    recordEvent(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.EVENT_USER_GOOGLE_ACCOUNTS,
+			EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_MOB);
+		} catch(JSONException e) {
+		    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		    return;
+		}
+
+		Editor editor = getPrefs().edit();
+	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
+	    editor.apply();
 	}
 }
