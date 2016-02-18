@@ -391,6 +391,7 @@ public class StickerManager
 			{
 				File smallCatDir = new File(categoryDirPath + HikeConstants.SMALL_STICKER_ROOT);
 				String bigCatDirPath = categoryDirPath;
+				//Removing only large and small stickers folders in case of pack delete by user; otherwise removing entire category folder
 				if (!forceRemoveCategory)
 				{
 					bigCatDirPath += HikeConstants.LARGE_STICKER_ROOT;
