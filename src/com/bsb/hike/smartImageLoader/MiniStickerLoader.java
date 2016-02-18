@@ -26,6 +26,7 @@ public class MiniStickerLoader extends ImageWorker {
     public MiniStickerLoader(boolean downloadIfNotFound)
     {
         super();
+        mResources = HikeMessengerApp.getInstance().getResources();
         this.downloadIfNotFound = downloadIfNotFound;
     }
 

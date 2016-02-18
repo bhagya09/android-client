@@ -1,17 +1,18 @@
 package com.bsb.hike.modules.packPreview;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.MiniStickerLoader;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * Created by anubhavgupta on 04/01/16.
  */
-public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.SuccessfulImageLoadingListener
 {
 
 	private static final String TAG = PackPreviewAdapter.class.getSimpleName();
@@ -38,8 +39,6 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private MiniStickerLoader miniStickerLoader;
 
-	private Drawable defaultDrawable;
-
 	private int sizeEachImage;
 
 	private View.OnClickListener onClickListener;
@@ -54,7 +53,8 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private int rowSize;
 
-	public PackPreviewAdapter(Context context, List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList, List<Pair<Integer, BasePackPreviewAdapterItem>> footerList, View.OnClickListener onClickListener)
+	public PackPreviewAdapter(Context context, List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList,
+			List<Pair<Integer, BasePackPreviewAdapterItem>> footerList, View.OnClickListener onClickListener)
 	{
 		this.mContext = context;
 		this.onClickListener = onClickListener;
@@ -74,21 +74,19 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	private void init()
 	{
 		miniStickerLoader = new MiniStickerLoader(true);
-		miniStickerLoader.setLoadingImage(defaultDrawable);
+		miniStickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
 		miniStickerLoader.setImageFadeIn(false);
-		defaultDrawable = mContext.getResources().getDrawable(R.drawable.shop_placeholder, null);
+		miniStickerLoader.setSuccessfulImageLoadingListener(this);
 		sizeEachImage = StickerSearchUtils.getStickerSize();
-		rowSize =  StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
+		rowSize = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
 
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
 	{
-		if(viewType == VIEW_TYPE_STICKER)
+		if (viewType == VIEW_TYPE_STICKER)
 		{
 			ImageView stickerIv = new ImageView(mContext);
-			RecyclerView.LayoutParams ll = new RecyclerView.LayoutParams(sizeEachImage, sizeEachImage);
-			stickerIv.setLayoutParams(ll);
 			return new StickerViewHolder(stickerIv);
 		}
 		else
@@ -109,10 +107,19 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			Sticker sticker = stickerList.get(position);
 			StickerViewHolder stickerViewHolder = (StickerViewHolder) viewHolder;
 			ImageView stickerIv = stickerViewHolder.stickerIv;
-			stickerIv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+			stickerIv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 			applyPadding(stickerIv, position);
 			miniStickerLoader.loadImage(StickerManager.getInstance().getStickerSetString(sticker.getStickerId(), sticker.getCategoryId()), stickerIv);
 			break;
+		}
+	}
+
+	@Override
+	public void onSuccessfulImageLoaded(ImageView imageView)
+	{
+		if(imageView != null)
+		{
+			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 		}
 	}
 
@@ -239,6 +246,8 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		{
 			super(row);
 			stickerIv = (ImageView) row;
+			RecyclerView.LayoutParams ll = new RecyclerView.LayoutParams(sizeEachImage, sizeEachImage);
+			stickerIv.setLayoutParams(ll);
 			row.setOnClickListener(this);
 		}
 
