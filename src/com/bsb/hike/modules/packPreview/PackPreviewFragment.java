@@ -45,7 +45,7 @@ import java.util.List;
  * Created by anubhavgupta on 04/01/16.
  */
 public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
-		PackPreviewRelativeLayout.TouchListener, View.OnClickListener
+		PackPreviewRecyclerView.TouchListener, View.OnClickListener
 {
 
 	private static final String TAG = PackPreviewFragment.class.getSimpleName();
@@ -75,8 +75,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private StickerPreviewContainer stickerPreviewContainer;
 
 	private View headerContainer;
-
-	private PackPreviewRelativeLayout packPreviewContainer;
 
 	private int NUM_COLUMNS;
 
@@ -145,8 +143,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	protected void initView(View parent)
 	{
-		packPreviewContainer = (PackPreviewRelativeLayout) parent.findViewById(R.id.pack_preview_container);
-		packPreviewContainer.setTouchListener(this);
 		loadingView = parent.findViewById(R.id.loading);
 		loadingFailed = parent.findViewById(R.id.loading_failed);
 		loadingFailed.setOnClickListener(loadingFailedClickListener);
@@ -156,6 +152,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		categoryDetails = (TextView) parent.findViewById(R.id.category_details);
 		categoryDescription = (TextView) parent.findViewById(R.id.description);
 		rvGrid = (RecyclerView) parent.findViewById(R.id.rvGrid);
+		((PackPreviewRecyclerView) rvGrid).setTouchListener(this);
 		headerDivider = parent.findViewById(R.id.header_divider);
 		categoryDetailsContainer = parent.findViewById(R.id.category_detail_container);
 		stickerPreviewContainer = (StickerPreviewContainer) parent.findViewById(R.id.sticker_preview_container);

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -12,6 +13,13 @@ import android.widget.ImageView;
  */
 public class PackPreviewRecyclerView extends RecyclerView
 {
+
+	public interface TouchListener
+	{
+		void onTouch(MotionEvent event);
+	}
+
+	private TouchListener listener;
 
 	public PackPreviewRecyclerView(Context context)
 	{
@@ -40,5 +48,21 @@ public class PackPreviewRecyclerView extends RecyclerView
 			}
 		}
 		return true;
+	}
+
+	public void setTouchListener(TouchListener listener)
+	{
+		this.listener = listener;
+	}
+
+
+	@Override
+	public boolean onTouchEvent(MotionEvent e)
+	{
+		if(listener != null)
+		{
+			listener.onTouch(e);
+		}
+		return super.onTouchEvent(e);
 	}
 }

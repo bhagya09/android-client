@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,6 +24,8 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 	private Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	private View gridView;
+
+	private Sticker sticker;
 
 	private StickerLoader stickerLoader;
 
@@ -93,6 +96,7 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 
 	public void show(View view, Sticker sticker)
 	{
+		this.sticker = sticker;
 		setVisibility(VISIBLE);
 		float[] xyCoordinates = computePreviewCoorinates(view);
 		setX(xyCoordinates[0]);
@@ -176,11 +180,25 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 				{
 					if (getVisibility() == VISIBLE)
 					{
-						Sticker sticker = (Sticker) object;
+						Sticker stickerToShow = (Sticker) object;
+						if(!sticker.toString().equals(stickerToShow.toString()))
+						{
+							return ;
+						}
 						stickerLoader.loadImage(sticker.getStickerPath(), ivStickerPreview);
 					}
 				}
 			});
 		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event)
+	{
+		if(isShowing())
+		{
+			dismiss();
+		}
+		return true;
 	}
 }
