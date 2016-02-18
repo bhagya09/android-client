@@ -71,6 +71,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.triggers.InterceptManager;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
@@ -2652,6 +2653,52 @@ public class MqttMessagesManager
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NEW_CHAT_RED_DOT, true);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
+			}
+		}
+		if (data.has(HikeConstants.INTERCEPTS.SHOW_INTERCEPTS))
+		{
+			JSONObject showIntercepts = data.getJSONObject(HikeConstants.INTERCEPTS.SHOW_INTERCEPTS);
+
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.VIDEO))
+			{
+				boolean video = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, video);
+			}
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.IMAGE))
+			{
+				boolean image = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, image);
+			}
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS))
+			{
+				boolean screenshot = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, screenshot);
+                InterceptManager.registerOrUnregisterScreenshotObserver();
+			}
+		}
+		if (data.has(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS))
+		{
+			JSONObject enableIntercepts = data.getJSONObject(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS);
+
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.VIDEO) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT))
+			{
+				boolean video = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
+			}
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.IMAGE) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT))
+			{
+				boolean image = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
+			}
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS)
+					&& !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT))
+			{
+				boolean screenshot = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
+                InterceptManager.registerOrUnregisterScreenshotObserver();
 			}
 		}
 		if (data.has(HikeConstants.BADGECOUNTER))
