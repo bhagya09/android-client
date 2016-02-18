@@ -3,7 +3,6 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.request.Base64StringRequest;
 import com.bsb.hike.modules.diskcache.request.CacheRequest;
@@ -35,21 +34,12 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 	private String stickerId;
 
-	private ConvMessage convMessage;
-
 	private RequestToken requestToken;
 
 	public MiniStickerImageDownloadTask(String stickerId, String categoryId)
 	{
 		this.categoryId = categoryId;
 		this.stickerId = stickerId;
-	}
-
-	public MiniStickerImageDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
-	{
-		this.stickerId = stickerId;
-		this.categoryId = categoryId;
-		this.convMessage = convMessage;
 	}
 
 	@Override
