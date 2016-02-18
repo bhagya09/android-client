@@ -697,6 +697,93 @@ public class IntentFactory
 		return new Intent(context, ComposeChatActivity.class);
 	}
 
+	/**
+	 * Utility method to create an intent to share any file on hike
+	 * @param context
+	 * @param interceptUri resource uri of the file to share
+	 * @param type type of file being shared
+	 * @return created intent or null
+	 */
+	public static Intent getShareIntent(Context context, Uri interceptUri, String type){
+		if(interceptUri == null)
+		{
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Got null uri for share intent");
+			return null;
+		}
+		else
+		{
+			Intent shareIntent = new Intent(context, ComposeChatActivity.class);
+			shareIntent.setAction(Intent.ACTION_SEND);
+			shareIntent.putExtra(Intent.EXTRA_STREAM, interceptUri);
+			shareIntent.setType(type);
+			return shareIntent;
+		}
+	}
+
+	/**
+	 * Utility method to create an intent to set an image as hike dp
+	 * @param context
+	 * @param interceptUri content uri of the image
+	 * @return created intent or null
+	 */
+	public static Intent setDpIntent(Context context, Uri interceptUri){
+		if(interceptUri == null)
+		{
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Got null uri for dp intent");
+			return null;
+		}
+		else
+		{
+			Intent dpIntent = new Intent(context, ProfileActivity.class);
+			dpIntent.setAction(Intent.ACTION_ATTACH_DATA);
+			dpIntent.setData(interceptUri);
+			return dpIntent;
+		}
+
+	}
+
+	/**
+	 * Utility method to create a PendingIntent which wraps an intercept broadcast action.
+	 * Parameters can be provided differently if creating a new BroadcastReceiver
+	 * @param context
+	 * @param action custom intent action string
+	 * @param type (any of the enum HikeNotification.INTERCEPT_TYPE).toString()
+	 * @param interceptUri uri for the intercept item
+	 * @return a PendingIntent which will broadcast the provided action
+	 */
+	public static PendingIntent getInterceptBroadcast(Context context, String action, String type, Uri interceptUri)
+	{
+		Intent intent = new Intent(action);
+		intent.putExtra(HikeConstants.INTERCEPTS.INTENT_EXTRA_URI, interceptUri);
+		intent.putExtra(HikeConstants.INTERCEPTS.INTENT_EXTRA_TYPE, type);
+		return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+	}
+
+	/**
+	 * Utility method which will insert home activity intent before provided action intent and launch them.
+	 * Implemented using PendingIntents.
+	 * @param context
+	 * @param actionIntent the intent to launch
+	 */
+	public static void openInterceptActionActivity(Context context, Intent actionIntent)
+	{
+		if(actionIntent != null)
+		{
+			Intent homeIntent = Utils.getHomeActivityIntent(context);
+			actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			Intent[] intentSequence = new Intent[] { homeIntent, actionIntent } ;
+			PendingIntent actionPI = PendingIntent.getActivities(context, 0, intentSequence, PendingIntent.FLAG_ONE_SHOT);
+			try
+			{
+				actionPI.send();
+			}
+			catch (PendingIntent.CanceledException e)
+			{
+				Logger.d("Intercepts","Pending Intent Cancelled Exception");
+			}
+		}
+	}
+
 	public static Intent getPinHistoryIntent(Context context, String msisdn)
 	{
 		Intent intent = new Intent();

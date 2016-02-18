@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -62,6 +63,7 @@ import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
+import com.bsb.hike.triggers.InterceptManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -339,6 +341,8 @@ public class HikeService extends Service
 		
 		ChatHeadUtils.registerCallReceiver();
 		
+		InterceptManager.registerOrUnregisterScreenshotObserver();
+		
 		setInitialized(true);
 
 	}
@@ -456,6 +460,8 @@ public class HikeService extends Service
 		}
 		
 		ChatHeadUtils.unregisterCallReceiver();
+		
+		InterceptManager.unregisterScreenshotObserver();
 		
 	}
 
