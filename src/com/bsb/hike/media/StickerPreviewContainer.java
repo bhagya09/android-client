@@ -4,20 +4,24 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.packPreview.PackPreviewFragment;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.Utils;
 
-public class StickerPreviewContainer extends LinearLayout implements HikePubSub.Listener
+public class StickerPreviewContainer extends LinearLayout implements HikePubSub.Listener, ImageWorker.SuccessfulImageLoadingListener
 {
 	private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED };
 
@@ -37,6 +41,8 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 
 	private ImageView ivStickerPreview;
 
+	private ProgressBar pbStickerPreview;
+
 	public StickerPreviewContainer(Context context)
 	{
 		this(context, null);
@@ -55,6 +61,26 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 	public StickerPreviewContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
 	{
 		super(context, attrs, defStyleAttr, defStyleRes);
+		initView();
+	}
+
+	private void initView()
+	{
+		previewWidth = StickerSearchUtils.getStickerSize() + Utils.dpToPx(35);
+		previewHeight = StickerSearchUtils.getStickerSize() + Utils.dpToPx(35);
+
+		View stickerPreview = LayoutInflater.from(getContext()).inflate(R.layout.sticker_preview, null);
+
+		addView(stickerPreview);
+
+		pbStickerPreview = (ProgressBar) findViewById(R.id.download_progress_bar);
+
+		int padding = Utils.dpToPx(5);
+		ivStickerPreview = (ImageView) findViewById(R.id.ivSticker);
+
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) previewWidth, (int) previewHeight);
+		stickerPreview.setLayoutParams(params);
+		stickerPreview.setPadding(padding, padding, padding, padding);
 		setVisibility(GONE);
 	}
 
@@ -64,21 +90,21 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		this.packPreviewFragment = packPreviewFragment;
 		calculateGridBounds();
 
-		previewWidth = StickerSearchUtils.getStickerSize() + Utils.dpToPx(35);
-		previewHeight = StickerSearchUtils.getStickerSize() + Utils.dpToPx(35);
-
-		int padding = Utils.dpToPx(5);
-		ivStickerPreview = new ImageView(getContext());
-		ivStickerPreview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) previewWidth, (int) previewHeight);
-		ivStickerPreview.setLayoutParams(params);
-		ivStickerPreview.setPadding(padding, padding, padding, padding);
-
-		addView(ivStickerPreview);
-
 		stickerLoader = new StickerLoader(getContext(), true);
+		stickerLoader.setImageFadeIn(false);
+		stickerLoader.setSuccessfulImageLoadingListener(this);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
+	}
+
+	@Override
+	public void onSuccessfulImageLoaded(ImageView imageView)
+	{
+		if(imageView != null)
+		{
+			pbStickerPreview.setVisibility(GONE);
+			ivStickerPreview.setVisibility(VISIBLE);
+		}
 	}
 
 	private void calculateGridBounds()
@@ -101,6 +127,9 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		float[] xyCoordinates = computePreviewCoorinates(view);
 		setX(xyCoordinates[0]);
 		setY(xyCoordinates[1]);
+
+		pbStickerPreview.setVisibility(VISIBLE);
+		ivStickerPreview.setVisibility(GONE);
 
 		stickerLoader.loadImage(sticker.getStickerPath(), ivStickerPreview);
 		gridView.setAlpha(0.2f);
@@ -181,9 +210,9 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 					if (getVisibility() == VISIBLE)
 					{
 						Sticker stickerToShow = (Sticker) object;
-						if(!sticker.toString().equals(stickerToShow.toString()))
+						if (!sticker.toString().equals(stickerToShow.toString()))
 						{
-							return ;
+							return;
 						}
 						stickerLoader.loadImage(sticker.getStickerPath(), ivStickerPreview);
 					}
@@ -195,7 +224,7 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		if(isShowing())
+		if (isShowing())
 		{
 			dismiss();
 		}
