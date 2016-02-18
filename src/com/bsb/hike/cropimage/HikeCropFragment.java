@@ -156,6 +156,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		else
 		{
 			containerCrop.setVisibility(View.GONE);
+			containerRotate.setVisibility(View.VISIBLE);
 		}
 
 		if (!editEnabled)
@@ -328,7 +329,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 		cropPanel.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
 		cropDivider.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
-		containerRotate.setVisibility(enableCrop ? View.VISIBLE : View.INVISIBLE);
+		containerRotate.setVisibility(enableCrop ? View.VISIBLE : View.GONE);
 
 		mListener.toggleDoneButtonVisibility(!enableCrop);
 

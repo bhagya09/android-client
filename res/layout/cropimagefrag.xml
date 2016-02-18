@@ -80,40 +80,6 @@
             android:visibility="gone" />
 
 
-        <LinearLayout
-            android:id="@+id/container_rotate"
-            android:layout_width="wrap_content"
-            android:layout_above="@+id/crop_actions_panel"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:visibility="invisible"
-            android:gravity="center_vertical|right"
-            android:layout_alignParentRight="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:orientation="horizontal">
-
-            <com.bsb.hike.view.CustomFontTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/ib_remove"
-                android:layout_marginRight="2dp"
-                android:layout_toLeftOf="@+id/ib_remove"
-                android:background="@drawable/translucent_text_bh"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
-                android:text="@string/rotate"
-                android:textColor="@color/white_75"
-                android:textSize="11sp" />
-
-            <ImageButton
-                android:id="@+id/rotateLeft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/circle_bg_selector"
-                android:src="@drawable/ic_rotate" />
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/container_layout"
@@ -126,7 +92,6 @@
             android:layout_marginBottom="5dp"
             android:gravity="bottom"
             android:orientation="vertical">
-
 
             <LinearLayout
                 android:id="@+id/container_edit"
@@ -188,6 +153,42 @@
                     android:background="@drawable/circle_bg_selector"
                     android:onClick="onClick"
                     android:src="@drawable/ic_crop" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/container_rotate"
+                android:layout_width="wrap_content"
+                android:layout_above="@+id/crop_actions_panel"
+                android:layout_height="50dp"
+                android:layout_marginBottom="5dp"
+                android:visibility="gone"
+                android:gravity="center_vertical|right"
+                android:layout_alignParentRight="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:orientation="horizontal">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/ib_remove"
+                    android:layout_marginRight="2dp"
+                    android:layout_toLeftOf="@+id/ib_remove"
+                    android:background="@drawable/translucent_text_bh"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:text="@string/rotate"
+                    android:textColor="@color/white_75"
+                    android:textSize="11sp" />
+
+                <ImageButton
+                    android:id="@+id/rotateLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/circle_bg_selector"
+                    android:src="@drawable/ic_rotate" />
             </LinearLayout>
 
         </LinearLayout>
