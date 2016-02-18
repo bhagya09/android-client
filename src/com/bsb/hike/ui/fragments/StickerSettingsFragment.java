@@ -331,6 +331,18 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	}
 
+	private boolean isUpdateRequired(StickerCategory category) {
+		// Providing update for packs in Update state, Retry state or having zero stickers due to download failure
+		if (category.isVisible() && (category.getState() == StickerCategory.RETRY ||
+				category.getState() == StickerCategory.UPDATE || (category.getState() == StickerCategory.NONE &&
+				category.getDownloadedStickersCount() <= 0)))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	private void initStickerCategoriesList() {
 		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
 
@@ -341,10 +353,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 			while (it.hasNext()) {
 				category = (StickerCategory) it.next();
-				// Adding packs in Update, Retry and zero stickers pack due to download failure for updating
-				if (!(category.isVisible() && (category.getState() == StickerCategory.RETRY ||
-						category.getState() == StickerCategory.UPDATE || (category.getState() == StickerCategory.NONE &&
-								category.getDownloadedStickersCount() <= 0))))
+				if (!isUpdateRequired(category))
 				{
 					it.remove();
 				}
