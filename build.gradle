@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
     	// updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
-        classpath 'com.android.tools.build:gradle:1.1.2+'
+        classpath 'com.android.tools.build:gradle:1.5.0'
     }
 }
 apply plugin: 'com.android.application'
