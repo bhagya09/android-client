@@ -449,7 +449,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 					break;
 
 				case R.id.update_button:
-					StickerManager.getInstance().initialiseDownloadStickerTask(category, DownloadSource.SETTINGS, mContext);
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
 					this.notifyDataSetChanged();
 					break;
 
