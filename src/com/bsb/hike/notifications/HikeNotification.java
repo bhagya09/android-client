@@ -3,6 +3,7 @@ package com.bsb.hike.notifications;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -45,6 +47,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.triggers.InterceptManager;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -94,11 +97,13 @@ public class HikeNotification
 	public static final int OFFLINE_REQUEST_ID = -91;
 	
 	public static final int NOTIFICATION_PRODUCT_POPUP = -92;
+
 	// We need a key to pair notification id. This will be used to retrieve notification id on notification dismiss/action.
 	public static final String HIKE_NOTIFICATION_ID_KEY = "hike.notification";
 
 	public static final String HIKE_STEALTH_MESSAGE_KEY = "HIKE_STEALTH_MESSAGE_KEY";
 
+	public static final int NOTIF_INTERCEPT_NON_DOWNLOAD = -94;
 
 	private static final String SEPERATOR = " ";
 
@@ -109,9 +114,21 @@ public class HikeNotification
 	private final SharedPreferences sharedPreferences;
 
 	private HikeNotificationMsgStack hikeNotifMsgStack;
-	
 
-	
+	public static final String IMAGE = "image";
+
+	public static final String VIDEO = "video";
+
+	public static final String INTERCEPT_NON_DWLD_SHARE_INTENT = "com.bsb.hike.INTERCEPT_NON_DWLD_SHARE_INTENT";
+
+	public static final String INTERCEPT_SET_DP_INTENT = "com.bsb.hike.INTERCEPT_SET_DP_INTENT";
+
+	public static final String INTERCEPT_PHOTO_EDIT_INTENT = "com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT";
+
+	private static final int INTERCEPT_THMB_HEIGHT = 96;
+
+	private static final int INTERCEPT_THMB_WIDTH = 96;
+
 	private static HashMap<String, Long> lastNotificationTimeMap=new HashMap<String, Long>();//For now HashMap<groupId, LastNotifiactionTimeInMillis>()
 	
 	private static final int DEFAULT_NOTIFICATION_DELAY_FOR_GROUP_IN_SEC = 15;
@@ -1038,6 +1055,167 @@ public class HikeNotification
 		showNotification(notificationIntent, icon, timeStamp, notificationId, text, key, message, null, null, false, false); // TODO: change this.
 		addNotificationId(notificationId);
 	}
+
+	/**
+	 * Method to create notification for Intercepts
+	 * @param interceptItem uri for image/video. can be null if using file path
+	 * @param path path of the directory where file is present. can be null if uri is provided
+	 * @param fileName name of the file. can be null if uri is provided
+	 * @param whichIntercept must be one of the enums declared as HikeNotification.INTERCEPT_TYPE
+	 */
+	public void notifyIntercept(Uri interceptItem, String path, String fileName, String whichIntercept)
+	{
+		int notifId = NOTIF_INTERCEPT_NON_DOWNLOAD;
+		PendingIntent defaultAction = null;
+		String title, message;
+		NotificationCompat.Builder mBuilder = null;
+		Bitmap microThmb, miniThmb, scaled, circular;
+
+		Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "received: path=" + path + fileName + " uri=" + interceptItem + " type=" + whichIntercept.toString());
+
+		switch (whichIntercept)
+		{
+			case InterceptManager.INTERCEPT_TYPE_SCREENSHOT:
+				if (TextUtils.isEmpty(path) || TextUtils.isEmpty(fileName))
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null path or filename for screenshot");
+					return;
+				}
+
+				path = path + fileName;
+
+				//converting path string to uri
+				interceptItem = Uri.parse(path);
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_screen_shot);
+				message = context.getString(R.string.intercept_message_screen_shot);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//intent for share action button
+				PendingIntent shareActionScrnSht = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_screenshot_share), shareActionScrnSht);
+
+				//content intent for notification
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_PHOTO_EDIT_INTENT,
+						whichIntercept, interceptItem);
+
+				//creating and adding thumbnails to the notification
+				miniThmb = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+				microThmb = HikeBitmapFactory.decodeSampledBitmapFromFile(path, INTERCEPT_THMB_WIDTH, INTERCEPT_THMB_HEIGHT);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microThmb, context);
+				circular = HikeBitmapFactory.getCircularBitmap(scaled);
+				mBuilder.setLargeIcon(circular);
+				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+
+				break;
+
+			case InterceptManager.INTERCEPT_TYPE_IMAGE:
+				if(interceptItem == null)
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for image intercept");
+					return;
+				}
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_image);
+				message = context.getString(R.string.intercept_message_image);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//content intent for notification
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_PHOTO_EDIT_INTENT,
+						whichIntercept, interceptItem);
+
+				//intent for share action button
+				PendingIntent shareActionImg = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_image_share), shareActionImg);
+
+				//intent for setDP action button
+				PendingIntent setDPAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_SET_DP_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.intercept_setdp, context.getString(R.string.intercept_lable_set_dp), setDPAction);
+
+				//creating and adding thumbnails to the notification
+				microThmb = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Images.Thumbnails.MICRO_KIND, null);
+				miniThmb = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Images.Thumbnails.MINI_KIND, null);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microThmb, context);
+				circular = HikeBitmapFactory.getCircularBitmap(scaled);
+				mBuilder.setLargeIcon(circular);
+				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+
+				break;
+
+			case InterceptManager.INTERCEPT_TYPE_VIDEO:
+				if(interceptItem == null)
+				{
+					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for video intercept");
+					return;
+				}
+
+				//adding notification title, message and small hike icon
+				title = context.getString(R.string.intercept_title_video);
+				message = context.getString(R.string.intercept_message_video);
+				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
+
+				//content intent for notification. share intent is same in this case
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), defaultAction);
+
+				//creating and adding thumbnails to the notification
+				Bitmap microBmp = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
+						MediaStore.Video.Thumbnails.MICRO_KIND, null);
+				scaled = HikeBitmapFactory.returnScaledBitmap(microBmp, context);
+				mBuilder.setLargeIcon(HikeBitmapFactory.getCircularBitmap(scaled));
+				mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+
+				break;
+
+			default:
+				return;
+		}
+
+		if (!sharedPreferences.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			//adding content intent & onDelete intent
+			mBuilder.setContentIntent(defaultAction);
+			setOnDeleteIntent(mBuilder, notifId, 0);
+
+			//create the notification
+			notifyNotification(notifId, mBuilder);
+
+			//logging and analytics for creating intercept notification
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Created notification for intercept:" + whichIntercept);
+            HAManager.getInstance().interceptAnalyticsNonUIEvent(getEventKeyFromInterceptType(whichIntercept), AnalyticsConstants.InterceptEvents.INTERCEPT_NOTIF_CREATED);
+		}
+
+	}
+
+	/**
+	 * Utility method to determine eventKey for analytics for Intercepts
+	 * @param type intercept type
+	 * @return the constant eventKey string as defined in analytic constants
+	 */
+	public String getEventKeyFromInterceptType(String type)
+    {
+        if(type.equals(InterceptManager.INTERCEPT_TYPE_SCREENSHOT))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT;
+        }
+        if(type.equals(InterceptManager.INTERCEPT_TYPE_IMAGE))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
+        }
+        if(type.equals(InterceptManager.INTERCEPT_TYPE_VIDEO))
+        {
+            return AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;
+        }
+        return null;
+    }
 
 	private void addNotificationId(final int id)
 	{
