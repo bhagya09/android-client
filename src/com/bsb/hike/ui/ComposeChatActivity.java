@@ -467,7 +467,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (getIntent().hasExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT))
 			{
-				allImages = true;
+				allImages = false;
 				ArrayList<String> imageFilePathArray = new ArrayList<String>();
 
 				String jsonString = getIntent().getStringExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT);
@@ -481,20 +481,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if (msgExtrasJson.has(HikeConstants.MESSAGE))
 						{
-							if (multipleMsgFwdArray.length() == 1)
+							if (multipleMsgFwdArray.length() == 1 || multipleMsgFwdArray.length() == 2)
 							{
 								messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
-							}
-							else if (multipleMsgFwdArray.length() == 2)
-							{
-								if(TextUtils.isEmpty(messageToShare) && allImages)
-								{
-									messageToShare = msgExtrasJson.optString(HikeConstants.MESSAGE);
-								}
-								else
-								{
-									messageToShare = null;
-								}
 							}
 						}
 
@@ -506,7 +495,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								// TODO check for recording
 								if (HikeFileType.fromFilePath(filePath, false).compareTo(HikeFileType.IMAGE) != 0)
 								{
-									allImages = false;
+									//Do nothing
 								}
 								else
 								{
@@ -514,15 +503,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									imageFilePathArray.add(filePath);
 								}
 							}
-							else
-							{
-								allImages = false;
-							}
 						}
-						else
-						{
-							allImages = false;
-						}
+					}
+
+					if(imagesToShare.size() >= multipleMsgFwdArray.length())
+					{
+						allImages = true;
+					}
+
+					if(multipleMsgFwdArray.length() >= 2 && !allImages && !TextUtils.isEmpty(messageToShare))
+					{
+						messageToShare = null;
 					}
 				}
 				catch (JSONException e)
@@ -543,11 +534,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 
-		if(nuxIncentiveMode){
+		if(nuxIncentiveMode)
+		{
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			getSupportActionBar().hide();
 		}
-		else{
+		else
+		{
 			setActionBar();
 		}
 
