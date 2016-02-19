@@ -249,6 +249,8 @@ public class HikeConstants
 
 	public static final String PUSH = "push";
 
+	public static final String GCM_STALE_REGISTRATION_REFRESH = "gcmSRR";
+
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
