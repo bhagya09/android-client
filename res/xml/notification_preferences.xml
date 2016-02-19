@@ -59,7 +59,7 @@
         android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.SwitchPreferenceCompat
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="enableScreenshotIntercept"
         android:layout="@layout/icon_preference"
         android:summary="@string/screenshot_intercept_settings_content"
@@ -67,7 +67,7 @@
         android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.SwitchPreferenceCompat
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="enableImageIntercept"
         android:layout="@layout/icon_preference"
         android:summary="@string/image_intercept_settings_content"
@@ -75,7 +75,7 @@
         android:widgetLayout="@layout/switch_widget" />
 
     <com.bsb.hike.view.SwitchPreferenceCompat
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="enableVideoIntercept"
         android:layout="@layout/icon_preference"
         android:summary="@string/video_intercept_settings_content"

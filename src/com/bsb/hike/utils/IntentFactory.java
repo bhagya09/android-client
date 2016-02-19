@@ -747,7 +747,7 @@ public class IntentFactory
 	 * Parameters can be provided differently if creating a new BroadcastReceiver
 	 * @param context
 	 * @param action custom intent action string
-	 * @param type (any of the enum HikeNotification.INTERCEPT_TYPE).toString()
+	 * @param type intercept type - Image/Video/ScreenShot
 	 * @param interceptUri uri for the intercept item
 	 * @return a PendingIntent which will broadcast the provided action
 	 */

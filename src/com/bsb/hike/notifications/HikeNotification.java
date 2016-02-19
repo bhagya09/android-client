@@ -1061,7 +1061,7 @@ public class HikeNotification
 	 * @param interceptItem uri for image/video. can be null if using file path
 	 * @param path path of the directory where file is present. can be null if uri is provided
 	 * @param fileName name of the file. can be null if uri is provided
-	 * @param whichIntercept must be one of the enums declared as HikeNotification.INTERCEPT_TYPE
+	 * @param whichIntercept the type of intercept - Screenshot/Image/Video
 	 */
 	public void notifyIntercept(Uri interceptItem, String path, String fileName, String whichIntercept)
 	{
