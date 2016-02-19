@@ -11,6 +11,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class StickerTagDataContainer
 {
@@ -34,7 +35,7 @@ public class StickerTagDataContainer
 
 	private int mMomentCode;
 
-	private String mFestivals;
+	private Map<String, StickerEventDataContainer> mEvents;
 
 	private StickerTagDataContainer(StickerTagDataBuilder builder) {
 		mStickerCode = builder.mStickerCode;
@@ -46,7 +47,7 @@ public class StickerTagDataContainer
 		mTagExactMatchPriorities = builder.mTagExactMatchPriorities;
 		mTagPriorities = builder.mTagPriorities;
 		mMomentCode = builder.mMomentCode;
-		mFestivals = builder.mFestivals;
+		mEvents = builder.mEvents;
     }
 
 	public String getStickerCode()
@@ -99,9 +100,9 @@ public class StickerTagDataContainer
 		return mMomentCode;
 	}
 
-	public String getFestivalList()
+	public Map<String, StickerEventDataContainer> getFestivalList()
 	{
-		return mFestivals;
+		return mEvents;
 	}
 
 	public boolean isValidData()
@@ -112,7 +113,7 @@ public class StickerTagDataContainer
 		if (size > 0)
 		{
 			result = (mStickerCode != null) && (mLanguages != null) && (mScripts != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
-					&& (mTagPriorities != null) && (mFestivals != null);
+					&& (mTagPriorities != null) && (mEvents != null);
 
 			if (result)
 			{
@@ -151,7 +152,7 @@ public class StickerTagDataContainer
 		result = prime * result + ((mTagExactMatchPriorities == null) ? 0 : mTagExactMatchPriorities.hashCode());
 		result = prime * result + ((mTagPriorities == null) ? 0 : mTagPriorities.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
+		result = prime * result + ((mEvents == null) ? 0 : mEvents.hashCode());
 		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
 		result = prime * result + ((mScripts == null) ? 0 : mScripts.hashCode());
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
@@ -224,14 +225,14 @@ public class StickerTagDataContainer
 			return false;
 		}
 
-		if (mFestivals == null)
+		if (mEvents == null)
 		{
-			if (other.mFestivals != null)
+			if (other.mEvents != null)
 			{
 				return false;
 			}
 		}
-		else if (!mFestivals.equals(other.mFestivals))
+		else if (!mEvents.equals(other.mEvents))
 		{
 			return false;
 		}
@@ -303,7 +304,7 @@ public class StickerTagDataContainer
 	public String toString()
 	{
 		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
-				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mFestivals + "}]";
+				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mEvents + "}]";
 	}
 
 	public static class StickerTagDataBuilder
@@ -326,7 +327,7 @@ public class StickerTagDataContainer
 
 		private int mMomentCode;
 
-		private String mFestivals;
+		private Map<String, StickerEventDataContainer> mEvents;
 
 		/* Initial constructor should have all 3 parameters, based on which any sticker can be defined uniquely */
 		public StickerTagDataBuilder(String stickerCode, ArrayList<String> tags, ArrayList<String> themes, ArrayList<String> languages)
@@ -356,10 +357,10 @@ public class StickerTagDataContainer
 			return this;
 		}
 
-		public StickerTagDataBuilder events(int moment, String festivals)
+		public StickerTagDataBuilder events(int moment, Map<String, StickerEventDataContainer> events)
 		{
 			mMomentCode = moment;
-			mFestivals = festivals;
+			mEvents = events;
 			return this;
 		}
 

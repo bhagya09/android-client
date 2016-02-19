@@ -13,6 +13,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer.StickerTagDataBuilder;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
@@ -189,7 +190,7 @@ public enum StickerSearchDataController
 					ArrayList<Integer> tagExactMatchPriorityList = new ArrayList<Integer>();
 					ArrayList<Integer> tagPriorityList = new ArrayList<Integer>();
 					int stickerMomentCode = HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL;
-					String stickerFestivals = StickerSearchConstants.STRING_EMPTY;
+					HashMap<String, StickerEventDataContainer> stickerEvents = null;
 
 					for (int scriptIndex = 0; scriptIndex < scriptCount; scriptIndex++)
 					{
@@ -427,8 +428,86 @@ public enum StickerSearchDataController
 									}
 									else if (key.equalsIgnoreCase("*afestival"))
 									{
-										JSONObject festivalData = attributeData.optJSONObject(key);
-										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", events: " + festivalData);
+										JSONObject festiveData = attributeData.optJSONObject(key);
+										Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", events: " + festiveData);
+
+										if ((festiveData != null) && (festiveData.length() > 0))
+										{
+											Iterator<String> events = festiveData.keys();
+											stickerEvents  = new HashMap<>();
+
+											while (events.hasNext())
+											{
+												String event = events.next();
+												JSONObject eventData = festiveData.optJSONObject(event);
+
+												// Fetch all alternate names of current event
+												JSONArray names = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
+												StringBuilder sb = new StringBuilder();
+
+												if (names != null)
+												{
+													String alternateName;
+													for (int i = 0; i < names.length(); i++)
+													{
+														alternateName = names.optString(i);
+														if (!Utils.isBlank(alternateName))
+														{
+															sb.append(alternateName.trim().toUpperCase(Locale.ENGLISH));
+															sb.append(StickerSearchConstants.STRING_DISSOCIATOR);
+														}
+													}
+
+													if (sb.length() > 0)
+													{
+														sb.setLength(sb.length() - 1);
+													}
+												}
+
+												String alternateNames = sb.toString();
+
+												// Fetch ranks in all possible date-time ranges of current event
+												JSONArray timeRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
+												JSONArray timeRangesRanks = new JSONArray();
+
+												if (timeRanges != null)
+												{
+													JSONObject timeRange;
+													for (int i = 0; i < timeRanges.length(); i++)
+													{
+														timeRange = timeRanges.optJSONObject(i);
+														if (timeRange != null)
+														{
+															int rank = timeRange.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
+															timeRangesRanks.put(rank);
+															timeRange.remove(StickerSearchConstants.KEY_EVENT_RANK);
+														}
+													}
+												}
+
+												// Fetch ranks in all possible day ranges of current event
+												JSONArray dayRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
+												JSONArray dayRangesRanks = new JSONArray();
+
+												if (dayRanges != null)
+												{
+													JSONObject dayRange;
+													for (int i = 0; i < dayRanges.length(); i++)
+													{
+														dayRange = timeRanges.optJSONObject(i);
+														if (dayRange != null)
+														{
+															int rank = dayRange.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
+															dayRangesRanks.put(rank);
+															dayRange.remove(StickerSearchConstants.KEY_EVENT_RANK);
+														}
+													}
+												}
+
+												StickerEventDataContainer stickerEvent = new StickerEventDataContainer();
+												stickerEvents.put(event, stickerEvent);
+											}
+										}
 									}
 								}
 								else
@@ -443,7 +522,7 @@ public enum StickerSearchDataController
 						}
 
 						stickersTagData.add(new StickerTagDataBuilder(stickerInfo, tagList, themeList, tagLanguageList).tagCategories(tagCategoryList).scripts(tagScriptList)
-								.priorities(tagExactMatchPriorityList, tagPriorityList).events(stickerMomentCode, stickerFestivals).build());
+								.priorities(tagExactMatchPriorityList, tagPriorityList).events(stickerMomentCode, stickerEvents).build());
 						stickersWithValidTags.add(stickerInfo);
 					}
 

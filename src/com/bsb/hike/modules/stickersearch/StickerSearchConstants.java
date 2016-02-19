@@ -203,4 +203,14 @@ public class StickerSearchConstants
 
 	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
 	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
+
+	public static final String KEY_EVENT_NAMES = "names";
+
+	public static final String KEY_EVENT_RANGE_TIME = "ran_ts";
+
+	public static final String KEY_EVENT_RANGE_DAY = "ran_day";
+
+	public static final String KEY_EVENT_RANK = "rank";
+	
+	public static final int MAX_RANK_DURING_EVENT = 1000;
 }
