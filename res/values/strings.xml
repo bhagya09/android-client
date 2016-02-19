@@ -1517,6 +1517,7 @@
     <string name="hide_unhide_pack">Hide/Unhide</string>
     <string name="deleting_pack">Deleting Pack...</string>
     <string name="pack_deleted">Deleted pack</string>
+    <string name="reorder_stickers">Reorder Stickers</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>

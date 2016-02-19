@@ -341,7 +341,8 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 			while (it.hasNext()) {
 				category = (StickerCategory) it.next();
-				if (category.getState() != StickerCategory.UPDATE) {
+				if (!category.shouldShowUpdateAvailable())
+				{
 					it.remove();
 				}
 
