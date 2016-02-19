@@ -37,7 +37,8 @@ public class StickerTagDataContainer
 
 	private Map<String, StickerEventDataContainer> mEvents;
 
-	private StickerTagDataContainer(StickerTagDataBuilder builder) {
+	private StickerTagDataContainer(StickerTagDataBuilder builder)
+	{
 		mStickerCode = builder.mStickerCode;
 		mTags = builder.mTags;
 		mLanguages = builder.mLanguages;
@@ -48,7 +49,7 @@ public class StickerTagDataContainer
 		mTagPriorities = builder.mTagPriorities;
 		mMomentCode = builder.mMomentCode;
 		mEvents = builder.mEvents;
-    }
+	}
 
 	public String getStickerCode()
 	{
@@ -100,7 +101,7 @@ public class StickerTagDataContainer
 		return mMomentCode;
 	}
 
-	public Map<String, StickerEventDataContainer> getFestivalList()
+	public Map<String, StickerEventDataContainer> getFestiveData()
 	{
 		return mEvents;
 	}
@@ -113,11 +114,11 @@ public class StickerTagDataContainer
 		if (size > 0)
 		{
 			result = (mStickerCode != null) && (mLanguages != null) && (mScripts != null) && (mTagCategories != null) && (mThemes != null) && (mTagExactMatchPriorities != null)
-					&& (mTagPriorities != null) && (mEvents != null);
+					&& (mTagPriorities != null);
 
 			if (result)
 			{
-				// Language, Script, Category and various Priorities are per tag while themes are per sticker
+				// Language, Script, Category and various Priorities are per tag and themes are per sticker
 //				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
 //						&& (mTagPriorities.size() == size) && (mThemes.size() > 0);
 				//temp hack since theme list is not being used currently and also server does not send theme list for tags in regional scripts
@@ -138,7 +139,8 @@ public class StickerTagDataContainer
 	private boolean isValidMomentCode()
 	{
 		return ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_UNIVERSAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_TERMINAL))
-				|| ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_MORNING_NON_TERMINAL) && (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_NON_TERMINAL));
+				|| ((mMomentCode >= HikeStickerSearchBaseConstants.MOMENT_CODE_MORNING_NON_TERMINAL)
+						&& (mMomentCode <= HikeStickerSearchBaseConstants.MOMENT_CODE_NIGHT_NON_TERMINAL));
 	}
 
 	@Override
@@ -152,12 +154,12 @@ public class StickerTagDataContainer
 		result = prime * result + ((mTagExactMatchPriorities == null) ? 0 : mTagExactMatchPriorities.hashCode());
 		result = prime * result + ((mTagPriorities == null) ? 0 : mTagPriorities.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mEvents == null) ? 0 : mEvents.hashCode());
 		result = prime * result + ((mLanguages == null) ? 0 : mLanguages.hashCode());
 		result = prime * result + ((mScripts == null) ? 0 : mScripts.hashCode());
 		result = prime * result + ((mTagCategories == null) ? 0 : mTagCategories.hashCode());
 		result = prime * result + ((mTags == null) ? 0 : mTags.hashCode());
 		result = prime * result + ((mThemes == null) ? 0 : mThemes.hashCode());
+		result = prime * result + ((mEvents == null) ? 0 : mEvents.hashCode());
 
 		return result;
 	}
@@ -225,18 +227,6 @@ public class StickerTagDataContainer
 			return false;
 		}
 
-		if (mEvents == null)
-		{
-			if (other.mEvents != null)
-			{
-				return false;
-			}
-		}
-		else if (!mEvents.equals(other.mEvents))
-		{
-			return false;
-		}
-
 		if (mLanguages == null)
 		{
 			if (other.mLanguages != null)
@@ -297,14 +287,26 @@ public class StickerTagDataContainer
 			return false;
 		}
 
+		if (mEvents == null)
+		{
+			if (other.mEvents != null)
+			{
+				return false;
+			}
+		}
+		else if (!mEvents.equals(other.mEvents))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
 	@Override
 	public String toString()
 	{
-		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes + "><ext_match_ord="
-				+ mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><fest=" + mEvents + "}]";
+		return "[stkr_info: " + mStickerCode + ", tag_data: {<tag=" + mTags + "><lan=" + mLanguages + "><scr=" + mScripts + "><cat=" + mTagCategories + "><thm=" + mThemes
+				+ "><ext_match_ord=" + mTagExactMatchPriorities + "><tag_popularity_ord=" + mTagPriorities + ">}, attrs: {<mnt_cd=" + mMomentCode + "><evt=" + mEvents + "}]";
 	}
 
 	public static class StickerTagDataBuilder
