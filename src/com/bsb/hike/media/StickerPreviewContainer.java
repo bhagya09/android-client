@@ -45,17 +45,20 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 
 	public StickerPreviewContainer(Context context)
 	{
-		this(context, null);
+		super(context, null);
+		initView();
 	}
 
 	public StickerPreviewContainer(Context context, AttributeSet attrs)
 	{
-		this(context, attrs, 0);
+		super(context, attrs, 0);
+		initView();
 	}
 
 	public StickerPreviewContainer(Context context, AttributeSet attrs, int defStyleAttr)
 	{
-		this(context, attrs, defStyleAttr, 0);
+		super(context, attrs, defStyleAttr, 0);
+		initView();
 	}
 
 	public StickerPreviewContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
