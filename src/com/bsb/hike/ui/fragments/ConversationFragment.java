@@ -3069,6 +3069,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						@Override
 						public void run()
 						{
+							/**
+							 * Fix for PlayStore crash for illegal state exception on getListView()
+							 */
+							if (getView() == null || getView().findViewById(android.R.id.list) == null)
+							{
+								return;
+							}
+							/**
+							 * Fix ends here.
+							 */
 							View parentView = getListView().getChildAt(
 									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
