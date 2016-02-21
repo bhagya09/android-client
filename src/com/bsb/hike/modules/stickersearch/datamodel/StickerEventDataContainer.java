@@ -300,6 +300,7 @@ public class StickerEventDataContainer
 		result = prime * result + ((mOtherNames == null) ? 0 : mOtherNames.hashCode());
 		result = prime * result + ((mTimeStampRanges == null) ? 0 : mTimeStampRanges.toString().hashCode());
 		result = prime * result + ((mDayRanges == null) ? 0 : mTimeStampRangesRanks.toString().hashCode());
+
 		return result;
 	}
 
@@ -489,6 +490,7 @@ public class StickerEventDataContainer
 
 			result = prime * result + (int) (mEnd ^ (mEnd >>> 32));
 			result = prime * result + (int) (mStart ^ (mStart >>> 32));
+
 			return result;
 		}
 
@@ -516,7 +518,7 @@ public class StickerEventDataContainer
 			{
 				return false;
 			}
-			
+
 			if (mEnd != other.mEnd)
 			{
 				return false;
