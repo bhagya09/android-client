@@ -211,6 +211,10 @@ public class StickerSearchConstants
 	public static final String KEY_EVENT_RANGE_DAY = "ran_day";
 
 	public static final String KEY_EVENT_RANK = "rank";
+
+	public static final String KEY_EVENT_RANGE_START = "s";
+
+	public static final String KEY_EVENT_RANGE_END = "e";
 	
 	public static final int MAX_RANK_DURING_EVENT = 1000;
 }

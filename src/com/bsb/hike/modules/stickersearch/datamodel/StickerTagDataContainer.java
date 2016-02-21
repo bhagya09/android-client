@@ -35,7 +35,7 @@ public class StickerTagDataContainer
 
 	private int mMomentCode;
 
-	private Map<String, StickerEventDataContainer> mEvents;
+	private ArrayList<StickerEventDataContainer> mEvents;
 
 	private StickerTagDataContainer(StickerTagDataBuilder builder)
 	{
@@ -101,7 +101,7 @@ public class StickerTagDataContainer
 		return mMomentCode;
 	}
 
-	public Map<String, StickerEventDataContainer> getFestiveData()
+	public ArrayList<StickerEventDataContainer> getFestiveData()
 	{
 		return mEvents;
 	}
@@ -329,7 +329,7 @@ public class StickerTagDataContainer
 
 		private int mMomentCode;
 
-		private Map<String, StickerEventDataContainer> mEvents;
+		private ArrayList<StickerEventDataContainer> mEvents;
 
 		/* Initial constructor should have all 3 parameters, based on which any sticker can be defined uniquely */
 		public StickerTagDataBuilder(String stickerCode, ArrayList<String> tags, ArrayList<String> themes, ArrayList<String> languages)
@@ -359,7 +359,7 @@ public class StickerTagDataContainer
 			return this;
 		}
 
-		public StickerTagDataBuilder events(int moment, Map<String, StickerEventDataContainer> events)
+		public StickerTagDataBuilder events(int moment, ArrayList<StickerEventDataContainer> events)
 		{
 			mMomentCode = moment;
 			mEvents = events;
