@@ -9,6 +9,7 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 import java.util.ArrayList;
 
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 
@@ -32,7 +33,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private int mMomentCode;
 
-	private String mTimeStampBasedEventsRanks;
+	private int mTimeStampBasedEventRank;
 
 	private int mAge;
 
@@ -60,7 +61,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 				Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
-		mTimeStampBasedEventsRanks = timeStampBasedEventsRanks;
+		mTimeStampBasedEventRank = StickerEventSearchManager.getInstance().getNowCastTimeStampRangeRank(timeStampBasedEventsRanks);
 		mStickerAvailability = stickerAvailability;
 		mMatchingScore = 0.0f;
 		mRecommendationScore = 0.0f;
@@ -224,9 +225,9 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + mExactMatchOrder;
 		result = prime * result + mMomentCode;
 		result = prime * result + mStickerAvailability;
+		result = prime * result + mTimeStampBasedEventRank;
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mTimeStampBasedEventsRanks == null) ? 0 : mTimeStampBasedEventsRanks.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
 		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
 		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
@@ -280,6 +281,11 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			return false;
 		}
 
+		if (mTimeStampBasedEventRank != other.mTimeStampBasedEventRank)
+		{
+			return false;
+		}
+
 		if (mTag == null)
 		{
 			if (other.mTag != null)
@@ -300,18 +306,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			}
 		}
 		else if (!mStickerCode.equals(other.mStickerCode))
-		{
-			return false;
-		}
-
-		if (mTimeStampBasedEventsRanks == null)
-		{
-			if (other.mTimeStampBasedEventsRanks != null)
-			{
-				return false;
-			}
-		}
-		else if (!mTimeStampBasedEventsRanks.equals(other.mTimeStampBasedEventsRanks))
 		{
 			return false;
 		}
@@ -407,8 +401,8 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	public String toString()
 	{
 		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
-				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><fest_r="
-				+ mTimeStampBasedEventsRanks + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr="
+				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><event_rk="
+				+ mTimeStampBasedEventRank + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr="
 				+ mMatchingScore + "><sr_scr=" + mRecommendationScore + ">]";
 	}
 }
