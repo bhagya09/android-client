@@ -444,10 +444,10 @@ public enum StickerSearchDataController
 												// Fetch all alternate names of current event
 												JSONArray names = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
 
-												// Fetch ranks in all possible date-time ranges of current event
+												// Fetch all possible date-time ranges of current event with ranks (if available)
 												JSONArray timeRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
 
-												// Fetch ranks in all possible day ranges of current event
+												// Fetch all possible day ranges of current event with ranks (if available)
 												JSONArray dayRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
 
 												StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, names, timeRanges, dayRanges);

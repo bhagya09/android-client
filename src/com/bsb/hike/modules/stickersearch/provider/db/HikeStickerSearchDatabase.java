@@ -13,6 +13,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -1233,6 +1234,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		return tempReferences;
+	}
+
+	public Map<Pair<Long, String>, Pair<String, String>> readAllEventsData()
+	{
+		return null;
 	}
 
 	public void removeTagsForNonExistingStickers(Set<String> existingStickerInfoSet)

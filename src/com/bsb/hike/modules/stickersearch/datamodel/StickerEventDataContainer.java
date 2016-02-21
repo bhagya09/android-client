@@ -237,8 +237,8 @@ public class StickerEventDataContainer
 
 		private Range(JSONObject rangeData, boolean isDayRange)
 		{
-			mStart = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, -1);
-			mEnd = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, -1);
+			mStart = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, -1L);
+			mEnd = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, -1L);
 			mRank = rangeData.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
 			if (isDayRange)
 			{

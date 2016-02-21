@@ -143,6 +143,8 @@ public class StickerSearchConstants
 
 	public static final String REGEX_SPACE = " ";
 
+	public static final String REGEX_DISSOCIATOR = ",";
+
 	// =====================================================================Regular expressions]]
 
 	// Generic constants=======================================================================[[
@@ -217,4 +219,6 @@ public class StickerSearchConstants
 	public static final String KEY_EVENT_RANGE_END = "e";
 	
 	public static final int MAX_RANK_DURING_EVENT = 1000;
+
+	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60 * 1000L; // 24 hours in milliseconds
 }
