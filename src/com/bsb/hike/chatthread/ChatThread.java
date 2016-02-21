@@ -4474,6 +4474,12 @@ import android.widget.Toast;
 
 		if (tipFadeInAnimation != null)
 			tipFadeInAnimation.cancel();
+
+		// removing touch listener to stop receiving callback after onDestroy as we are getting a NPE in onTouch as mSharaeableLayout is null
+		if(mComposeView!=null)
+		{
+			mComposeView.setOnTouchListener(null);
+		}
 	}
 	
 	private void releaseShareablePopUpResources()
