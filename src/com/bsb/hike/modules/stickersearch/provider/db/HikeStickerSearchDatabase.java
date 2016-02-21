@@ -1090,6 +1090,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_OVERALL_FREQUENCY]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE]),
+					c.getString(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS]),
 					c.getInt(columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_AVAILABILITY_STATUS]));
 		}
 		else
