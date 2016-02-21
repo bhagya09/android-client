@@ -186,24 +186,95 @@ public class StickerEventDataContainer
 		return mOtherNames;
 	}
 
-	public JSONArray getTimeStampRanges()
+	public String getRangeJSONString()
 	{
-		return mTimeStampRanges;
+		try
+		{
+			JSONObject json = new JSONObject();
+			if (mTimeStampRanges != null)
+			{
+				json.put(StickerSearchConstants.KEY_EVENT_RANGE_TIME, mTimeStampRanges);
+			}
+			if (mDayRanges != null)
+			{
+				json.put(StickerSearchConstants.KEY_EVENT_RANGE_DAY, mDayRanges);
+			}
+
+			if (json.length() > 0)
+			{
+				return json.toString();
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
-	public JSONArray getDayRanges()
+	public String appendAndGetTimeStampRangesRankJSONString(Long id, String existingTimeStampRangesRankString)
 	{
-		return mDayRanges;
+		try
+		{
+			JSONObject json;
+			if (!Utils.isBlank(existingTimeStampRangesRankString))
+			{
+				json = new JSONObject(existingTimeStampRangesRankString);
+			}
+			else
+			{
+				json = new JSONObject();
+			}
+
+			if (mTimeStampRangesRanks != null)
+			{
+				json.put(String.valueOf(id), mTimeStampRangesRanks);
+			}
+
+			if (json.length() > 0)
+			{
+				return json.toString();
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
-	public JSONArray getTimeStampRangesRanks()
+	public String appendAndGetDayRangesRankJSONString(Long id, String existingDayRangesRankString)
 	{
-		return mTimeStampRangesRanks;
-	}
+		try
+		{
+			JSONObject json;
+			if (!Utils.isBlank(existingDayRangesRankString))
+			{
+				json = new JSONObject(existingDayRangesRankString);
+			}
+			else
+			{
+				json = new JSONObject();
+			}
 
-	public JSONArray getDayRangesRanks()
-	{
-		return mDayRangesRanks;
+			if (mDayRangesRanks != null)
+			{
+				json.put(String.valueOf(id), mDayRangesRanks);
+			}
+
+			if (json.length() > 0)
+			{
+				return json.toString();
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	public boolean isValidData()
