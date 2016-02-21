@@ -290,6 +290,101 @@ public class StickerEventDataContainer
 	}
 
 	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+
+		/* Computation must be followed in same order as used in equals() to avoid collision due to same hashCode generated for unequal object */
+		result = prime * result + ((mEventId == null) ? 0 : mEventId.hashCode());
+		result = prime * result + ((mOtherNames == null) ? 0 : mOtherNames.hashCode());
+		result = prime * result + ((mTimeStampRanges == null) ? 0 : mTimeStampRanges.toString().hashCode());
+		result = prime * result + ((mDayRanges == null) ? 0 : mTimeStampRangesRanks.toString().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+
+		if (obj == null)
+		{
+			return false;
+		}
+
+		if (getClass() != obj.getClass())
+		{
+			return false;
+		}
+
+		StickerEventDataContainer other = (StickerEventDataContainer) obj;
+
+		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
+		/* Like order can be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes and so on */
+		if (mEventId == null)
+		{
+			if (other.mEventId != null)
+			{
+				return false;
+			}
+		}
+		else if (!mEventId.equals(other.mEventId))
+		{
+			return false;
+		}
+
+		if (mOtherNames == null)
+		{
+			if (other.mOtherNames != null)
+			{
+				return false;
+			}
+		}
+		else if (!mOtherNames.equals(other.mOtherNames))
+		{
+			return false;
+		}
+
+		if (mTimeStampRanges == null)
+		{
+			if (other.mTimeStampRanges != null)
+			{
+				return false;
+			}
+		}
+		else if (other.mTimeStampRanges == null)
+		{
+			return false;
+		}
+		else if ((!mTimeStampRanges.toString().equals(other.mTimeStampRanges.toString())))
+		{
+			return false;
+		}
+
+		if (mDayRanges == null)
+		{
+			if (other.mDayRanges != null)
+			{
+				return false;
+			}
+		}
+		else if (other.mDayRanges == null)
+		{
+			return false;
+		}
+		else if ((!mDayRanges.toString().equals(other.mDayRanges.toString())))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
 	public String toString()
 	{
 		return "[event: " + mEventId + ", <names=" + mOtherNames + "><rt=" + mTimeStampRanges + "><rtr=" + mTimeStampRangesRanks + "><rd=" + mDayRanges + "><rdr=" + mDayRangesRanks
