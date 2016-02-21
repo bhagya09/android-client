@@ -8,7 +8,7 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 3;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 4;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
@@ -16,6 +16,8 @@ public class HikeStickerSearchBaseConstants
 	public static final int VERSION_STICKER_TAG_MAPPING_INDEX_ADDED = 2;
 
 	public static final int VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED = 3;
+
+	public static final int VERSION_STICKER_EVENT_RANGE_ADDED = 4;
 
 	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
 
@@ -99,7 +101,9 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String STICKER_ATTRIBUTE_TIME = "stickerUsageMoment";
 
-	public static final String STICKER_ATTRIBUTE_FESTIVALS = "stickerUsageForEvents";
+	public static final String STICKER_ATTRIBUTE_TIME_STAMP_EVENTS = "stickerUsageForEvents";
+
+	public static final String STICKER_ATTRIBUTE_DAY_EVENTS = "stickerUsageForDayEvents";
 
 	public static final String STICKER_ATTRIBUTE_AGE = "stickerAge";
 
