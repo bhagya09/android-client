@@ -448,6 +448,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
+		Map<String, Long> eventIds = null;
+		if (!Utils.isEmpty(events))
+		{
+			eventIds = insertAndUpdateEventEntities(events);
+		}
+
 		long requestStartTime = System.currentTimeMillis();
 		long operationStartTime = requestStartTime;
 
@@ -843,6 +849,43 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			mDb.endTransaction();
 		}
+	}
+
+	private Map<String, Long> insertAndUpdateEventEntities(Set<StickerEventDataContainer> events)
+	{
+		HashMap<String, Long> eventIds = new HashMap<String, Long>();
+
+		try
+		{
+			mDb.beginTransaction();
+
+			for (StickerEventDataContainer event : events)
+			{
+				if (event.isValidData())
+				{
+					ContentValues cv = new ContentValues();
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_NAME, event.getEventId());
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_TYPE, HikeStickerSearchBaseConstants.ENTITY_EVENT);
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY, event.getOtherNames());
+					cv.put(HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY, event.getRangeJSONString());
+
+					long rowId = mDb.insert(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, cv);
+
+					if (rowId > -1)
+					{
+						eventIds.put(event.getEventId(), rowId);
+					}
+				}
+			}
+
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+		return eventIds;
 	}
 
 	private ArrayList<StickerAppositeDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)
@@ -1244,8 +1287,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null,
-					HikeStickerSearchBaseConstants.ENTITY_TYPE + "=" + HikeStickerSearchBaseConstants.ENTITY_EVENT, null, null, null, null);
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, HikeStickerSearchBaseConstants.ENTITY_TYPE + "=?",
+					new String[] { String.valueOf(HikeStickerSearchBaseConstants.ENTITY_EVENT) }, null, null, null, null);
 
 			int count = (c == null) ? 0 : c.getCount();
 
