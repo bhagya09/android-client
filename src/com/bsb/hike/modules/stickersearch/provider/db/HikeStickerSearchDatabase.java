@@ -33,6 +33,9 @@ import com.bsb.hike.utils.Utils.ExecutionDurationLogger;
 import java.io.File;
 import java.util.*;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 {
 	public static final String TAG = HikeStickerSearchDatabase.class.getSimpleName();
@@ -627,6 +630,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
 				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
+
+				ArrayList<StickerEventDataContainer> stickerEvents = stickerTagData.getFestiveData();
+				String timeStampEventsRanks = null;
+				String dayEventsRanks = null;
+				if ((eventIds != null) && (!Utils.isEmpty(stickerEvents)))
+				{
+					Pair<String, String> ranks = getEventsRanks(stickerEvents, eventIds);
+					timeStampEventsRanks = ranks.first;
+					dayEventsRanks = ranks.second;
+				}
+				
 				int availability = stickerTagData.getStickerAvailabilityStatus() ? HikeStickerSearchBaseConstants.DECISION_STATE_YES
 						: HikeStickerSearchBaseConstants.DECISION_STATE_NO;
 				int size = stickerTags.size();
@@ -679,10 +693,17 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					else
 					{
 						// Case 2. At least one row for given sticker and tag was found in database, update the language data
-						if (cv.equals(existingCv) && isLanguageUpdateNeeded)
+						if (cv.equals(existingCv))
 						{
-							cv.clear();
-							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
+							if (isLanguageUpdateNeeded)
+							{
+								cv.clear();
+								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
+							}
+
+							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
+							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
+
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
 						// Case 3. At least one row for given sticker and tag was found in database with different attributes, update the language data and other attributes too
@@ -692,6 +713,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							{
 								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
 							}
+
+							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
+							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
+
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
 
@@ -886,6 +911,49 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		}
 
 		return eventIds;
+	}
+
+	private Pair<String, String> getEventsRanks(List<StickerEventDataContainer> eventList, Map<String, Long> ids)
+	{
+		JSONObject jsonType1Ranks = new JSONObject();
+		JSONObject jsonType2Ranks = new JSONObject();
+		String type1Ranks = null;
+		String type2Ranks = null;
+
+		for (StickerEventDataContainer event : eventList)
+		{
+			if (ids.containsKey(event.getEventId()))
+			{
+				try
+				{
+					if (event.getTimeStampEventsRanks() != null)
+					{
+						jsonType1Ranks.put(String.valueOf(ids.get(event.getEventId())), event.getTimeStampEventsRanks());
+					}
+
+					if (event.getDayEventsRanks() != null)
+					{
+						jsonType2Ranks.put(String.valueOf(ids.get(event.getEventId())), event.getDayEventsRanks());
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (jsonType1Ranks.length() > 0)
+		{
+			type1Ranks = jsonType1Ranks.toString();
+		}
+
+		if (jsonType2Ranks.length() > 0)
+		{
+			type2Ranks = jsonType2Ranks.toString();
+		}
+
+		return new Pair<String, String>(type1Ranks, type2Ranks);
 	}
 
 	private ArrayList<StickerAppositeDataContainer> searchIntoPrimaryTable(String matchKey, String[] referenceArgs, boolean isExactMatchNeeded)

@@ -213,68 +213,14 @@ public class StickerEventDataContainer
 		return null;
 	}
 
-	public String appendAndGetTimeStampRangesRankJSONString(Long id, String existingTimeStampRangesRankString)
+	public JSONArray getTimeStampEventsRanks()
 	{
-		try
-		{
-			JSONObject json;
-			if (!Utils.isBlank(existingTimeStampRangesRankString))
-			{
-				json = new JSONObject(existingTimeStampRangesRankString);
-			}
-			else
-			{
-				json = new JSONObject();
-			}
-
-			if (mTimeStampRangesRanks != null)
-			{
-				json.put(String.valueOf(id), mTimeStampRangesRanks);
-			}
-
-			if (json.length() > 0)
-			{
-				return json.toString();
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
+		return mTimeStampRangesRanks;
 	}
 
-	public String appendAndGetDayRangesRankJSONString(Long id, String existingDayRangesRankString)
+	public JSONArray getDayEventsRanks()
 	{
-		try
-		{
-			JSONObject json;
-			if (!Utils.isBlank(existingDayRangesRankString))
-			{
-				json = new JSONObject(existingDayRangesRankString);
-			}
-			else
-			{
-				json = new JSONObject();
-			}
-
-			if (mDayRangesRanks != null)
-			{
-				json.put(String.valueOf(id), mDayRangesRanks);
-			}
-
-			if (json.length() > 0)
-			{
-				return json.toString();
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
+		return mDayRangesRanks;
 	}
 
 	public boolean isValidData()
