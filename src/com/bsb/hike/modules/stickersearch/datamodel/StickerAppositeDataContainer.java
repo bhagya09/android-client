@@ -32,7 +32,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private int mMomentCode;
 
-	private String mFestivals;
+	private String mTimeStampBasedEventsRanks;
 
 	private int mAge;
 
@@ -48,14 +48,19 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private ArrayList<Float> mOverallFrequencies;
 
-	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
+	private int mNowCastEventRank;
+
+	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, String timeStampBasedEventsRanks,
+			int stickerAvailability)
 	{
 		mStickerCode = stickerCode;
 		mTag = tag;
 		mOverallFrequencyFunction = overallFrequencyFunction;
-		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT,
+				Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
+		mTimeStampBasedEventsRanks = timeStampBasedEventsRanks;
 		mStickerAvailability = stickerAvailability;
 		mMatchingScore = 0.0f;
 		mRecommendationScore = 0.0f;
@@ -111,14 +116,14 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		return mMomentCode;
 	}
 
-	public String getFestivalList()
+	public int getRankOfNowCastEvent()
 	{
-		return mFestivals;
+		return mNowCastEventRank;
 	}
 
 	public boolean getStickerAging()
 	{
-		return (mMomentCode == 0);
+		return (mAge > -1);
 	}
 
 	public String getStringsUsedWithSticker()
@@ -221,7 +226,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + mStickerAvailability;
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
+		result = prime * result + ((mTimeStampBasedEventsRanks == null) ? 0 : mTimeStampBasedEventsRanks.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
 		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
 		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
@@ -299,14 +304,14 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			return false;
 		}
 
-		if (mFestivals == null)
+		if (mTimeStampBasedEventsRanks == null)
 		{
-			if (other.mFestivals != null)
+			if (other.mTimeStampBasedEventsRanks != null)
 			{
 				return false;
 			}
 		}
-		else if (!mFestivals.equals(other.mFestivals))
+		else if (!mTimeStampBasedEventsRanks.equals(other.mTimeStampBasedEventsRanks))
 		{
 			return false;
 		}
@@ -402,8 +407,8 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	public String toString()
 	{
 		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
-				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><fest="
-				+ mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
-				+ "><sr_scr=" + mRecommendationScore + ">]";
+				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><fest_r="
+				+ mTimeStampBasedEventsRanks + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr="
+				+ mMatchingScore + "><sr_scr=" + mRecommendationScore + ">]";
 	}
 }
