@@ -307,17 +307,19 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int INDEX_STICKER_DATA_MOMENT_CODE = 8;
 
-	public static final int INDEX_STICKER_DATA_FESTIVALS = 9;
+	public static final int INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS = 9;
 
-	public static final int INDEX_STICKER_DATA_AGE = 10;
+	public static final int INDEX_STICKER_DATA_DAY_EVENTS_RANKS = 10;
 
-	public static final int INDEX_STICKER_DATA_USED_WITH_STRINGS = 11;
+	public static final int INDEX_STICKER_DATA_AGE = 11;
 
-	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12;
+	public static final int INDEX_STICKER_DATA_USED_WITH_STRINGS = 12;
 
-	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 13;
+	public static final int INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 13;
 
-	public static final int INDEX_STICKER_DATA_COUNT = 14;
+	public static final int INDEX_STICKER_AVAILABILITY_STATUS = 14;
+
+	public static final int INDEX_STICKER_DATA_COUNT = 15;
 
 	// =============================================Constants used for indexing of sticker data]]
 

@@ -1039,12 +1039,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// INDEX_STICKER_DATA_STORY_THEMES = 6
 		// INDEX_STICKER_DATA_EXACTNESS_ORDER = 7
 		// INDEX_STICKER_DATA_MOMENT_CODE = 8
-		// INDEX_STICKER_DATA_FESTIVALS = 9
-		// INDEX_STICKER_DATA_AGE = 10
-		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 11
-		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 12
-		// INDEX_STICKER_AVAILABILITY_STATUS = 13
-		// INDEX_STICKER_DATA_COUNT = 14
+		// INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS = 9
+		// INDEX_STICKER_DATA_DAY_EVENTS_RANKS = 10
+		// INDEX_STICKER_DATA_AGE = 11
+		// INDEX_STICKER_DATA_USED_WITH_STRINGS = 12
+		// INDEX_STICKER_DATA_REJECTED_WITH_WORDS = 13
+		// INDEX_STICKER_AVAILABILITY_STATUS = 14
+		// INDEX_STICKER_DATA_COUNT = 15
 
 		if (c != null)
 		{
@@ -1062,7 +1063,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_STORY_THEMES] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STORY_THEME_ENTITIES);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_EXACTNESS_ORDER] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_MOMENT_CODE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME);
-			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_FESTIVALS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_FESTIVALS);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_TIME_STAMP_EVENTS_RANKS] = c
+					.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS);
+			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_DAY_EVENTS_RANKS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_AGE] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_USED_WITH_STRINGS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG);
 			columnIndices[HikeStickerSearchBaseConstants.INDEX_STICKER_DATA_REJECTED_WITH_WORDS] = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG);
