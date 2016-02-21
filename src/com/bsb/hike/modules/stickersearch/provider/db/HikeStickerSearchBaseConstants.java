@@ -210,6 +210,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int ENTITY_USER_GROUP = 6; // Group to chat in
 
+	public static final int ENTITY_EVENT = 7; // Event or Festival
+
 	// Entity-qualified constants
 	public static final String IS_INITIALISED = "isInitialising";
 

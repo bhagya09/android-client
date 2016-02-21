@@ -1238,7 +1238,44 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public Map<Pair<Long, String>, Pair<String, String>> readAllEventsData()
 	{
-		return null;
+		Map<Pair<Long, String>, Pair<String, String>> rawData = null;
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null,
+					HikeStickerSearchBaseConstants.ENTITY_TYPE + "=" + HikeStickerSearchBaseConstants.ENTITY_EVENT, null, null, null, null);
+
+			int count = (c == null) ? 0 : c.getCount();
+
+			if (count > 0)
+			{
+				rawData = new HashMap<Pair<Long, String>, Pair<String, String>>();
+				int idIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+				int eventIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_NAME);
+				int eventNamesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY);
+				int eventRangesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY);
+
+				while (c.moveToNext())
+				{
+					Pair<Long, String> eventIdentifier = new Pair<Long, String>(c.getLong(idIndex), c.getString(eventIdIndex));
+					Pair<String, String> eventNamesAndRanges = new Pair<String, String>(c.getString(eventNamesIndex), c.getString(eventRangesIndex));
+
+					rawData.put(eventIdentifier, eventNamesAndRanges);
+				}
+
+				Logger.i(TAG, "Search findings count = " + rawData.size());
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		return rawData;
 	}
 
 	public void removeTagsForNonExistingStickers(Set<String> existingStickerInfoSet)
