@@ -222,7 +222,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
 		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
-		result = prime * result + ((mOverallFrequencies == null) ? 0 : mOverallFrequencies.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
 		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
 		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
@@ -308,18 +307,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			}
 		}
 		else if (!mFestivals.equals(other.mFestivals))
-		{
-			return false;
-		}
-
-		if (mOverallFrequencies == null)
-		{
-			if (other.mOverallFrequencies != null)
-			{
-				return false;
-			}
-		}
-		else if (!mOverallFrequencies.equals(other.mOverallFrequencies))
 		{
 			return false;
 		}

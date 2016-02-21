@@ -158,6 +158,7 @@ public class StickerEventDataContainer
 		final int prime = 31;
 		int result = 1;
 
+		/* Computation must be followed in same order as used in equals() to avoid collision due to same hashCode generated for unequal object */
 		result = prime * result + ((mEventId == null) ? 0 : mEventId.hashCode());
 		result = prime * result + ((mOtherNames == null) ? 0 : mOtherNames.hashCode());
 		result = prime * result + ((mTimeStampRanges == null) ? 0 : mTimeStampRanges.hashCode());
@@ -187,6 +188,8 @@ public class StickerEventDataContainer
 
 		StickerEventDataContainer other = (StickerEventDataContainer) obj;
 
+		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
+		/* Like order can be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes and so on */
 		if (mEventId == null)
 		{
 			if (other.mEventId != null)
