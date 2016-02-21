@@ -37,9 +37,9 @@ public enum StickerEventSearchManager
 		return INSTANCE;
 	}
 
-	public void readNowCastEvents()
+	public void loadNowCastEvents()
 	{
-		Logger.i(TAG, "init()");
+		Logger.i(TAG, "loadNowCastEvents()");
 
 		sLatestEventLoadingTime = System.currentTimeMillis();
 		Map<Pair<Long, String>, Pair<String, String>> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();

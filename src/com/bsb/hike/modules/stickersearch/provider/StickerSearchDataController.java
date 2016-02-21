@@ -53,6 +53,7 @@ public enum StickerSearchDataController
 			synchronized (StickerSearchDataController.class)
 			{
 				HikeStickerSearchDatabase.getInstance().prepare();
+				StickerEventSearchManager.getInstance().loadNowCastEvents();
 			}
 		}
 		else
