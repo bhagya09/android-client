@@ -6,12 +6,16 @@
 
 package com.bsb.hike.modules.stickersearch.datamodel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
@@ -40,8 +44,18 @@ public class StickerEventDataContainer
 		mDayRangesRanks = new JSONArray();
 
 		populateAlternateNames(names);
-		populateRangesAndRanks(timeStampRangeDataArray, mTimeStampRanges, mTimeStampRangesRanks);
-		populateRangesAndRanks(dayRangeDataArray, mDayRanges, mDayRangesRanks);
+
+		if (!populateRangesAndRanks(timeStampRangeDataArray, mTimeStampRanges, mTimeStampRangesRanks, false))
+		{
+			mTimeStampRanges = null;
+			mTimeStampRangesRanks = null;
+		}
+
+		if (!populateRangesAndRanks(dayRangeDataArray, mDayRanges, mDayRangesRanks, true))
+		{
+			mDayRanges = null;
+			mDayRangesRanks = null;
+		}
 	}
 
 	private void populateAlternateNames(JSONArray names)
@@ -70,9 +84,10 @@ public class StickerEventDataContainer
 		}
 	}
 
-	private void populateRangesAndRanks(JSONArray source, JSONArray targetRanges, JSONArray targetRanks)
+	private boolean populateRangesAndRanks(JSONArray source, JSONArray targetRanges, JSONArray targetRanks, boolean isDayRange)
 	{
 		int count = (source == null) ? 0 : source.length();
+		ArrayList<Range> rangeDataList = new ArrayList<Range>();
 		JSONObject range;
 
 		for (int i = 0; i < count; i++)
@@ -80,12 +95,85 @@ public class StickerEventDataContainer
 			range = source.optJSONObject(i);
 			if (range != null)
 			{
-				int rank = range.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
-				range.remove(StickerSearchConstants.KEY_EVENT_RANK);
-				targetRanges.put(range);
-				targetRanks.put(rank);
+				Range r = new Range(range, isDayRange);
+				if (r.isValidRange())
+				{
+					if (!rangeDataList.contains(r))
+					{
+						rangeDataList.add(r);
+					}
+				}
+				else
+				{
+					Logger.e(TAG, "populateRangesAndRanks(), Event id: " + mEventId + ", Wrong range: " + range);
+				}
 			}
 		}
+
+		count = rangeDataList.size();
+		if (count > 0)
+		{
+			Collections.sort(rangeDataList);
+
+			for (int i = 0; i < count; i++)
+			{
+				Range r = rangeDataList.get(i);
+
+				// Skip the range, if it is overlapping (contained) in another range (i.e. next range as ranges are sorted)
+				if ((i < (count - 1)) && (r.getStart() > -1))
+				{
+					Range rnext = rangeDataList.get(i + 1);
+
+					// Check overlapping in both type of ranges (time-stamp and day ranges)
+					if (r.getStart() == rnext.getStart())
+					{
+						continue;
+					}
+
+					// Check overlapping (rotation) specially for day ranges
+					if (isDayRange)
+					{
+						// Check rotation (Cases where range overlap between 2 different weeks, e.g. Friday to Monday)
+						if ((rnext.getEnd() > -1) && (rnext.getStart() > rnext.getEnd()))
+						{
+							if (r.getEnd() <= rnext.getEnd())
+							{
+								continue;
+							}
+						}
+					}
+				}
+
+				JSONObject json = new JSONObject();
+				try
+				{
+					if (r.getStart() > -1)
+					{
+						json.put(StickerSearchConstants.KEY_EVENT_RANGE_START, r.getStart());
+					}
+
+					if (r.getEnd() > -1)
+					{
+						json.put(StickerSearchConstants.KEY_EVENT_RANGE_END, r.getEnd());
+					}
+
+					targetRanges.put(json);
+					targetRanks.put(r.getRank());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+
+			// Invalidate event data, if no valid range was found in received data
+			if (targetRanges.length() == 0)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public String getEventId()
@@ -120,7 +208,7 @@ public class StickerEventDataContainer
 
 	public boolean isValidData()
 	{
-		boolean result = (!Utils.isBlank(mEventId) && isValidRanges(mTimeStampRanges) && isValidRanges(mDayRanges));
+		boolean result = (!Utils.isBlank(mEventId) && ((mTimeStampRanges != null) || (mDayRanges != null)));
 
 		if (!result)
 		{
@@ -130,145 +218,145 @@ public class StickerEventDataContainer
 		return result;
 	}
 
-	private boolean isValidRanges(JSONArray rangeArray)
-	{
-		boolean result = true;
-		int totalRanges = (rangeArray == null) ? 0 : rangeArray.length();
-		JSONObject range;
-
-		for (int i = 0; i < totalRanges; i++)
-		{
-			range = rangeArray.optJSONObject(i);
-			int start = range.optInt(StickerSearchConstants.KEY_EVENT_RANGE_START, 0);
-			int end = range.optInt(StickerSearchConstants.KEY_EVENT_RANGE_END, 0);
-
-			if ((end > 0) && (end <= start))
-			{
-				result = false;
-				break;
-			}
-		}
-
-		return result;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-
-		/* Computation must be followed in same order as used in equals() to avoid collision due to same hashCode generated for unequal object */
-		result = prime * result + ((mEventId == null) ? 0 : mEventId.hashCode());
-		result = prime * result + ((mOtherNames == null) ? 0 : mOtherNames.hashCode());
-		result = prime * result + ((mTimeStampRanges == null) ? 0 : mTimeStampRanges.hashCode());
-		result = prime * result + ((mTimeStampRangesRanks == null) ? 0 : mTimeStampRangesRanks.hashCode());
-		result = prime * result + ((mDayRanges == null) ? 0 : mDayRanges.hashCode());
-		result = prime * result + ((mDayRangesRanks == null) ? 0 : mDayRangesRanks.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-		{
-			return true;
-		}
-
-		if (obj == null)
-		{
-			return false;
-		}
-
-		if (getClass() != obj.getClass())
-		{
-			return false;
-		}
-
-		StickerEventDataContainer other = (StickerEventDataContainer) obj;
-
-		/* Compare in order of raw data types to derived data types i.e. comparison must be done earlier for those data types, which takes low comparison-processing time */
-		/* Like order can be: Numeric types ---> Strings ---> Collections of numeric values ---> Collections of Strings or, derived classes and so on */
-		if (mEventId == null)
-		{
-			if (other.mEventId != null)
-			{
-				return false;
-			}
-		}
-		else if (!mEventId.equals(other.mEventId))
-		{
-			return false;
-		}
-
-		if (mOtherNames == null)
-		{
-			if (other.mOtherNames != null)
-			{
-				return false;
-			}
-		}
-		else if (!mOtherNames.equals(other.mOtherNames))
-		{
-			return false;
-		}
-
-		if (mTimeStampRanges == null)
-		{
-			if (other.mTimeStampRanges != null)
-			{
-				return false;
-			}
-		}
-		else if (!mTimeStampRanges.equals(other.mTimeStampRanges))
-		{
-			return false;
-		}
-
-		if (mTimeStampRangesRanks == null)
-		{
-			if (other.mTimeStampRangesRanks != null)
-			{
-				return false;
-			}
-		}
-		else if (!mTimeStampRangesRanks.equals(other.mTimeStampRangesRanks))
-		{
-			return false;
-		}
-
-		if (mDayRanges == null)
-		{
-			if (other.mDayRanges != null)
-			{
-				return false;
-			}
-		}
-		else if (!mDayRanges.equals(other.mDayRanges))
-		{
-			return false;
-		}
-
-		if (mDayRangesRanks == null)
-		{
-			if (other.mDayRangesRanks != null)
-			{
-				return false;
-			}
-		}
-		else if (!mDayRangesRanks.equals(other.mDayRangesRanks))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
 	@Override
 	public String toString()
 	{
 		return "[event: " + mEventId + ", <names=" + mOtherNames + "><rt=" + mTimeStampRanges + "><rtr=" + mTimeStampRangesRanks + "><rd=" + mDayRanges + "><rdr=" + mDayRangesRanks
 				+ ">]";
+	}
+
+	private static class Range implements Comparable<Range>
+	{
+		private long mStart;
+
+		private long mEnd;
+
+		private int mRank;
+
+		private boolean isValidRange;
+
+		private Range(JSONObject rangeData, boolean isDayRange)
+		{
+			mStart = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, -1);
+			mEnd = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, -1);
+			mRank = rangeData.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
+			if (isDayRange)
+			{
+				isValidRange = isValidDay(mStart) && isValidDay(mEnd);
+			}
+			else
+			{
+				isValidRange = true;
+
+				if (mStart > -1)
+				{
+					if ((mEnd > -1) && (mEnd <= mStart))
+					{
+						isValidRange = false;
+					}
+				}
+				else
+				{
+					if (mEnd > -1)
+					{
+						isValidRange = false;
+					}
+				}
+			}
+		}
+
+		private boolean isValidDay(long dayId)
+		{
+			return (dayId >= HikeStickerSearchBaseConstants.DAY.SUNDAY.getId()) && (dayId <= HikeStickerSearchBaseConstants.DAY.SATURDAY.getId());
+		}
+
+		public long getStart()
+		{
+			return mStart;
+		}
+
+		public long getEnd()
+		{
+			return mEnd;
+		}
+
+		public int getRank()
+		{
+			return mRank;
+		}
+
+		public boolean isValidRange()
+		{
+			return isValidRange;
+		}
+
+		@Override
+		/*
+		 * LHS = RHS ==> return 0; LHS > RHS ==> return 1; LHS < RHS ==> return -1;
+		 */
+		public int compareTo(Range obj)
+		{
+			if ((obj == null) || (mStart > obj.mStart))
+			{
+				return 1;
+			}
+			else if (mStart == obj.mStart)
+			{
+				if (mEnd == obj.mEnd)
+				{
+					return 0;
+				}
+				else if (mEnd > obj.mEnd)
+				{
+					return 1;
+				}
+			}
+
+			return -1;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+
+			result = prime * result + (int) (mEnd ^ (mEnd >>> 32));
+			result = prime * result + (int) (mStart ^ (mStart >>> 32));
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+			{
+				return true;
+			}
+
+			if (obj == null)
+			{
+				return false;
+			}
+
+			if (getClass() != obj.getClass())
+			{
+				return false;
+			}
+
+			Range other = (Range) obj;
+
+			if (mStart != other.mStart)
+			{
+				return false;
+			}
+			
+			if (mEnd != other.mEnd)
+			{
+				return false;
+			}
+
+			return true;
+		}
 	}
 }

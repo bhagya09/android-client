@@ -407,6 +407,32 @@ public class HikeStickerSearchBaseConstants
 
 	// ================================States used for Sticker-Tag relation and recommendations]]
 
+	// Days used in Sticker-Event relation and recommendations================================[[
+		public static enum DAY
+		{
+			SUNDAY(1),
+			MONDAY(2),
+			TUESDAY(3),
+			WEDNESDAY(4),
+			THURSDAY(5),
+			FRIDAY(6),
+			SATURDAY(7);
+
+			private final int mId;
+
+			private DAY(int identifier)
+			{
+				mId = identifier;
+			}
+
+			public int getId()
+			{
+				return mId;
+			}
+		}
+
+		// ================================Days used in Sticker-Event relation and recommendations]]
+
 	// States used for day time division=======================================================[[
 	public static enum TIME_CODE
 	{
