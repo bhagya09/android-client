@@ -21,6 +21,7 @@ import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -437,7 +438,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, ArrayList<StickerTagDataContainer> stickersTagData)
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, Set<StickerEventDataContainer> events, ArrayList<StickerTagDataContainer> stickersTagData)
 	{
 		Logger.i(TAG_INSERTION, "insertStickerTagData()");
 

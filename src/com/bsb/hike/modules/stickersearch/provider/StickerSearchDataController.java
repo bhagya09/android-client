@@ -97,6 +97,7 @@ public enum StickerSearchDataController
 		Set<String> receivedStickers = new HashSet<String>();
 		HashSet<String> stickersWithValidTags = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
+		HashSet<StickerEventDataContainer> stickerEventsData = new HashSet<StickerEventDataContainer>();
 		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 		Iterator<String> packs = packsData.keys();
 
@@ -453,6 +454,7 @@ public enum StickerSearchDataController
 
 												StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, names, timeRanges, dayRanges);
 												stickerEvents.add(stickerEvent);
+												stickerEventsData.add(stickerEvent);
 											}
 										}
 									}
@@ -532,7 +534,7 @@ public enum StickerSearchDataController
 
 				try
 				{
-					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickersTagData);
+					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickerEventsData, stickersTagData);
 				}
 				catch (Throwable t)
 				{
