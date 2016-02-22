@@ -1376,7 +1376,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					rawData.put(eventIdentifier, eventNamesAndRanges);
 				}
 
-				Logger.i(TAG, "Search findings count = " + rawData.size());
+				Logger.i(TAG, "readAllEventsData(), Search findings count = " + rawData.size());
 			}
 		}
 		finally
