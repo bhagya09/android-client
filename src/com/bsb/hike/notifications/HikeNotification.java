@@ -1396,7 +1396,7 @@ public class HikeNotification
 				final Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(bitmapString);
 				//we use msisdn hashcode as notif id if needs to be shown as single notification else (msisdn hashcode +1)
 				final int notificationId = isClubByMsisdn ? msisdn.hashCode() + 1 : msisdn.hashCode();
-				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture);
+				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,false);
 				if(TextUtils.isEmpty(bitmapString)){
 					String url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
 					if(TextUtils.isEmpty(url)){
@@ -1411,7 +1411,7 @@ public class HikeNotification
 						@Override
 						public void onRequestSuccess(Response result) {
                             Bitmap bigPicture = (Bitmap)result.getBody().getContent();
-							showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture);
+							showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,true);
 						}
 
 						@Override
@@ -1437,10 +1437,12 @@ public class HikeNotification
 	}
 
 	//Used only for platform notifications
-    private void showNotification(final Intent notificationIntent, final int notificationId, final JSONObject jsonObject, final String msisdn, Drawable avatarDrawable, Bitmap bigPicture){
+    
+	private void showNotification(final Intent notificationIntent, final int notificationId, final JSONObject jsonObject, final String msisdn, Drawable avatarDrawable, Bitmap bigPicture,Boolean isReplay)
+	{
 		showNotification(notificationIntent, System.currentTimeMillis(), notificationId, getTickerText(msisdn, jsonObject.optString(HikeConstants.BODY)),
 				HikeNotificationUtils.getNameForMsisdn(msisdn), jsonObject.optString(HikeConstants.BODY), msisdn, bigPicture, bigPicture == null, avatarDrawable,
-				Boolean.valueOf(jsonObject.optString(HikePlatformConstants.SILENT_PUSH)), true);
+				isReplay?true:Boolean.valueOf(jsonObject.optString(HikePlatformConstants.SILENT_PUSH)), true);
 	}
 	private String getTickerText(String msisdn, String message)
 	{
