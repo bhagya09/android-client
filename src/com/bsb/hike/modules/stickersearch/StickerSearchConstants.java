@@ -126,6 +126,8 @@ public class StickerSearchConstants
 
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT = 3;
 
+	public static final float MAXIMUM_FESTIVE_SCORE = 0.50f;
+
 	// ====================================================Constants used for calculating score]]
 
 	// Regular expressions=====================================================================[[

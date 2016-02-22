@@ -42,6 +42,8 @@ public class StickerSearchHostManager
 
 	private static int NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED;
 
+	private static int NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS;
+
 	private static String REGEX_SEPARATORS;
 
 	private static int MAXIMUM_SEARCH_TEXT_LIMIT;
@@ -119,6 +121,8 @@ public class StickerSearchHostManager
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL = Math.max(StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance().getApplicationContext()), 1);
 
 		NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL_CONTINUED = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL + 1;
+
+		NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS = NUMBER_OF_STICKERS_VISIBLE_IN_ONE_SCROLL - 1;
 
 		HikeSharedPreferenceUtil stickerDataSharedPref = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA);
 
@@ -1274,11 +1278,12 @@ public class StickerSearchHostManager
 					+ TIME_CODE.getTerminal(currentMomentTerminalCode).name() + "'");
 
 			ArrayList<StickerAppositeDataContainer> timePrioritizedStickerList = new ArrayList<StickerAppositeDataContainer>();
+			ArrayList<StickerAppositeDataContainer> eventPrioritizedStickerList = new ArrayList<StickerAppositeDataContainer>();
 			ArrayList<StickerAppositeDataContainer> tempStickerDataList = new ArrayList<StickerAppositeDataContainer>();
 			TreeSet<StickerAppositeDataContainer> leastButSignificantStickerDataList = new TreeSet<StickerAppositeDataContainer>();
 			StickerAppositeDataContainer stickerAppositeDataContainer;
 
-			// Calculate peak frequencies
+			// Calculate peak frequencies and 2 maximum ranks
 			float largestTrendingFrequency = Float.MIN_VALUE;
 			float largestLocalFrequency = Float.MIN_VALUE;
 			float largestGlobalFrequency = Float.MIN_VALUE;
@@ -1286,6 +1291,8 @@ public class StickerSearchHostManager
 			float stickerTrendingFrequency;
 			float stickerLocalFrequency;
 			float stickerGlobalFrequency;
+
+			int secondLargestStickerEventRank = -1;
 
 			for (int i = 0; i < count; i++)
 			{
@@ -1311,6 +1318,12 @@ public class StickerSearchHostManager
 					if (stickerGlobalFrequency > largestGlobalFrequency)
 					{
 						largestGlobalFrequency = stickerGlobalFrequency;
+					}
+
+					// Second max festive rank
+					if ((stickerAppositeDataContainer.getRankOfNowCastEvent() < StickerSearchConstants.MAX_RANK_DURING_EVENT) && (stickerAppositeDataContainer.getRankOfNowCastEvent() > secondLargestStickerEventRank))
+					{
+						secondLargestStickerEventRank = stickerAppositeDataContainer.getRankOfNowCastEvent();
 					}
 				}
 			}
@@ -1339,6 +1352,12 @@ public class StickerSearchHostManager
 					float phraseMatchScore = computeAnalogousScoreForExactMatch(matchKey,
 							stickerAppositeDataContainer.getStickerTag().replaceAll(StickerSearchConstants.REGEX_SINGLE_OR_PREDICATE, StickerSearchConstants.STRING_EMPTY));
 
+					float effectiveFestiveRank = (float) stickerAppositeDataContainer.getRankOfNowCastEvent();
+					if (effectiveFestiveRank >= StickerSearchConstants.MAX_RANK_DURING_EVENT)
+					{
+						effectiveFestiveRank = (float) (secondLargestStickerEventRank + 1) + (float) (effectiveFestiveRank - StickerSearchConstants.MAX_RANK_DURING_EVENT);
+					}
+
 					if (stickerAppositeDataContainer.getExactMatchOrder() == -1)
 					{
 						stickerAppositeDataContainer
@@ -1348,7 +1367,7 @@ public class StickerSearchHostManager
 												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerAppositeDataContainer.getTrendingFrequency() / largestTrendingFrequency)
 												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerAppositeDataContainer.getLocalFrequency() / largestLocalFrequency)
 												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerAppositeDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
-												: 0.00f)));
+												: 0.00f) + ((effectiveFestiveRank < 0) ? 0.00f : StickerSearchConstants.MAXIMUM_FESTIVE_SCORE / (effectiveFestiveRank + 1))));
 					}
 					else
 					{
@@ -1361,7 +1380,12 @@ public class StickerSearchHostManager
 												+ (WEIGHTAGE_FREQUENCY_TRENDING * stickerAppositeDataContainer.getTrendingFrequency() / largestTrendingFrequency)
 												+ (WEIGHTAGE_FREQUENCY_LOCAL * stickerAppositeDataContainer.getLocalFrequency() / largestLocalFrequency)
 												+ (WEIGHTAGE_FREQUENCY_GLOBAL * stickerAppositeDataContainer.getGlobalFrequency() / largestGlobalFrequency) + ((stickerMometCode == contextMomentCode) ? WEIGHTAGE_CONTEXT_MOMENT
-												: 0.00f)));
+												: 0.00f) + ((effectiveFestiveRank < 0) ? 0.00f : StickerSearchConstants.MAXIMUM_FESTIVE_SCORE / (effectiveFestiveRank + 1))));
+					}					
+
+					if (effectiveFestiveRank > -1)
+					{
+						eventPrioritizedStickerList.add(stickerAppositeDataContainer);
 					}
 
 					if (currentMomentTerminalCode == stickerMometCode)
@@ -1388,6 +1412,18 @@ public class StickerSearchHostManager
 							leastButSignificantStickerDataList.add(stickerAppositeDataContainer);
 						}
 					}
+				}
+			}
+
+			// Sort festive stickers in descending order and pickup first n stickers, where n = NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS
+			count = eventPrioritizedStickerList.size();
+			if (count > 0)
+			{
+				Collections.sort(eventPrioritizedStickerList);
+
+				for (int i = (count - 1); i >= NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS; i--)
+				{
+					eventPrioritizedStickerList.remove(i);
 				}
 			}
 
@@ -1425,11 +1461,14 @@ public class StickerSearchHostManager
 				}
 			}
 
-			// Apply time division, if such stickers are found after ordering
+			// Apply time division and event priority, if such stickers are found after ordering
+			eventPrioritizedStickerList.addAll(timePrioritizedStickerList);
+			timePrioritizedStickerList.clear();
+			timePrioritizedStickerList = eventPrioritizedStickerList;
 			int timelyStickersCount = timePrioritizedStickerList.size();
 			if (timelyStickersCount > 0)
 			{
-				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(timelyStickersCount + count);
+				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS + timelyStickersCount + count);
 				Collections.sort(timePrioritizedStickerList);
 				
 				for (int i = 0; i < timelyStickersCount; i++)
