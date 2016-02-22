@@ -203,8 +203,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		// Primary key : Integer [Compulsory]
 		// Name of Entity : String [Compulsory], eg. InitMarker, ContactNumber, GrouId, ChatStory, Region/Language, State etc.
 		// Type of Entity : Integer [Compulsory], Recognize to know what kind of entity is in above examples
-		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user
-		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution
+		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user as it is mostly non-dynamic data
+		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution as it may change time to time
 		String sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_PRIMARY_KEY
 				+ HikeStickerSearchBaseConstants.ENTITY_NAME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.ENTITY_TYPE

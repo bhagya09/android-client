@@ -436,7 +436,7 @@ public enum StickerSearchDataController
 										if ((festiveData != null) && (festiveData.length() > 0))
 										{
 											Iterator<String> events = festiveData.keys();
-											stickerEvents = new ArrayList<StickerEventDataContainer>();
+											stickerEvents = new ArrayList<StickerEventDataContainer>(festiveData.length());
 
 											while (events.hasNext())
 											{
