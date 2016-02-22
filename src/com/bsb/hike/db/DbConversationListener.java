@@ -31,6 +31,7 @@ import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.SmsMessageStatusReceiver;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
@@ -702,9 +703,7 @@ public class DbConversationListener implements Listener
 		if (today != dayRecorded)
 		{
 			dayRecorded = today;
-			Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-			editor.putInt(HikeMessengerApp.DAY_RECORDED, dayRecorded);
-			editor.commit();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAY_RECORDED, dayRecorded);
 		}
 	}
 

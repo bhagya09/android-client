@@ -4076,14 +4076,12 @@ public class Utils
 		}
 	}
 
-	public static void resetUpdateParams(SharedPreferences prefs)
+	public static void resetUpdateParams()
 	{
-		Editor prefEditor = prefs.edit();
-		prefEditor.remove(HikeMessengerApp.DEVICE_DETAILS_SENT);
-		prefEditor.remove(HikeMessengerApp.UPGRADE_RAI_SENT);
-		prefEditor.putBoolean(HikeMessengerApp.RESTORE_ACCOUNT_SETTING, true);
-		prefEditor.putBoolean(HikeMessengerApp.SIGNUP_COMPLETE, true);
-		prefEditor.commit();
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.DEVICE_DETAILS_SENT);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.UPGRADE_RAI_SENT);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.RESTORE_ACCOUNT_SETTING, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SIGNUP_COMPLETE, true);
 	}
 
 	public static String fileToMD5(String filePath)

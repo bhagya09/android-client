@@ -1062,9 +1062,7 @@ public class HikeDialogFactory
 			@Override
 			public void onDismiss(DialogInterface dialog)
 			{
-				Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-				editor.putBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, true);
-				editor.commit();
+				HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, true);
 			}
 		});
 

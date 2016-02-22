@@ -22,7 +22,7 @@ public class UpgradeIntentService extends IntentService
 
 	private static final String TAG = "UpgradeIntentService";
 
-	private SharedPreferences prefs;
+	private HikeSharedPreferenceUtil prefs;
 
 	Context context;
 
@@ -30,90 +30,76 @@ public class UpgradeIntentService extends IntentService
 	protected void onHandleIntent(Intent dbIntent)
 	{
 		context = this;
-		prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (prefs.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
+		prefs = HikeSharedPreferenceUtil.getInstance();
+		if (prefs.getData(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
 		{
 			initialiseSharedMediaAndFileThumbnailTable();
 
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
-			Editor editor = prefs.edit();
-			editor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.commit();
+			prefs.saveData(HikeConstants.UPGRADE_AVATAR_CONV_DB, 2);
+			prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 
 			// fire the pubsub event to let the HomeActivity class know that the
 			// avatar
 			// upgrade is done and it can stop the spinner
 		}
 
-		if (prefs.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1)
+		if (prefs.getData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1)
 		{
 			addMessageHashNMsisdnNReadByForGroup();
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
-			Editor editor = prefs.edit();
-			editor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.commit();
+			prefs.saveData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 2);
+			prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 		}
 		
-		if (prefs.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1)
+		if (prefs.getData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1)
 		{
 			upgradeForDatabaseVersion28();
 			// setting the preferences to 2 to indicate we're done with the
 			// migration !
-			Editor editor = prefs.edit();
-			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.commit();
+			prefs.saveData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
+			prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 		}
 		
-		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
+		if (prefs.getData(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
 		{
 			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
 			{
-				Editor editor = prefs.edit();
-				editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-				editor.commit();
+				prefs.saveData(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
+				prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			}
 		}
 		
-		if (prefs.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
+		if (prefs.getData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1)
 		{
 			upgradeForStickerShopVersion1();
-			Editor editor = prefs.edit();
-			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-			editor.commit();
+			prefs.saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
+			prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			StickerManager.getInstance().doInitialSetup();
 		}
 		
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
+		if (prefs.getData(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
 		{
 			if(upgradeForServerIdField())
 			{
-				Editor editor = prefs.edit();
-				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-				editor.commit();
+				prefs.saveData(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
+				prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			}
 		}
 		
 		// This value is set as 1 in onUpgrade of HikeConversationsDatabase.
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1)
+		if (prefs.getData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 0) == 1)
 		{
 			if (upgradeForSortingIdField())
 			{
 				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
-				Editor editor = prefs.edit();
-				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
-				editor.commit();
+				prefs.saveData(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
+				prefs.saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			}
 		}
-		if (prefs.getInt(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0)
+		if (prefs.getData(HikeMessengerApp.UPGRADE_LANG_ORDER, 0) == 0)
 		{
 			{
 				LocalLanguageUtils.requestLanguageOrderListFromServer();

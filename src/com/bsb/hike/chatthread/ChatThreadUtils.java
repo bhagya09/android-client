@@ -185,10 +185,8 @@ public class ChatThreadUtils
 
 	protected static void clearTempData(Context context)
 	{
-		Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).edit();
-		editor.remove(HikeMessengerApp.TEMP_NAME);
-		editor.remove(HikeMessengerApp.TEMP_NUM);
-		editor.commit();
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.TEMP_NAME);
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.TEMP_NUM);
 	}
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
