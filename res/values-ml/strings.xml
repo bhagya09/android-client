@@ -1381,10 +1381,11 @@
     <string name="dismiss_button">ഡിസ്മിസ്സ്‌ </string>
     <string name="try_instead">ഇത് പരീക്ഷിക്കു</string>
     <string name="sms_card_settings_side_text">എല്ലാ സന്ദേശങ്ങൾ ന്</string>
-<string name="unsupported_langs_toast">നിങ്ങളുടെ ഫോണ് %1$s ഭാഷ സപ്പോ ട്ട് ചെയ്യുന്നില്ല</string>
+	<string name="unsupported_langs_toast">നിങ്ങളുടെ ഫോണ് %1$s ഭാഷ സപ്പോ ട്ട് ചെയ്യുന്നില്ല</string>
     <string name="unsupported_language_toast_msg">നിങ്ങളുടെ ഫോൺ ഈ ഭാഷ പിന്തുണക്കുന്നില്ല</string>
     <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
     <string name="error_message_upgrade_peer">ഓക്കേ/സഹായംക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. നിങളുടെ സുഹൃത്ത്‌ hike ഡയറക്റ്റ് ഉള്ള hike-ന്റെ പുതിയ വെർഷനിൽ അല്ല.</string>
     <string name="error_message_unsupported_peer">ക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. hike ഡയറക്റ്റ് ആൻഡ്രോയ്ഡിൽ മാത്രമേ ലഭിക്കുകയുള്ളൂ.</string>
-    
+    <string name="delete_conversation">സംഭാഷണങ്ങള്‍ ഇല്ലാതാക്കുക</string>
+    <string name="admin_error">ഈ വ്യക്തി ഇനി ഈ ഗ്രൂപ്പിലെ അംഗമല്ല</string>
 </resources>

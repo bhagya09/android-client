@@ -1394,5 +1394,6 @@
     <string name="language_ftue_complete_message">ಕೀಬೋರ್ಡ ಭಾಷೆ ಬದಲಿಸಲು \nಸೆಟ್ಟಿಂಗ್ಸ -> ಭಾಷೆ &amp; ಇನ್ಪುಟ್ ಗೆ ಹೋಗಿ</string>
     <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
     <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
-
+    <string name="delete_conversation">ಸಂವಾದವನ್ನು ಅಳಿಸುి</string>
+    <string name="admin_error">ಈ ವ್ಯಕ್ತಿ  ಗ್ರೂಪ್ ಚಾಟಿನಲ್ಲಿ ಭಾಗವಹಿಸುತ್ತಿಲ್ಲు</string>
 </resources>
