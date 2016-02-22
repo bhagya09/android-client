@@ -363,13 +363,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void showOverflowTip(int stringResId)
-	{
-		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
-			super.showOverflowTip(stringResId);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());

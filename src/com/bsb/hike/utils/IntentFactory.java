@@ -279,7 +279,7 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_localization);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.language);
 		context.startActivity(intent);
 	}
 

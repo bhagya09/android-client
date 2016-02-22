@@ -472,8 +472,6 @@ public class HikePubSub implements Runnable
 
 	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
 
-	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
-
 	public static final String BADGE_COUNT_CHANGED = "badgeCountChanged";
 
 	public static final String BADGE_COUNT_PRIORITY_CHANGED_TIMELINE = "badgeCountPriorityChangedTimeline";

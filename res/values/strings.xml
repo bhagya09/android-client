@@ -510,9 +510,6 @@
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
     <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
-    <string name="change_keyboard">Change Keyboard</string>
-    <string name="hike_keyboard">Hike Keyboard</string>
-    <string name="system_keyboard">Phone Keyboard</string>
     <string name="clear_chat">Clear Chat</string>
     <string name="add_shortcut">Add Shortcut</string>
     <string name="timeline">Timeline</string>
@@ -947,7 +944,6 @@
     <string name="enter_setting_header">Enter key is send</string>
     <string name="enter_setting_info">Pressing enter key will send the message</string>
     <string name="settings_chat">Chat Settings</string>
-    <string name="settings_localization">Language &amp; Input</string>
     <string name="new_line_setting_info">Pressing enter key will add a new line</string>
     <string name="nudge_toast"> Sending nudges has been turned off.\nYou can turn it on in Settings > Chat Settings.</string>
     <string name="select_all_hike">Select all</string>
@@ -1477,6 +1473,4 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
-    <string name="switch_to_old_key">Switch to your old keyboard</string>
-    <string name="switch_to_hike_key">Switch to your hike keyboard</string>
 </resources>

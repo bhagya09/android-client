@@ -261,24 +261,10 @@ public class HikeConstants
 
 	public static final String REQUEST_PENDING = "requestpending";
 
-	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
-
 	public static final String DEVICE_LOCALE = "device_locale";
 
 	public static final String LOCALE = "locale";
 	
-	public static final String KEYBOARD_LANG_DWNLD_APP_FTUE = "app_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_KBD_FTUE = "kbd_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE_SOURCE = "kbd_lng_cg_src";
-	
-	public static final String KEYBOARD_LANG_CHANGE_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANG_CHANGE_KBD = "kbd";
-
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
 
 	public static final String PUSH_SU = "pushsu";
@@ -2527,8 +2513,6 @@ public class HikeConstants
 
 		public static final String KEYBOARD_FTUE_COMPLETES = "kbd_ftue_comp";
 		
-		public static final String KPT = "kpt";
-
 		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
 
 		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
@@ -3333,8 +3317,6 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
-
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
@@ -3705,40 +3687,18 @@ public class HikeConstants
 
 	public static final String LOCALIZATION_ENABLED = "local_e";
 
-	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
-
-	// Added for switching the Change Keyboard Option in chat thread
-	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
-
-	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
-	
 	// ============================================================================================= LOCALIZATION SWITCHES
 
 
 	public static final String LANG_LIST_ORDER = "lang_list";
 
-	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
-	public static final String SYSTEM_KEYBOARD = "System Keyboard";
-
-	public static final String HIKE_KEYBOARD = "Hike Keyboard";
-
 	public static final String PHONE_LANGUAGE = "ph_l";
 
 	public static final String APP_LANGUAGE = "ap_l";
 	
-	public static final String KEYBOARD_LANGUAGE = "z";
-
 	public static final String LANG_ARRAY = "lan_array";
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
-
-	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
-
-	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
-
-	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
-
-	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 
@@ -3760,7 +3720,7 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 

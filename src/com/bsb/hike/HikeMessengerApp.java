@@ -53,16 +53,13 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -79,26 +76,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -1239,35 +1216,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
 	}
 	
-	public static boolean isSystemKeyboard()
-	{
-		return (!isCustomKeyboardUsable() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
-	}
-
-	public static boolean isCustomKeyboardUsable()
-	{
-		Logger.d("KptDebug", "isCustomKeyboardUsable value get.time: " + System.currentTimeMillis());
-		return (
-				// server switches
-				isCustomKeyboardEnabled()
-					// If custom(kpt) keyboard is not supported, it should not be used.
-					&& isCustomKeyboardSupported());
-	}
-
-	public static boolean isCustomKeyboardSupported()
-	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, true);
-	}
-
-	public static boolean isCustomKeyboardEnabled()
-	{
-		return (
-				// server switch
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
-					// If localization is disabled in the app. Custom Keyboard is not to be used.
-					&& isLocalisationEnabled());
-	}
-
 	public static boolean isLocalisationEnabled()
 	{
 		// server switch
@@ -1277,10 +1225,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void setupAppLocalization()
 	{
 		setupLocalLanguage();
-		// initialized keyboard manager only if its enabled.
 		Logger.d("KptDebug","call to keyboard manager.time: " + System.currentTimeMillis());
-		if (isCustomKeyboardEnabled())
-			KptKeyboardManager.getInstance();
 		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 

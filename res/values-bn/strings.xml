@@ -501,7 +501,6 @@
     <string name="confirm_delete_chat_msg">\”%1$s\” এর সঙ্গে চ্যাট মুছবেন? </string>
     <string name="confirm_delete_group_msg">\”%1$s\” গ্রুপ মুছবেন ও প্রস্থান করবেন?</string>
     <string name="email_chat">চ্যাট ইমেল করুন</string>
-    <string name="change_keyboard">কীবোর্ড পরিবর্তন করুন</string>
     <string name="clear_chat">চ্যাট সাফ করুন</string>
     <string name="add_shortcut">শর্টকাট যোগ করুন</string>
     <string name="timeline">টাইমলাইন</string>
@@ -933,7 +932,6 @@
     <string name="enter_setting_header">এন্টার কী মানে মেসেজ পাঠানো</string>
     <string name="enter_setting_info">এন্টার কী টিপলে মেসেজ পাঠানো হবে</string>
     <string name="settings_chat">চ্যাট সেটিংস</string>
-    <string name="settings_localization">ভাষা &amp; ইনপুট</string>
     <string name="new_line_setting_info">আগে থেকে সেট করা কী টিপলে একটি নতুন লাইন যোগ হবে</string>
     <string name="nudge_toast"> ঠেলা দেওয়া বন্ধ করা হয়েছে। \nআপনি সেটিংস > চ্যাট সেটিংস এ এটি চালু করতে পারেন।</string>
     <string name="select_all_hike">সবগুলি নির্বাচন করুন</string>
@@ -1249,8 +1247,6 @@
     <string name="is_typing">টাইপ করছে...</string>
     <string name="are_typing">টাইপ করছে...</string>
     <string name="you_chat_bg_changed">আপনি চ্যাটের থিম পরিবর্তন করেছেন।</string>
-    <string name="hike_keyboard">Hike কীবোর্ড</string>
-    <string name="system_keyboard">ফোন কীবোর্ড</string>
     <string name="you_posted_pin">আপনি একটি পিন পোস্ট করেছেন</string>
     <string name="voip_hang_up">কেটে দিন</string>
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
@@ -1401,7 +1397,5 @@
     <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
     <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
     <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
-    <string name="switch_to_old_key">"পুরোনো কীবোর্ড এ ফেরত যান"</string>
-    <string name="switch_to_hike_key">"hike কীবোর্ড ব্যবহার করুন"</string>
     
 </resources>

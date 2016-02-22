@@ -501,7 +501,6 @@
     <string name="confirm_delete_chat_msg">\"%1$s\"सोबतचे चॅट हटवायचे? </string>
     <string name="confirm_delete_group_msg">\"%1$s\"समूह हटवून त्यातून बाहेर पडायचे?</string>
     <string name="email_chat">चॅट ईमेल करा</string>
-    <string name="change_keyboard">कीबोर्ड बदला</string>
     <string name="clear_chat">चॅट साफ करा</string>
     <string name="add_shortcut">शॉर्टकट जोडा</string>
     <string name="timeline">टाइमलाईन</string>
@@ -932,7 +931,6 @@
     <string name="enter_setting_header">एंटर की पाठवली</string>
     <string name="enter_setting_info">एंटर की दाबल्याने संदेश पाठवला जाईल</string>
     <string name="settings_chat">चॅट सेटिंग्ज</string>
-    <string name="settings_localization">भाषा आणि इनपुट</string>
     <string name="new_line_setting_info">एंटर की दाबल्याने एक नवीन ओळ जोडली जाईल</string>
     <string name="nudge_toast"> कोपरखळी पाठवणे बंद केले आहे.\nतुम्ही ते सेटिंग्ज &gt; चॅट सेटिंग्ज मध्ये चालू करू शकता.</string>
     <string name="select_all_hike">सर्व निवडा</string>
@@ -1245,8 +1243,6 @@
     <string name="is_typing">टाइप करत आहे...</string>
     <string name="are_typing">टाइप करत आहेत...</string>
     <string name="you_chat_bg_changed">तुम्ही चॅट थीम बदलली</string>
-    <string name="hike_keyboard">Hike कीबोर्ड</string>
-    <string name="system_keyboard">फ़ोन कीबोर्ड</string>
     <string name="you_xyz_posted_pin">तुम्ही पिन पोस्ट केला</string>
     <string name="voip_hang_up">हँग अप</string>
     <string name="voip_decline">नाकारा</string>
@@ -1394,7 +1390,5 @@
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
     <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
     <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
-    <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
-    <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
     
 </resources>

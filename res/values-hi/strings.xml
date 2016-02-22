@@ -500,7 +500,6 @@
     <string name="confirm_delete_chat_msg">\"%1$s\" के साथ चैट हटायें? </string>
     <string name="confirm_delete_group_msg">हटायें और \"%1$s\" ग्रुप से बाहर निकलें?</string>
     <string name="email_chat">चैट ईमेल करें</string>
-    <string name="change_keyboard">कीबोर्ड बदलें</string>
     <string name="clear_chat">चैट साफ़ करें</string>
     <string name="add_shortcut">शॉर्टकट बनाऐं</string>
     <string name="timeline">टाइमलाइन</string>
@@ -930,7 +929,6 @@
     <string name="enter_setting_header">एंटर बटन से भेजें</string>
     <string name="enter_setting_info">एंटर बटन दबाने से संदेश भेज दिया जाएगा</string>
     <string name="settings_chat">चैट सेटिंग्स</string>
-    <string name="settings_localization">भाषा और इनपुट</string>
     <string name="new_line_setting_info">एंटर कुंजी दबाने से नई लाइन जोड़ दी जाएगी</string>
     <string name="nudge_toast"> नज भेजना बंद है।\nआप सेटिंग्स > चैट सेटिंग्स में उसे चालू कर सकते हैं।</string>
     <string name="select_all_hike">सभी चुनें</string>
@@ -1242,8 +1240,6 @@
     <string name="is_typing">लिख रहे हैं...</string>
     <string name="are_typing">लिख रहे हैं...</string>
     <string name="you_chat_bg_changed">आपने चैट थीम बदल दिया</string>
-    <string name="hike_keyboard">Hike कीबोर्ड</string>
-    <string name="system_keyboard">फ़ोन कीबोर्ड</string>
     <string name="you_xyz_posted_pin">आपने एक पिन पोस्ट किया</string>
     <string name="voip_hang_up">बंद कर दें</string>
     <string name="voip_decline">अस्वीकारें</string>
@@ -1390,7 +1386,5 @@
     <string name="language_ftue_complete_message">कीबोर्ड की भाषा बदलने के लिए \nसेटिंग्स -> भाषा &amp; इनपुट में जाऐं</string>
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
-    <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
-    <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
     
 </resources>

@@ -25,7 +25,6 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -36,8 +35,6 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -58,12 +55,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -594,7 +589,6 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.messageedittext:
-			showKeyboard();
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 		default:
 			return super.onTouch(v, event);
@@ -674,7 +668,6 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
-		removeKeyboardFtueIfShowing();
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			return;
@@ -685,15 +678,6 @@ public class GroupChatThread extends OneToNChatThread
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
-		if (isSystemKeyboard())
-		{
-			unregisterCustomKeyboardEditText(R.id.messageedittext);
-		}
-		else
-		{
-			mCustomKeyboard.registerEditText(R.id.messageedittext);	
-			mCustomKeyboard.init(mComposeView);
-		}
 		mComposeView.requestFocus();
 		if (mEmoticonPicker != null)
 		{
@@ -733,7 +717,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 //		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		showKeyboard();
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
 	}
@@ -855,13 +838,11 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
-		unregisterCustomKeyboardEditText(R.id.messageedittext);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
-		mComposeView.setOnClickListener(mComposeChatOnClickListener);
 		mComposeView.requestFocus();
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
@@ -882,7 +863,6 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mShareablePopupLayout.dismiss();
 		}
-		hideKeyboard();
 	}
 	
 	
@@ -1117,7 +1097,6 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.create_pin:
 			case R.string.group_profile:
-			case R.string.hike_keyboard:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
@@ -1174,6 +1153,6 @@ public class GroupChatThread extends OneToNChatThread
 	
 	@Override
 	protected boolean shouldShowKeyboardInActionMode() {
-		return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
+	    return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
 	}
 }
