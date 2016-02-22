@@ -1381,10 +1381,12 @@
     <string name="dismiss_button">खारिज करें</string>
     <string name="try_instead">ये आज़माएँ</string>
     <string name="sms_card_settings_side_text">सारे संदेशों पर</string>
-<string name="unsupported_langs_toast">आपका फ़ोन %1$s भाषा दिखाने में असमर्थ है</string>
+	<string name="unsupported_langs_toast">आपका फ़ोन %1$s भाषा दिखाने में असमर्थ है</string>
     <string name="unsupported_language_toast_msg">आपका फ़ोन इस भाषा को दिखाने में असमर्थ है</string>
     <string name="language_ftue_complete_message">कीबोर्ड की भाषा बदलने के लिए \nसेटिंग्स -> भाषा &amp; इनपुट में जाऐं</string>
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
+    <string name="delete_conversation">चैट हटायें</string>
+    <string name="admin_error">यह सदस्य अब इस ग्रुप चैट का हिस्सा नहीं है</string>
     
 </resources>

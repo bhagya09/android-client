@@ -75,6 +75,7 @@ import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  * 
@@ -2777,6 +2778,10 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_AFTER_SIGNUP);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikeService.SEND_TO_SERVER_ACTION));
 		}
+                if (data.optBoolean(HikeConstants.GCM_STALE_REGISTRATION_REFRESH))
+                {
+                    GCMRegistrar.unregister(context.getApplicationContext());
+                }
 		if (data.optBoolean(HikeConstants.DEFAULT_SMS_CLIENT_TUTORIAL))
 		{
 			setDefaultSMSClientTutorialSetting();

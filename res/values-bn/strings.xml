@@ -1392,10 +1392,11 @@
     <string name="try_instead">পরিবর্তে চেষ্টা</string>
     <string name="sms_card_settings_side_text">সমস্ত টেক্সট বার্তা</string>
 
-<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+	<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
     <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
     <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
     <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
     <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
-    
+    <string name="delete_conversation">বার্তালাপ মুছুন</string>
+    <string name="admin_error">এই ইউসার আর এই গ্রুপের অংশগ্রাহক নন</string>
 </resources>
