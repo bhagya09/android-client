@@ -49,6 +49,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -262,9 +263,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.PLATFORM_USER_ID + " TEXT";
 			db.execSQL(alter);
 
-			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-			editor.putInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.MAKE_HTTP_CALL);
-			editor.commit();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.MAKE_HTTP_CALL);
 		}
 	}
 
@@ -362,9 +361,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					 * We're saving this parameter to notify that the extra info that we are now fetching (Msisdn type) has been synced. So for apps that update from an older
 					 * version, we can just check this value to verify whether the contacts have their extra info synced.
 					 */
-					Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-					editor.putBoolean(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
-					editor.commit();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
 				}
 				ih.execute();
 			}
@@ -1726,9 +1723,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				String whereClause = DBConstants.PHONE + " =? ";
 				mDb.update(DBConstants.USERS_TABLE, contentValues, whereClause, new String[] { extraInfo.getString(msisdnIdx) });
 			}
-			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-			editor.putBoolean(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
-			editor.commit();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
 			mDb.setTransactionSuccessful();
 		}
 		catch (SecurityException e)
