@@ -110,7 +110,7 @@ public class GroupChatThread extends OneToNChatThread
 	}
 
 	private void shouldShowMultiAdminPopup() {
-		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat)
+		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat&&oneToNConversation.isConversationAlive())
 		{
 			try {
 				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
@@ -1168,6 +1168,9 @@ public class GroupChatThread extends OneToNChatThread
 		if (wasPinHidden())
 		{
 			pinView.setVisibility(View.VISIBLE);
+		}
+		if(!oneToNConversation.isConversationAlive()){
+			hideKeyboard();
 		}
 		super.destroySearchMode();
 	}

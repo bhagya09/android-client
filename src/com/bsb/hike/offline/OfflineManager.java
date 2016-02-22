@@ -540,6 +540,7 @@ public class OfflineManager implements IWIfiReceiverCallback, PeerListListener,I
 
 	public void sendConnectedCallback() 
 	{
+		Logger.d(TAG,"Going yto send request to listener"+listeners.size());
 		for (IOfflineCallbacks offlineListener : listeners)
 		{
 			offlineListener.connectedToMsisdn(getConnectedDevice());
