@@ -4,6 +4,7 @@ package com.bsb.hike.chatthemes;
  * Created by sriram on 22/02/16.
  */
 public class HikeChatThemeConstants {
+    // Bit Constants for Theme Status.
     public static final int THEME_TILED = 1 << 0;
     public static final int THEME_ANIMATED = 1 << 1;
 
@@ -15,6 +16,7 @@ public class HikeChatThemeConstants {
     public static final byte ASSETTYPE_BASE64STRING = 3;
     public static final byte ASSETTYPE_SHAPE = 4;
 
+    //asset indexes / asset Types
     public static final byte ASSET_BG_PORTRAIT = 0;
     public static final byte ASSET_BG_LANDSCAPE = 1;
     public static final byte ASSET_ACTION_BAR_BG = 2;

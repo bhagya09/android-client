@@ -10,6 +10,9 @@ import java.util.HashMap;
 public class ChatThemeManager {
     private static ChatThemeManager mInstance;
 
+    private ChatThemeDrawableHelper mDrawableHelper;
+
+    // Maintains the Map of Chatthemes
     private HashMap<String, HikeChatTheme> mChatThemesList;
 
     private ChatThemeManager() {
@@ -29,6 +32,7 @@ public class ChatThemeManager {
 
     public void initialize() {
         mChatThemesList = new HashMap<>();
+        mDrawableHelper = new ChatThemeDrawableHelper();
     }
 
 }
