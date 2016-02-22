@@ -11,7 +11,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class StickerTagDataContainer
 {
