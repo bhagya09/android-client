@@ -10,6 +10,10 @@ import java.util.HashMap;
 public class ChatThemeManager {
     private static ChatThemeManager mInstance;
 
+    //Helps the manager class with all the asset maintainance
+    private ChatThemeAssetHelper mAssetHelper;
+
+    //Helps the manager with all the Drawable assets
     private ChatThemeDrawableHelper mDrawableHelper;
 
     // Maintains the Map of Chatthemes
@@ -30,9 +34,26 @@ public class ChatThemeManager {
         return mInstance;
     }
 
-    public void initialize() {
+    private void initialize() {
         mChatThemesList = new HashMap<>();
         mDrawableHelper = new ChatThemeDrawableHelper();
+        mAssetHelper = new ChatThemeAssetHelper();
+    }
+
+    private HikeChatTheme getTheme(String themeId) {
+        return mChatThemesList.get(themeId);
+    }
+
+    /**
+     * Checks if all the assets for this is theme are available or not
+     *
+     * @param  themeID  theme id
+     * @return      boolean
+     *
+     */
+    public boolean isThemeAvailable(String themeId){
+        HikeChatTheme theme = getTheme(themeId);
+        return mAssetHelper.isAssetsAvailableForTheme(theme);
     }
 
 }
