@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -95,10 +96,10 @@ public enum StickerSearchDataController
 		}
 
 		Set<String> receivedStickers = new HashSet<String>();
-		HashSet<String> stickersWithValidTags = new HashSet<String>();
+		Set<String> stickersWithValidTags = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-		HashSet<StickerEventDataContainer> stickerEventsData = new HashSet<StickerEventDataContainer>();
-		ArrayList<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
+		Set<StickerEventDataContainer> stickerEventsData = new HashSet<StickerEventDataContainer>();
+		List<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 		Iterator<String> packs = packsData.keys();
 
 		while (packs.hasNext())

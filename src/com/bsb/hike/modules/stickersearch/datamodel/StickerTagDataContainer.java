@@ -11,6 +11,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class StickerTagDataContainer
 {
@@ -34,7 +35,7 @@ public class StickerTagDataContainer
 
 	private int mMomentCode;
 
-	private ArrayList<StickerEventDataContainer> mEvents;
+	private List<StickerEventDataContainer> mEvents;
 
 	private StickerTagDataContainer(StickerTagDataBuilder builder)
 	{
@@ -100,7 +101,7 @@ public class StickerTagDataContainer
 		return mMomentCode;
 	}
 
-	public ArrayList<StickerEventDataContainer> getFestiveData()
+	public List<StickerEventDataContainer> getFestiveData()
 	{
 		return mEvents;
 	}
@@ -328,7 +329,7 @@ public class StickerTagDataContainer
 
 		private int mMomentCode;
 
-		private ArrayList<StickerEventDataContainer> mEvents;
+		private List<StickerEventDataContainer> mEvents;
 
 		/* Initial constructor should have all 3 parameters, based on which any sticker can be defined uniquely */
 		public StickerTagDataBuilder(String stickerCode, ArrayList<String> tags, ArrayList<String> themes, ArrayList<String> languages)
@@ -358,7 +359,7 @@ public class StickerTagDataContainer
 			return this;
 		}
 
-		public StickerTagDataBuilder events(int moment, ArrayList<StickerEventDataContainer> events)
+		public StickerTagDataBuilder events(int moment, List<StickerEventDataContainer> events)
 		{
 			mMomentCode = moment;
 			mEvents = events;

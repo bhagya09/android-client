@@ -441,7 +441,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				HikeStickerSearchBaseConstants.KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST);
 	}
 
-	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, Set<StickerEventDataContainer> events, ArrayList<StickerTagDataContainer> stickersTagData)
+	public void insertStickerTagData(Map<String, ArrayList<String>> packStoryData, Set<StickerEventDataContainer> events, List<StickerTagDataContainer> stickersTagData)
 	{
 		Logger.i(TAG_INSERTION, "insertStickerTagData()");
 
@@ -631,7 +631,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
 
-				ArrayList<StickerEventDataContainer> stickerEvents = stickerTagData.getFestiveData();
+				List<StickerEventDataContainer> stickerEvents = stickerTagData.getFestiveData();
 				String timeStampEventsRanks = null;
 				String dayEventsRanks = null;
 				if ((eventIds != null) && (!Utils.isEmpty(stickerEvents)))
