@@ -310,6 +310,8 @@ public class HikeConstants
 	public static final String STICKER_IDS = "stIds";
 
 	public static final String STICKER = "stk";
+	
+	public static final String STICKER_CATEGORY_ID = "stickerCategoryId";
 
 	public static final String RESOLUTION_ID = "resId";
 
@@ -1081,6 +1083,8 @@ public class HikeConstants
 	public static final String SENT_ROOT = "/sent";
 
 	public static final String STICKERS_ROOT = "/stickers";
+
+	public static final String DISK_CACHE_ROOT = "/diskcache";
 
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
@@ -3127,6 +3131,10 @@ public class HikeConstants
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
+	
+	public static final String DESCRIPTION = "desc";
+
+	public static final String STICKER_LIST = "sticker_list";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -3803,4 +3811,8 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 }

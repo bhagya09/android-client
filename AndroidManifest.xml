@@ -298,6 +298,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
             android:name=".ui.FileSelectActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>

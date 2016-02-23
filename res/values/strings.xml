@@ -1504,4 +1504,11 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="preview_category">PREVIEW</string>
+    <string name="sticker_tap_text">Tap sticker to preview</string>
+    <string name="copyright_text">Copyright @ 2016 Hike Limited</string>
+    <string name="recommended_packs">recommended packs</string>
+    <string name="pack_preview_activity_actionbar_text">Sticker Details</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="downloading_sticker">Downloading</string>
 </resources>

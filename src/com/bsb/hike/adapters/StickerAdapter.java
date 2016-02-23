@@ -1,10 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
@@ -35,9 +31,14 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator.StickerEmoticonIconPagerAdapter;
+import com.bsb.hike.view.StickerIconPageIndicator.StickerIconPagerAdapter;
 
-public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconPagerAdapter
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter
 {
 	private List<StickerCategory> stickerCategoryList;
 
@@ -274,7 +275,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 			TextView categoryName = (TextView) empty.findViewById(R.id.category_name);
 			TextView category_details = (TextView) empty.findViewById(R.id.category_details);
 			ImageView previewImage = (ImageView) empty.findViewById(R.id.preview_image);
-			stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), previewImage);
+			stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_PACK_PREVIEW_PALETTE_TYPE), previewImage);
 			stickerOtherIconLoader.setImageSize(mContext.getResources().getDimensionPixelSize(R.dimen.sticker_empty_pallete_preview_image_width), mContext.getResources().getDimensionPixelSize(R.dimen.sticker_empty_pallete_preview_image_height));
 			TextView separator = (TextView) empty.findViewById(R.id.separator);
 			if(category.getTotalStickers() > 0)

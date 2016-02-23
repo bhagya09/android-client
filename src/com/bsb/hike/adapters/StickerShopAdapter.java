@@ -105,7 +105,7 @@ public class StickerShopAdapter extends CursorAdapter
 		int totalStickerCount = cursor.getInt(totalStickersCountColoumn);
 		int categorySizeInBytes = cursor.getInt(categorySizeColoumn);
 		viewholder.categoryName.setText(displayCategoryName);
-		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE), viewholder.categoryPreviewIcon);
+		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_SHOP_TYPE), viewholder.categoryPreviewIcon);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 		viewholder.downloadProgress.setVisibility(View.GONE);
 		if (totalStickerCount > 0)
@@ -130,7 +130,12 @@ public class StickerShopAdapter extends CursorAdapter
 		}
 		else
 		{
-			category = new StickerCategory(categoryId, categoryName, totalStickerCount, categorySizeInBytes);
+			category = new StickerCategory.Builder()
+					.setCategoryId(categoryId)
+					.setCategoryName(categoryName)
+					.setCategorySize(categorySizeInBytes)
+					.setTotalStickers(totalStickerCount)
+					.build();
 			stickerCategoriesMap.put(categoryId, category);
 		}
 		viewholder.downloadState.setVisibility(View.VISIBLE);
@@ -185,6 +190,17 @@ public class StickerShopAdapter extends CursorAdapter
 			viewholder.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
 		}
 		viewholder.downloadState.setTag(category);
+	}
+	
+	@Override
+	public String getItem(int position)
+	{
+		Cursor cursor =  (Cursor) super.getItem(position);
+		if(cursor != null)
+		{
+			return cursor.getString(idColoumn);
+		}
+		return null;
 	}
 	
 

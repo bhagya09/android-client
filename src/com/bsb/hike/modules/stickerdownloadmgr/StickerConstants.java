@@ -15,7 +15,7 @@ public class StickerConstants
 	
 	public enum DownloadSource
 	{
-		FIRST_TIME(0), X_MORE(1), SHOP(2), RETRY(3), SETTINGS(4), POPUP(7);
+		FIRST_TIME(0), X_MORE(1), SHOP(2), RETRY(3), SETTINGS(4), PREVIEW(5), POPUP(7);
 
 		private int value;
 
@@ -46,8 +46,10 @@ public class StickerConstants
 		SIGNUP_UPGRADE(5, "ssu"),
 		SHOP(6, "ssp"),
 		TAGS(7, "st"),
-		SINGLE_TAG(8, "sit");
-		
+		SINGLE_TAG(8, "sit"),
+		CATEGORY_DETAIL(9, "scd"),
+		MINI(10, "mini");
+
 		private final int type;
 		private final String label;
 		
@@ -68,4 +70,6 @@ public class StickerConstants
 	};
 
 	public static final int DEFAULT_STICKER_THRESHOLD_FOR_CDN = 5;
+
+	public static final long DEFAULT_TTL_MINI_STICKERS = 1 * 24 * 60 * 60 * 1000; // 1 day
 }
