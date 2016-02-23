@@ -704,7 +704,8 @@ public class IntentFactory
 	 * @param type type of file being shared
 	 * @return created intent or null
 	 */
-	public static Intent getShareIntent(Context context, Uri interceptUri, String type){
+	public static Intent getShareIntent(Context context, Uri interceptUri, String type) throws NullPointerException
+	{
 		if(interceptUri == null)
 		{
 			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Got null uri for share intent");
@@ -726,7 +727,8 @@ public class IntentFactory
 	 * @param interceptUri content uri of the image
 	 * @return created intent or null
 	 */
-	public static Intent setDpIntent(Context context, Uri interceptUri){
+	public static Intent setDpIntent(Context context, Uri interceptUri) throws NullPointerException
+	{
 		if(interceptUri == null)
 		{
 			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Got null uri for dp intent");

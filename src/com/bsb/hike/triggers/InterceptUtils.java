@@ -131,12 +131,28 @@ public class InterceptUtils
         switch (broadcastAction)
         {
             case HikeNotification.INTERCEPT_NON_DWLD_SHARE_INTENT:
-                actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
+                try
+                {
+                    actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
+                }
+                catch(NullPointerException npe)
+                {
+                    npe.printStackTrace();
+                }
+                
                 HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED, true);
                 break;
 
             case HikeNotification.INTERCEPT_SET_DP_INTENT:
-                actionIntent = IntentFactory.setDpIntent(context, interceptItem);
+                try
+                {
+                    actionIntent = IntentFactory.setDpIntent(context, interceptItem);
+                }
+                catch(NullPointerException npe)
+                {
+                    npe.printStackTrace();
+                }
+
                 HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SET_DP_CLICKED, true);
                 break;
 
