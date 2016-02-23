@@ -47,7 +47,8 @@ public class ChatThemeDrawableHelper {
                 Log.v(TAG, "Drawable does not exist on SD Card : ");
             }
         }
-        if ((theme == null) || (drawable == null)) {
+        if (drawable == null) {
+            ChatThemeManager.getInstance().getAssetHelper().setAssetMissing(theme, assetType);
             drawable = getDefaultDrawable(assetType);
             Log.v(TAG, "Setting the default theme drawable :");
         }

@@ -40,6 +40,14 @@ public class ChatThemeManager {
         mAssetHelper = new ChatThemeAssetHelper();
     }
 
+    public ChatThemeAssetHelper getAssetHelper() {
+        return mAssetHelper;
+    }
+
+    public ChatThemeDrawableHelper getDrawableHelper() {
+        return mDrawableHelper;
+    }
+
     private HikeChatTheme getTheme(String themeId) {
         return mChatThemesList.get(themeId);
     }
