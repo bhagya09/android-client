@@ -73,7 +73,7 @@ public class InterceptNotifClickReceiver extends BroadcastReceiver
         }
         else
         {
-            HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_CLICK_FOR_DELETED_FILE);
+            HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_CLICK_FOR_DELETED_FILE, true);
         }
 
         //to clear the notification as it has been clicked.

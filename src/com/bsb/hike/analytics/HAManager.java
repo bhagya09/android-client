@@ -708,7 +708,7 @@ public class HAManager
 		}
 	}
 
-	public void interceptAnalyticsUIEvent(String eventKey, String action)
+	public void interceptAnalyticsEvent(String eventKey, String action, boolean isUIEvent)
 	{
 		JSONObject metadata = new JSONObject();
 		try
@@ -716,27 +716,18 @@ public class HAManager
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.InterceptEvents.INTERCEPTS);
 			metadata.put(HikeConstants.EVENT_KEY, eventKey);
 			metadata.put(AnalyticsConstants.InterceptEvents.INTERCEPT_ACTION, action);
-			record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			if(isUIEvent)
+			{
+				record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			}
+			else
+			{
+				record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.InterceptEvents.INTERCPET_NOTIF_EVENT, EventPriority.HIGH, metadata);
+			}
 		}
 		catch (JSONException e)
 		{
-			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics ui json exception:" +e.toString());
-		}
-	}
-
-	public void interceptAnalyticsNonUIEvent(String eventKey, String action)
-	{
-		JSONObject metadata = new JSONObject();
-		try
-		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.InterceptEvents.INTERCEPTS);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
-			metadata.put(AnalyticsConstants.InterceptEvents.INTERCEPT_ACTION, action);
-			record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.InterceptEvents.INTERCPET_NOTIF_EVENT, EventPriority.HIGH, metadata);
-		}
-		catch (JSONException e)
-		{
-			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics non ui json exception:" +e.toString());
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" +e.toString());
 		}
 	}
 	

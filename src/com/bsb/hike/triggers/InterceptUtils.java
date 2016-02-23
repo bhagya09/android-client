@@ -132,17 +132,17 @@ public class InterceptUtils
         {
             case HikeNotification.INTERCEPT_NON_DWLD_SHARE_INTENT:
                 actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
-                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED);
+                HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED, true);
                 break;
 
             case HikeNotification.INTERCEPT_SET_DP_INTENT:
                 actionIntent = IntentFactory.setDpIntent(context, interceptItem);
-                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SET_DP_CLICKED);
+                HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SET_DP_CLICKED, true);
                 break;
 
             case HikeNotification.INTERCEPT_PHOTO_EDIT_INTENT:
                 actionIntent = IntentFactory.getPictureEditorActivityIntent(context, path, true, null, false);
-                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE_CLICKED);
+                HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE_CLICKED, true);
                 break;
 
         }

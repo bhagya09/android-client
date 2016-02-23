@@ -1190,7 +1190,7 @@ public class HikeNotification
 
 			//logging and analytics for creating intercept notification
 			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "Created notification for intercept:" + whichIntercept);
-            HAManager.getInstance().interceptAnalyticsNonUIEvent(getEventKeyFromInterceptType(whichIntercept), AnalyticsConstants.InterceptEvents.INTERCEPT_NOTIF_CREATED);
+            HAManager.getInstance().interceptAnalyticsEvent(getEventKeyFromInterceptType(whichIntercept), AnalyticsConstants.InterceptEvents.INTERCEPT_NOTIF_CREATED, false);
 		}
 
 	}

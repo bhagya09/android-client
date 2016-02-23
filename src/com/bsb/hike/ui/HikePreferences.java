@@ -1479,13 +1479,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
 				if(isChecked)
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
 				}
 				else
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
 				}
 				InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
@@ -1494,13 +1494,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
 				if(isChecked)
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
 				}
 				else
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
 				}
 			}
 			else if(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT.equals(preference.getKey()))
@@ -1508,13 +1508,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
 				if(isChecked)
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
 				}
 				else
 				{
-					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
-							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF);
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
 				}
 			} else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
