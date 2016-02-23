@@ -11,11 +11,15 @@ import java.util.HashSet;
 public class ChatThemeAssetHelper {
 
     //maintains the hashset of downloaded themes
-    private HashSet<String> mDownloadedThemes;
+    private HashSet<String> mDownloadedAssets;
+
+    public ChatThemeAssetHelper(){
+        mDownloadedAssets = new HashSet<>();
+    }
 
 
     public void addDownloadedAsset(String assetId) {
-        this.mDownloadedThemes.add(assetId);
+        this.mDownloadedAssets.add(assetId);
     }
 
     /**
@@ -42,7 +46,7 @@ public class ChatThemeAssetHelper {
         if (theme.getAssetDownloadStatus() != HikeChatThemeConstants.ASSET_DOWNLOAD_COMPLETE_STATUS) {
             HikeChatThemeAsset[] assets = theme.getAssets();
             for (int i = 0; i < HikeChatThemeConstants.ASSET_COUNT; i++) {
-                if ((assets[i] != null) && (mDownloadedThemes.contains(assets[i].getAssetId()))) {
+                if ((assets[i] != null) && (mDownloadedAssets.contains(assets[i].getAssetId()))) {
                     theme.setAssetDownloadStatus(1 << i);
                 }
             }
