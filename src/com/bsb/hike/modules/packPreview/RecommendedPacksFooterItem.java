@@ -124,6 +124,8 @@ public class RecommendedPacksFooterItem extends BasePackPreviewAdapterItem imple
 		}
 	};
 
+
+	@Override
 	public void releaseResources()
 	{
 		deRegisterListener();

@@ -123,8 +123,25 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	@Override
 	public void onDestroy()
 	{
-		deRegisterListener();
+		releaseResources();
 		super.onDestroy();
+	}
+
+	public void releaseResources()
+	{
+		deRegisterListeners();
+
+		if(mAdapter != null)
+		{
+			mAdapter.releaseResources();
+		}
+		if(stickerPreviewContainer != null)
+		{
+			stickerPreviewContainer.releaseResources();
+		}
+
+		mAdapter = null;
+		stickerPreviewContainer = null;
 	}
 
 	private void executeFetchCategoryDetailsTask(FetchCategoryDetailsTask fetchCategoryDetailsTask)
@@ -171,7 +188,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
 	}
 
-	private void deRegisterListener()
+	private void deRegisterListeners()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);

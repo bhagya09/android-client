@@ -261,4 +261,26 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		}
 	}
 
+	public void releaseResources()
+	{
+		if(!Utils.isEmpty(headerList))
+		{
+			for (Pair<Integer, BasePackPreviewAdapterItem> pair : headerList) {
+				BasePackPreviewAdapterItem item = pair.second;
+				if (item != null) {
+					item.releaseResources();
+				}
+			}
+		}
+
+		if(!Utils.isEmpty(footerList))
+		{
+			for (Pair<Integer, BasePackPreviewAdapterItem> pair : footerList) {
+				BasePackPreviewAdapterItem item = pair.second;
+				if (item != null) {
+					item.releaseResources();
+				}
+			}
+		}
+	}
 }

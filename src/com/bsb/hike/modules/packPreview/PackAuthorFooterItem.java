@@ -64,4 +64,10 @@ public class PackAuthorFooterItem extends BasePackPreviewAdapterItem
             super(row);
         }
     }
+
+    @Override
+    public void releaseResources()
+    {
+
+    }
 }

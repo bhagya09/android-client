@@ -55,4 +55,10 @@ public class TapTextHeaderItem extends BasePackPreviewAdapterItem
 			super(row);
 		}
 	}
+
+	@Override
+	public void releaseResources()
+	{
+
+	}
 }

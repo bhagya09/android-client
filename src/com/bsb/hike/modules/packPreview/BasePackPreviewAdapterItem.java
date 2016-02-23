@@ -11,4 +11,6 @@ public abstract class BasePackPreviewAdapterItem
     public abstract View getView();
 
     public abstract RecyclerView.ViewHolder getViewHolder();
+
+    public abstract void releaseResources();
 }
