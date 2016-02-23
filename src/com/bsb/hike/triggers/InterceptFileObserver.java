@@ -4,6 +4,7 @@ import java.io.File;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.Logger;
 import android.os.FileObserver;
+import android.text.TextUtils;
 
 public class InterceptFileObserver extends FileObserver
 {
@@ -41,7 +42,7 @@ public class InterceptFileObserver extends FileObserver
 	@Override
 	public void onEvent(int event, String path)
 	{
-		if (path != null)
+		if (!TextUtils.isEmpty(path))
 		{
 			File file = new File(absolutePath + File.separator + path);
 			Logger.d(TAG, event + "" +"\tpath:"+path);

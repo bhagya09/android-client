@@ -31,7 +31,7 @@ public class InterceptNotifClickReceiver extends BroadcastReceiver
 
         String path = null;
         String eventKey = null;
-        Intent actionIntent = null;
+        Intent actionIntent;
         boolean doesInterceptItemExist = false;
 
         String action = intent.getAction();
@@ -45,65 +45,29 @@ public class InterceptNotifClickReceiver extends BroadcastReceiver
                 type = HikeNotification.IMAGE;
                 eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT;
                 path = interceptItem.getPath();
-                File scrnFile = new File(path);
-
-                if(scrnFile.exists())
-                {
-                    doesInterceptItemExist = true;
-                }
-                else
-                {
-                    Toast.makeText(context, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
-                }
-
+                doesInterceptItemExist = InterceptUtils.doesInterceptItemExist(context, path, false);
                 break;
 
             case InterceptUtils.INTERCEPT_TYPE_IMAGE:
-            case InterceptUtils.INTERCEPT_TYPE_VIDEO:
-                if(type.equals(InterceptUtils.INTERCEPT_TYPE_IMAGE))
-                {
-                    type = HikeNotification.IMAGE;
-                    eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
-                }
-                else if(type.equals(InterceptUtils.INTERCEPT_TYPE_VIDEO))
-                {
-                    type = HikeNotification.VIDEO;
-                    eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;
-                }
-
+                type = HikeNotification.IMAGE;
+                eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
                 path = Utils.getAbsolutePathFromUri(interceptItem, context, false);
-                Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept path:"+path);
-
-                if(!TextUtils.isEmpty(path))
-                {
-                    doesInterceptItemExist = true;
-                }
-
+                doesInterceptItemExist = InterceptUtils.doesInterceptItemExist(context, path, true);
                 break;
 
+            case InterceptUtils.INTERCEPT_TYPE_VIDEO:
+                type = HikeNotification.VIDEO;
+                eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;
+                path = Utils.getAbsolutePathFromUri(interceptItem, context, false);
+                doesInterceptItemExist = InterceptUtils.doesInterceptItemExist(context, path, true);
+                break;
         }
+
+        Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept path:" + path + "\t exists:" + doesInterceptItemExist);
 
         if(doesInterceptItemExist)
         {
-            switch (action)
-            {
-                case HikeNotification.INTERCEPT_NON_DWLD_SHARE_INTENT:
-                    actionIntent = IntentFactory.getShareIntent(context,interceptItem, type);
-                    HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED);
-                    break;
-
-                case HikeNotification.INTERCEPT_SET_DP_INTENT:
-                    actionIntent = IntentFactory.setDpIntent(context, interceptItem);
-                    HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SET_DP_CLICKED);
-                    break;
-
-                case HikeNotification.INTERCEPT_PHOTO_EDIT_INTENT:
-                    actionIntent = IntentFactory.getPictureEditorActivityIntent(context, path, true, null, false);
-                    HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE_CLICKED);
-                    break;
-
-            }
-
+            actionIntent = InterceptUtils.getInterceptActionIntent(context, action, type, path, eventKey, interceptItem);
             Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "processing intercept click action");
             IntentFactory.openInterceptActionActivity(context, actionIntent);
         }

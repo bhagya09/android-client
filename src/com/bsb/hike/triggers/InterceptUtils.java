@@ -1,18 +1,29 @@
 package com.bsb.hike.triggers;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.widget.Toast;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import java.io.File;
 
 public class InterceptUtils
 {
-    private static final String TAG = "interceptManager";
+    private static final String TAG = "interceptUtils";
 
     public static final String INTERCEPT_TYPE_SCREENSHOT = "intercept_scrnShot";
 
@@ -85,6 +96,57 @@ public class InterceptUtils
             screenshotObserver = null;
             Logger.d(TAG, "stopped watching screenshot directory");
         }
+    }
+
+    public static boolean doesInterceptItemExist(Context context, String path, boolean isImageOrVideo)
+    {
+        if(isImageOrVideo)
+        {
+            if(!TextUtils.isEmpty(path))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            File scrnFile = new File(path);
+
+            if(scrnFile.exists())
+            {
+                return true;
+            }
+            else
+            {
+                Toast.makeText(context, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public static Intent getInterceptActionIntent(Context context, String broadcastAction, String fileType, String path, String eventKey, Uri interceptItem)
+    {
+        Intent actionIntent = null;
+        switch (broadcastAction)
+        {
+            case HikeNotification.INTERCEPT_NON_DWLD_SHARE_INTENT:
+                actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
+                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED);
+                break;
+
+            case HikeNotification.INTERCEPT_SET_DP_INTENT:
+                actionIntent = IntentFactory.setDpIntent(context, interceptItem);
+                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SET_DP_CLICKED);
+                break;
+
+            case HikeNotification.INTERCEPT_PHOTO_EDIT_INTENT:
+                actionIntent = IntentFactory.getPictureEditorActivityIntent(context, path, true, null, false);
+                HAManager.getInstance().interceptAnalyticsUIEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE_CLICKED);
+                break;
+
+        }
+        return actionIntent;
     }
 
 }
