@@ -10,10 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.PlatformContentConstants;
-
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
@@ -23,6 +19,44 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
+
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.db.DbConversationListener;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.notifications.HikeNotificationUtils;
+import com.bsb.hike.notifications.ToastListener;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.service.HikeService;
+import com.bsb.hike.service.RegisterToGCMTrigger;
+import com.bsb.hike.service.SendGCMIdToServerTrigger;
+import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.smartcache.HikeLruCache;
+import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.ActivityTimeLogger;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -40,42 +74,6 @@ import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.widget.Toast;
-
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.db.DbConversationListener;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.db.HikeMqttPersistence;
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.notifications.HikeNotificationUtils;
-import com.bsb.hike.notifications.ToastListener;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUIDFetch;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.service.HikeService;
-import com.bsb.hike.service.RegisterToGCMTrigger;
-import com.bsb.hike.service.SendGCMIdToServerTrigger;
-import com.bsb.hike.service.UpgradeIntentService;
-import com.bsb.hike.smartcache.HikeLruCache;
-import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.ActivityTimeLogger;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -733,7 +731,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
-		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
