@@ -3,47 +3,60 @@ package com.bsb.hike.models;
 /**
  * Created by sriram on 22/02/16.
  */
-public class HikeChatThemeAsset {
-    private String assetId;
-    private int type;
-    private String value;
-    private boolean isDownloaded = false;
+public class HikeChatThemeAsset
+{
+	private String assetId;
 
-    public HikeChatThemeAsset(String assetId, int type, String value) {
-        this.assetId = assetId;
-        this.type = type;
-        this.value = value;
-    }
+	private int type;
 
-    public int getType() {
-        return type;
-    }
+	private String value;
 
-    public void setType(int type) {
-        this.type = type;
-    }
+	private boolean isDownloaded = false;
 
-    public String getValue() {
-        return value;
-    }
+	public HikeChatThemeAsset(String assetId, int type, String value)
+	{
+		this.assetId = assetId;
+		this.type = type;
+		this.value = value;
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public int getType()
+	{
+		return type;
+	}
 
-    public String getAssetId() {
-        return assetId;
-    }
+	public void setType(int type)
+	{
+		this.type = type;
+	}
 
-    public void setAssetId(String assetId) {
-        this.assetId = assetId;
-    }
+	public String getValue()
+	{
+		return value;
+	}
 
-    public boolean isDownloaded() {
-        return isDownloaded;
-    }
+	public void setValue(String value)
+	{
+		this.value = value;
+	}
 
-    public void setIsDownloaded(boolean isDownloaded) {
-        this.isDownloaded = isDownloaded;
-    }
+	public String getAssetId()
+	{
+		return assetId;
+	}
+
+	public void setAssetId(String assetId)
+	{
+		this.assetId = assetId;
+	}
+
+	public boolean isDownloaded()
+	{
+		return isDownloaded;
+	}
+
+	public void setIsDownloaded(boolean isDownloaded)
+	{
+		this.isDownloaded = isDownloaded;
+	}
 }

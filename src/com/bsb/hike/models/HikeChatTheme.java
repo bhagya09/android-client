@@ -7,85 +7,115 @@ import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 /**
  * Created by sriram on 22/02/16.
  */
-public class HikeChatTheme {
+public class HikeChatTheme
+{
 
-    private String themeId;
-    private Bitmap thumbnailBmp;
-    private boolean themeVisibilityStatus;
-    private int assetDownloadStatus = 0;
+	private String themeId;
 
-    private int themeStatus;
-    private HikeChatThemeAsset[] assets;
-    private String metadata;
+	private Bitmap thumbnailBmp;
 
-    public HikeChatTheme(){
-        assets = new HikeChatThemeAsset[HikeChatThemeConstants.ASSET_COUNT];
-    }
+	private boolean themeVisibilityStatus;
 
-    public boolean isVisible() {
-        return themeVisibilityStatus;
-    }
-    public void setVisibilityStatus(boolean status) {
-        this.themeVisibilityStatus = status;
-    }
+	private int assetDownloadStatus = 0;
 
-    public void setAsset(byte type, HikeChatThemeAsset asset){
-        this.assets[type] = asset;
-    }
+	private int themeStatus;
 
-    public HikeChatThemeAsset getAsset(byte type){
-        return this.assets[type];
-    }
+	private HikeChatThemeAsset[] assets;
 
-    public HikeChatThemeAsset[] getAssets(){
-        return this.assets;
-    }
+	private String metadata;
 
-    public String getThemeId() {
-        return themeId;
-    }
-    public void setThemeId(String themeId) {
-        this.themeId = themeId;
-    }
-    public Bitmap getThumbnailBmp()
-    {
-        return thumbnailBmp;
-    }
-    public void setThumbnailBmp(Bitmap thumbnailBmp)
-    {
-        this.thumbnailBmp = thumbnailBmp;
-    }
+	public HikeChatTheme()
+	{
+		assets = new HikeChatThemeAsset[HikeChatThemeConstants.ASSET_COUNT];
+	}
 
-    public int getThemeStatus() {
-        return themeStatus;
-    }
-    public void setThemeStatus(int status) {
-        this.themeStatus |= status;
-    }
+	public boolean isVisible()
+	{
+		return themeVisibilityStatus;
+	}
 
-    public boolean isEnabled(int status) {
-        return ((themeStatus & status) == status);
-    }
+	public void setVisibilityStatus(boolean status)
+	{
+		this.themeVisibilityStatus = status;
+	}
 
-    public String getMetadata() {
-        return metadata;
-    }
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
-    public int getAssetDownloadStatus() {
-        return assetDownloadStatus;
-    }
+	public void setAsset(byte type, HikeChatThemeAsset asset)
+	{
+		this.assets[type] = asset;
+	}
 
-    public void setAssetDownloadStatus(int assetDownloadStatus) {
-        this.assetDownloadStatus |= assetDownloadStatus;
-    }
+	public HikeChatThemeAsset getAsset(byte type)
+	{
+		return this.assets[type];
+	}
 
-    public void overrideAssetDownloadStatus(int assetDownloadStatus) {
-        this.assetDownloadStatus = assetDownloadStatus;
-    }
+	public HikeChatThemeAsset[] getAssets()
+	{
+		return this.assets;
+	}
 
-    public boolean isAssetDownloaded(int assetStatus){
-        return ((this.assetDownloadStatus & assetStatus) > 0);
-    }
+	public String getThemeId()
+	{
+		return themeId;
+	}
+
+	public void setThemeId(String themeId)
+	{
+		this.themeId = themeId;
+	}
+
+	public Bitmap getThumbnailBmp()
+	{
+		return thumbnailBmp;
+	}
+
+	public void setThumbnailBmp(Bitmap thumbnailBmp)
+	{
+		this.thumbnailBmp = thumbnailBmp;
+	}
+
+	public int getThemeStatus()
+	{
+		return themeStatus;
+	}
+
+	public void setThemeStatus(int status)
+	{
+		this.themeStatus |= status;
+	}
+
+	public boolean isEnabled(int status)
+	{
+		return ((themeStatus & status) == status);
+	}
+
+	public String getMetadata()
+	{
+		return metadata;
+	}
+
+	public void setMetadata(String metadata)
+	{
+		this.metadata = metadata;
+	}
+
+	public int getAssetDownloadStatus()
+	{
+		return assetDownloadStatus;
+	}
+
+	public void setAssetDownloadStatus(int assetDownloadStatus)
+	{
+		this.assetDownloadStatus |= assetDownloadStatus;
+	}
+
+	public void overrideAssetDownloadStatus(int assetDownloadStatus)
+	{
+		this.assetDownloadStatus = assetDownloadStatus;
+	}
+
+	public boolean isAssetDownloaded(int assetStatus)
+	{
+		return ((this.assetDownloadStatus & assetStatus) > 0);
+	}
 }
