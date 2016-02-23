@@ -1521,6 +1521,10 @@ public class StickerManager
 			{
 
 				StickerCategory category = parseStickerCategoryMetadata(jsonObj);
+				if(category == null)
+				{
+					continue;
+				}
 				if (category.isVisible())
 				{
 					stickerCategoriesMap.put(category.getCategoryId(), category);
@@ -1595,51 +1599,49 @@ public class StickerManager
 
 	public StickerCategory parseStickerCategoryMetadata(JSONObject jsonObj)
 	{
-		String catId = jsonObj.optString(StickerManager.CATEGORY_ID);
-
-		StickerCategory category = stickerCategoriesMap.get(catId);
-		if (category == null)
+		try
 		{
-			category = new StickerCategory.Builder().setCategoryId(catId).build();
-		}
+			String catId = jsonObj.getString(StickerManager.CATEGORY_ID);
 
-		if (jsonObj.has(HikeConstants.CAT_NAME))
-		{
-			category.setCategoryName(jsonObj.optString(HikeConstants.CAT_NAME, ""));
-		}
-
-		if (jsonObj.has(HikeConstants.VISIBLITY))
-		{
-			boolean isVisible = jsonObj.optInt(HikeConstants.VISIBLITY) == 1;
-			category.setVisible(isVisible);
-			if (category.isVisible())
-			{
-				stickerCategoriesMap.put(catId, category);
+			StickerCategory category = stickerCategoriesMap.get(catId);
+			if (category == null) {
+				category = new StickerCategory.Builder().setCategoryId(catId).build();
 			}
-		}
-		if (jsonObj.has(HikeConstants.NUMBER_OF_STICKERS))
-		{
-			category.setTotalStickers(jsonObj.optInt(HikeConstants.NUMBER_OF_STICKERS, 0));
-		}
 
-		if (jsonObj.has(HikeConstants.SIZE))
-		{
-			category.setCategorySize(jsonObj.optInt(HikeConstants.SIZE, 0));
-		}
+			category.setCategoryName(jsonObj.getString(HikeConstants.CAT_NAME));
 
-		if (jsonObj.has(HikeConstants.DESCRIPTION))
-		{
-			category.setDescription(jsonObj.optString(HikeConstants.DESCRIPTION, ""));
-		}
+			if (jsonObj.has(HikeConstants.VISIBLITY)) {
+				boolean isVisible = jsonObj.optInt(HikeConstants.VISIBLITY) == 1;
+				category.setVisible(isVisible);
+				if (category.isVisible()) {
+					stickerCategoriesMap.put(catId, category);
+				}
+			}
+			if (jsonObj.has(HikeConstants.NUMBER_OF_STICKERS)) {
+				category.setTotalStickers(jsonObj.optInt(HikeConstants.NUMBER_OF_STICKERS, 0));
+			}
 
-		if (jsonObj.has(HikeConstants.STICKER_LIST))
-		{
-			JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
-			List<Sticker> stickerList = getStickerListFromJSONArray(stickerArray, catId);
-			category.setAllStickers(stickerList);
-		}
+			if (jsonObj.has(HikeConstants.SIZE)) {
+				category.setCategorySize(jsonObj.optInt(HikeConstants.SIZE, 0));
+			}
 
-		return category;
+			if (jsonObj.has(HikeConstants.DESCRIPTION)) {
+				category.setDescription(jsonObj.optString(HikeConstants.DESCRIPTION, ""));
+			}
+
+			if (jsonObj.has(HikeConstants.STICKER_LIST)) {
+				JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
+				List<Sticker> stickerList = getStickerListFromJSONArray(stickerArray, catId);
+				category.setAllStickers(stickerList);
+			}
+
+			return category;
+		}
+		catch(JSONException ex)
+		{
+			Logger.e(TAG, "exception during sticker category json parsing", ex);
+		}
+		return null;
 	}
 
 	private void saveCategoryAsVisible(StickerCategory category)

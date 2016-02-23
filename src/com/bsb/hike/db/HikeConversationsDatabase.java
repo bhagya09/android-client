@@ -7446,6 +7446,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			for (int i = 0; i < jsonArray.length(); i++)
 			{
 				StickerCategory category = StickerManager.getInstance().parseStickerCategoryMetadata(jsonArray.getJSONObject(i));
+				if(category == null)
+				{
+					continue;
+				}
 				ContentValues contentValues = new ContentValues();
 				contentValues.put(DBConstants._ID, category.getCategoryId());
 				contentValues.put(DBConstants.CATEGORY_NAME, category.getCategoryName());
