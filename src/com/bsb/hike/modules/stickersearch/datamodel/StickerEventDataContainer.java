@@ -8,6 +8,7 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
@@ -35,15 +36,34 @@ public class StickerEventDataContainer
 
 	private JSONArray mDayRangesRanks;
 
-	public StickerEventDataContainer(String id, JSONArray names, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
+	public StickerEventDataContainer(String eventId, JSONObject eventData)
 	{
-		mEventId = id;
-		mTimeStampRanges = new JSONArray();
-		mDayRanges = new JSONArray();
-		mTimeStampRangesRanks = new JSONArray();
-		mDayRangesRanks = new JSONArray();
+		// Fetch all alternate names of the event
+		JSONArray alternateEventNames = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
 
-		populateAlternateNames(names);
+		// Fetch all possible date-time ranges of current event with ranks (if available)
+		JSONArray timeStampRangeDataArray = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
+
+		// Fetch all possible day ranges of current event with ranks (if available)
+		JSONArray dayRangeDataArray = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
+
+		populateEventData(eventId, alternateEventNames, timeStampRangeDataArray, dayRangeDataArray);
+	}
+
+	public StickerEventDataContainer(String eventId, JSONArray alternateEventNames, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
+	{
+		populateEventData(eventId, alternateEventNames, timeStampRangeDataArray, dayRangeDataArray);
+	}
+
+	private void populateEventData(String eventId, JSONArray alternateEventNames, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
+	{
+		mEventId = eventId;
+		mTimeStampRanges = new JSONArray(); // Range only data i.e. list of start-end pairs in the form of time-stamp
+		mDayRanges = new JSONArray();  // Range only data i.e. list of start-end pairs in the form of day
+		mTimeStampRangesRanks = new JSONArray();  // Rank only data i.e. list of ranks for each range listed in mTimeStampRanges
+		mDayRangesRanks = new JSONArray(); // Rank only data i.e. list of ranks for each range listed in mDayRanges
+
+		populateAlternateNames(alternateEventNames);
 
 		if (!populateRangesAndRanks(timeStampRangeDataArray, mTimeStampRanges, mTimeStampRangesRanks, false))
 		{
@@ -87,7 +107,7 @@ public class StickerEventDataContainer
 	private boolean populateRangesAndRanks(JSONArray source, JSONArray targetRanges, JSONArray targetRanks, boolean isDayRange)
 	{
 		int count = (source == null) ? 0 : source.length();
-		ArrayList<Range> rangeDataList = new ArrayList<Range>();
+		List<Range> rangeDataList = new ArrayList<Range>();
 		JSONObject range;
 
 		for (int i = 0; i < count; i++)

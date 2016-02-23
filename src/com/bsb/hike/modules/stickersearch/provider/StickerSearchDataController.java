@@ -98,7 +98,7 @@ public enum StickerSearchDataController
 		Set<String> receivedStickers = new HashSet<String>();
 		Set<String> stickersWithValidTags = new HashSet<String>();
 		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
-		Set<StickerEventDataContainer> stickerEventsData = new HashSet<StickerEventDataContainer>();
+		Set<StickerEventDataContainer> eventsData = new HashSet<StickerEventDataContainer>();
 		List<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 		Iterator<String> packs = packsData.keys();
 
@@ -443,19 +443,12 @@ public enum StickerSearchDataController
 											{
 												String event = events.next();
 												JSONObject eventData = festiveData.optJSONObject(event);
-
-												// Fetch all alternate names of current event
-												JSONArray names = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
-
-												// Fetch all possible date-time ranges of current event with ranks (if available)
-												JSONArray timeRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
-
-												// Fetch all possible day ranges of current event with ranks (if available)
-												JSONArray dayRanges = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
-
-												StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, names, timeRanges, dayRanges);
-												stickerEvents.add(stickerEvent);
-												stickerEventsData.add(stickerEvent);
+												if (eventData != null)
+												{
+													StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, eventData);
+													stickerEvents.add(stickerEvent);
+													eventsData.add(stickerEvent);
+												}
 											}
 										}
 									}
@@ -535,7 +528,7 @@ public enum StickerSearchDataController
 
 				try
 				{
-					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, stickerEventsData, stickersTagData);
+					HikeStickerSearchDatabase.getInstance().insertStickerTagData(packStoryData, eventsData, stickersTagData);
 				}
 				catch (Throwable t)
 				{
