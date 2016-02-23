@@ -5,7 +5,7 @@ package com.bsb.hike.chatthemes;
  */
 public class HikeChatThemeConstants
 {
-	// Bit Constants for Theme Status.
+	// Bit Constants for Theme Type.
 	public static final int THEME_TILED = 1 << 0;
 
 	public static final int THEME_ANIMATED = 1 << 1;

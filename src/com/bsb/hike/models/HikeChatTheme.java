@@ -18,7 +18,7 @@ public class HikeChatTheme
 
 	private int assetDownloadStatus = 0;
 
-	private int themeStatus;
+	private int themeType;
 
 	private HikeChatThemeAsset[] assets;
 
@@ -74,19 +74,19 @@ public class HikeChatTheme
 		this.thumbnailBmp = thumbnailBmp;
 	}
 
-	public int getThemeStatus()
+	public int getThemeType()
 	{
-		return themeStatus;
+		return themeType;
 	}
 
-	public void setThemeStatus(int status)
+	public void setThemeType(int status)
 	{
-		this.themeStatus |= status;
+		this.themeType |= status;
 	}
 
 	public boolean isEnabled(int status)
 	{
-		return ((themeStatus & status) == status);
+		return ((themeType & status) == status);
 	}
 
 	public String getMetadata()
