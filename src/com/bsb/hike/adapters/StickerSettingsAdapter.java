@@ -62,6 +62,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	private final int UPDATE_AVAILABLE = 2;
 
+	private final int RETRY = 3;
+
 	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask)
 	{
 		this.mContext = context;
@@ -213,7 +215,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				break;
 			case StickerCategory.RETRY:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
-				
+				viewHolder.updateButton.setImageLevel(RETRY);
+
 				break;
 
 			default:

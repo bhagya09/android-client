@@ -335,7 +335,20 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		}
 		return null;
 	}
-	
+
+	public boolean shouldAddToUpdateAll()
+	{
+		switch(this.state)
+		{
+			case DONE:
+			case DONE_SHOP_SETTINGS:
+			case DOWNLOADING:
+				return false;
+			default:
+				return true;
+		}
+	}
+
 	public int getMoreStickerCount()
 	{
 		return this.totalStickers - getDownloadedStickersCount();

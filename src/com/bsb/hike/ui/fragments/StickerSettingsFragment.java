@@ -234,7 +234,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		visibleAndUpdateStickerSet.clear();
 		for(StickerCategory category : stickerCategories)
 		{
-			if(category.isVisible() && (category.getState() == StickerCategory.UPDATE))
+			if (category.shouldAddToUpdateAll())				//the update option will have only packs with update available; so checking for only done and downloading state
 			{
 				visibleAndUpdateStickerSet.add(category);
 			}
