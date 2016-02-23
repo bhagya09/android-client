@@ -3829,4 +3829,38 @@ public class HikeConstants
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final class INTERCEPTS
+	{
+		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
+
+		public static final String SHOW_INTERCEPTS = "show_intercepts";
+
+		public static final String IMAGE = "image";
+
+		public static final String VIDEO = "video";
+
+		public static final String SCREENSHOTS = "sshot";
+
+		public static final String SHOW_IMAGE_INTERCEPT = "show_image_intrcpt";
+
+		public static final String SHOW_VIDEO_INTERCEPT = "show_video_intrcpt";
+
+		public static final String SHOW_SCREENSHOT_INTERCEPT = "show_screenshot_intrcpt";
+
+		public static final String ENABLE_IMAGE_INTERCEPT = "enableImageIntercept";
+
+		public static final String ENABLE_VIDEO_INTERCEPT = "enableVideoIntercept";
+
+		public static final String ENABLE_SCREENSHOT_INTERCEPT = "enableScreenshotIntercept";
+
+		public static final String INTERCEPT_LOG = "intercept_log";
+
+		public static final String INTENT_EXTRA_URI = "intentExtraUri";
+
+		public static final String INTENT_EXTRA_TYPE = "intentExtraType";
+
+		public static final String PREV_MEDIA_URI = "prev_media_uri";
+
+	}
 }

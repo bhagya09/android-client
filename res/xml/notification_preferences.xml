@@ -57,5 +57,29 @@
         android:summary="@string/h2o_notifications_setting_summary"
         android:title="@string/hike_offline_notifications"
         android:widgetLayout="@layout/switch_widget" />
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="enableScreenshotIntercept"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/screenshot_intercept_settings_content"
+        android:title="@string/screenshot_intercept_settings_header"
+        android:widgetLayout="@layout/switch_widget" />
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="enableImageIntercept"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/image_intercept_settings_content"
+        android:title="@string/image_intercept_settings_header"
+        android:widgetLayout="@layout/switch_widget" />
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="enableVideoIntercept"
+        android:layout="@layout/icon_preference"
+        android:summary="@string/video_intercept_settings_content"
+        android:title="@string/video_intercept_settings_header"
+        android:widgetLayout="@layout/switch_widget" />
 	
 </PreferenceScreen>
