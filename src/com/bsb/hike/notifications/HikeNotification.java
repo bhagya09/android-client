@@ -47,7 +47,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.triggers.InterceptManager;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -1075,7 +1075,7 @@ public class HikeNotification
 
 		switch (whichIntercept)
 		{
-			case InterceptManager.INTERCEPT_TYPE_SCREENSHOT:
+			case InterceptUtils.INTERCEPT_TYPE_SCREENSHOT:
 				if (TextUtils.isEmpty(path) || TextUtils.isEmpty(fileName))
 				{
 					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null path or filename for screenshot");
@@ -1111,7 +1111,7 @@ public class HikeNotification
 
 				break;
 
-			case InterceptManager.INTERCEPT_TYPE_IMAGE:
+			case InterceptUtils.INTERCEPT_TYPE_IMAGE:
 				if(interceptItem == null)
 				{
 					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for image intercept");
@@ -1149,7 +1149,7 @@ public class HikeNotification
 
 				break;
 
-			case InterceptManager.INTERCEPT_TYPE_VIDEO:
+			case InterceptUtils.INTERCEPT_TYPE_VIDEO:
 				if(interceptItem == null)
 				{
 					Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "got null uri for video intercept");
@@ -1202,15 +1202,15 @@ public class HikeNotification
 	 */
 	public String getEventKeyFromInterceptType(String type)
     {
-        if(type.equals(InterceptManager.INTERCEPT_TYPE_SCREENSHOT))
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_SCREENSHOT))
         {
             return AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT;
         }
-        if(type.equals(InterceptManager.INTERCEPT_TYPE_IMAGE))
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_IMAGE))
         {
             return AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
         }
-        if(type.equals(InterceptManager.INTERCEPT_TYPE_VIDEO))
+        if(type.equals(InterceptUtils.INTERCEPT_TYPE_VIDEO))
         {
             return AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;
         }

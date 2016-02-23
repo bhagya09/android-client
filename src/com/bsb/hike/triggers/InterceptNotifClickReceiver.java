@@ -41,7 +41,7 @@ public class InterceptNotifClickReceiver extends BroadcastReceiver
         //determine whether intercept file exists or not
         switch(type)
         {
-            case InterceptManager.INTERCEPT_TYPE_SCREENSHOT:
+            case InterceptUtils.INTERCEPT_TYPE_SCREENSHOT:
                 type = HikeNotification.IMAGE;
                 eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT;
                 path = interceptItem.getPath();
@@ -58,14 +58,14 @@ public class InterceptNotifClickReceiver extends BroadcastReceiver
 
                 break;
 
-            case InterceptManager.INTERCEPT_TYPE_IMAGE:
-            case InterceptManager.INTERCEPT_TYPE_VIDEO:
-                if(type.equals(InterceptManager.INTERCEPT_TYPE_IMAGE))
+            case InterceptUtils.INTERCEPT_TYPE_IMAGE:
+            case InterceptUtils.INTERCEPT_TYPE_VIDEO:
+                if(type.equals(InterceptUtils.INTERCEPT_TYPE_IMAGE))
                 {
                     type = HikeNotification.IMAGE;
                     eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE;
                 }
-                else if(type.equals(InterceptManager.INTERCEPT_TYPE_VIDEO))
+                else if(type.equals(InterceptUtils.INTERCEPT_TYPE_VIDEO))
                 {
                     type = HikeNotification.VIDEO;
                     eventKey = AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO;

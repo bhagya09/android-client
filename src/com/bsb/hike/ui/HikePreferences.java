@@ -42,7 +42,7 @@ import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
-import com.bsb.hike.triggers.InterceptManager;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -1487,7 +1487,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
 							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF);
 				}
-				InterceptManager.registerOrUnregisterScreenshotObserver();
+				InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 			else if(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT.equals(preference.getKey()))
 			{

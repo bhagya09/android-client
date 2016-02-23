@@ -37,11 +37,11 @@ public class ImageAndVideoInterceptReceiver extends BroadcastReceiver
             switch (intent.getAction())
             {
                 case Camera.ACTION_NEW_VIDEO:
-                    if (InterceptManager.shouldShowGivenIntercept(InterceptManager.INTERCEPT_TYPE_VIDEO))
+                    if (InterceptUtils.shouldShowGivenIntercept(InterceptUtils.INTERCEPT_TYPE_VIDEO))
                     {
                         Logger.d(TAG, "processing action:" + intent.getAction());
                         Logger.d(TAG, "processing video intercept");
-                        HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptManager.INTERCEPT_TYPE_VIDEO);
+                        HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptUtils.INTERCEPT_TYPE_VIDEO);
                     }
                     break;
 
@@ -49,11 +49,11 @@ public class ImageAndVideoInterceptReceiver extends BroadcastReceiver
                  * In case of both, it is handled by checking uri of previous and current intercept items */
                 case ACTION_NEW_PICTURE:
                 case Camera.ACTION_NEW_PICTURE:
-                    if (InterceptManager.shouldShowGivenIntercept(InterceptManager.INTERCEPT_TYPE_IMAGE))
+                    if (InterceptUtils.shouldShowGivenIntercept(InterceptUtils.INTERCEPT_TYPE_IMAGE))
                     {
                         Logger.d(TAG, "processing action:" + intent.getAction());
                         Logger.d(TAG, "processing image intercept");
-                        HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptManager.INTERCEPT_TYPE_IMAGE);
+                        HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptUtils.INTERCEPT_TYPE_IMAGE);
                     }
                     break;
             }

@@ -62,7 +62,7 @@ import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
 import com.bsb.hike.timeline.model.StatusMessage;
-import com.bsb.hike.triggers.InterceptManager;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -340,7 +340,7 @@ public class HikeService extends Service
 		
 		ChatHeadUtils.registerCallReceiver();
 		
-		InterceptManager.registerOrUnregisterScreenshotObserver();
+		InterceptUtils.registerOrUnregisterScreenshotObserver();
 		
 		setInitialized(true);
 
@@ -460,7 +460,7 @@ public class HikeService extends Service
 		
 		ChatHeadUtils.unregisterCallReceiver();
 		
-		InterceptManager.unregisterScreenshotObserver();
+		InterceptUtils.unregisterScreenshotObserver();
 		
 	}
 

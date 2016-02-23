@@ -71,7 +71,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.triggers.InterceptManager;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
@@ -2673,7 +2673,7 @@ public class MqttMessagesManager
 			{
 				boolean screenshot = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, screenshot);
-                InterceptManager.registerOrUnregisterScreenshotObserver();
+                InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
 		if (data.has(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS))
@@ -2695,7 +2695,7 @@ public class MqttMessagesManager
 			{
 				boolean screenshot = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
-                InterceptManager.registerOrUnregisterScreenshotObserver();
+                InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
 		if (data.has(HikeConstants.BADGECOUNTER))

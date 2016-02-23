@@ -10,7 +10,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import java.io.File;
 
-public class InterceptManager
+public class InterceptUtils
 {
     private static final String TAG = "interceptManager";
 
