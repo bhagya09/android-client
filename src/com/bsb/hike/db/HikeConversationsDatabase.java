@@ -7417,7 +7417,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { stickerCategory.getCategoryId() });
 	}
 
-	public void insertInToStickerCategoriesTable(StickerCategory stickerCategory, boolean isDownloaded)
+	public void insertInToStickerCategoriesTable(StickerCategory stickerCategory)
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants._ID, stickerCategory.getCategoryId());
@@ -7430,7 +7430,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 		contentValues.put(DBConstants.CATEGORY_DESCRIPTION, stickerCategory.getDescription());
 		contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStringListString(stickerCategory.getAllStickers()));
-		contentValues.put(DBConstants.IS_DOWNLOADED, isDownloaded);
+		contentValues.put(DBConstants.IS_DOWNLOADED, stickerCategory.isDownloaded());
 
 		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 	}

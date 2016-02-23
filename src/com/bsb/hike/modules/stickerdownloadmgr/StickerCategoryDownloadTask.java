@@ -114,7 +114,8 @@ public class StickerCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTask
 		JSONObject jsonObj = (JSONObject) result;
 		StickerCategory stickerCategory = StickerManager.getInstance().parseStickerCategoryMetadata(jsonObj);
 		boolean isDownloaded = StickerManager.getInstance().getStickerCategoryMap().containsKey(stickerCategory.getCategoryId());
-		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(stickerCategory, isDownloaded);
+		stickerCategory.setIsDownloaded(isDownloaded);
+		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(stickerCategory);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS, stickerCategory);
 	}
 
