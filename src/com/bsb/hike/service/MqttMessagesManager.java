@@ -3025,7 +3025,8 @@ public class MqttMessagesManager
 					.setCategoryDesc(description)
 					.setTotalStickers(stickerCount == -1 ? 0 : stickerCount)
 					.setUpdateAvailable(true)									//To show the green badge on category
-					.setIsVisible(true)											//To make it visible in pallete
+					.setIsVisible(true)											//To make it visible in palette
+					.setIsDownloaded(true)										// to be treated as downloaded
 					.setCatIndex(pos)											//Choosing it's index based on the above logic
 					.setState(StickerCategory.NONE)
 					.setAllStickers(stickerList)

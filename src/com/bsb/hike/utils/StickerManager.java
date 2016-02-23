@@ -1531,6 +1531,7 @@ public class StickerManager
 				}
 				visibleStickerCategories.add(category);
 				category.setCategoryIndex(humanoidCategoryIndex + visibleStickerCategories.size());
+				category.setIsDownloaded(true); // all initial categories are downloaded
 			}
 		}
 		if (!visibleStickerCategories.isEmpty())
