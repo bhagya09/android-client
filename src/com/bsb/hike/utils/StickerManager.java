@@ -2644,7 +2644,7 @@ public class StickerManager
 		return stickerList;
 	}
 
-	public String getStringListString(List<Sticker> stickers)
+	public String getStickerListString(List<Sticker> stickers)
 	{
 		if (Utils.isEmpty(stickers))
 		{

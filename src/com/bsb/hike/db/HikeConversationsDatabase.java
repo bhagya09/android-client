@@ -7429,7 +7429,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 		contentValues.put(DBConstants.CATEGORY_DESCRIPTION, stickerCategory.getDescription());
-		contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStringListString(stickerCategory.getAllStickers()));
+		contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStickerListString(stickerCategory.getAllStickers()));
 		contentValues.put(DBConstants.IS_DOWNLOADED, stickerCategory.isDownloaded());
 
 		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
@@ -7456,7 +7456,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.TOTAL_NUMBER, category.getTotalStickers());
 				contentValues.put(DBConstants.CATEGORY_SIZE, category.getCategorySize());
 				contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
-				contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStringListString(category.getAllStickers()));
+				contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStickerListString(category.getAllStickers()));
 
 				mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { category.getCategoryId() });
 				mDb.insertWithOnConflict(DBConstants.STICKER_SHOP_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
@@ -7493,7 +7493,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.IS_VISIBLE, category.isVisible());
 				contentValues.put(DBConstants.CATEGORY_INDEX, category.getCategoryIndex());
 				contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
-				contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStringListString(category.getAllStickers()));
+				contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStickerListString(category.getAllStickers()));
 				contentValues.put(DBConstants.IS_DOWNLOADED, category.isDownloaded());
 
 				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { category.getCategoryId() });
@@ -7589,7 +7589,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, category.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, category.getCategoryIndex());
 		contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
-		contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStringListString(category.getAllStickers()));
+		contentValues.put(DBConstants.STICKER_LIST, StickerManager.getInstance().getStickerListString(category.getAllStickers()));
 		contentValues.put(DBConstants.IS_DOWNLOADED, category.isDownloaded());
 
 		rowId = (int) mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);

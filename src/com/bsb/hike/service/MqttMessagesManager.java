@@ -2944,7 +2944,7 @@ public class MqttMessagesManager
 			String description  = data.optString(HikeConstants.DESCRIPTION, null);
 			JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
 			List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
-			String stickerListString = StickerManager.getInstance().getStringListString(stickerList);
+			String stickerListString = StickerManager.getInstance().getStickerListString(stickerList);
 			StickerManager.getInstance().updateStickerCategoryData(categoryId, true, stickerCount, categorySize, description, stickerListString);
 		}
 		else if (HikeConstants.REMOVE_STICKER.equals(subType) || HikeConstants.REMOVE_CATEGORY.equals(subType))
@@ -2972,7 +2972,7 @@ public class MqttMessagesManager
 				 * We should not update updateAvailable field in this case
 				 */
 				List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
-				String stickerListString = StickerManager.getInstance().getStringListString(stickerList);
+				String stickerListString = StickerManager.getInstance().getStickerListString(stickerList);
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
 				// Remove tags being used for sticker search w.r.t. deleted stickers here
 				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
