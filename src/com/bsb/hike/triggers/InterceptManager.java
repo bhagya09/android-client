@@ -30,21 +30,20 @@ public class InterceptManager
     public static boolean shouldShowGivenIntercept(String whichIntercept)
     {
         HikeSharedPreferenceUtil hikeSharedPrefInstance = HikeSharedPreferenceUtil.getInstance();
-        SharedPreferences defaultSharedPref = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance().getApplicationContext());
         switch (whichIntercept)
         {
             case INTERCEPT_TYPE_SCREENSHOT:
                 return (hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, false)
-                        && defaultSharedPref.getBoolean(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, false));
+                        && hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, false));
 
             case INTERCEPT_TYPE_IMAGE:
                 return (hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, false)
-                        && defaultSharedPref.getBoolean(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, false)
+                        && hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, false)
                         && !hikeSharedPrefInstance.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false));
 
             case INTERCEPT_TYPE_VIDEO:
                 return (hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, false)
-                        && defaultSharedPref.getBoolean(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, false)
+                        && hikeSharedPrefInstance.getData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, false)
                         && !hikeSharedPrefInstance.getData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, false));
 
             default:

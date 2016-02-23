@@ -1476,10 +1476,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}
 			} else if(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT.equals(preference.getKey()))
 			{
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
-				Editor prefEditor = prefs.edit();
-				prefEditor.putBoolean(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
-				prefEditor.commit();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
 				if(isChecked)
 				{
 					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
@@ -1494,10 +1491,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else if(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT.equals(preference.getKey()))
 			{
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
-				Editor prefEditor = prefs.edit();
-				prefEditor.putBoolean(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
-				prefEditor.commit();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
 				if(isChecked)
 				{
 					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
@@ -1511,10 +1505,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else if(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT.equals(preference.getKey()))
 			{
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(HikePreferences.this);
-				Editor prefEditor = prefs.edit();
-				prefEditor.putBoolean(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
-				prefEditor.commit();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
 				if(isChecked)
 				{
 					HAManager.getInstance().interceptAnalyticsUIEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,

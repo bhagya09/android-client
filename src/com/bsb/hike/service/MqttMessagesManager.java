@@ -2684,19 +2684,16 @@ public class MqttMessagesManager
 			{
 				boolean video = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
-				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
 			}
 			if (enableIntercepts.has(HikeConstants.INTERCEPTS.IMAGE) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT))
 			{
 				boolean image = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
-				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
 			}
 			if (enableIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS)
 					&& !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT))
 			{
 				boolean screenshot = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
-				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
                 InterceptManager.registerOrUnregisterScreenshotObserver();
 			}
