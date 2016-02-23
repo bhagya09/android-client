@@ -34,11 +34,11 @@ public class ChatThemeAssetHelper
 	 */
 	public boolean isAssetsAvailableForTheme(HikeChatTheme theme)
 	{
-		if (theme.getAssetDownloadStatus() != HikeChatThemeConstants.ASSET_DOWNLOAD_COMPLETE_STATUS)
+		if (theme.getAssetDownloadStatus() != HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE)
 		{
 			updateAssetsDownloadStatus(theme);
 		}
-		return ((theme.getAssetDownloadStatus() & HikeChatThemeConstants.ASSET_DOWNLOAD_COMPLETE_STATUS) == HikeChatThemeConstants.ASSET_DOWNLOAD_COMPLETE_STATUS);
+		return ((theme.getAssetDownloadStatus() & HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE) == HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class ChatThemeAssetHelper
 	 */
 	public void updateAssetsDownloadStatus(HikeChatTheme theme){
 		HikeChatThemeAsset[] assets = theme.getAssets();
-		for (int i = 0; i < HikeChatThemeConstants.ASSET_COUNT; i++)
+		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
 			if ((assets[i] != null) && (mDownloadedAssets.contains(assets[i].getAssetId())))
 			{
@@ -71,10 +71,10 @@ public class ChatThemeAssetHelper
 	 * 
 	 * @return boolean
 	 */
-	public void setAssetMissing(HikeChatTheme theme, byte assetType)
+	public void setAssetMissing(HikeChatTheme theme, byte assetIndex)
 	{
 		int assetStatus = theme.getAssetDownloadStatus();
-		assetStatus &= ~(1 << assetType);
+		assetStatus &= ~(1 << assetIndex);
 		theme.overrideAssetDownloadStatus(assetStatus);
 
 		// TODO CHATTHEME Update asset missing in DB here

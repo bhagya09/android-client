@@ -33,23 +33,23 @@ public class ChatThemeDrawableHelper
 	 *            application context
 	 * @param HikeChatTheme
 	 *            The Theme for which drawable is required
-	 * @param assetType
+	 * @param assetIndex
 	 *            the type of asset
 	 * @return the Drawable
 	 *
 	 */
 
-	public Drawable getDrawableForTheme(HikeChatTheme theme, byte assetType)
+	public Drawable getDrawableForTheme(HikeChatTheme theme, byte assetIndex)
 	{
-		return getDrawableForTheme(HikeMessengerApp.getInstance(), theme, assetType);
+		return getDrawableForTheme(HikeMessengerApp.getInstance(), theme, assetIndex);
 	}
 
-	public Drawable getDrawableForTheme(Context context, HikeChatTheme theme, byte assetType)
+	public Drawable getDrawableForTheme(Context context, HikeChatTheme theme, byte assetIndex)
 	{
 		Drawable drawable = null;
 		if (theme != null)
 		{
-			drawable = getDrawableFromSDCard(theme, assetType);
+			drawable = getDrawableFromSDCard(theme, assetIndex);
 			if (drawable == null)
 			{
 				Log.v(TAG, "Drawable does not exist on SD Card : ");
@@ -57,8 +57,8 @@ public class ChatThemeDrawableHelper
 		}
 		if (drawable == null)
 		{
-			ChatThemeManager.getInstance().getAssetHelper().setAssetMissing(theme, assetType);
-			drawable = getDefaultDrawable(assetType);
+			ChatThemeManager.getInstance().getAssetHelper().setAssetMissing(theme, assetIndex);
+			drawable = getDefaultDrawable(assetIndex);
 			Log.v(TAG, "Setting the default theme drawable :");
 		}
 		return drawable;
@@ -69,20 +69,20 @@ public class ChatThemeDrawableHelper
 	 *
 	 * @param HikeChatTheme
 	 *            The Theme for which drawable is required
-	 * @param assetType
+	 * @param assetIndex
 	 *            the type of asset
 	 * @return the Drawable
 	 *
 	 */
-	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetType)
+	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex)
 	{
-		return getDrawableFromSDCard(theme.getAsset(assetType));
+		return getDrawableFromSDCard(theme.getAsset(assetIndex));
 	}
 
 	private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset)
 	{
 		Drawable drawable = null;
-		if (asset.getType() == HikeChatThemeConstants.ASSETTYPE_COLOR)
+		if (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_COLOR)
 		{
 			// java.lang.NumberFormatException: Invalid long: "#1E131C"
 			String color = asset.getValue();
@@ -95,7 +95,7 @@ public class ChatThemeDrawableHelper
 				drawable = new ColorDrawable(Color.parseColor("#" + color));
 			}
 		}
-		else if ((asset.getType() == HikeChatThemeConstants.ASSETTYPE_BITMAP) || (asset.getType() == HikeChatThemeConstants.ASSETTYPE_NINE_PATCH))
+		else if ((asset.getType() == HikeChatThemeConstants.ASSET_TYPE_BITMAP) || (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH))
 		{
 			drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getValue());
 			if (drawable == null)
@@ -121,35 +121,35 @@ public class ChatThemeDrawableHelper
 	/**
 	 * This method returns the default drawable for the given asset type
 	 *
-	 * @param assetType
+	 * @param assetIndex
 	 *            the type of asset
 	 * @return the Drawable
 	 *
 	 */
-	private Drawable getDefaultDrawable(int assetType)
+	private Drawable getDefaultDrawable(int assetIndex)
 	{
-		switch (assetType)
+		switch (assetIndex)
 		{
-		case HikeChatThemeConstants.ASSET_BG_LANDSCAPE:
-		case HikeChatThemeConstants.ASSET_BG_PORTRAIT:
+		case HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE:
+		case HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT:
 			return getDrawableFromId(R.color.chat_thread_default_bg);
-		case HikeChatThemeConstants.ASSET_CHAT_BUBBLE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG:
 			return getDrawableFromId(R.drawable.ic_bubble_blue_selector);
-		case HikeChatThemeConstants.ASSET_ACTION_BAR_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG:
 			return getDrawableFromId(R.drawable.bg_header_transparent);
-		case HikeChatThemeConstants.ASSET_INLINE_STATUS_MSG_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG:
 			return getDrawableFromId(R.drawable.bg_status_chat_thread_default_theme);
-		case HikeChatThemeConstants.ASSET_MULTISELECT_CHAT_BUBBLE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG:
 			return getDrawableFromId(R.color.light_blue_transparent);
-		case HikeChatThemeConstants.ASSET_OFFLINE_MESSAGE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG:
 			return getDrawableFromId(R.color.list_item_subtext);
-		case HikeChatThemeConstants.ASSET_RECEIVED_NUDGE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG:
 			return getDrawableFromId(R.drawable.ic_nudge_hike_receive);
-		case HikeChatThemeConstants.ASSET_SENT_NUDGE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG:
 			return getDrawableFromId(R.drawable.ic_nudge_hike_sent);
-		case HikeChatThemeConstants.ASSET_STATUS_BAR_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG:
 			return getDrawableFromId(R.color.blue_hike_status_bar_m);
-		case HikeChatThemeConstants.ASSET_SMS_TOGGLE_BG:
+		case HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG:
 			return getDrawableFromId(R.drawable.bg_sms_toggle);
 		}
 		return null;

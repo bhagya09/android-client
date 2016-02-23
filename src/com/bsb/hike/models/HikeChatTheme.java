@@ -26,7 +26,7 @@ public class HikeChatTheme
 
 	public HikeChatTheme()
 	{
-		assets = new HikeChatThemeAsset[HikeChatThemeConstants.ASSET_COUNT];
+		assets = new HikeChatThemeAsset[HikeChatThemeConstants.ASSET_INDEX_COUNT];
 	}
 
 	public boolean isVisible()
