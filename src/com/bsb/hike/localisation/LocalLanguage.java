@@ -87,9 +87,9 @@ public class LocalLanguage {
 
     public static void refreshdeviceSupportedHikeList(Context context){
         {
-            ArrayList<String> deviceSupportedkptLanguages = FontManager.getInstance().getSupportedLanguageList();
+            ArrayList<String> deviceSupportedLanguages = FontManager.getInstance().getSupportedLanguageList();
             HashSet<String> supportedLocaleSet = new HashSet<>();
-            for (String locale : deviceSupportedkptLanguages)
+            for (String locale : deviceSupportedLanguages)
             {
                 supportedLocaleSet.add(locale.substring(0,locale.indexOf("-")));
             }
