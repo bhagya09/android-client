@@ -33,8 +33,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private int mMomentCode;
 
-	private int mTimeStampBasedEventRank;
-
 	private int mAge;
 
 	private String mStringsUsedWithSticker;
@@ -61,7 +59,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 				Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
-		mTimeStampBasedEventRank = StickerEventSearchManager.getInstance().getNowCastTimeStampRangeRank(timeStampBasedEventsRanks);
+		mNowCastEventRank = StickerEventSearchManager.getInstance().getNowCastTimeStampRangeRank(timeStampBasedEventsRanks);
 		mStickerAvailability = stickerAvailability;
 		mMatchingScore = 0.0f;
 		mRecommendationScore = 0.0f;
@@ -225,7 +223,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + mExactMatchOrder;
 		result = prime * result + mMomentCode;
 		result = prime * result + mStickerAvailability;
-		result = prime * result + mTimeStampBasedEventRank;
+		result = prime * result + mNowCastEventRank;
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
@@ -281,7 +279,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			return false;
 		}
 
-		if (mTimeStampBasedEventRank != other.mTimeStampBasedEventRank)
+		if (mNowCastEventRank != other.mNowCastEventRank)
 		{
 			return false;
 		}
@@ -402,7 +400,7 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	{
 		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
 				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><event_rk="
-				+ mTimeStampBasedEventRank + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr="
-				+ mMatchingScore + "><sr_scr=" + mRecommendationScore + ">]";
+				+ mNowCastEventRank + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
+				+ "><sr_scr=" + mRecommendationScore + ">]";
 	}
 }
