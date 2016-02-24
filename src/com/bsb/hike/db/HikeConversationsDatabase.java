@@ -9003,10 +9003,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return CREATE_TABLE + DBConstants.URL_TABLE
 				+ " ("
 				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
-				+ DBConstants.URL + " TEXT, "        //URL THAT IS RELATED TO THIS KEY.
+				+ DBConstants.URL + " TEXT"        //URL THAT IS RELATED TO THIS KEY.
 				+  ")";
 	}
-	// Function to insert URL in URL table
+	// Function to insert URL in URL table in an encrypted manner
 
 	public long insertURL(String urlKey, String url)
 	{
@@ -9023,7 +9023,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			ContentValues values = new ContentValues();
 			values.put(DBConstants.URL_KEY, urlKey);
-			values.put(DBConstants.URL, url);
+			values.put(DBConstants.URL, Utils.encrypt(url));
 			return mDb.insert(DBConstants.MESSAGE_EVENT_TABLE, null, values);
 		}
 		catch (Exception e)
@@ -9033,7 +9033,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	// Function to get URL
+	// Function to get URL and returns decrypted URL
 
 	public String getURL(String urlKey)
 	{
@@ -9047,7 +9047,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				return null;
 			}
 
-			return c.getString(c.getColumnIndex(DBConstants.URL));
+			return Utils.decrypt(c.getString(c.getColumnIndex(DBConstants.URL)));
 
 		}
 		finally
