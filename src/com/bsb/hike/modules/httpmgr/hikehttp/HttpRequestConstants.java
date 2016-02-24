@@ -82,6 +82,8 @@ public class HttpRequestConstants
 	private static final String ANONYMOUS_NAME = "/anonymousName";
 
 	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000";
+
+    private static final String ANALYTICS_UPLOAD_PATH = "/logs/analytics";
 	
 	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in";
 
@@ -491,4 +493,7 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
+	public static String getAnalyticsUrl() {
+		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
 }
