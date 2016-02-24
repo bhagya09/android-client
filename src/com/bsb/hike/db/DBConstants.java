@@ -197,12 +197,6 @@ public interface DBConstants
 
 	public static final String PLATFORM_USER_ID = "platformUserId";
 
-	public static final String CHAT_BG_TABLE = "chatBgTable";
-
-	public static final String BG_ID = "bgId";
-
-	public static final String CHAT_BG_INDEX = "chatBgIndex";
-
 	public static final String IS_STEALTH = "isStealth";
 	
 	public static final String MESSAGE_HASH_INDEX = "messageHashIndex";
@@ -419,6 +413,16 @@ public interface DBConstants
 		public static final String OFFLINE_MSG_ID_INDEX = "offlineMsgIdIndex";
 		
 		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
+	}
+
+	public static interface ChatThemes
+	{
+		public static final String CHAT_BG_TABLE = "chatBgTable";
+
+		public static final String BG_ID = "bgId";
+
+		public static final String CHAT_BG_INDEX = "chatBgIndex";
+
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";

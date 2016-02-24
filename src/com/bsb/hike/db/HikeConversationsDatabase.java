@@ -242,14 +242,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(sql);
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.FILE_THUMBNAIL_INDEX + " ON " + DBConstants.FILE_THUMBNAIL_TABLE + " (" + DBConstants.FILE_KEY + " )";
 		db.execSQL(sql);
-		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_BG_TABLE
+		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.ChatThemes.BG_ID + " TEXT, " // Chat theme id
 				+ DBConstants.TIMESTAMP + " INTEGER" // Timestamp when this them was changed.
 				+ ")";
 		db.execSQL(sql);
-		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
+		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
 
 		sql = getStickerShopTableCreateQuery();
@@ -311,7 +311,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.PROTIP_TABLE, null, null);
 		mDb.delete(DBConstants.SHARED_MEDIA_TABLE, null, null);
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
-		mDb.delete(DBConstants.CHAT_BG_TABLE, null, null);
+		mDb.delete(DBConstants.ChatThemes.CHAT_BG_TABLE, null, null);
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
@@ -591,9 +591,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 22)
 		{
-			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.BG_ID + " TEXT)";
+			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.ChatThemes.BG_ID + " TEXT)";
 			db.execSQL(sql);
-			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
+			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 			db.execSQL(sql);
 		}
 
@@ -602,7 +602,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 23)
 		{
-			String alter = "ALTER TABLE " + DBConstants.CHAT_BG_TABLE + " ADD COLUMN " + DBConstants.TIMESTAMP + " INTEGER";
+			String alter = "ALTER TABLE " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ADD COLUMN " + DBConstants.TIMESTAMP + " INTEGER";
 			db.execSQL(alter);
 		}
 
@@ -5980,10 +5980,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.BG_ID, bgId);
+		values.put(DBConstants.ChatThemes.BG_ID, bgId);
 		values.put(DBConstants.TIMESTAMP, timeStamp);
 
-		mDb.insertWithOnConflict(DBConstants.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.ChatThemes.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
@@ -5991,11 +5991,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_BG_TABLE, new String[] { DBConstants.TIMESTAMP, DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
+			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.TIMESTAMP, DBConstants.ChatThemes.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
 					null);
 			if (c.moveToFirst())
 			{
-				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.BG_ID)));
 				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.TIMESTAMP));
 
 				return new Pair<ChatTheme, Long>(chatTheme, timeStamp);
@@ -6016,12 +6016,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_BG_TABLE, new String[] { DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.ChatThemes.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 			if (c.moveToFirst())
 			{
 				try
 				{
-					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.BG_ID)));
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -6044,7 +6044,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void removeChatThemeForMsisdn(String msisdn)
 	{
-		mDb.delete(DBConstants.CHAT_BG_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		mDb.delete(DBConstants.ChatThemes.CHAT_BG_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public void setChatThemesFromArray(JSONArray chatBackgroundArray)
@@ -6053,8 +6053,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		InsertHelper ih = null;
 		try
 		{
-			ih = new InsertHelper(mDb, DBConstants.CHAT_BG_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.CHAT_BG_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.BG_ID + " ) "
+			ih = new InsertHelper(mDb, DBConstants.ChatThemes.CHAT_BG_TABLE);
+			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.ChatThemes.BG_ID + " ) "
 					+ " VALUES (?, ?)");
 			mDb.beginTransaction();
 
@@ -6099,7 +6099,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 
 				insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.BG_ID), bgId);
+				insertStatement.bindString(ih.getColumnIndex(DBConstants.ChatThemes.BG_ID), bgId);
 
 				insertStatement.executeInsert();
 
