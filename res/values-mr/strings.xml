@@ -1222,13 +1222,6 @@
 	<string name="enable_saved_contact_view_side_text">जतन केलेल्या संपर्कांसाठीसुद्धा कॉलर माहिती दर्शवा</string>
     <string name="choose_language">भाषा निवडा</string>
     <string name="choose_language_desciption">आपले आवडते संदेशन आता आपल्या भाषेत</string>
-    <string name="system_language">मूळ भाषा</string>
-    <string name="regional_keyboard">क्षेत्रिय कीबोर्ड</string>
-    <string name="regional_keyboard_subtext">आता नवीन कीबोर्डसह आपल्या आवडत्या भाषेत चॅट करा</string>
-    <string name="CHOOSE_LANGUAGE">भाषा निवडा</string>
-	<string name="apply">लागू करा</string>
-    <string name="keyboad_ftue_swipe">आपल्या भाषेत बदल करण्यासाठी स्वाइप करा</string>
-    <string name="setting_up_keyboard">कीबोर्ड सेट करणे</string>
 	<string name="close_gps">बॅटरी वाचवण्यासाठी तुम्ही आता तुमचे स्थान बंद करू शकता. आपले Hike डायरेक्ट कनेक्शन प्रभावीत होणार नाही.</string>
 	<string name="gps_not_on">माफ करा, GPS चालू नसताना Hike डायरेक्ट काम करणार नाही</string>
 	<string name="switch_on_gps">कृपया Hike डायरेक्ट कार्यरत करण्यासाठी स्थान सक्षम करा. </string>

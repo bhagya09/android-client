@@ -1242,12 +1242,6 @@
     <string name="choose_language">Choose Language</string>
     <string name="choose_language_desciption">Now your favourite messenger in your favourite language</string>
     <string name="phone_language">Phone Language</string>
-    <string name="regional_keyboard">Regional Keyboard</string>
-    <string name="regional_keyboard_subtext">Now chat in your favourite language with new keyboard</string>
-    <string name="CHOOSE_LANGUAGE">CHOOSE LANGUAGE</string>
-	<string name="apply">Apply</string>
-    <string name="keyboad_ftue_swipe">Swipe to change between your language</string>
-    <string name="setting_up_keyboard">Setting up Keyboard</string>
 	<string name="tip_and_notif_update_text">UPDATE</string>
     <string name="tip_and_notif_later_text">LATER</string>
     <string name="update_tip_header_text">NEW HIKE UPDATE AVAILABLE</string>
@@ -1460,7 +1454,7 @@
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
-    <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
+    <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language anytime</string>
 
     <string name="unsupported_langs_toast">Your Phone does not support %1$s</string>
     <string name="unsupported_language_toast_msg">Your phone does not support this language</string>

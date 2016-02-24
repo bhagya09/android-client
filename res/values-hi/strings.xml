@@ -1218,15 +1218,8 @@
 	<string name="sticky_caller_settings_side_text">सभी संपर्कों के लिए कॉलर जानकारी और मुफ़्‍त कॉलिंग/संदेश विकल्प दिखाएं</string>
 	<string name="enable_saved_contact_view_heading">सेव किए गए संपर्कों के लिए दिखाएं</string>
 	<string name="enable_saved_contact_view_side_text">सेव किए गए संपर्कों के लिए भी कॉलर जानकारी दिखाएं</string>
-    <string name="choose_language">भाषा चुनें</string>
+	<string name="choose_language">भाषा चुनें</string>
     <string name="choose_language_desciption">आपका पसंदीदा मैसेंजर अब आपकी पसंदीदा भाषा में</string>
-    <string name="system_language">सिस्टम भाषा</string>
-    <string name="regional_keyboard">क्षेत्रीय कीबोर्ड</string>
-    <string name="regional_keyboard_subtext">अब नए कीबोर्ड के साथ अपनी पसंदीदा भाषा में चैट करें</string>
-    <string name="CHOOSE_LANGUAGE">भाषा चुनें</string>
-	<string name="apply">लागू करें</string>
-    <string name="keyboad_ftue_swipe">अपनी भाषाओं के बीच बदलने के लिए स्वाइप करें</string>
-    <string name="setting_up_keyboard">कीबोर्ड सेट हो रहा है</string>
 	<string name="close_gps">अब आप बैटरी बचाने के लिए अपने स्थान को बंद कर सकते हैं। आपका Hike डायरेक्ट कनेक्शन प्रभावित नहीं होगा।</string>
 	<string name="gps_not_on">क्षमा करें जीपीएस चालू नहीं होने पर hike डायरेक्ट काम नहीं करेगा</string>
 	<string name="switch_on_gps">कृपया Hike डायरेक्ट के चलने के लिए स्थान को सक्षम करें। </string>

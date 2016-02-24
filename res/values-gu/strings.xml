@@ -1220,15 +1220,8 @@
 	<string name="sticky_caller_settings_side_text">બધા સંપર્કો માટે કૉલર માહિતી અને મફત કૉલિંગ / મેસેજિંગ વિકલ્પો બતાવો</string>
 	<string name="enable_saved_contact_view_heading">સેવ કરેલા સંપર્કો માટે બતાવો</string>
 	<string name="enable_saved_contact_view_side_text">સેવ કરેલા સંપર્કો માટે પણ કૉલર માહિતી બતાવો</string>
-    <string name="choose_language">ભાષા પસંદ કરો</string>
+	<string name="choose_language">ભાષા પસંદ કરો</string>
     <string name="choose_language_desciption">હવે તમારું મનપસંદ મેસેન્જર તમારી મનપસંદ ભાષામાં  </string>
-    <string name="system_language">સિસ્ટમ ભાષા</string>
-    <string name="regional_keyboard">પ્રાદેશિક કીબોર્ડ</string>
-    <string name="regional_keyboard_subtext">હવે નવા કીબોર્ડ સાથે તમારી મનપસંદ ભાષામાં ચેટ કરો</string>
-    <string name="CHOOSE_LANGUAGE">ભાષા પસંદ કરો</string>
-	<string name="apply">લાગુ કરો</string>
-    <string name="keyboad_ftue_swipe">તમારી ભાષાઓ વચ્ચે બદલવા માટે સ્વાઇપ કરો </string>
-    <string name="setting_up_keyboard">કીબોર્ડ સેટ અપ થઈ રહ્યું છે </string>
 	<string name="close_gps">તમારા Hike ડાયરેક્ટ જોડાણને અસર થશે નહીં. તમારા Hike ડાયરેક્ટ જોડાણને અસર થશે નહીં.</string>
 	<string name="gps_not_on">માફ કરશો જો જીપીએસ ઑન હશે નહીં તો Hike ડાયરેક્ટ કાર્ય કરશે નહીં.</string>
 	<string name="switch_on_gps">Hike ડાયરેક્ટ કાર્ય કરવા માટે કૃપા કરીને સ્થાન સક્ષમ કરો. એક વાર તમે પૂર્ણ કરો પછી બૅક દબાવો. </string>

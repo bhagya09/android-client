@@ -1223,13 +1223,6 @@
     <string name="enable_saved_contact_view_side_text">সংরক্ষিত যোগাযোগদের জন্যেও কলারের তথ্য দেখান</string>
     <string name="choose_language">ভাষা বাছুন</string>
     <string name="choose_language_desciption">এখন আপনার প্রিয় ভাষায় আপনার প্রিয় মেসেঞ্জার</string>
-    <string name="system_language">সিস্টেম ভাষা</string>
-    <string name="regional_keyboard">আঞ্চলিক কীবোর্ড</string>
-    <string name="regional_keyboard_subtext">এখন নতুন কীবোর্ডে আপনার প্রিয় ভাষায় চ্যাট করুন</string>
-    <string name="CHOOSE_LANGUAGE">ভাষা বাছুনভাষা বাছুন</string>
-    <string name="apply">প্রয়োগ করুন</string>
-    <string name="keyboad_ftue_swipe">আপনার ভাষার মধ্যে বদলান</string>
-    <string name="setting_up_keyboard">কীবোর্ড সেট করা</string>
     <string name="close_gps">এখন আপনি  ব্যাটারি রক্ষা করতে আপনার অবস্থান বন্ধ করতে পারেন আপনার Hike ডায়রেক্ট সংযোগ ক্ষতিগ্রস্ত হবে না।</string>
     <string name="gps_not_on">দুঃখিত Hike ডায়রেক্ট কাজ করবে না যদি জিপিএস বন্ধ থাকে</string>
     <string name="switch_on_gps">Hike ডায়রেক্ট কাজ করার জন্য দয়া করে  অবস্থান সক্ষম করুন। আপনার করা হয়ে গেলে একবার ব্যাক টিপুন। </string>
