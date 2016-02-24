@@ -729,7 +729,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
-		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -933,7 +932,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
@@ -1222,7 +1220,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void setupAppLocalization()
 	{
 		setupLocalLanguage();
-		Logger.d("KptDebug","call to keyboard manager.time: " + System.currentTimeMillis());
 		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 
