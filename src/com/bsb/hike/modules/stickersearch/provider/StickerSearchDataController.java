@@ -97,7 +97,7 @@ public enum StickerSearchDataController
 
 		Set<String> receivedStickers = new HashSet<String>();
 		Set<String> stickersWithValidTags = new HashSet<String>();
-		Map<String, ArrayList<String>> packStoryData = new HashMap<String, ArrayList<String>>();
+		Map<String, List<String>> packStoryData = new HashMap<String, List<String>>();
 		Set<StickerEventDataContainer> eventsData = new HashSet<StickerEventDataContainer>();
 		List<StickerTagDataContainer> stickersTagData = new ArrayList<StickerTagDataContainer>();
 		Iterator<String> packs = packsData.keys();
