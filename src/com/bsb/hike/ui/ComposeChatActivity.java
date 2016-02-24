@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
@@ -1680,6 +1681,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if (isForwardingMessage||isSharingFile)
 				{
+					HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+						@Override
+						public void run()
+						{
+							sendAnalyticsMultiSelSend();
+						}
+					});
+
 					ArrayList<ContactInfo> recepientList = adapter.getAllSelectedContacts();
 
 					if(recepientList.size() == 1 && (imagesToShare.size() == 1 || !TextUtils.isEmpty(messageToShare)))
@@ -3599,5 +3608,55 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	private void sendAnalyticsMultiSelSend()
+	{
+		//Execute on worker thread
+		ArrayList<ContactInfo> recepientList = adapter.getAllSelectedContacts();
+
+		int timeline_sel = 0;
+		int contact_sel = 0;
+
+		boolean isShareSend = isSharingFile;
+
+		for(ContactInfo cInfo : recepientList)
+		{
+			if(cInfo instanceof HikeFeatureInfo)
+			{
+				timeline_sel++;
+				break;
+			}
+		}
+
+		contact_sel = Math.max(0,recepientList.size() - timeline_sel);
+
+		if(recepientList.size() == 1 && (imagesToShare.size() == 1 || !TextUtils.isEmpty(messageToShare)))
+		{
+			//No need to show confirmation since we are opening statusupdate activity
+			if(recepientList.get(0) instanceof HikeFeatureInfo)
+			{
+				return;
+			}
+		}
+
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.MULSEL_SEND);
+
+			JSONObject mdJson = new JSONObject();
+
+			mdJson.put(HikeConstants.LogEvent.MULSEL_TIMELINE_SEL,timeline_sel);
+			mdJson.put(HikeConstants.LogEvent.MULSEL_CONTACT_SEL,contact_sel);
+			mdJson.put(HikeConstants.LogEvent.MULSEL_IS_SHARE,isShareSend);
+
+			json.put(AnalyticsConstants.METADATA,mdJson);
+
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

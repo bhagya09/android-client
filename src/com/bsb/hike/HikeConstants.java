@@ -2489,6 +2489,31 @@ public class HikeConstants
 
 		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
 
+		public static final String TAP_EDIT = "photo_filter";
+
+		public static final String TAP_CROP = "photo_crop";
+
+		public static final String TAP_CROP_ACCEPT = "photo_crop_ac";
+
+		public static final String TAP_DELETE = "photo_dlt";
+
+		public static final String TAP_ROTATE = "photo_rotate";
+
+		public static final String EDIT_SEND = "edit_send";
+
+		public static final String EDIT_SEND_FILTER = "flt";
+
+		public static final String EDIT_SEND_NO_FILTER = "no_flt";
+
+		public static final String MULSEL_SEND = "mlsel_send";
+
+		public static final String MULSEL_IS_SHARE = "is_share";
+
+		public static final String MULSEL_TIMELINE_SEL = "tl_sel";
+
+		public static final String MULSEL_CONTACT_SEL = "conv_sel";
+
+
 		// Broadcast
 		public static final String NEW_BROADCAST_VIA_OVERFLOW = "nbcOf";
 

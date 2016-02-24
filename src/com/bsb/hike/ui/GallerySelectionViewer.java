@@ -45,6 +45,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -68,6 +69,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
 import com.edmodo.cropper.CropImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
 {
@@ -449,6 +453,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			@Override
 			public void onClick(View v)
 			{
+				sendAnalyticsEditSend();
 				if(forGalleryShare)
 				{
 					Intent data = new Intent();
@@ -544,6 +549,32 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		StatusBarColorChanger.setStatusBarColor(getWindow(),HikeConstants.STATUS_BAR_TRANSPARENT);
 	}
 
+	private void sendAnalyticsEditSend()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.EDIT_SEND);
+
+			JSONObject mdJson = new JSONObject();
+			ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
+
+			int numberEdited = Utils.isEmpty(editedImages)?0:editedImages.size();
+			int numberTotal = Utils.isEmpty(selectedFiles)?0:selectedFiles.size();
+
+			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_FILTER,numberEdited);
+			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_NO_FILTER,Math.max(0,numberTotal - numberEdited));
+
+			json.put(AnalyticsConstants.METADATA,mdJson);
+
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	private void editSelectedImage()
 	{
 		int currPos = selectedPager.getCurrentItem();
@@ -554,6 +585,21 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		Intent intent = IntentFactory.getPictureEditorActivityIntent(GallerySelectionViewer.this, selectedFilePath, forGalleryShare,destinationFilePath , false);
 		startActivityForResult(intent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		removeCacheThumbnailForSelection();
+		sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_EDIT);
+	}
+
+	private void sendAnalyticsUiClick(String eventKey)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, eventKey);
+			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void removeCacheThumbnailForSelection()
@@ -641,6 +687,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			case R.id.ib_crop:
 				Utils.hideSoftKeyboard(GallerySelectionViewer.this);
 				setCropViewVisibility(true);
+				sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_CROP);
 				break;
 			case R.id.ib_edit:
 				Utils.hideSoftKeyboard(GallerySelectionViewer.this);
@@ -648,9 +695,11 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				break;
 			case R.id.ib_remove:
                 removeSelectionClickListener.onClick(null);
+				sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_DELETE);
 				break;
 			case R.id.rotateLeft:
 				cropImageView.rotateImage(90);
+				sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_ROTATE);
 				break;
 			case R.id.cancel:
 				int rotation = cropImageView.getDegreesRotated();
@@ -662,6 +711,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			setCropViewVisibility(false);
 			break;
 		case R.id.accept:
+			sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_CROP_ACCEPT);
 			removeCacheThumbnailForSelection();
 			Bitmap croppedImage = cropImageView.getCroppedImage();
 			int currPos = selectedPager.getCurrentItem();
