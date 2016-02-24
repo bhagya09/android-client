@@ -419,9 +419,61 @@ public interface DBConstants
 	{
 		public static final String CHAT_BG_TABLE = "chatBgTable";
 
+		//analogous to a unique id for every theme (themeId)
 		public static final String BG_ID = "bgId";
 
 		public static final String CHAT_BG_INDEX = "chatBgIndex";
+
+		//stores the assetIds associated with a particular theme
+		public static final String CHAT_THEME_TABLE = "chatThemeTable";
+
+		//stores the asset value/location corresponding to a unique asset
+		public static final String CHAT_THEME_ASSET_TABLE = "chatThemeAssetTable";
+
+
+
+		//Columns for CHAT_THEME_ASSET_TABLE
+
+		public static final String ASSET_ID_COL = "assetId";
+
+		public static final String ASSET_TYPE_COL = "assetType";
+
+		public static final String ASSET_VAL_COL = "assetVal";
+
+		public static final String ASSET_IS_DOWNLOADED_COL = "isDownloaded";
+
+		public static final String ASSET_TIMESTAMP_COL = "timestamp";
+
+
+
+		//Columns for CHAT_THEME_TABLE
+
+		// to tell whether a theme is animated/tiled/audio or none
+		public static final String THEME_STATUS_COL = "themeStatus";
+
+		public static final String BG_ASSET_PORTRAIT_COL = "bgPortraitAsset"; //BG = background
+
+		public static final String BG_ASSET_LANDSCAPE_COL = "bgLandscapeAsset";
+
+		public static final String BUBBLE_ASSET_COL = "bubbleAsset";
+
+		public static final String HEADER_ASSET_COL = "headerAsset";
+
+		public static final String SEND_NUDGE_ASSET_COL = "sendNudgeAsset";
+
+		public static final String RECEIVE_NUDGE_ASSET_COL = "receiveNudgeAsset";
+
+		public static final String INLINE_UPDATE_BG_RESOURCE_COL = "inlineUpdateBGResource";
+
+		public static final String SMS_BG_RESOURCE_COL = "smsBgResource";
+
+		public static final String MULTI_SELECT_BUBBLE_COLOR_ASSET_COL = "multiColorBubbleColor";
+
+		public static final String OFFLINE_MESSAGE_TEXT_COLOR_COL = "offlineMessageTextColor";
+
+		public static final String THUMBNAIL_ASSET_COL = "thumbnail";
+
+		public static final String CT_METADATA_COL = "metadata"; //CT = chat theme
 
 	}
 
@@ -476,5 +528,11 @@ public interface DBConstants
 	 */
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
+
+	public static final String COLUMN_TYPE_TEXT = " TEXT";
+
+	public static final String COLUMN_TYPE_INTEGER = " INTEGER";
+
+	public static final String COMMA_SEPARATOR = ",";
 	
 }
