@@ -666,6 +666,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(j));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, availability);
+					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
+					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
 
 					uniqueKey = stickerCode + StickerSearchConstants.STRING_DELIMITER + tag + StickerSearchConstants.STRING_DELIMITER + language;
 					ContentValues existingCv = existingTagData.get(uniqueKey);
@@ -703,16 +705,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					else
 					{
 						// Case 2. At least one row for given sticker and tag was found in database, update the language data
-						if (cv.equals(existingCv))
+						if (cv.equals(existingCv) && (isLanguageUpdateNeeded))
 						{
-							if (isLanguageUpdateNeeded)
-							{
-								cv.clear();
-								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
-							}
-
-							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
-							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
+							cv.clear();
+							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
 
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
@@ -723,9 +719,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 							{
 								cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
 							}
-
-							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
-							cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
 
 							mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, whereConditionToQueryAndUpdate, new String[] { tag, stickerCode, language });
 						}
