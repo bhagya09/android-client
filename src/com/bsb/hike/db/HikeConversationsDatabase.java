@@ -1,5 +1,7 @@
 package com.bsb.hike.db;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -9004,5 +9006,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.URL + " TEXT, "        //URL THAT IS RELATED TO THIS KEY.
 				+  ")";
 	}
+	// Function to insert URL in URL table
+
+	public long insertURL(String urlKey, String url)
+	{
+		try
+		{
+			java.net.URL u = new java.net.URL(url);
+		}
+		catch (MalformedURLException e)
+		{
+			return -1;
+		}
+		try
+		{
+
+			ContentValues values = new ContentValues();
+			values.put(DBConstants.URL_KEY, urlKey);
+			values.put(DBConstants.URL, url);
+			return mDb.insert(DBConstants.MESSAGE_EVENT_TABLE, null, values);
+		}
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Error in Inserting URL " + e.toString());
+			return -1;
+		}
+	}
+
+	// Function to get URL
+
+	public String getURL(String urlKey)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
+
+			if (!c.moveToFirst())
+			{
+				return null;
+			}
+
+			return c.getString(c.getColumnIndex(DBConstants.URL));
+
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
 
 }
