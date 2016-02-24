@@ -567,6 +567,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					int stickerCodeIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
 					int tagLanguageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE);
 					int popularityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY);
+					int timeStampEventsRanksIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS);
+					int dayEventsRanksIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS);
 					int availabilityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY);
 
 					while (c.moveToNext())
@@ -575,6 +577,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, c.getInt(exactnessOrderIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, c.getInt(momentCodeIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, c.getInt(popularityIndex));
+						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, c.getString(timeStampEventsRanksIndex));
+						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, c.getString(dayEventsRanksIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, c.getInt(availabilityIndex));
 
 						uniqueKey = c.getString(stickerCodeIndex) + StickerSearchConstants.STRING_DELIMITER + c.getString(tagPhraseIndex) + StickerSearchConstants.STRING_DELIMITER
@@ -595,16 +599,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 
 			operationOverTime = System.currentTimeMillis();
-			Logger.i(
-					TAG_INSERTION,
-					"Time taken in individual query (on group of tags) = "
-							+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+			Logger.i(TAG_INSERTION, "Time taken in individual query (on group of tags) = "
+					+ Utils.getExecutionTimeLog(operationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 		}
 
-		Logger.d(
-				TAG_INSERTION,
-				"Time taken in overall tag data query = "
-						+ Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
+		Logger.d(TAG_INSERTION, "Time taken in overall tag data query = "
+				+ Utils.getExecutionTimeLog(queryOperationStartTime, operationOverTime, ExecutionDurationLogger.PRECISION_UNIT_MILLI_SECOND));
 
 		// Tag data setup (update/ insert) operation
 		operationStartTime = System.currentTimeMillis();
@@ -705,7 +705,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					else
 					{
 						// Case 2. At least one row for given sticker and tag was found in database, update the language data
-						if (cv.equals(existingCv) && (isLanguageUpdateNeeded))
+						if (cv.equals(existingCv) && isLanguageUpdateNeeded)
 						{
 							cv.clear();
 							cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE, language);
