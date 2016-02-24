@@ -9024,7 +9024,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues values = new ContentValues();
 			values.put(DBConstants.URL_KEY, urlKey);
 			values.put(DBConstants.URL, Utils.encrypt(url));
-			return mDb.insert(DBConstants.MESSAGE_EVENT_TABLE, null, values);
+			return mDb.insertWithOnConflict(DBConstants.URL_TABLE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 		}
 		catch (Exception e)
 		{
