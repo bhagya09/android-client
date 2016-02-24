@@ -287,6 +287,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 		db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 
+		sql = getURLTableCreateStatement();
+		db.execSQL(sql);
+
+		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+		db.execSQL(sql);
+
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
 	}
@@ -316,6 +322,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
+		mDb.delete(DBConstants.URL_TABLE, null, null);
 	}
 
 	@Override
@@ -863,6 +870,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
+		}
+
+		if (oldVersion < 48)
+		{
+			String sql = getURLTableCreateStatement();
+			db.execSQL(sql);
+
+			sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+			db.execSQL(sql);
 		}
 
 	}
@@ -8977,6 +8993,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 
 		return -1;
+	}
+	//Sql statement to maintain Infra URL table
+
+	private String getURLTableCreateStatement()
+	{
+		return CREATE_TABLE + DBConstants.URL_TABLE
+				+ " ("
+				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
+				+ DBConstants.URL + " TEXT, "        //URL THAT IS RELATED TO THIS KEY.
+				+  ")";
 	}
 
 }
