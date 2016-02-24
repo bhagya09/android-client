@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ColorMatrix;
 import android.graphics.Bitmap.Config;
+import android.graphics.ColorMatrixColorFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v8.renderscript.Allocation;
@@ -214,6 +215,24 @@ public final class HikeEffectsFactory
 		}
 		instance.beginEffectAsyncTask(listener, type, true);
 
+	}
+
+
+	public static ColorMatrixColorFilter getGreenDownShiftFilter()
+	{
+		float[] colorTransform = {
+				1, 0, 0, 0, 0,
+				0, 1, 0, 0, -3f,
+				0, 0, 1, 0, 0,
+				0, 0, 0, 1, 0
+		};
+
+		ColorMatrix colorMatrix = new ColorMatrix();
+		colorMatrix.setSaturation(0f); //Remove Colour
+		colorMatrix.set(colorTransform);
+
+		ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
+		return colorFilter;
 	}
 
 	/**

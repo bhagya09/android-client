@@ -16,6 +16,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -1143,6 +1144,12 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		case AttachmentPicker.CAMERA:
 
 			String filename = Utils.getCameraResultFile();
+			if(TextUtils.isEmpty(filename))
+			{
+				imageParseFailed();
+				return;
+			}
+
 			ArrayList<String> filePathArrays = new ArrayList<String>();
 			filePathArrays.add(filename);
 			ArrayList<GalleryItem> galleryItemArrayList = GalleryItem.getGalleryItemsFromFilepaths(filePathArrays);

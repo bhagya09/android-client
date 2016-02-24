@@ -444,24 +444,6 @@ public class HikePhotosUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 	
-	public static ColorMatrixColorFilter getGreenDownShiftFilter()
-	{
-		float[] colorTransform = {
-	            1, 0, 0, 0, 0,
-	            0, 1, 0, 0, -5f,
-	            0, 0, 1, 0, 0,
-	            0, 0, 0, 1, 0 
-	            };
-
-	    ColorMatrix colorMatrix = new ColorMatrix();
-	    colorMatrix.setSaturation(0f); //Remove Colour 
-	    colorMatrix.set(colorTransform);
-
-	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
-	    return colorFilter;
-	}
-
-
 	public static Bitmap scaleAdvanced(Bitmap argBmp, final float maxWidth, final float maxHeight, boolean applyGreenDownShiftFilter)
 	{
 		Matrix scaleTransformation = null;
@@ -478,7 +460,7 @@ public class HikePhotosUtils
 			scaleTransformation.setScale(s1, s1);
 		}
 
-		ColorMatrixColorFilter colorFilter = HikePhotosUtils.getGreenDownShiftFilter();
+		ColorMatrixColorFilter colorFilter = HikeEffectsFactory.getGreenDownShiftFilter();
 
 		argBmp.setHasAlpha(true);
 
@@ -506,35 +488,6 @@ public class HikePhotosUtils
 		}
 
 		return scaledBitmap;
-	}
-
-	/**
-	 * TODO Test and make generic method
-	 *
-	 * @param argBmp
-	 */
-	private void blur(Bitmap argBmp, Context argContext)
-	{
-		final RenderScript rs = RenderScript.create(argContext);
-		final Allocation input = Allocation.createFromBitmap( rs, argBmp, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT );
-		final Allocation output = Allocation.createTyped( rs, input.getType() );
-		final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-		script.setRadius( 1.0f );
-		script.setInput(input);
-		script.forEach(output);
-		output.copyTo( argBmp );
-	}
-
-	private boolean shouldBlur(Bitmap argBmp, int maxWidth, int maxHeight)
-	{
-		int BLUR_THRESHOLD = 80;
-
-		int sourceSize = argBmp.getWidth() * argBmp.getHeight();
-
-		int destSize = maxWidth * maxHeight;
-
-		//TODO
-		return true;
 	}
 
 	public static BitmapFactory.Options getLoadingOptionsAdvanced()
