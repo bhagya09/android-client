@@ -7,8 +7,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -268,8 +268,6 @@ public class CustomWebView extends WebView
 			return;
 		}
 
-		stopLoading();
-		clearHistory();
 //		setConfigCallback(null);
 		if (ON_PAUSE_METHOD != null)
 		{
