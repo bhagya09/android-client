@@ -24,6 +24,7 @@ import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer
 import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager.Event;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -1351,9 +1352,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return tempReferences;
 	}
 
-	public Map<Pair<Long, String>, Pair<String, String>> readAllEventsData()
+	public Map<Long, Event> readAllEventsData()
 	{
-		Map<Pair<Long, String>, Pair<String, String>> rawData = null;
+		Map<Long, Event> rawData = null;
 		Cursor c = null;
 
 		try
@@ -1365,7 +1366,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			if (count > 0)
 			{
-				rawData = new HashMap<Pair<Long, String>, Pair<String, String>>();
+				rawData = new HashMap<Long, Event>();
 				int idIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
 				int eventIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_NAME);
 				int eventNamesIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY);
@@ -1373,10 +1374,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				while (c.moveToNext())
 				{
-					Pair<Long, String> eventIdentifier = new Pair<Long, String>(c.getLong(idIndex), c.getString(eventIdIndex));
-					Pair<String, String> eventNamesAndRanges = new Pair<String, String>(c.getString(eventNamesIndex), c.getString(eventRangesIndex));
-
-					rawData.put(eventIdentifier, eventNamesAndRanges);
+					Event event = new Event(c.getString(eventIdIndex), c.getString(eventNamesIndex), c.getString(eventRangesIndex));
+					rawData.put(c.getLong(idIndex), event);
 				}
 
 				Logger.i(TAG, "readAllEventsData(), Search findings count = " + rawData.size());

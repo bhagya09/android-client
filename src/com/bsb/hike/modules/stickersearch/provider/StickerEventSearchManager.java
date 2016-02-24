@@ -21,8 +21,6 @@ import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-import android.util.Pair;
-
 public enum StickerEventSearchManager
 {
 	INSTANCE;
@@ -42,24 +40,17 @@ public enum StickerEventSearchManager
 		Logger.i(TAG, "loadNowCastEvents()");
 
 		sLatestEventLoadingTime = System.currentTimeMillis();
-		Map<Pair<Long, String>, Pair<String, String>> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();
+		Map<Long, Event> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();
 
 		int eventCount = (rawData == null) ? 0 : rawData.size();
 		if (eventCount > 0)
 		{
-			Set<Pair<Long, String>> ids = rawData.keySet();
-			long id;
-			String eventId;
-			Pair<String, String> eventData;
+			Set<Long> ids = rawData.keySet();
 			Event event;
 
-			for (Pair<Long, String> idPair : ids)
+			for (Long id : ids)
 			{
-				id = idPair.first;
-				eventId = idPair.second;
-				eventData = rawData.get(idPair);
-				event = new Event(eventId, eventData.first, eventData.second);
-
+				event = rawData.get(id);
 				if (event.nowCast())
 				{
 					sCacheForNowCastEvents.put(id, event);
@@ -123,7 +114,7 @@ public enum StickerEventSearchManager
 		sLatestEventLoadingTime = 0;
 	}
 
-	private static class Event
+	public static class Event
 	{
 		private String mEventName;
 
@@ -133,7 +124,7 @@ public enum StickerEventSearchManager
 
 		private boolean mNowCast = false;
 
-		private Event(String eventId, String names, String ranges)
+		public Event(String eventId, String names, String ranges)
 		{
 			mEventName = eventId;
 			mOtherNames = StickerSearchUtility.split(names, StickerSearchConstants.REGEX_SPACE);
@@ -179,22 +170,22 @@ public enum StickerEventSearchManager
 			}
 		}
 
-		private String getEventName()
+		public String getEventName()
 		{
 			return mEventName;
 		}
 
-		private ArrayList<String> getOtherNames()
+		public ArrayList<String> getOtherNames()
 		{
 			return mOtherNames;
 		}
 
-		private int getTimeStampRangeIndex()
+		public int getTimeStampRangeIndex()
 		{
 			return mTimeStampRangeIndex;
 		}
 
-		private boolean nowCast()
+		public boolean nowCast()
 		{
 			return mNowCast;
 		}
