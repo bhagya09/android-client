@@ -45,6 +45,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
@@ -1806,5 +1807,41 @@ public class PlatformUtils
 			Logger.e("productpopup", "Invalid JSON", e);
 		}
 		return convMessage;
+	}
+
+	public static void insertUrl(JSONArray array) {
+		String key;
+		String url;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				url = jsonObject.getString(HikeConstants.URL);
+				db.insertURL(key, url);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
+	}
+
+	public static void deleteUrl(JSONArray array) {
+		String key;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				db.deleteURL(key);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
 	}
 }

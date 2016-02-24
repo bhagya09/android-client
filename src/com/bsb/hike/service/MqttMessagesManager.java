@@ -2744,6 +2744,32 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+		if (data.has(HikeConstants.ADD_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.ADD_URL);
+				PlatformUtils.insertUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+		}
+		if (data.has(HikeConstants.DELETE_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.DELETE_URL);
+				PlatformUtils.deleteUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+			
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

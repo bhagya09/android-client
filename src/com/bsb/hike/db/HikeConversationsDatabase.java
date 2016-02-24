@@ -9060,5 +9060,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	}
 
+	public void deleteURL(String urlKey)
+	{
+		mDb.delete(DBConstants.URL_TABLE, DBConstants.URL_KEY + "=?", new String[]{urlKey});
+	}
+
 
 }
