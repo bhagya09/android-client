@@ -112,6 +112,18 @@ public class HikeConstants
 	public static final String NEW_USER = "nu";
 
 	public static final String EMAIL = "email";
+	
+	public static final String PRODUCT = "product";
+	
+	public static final String CLIENT_URL = "clienturl";
+	
+	public static final String CLIENT_IMAGE_URL = "imageurl";
+	
+	public static final String CLIENT_TYPE = "client_type";
+	
+	public static final String PACKAGE_NAME = "package_name";
+	
+	public static final String SHA1 = "sha1";
 
 	public static final String GENDER = "gender";
 

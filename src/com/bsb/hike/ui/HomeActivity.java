@@ -2201,6 +2201,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
 				case R.string.wallet_menu:
+					
 					intent = IntentFactory.getNonMessagingBotIntent("+hikepay+",getApplicationContext());
 					break;
 					
