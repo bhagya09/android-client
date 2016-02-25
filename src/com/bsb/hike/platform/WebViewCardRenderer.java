@@ -43,12 +43,6 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MovingList;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.ContentModules.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
@@ -298,19 +292,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		else
 		{
             final WebViewHolder holder = (WebViewHolder) view.getTag();
-            String appName = (String) holder.customWebView.getTag(R.string.tag_app_name_index);
+            String appName = (String) holder.customWebView.getTag(R.id.appname_key);
             ArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(appName);
             if(webViewHolders != null)
                 webViewHolders.remove(holder);
 		}
 		final WebViewHolder viewHolder = (WebViewHolder) view.getTag();
-
 		final CustomWebView web = viewHolder.customWebView;
 
-		web.setTag(R.string.tag_msg_id_index,((int)convMessage.getMsgID()));
-        web.setTag(R.string.tag_position_index,position);
-        web.setTag(R.string.tag_app_name_index,convMessage.webMetadata.getAppName());
-        web.setTag(R.string.tag_conv_message_index,convMessage);
+		web.setTag(R.id.msg_id_key,((int)convMessage.getMsgID()));
+        web.setTag(R.id.position_key,position);
+        web.setTag(R.id.appname_key,convMessage.webMetadata.getAppName());
+        web.setTag(R.id.conv_message_key,convMessage);
 
 		orientationChangeHandling(web);
 		
@@ -379,7 +372,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			if (webViewHolderMap.get(appName) == null)
 			{
                 ArrayList<WebViewHolder> viewHolders = new ArrayList<WebViewHolder>();
-
                 viewHolders.add(viewHolder);
 				webViewHolderMap.put(appName, viewHolders);
 			}
@@ -389,7 +381,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				viewHolders.add(viewHolder);
 				webViewHolderMap.put(appName, viewHolders);
 			}
-			initiateCBotDownload(appName, isBotEnabled);
+			PlatformUtils.initiateCBotDownload(appName, isBotEnabled);
 		}
 		else
 		{
@@ -424,7 +416,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				{
 					viewHolder.templatingTime = -1;
 					viewHolder.id = 0;
-					if((Integer)viewHolder.customWebView.getTag(R.string.tag_msg_id_index) == uniqueId)
+					if((Integer)viewHolder.customWebView.getTag(R.id.msg_id_key) == uniqueId)
 					{
 						Logger.e(tag, "error");
 						showConnErrState(viewHolder, convMessage, position);
@@ -443,7 +435,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					if(content!= null && content.getFormedData()!=null)
 					{
 						// If webview has not been used
-						if((Integer)viewHolder.customWebView.getTag(R.string.tag_msg_id_index) == content.getUniqueId())
+						if((Integer)viewHolder.customWebView.getTag(R.id.msg_id_key) == content.getUniqueId())
 						{
 							viewHolder.id = getItemId(position);
 							viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime - startTime;
@@ -699,8 +691,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
                 if(viewHolders != null) {
                     for (WebViewHolder viewHolder : viewHolders) {
-                        int position = (Integer) viewHolder.customWebView.getTag(R.string.tag_position_index);
-                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.string.tag_conv_message_index);
+                        int position = (Integer) viewHolder.customWebView.getTag(R.id.position_key);
+                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.id.conv_message_key);
 
                         // If the required bot is successfully created, try to load that content in webview
                         if (isBotCreationSuccess)
@@ -723,8 +715,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
                 if(viewHolders != null) {
                     for (WebViewHolder viewHolder : viewHolders) {
-                        int position = (Integer) viewHolder.customWebView.getTag(R.string.tag_position_index);
-                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.string.tag_conv_message_index);
+                        int position = (Integer) viewHolder.customWebView.getTag(R.id.position_key);
+                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.id.conv_message_key);
 
                         // If the required bot is successfully created, try to load that content in webview
                         if (isMappCreationSuccess)
@@ -879,56 +871,5 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			}
 		}
 	}
-
-    /*
-	 * Method to make a post call to server with necessary params requesting for initiating Cbot Sample Json to be sent in network call ::
-	 * { "apps": { "name": "+hikenews+" } }
-	 */
-    private void initiateCBotDownload(final String appName, final boolean isBotEnabled)
-    {
-        // Json to send to install.json on server requesting for micro app download
-        JSONObject json = new JSONObject();
-
-        try
-        {
-            // Json object containing all the information required for one micro app
-            JSONObject appsJsonObject = new JSONObject();
-            appsJsonObject.put(HikePlatformConstants.NAME, appName);
-
-            // Put apps JsonObject in the final json
-            json.put(HikePlatformConstants.APPS, appsJsonObject);
-        }
-        catch (JSONException e)
-        {
-            Logger.d("Json Exception :: ", e.toString());
-        }
-
-        // Code for micro app request to the server
-        RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
-        {
-
-            @Override
-            public void onRequestSuccess(Response result)
-            {
-                Logger.d(TAG, "Bot download request success for " + appName + result.getBody().getContent());
-            }
-
-            @Override
-            public void onRequestProgressUpdate(float progress)
-            {
-
-            }
-
-            @Override
-            public void onRequestFailure(HttpException httpException)
-            {
-                Logger.v(TAG, "Bot download request failure for " + appName);
-            }
-        });
-        if (!token.isRequestRunning())
-        {
-            token.execute();
-        }
-    }
 
 }

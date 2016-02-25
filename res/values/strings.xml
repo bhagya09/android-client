@@ -1506,8 +1506,4 @@
     <string name="english">English</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
-    <string name="tag_msg_id_index">tag_msg_id_index</string>
-    <string name="tag_position_index">tag_position_index</string>
-    <string name="tag_app_name_index">tag_app_name_index</string>
-    <string name="tag_conv_message_index">tag_conv_message_index</string>
 </resources>
