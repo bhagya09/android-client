@@ -415,12 +415,12 @@ public interface DBConstants
 		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
 	}
 
-	public static interface ChatThemes
+	public static class ChatThemes
 	{
 		public static final String CHAT_BG_TABLE = "chatBgTable";
 
 		//analogous to a unique id for every theme (themeId)
-		public static final String BG_ID = "bgId";
+		public static final String THEME_COL_BG_ID = "bgId";
 
 		public static final String CHAT_BG_INDEX = "chatBgIndex";
 
@@ -430,50 +430,49 @@ public interface DBConstants
 		//stores the asset value/location corresponding to a unique asset
 		public static final String CHAT_THEME_ASSET_TABLE = "chatThemeAssetTable";
 
+		public static final String CHAT_THEME_TIMESTAMP_COL = "timestamp";
 
 
 		//Columns for CHAT_THEME_ASSET_TABLE
 
-		public static final String ASSET_ID_COL = "assetId";
+		public static final String ASSET_COL_ID = "assetId";
 
-		public static final String ASSET_TYPE_COL = "assetType";
+		public static final String ASSET_COL_TYPE = "assetType";
 
-		public static final String ASSET_VAL_COL = "assetVal";
+		public static final String ASSET_COL_VAL = "assetVal";
 
-		public static final String ASSET_IS_DOWNLOADED_COL = "isDownloaded";
-
-		public static final String ASSET_TIMESTAMP_COL = "timestamp";
+		public static final String ASSET_COL_IS_DOWNLOADED = "isDownloaded";
 
 
 
 		//Columns for CHAT_THEME_TABLE
 
 		// to tell whether a theme is animated/tiled/audio or none
-		public static final String THEME_STATUS_COL = "themeStatus";
+		public static final String THEME_COL_TYPE = "themeType";
 
-		public static final String BG_ASSET_PORTRAIT_COL = "bgPortraitAsset"; //BG = background
+		public static final String THEME_COL_BG_PORTRAIT = "bgPortrait"; //BG = background
 
-		public static final String BG_ASSET_LANDSCAPE_COL = "bgLandscapeAsset";
+		public static final String THEME_COL_BG_LANDSCAPE = "bgLandscape";
 
-		public static final String BUBBLE_ASSET_COL = "bubbleAsset";
+		public static final String THEME_COL_BUBBLE = "bubble";
 
-		public static final String HEADER_ASSET_COL = "headerAsset";
+		public static final String THEME_COL_HEADER = "header";
 
-		public static final String SEND_NUDGE_ASSET_COL = "sendNudgeAsset";
+		public static final String THEME_COL_SEND_NUDGE = "sendNudge";
 
-		public static final String RECEIVE_NUDGE_ASSET_COL = "receiveNudgeAsset";
+		public static final String THEME_COL_RECEIVE_NUDGE = "receiveNudge";
 
-		public static final String INLINE_UPDATE_BG_RESOURCE_COL = "inlineUpdateBGResource";
+		public static final String THEME_COL_INLINE_UPDATE_BG = "inlineUpdateBG";
 
-		public static final String SMS_BG_RESOURCE_COL = "smsBgResource";
+		public static final String THEME_COL_SMS_BG = "smsBg";
 
-		public static final String MULTI_SELECT_BUBBLE_COLOR_ASSET_COL = "multiColorBubbleColor";
+		public static final String THEME_COL_MULTI_SELECT_BUBBLE_COLOR = "multiSelectBubbleColor";
 
-		public static final String OFFLINE_MESSAGE_TEXT_COLOR_COL = "offlineMessageTextColor";
+		public static final String THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR = "offlineMessageTextColor";
 
-		public static final String THUMBNAIL_ASSET_COL = "thumbnail";
+		public static final String THEME_COL_THUMBNAIL = "thumbnail";
 
-		public static final String CT_METADATA_COL = "metadata"; //CT = chat theme
+		public static final String THEME_COL_METADATA = "metadata";
 
 	}
 

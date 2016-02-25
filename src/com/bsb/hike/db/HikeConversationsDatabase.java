@@ -245,7 +245,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.ChatThemes.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.ChatThemes.THEME_COL_BG_ID + " TEXT, " // Chat theme id
 				+ DBConstants.TIMESTAMP + " INTEGER" // Timestamp when this them was changed.
 				+ ")";
 		db.execSQL(sql);
@@ -591,7 +591,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 */
 		if (oldVersion < 22)
 		{
-			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.ChatThemes.BG_ID + " TEXT)";
+			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + " TEXT UNIQUE, " + DBConstants.ChatThemes.THEME_COL_BG_ID + " TEXT)";
 			db.execSQL(sql);
 			sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 			db.execSQL(sql);
@@ -5980,7 +5980,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.ChatThemes.BG_ID, bgId);
+		values.put(DBConstants.ChatThemes.THEME_COL_BG_ID, bgId);
 		values.put(DBConstants.TIMESTAMP, timeStamp);
 
 		mDb.insertWithOnConflict(DBConstants.ChatThemes.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -5991,11 +5991,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.TIMESTAMP, DBConstants.ChatThemes.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
+			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.TIMESTAMP, DBConstants.ChatThemes.THEME_COL_BG_ID}, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
 					null);
 			if (c.moveToFirst())
 			{
-				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.BG_ID)));
+				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID)));
 				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.TIMESTAMP));
 
 				return new Pair<ChatTheme, Long>(chatTheme, timeStamp);
@@ -6016,12 +6016,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.ChatThemes.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.ChatThemes.THEME_COL_BG_ID}, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 			if (c.moveToFirst())
 			{
 				try
 				{
-					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.BG_ID)));
+					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID)));
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -6054,7 +6054,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		try
 		{
 			ih = new InsertHelper(mDb, DBConstants.ChatThemes.CHAT_BG_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.ChatThemes.BG_ID + " ) "
+			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.ChatThemes.THEME_COL_BG_ID + " ) "
 					+ " VALUES (?, ?)");
 			mDb.beginTransaction();
 
@@ -6099,7 +6099,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 
 				insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.ChatThemes.BG_ID), bgId);
+				insertStatement.bindString(ih.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID), bgId);
 
 				insertStatement.executeInsert();
 
@@ -7391,7 +7391,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { stickerCategory.getCategoryId() });
+		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{stickerCategory.getCategoryId()});
 	}
 
 	public void insertInToStickerCategoriesTable(StickerCategory stickerCategory)
@@ -8979,4 +8979,50 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return -1;
 	}
 
+	//Methods to create the query for table creation for OTA Chat Themes
+	/**
+	 * Method to create a query for creating CHAT_THEME_ASSET_TABLE in the database
+	 * @return string containing a sql query that creates the CHAT_THEME_ASSET_TABLE
+	 */
+	public static String getAssetTableCreateQuery()
+	{
+		StringBuilder createAssetTableQuery = new StringBuilder();
+		createAssetTableQuery = createAssetTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_ASSET_TABLE + " (")
+													 .append(ChatThemes.ASSET_COL_ID 				+ COLUMN_TYPE_TEXT 		+ " PRIMARY KEY" + COMMA_SEPARATOR)
+													 .append(ChatThemes.ASSET_COL_TYPE 				+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+													 .append(ChatThemes.ASSET_COL_VAL 				+ COLUMN_TYPE_TEXT 		+ COMMA_SEPARATOR)
+													 .append(ChatThemes.ASSET_COL_IS_DOWNLOADED 	+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL    + COLUMN_TYPE_INTEGER)
+													 .append(")");
+
+		return createAssetTableQuery.toString();
+	}
+
+	/**
+	 * Method to create a query for creating CHAT_THEME_TABLE in the database
+	 * @return string containing a sql query that create the CHAT_THEME_TABLE
+	 */
+	public static String getThemeTableCreateQuery()
+	{
+		StringBuilder createThemeTableQuery = new StringBuilder();
+		createThemeTableQuery = createThemeTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_TABLE + " (")
+													 .append(ChatThemes.THEME_COL_BG_ID 					  + COLUMN_TYPE_TEXT + " PRIMARY KEY" 	+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_TYPE                        + COLUMN_TYPE_INTEGER 				+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_BG_PORTRAIT                 + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_BG_LANDSCAPE                + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_BUBBLE                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_HEADER                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_SEND_NUDGE 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_RECEIVE_NUDGE 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_INLINE_UPDATE_BG 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_SMS_BG 					  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR	  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_THUMBNAIL 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL			  + COLUMN_TYPE_INTEGER					+ COMMA_SEPARATOR)
+													 .append(ChatThemes.THEME_COL_METADATA 					  + COLUMN_TYPE_TEXT)
+													 .append(")");
+
+		return createThemeTableQuery.toString();
+	}
 }
