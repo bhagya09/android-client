@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -224,6 +225,8 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				{
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
+					List<Sticker> stickerList = new ArrayList<>(getStickerDownloadSize());
+
 					for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 					{
 						String stickerId = keys.next();
@@ -237,6 +240,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 							stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+							stickerList.add(new Sticker(categoryId,stickerId));
 						}
 						catch (FileNotFoundException e)
 						{
@@ -247,6 +251,8 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							Logger.w(TAG, e);
 						}
 					}
+
+					StickerManager.getInstance().saveSticker(stickerList);
 				}
 
 				requestCompleted(requestToken, false);

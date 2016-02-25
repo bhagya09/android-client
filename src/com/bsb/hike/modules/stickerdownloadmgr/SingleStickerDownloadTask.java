@@ -240,6 +240,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 							}
+
+							StickerManager.getInstance().saveSticker(new Sticker(categoryId,stickerId));
+
 							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
 						}
 					}
