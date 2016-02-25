@@ -66,7 +66,7 @@ public class ChatHeadLayout implements StickerPickerListener
 			HikeSharedPreferenceUtil.getInstance().saveData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, HikeSharedPreferenceUtil.getInstance().getData(ChatHeadConstants.DAILY_STICKER_SHARE_COUNT, 0)+1);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT, (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ChatHead.TOTAL_STICKER_SHARE_COUNT,0)+1));
 		    ChatHeadViewManager.dismissed = 0;
-			String filePathBmp = sticker.getStickerPath();
+			String filePathBmp = sticker.getLargeStickerPath();
 		    picker.resetPostionAfterSharing(filePathBmp);
 		
 		}

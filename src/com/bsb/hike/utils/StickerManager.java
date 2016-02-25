@@ -501,6 +501,27 @@ public class StickerManager
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
 
+	public Set<Sticker> getAllStickers()
+	{
+		Set<Sticker> stickerSet = null;
+
+		List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
+		if (Utils.isEmpty(stickerCategoryList))
+		{
+			Logger.wtf(TAG, "Empty sticker category list while downloading tags first time.");
+		}
+		else
+		{
+			stickerSet = new HashSet<>();
+			for (StickerCategory category : stickerCategoryList)
+			{
+				List<Sticker> stickers = category.getStickerListFromFiles();
+				stickerSet.addAll(stickers);
+			}
+		}
+		return stickerSet;
+	}
+
 	public void addRecentSticker(Sticker st)
 	{
 		if(stickerCategoriesMap.containsKey(StickerManager.RECENT))

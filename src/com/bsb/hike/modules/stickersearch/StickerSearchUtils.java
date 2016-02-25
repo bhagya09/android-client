@@ -97,7 +97,7 @@ public class StickerSearchUtils
 	{
 		int length = stickerList.size();
 
-		List<Sticker> resultList = new ArrayList<Sticker>(length);
+		List<Sticker> resultList = new ArrayList<>(length);
 
 		for (int i = 0; i < length; i++)
 		{

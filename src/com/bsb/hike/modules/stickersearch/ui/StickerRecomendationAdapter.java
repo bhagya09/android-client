@@ -1,7 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -16,6 +14,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.StickerLoader;
+
+import java.util.List;
 
 public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
@@ -35,7 +35,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	public StickerRecomendationAdapter(List<Sticker> stickerList, StickerRecommendationFragment listener)
 	{
 		this.stickerList = stickerList;
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
+		this.stickerLoader = new StickerLoader(true, true, true);
 		this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;

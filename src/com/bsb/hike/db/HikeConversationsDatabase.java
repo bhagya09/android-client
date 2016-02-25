@@ -289,6 +289,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
+
+		sql = getStickerTableCreateQuery();
+		db.execSQL(sql);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -863,6 +866,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
+		}
+
+		if(oldVersion < 48)
+		{
+			String sql = getStickerTableCreateQuery();
+			db.execSQL(sql);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
 		}
 
 	}
@@ -1923,6 +1933,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.FEED_METADATA + " TEXT DEFAULT '{}', " // md
 				+ DBConstants.FEED_TS + " INTEGER DEFAULT 0" // timestamp
 				+ ")";
+		return sql;
+	}
+
+	private String getStickerTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.STICKER_TABLE
+				+ "("
+				+ DBConstants.STICKER_ID + " TEXT, "
+				+ DBConstants.CATEGORY_ID + " TEXT, "
+				+ DBConstants.WIDTH + " INTEGER, "
+				+ DBConstants.HEIGHT + " INTEGER, "
+				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
+				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
+				+ ")";
+
 		return sql;
 	}
 
@@ -8979,4 +9004,108 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return -1;
 	}
 
+	public boolean upgradeForStickerTable()
+	{
+		boolean result = false;
+		try
+		{
+			mDb.beginTransaction();
+			moveStickerInfoToStickerTable();
+			mDb.setTransactionSuccessful();
+			result = true;
+		}
+		catch(Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Exception in upgradeForStickerTable : ", e);
+			result = false;
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+		return result;
+	}
+
+	private void moveStickerInfoToStickerTable()
+	{
+		Set<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
+		ContentValues contentValues = new ContentValues();
+		for(Sticker sticker : stickerSet)
+		{
+			contentValues.clear();
+			contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+			contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+			contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerFilePath());
+			contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerFilePath());
+
+			mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		}
+	}
+
+	public Sticker getStickerFromStickerTable(Sticker sticker)
+	{
+		if(sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
+		{
+			return null;
+		}
+
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[] {sticker.getStickerId(), sticker.getCategoryId()}, null,
+					null, null, null);
+
+			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+
+			if (c.moveToFirst())
+			{
+				String largeStickerPath = c.getString(largestickerpathIdx);
+				String smallStickerPath = c.getString(smallstickerpathIdx);
+
+				sticker.setSmallStickerPath(smallStickerPath);
+				sticker.setLargeStickerPath(largeStickerPath);
+			}
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+
+		return sticker;
+	}
+
+	public List<String> getStickerIdsForCatgeoryId(String catId)
+	{
+		Cursor c = null;
+		List<String> stickerIdsList;
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_TABLE, new String[] { DBConstants.STICKER_ID }, DBConstants.CATEGORY_ID + "=?", new String[] { catId }, null,
+					null, null, null);
+
+			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+
+			stickerIdsList = new ArrayList<>(c.getCount());
+
+			while(c.moveToNext())
+			{
+				String stickerId = c.getColumnName(stidIdx);
+				stickerIdsList.add(stickerId);
+
+			}
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+		return stickerIdsList;
+	}
 }

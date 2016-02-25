@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -27,6 +28,10 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	private StickerCategory category;
 
 	private String categoryId;
+
+	private String smallStickerPath;
+
+	private String largeStickerPath;
 
 	private boolean isAvailable;
 
@@ -77,7 +82,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	public void setStickerAvailability()
 	{
 		boolean result;
-		String path = getStickerPath();
+		String path = getLargeStickerPath();
 
 		if (!Utils.isBlank(path))
 		{
@@ -97,14 +102,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return categoryId;
 	}
 
-	public boolean isUnknownSticker()
-	{
-		return this.category == null;
-	}
-
 	public boolean isStickerAvailable()
 	{
-		return this.isAvailable;
+		return !getLargeStickerPath().equalsIgnoreCase(getDefaultPath());
 	}
 
 	 /* Call this method, only if one needs current download-status of sticker */
@@ -137,16 +137,76 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return category;
 	}
 
-	public String getStickerPath()
+	public String getLargeStickerPath()
 	{
-		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId);
+		return !TextUtils.isEmpty(largeStickerPath) ? largeStickerPath : loadStickerPath(true);
+	}
 
-		return (rootPath == null) ? null : (rootPath + HikeConstants.LARGE_STICKER_ROOT + File.separator + stickerId);
+	public void setLargeStickerPath(String largeStickerPath)
+	{
+		if(!TextUtils.isEmpty(largeStickerPath))
+		{
+			this.largeStickerPath = largeStickerPath;
+		}
 	}
 
 	public String getSmallStickerPath()
 	{
+		return !TextUtils.isEmpty(smallStickerPath) ? smallStickerPath : loadStickerPath(false);
+	}
+
+	public void setSmallStickerPath(String smallStickerPath)
+	{
+		if(!TextUtils.isEmpty(smallStickerPath))
+		{
+			this.smallStickerPath = smallStickerPath;
+		}
+	}
+
+	public String getMiniStickerPath()
+	{
+		return ("mini" + "_" + stickerId.substring(0, stickerId.indexOf(".")) + "_" + categoryId).toLowerCase();
+	}
+
+	private String getDefaultPath()
+	{
+		return stickerId + ":" + categoryId;
+	}
+
+	/**
+	 * Don't use this. use {@link #getLargeStickerPath() method}
+	 * @return
+	 */
+	public String getLargeStickerFilePath()
+	{
+		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
+	}
+
+	/**
+	 * Don't use this. use {@link #getSmallStickerPath() method}
+	 * @return
+	 */
+	public String getSmallStickerFilePath()
+	{
 		return StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+	}
+
+	private String loadStickerPath(boolean largeSticker)
+	{
+		loadStickerFromDb();
+		if(largeSticker)
+		{
+			return largeStickerPath != null ? largeStickerPath : getDefaultPath();
+		}
+		else
+		{
+			return smallStickerPath != null ? smallStickerPath : getDefaultPath();
+		}
+	}
+
+	private void loadStickerFromDb()
+	{
+		HikeConversationsDatabase.getInstance().getStickerFromStickerTable(this);
 	}
 
 	@Override

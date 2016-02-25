@@ -1090,6 +1090,8 @@ public class HikeConstants
 
 	public static final String STICKERS_ROOT = "/stickers";
 
+	public static final String DISK_CACHE_ROOT = "/diskcache";
+
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
 	public static final String SMALL_STICKER_FOLDER_NAME = "stickers_s";
@@ -3825,8 +3827,14 @@ public class HikeConstants
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
-	
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 }
