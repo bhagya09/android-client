@@ -1,12 +1,5 @@
 package com.bsb.hike.db;
 
-import java.util.*;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -36,18 +29,42 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.*;
+import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationMetadata;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FileListItem;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.ContentLove;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -57,7 +74,31 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.timeline.model.TimelineActions;
 import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -9107,5 +9148,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 		return stickerIdsList;
+	}
+
+	public void insertStickersToDB(List<Sticker> stickers)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (Sticker sticker : stickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+				contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerFilePath());
+				contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerFilePath());
+				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
+				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
+				mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
 	}
 }

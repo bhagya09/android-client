@@ -35,6 +35,10 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private boolean isAvailable;
 
+	private int width;
+
+	private int height;
+
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
@@ -170,7 +174,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private String getDefaultPath()
 	{
-		return stickerId + ":" + categoryId;
+		return (categoryId + ":" + stickerId).toLowerCase();
 	}
 
 	/**
@@ -276,7 +280,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void deSerializeObj(ObjectInputStream in) throws IOException, ClassNotFoundException
 	{
-		// ignoring this varialbe after reading just to ensure backward compatibility
+		// ignoring this variable after reading just to ensure backward compatibility
 		in.readInt();
 		stickerId = in.readUTF();
 		StickerCategory tempcategory = new StickerCategory();
@@ -302,6 +306,22 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return (TextUtils.isEmpty(categoryId) && TextUtils.isEmpty(stickerId));
 	}
 
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
 	public void clear()
 	{
 		this.stickerId = null;
@@ -315,7 +335,12 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = in.readString();
 		this.categoryId = in.readString();
 		this.category = (StickerCategory) in.readSerializable();
-		this.isAvailable = true; /* Default value */
+		this.isAvailable = true;
+		this.largeStickerPath = in.readString();
+		this.smallStickerPath = in.readString();
+		this.width = in.readInt();
+		this.height = in.readInt();
+		 /* Default value */
 	}
 
 	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()
@@ -346,6 +371,10 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		dest.writeString(stickerId);
 		dest.writeString(categoryId);
 		dest.writeSerializable(category);
+		dest.writeString(largeStickerPath);
+		dest.writeString(smallStickerPath);
+		dest.writeInt(width);
+		dest.writeInt(height);
 	}
 
 	@Override

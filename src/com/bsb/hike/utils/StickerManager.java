@@ -2720,4 +2720,16 @@ public class StickerManager
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, false);
 	}
+
+	public void saveSticker(Sticker sticker)
+	{
+		List<Sticker> stickers = new ArrayList<Sticker>(1);
+		stickers.add(sticker);
+		saveSticker(stickers);
+	}
+
+	public void saveSticker(List<Sticker> stickers)
+	{
+		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers);
+	}
 }

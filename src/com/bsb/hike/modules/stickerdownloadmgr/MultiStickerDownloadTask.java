@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -31,7 +32,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
