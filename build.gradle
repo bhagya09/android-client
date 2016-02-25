@@ -1,3 +1,6 @@
+repositories {
+    mavenCentral()
+}
 buildscript {
 
     repositories {
@@ -58,12 +61,14 @@ android {
             exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
+
+        debugCompile 'com.facebook.stetho:stetho:1.3.0'
     }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src']
+            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src/com', 'src/org']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
@@ -73,6 +78,12 @@ android {
         black {
             res.srcDirs = ['res-black']
         }
+
+        debug {
+            // http://www.littlerobots.nl/blog/stetho-for-android-debug-builds-only/
+            java.srcDirs = ['src/debug']
+        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
