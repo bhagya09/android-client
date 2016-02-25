@@ -27,9 +27,9 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 	/**
 	 * add assets to the downloaded set
 	 *
-	 * @param theme
-	 *            HikeChatTheme
-	 * @return boolean
+	 * @param String
+	 *            assetId Or an array of ids
+	 * @return Void
 	 *
 	 */
 	public void addDownloadedAsset(String assetId)

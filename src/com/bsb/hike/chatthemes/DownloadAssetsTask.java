@@ -1,6 +1,6 @@
 package com.bsb.hike.chatthemes;
 
-import static com.bsb.hike.chatthemes.ChatThemeHttpRequestHelper.downloadChatThemeAssets;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.downloadChatThemeAssets;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 
 import java.io.File;
@@ -47,11 +47,10 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 			return;
 		}
 
-		String requestId = System.currentTimeMillis() + "";
 		JSONObject body = prepareBodyObject();
 		if (body != null)
 		{
-			token = downloadChatThemeAssets(requestId, body, getRequestListener());
+			token = downloadChatThemeAssets(body, getRequestListener());
 			if (token.isRequestRunning())
 			{
 				return;
@@ -148,40 +147,16 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 			{
 				// TODO CHATTHEME Filepath
 				String path = "";// ChatThemeManager.getInstance().getThemeAssetStoragePath() + File.separator + value;
-				DataParser parser = new DataParser(new File(path), data.getString(mAssetIds[i]));
-				parser.start();
+				Utils.saveBase64StringToFile(new File(path), data.getString(mAssetIds[i]));
 			}
 		}
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
-	}
-
-	private static class DataParser extends Thread
-	{
-		private String encodedData = null;
-
-		private File file;
-
-		public DataParser(File file, String data)
+		catch(IOException e)
 		{
-			this.encodedData = data;
-			this.file = file;
+			e.printStackTrace();
 		}
-
-		@Override
-		public void run()
-		{
-			try
-			{
-				Utils.saveBase64StringToFile(file, encodedData);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
 	}
 }
