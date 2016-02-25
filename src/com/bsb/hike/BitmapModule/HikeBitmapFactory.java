@@ -55,8 +55,6 @@ public class HikeBitmapFactory
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
 
-	public static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
-	
 	private static final int MEMORY_MULTIPLIIER = 8;
 		
 	private static final int RGB_565_BYTE_SIZE = 16;
@@ -1326,6 +1324,11 @@ public class HikeBitmapFactory
 	public static Drawable getDefaultTextAvatar(String text)
 	{
 		return getDefaultTextAvatar(text, -1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, boolean isFirstName)
+	{
+		return getDefaultTextAvatar(text, -1, -1, isFirstName);
 	}
 
 	public static Drawable getDefaultTextAvatar(String text, int fontSize)

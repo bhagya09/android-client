@@ -489,7 +489,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 		holder.userImage.setScaleType(ScaleType.FIT_CENTER);
 		String id = contactInfo.isGroupConversationContact() ? contactInfo.getId() : contactInfo.getMsisdn();
-		iconloader.loadImage(id, holder.userImage, isListFlinging, false, true);
+		iconloader.loadImage(id, holder.userImage, isListFlinging, false, true,contactInfo.getFirstName());
 	}
 
 	private View inflateView(ViewType viewType, ViewGroup parent)

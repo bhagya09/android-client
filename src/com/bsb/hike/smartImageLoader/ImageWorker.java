@@ -246,9 +246,17 @@ public abstract class ImageWorker
 
 	protected void setDefaultAvatar(ImageView imageView, String data, Object refObj)
 	{
-		if (refObj != null && refObj instanceof String && !TextUtils.isEmpty(((String) refObj)))
+		if (refObj instanceof String)
 		{
-			imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(((String) refObj)));
+			String name = (String) refObj;
+			if(!TextUtils.isEmpty(name))
+			{
+				imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(name,true));
+			}
+			else
+			{
+				imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(data));
+			}
 		}
 		else
 		{

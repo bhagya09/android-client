@@ -7907,36 +7907,18 @@ public class Utils
 			return "#";
 		}
 
-		String[] nameArray = contactName.trim().split(" ");
-
-		char first = nameArray[0].charAt(0);
-
-		String initials = "";
+		char first = contactName.charAt(0);
 
 		if (Character.isLetter(first))
 		{
-			initials += first;
-
-			if (HikeBitmapFactory.NUMBER_OF_CHARS_DEFAULT_DP > 1)
-			{
-				if (nameArray.length > 1)
-				{
-					// Second is optional (only if is letter)
-					char second = nameArray[nameArray.length - 1].charAt(0);
-					if (Character.isLetter(second))
-					{
-						initials += second;
-					}
-				}
-			}
+			return Character.toString(first);
 		}
 		else
 		{
-			initials = "#";
+			return "#";
 		}
-
-		return initials;
 	}
+
 	/**
 	 * Sample logging JSON :
 	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }

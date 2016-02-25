@@ -806,7 +806,7 @@ public class ConversationsAdapter extends BaseAdapter
 
 		avatarView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(convInfo.getMsisdn(), HikePhotosUtils.dpToPx(26)));
 
-		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, false);
+		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, false,convInfo.getLabel());
 		if(convInfo.isStealth())
 		{
 			viewHolder.hiddenIndicator.setVisibility(View.VISIBLE);
