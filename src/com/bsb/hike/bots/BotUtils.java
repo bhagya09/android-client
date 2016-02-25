@@ -3,6 +3,7 @@ package com.bsb.hike.bots;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -657,8 +658,9 @@ public class BotUtils
 		contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
 		ContactManager.getInstance().updateContacts(contact);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
-		
-		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
+
+        Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
 		
 		/**
 		 * Notification will be played only if notifType is Silent/Loud

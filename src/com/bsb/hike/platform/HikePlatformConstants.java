@@ -336,4 +336,6 @@ public interface HikePlatformConstants
 
 	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
 
+    public static final String APPS = "apps";
+
 }

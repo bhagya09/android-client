@@ -1,30 +1,5 @@
 package com.bsb.hike.platform;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
@@ -93,6 +68,31 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author piyush
  * 
@@ -103,8 +103,6 @@ public class PlatformUtils
 	private static final String TAG = "PlatformUtils";
 
 	private static final String BOUNDARY = "----------V2ymHFg03ehbqgZCaKO6jy";
-
-    private static final String APPS = "apps";
 
     public static ConcurrentHashMap<String,Integer> assocMappRequestStatusMap = new ConcurrentHashMap<String,Integer>();
 
@@ -567,7 +565,7 @@ public class PlatformUtils
      * method to download the micro app zip as per cbot packet
      */
 	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+			final NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
@@ -597,7 +595,9 @@ public class PlatformUtils
 						}
 						else
 						{
-							Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+                            Pair<BotInfo,Boolean> botInfoCreationFailedPair = new Pair(botInfo,false);
+                            HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
+                            Logger.wtf(TAG, "microapp download packet failed." + event.toString());
 							JSONObject json = new JSONObject();
 							try
 							{
@@ -769,7 +769,7 @@ public class PlatformUtils
 				}
 				else
 				{
-					try
+                    try
 					{
 						if (fileLength > 0)
 						{
@@ -781,7 +781,15 @@ public class PlatformUtils
 					{
 						Logger.e(TAG, "JSONException " + e.getMessage());
 					}
+                    // Publish pubsub for failure case of mapp packet received
+                    JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
 
+                    if (cardObjectJson != null) {
+                        final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
+                        // Publish pubsub for failed creation of mapp packet received
+                        Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,false);
+                        HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+                    }
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
@@ -1897,70 +1905,6 @@ public class PlatformUtils
 	}
 
     /*
-     * Method to make a post call to server with necessary params requesting for initiating Cbot
-     * Sample Json to be sent in network call ::
-     * {
-                  "apps":
-                    {
-                      "name": "hikenews",
-                      "params": {
-                        "enable_bot":true,
-                        "notif": "silent"
-                      }
-                 }
-     */
-    public static void initiateCBotDownload(final String msisdn,boolean isBotEnabled)
-    {
-        // Json to send to install.json on server requesting for micro app download
-        JSONObject json = new JSONObject();
-
-        try
-        {
-            // Json object to create adding params to micro app requesting json
-            JSONObject paramsJsonObject = new JSONObject();
-            paramsJsonObject.put(HikePlatformConstants.ENABLE_BOT,isBotEnabled);
-
-            // Json object containing all the information required for one micro app
-            JSONObject appsJsonObject = new JSONObject();
-            appsJsonObject.put(HikePlatformConstants.NAME,msisdn);
-            appsJsonObject.put(HikePlatformConstants.PARAMS,paramsJsonObject);
-
-            // Put apps JsonObject in the final json
-            json.put(APPS, appsJsonObject);
-        }
-        catch (JSONException e)
-        {
-            Logger.d("Json Exception :: ",e.toString());
-        }
-
-        // Code for micro app request to the server
-        RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
-        {
-
-            @Override
-            public void onRequestSuccess(Response result)
-            {
-                Logger.d(TAG, "Bot download request success for " + msisdn);
-            }
-
-            @Override
-            public void onRequestProgressUpdate(float progress)
-            {
-            }
-
-            @Override
-            public void onRequestFailure(HttpException httpException)
-            {
-                Logger.v(TAG, "Bot download request failure for " + msisdn);
-            }
-        });
-        if (!token.isRequestRunning())
-        {
-            token.execute();
-        }
-    }
-
-    /*
      * Method for inserting MAPP successful entry into content database
      */
 	public static void mAppCreationSuccessHandling(JSONObject mAppJson)
@@ -1976,6 +1920,10 @@ public class PlatformUtils
 			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 			final String appPackage = cardObjectJson.optString(HikePlatformConstants.APP_PACKAGE, "");
             final boolean isSdk = cardObjectJson.optBoolean(HikePlatformConstants.IS_SDK,false);
+
+            // Publish pubsub for successful creation of mapp packet received
+            Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,true);
+            HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
 
 			HikeHandlerUtil mThread;
 			mThread = HikeHandlerUtil.getInstance();
