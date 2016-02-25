@@ -1,5 +1,22 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -60,6 +77,12 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -103,23 +126,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * 
@@ -660,7 +666,7 @@ public class MqttMessagesManager
 	private void saveMessage(JSONObject jsonObj) throws JSONException
 	{
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
-		
+
 		//Logs for Msg Reliability
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
@@ -669,40 +675,7 @@ public class MqttMessagesManager
 			return;
 		}
 
-        // Added logic here for forward card web view case for micro apps versioning
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT)
-		{
-            String microAppMsisdn = "";
-            int requestedMAppVersionCode = 0;
-            int currentBotInfoMAppVersionCode = 0;
-            JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-            if (data.has(HikeConstants.METADATA)) {
-                JSONObject mdata = data.getJSONObject(HikeConstants.METADATA);
-                if (mdata.has(HikePlatformConstants.CARD_OBJECT)) {
-                    JSONObject cardObj = mdata.optJSONObject(HikePlatformConstants.CARD_OBJECT);
-                    if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE)) {
-                        requestedMAppVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
-                    }
-                }
-
-                if (mdata.has(HikePlatformConstants.BOT_MSISDN) && !TextUtils.isEmpty(mdata.optString(HikePlatformConstants.BOT_MSISDN))) {
-                    microAppMsisdn = mdata.optString(HikePlatformConstants.BOT_MSISDN);
-
-                    // Get info about currently active cbot
-                    boolean isBotEnabled = BotUtils.isBot(microAppMsisdn);
-                    BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(microAppMsisdn);
-
-                    if(currentBotInfo != null)
-                        currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
-
-                    // Make request to initiate cbot only if requested cbot version code is greater than current cbot version code
-                    if(requestedMAppVersionCode >  currentBotInfoMAppVersionCode)
-                        PlatformUtils.initiateCBotDownload(microAppMsisdn, isBotEnabled);
-                }
-            }
-            saveMessage(convMessage);
-		}
-		else if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+        if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
 		}
@@ -711,7 +684,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 
-	}
+ 	}
 
 	private void saveMessage(ConvMessage convMessage)
 	{

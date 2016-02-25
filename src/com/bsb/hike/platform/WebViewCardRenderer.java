@@ -14,9 +14,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.util.SparseArray;
-import android.view.*;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
+import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -31,9 +37,18 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.ContentModules.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
@@ -52,6 +67,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by shobhitmandloi on 14/01/15.
@@ -80,8 +96,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	private SparseArray<String> cardAlarms;
 
 	private SparseArray<String> events;
-	
-	// usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
+
+    private static final String TAG = "WebViewCardRenderer";
+
+    // Map having list of view holders as value added for listening to pubsub events
+    public ConcurrentHashMap<String,ArrayList<WebViewHolder>> webViewHolderMap = new ConcurrentHashMap<String,ArrayList<WebViewHolder>>();
+
+    // usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
 
 	public WebViewCardRenderer(Activity context, MovingList<ConvMessage> convMessages, BaseAdapter adapter)
@@ -93,6 +114,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		events = new SparseArray<String>(3);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.PLATFORM_CARD_ALARM, this);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
+        HikeMessengerApp.getPubSub().addListener(HikePubSub.BOT_CREATED, this);
+        HikeMessengerApp.getPubSub().addListener(HikePubSub.MAPP_CREATED, this);
 	}
 	
 	public void updateMessageList(MovingList<ConvMessage> objects)
@@ -259,7 +282,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			}
 
 			view.setTag(viewHolder);
-			viewHolder.customWebView.setTag(viewHolder);
 			int height = convMessage.webMetadata.getCardHeight();
 			Logger.i("HeightAnim", "minimum height given in card is =" + height);
 
@@ -275,14 +297,20 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		}
 		else
 		{
-			final WebViewHolder holder = (WebViewHolder) view.getTag();
-			Logger.i(tag, "view reused "+ ((Integer)holder.customWebView.getTag() +" into "+((int)convMessage.getMsgID())));
+            final WebViewHolder holder = (WebViewHolder) view.getTag();
+            String appName = (String) holder.customWebView.getTag(R.string.tag_app_name_index);
+            ArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(appName);
+            if(webViewHolders != null)
+                webViewHolders.remove(holder);
 		}
 		final WebViewHolder viewHolder = (WebViewHolder) view.getTag();
 
 		final CustomWebView web = viewHolder.customWebView;
-		
-		web.setTag(((int)convMessage.getMsgID()));
+
+		web.setTag(R.string.tag_msg_id_index,((int)convMessage.getMsgID()));
+        web.setTag(R.string.tag_position_index,position);
+        web.setTag(R.string.tag_app_name_index,convMessage.webMetadata.getAppName());
+        web.setTag(R.string.tag_conv_message_index,convMessage);
 
 		orientationChangeHandling(web);
 		
@@ -290,7 +318,20 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
 			showLoadingState(viewHolder);
 			viewHolder.inflationTime = System.currentTimeMillis() - startTime;
-			loadContent(position, convMessage, viewHolder, false);
+
+            // Fetch latest micro app by calling install v2 api based on view type (Fetch would only be required if web view card receive case occurs)
+            switch (type)
+			{
+			case WEBVIEW_CARD:
+                loadContent(position, convMessage, viewHolder, false);
+				break;
+			case FORWARD_WEBVIEW_CARD_SENT:
+				loadContent(position, convMessage, viewHolder, false);
+				break;
+			case FORWARD_WEBVIEW_CARD_RECEIVED:
+				fetchContent(position, convMessage, viewHolder, false);
+				break;
+			}
 		}
 		else
 		{
@@ -314,6 +355,51 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 	}
 
+    /*
+     * Method to fetch forward card content before loading it in web view
+     */
+	private void fetchContent(final int position, final ConvMessage convMessage,  WebViewHolder viewHolder, boolean isFromErrorPress)
+	{
+		JSONObject cardObj = convMessage.webMetadata.getCardobj();
+
+		int requestedMappVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+		int currentMappVersionCode = 0;
+
+        String appName = convMessage.webMetadata.getAppName();
+        String msisdn = "+" + appName + "+";
+		boolean isBotEnabled = BotUtils.isBot(msisdn);
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+		if (botInfo != null)
+			currentMappVersionCode = botInfo.getMAppVersionCode();
+
+        // Compare requested forwarded card mapp version code with the current mapp version code and initiate cbot request based on it
+		if (requestedMappVersionCode > currentMappVersionCode)
+		{
+			if (webViewHolderMap.get(appName) == null)
+			{
+                ArrayList<WebViewHolder> viewHolders = new ArrayList<WebViewHolder>();
+
+                viewHolders.add(viewHolder);
+				webViewHolderMap.put(appName, viewHolders);
+			}
+			else
+			{
+                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+				viewHolders.add(viewHolder);
+				webViewHolderMap.put(appName, viewHolders);
+			}
+			initiateCBotDownload(appName, isBotEnabled);
+		}
+		else
+		{
+			loadContent(position, convMessage, viewHolder, isFromErrorPress);
+		}
+	}
+
+    /*
+     * Method to load card content in respective web view
+     */
 	private void loadContent(final int position, final ConvMessage convMessage, final WebViewHolder viewHolder, boolean isFromErrorPress)
 	{
 		Logger.i(tag, "laoding content for "+((int)convMessage.getMsgID()));
@@ -338,7 +424,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				{
 					viewHolder.templatingTime = -1;
 					viewHolder.id = 0;
-					if((Integer)viewHolder.customWebView.getTag() == uniqueId)
+					if((Integer)viewHolder.customWebView.getTag(R.string.tag_msg_id_index) == uniqueId)
 					{
 						Logger.e(tag, "error");
 						showConnErrState(viewHolder, convMessage, position);
@@ -357,7 +443,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					if(content!= null && content.getFormedData()!=null)
 					{
 						// If webview has not been used
-						if((Integer)viewHolder.customWebView.getTag() == content.getUniqueId())
+						if((Integer)viewHolder.customWebView.getTag(R.string.tag_msg_id_index) == content.getUniqueId())
 						{
 							viewHolder.id = getItemId(position);
 							viewHolder.templatingTime = System.currentTimeMillis() - viewHolder.inflationTime - startTime;
@@ -533,6 +619,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		PlatformRequestManager.onDestroy();
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.PLATFORM_CARD_ALARM, this);
 		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
+        HikeMessengerApp.getPubSub().removeListener(HikePubSub.BOT_CREATED, this);
+        HikeMessengerApp.getPubSub().removeListener(HikePubSub.MAPP_CREATED, this);
 		for(WebViewHolder holder : holderList)
 		{
 			holder.platformJavaScriptBridge.onDestroy();
@@ -591,14 +679,62 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 				{
 					Logger.e(tag, "JSON Exception in message event received");
 				}
-
-
 			}
 			else
 			{
 				Logger.e(tag, "Expected Message in PubSub but received " + object.getClass());
 			}
 		}
+        else if (HikePubSub.BOT_CREATED.equals(type))
+        {
+            // Bot creation pubsub would send a Pair of BotInfo and its isSuccess field
+            if (object instanceof Pair)
+            {
+                BotInfo botInfo = (BotInfo)(((Pair) object).first);
+                Boolean isBotCreationSuccess = (Boolean) (((Pair) object).second);
+
+                NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+                String appName = metadata.getAppName();
+                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+                if(viewHolders != null) {
+                    for (WebViewHolder viewHolder : viewHolders) {
+                        int position = (Integer) viewHolder.customWebView.getTag(R.string.tag_position_index);
+                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.string.tag_conv_message_index);
+
+                        // If the required bot is successfully created, try to load that content in webview
+                        if (isBotCreationSuccess)
+                            loadContent(position, convMessage, viewHolder, false);
+                        else
+                            showConnErrState(viewHolder, convMessage, position);
+                    }
+                }
+            }
+        }
+        else if (HikePubSub.MAPP_CREATED.equals(type))
+        {
+            // Mapp creation pubsub would send a Pair of appName and its isSuccess field
+            if (object instanceof Pair)
+            {
+                String appName = (String)(((Pair) object).first);
+                Boolean isMappCreationSuccess = (Boolean) (((Pair) object).second);
+
+                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+                if(viewHolders != null) {
+                    for (WebViewHolder viewHolder : viewHolders) {
+                        int position = (Integer) viewHolder.customWebView.getTag(R.string.tag_position_index);
+                        ConvMessage convMessage = (ConvMessage) viewHolder.customWebView.getTag(R.string.tag_conv_message_index);
+
+                        // If the required bot is successfully created, try to load that content in webview
+                        if (isMappCreationSuccess)
+                            loadContent(position, convMessage, viewHolder, false);
+                        else
+                            showConnErrState(viewHolder, convMessage, position);
+                    }
+                }
+            }
+        }
 	}
 
 	// TODO Replace with HikeUiHandler utility
@@ -648,7 +784,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 					{
 						argViewHolder.loadingFailed.findViewById(R.id.loading_progress_bar).setVisibility(View.VISIBLE);
 						argViewHolder.loadingFailed.findViewById(R.id.progress_bar_image).setVisibility(View.GONE);
-						loadContent(position, convMessage, argViewHolder, true);
+						fetchContent(position, convMessage, argViewHolder, true);
 					}
 				});
 			}
@@ -743,4 +879,56 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			}
 		}
 	}
+
+    /*
+	 * Method to make a post call to server with necessary params requesting for initiating Cbot Sample Json to be sent in network call ::
+	 * { "apps": { "name": "+hikenews+" } }
+	 */
+    private void initiateCBotDownload(final String appName, final boolean isBotEnabled)
+    {
+        // Json to send to install.json on server requesting for micro app download
+        JSONObject json = new JSONObject();
+
+        try
+        {
+            // Json object containing all the information required for one micro app
+            JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put(HikePlatformConstants.NAME, appName);
+
+            // Put apps JsonObject in the final json
+            json.put(HikePlatformConstants.APPS, appsJsonObject);
+        }
+        catch (JSONException e)
+        {
+            Logger.d("Json Exception :: ", e.toString());
+        }
+
+        // Code for micro app request to the server
+        RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
+        {
+
+            @Override
+            public void onRequestSuccess(Response result)
+            {
+                Logger.d(TAG, "Bot download request success for " + appName + result.getBody().getContent());
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress)
+            {
+
+            }
+
+            @Override
+            public void onRequestFailure(HttpException httpException)
+            {
+                Logger.v(TAG, "Bot download request failure for " + appName);
+            }
+        });
+        if (!token.isRequestRunning())
+        {
+            token.execute();
+        }
+    }
+
 }
