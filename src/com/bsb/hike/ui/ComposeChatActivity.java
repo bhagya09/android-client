@@ -2479,7 +2479,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             if (object instanceof Pair)
             {
                 BotInfo botInfo = (BotInfo)(((Pair) object).first);
-				if (adapter != null)
+                Boolean isBotCreationSuccess = (Boolean) (((Pair) object).second);
+				if (adapter != null && isBotCreationSuccess)
 				{
 					adapter.onBotCreated(botInfo);
 				}
