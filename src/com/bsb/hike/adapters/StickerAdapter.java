@@ -87,7 +87,7 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		this.mStickerPickerListener = listener;
 		instantiateStickerList();
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
-		worker = new StickerLoader(mContext, true);
+		worker = new StickerLoader(true, true, true);
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
 		Logger.d(getClass().getSimpleName(), "Sticker Adapter instantiated ....");
