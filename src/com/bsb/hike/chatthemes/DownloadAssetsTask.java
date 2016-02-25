@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -109,7 +110,6 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 				{
 					e.printStackTrace();
 					doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
-					return;
 				}
 			}
 
@@ -128,7 +128,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		{
 			JSONObject assetIds = new JSONObject();
 			JSONArray ids = new JSONArray(mAssetIds);
-			assetIds.put("asset_ids", ids);
+			assetIds.put(HikeChatThemeConstants.JSON_DWNLD_ASSET_ID, ids);
 			return assetIds;
 		}
 		catch (JSONException e)
@@ -142,7 +142,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 	{
 		try
 		{
-			JSONObject data = resp.getJSONObject("data");
+			JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
 			for (int i = 0; i < mAssetIds.length; i++)
 			{
 				// TODO CHATTHEME Filepath
@@ -152,10 +152,12 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		}
 		catch (JSONException e)
 		{
+			doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
 			e.printStackTrace();
 		}
 		catch(IOException e)
 		{
+			doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
 			e.printStackTrace();
 		}
 	}

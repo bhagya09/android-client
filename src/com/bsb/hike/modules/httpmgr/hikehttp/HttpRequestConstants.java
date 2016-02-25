@@ -30,6 +30,7 @@ public class HttpRequestConstants
 	//TODO CHATTHEME Revisit PRODUCTION URL
 	public static final String CHATTHEME_PRODUCTION_API = "";
 
+	//TODO CHATTHEME Revisit STAGING URL
 	public static final String CHATTHEME_STAGING_API = "52.77.222.102:8080";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
