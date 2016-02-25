@@ -1507,4 +1507,5 @@
     <string name="english">English</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
+     <string name="wallet_menu">Hike Wallet</string>
 </resources>
