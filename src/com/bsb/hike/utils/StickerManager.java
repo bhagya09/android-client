@@ -49,7 +49,9 @@ import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -500,9 +502,9 @@ public class StickerManager
 		return new Pair<Boolean, List<StickerCategory>>(true, allCategoryList);
 	}
 
-	public Set<Sticker> getAllStickers()
+	public List<Sticker> getAllStickers()
 	{
-		Set<Sticker> stickerSet = null;
+		List<Sticker> stickerSet = null;
 
 		List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
 		if (Utils.isEmpty(stickerCategoryList))
@@ -511,15 +513,55 @@ public class StickerManager
 		}
 		else
 		{
-			stickerSet = new HashSet<>();
+			stickerSet = new ArrayList<>();
+
 			for (StickerCategory category : stickerCategoryList)
 			{
 				List<Sticker> stickers = category.getStickerListFromFiles();
 				stickerSet.addAll(stickers);
 			}
 		}
+
+
+
 		return stickerSet;
 	}
+
+	public List<Sticker> getStickerListForStickerTableMigration()
+	{
+		List<Sticker> allStickerList = getAllStickers();
+
+		if(Utils.isEmpty(allStickerList))
+		{
+			return null;
+		}
+
+		HashMap<String,StickerAppositeDataContainer> dbList = HikeStickerSearchDatabase.getInstance().getStickersList();
+
+		if(dbList.isEmpty())
+		{
+			return allStickerList;
+		}
+
+		for (int i =allStickerList.size()-1;i>0;i--)
+		{
+			Sticker sticker = allStickerList.get(i);
+			if(!sticker.isValidStickerData())
+			{
+				allStickerList.remove(i);
+			}
+			else
+			{
+				StickerAppositeDataContainer temp = dbList.get(sticker.getDefaultPath());
+				sticker.setLanguage(temp.getLanguageFunction());
+				sticker.setFrequencyFunction(temp.getOverallFrequencyFunction());
+				sticker.setAge(temp.getAge());
+			}
+		}
+
+		return allStickerList;
+	}
+
 
 	public void addRecentSticker(Sticker st)
 	{

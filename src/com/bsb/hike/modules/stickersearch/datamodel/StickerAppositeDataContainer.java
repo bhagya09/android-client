@@ -143,6 +143,15 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		mRecommendationScore = overallScore;
 	}
 
+	public int getAge() {
+		return mAge;
+	}
+
+	public void setLanguageFunction(String languageFunction)
+	{
+		this.mLanguageFunction = mLanguageFunction;
+	}
+
 	public float getTrendingFrequency()
 	{
 		if (mOverallFrequencies.size() > StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING)

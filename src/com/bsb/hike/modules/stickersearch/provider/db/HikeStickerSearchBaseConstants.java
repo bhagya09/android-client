@@ -177,6 +177,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
 
+	public static final String SYNTAX_SINGLE_PARAMETER_NEGATIVE_CHECK = "!=?";
+
 	public static final String SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK = " IS ";
 
 	public static final String SYNTAX_NULL = "NULL";

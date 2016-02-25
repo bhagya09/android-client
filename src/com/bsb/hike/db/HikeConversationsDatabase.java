@@ -1987,7 +1987,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HEIGHT + " INTEGER, "
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
-				+ ")";
+				+ DBConstants.FREQUENCY_FUNCTION + " TEXT,"
+				+ DBConstants.RELEVANCE_FUNCTION + " TEXT,"
+				+ DBConstants.LANGUAGE + " TEXT,"
+				+ DBConstants.AGE + " INTEGER,"
+				+ " )";
 
 		return sql;
 	}
@@ -9047,12 +9051,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public boolean upgradeForStickerTable()
 	{
-		boolean result = false;
+		boolean result;
 		try
 		{
-			mDb.beginTransaction();
 			moveStickerInfoToStickerTable();
-			mDb.setTransactionSuccessful();
 			result = true;
 		}
 		catch(Exception e)
@@ -9060,27 +9062,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			Logger.e(getClass().getSimpleName(), "Exception in upgradeForStickerTable : ", e);
 			result = false;
 		}
-		finally
-		{
-			mDb.endTransaction();
-		}
 		return result;
 	}
 
 	private void moveStickerInfoToStickerTable()
 	{
-		Set<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
-		ContentValues contentValues = new ContentValues();
-		for(Sticker sticker : stickerSet)
-		{
-			contentValues.clear();
-			contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
-			contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
-			contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerFilePath());
-			contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerFilePath());
-
-			mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-		}
+		List<Sticker> stickerSet = StickerManager.getInstance().getStickerListForStickerTableMigration();
+		insertStickersToDB(stickerSet);
 	}
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
