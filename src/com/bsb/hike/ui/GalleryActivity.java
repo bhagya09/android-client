@@ -691,7 +691,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				if (index >=0)
 				{
 					selectedGalleryItems.remove(index);
-					captions.remove(index);
+//					captions.remove(index);
 					if(editedImages !=null)
 					{
 						editedImages.remove(index);
