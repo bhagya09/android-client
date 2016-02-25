@@ -139,6 +139,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String PLATFORM_UID_SETTING = "platformUID";
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN = "platformAuthToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN_EXPIRY = "platformAuthTokenExpiry";
 
 	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
 
@@ -754,6 +758,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
+		super.onCreate();
+		_instance = this;
+
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
@@ -771,15 +778,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ACRA.init(this);
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
-
-		super.onCreate();
-
-		_instance = this;
-
-		// We need to set all AppConfig params on the start when _instance have been initialized
-		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
-		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
-		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());

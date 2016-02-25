@@ -45,6 +45,9 @@ public interface HikePlatformConstants
 	String HIKE_MSISDN = "hikemsisdn";
 	String PLATFORM_USER_ID = "platformUid";
 	String PLATFORM_TOKEN = "platformToken";
+	String PLATFORM_AUTH_TOKEN = "access_token";
+	String PLATFORM_AUTH_TOKEN_EXPIRY = "access_token_expiry";
+	String PLATFORM_CLIENTID = "clientId";
 	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
 	public int NUMBER_OF_RETRIES = 3;  // number of retries
 	public int RETRY_DELAY = 1000; // 1 sec
@@ -58,6 +61,7 @@ public interface HikePlatformConstants
 	public static final String STATUS = "status";
 	public static final String STATUS_CODE = "status_code";
 	public static final String RESPONSE = "response";
+	public static final String COOKIE = "cookie";
 	public static final String ERROR_MESSAGE = "error_message";
 	public static final String SUCCESS = "success";
 	public static final String FAILURE = "failure";

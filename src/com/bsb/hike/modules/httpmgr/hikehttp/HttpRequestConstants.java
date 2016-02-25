@@ -65,7 +65,7 @@ public class HttpRequestConstants
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
 	
-	public static final String BASE_SDK_STAGING = "stagingoauth.im.hike.in/o/oauth2/";
+	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
 	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
@@ -320,9 +320,24 @@ public class HttpRequestConstants
 
 	public static String authSDKBaseUrl()
 	{
-		return BASE_SDK;
+		return BASE_SDK_STAGING;
+	}
+	
+	
+	public static String authBaseUrl()
+	{
+		return BASE_SDK_STAGING+"authorize" + "?" ;
 	}
 
+	public static String registerBrandUrl()
+	{
+		return BASE_SDK_STAGING+"registerbrand";
+	}
+	
+	public static String clientIdUrl()
+	{
+		return BASE_SDK_STAGING+"createnewclientid";
+	}
 	public static String groupProfileBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/group/";

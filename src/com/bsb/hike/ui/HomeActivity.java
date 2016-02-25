@@ -8,64 +8,6 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.AppConfig;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.FtueContactsData;
-import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.snowfall.SnowFallView;
-import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
-import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.timeline.view.StatusUpdate;
-import com.bsb.hike.timeline.view.TimelineActivity;
-import com.bsb.hike.ui.fragments.ConversationFragment;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
-import com.bsb.hike.utils.FestivePopup;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeTip;
-import com.bsb.hike.utils.HikeTip.TipType;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.NUXManager;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -82,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
+import com.bsb.hike.platform.auth.AuthListener;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -112,6 +55,67 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bsb.hike.AppConfig;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.snowfall.SnowFallView;
+import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
+import com.bsb.hike.tasks.SendLogsTask;
+import com.bsb.hike.timeline.view.StatusUpdate;
+import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.ui.fragments.ConversationFragment;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.v7.SearchView;
+import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
+import com.bsb.hike.utils.FestivePopup;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeTip;
+import com.bsb.hike.utils.HikeTip.TipType;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+import com.kpt.adaptxt.beta.KPTAddonItem;
+import com.kpt.adaptxt.beta.RemoveDialogData;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
@@ -183,7 +187,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN ,HikePubSub.BOT_CREATED };
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -1876,6 +1880,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
+		}else if (HikePubSub.BOT_CREATED.equals(type))
+		{
+			 BotInfo info = ((BotInfo) object);
+			 if(info.getMsisdn().equalsIgnoreCase("+hikepay+"))
+			 {
+				 runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							invalidateOptionsMenu();
+						}
+					});
+			 }
 		}
 	}
 
@@ -2122,6 +2140,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
+		
+		addBotItem(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -2179,6 +2199,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
+					break;
+				case R.string.wallet_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent("+hikepay+",getApplicationContext());
 					break;
 					
 				case R.string.timeline:
@@ -2298,6 +2322,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
+	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems)
+	{
+		BotInfo info= BotUtils.getBotInfoForBotMsisdn("+hikepay+");
+		if(info!=null)
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		
+	}
+	
 	private void addEmailLogItem(List<OverFlowMenuItem> overFlowMenuItems)
 	{
 		if (AppConfig.SHOW_SEND_LOGS_OPTION)
@@ -2305,7 +2337,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.send_logs), 0, 0, R.string.send_logs));
 		}
 	}
-
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
