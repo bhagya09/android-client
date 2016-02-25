@@ -3954,6 +3954,11 @@ public class Utils
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		}
 
+		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		{
+			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
+		}
+
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -7825,7 +7830,7 @@ public class Utils
 
 	/**
 	 * Sample logging JSON :
-	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512,"fld6":12422 }
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
 	 * @param dbObj
 	 */
 	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
@@ -7838,10 +7843,6 @@ public class Utils
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
-			if(dbObj.isOpen())
-			{
-				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
-			}
 
 			Logger.d("db", json.toString());
 
@@ -7854,4 +7855,18 @@ public class Utils
 		}
 	}
 
+	public static long calculateDiskCacheSize(File dir) {
+		long size = HikeConstants.MIN_DISK_CACHE_SIZE;
+
+		try {
+			StatFs statFs = new StatFs(dir.getAbsolutePath());
+			long available = ((long) statFs.getBlockCount()) * statFs.getBlockSize();
+			// Target 2% of the total space.
+			size = available / 50;
+		} catch (IllegalArgumentException ignored) {
+		}
+
+		// Bound inside min/max size for disk cache.
+		return Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+	}
 }

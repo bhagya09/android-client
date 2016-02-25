@@ -14,9 +14,13 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -52,6 +56,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -88,7 +93,6 @@ import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -107,13 +111,13 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONArray;
@@ -137,7 +141,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		STICKER_SENT, STICKER_RECEIVE, NUDGE_SENT, NUDGE_RECEIVE, WALKIE_TALKIE_SENT, WALKIE_TALKIE_RECEIVE, VIDEO_SENT, VIDEO_RECEIVE, IMAGE_SENT, IMAGE_RECEIVE, FILE_SENT, FILE_RECEIVE, LOCATION_SENT, LOCATION_RECEIVE, CONTACT_SENT, CONTACT_RECEIVE, RECEIVE, SEND_SMS, SEND_HIKE, PARTICIPANT_INFO, FILE_TRANSFER_SEND, FILE_TRANSFER_RECEIVE, STATUS_MESSAGE, UNREAD_COUNT, TYPING_NOTIFICATION, UNKNOWN_BLOCK_ADD, PIN_TEXT_SENT, PIN_TEXT_RECEIVE,
 		VOIP_CALL;
-		
+
 	};
 
 	private int viewTypeCount = ViewType.values().length;
@@ -155,7 +159,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		public ImageView status;
 
 		public ImageView broadcastIndicator;
-		
+
 		public TextView time;
 
 		public View timeStatus;
@@ -264,12 +268,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		TextView messageInfo;
 
 	}
-	
+
 	private static class VoipInfoHolder extends DayHolder
 	{
-		
+
 		ImageView image;
-		
+
 		TextView text;
 
 		TextView messageInfo;
@@ -292,9 +296,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private MovingList<ConvMessage> convMessages;
 
 	private Context context;
-	
+
 	private ListView mListView;
-	
+
 	private Activity mActivity;
 
 	private TextView smsToggleSubtext;
@@ -341,7 +345,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private WebViewCardRenderer mWebViewCardRenderer;
 
 	private boolean isH20TipShowing;
-	
+
 	private OnClickListener mOnClickListener;
 
 	private String searchText;
@@ -349,8 +353,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private HashMap<Long, CharSequence> messageTextMap;
 
 	private StickerLoader stickerLoader;
-
-	private short mConnectionType;
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -376,12 +378,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		hqThumbLoader = new HighQualityThumbLoader();
 		hqThumbLoader.setImageFadeIn(false);
 		hqThumbLoader.setDefaultDrawableNull(false);
+
+		boolean useMini = Utils.getNetworkType(context) == 2;  // 2g
+		stickerLoader = new StickerLoader(true, useMini, useMini, true);
+
 		this.mChatThreadCardRenderer = new CardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
-		this.stickerLoader = new StickerLoader(this.context,false,true);
-		this.stickerLoader.laodLargeSticker(true);
-		this.mConnectionType = Utils.getNetworkType(context);
 
 	}
 
@@ -403,7 +406,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		isDefaultTheme = chatTheme == ChatTheme.DEFAULT;
 		notifyDataSetChanged();
 	}
-	
+
 	public ChatTheme getChatTheme()
 	{
 		return chatTheme;
@@ -520,7 +523,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		ConvMessage convMessage = getItem(position);
 		ViewType type;
-		
+
 		MessageMetadata metadata = convMessage.getMetadata();
 		if (convMessage.isStickerMessage())
 		{
@@ -856,64 +859,41 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			stickerHolder.loader.setVisibility(View.GONE);
 			Sticker sticker = metadata.getSticker();
 			setSenderDetails(convMessage, position, stickerHolder, true);
-			String categoryId = sticker.getCategoryId();
-			String stickerId = sticker.getStickerId();
-			String categoryDirPath = sticker.getCategoryPath()+ HikeConstants.LARGE_STICKER_ROOT;
 			boolean isStickerOffline=false;
+
+			stickerLoader.loadImage(sticker.getLargeStickerPath(), stickerHolder.image, isListFlinging, true);
+			if(sticker.isStickerAvailable())
+			{
+				stickerHolder.placeHolder.setBackgroundResource(0);
+				stickerHolder.image.setVisibility(View.VISIBLE);
+			}
+
 			/**
 			 * First we check if the sticker is present in our online directory or not ,then we check in our offline directory.
-			 * 
+			 *
 			 */
-			if (sticker.isStickerAvailable())
+			if (convMessage.isOfflineMessage())
 			{
-				Drawable stickerDrawable = HikeMessengerApp.getLruCache().getSticker(sticker,convMessage.isOfflineMessage(),viewType == ViewType.STICKER_SENT || mConnectionType == ConnectivityManager.TYPE_MOBILE_MMS);
-
-				if (stickerDrawable != null)
+				if (!sticker.isStickerAvailable())
 				{
-					/**
-					 * In case of Offline Sticker usually the size the of the sticker is big as it might come from a XHDPI phone and we are rendering it on a hdpi phone so we are
-					 * restricting the size of the sticker to a certain value
-					 **/
-					if (convMessage.isOfflineMessage())
+					String filePath = OfflineUtils.getOfflineStkPath(sticker.getCategoryId(), sticker.getStickerId());
+					if (!TextUtils.isEmpty(filePath))
 					{
+						/**
+						 * In case of Offline Sticker usually the size the of the sticker is big as it might come from a XHDPI phone and we are rendering it on a hdpi phone so we are
+						 * restricting the size of the sticker to a certain value
+						 **/
 						ViewGroup.LayoutParams layoutParams = stickerHolder.image.getLayoutParams();
 						int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, OfflineConstants.STICKER_SIZE, context.getResources().getDisplayMetrics());
 						layoutParams.height = size;
 						layoutParams.width = size;
 						stickerHolder.image.setLayoutParams(layoutParams);
 						stickerHolder.image.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-						Logger.d("MessagesAdapter", "OfflineSticker sticker  height and width is " + stickerDrawable.getMinimumHeight() + "..." + stickerDrawable.getMinimumWidth());
-						Logger.d("MessagesAdapter",
-								"OfflineSticker view height and width is " + stickerHolder.image.getMeasuredHeight() + "..." + stickerHolder.image.getMeasuredWidth());
+						Logger.d("MessagesAdapter", "OfflineSticker view height and width is " + stickerHolder.image.getMeasuredHeight() + "..." + stickerHolder.image.getMeasuredWidth());
 					}
-					stickerHolder.placeHolder.setBackgroundResource(0);
-					stickerHolder.image.setVisibility(View.VISIBLE);
-
-					stickerHolder.image.setImageDrawable(stickerDrawable);
-				}
-				else
-				{
-					stickerHolder.loader.setVisibility(View.VISIBLE);
-					stickerHolder.placeHolder.setBackgroundResource(R.drawable.bg_sticker_placeholder);
-					stickerHolder.image.setVisibility(View.GONE);
-					stickerHolder.image.setImageDrawable(null);
-					stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker),stickerHolder.image);
-				}
-
-				if(sticker.getStickerCurrentAvailabilityStatus() == HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY)
-				{
-					StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, convMessage);
 				}
 			}
-			else
-			{
-				stickerHolder.loader.setVisibility(View.VISIBLE);
-				stickerHolder.placeHolder.setBackgroundResource(R.drawable.bg_sticker_placeholder);
-				stickerHolder.image.setVisibility(View.GONE);
-				stickerHolder.image.setImageDrawable(null);
 
-				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId,categoryId, convMessage);
-			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
 			setSelection(convMessage, stickerHolder.selectedStateOverlay);
@@ -983,7 +963,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, R.anim.valetines_nudge_anim));
+					int animId = chatTheme.getAnimationId();
+					if(animId != -1)
+					{
+						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
+					}
 				}
 			}
 			setTimeNStatus(position, nudgeHolder, true, nudgeHolder.nudge);
@@ -994,7 +978,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			FileSavedState fss = null;
 			final HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			File file = hikeFile.getFile();
-			
+
 			if (convMessage.isOfflineMessage())
 			{
 				Logger.d("MessagesAdapter", "In Offline file Transfer");
@@ -1134,17 +1118,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				switch (fss.getFTState())
 				{
-				case INITIALIZED:
-				case IN_PROGRESS:
-					wtHolder.initialization.setVisibility(View.VISIBLE);
-					break;
-				case COMPLETED:
-				case NOT_STARTED:
-				case CANCELLED:
-				case PAUSED:
-				case ERROR:
-				default:
-					wtHolder.initialization.setVisibility(View.GONE);
+					case INITIALIZED:
+					case IN_PROGRESS:
+						wtHolder.initialization.setVisibility(View.VISIBLE);
+						break;
+					case COMPLETED:
+					case NOT_STARTED:
+					case CANCELLED:
+					case PAUSED:
+					case ERROR:
+					default:
+						wtHolder.initialization.setVisibility(View.GONE);
 				}
 
 				//TODO:change from false to true
@@ -1243,7 +1227,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				boolean isUnknown = ContactManager.getInstance().isUnknownContact(conversation.getMsisdn());
 				boolean isBot = BotUtils.isBot(conversation.getMsisdn());
 				showThumbnail = ((convMessage.isSent()) || (conversation instanceof OneToNConversation) || !isUnknown || (hikeFile.wasFileDownloaded())||  convMessage.isOfflineMessage() || isBot);
-			
+
 				if (hikeFile.getThumbnail() == null && !TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					thumbnail = HikeMessengerApp.getLruCache().getFileIconFromCache(hikeFile.getFileKey());
@@ -1323,7 +1307,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				setBubbleColor(convMessage, videoHolder.messageContainer);
 
 				if (convMessage.isOfflineMessage())
-				{	
+				{
 					videoHolder.circularProgress.resetProgress();
 					setupOfflineFileState(videoHolder, fss, convMessage.getMsgID(), hikeFile, convMessage.isSent(), false);
 				}
@@ -1430,7 +1414,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					thumbnail = hikeFile.getThumbnail();
 				}
-				
+
 				//Logger.d("OfflineThreadManager","Actual Thumbanil is  "+thumbnail.toString());
 				if (showThumbnail)
 				{
@@ -1849,7 +1833,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				String fileName = hikeFile.getFileName();
 				fileHolder.fileName.setText(fileName);
 				checkIfContainsSearchText(fileHolder.fileName);
-				
+
 				if (convMessage.isSent() && (hikeFile.getFile().length() > 0))
 				{
 					fileHolder.fileSize.setText(Utils.getSizeForDisplay(hikeFile.getFile().length()));
@@ -1964,7 +1948,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			dayHolder = textHolder;
 			setSenderDetails(convMessage, position, textHolder, false);
-			
+
 			CustomMessageTextView tv = (CustomMessageTextView) textHolder.text;
 			tv.setDimentionMatrixHolder(convMessage);
 			if (viewType == ViewType.SEND_HIKE || viewType == ViewType.SEND_SMS)
@@ -2048,7 +2032,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				infoHolder = (VoipInfoHolder) v.getTag();
 			}
 			dayHolder = infoHolder;
-			
+
 			if (isDefaultTheme)
 			{
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.list_item_subtext));
@@ -2070,7 +2054,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (initiator)
 				{
 					message = context.getString(R.string.voip_call_summary_outgoing);
-					imageId = isDefaultTheme ? R.drawable.ic_voip_ct_out : R.drawable.ic_voip_ct_out_custom; 
+					imageId = isDefaultTheme ? R.drawable.ic_voip_ct_out : R.drawable.ic_voip_ct_out_custom;
 				}
 				else
 				{
@@ -2087,7 +2071,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				message = context.getString(R.string.voip_missed_call_incoming);
 			}
-			
+
 			infoHolder.text.setText(message);
 			infoHolder.messageInfo.setText(convMessage.getTimestampFormatted(false, context));
 			infoHolder.image.setImageResource(imageId);
@@ -2169,13 +2153,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int bottom = positiveMargin;
 
 			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
-			
+
 			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
 			{
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name = convMessage.getMessage();
 				setTextAndIconForSystemMessages(mainMessage,name, isDefaultTheme ? R.drawable.offline_inline_logo : R.drawable.offline_inline_logo_white);
-				((ViewGroup) participantInfoHolder.container).addView(mainMessage);		
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
 			else if(infoState == ParticipantInfoState.OFFLINE_FILE_NOT_RECEIVED)
 			{
@@ -2188,11 +2172,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				JSONArray participantInfoArray = metadata.getGcjParticipantInfo();
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
-				
+
 				String highlight = Utils.getOneToNConversationJoinHighlightText(participantInfoArray, (OneToNConversation) conversation, metadata.isNewGroup()&&metadata.getGroupAdder()!=null, context);
-				
+
 				String message = OneToNConversationUtils.getParticipantAddedMessage(convMessage, context, highlight);
-				
+
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, highlight), isDefaultTheme ? R.drawable.ic_joined_chat
 						: R.drawable.ic_joined_chat_custom);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
@@ -2227,7 +2211,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					message = OneToNConversationUtils.getConversationEndedMessage(conversation.getMsisdn(), context);
-					
+
 				}
 				setTextAndIconForSystemMessages(participantInfo, message, isDefaultTheme ? R.drawable.ic_left_chat : R.drawable.ic_left_chat_custom);
 
@@ -2429,9 +2413,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else if (infoState == ParticipantInfoState.CHANGE_ADMIN)
 			{
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
-			
+
 				String message = OneToNConversationUtils.getAdminUpdatedMessage(convMessage, context);
-				
+
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_admin_default_theme
 						: R.drawable.ic_admin);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
@@ -2439,9 +2423,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			else if (infoState == ParticipantInfoState.GC_SETTING_CHANGE)
 			{
 				TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
-			
+
 				String message = OneToNConversationUtils.getSettingUpdatedMessage(convMessage, context);
-				
+
 				setTextAndIconForSystemMessages(participantInfo, Utils.getFormattedParticipantInfo(message, ""), isDefaultTheme ? R.drawable.ic_group_info
 						: R.drawable.ic_group_info_custom);
 				((ViewGroup) participantInfoHolder.container).addView(participantInfo);
@@ -2535,7 +2519,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			dayHolder.dayStubInflated.setVisibility(View.GONE);
 		}
 		Logger.i("chatthread", "position " + position + " time taken : " + (System.currentTimeMillis() - startTime));
-		
+
 		if (convMessages == null || convMessages.size() == 0 || position == convMessages.size() - 1)
 		{
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
@@ -2548,7 +2532,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (broadcastIndicator == null)
 		{
 			return;
-		}		
+		}
 
 		if (convMessage.isBroadcastMessage() && !convMessage.isBroadcastConversation())
 		{
@@ -2582,7 +2566,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			broadcastIndicator.setVisibility(View.GONE);
 		}
 	}
-	
+
 
 	private void setBubbleColor(ConvMessage convMessage, ViewGroup messageContainer)
 	{
@@ -2626,7 +2610,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			overlay.setVisibility(View.VISIBLE);
 			overlay.setTag(convMessage);
 			overlay.setOnClickListener(mOnClickListener);
-			
+
 			if (isSelected(convMessage))
 			{
 				/*
@@ -2791,7 +2775,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			tv.setText(spanText, TextView.BufferType.SPANNABLE);
 		}
 	}
-	
+
 	private CharSequence getSpannableSearchString(CharSequence text)
 	{
 		if (!TextUtils.isEmpty(searchText))
@@ -2819,7 +2803,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	}
 
 	private void setGroupParticipantName(ConvMessage convMessage, View participantDetails, TextView participantName, TextView participantNameUnsaved,
-			boolean firstMessageFromParticipant)
+										 boolean firstMessageFromParticipant)
 	{
 		if (!convMessage.isSent())
 		{
@@ -2879,85 +2863,85 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		holder.circularProgress.setVisibility(View.GONE);
 		switch (fss.getFTState())
 		{
-		case NOT_STARTED:
-			if (!isSent)
-			{
-				holder.ftAction.setImageResource(downloadImage);
-				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_download_file));
-				holder.ftAction.setVisibility(View.VISIBLE);
-				holder.circularProgressBg.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				if (TextUtils.isEmpty(hikeFile.getFileKey()))
+			case NOT_STARTED:
+				if (!isSent)
 				{
-					if(FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+					holder.ftAction.setImageResource(downloadImage);
+					holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_download_file));
+					holder.ftAction.setVisibility(View.VISIBLE);
+					holder.circularProgressBg.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					if (TextUtils.isEmpty(hikeFile.getFileKey()))
 					{
-						holder.ftAction.setImageResource(0);
-						holder.ftAction.setVisibility(View.VISIBLE);
-						holder.circularProgressBg.setVisibility(View.VISIBLE);
-						showTransferInitialization(holder, hikeFile);
+						if(FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+						{
+							holder.ftAction.setImageResource(0);
+							holder.ftAction.setVisibility(View.VISIBLE);
+							holder.circularProgressBg.setVisibility(View.VISIBLE);
+							showTransferInitialization(holder, hikeFile);
+						}
+						else
+						{
+							holder.ftAction.setImageResource(retryImage);
+							holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+							holder.ftAction.setVisibility(View.VISIBLE);
+							holder.circularProgressBg.setVisibility(View.VISIBLE);
+						}
 					}
-					else
+					else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 					{
-						holder.ftAction.setImageResource(retryImage);
-						holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
+						{
+							holder.ftAction.setImageResource(playImage);
+						}
 						holder.ftAction.setVisibility(View.VISIBLE);
 						holder.circularProgressBg.setVisibility(View.VISIBLE);
 					}
 				}
-				else if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
+				break;
+			case IN_PROGRESS:
+				holder.ftAction.setImageResource(pauseImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_pause_file_download));
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+				showTransferProgress(holder, fss, msgId, hikeFile, isSent);
+				break;
+			case INITIALIZED:
+				holder.ftAction.setImageResource(0);
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+				showTransferInitialization(holder, hikeFile);
+				break;
+			case ERROR:
+			case PAUSED:
+				holder.ftAction.setImageResource(retryImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+				showTransferProgress(holder, fss, msgId, hikeFile, isSent);
+				break;
+			case CANCELLED:
+				holder.ftAction.setImageResource(retryImage);
+				holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
+				holder.ftAction.setVisibility(View.VISIBLE);
+				holder.circularProgressBg.setVisibility(View.VISIBLE);
+				break;
+			case COMPLETED:
+				if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
 				{
 					if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
 					{
 						holder.ftAction.setImageResource(playImage);
 					}
+
 					holder.ftAction.setVisibility(View.VISIBLE);
 					holder.circularProgressBg.setVisibility(View.VISIBLE);
 				}
-			}
-			break;
-		case IN_PROGRESS:
-			holder.ftAction.setImageResource(pauseImage);
-			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_pause_file_download));
-			holder.ftAction.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
-			break;
-		case INITIALIZED:
-			holder.ftAction.setImageResource(0);
-			holder.ftAction.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			showTransferInitialization(holder, hikeFile);
-			break;
-		case ERROR:
-		case PAUSED:
-			holder.ftAction.setImageResource(retryImage);
-			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
-			holder.ftAction.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			showTransferProgress(holder, fss, msgId, hikeFile, isSent);
-			break;
-		case CANCELLED:
-			holder.ftAction.setImageResource(retryImage);
-			holder.ftAction.setContentDescription(context.getResources().getString(R.string.content_des_retry_file_download));
-			holder.ftAction.setVisibility(View.VISIBLE);
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			break;
-		case COMPLETED:
-			if ((hikeFile.getHikeFileType() == HikeFileType.VIDEO) && !ext)
-			{
-				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO)
-				{
-					holder.ftAction.setImageResource(playImage);
-				}
-
-				holder.ftAction.setVisibility(View.VISIBLE);
-				holder.circularProgressBg.setVisibility(View.VISIBLE);
-			}
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
 	}
@@ -3118,7 +3102,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			optionsList.add(context.getString(R.string.send_message));
 			if (Utils.isVoipActivated(context))
 				optionsList.add(context.getString(R.string.call));
-			
+
 			final String[] options = new String[optionsList.size()];
 			optionsList.toArray(options);
 
@@ -3173,7 +3157,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		textView.setCompoundDrawablesWithIntrinsicBounds(iconResId, 0, 0, 0);
 	}
 
-	
+
 	Handler handler = new Handler();
 
 	private HikeDialog dialog;
@@ -3240,46 +3224,46 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				switch (message.getState())
 				{
-				case SENT_UNCONFIRMED:
-					status.setImageResource(R.drawable.ic_clock_white);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
-					break;
-				case SENT_CONFIRMED:
-					setIconForSentMessage(message, status, R.drawable.ic_tick_white, R.drawable.ic_sms_white, R.drawable.ic_bolt_white);
-					break;
-				case SENT_DELIVERED:
-					status.setImageResource(R.drawable.ic_double_tick_white);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
-					break;
-				case SENT_DELIVERED_READ:
-					status.setImageResource(R.drawable.ic_double_tick_r_white);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
-					break;
-				default:
-					break;
+					case SENT_UNCONFIRMED:
+						status.setImageResource(R.drawable.ic_clock_white);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
+						break;
+					case SENT_CONFIRMED:
+						setIconForSentMessage(message, status, R.drawable.ic_tick_white, R.drawable.ic_sms_white, R.drawable.ic_bolt_white);
+						break;
+					case SENT_DELIVERED:
+						status.setImageResource(R.drawable.ic_double_tick_white);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
+						break;
+					case SENT_DELIVERED_READ:
+						status.setImageResource(R.drawable.ic_double_tick_r_white);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
+						break;
+					default:
+						break;
 				}
 			}
 			else
 			{
 				switch (message.getState())
 				{
-				case SENT_UNCONFIRMED:
-					status.setImageResource(R.drawable.ic_clock);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
-					break;
-				case SENT_CONFIRMED:
-					setIconForSentMessage(message, status, R.drawable.ic_tick, R.drawable.ic_sms, R.drawable.ic_bolt_grey);
-					break;
-				case SENT_DELIVERED:
-					status.setImageResource(R.drawable.ic_double_tick);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
-					break;
-				case SENT_DELIVERED_READ:
-					status.setImageResource(R.drawable.ic_double_tick_r);
-					status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
-					break;
-				default:
-					break;
+					case SENT_UNCONFIRMED:
+						status.setImageResource(R.drawable.ic_clock);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_clock_state));
+						break;
+					case SENT_CONFIRMED:
+						setIconForSentMessage(message, status, R.drawable.ic_tick, R.drawable.ic_sms, R.drawable.ic_bolt_grey);
+						break;
+					case SENT_DELIVERED:
+						status.setImageResource(R.drawable.ic_double_tick);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_state));
+						break;
+					case SENT_DELIVERED_READ:
+						status.setImageResource(R.drawable.ic_double_tick_r);
+						status.setContentDescription(context.getResources().getString(R.string.content_des_message_double_tick_read_state));
+						break;
+					default:
+						break;
 				}
 			}
 			status.setScaleType(ScaleType.CENTER);
@@ -3459,10 +3443,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		return getCount() == 0;
 	}
 
-	
+
 	@Override
 	public void onClick(View v)
-	{	
+	{
 		/**
 		 * Other click cases
 		 */
@@ -3475,7 +3459,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		if (convMessage.isFileTransferMessage())
 		{
-			
+
 			// @GM
 			MessageMetadata messageMetadata = convMessage.getMetadata();
 			HikeFile hikeFile = messageMetadata.getHikeFiles().get(0);
@@ -3489,11 +3473,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (convMessage.isSent())
 			{
 				Logger.d(getClass().getSimpleName(), "Hike File name: " + hikeFile.getFileName() + " File key: " + hikeFile.getFileKey());
-				
+
 				FileSavedState fileState;
 				if (convMessage.isOfflineMessage())
 				{
-					fileState = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());	
+					fileState = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
 					if(fileState.getFTState() == FTState.ERROR)
 					{
 						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
@@ -3513,7 +3497,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(),hikeFile.getFile()); 
+					fileState = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(),hikeFile.getFile());
 					if(fileState.getFTState() == FTState.ERROR || fileState.getFTState() ==FTState.NOT_STARTED)
 					{
 						if(OfflineUtils.isConnectedToSameMsisdn(conversation.getMsisdn()))
@@ -3524,7 +3508,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 					}
 				}
-				
+
 				if (!TextUtils.isEmpty(hikeFile.getFileKey()))
 				{
 					openFile(hikeFile, convMessage, v);
@@ -3542,7 +3526,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
-							
+
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
@@ -3555,7 +3539,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			else
 			{
-				
+
 				if (convMessage.isOfflineMessage())
 				{
 					FileSavedState offlineFss = OfflineController.getInstance().getFileState(convMessage, hikeFile.getFile());
@@ -3570,7 +3554,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				}
 				File receivedFile = hikeFile.getFile();
-				
+
 				if (((hikeFile.getHikeFileType() == HikeFileType.LOCATION) || (hikeFile.getHikeFileType() == HikeFileType.CONTACT) || hikeFile.wasFileDownloaded()))
 				{
 					openFile(hikeFile, convMessage, v);
@@ -3610,7 +3594,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	private void updateOriginTypeForConvMessage(ConvMessage convMessage,OriginType originType) 
+	private void updateOriginTypeForConvMessage(ConvMessage convMessage,OriginType originType)
 	{
 		convMessage.setMessageOriginType(originType);
 		HikeConversationsDatabase.getInstance().updateMessageOriginType(convMessage.getMsgID(), originType.ordinal());
@@ -3622,84 +3606,84 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		Intent openFile = new Intent(Intent.ACTION_VIEW);
 		switch (hikeFile.getHikeFileType())
 		{
-		case LOCATION:
-			String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
-			openFile.setData(Uri.parse(uri));
-			break;
-		case CONTACT:
-			saveContact(hikeFile);
-			return;
-		case AUDIO_RECORDING:
-			if (hikeFile.getFilePath() == null)
-			{
-				Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+			case LOCATION:
+				String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
+				openFile.setData(Uri.parse(uri));
+				break;
+			case CONTACT:
+				saveContact(hikeFile);
 				return;
-			}
-			String fileKey = hikeFile.getFileKey();
-
-			ImageView recAction = (ImageView) parent.findViewById(R.id.action);
-			// TextView durationTxt = (TextView) parent.findViewById(convMessage.isSent() ? R.id.message_send : R.id.message_receive_ft);
-			TextView durationTxt = (TextView) parent.findViewById(R.id.duration);
-			View durationProgress = (View) parent.findViewById(R.id.play_progress);
-			durationTxt.setVisibility(View.VISIBLE);
-			durationProgress.setVisibility(View.VISIBLE);
-
-			if (fileKey.equals(voiceMessagePlayer.getFileKey()))
-			{
-				recAction.setTag(fileKey);
-				voiceMessagePlayer.setFileBtn(recAction);
-				durationTxt.setTag(fileKey);
-				voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
-
-				if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING)
+			case AUDIO_RECORDING:
+				if (hikeFile.getFilePath() == null)
 				{
-					voiceMessagePlayer.pausePlayer();
+					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+					return;
 				}
-				else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+				String fileKey = hikeFile.getFileKey();
+
+				ImageView recAction = (ImageView) parent.findViewById(R.id.action);
+				// TextView durationTxt = (TextView) parent.findViewById(convMessage.isSent() ? R.id.message_send : R.id.message_receive_ft);
+				TextView durationTxt = (TextView) parent.findViewById(R.id.duration);
+				View durationProgress = (View) parent.findViewById(R.id.play_progress);
+				durationTxt.setVisibility(View.VISIBLE);
+				durationProgress.setVisibility(View.VISIBLE);
+
+				if (fileKey.equals(voiceMessagePlayer.getFileKey()))
 				{
-					voiceMessagePlayer.resumePlayer();
+					recAction.setTag(fileKey);
+					voiceMessagePlayer.setFileBtn(recAction);
+					durationTxt.setTag(fileKey);
+					voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
+
+					if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING)
+					{
+						voiceMessagePlayer.pausePlayer();
+					}
+					else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+					{
+						voiceMessagePlayer.resumePlayer();
+					}
+					else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.STOPPED)
+					{
+						voiceMessagePlayer.playMessage(hikeFile);
+					}
 				}
-				else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.STOPPED)
+				else
 				{
+					if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING || voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+					{
+						voiceMessagePlayer.resetPlayer();
+					}
+
+					recAction.setTag(fileKey);
+					voiceMessagePlayer.setFileBtn(recAction);
+					durationTxt.setTag(fileKey);
+					voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
+
 					voiceMessagePlayer.playMessage(hikeFile);
 				}
-			}
-			else
-			{
-				if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING || voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+				return;
+			case IMAGE:
+			case VIDEO:
+				if (hikeFile.exactFilePathFileExists())
 				{
-					voiceMessagePlayer.resetPlayer();
+					ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
+					hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
+							.getGroupParticipantMsisdn()));
+					if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+						((ChatThreadActivity)mActivity).hideKeyboard();
+					}
+					PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
 				}
-
-				recAction.setTag(fileKey);
-				voiceMessagePlayer.setFileBtn(recAction);
-				durationTxt.setTag(fileKey);
-				voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
-
-				voiceMessagePlayer.playMessage(hikeFile);
-			}
-			return;
-		case IMAGE:
-		case VIDEO:
-			if (hikeFile.exactFilePathFileExists())
-			{
-				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
-				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
-						.getGroupParticipantMsisdn()));
-				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
-					((ChatThreadActivity)mActivity).hideKeyboard();
+				else
+				{
+					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
 				}
-				PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
-			}
-			else
-			{
-				Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
-			}
-			return;
+				return;
 
-		default:
-			HikeFile.openFile(hikeFile, context);
-			return;
+			default:
+				HikeFile.openFile(hikeFile, context);
+				return;
 		}
 		try
 		{
@@ -3719,38 +3703,38 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		final String name = hikeFile.getDisplayName();
 
 		final List<ContactInfoData> items = Utils.getContactDataFromHikeFile(hikeFile);
-		
+
 		PhonebookContact contact = new PhonebookContact();
 		contact.name = name;
 		contact.items = items;
-		
+
 		this.dialog =HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
 		{
-			
+
 			@Override
 			public void positiveClicked(HikeDialog hikeDialog)
 			{
 				Spinner accounts = (Spinner) ((ContactDialog) hikeDialog).findViewById(R.id.account_spinner);
-				
+
 				if (accounts.getSelectedItem() != null)
 				{
 					Utils.addToContacts(items, name, context, accounts);
 				}
-				
+
 				else
 				{
 					Utils.addToContacts(items, name, context);
 				}
-				
+
 				hikeDialog.dismiss();
 			}
-			
+
 			@Override
 			public void neutralClicked(HikeDialog hikeDialog)
 			{
-				
+
 			}
-			
+
 			@Override
 			public void negativeClicked(HikeDialog hikeDialog)
 			{
@@ -3793,7 +3777,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-		
+
 		if (isChecked)
 		{
 			if (!preferences.getBoolean(HikeMessengerApp.SHOWN_NATIVE_INFO_POPUP, false))
@@ -3855,7 +3839,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					Utils.setReceiveSmsSetting(context, true);
-					
+
 					if (!preferences.getBoolean(HikeMessengerApp.SHOWN_SMS_SYNC_POPUP, false))
 					{
 						HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_SMS_SYNC_DIALOG, null);
@@ -3900,7 +3884,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		PLAYING, PAUSED, STOPPED
 	};
 
-	private class VoiceMessagePlayer
+	private class VoiceMessagePlayer implements SensorEventListener
 	{
 		String fileKey;
 
@@ -3916,9 +3900,33 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		VoiceMessagePlayerState playerState;
 
+		private SensorManager sensorManager;
+
+		private Sensor proximitySensor;
+
+		private boolean proximitySensorExists;
+
+		private AudioManager audioManager;
+
+		private float proximitySensorMaxRange;
+
+		private int initialAudioMode;
+
+
 		public VoiceMessagePlayer()
 		{
 			handler = new Handler();
+			audioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
+			initialAudioMode = audioManager.getMode();
+			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
+			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
+			if (proximitySensor == null) {
+				proximitySensorExists = false;
+			} else {
+				proximitySensorExists = true;
+				proximitySensorMaxRange = proximitySensor.getMaximumRange();
+			}
 		}
 
 		public void playMessage(HikeFile hikeFile)
@@ -3930,6 +3938,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			try
 			{
+				audioManager.setMode(AudioManager.STREAM_MUSIC);
 				mediaPlayer = new MediaPlayer();
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
@@ -3946,6 +3955,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				});
 				handler.post(updateTimer);
+
+				if (proximitySensorExists)
+					sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -3972,6 +3984,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.pause();
 			setTimer();
 			setFileBtnResource();
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
 		}
 
 		public void resumePlayer()
@@ -3985,6 +3999,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.start();
 			handler.post(updateTimer);
 			setFileBtnResource();
+
+			if (proximitySensorExists)
+				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 
 		public void resetPlayer()
@@ -4005,6 +4022,27 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			fileBtn = null;
 			durationTxt = null;
 			durationProgress = null;
+
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			audioManager.setMode(initialAudioMode);
+		}
+
+		@Override
+		public void onSensorChanged(SensorEvent sensorEvent) {
+			float distance = sensorEvent.values[0];
+			if (distance != proximitySensorMaxRange) {
+				Logger.d(VoIPConstants.TAG, "Phone is near.");
+				audioManager.setSpeakerphoneOn(false);
+			} else {
+				Logger.d(VoIPConstants.TAG, "Phone is far.");
+				audioManager.setSpeakerphoneOn(true);
+			}
+		}
+
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int i) {
+			// Do nothing
 		}
 
 		public String getFileKey()
@@ -4074,18 +4112,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				switch (playerState)
 				{
-				case PLAYING:
-				case PAUSED:
-					int progress = 0;
-					if (duration > 0)
-						progress = (mediaPlayer.getCurrentPosition() * 100) / duration;
-					((HoloCircularProgress) durationProgress).setProgress(progress * 0.01f);
-					Utils.setupFormattedTime(durationTxt, mediaPlayer.getCurrentPosition() / 1000);
-					break;
-				case STOPPED:
-					((HoloCircularProgress) durationProgress).resetProgress();
-					Utils.setupFormattedTime(durationTxt, duration / 1000);
-					break;
+					case PLAYING:
+					case PAUSED:
+						int progress = 0;
+						if (duration > 0)
+							progress = (mediaPlayer.getCurrentPosition() * 100) / duration;
+						((HoloCircularProgress) durationProgress).setProgress(progress * 0.01f);
+						Utils.setupFormattedTime(durationTxt, mediaPlayer.getCurrentPosition() / 1000);
+						break;
+					case STOPPED:
+						((HoloCircularProgress) durationProgress).resetProgress();
+						Utils.setupFormattedTime(durationTxt, duration / 1000);
+						break;
 
 				}
 			}
@@ -4097,6 +4135,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				Logger.w(getClass().getSimpleName(), e);
 			}
 		}
+
 	}
 
 	public void resetPlayerIfRunning()
@@ -4127,7 +4166,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			notifyDataSetChanged();
 		}
 	}
-	
+
 	public void selectView(ConvMessage convMsg, boolean value)
 	{
 		if (value)
@@ -4207,11 +4246,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		isH20Mode = isOn;
 	}
-	
+
 	private void fillStatusMessageData(StatusViewHolder statusHolder, ConvMessage convMessage, View v)
 	{
 		StatusMessage statusMessage = convMessage.getMetadata().getStatusMessage();
-		
+
 		statusHolder.dayTextView.setText(context.getString(R.string.xyz_posted_update, Utils.getFirstName(conversation.getLabel())));
 
 		statusHolder.messageInfo.setText(statusMessage.getTimestampFormatted(true, context));
@@ -4234,11 +4273,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		if (statusMessage.hasMood())
 		{
-                        // Begin : AND-2433
-		        statusHolder.avatarFrame.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
+			// Begin : AND-2433
+			statusHolder.avatarFrame.setImageResource(EmoticonConstants.moodMapping.get(statusMessage.getMoodId()));
 			statusHolder.avatarFrame.setVisibility(View.VISIBLE);
 			statusHolder.image.setVisibility(View.GONE);
-                        // End : AND-2433
+			// End : AND-2433
 		}
 		else
 		{
@@ -4263,7 +4302,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		String name = convMessage.isSent() ?
 				context.getString(R.string.you) :
 				(conversation instanceof OneToNConversation) ? ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn()) : "";
-				
+
 		statusHolder.dayTextView.setText(StringUtils.getYouFormattedString(context, convMessage.isSent(), R.string.you_xyz_posted_pin, R.string.xyz_posted_pin, name));
 
 		statusHolder.messageInfo.setText(convMessage.getTimestampFormatted(true, context));
@@ -4303,7 +4342,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			notifyFileThumbnailDataSetChanged();
 		}
 	}
-	
+
 	/**
 	 * We depend on the Listflinging state to downlaod the HD thumbnail of the image. We call this function when the listView stops flinging. We iterate the visible items and call
 	 * getview just to make sure imageloader loads thumbnail properly
@@ -4355,7 +4394,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @param isHikeOfflineTipShowing the isHikeOfflineTipShowing to set
 	 */
@@ -4363,7 +4402,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		this.isH20TipShowing = isHikeOfflineTipShowing;
 	}
-	
+
 	public void onDestroy()
 	{
 		if (mWebViewCardRenderer != null)
@@ -4376,7 +4415,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			dialog = null;
 		}
 	}
-	
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		if(requestCode == HikeConstants.PLATFORM_REQUEST)
@@ -4384,20 +4423,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mWebViewCardRenderer.onActivityResult(requestCode,resultCode, data);
 		}
 	}
-	
+
 	private void showOfflineTransferProgress(FTViewHolder holder, FileSavedState fss,
-			long msgId, HikeFile hikeFile, boolean isSent) 
+											 long msgId, HikeFile hikeFile, boolean isSent)
 	{
 		long progress = OfflineController.getInstance().getTransferProgress(msgId, isSent, hikeFile.getFileSize());
 		if (progress == -1)
 			return;
-		
+
 		Logger.d("OfflineManager", "in showTransferProgress with progress: " + progress);
-		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent) 
+		if (fss.getFTState() == FTState.IN_PROGRESS && progress == 0 && isSent)
 		{
 			holder.initializing.setVisibility(View.VISIBLE);
-		} 
-		else if (fss.getFTState() == FTState.IN_PROGRESS) 
+		}
+		else if (fss.getFTState() == FTState.IN_PROGRESS)
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
@@ -4408,14 +4447,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
 
 			float animatedProgress = 0 * 0.01f;
-			if (fss.getTotalSize() > 0) 
+			if (fss.getTotalSize() > 0)
 			{
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher()) 
+			if (Utils.isHoneycombOrHigher())
 			{
-				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100) 
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 				{
 					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
 				}
@@ -4428,7 +4467,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	}
 
 	private void setupOfflineFileState(FTViewHolder holder, FileSavedState fss,
-			long msgId, HikeFile hikeFile, boolean isSent, boolean ext) 
+									   long msgId, HikeFile hikeFile, boolean isSent, boolean ext)
 	{
 		int playImage = -1;
 		int retryImage = R.drawable.ic_retry_image_video;
@@ -4440,34 +4479,34 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		holder.initializing.setVisibility(View.GONE);
 		holder.circularProgress.setVisibility(View.GONE);
 		switch (fss.getFTState()) {
-		case IN_PROGRESS:
-			holder.circularProgressBg.setVisibility(View.VISIBLE);
-			holder.circularProgress.setVisibility(View.VISIBLE);
-			Logger.d("OfflineManager", "IN_PROGRESS");
-			showOfflineTransferProgress(holder, fss, msgId, hikeFile, isSent);
-			break;
-		case COMPLETED:
-			holder.circularProgressBg.setVisibility(View.GONE);
-			holder.circularProgress.resetProgress();
-			Logger.d("OfflineManager", "COMPLETED");
-			holder.circularProgress.setVisibility(View.GONE);
-			if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext) {
-				holder.ftAction.setImageResource(playImage);
-				holder.ftAction.setVisibility(View.VISIBLE);
+			case IN_PROGRESS:
 				holder.circularProgressBg.setVisibility(View.VISIBLE);
-			}
-			break;
-		case ERROR:
-			if (isSent) {
-				holder.ftAction.setImageResource(retryImage);
-				holder.ftAction.setContentDescription(context.getResources()
-						.getString(R.string.content_des_retry_file_download));
-				holder.ftAction.setVisibility(View.VISIBLE);
-				holder.circularProgressBg.setVisibility(View.VISIBLE);
-			}
-			break;
-		default:
-			break;
+				holder.circularProgress.setVisibility(View.VISIBLE);
+				Logger.d("OfflineManager", "IN_PROGRESS");
+				showOfflineTransferProgress(holder, fss, msgId, hikeFile, isSent);
+				break;
+			case COMPLETED:
+				holder.circularProgressBg.setVisibility(View.GONE);
+				holder.circularProgress.resetProgress();
+				Logger.d("OfflineManager", "COMPLETED");
+				holder.circularProgress.setVisibility(View.GONE);
+				if (hikeFile.getHikeFileType() == HikeFileType.VIDEO && !ext) {
+					holder.ftAction.setImageResource(playImage);
+					holder.ftAction.setVisibility(View.VISIBLE);
+					holder.circularProgressBg.setVisibility(View.VISIBLE);
+				}
+				break;
+			case ERROR:
+				if (isSent) {
+					holder.ftAction.setImageResource(retryImage);
+					holder.ftAction.setContentDescription(context.getResources()
+							.getString(R.string.content_des_retry_file_download));
+					holder.ftAction.setVisibility(View.VISIBLE);
+					holder.circularProgressBg.setVisibility(View.VISIBLE);
+				}
+				break;
+			default:
+				break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
 	}

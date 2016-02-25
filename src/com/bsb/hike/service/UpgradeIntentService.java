@@ -120,6 +120,18 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 0) == 1)
+		{
+			if(upgradeForStickerTable())
+			{
+				Logger.v(TAG, "Upgrade for sticker table was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+			}
+		}
+
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 	}
@@ -160,5 +172,10 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForSortingIdField()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
+	}
+
+	private boolean upgradeForStickerTable()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
 }

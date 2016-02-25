@@ -93,7 +93,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	{
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true,true);
+		this.stickerLoader = new StickerLoader(true, true, true);
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 	}
 	

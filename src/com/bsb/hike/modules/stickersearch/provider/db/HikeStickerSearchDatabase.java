@@ -626,7 +626,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				ArrayList<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
 				ArrayList<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
-				int availability = stickerTagData.getStickerAvailabilityStatus() ;
+				int availability = stickerTagData.getStickerAvailabilityStatus() ? HikeStickerSearchBaseConstants.DECISION_STATE_YES
+						: HikeStickerSearchBaseConstants.DECISION_STATE_NO;
 				int size = stickerTags.size();
 
 				for (int j = 0; j < size; j++)

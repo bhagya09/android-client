@@ -122,7 +122,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 									switch (stickersMetaData.getInt("image"))
 									{
 										case 1:
-											StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker, category, null);
+											StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker, category, null);
 											break;
 									}
 								}
@@ -259,7 +259,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 	{
 		Sticker current = new Sticker(catId, sId);
 
-		return !current.isFullStickerAvailable();
+		return !current.isStickerAvailable();
 	}
 
 }

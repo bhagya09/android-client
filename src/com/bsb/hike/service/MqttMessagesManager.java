@@ -120,6 +120,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  *
@@ -860,14 +861,9 @@ public class MqttMessagesManager
 		{
 			Sticker sticker = convMessage.getMetadata().getSticker();
 
-			if (!sticker.isFullStickerAvailable())
+			if (!sticker.isStickerAvailable())
 			{
-				if (!sticker.isMiniStickerAvailable() && StickerManager.getInstance().isMiniStickersEnabled())
-				{
-					StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
-				}
-
-				StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
+				StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
 			}
 		}
 	}
@@ -1368,6 +1364,10 @@ public class MqttMessagesManager
 
 			handleSendNativeInviteKey(sendNativeInvite, showFreeInvitePopup, null, null, editor);
 		}
+		if(data.has(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER))
+		{
+			publishOpenComposeChatOnceEvent(data, settings);
+		}
 		if (data.has(HikeConstants.ACCOUNT))
 		{
 			JSONObject account = data.getJSONObject(HikeConstants.ACCOUNT);
@@ -1565,6 +1565,12 @@ public class MqttMessagesManager
 
 	}
 
+	private void publishOpenComposeChatOnceEvent(JSONObject data, SharedPreferences settings) throws JSONException
+	{
+		settings.edit().putBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER, data.getBoolean(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER)).commit();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, null);
+	}
+
 	private void saveUserOptIn(JSONObject jsonObj) throws JSONException
 	{
 		String msisdn = jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.MSISDN);
@@ -1745,6 +1751,11 @@ public class MqttMessagesManager
 		{
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
+		}
+		if (data.has(HikeConstants.VOIP_RATINGS_LEFT))
+		{
+			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
+			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
 		{
@@ -2285,6 +2296,10 @@ public class MqttMessagesManager
 			boolean connLogging = data.getBoolean(HikeConstants.CONN_PROD_AREA_LOGGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CONN_PROD_AREA_LOGGING, connLogging);
 		}
+		if (data.has(HikeConstants.GCM_PROD_AREA_LOGGING)) {
+			boolean gcmLogging = data.getBoolean(HikeConstants.GCM_PROD_AREA_LOGGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.GCM_PROD_AREA_LOGGING, gcmLogging);
+		}
 		if (data.has(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING))
 		{
 			int groupSetting = data.getInt(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING);
@@ -2661,6 +2676,12 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
 		}
+		if (data.has(HikeConstants.RESET_CHAT_KEY_TIP))
+		{
+			boolean bool = data.getBoolean(HikeConstants.RESET_CHAT_KEY_TIP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, bool);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, bool);
+		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
@@ -2722,6 +2743,23 @@ public class MqttMessagesManager
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.WHITE_SCREEN_FIX, enableWhiteScreenFix);
 			CustomWebView.setApplyWhiteScreenFix(enableWhiteScreenFix);
+		}
+		if(data.has(HikeConstants.OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER))
+		{
+			publishOpenComposeChatOnceEvent(data, settings);
+		}
+
+		if(data.has(HikeConstants.MAX_RETRY_COUNT_MAPPS))
+		{
+			int newRetryCount = data.optInt(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT);
+			if (newRetryCount < 1)
+			{
+				return;
+			}
+
+			Logger.d("Platform", "New Retry Count is : " + newRetryCount);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
 		}
 
 		if (data.has(HikeConstants.SINGLE_STICKER_CDN))
@@ -2796,6 +2834,10 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_AFTER_SIGNUP);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikeService.SEND_TO_SERVER_ACTION));
 		}
+                if (data.optBoolean(HikeConstants.GCM_STALE_REGISTRATION_REFRESH))
+                {
+                    GCMRegistrar.unregister(context.getApplicationContext());
+                }
 		if (data.optBoolean(HikeConstants.DEFAULT_SMS_CLIENT_TUTORIAL))
 		{
 			setDefaultSMSClientTutorialSetting();
@@ -3849,6 +3891,12 @@ public class MqttMessagesManager
 
 	private void addToLists(String msisdn, ConvMessage convMessage)
 	{
+		// We were not checking for blocked list here while processing the bulk packet.
+		if (ContactManager.getInstance().isBlocked(msisdn))
+		{
+			return;
+		}
+
 		messageList.add(convMessage);
 	}
 

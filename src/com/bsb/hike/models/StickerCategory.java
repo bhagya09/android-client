@@ -1,5 +1,10 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,10 +14,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 
 public class StickerCategory implements Serializable, Comparable<StickerCategory>
 {
@@ -205,6 +206,41 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			long t1 = System.currentTimeMillis();
 			stickersList = new ArrayList<Sticker>();
 			
+			List<String> stickerIds = getStickerIdsFromDb();
+			if(stickerIds != null)
+			{
+				for (String stickerId : stickerIds)
+				{
+					Sticker s = new Sticker(this, stickerId);
+					stickersList.add(s);
+				}
+				setDownloadedStickersCount(stickerIds.size());
+			}
+			else
+			{
+				setDownloadedStickersCount(0);
+			}
+			
+			Collections.sort(stickersList);
+			long t2 = System.currentTimeMillis();
+			Logger.d(getClass().getSimpleName(), "Time to sort category : " + getCategoryId() + " in ms : " + (t2 - t1));
+		}
+		return stickersList;
+	}
+
+	public List<Sticker> getStickerListFromFiles()
+	{
+		final List<Sticker> stickersList;
+		if (isCustom())
+		{
+			return ((CustomStickerCategory) this).getStickerList();
+		}
+		else
+		{
+
+			long t1 = System.currentTimeMillis();
+			stickersList = new ArrayList<Sticker>();
+
 			String[] stickerIds = getStickerFiles();
 			if(stickerIds != null)
 			{
@@ -219,7 +255,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			{
 				setDownloadedStickersCount(0);
 			}
-			
+
 			Collections.sort(stickersList);
 			long t2 = System.currentTimeMillis();
 			Logger.d(getClass().getSimpleName(), "Time to sort category : " + getCategoryId() + " in ms : " + (t2 - t1));
@@ -303,7 +339,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		}
 		return getDownloadedStickersCount() < getTotalStickers();
 	}
-	
+
+	private List<String> getStickerIdsFromDb()
+	{
+		return HikeConversationsDatabase.getInstance().getStickerIdsForCatgeoryId(categoryId);
+	}
+
 	/**
 	 * Returns a list of Sticker files for a given sticker category
 	 * @return
@@ -343,9 +384,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	public void updateDownloadedStickersCount()
 	{
-		String[] stickerFiles = getStickerFiles();
-		if(stickerFiles != null)
-			setDownloadedStickersCount(stickerFiles.length);
+		List<String> stickerIds = getStickerIdsFromDb();
+		if(stickerIds != null)
+			setDownloadedStickersCount(stickerIds.size());
 		else
 			setDownloadedStickersCount(0);
 	}

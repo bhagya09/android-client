@@ -15,6 +15,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -91,7 +92,7 @@ public class StickerSearchUtils
 
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0) == 0)
 		{
-			result = stickerList.get(0).isFullStickerAvailable();
+			result = stickerList.get(0).isStickerAvailable();
 		}
 		else
 		{
@@ -125,7 +126,7 @@ public class StickerSearchUtils
 		for (int i = 0; i < length; i++)
 		{
 			Sticker sticker = stickerList.get(i);
-			if (sticker.isFullStickerAvailable())
+			if (sticker.isStickerAvailable())
 			{
 				resultList.add(sticker);
 			}
@@ -147,7 +148,6 @@ public class StickerSearchUtils
 
 		return resultList;
 	}
-
 	/***
 	 * @return current keyboard language in ISO 639-2/T format
 	 */
@@ -155,7 +155,7 @@ public class StickerSearchUtils
 	{
 		if (!HikeMessengerApp.isSystemKeyboard())
 		{
-			return new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()).getISO3Language();
+			return StickerSearchUtils.getISOCodeFromLocale(new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()));
 		}
 
 		try
@@ -167,7 +167,7 @@ public class StickerSearchUtils
 
 			Logger.d(TAG, "Current language is " + currentLocale.toString());
 
-			return currentLocale.getISO3Language();
+			return StickerSearchUtils.getISOCodeFromLocale(currentLocale);
 		}
 		catch (Exception e)
 		{
@@ -200,5 +200,18 @@ public class StickerSearchUtils
 	public static boolean tagCacheLimitReached(int tagType)
 	{
 		return getUndownloadedTagsStickersCount() - getTagCacheLimit(tagType) > 0;
+	}
+
+	public static String getISOCodeFromLocale(Locale locale)
+	{
+		try
+		{
+			return locale.getISO3Language();
+		}
+		catch(Exception e)
+		{
+			Logger.e(TAG, "exception in get language iso 3 code : ", e);
+		}
+		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
 }

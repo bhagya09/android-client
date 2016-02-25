@@ -162,7 +162,7 @@ public class HttpRequests
 	{
 		List<String> unsupportedLanguages = StickerLanguagesManager.getInstance().getUnsupportedLanguagesCollection();
 
-		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getCurrentLanguageISOCode();
+		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getISOCodeFromLocale(Utils.getCurrentLanguageLocale());
 		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
 
 		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(url).setId(requestId).setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
@@ -773,8 +773,7 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken getForcedDownloadListRequest(String requestId, IRequestListener requestListener, JSONObject json)
-	{
+	public static RequestToken getForcedDownloadListRequest(String requestId, IRequestListener requestListener, JSONObject json) {
 		JsonBody body = new JsonBody(json);
 
 		RequestToken requestToken = new JSONObjectRequest.Builder().setId(requestId).setUrl(getForcedStickersUrl()).setRequestListener(requestListener)
@@ -782,6 +781,21 @@ public class HttpRequests
 
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
+
+	}
+	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener,
+                                                              IRequestInterceptor requestInterceptor,
+                                                              int retryCount, int delayBeforeRetry) {
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(HttpRequestConstants.getAnalyticsUrl())
+                .setRequestType(Request.REQUEST_TYPE_LONG)
+                .setAsynchronous(true)
+                .setRequestListener(requestListener)
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .post(null)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
+        return requestToken;
 	}
 
 }

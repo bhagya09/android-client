@@ -249,6 +249,8 @@ public class HikeConstants
 
 	public static final String PUSH = "push";
 
+	public static final String GCM_STALE_REGISTRATION_REFRESH = "gcmSRR";
+
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
@@ -424,6 +426,12 @@ public class HikeConstants
 	public static final String EVENT_TYPE = "et";
 
 	public static final String EVENT_KEY = "ek";
+	
+	public static final String EVENT_PATH = "src";
+	
+	public static final String EVENT_CHECKED = "check";
+	
+	public static final String EVENT_CONFIRM = "cnfrm";
 
 	public static final String PACKAGE = "pkg";
 
@@ -898,7 +906,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -1081,6 +1089,8 @@ public class HikeConstants
 	public static final String SENT_ROOT = "/sent";
 
 	public static final String STICKERS_ROOT = "/stickers";
+
+	public static final String DISK_CACHE_ROOT = "/diskcache";
 
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
@@ -1346,6 +1356,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+
+	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final class ChatHead
 	{
@@ -1948,7 +1960,15 @@ public class HikeConstants
 		public static final String DELETE_ALL_CONVERSATIONS_MENU = "hoSdelAC";
 
 		public static final String DELETE_CONVERSATION = "hoSdelC";
-
+		
+		public static final String EXIT_GC_CONVERSATION = "exitgc";
+		
+		public static final String DELETE_GC_CONVERSATION = "delgc";
+		
+		public static final String LEAVE_GROUP_VIA_PROFILE = "gcinfo";
+		
+		public static final String LEAVE_GROUP_VIA_HOME = "cvl";
+		
 		public static final String COMPOSE_BUTTON = "hoScompB";
 
 		public static final String ADD_SHORTCUT = "hoSaddSC";
@@ -3417,6 +3437,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3774,7 +3796,9 @@ public class HikeConstants
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
@@ -3815,4 +3839,14 @@ public class HikeConstants
 	public static final String MINI_STICKER_ENABLED = "m_stk_st";
 
 	public static final String UNDOWNLOADED_DATA = "ud_d";
+
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 }

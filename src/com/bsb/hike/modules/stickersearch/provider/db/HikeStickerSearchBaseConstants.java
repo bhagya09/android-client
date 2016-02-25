@@ -212,6 +212,10 @@ public class HikeStickerSearchBaseConstants
 	public static final String TOTAL_CALASSIFICATION = "stateCount";
 
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
+	public static final int DECISION_STATE_NO = 0;
+
+	public static final int DECISION_STATE_YES = 1;
+
 
 	// Decision constants======================================================================[[
 	public static final int STICKER_NOT_AVAILABLE = 0;

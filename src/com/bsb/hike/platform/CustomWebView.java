@@ -5,13 +5,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -42,22 +42,20 @@ public class CustomWebView extends WebView
 
 	private static final Method ON_RESUME_METHOD = findOnResumeMethod();
 
-	String suspendedUrl = "";
-
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
-		this(context, null);
+		this((applyWhiteScreenFix ? context.getApplicationContext() : context), null);
 	}
 
 	public CustomWebView(Context context, AttributeSet attrs)
 	{
-		this(context, attrs, android.R.attr.webViewStyle);
+		this((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, android.R.attr.webViewStyle);
 	}
 
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr)
 	{
-		super(context.getApplicationContext(), attrs, defStyleAttr);
+		super((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, defStyleAttr);
 		allowUniversalAccess();
 		webViewProperties();
 	}
@@ -65,7 +63,7 @@ public class CustomWebView extends WebView
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public CustomWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes)
 	{
-		super(context.getApplicationContext(), attrs, defStyleAttr, defStyleRes);
+		super((applyWhiteScreenFix ? context.getApplicationContext() : context), attrs, defStyleAttr, defStyleRes);
 		allowUniversalAccess();
 	}
 
@@ -144,27 +142,34 @@ public class CustomWebView extends WebView
 			if (!isDestroyed)
 			{
 				getSettings().setJavaScriptEnabled(false);
-				removeAllViews();
-				setWebViewClient(null);
+
+				if (Utils.isKitkatOrHigher())
+				{
+					setWebViewClient(null);
+				}
+				else
+				{
+					// Giving a dummy object to avoid
+					// android.util.AndroidRuntimeException: Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag
+					setWebViewClient(new WebViewClient());
+				}
 				setWebChromeClient(null);
 				isDestroyed = true;
 			}
 		}
 
-		else
+		if (!isDestroyed)
 		{
-			if (!isDestroyed)
+			if (Utils.isHoneycombOrHigher())
 			{
-				stopLoading();
-				removeAllViews();
-				if (Utils.isHoneycombOrHigher())
-				{
-					removeJavascriptInterface(javaScriptInterface);
-				}
-				isDestroyed = true;
+				removeJavascriptInterface(javaScriptInterface);
 			}
+			isDestroyed = true;
 		}
 
+		stopLoading();
+		removeAllViews();
+		clearHistory();
 	}
 
 	@Override
@@ -190,7 +195,7 @@ public class CustomWebView extends WebView
 			{
 				PlatformUtils.sendPlatformCrashAnalytics("PackageManager.NameNotFoundException");
 			}
-			
+
 			super.loadData(data, mimeType, encoding);
 		}
 	}
@@ -250,7 +255,7 @@ public class CustomWebView extends WebView
 	{
 		return this.isShowing;
 	}
-	
+
 	public boolean isWebViewDestroyed()
 	{
 		return this.isDestroyed;
@@ -264,9 +269,6 @@ public class CustomWebView extends WebView
 			return;
 		}
 
-		stopLoading();
-		clearCache(true);
-		clearHistory();
 //		setConfigCallback(null);
 		if (ON_PAUSE_METHOD != null)
 		{
@@ -283,8 +285,7 @@ public class CustomWebView extends WebView
 
 		else
 		{
-			suspendedUrl = getUrl();
-			loadUrl("about:blank");
+			this.onPause();
 		}
 
 	}
@@ -313,11 +314,9 @@ public class CustomWebView extends WebView
 
 		else
 		{
-			if (!TextUtils.isEmpty(suspendedUrl))
-			{
-				loadUrl(suspendedUrl);
-			}
+			this.onResume();
 		}
+
 	}
 
 	public void setConfigCallback(WindowManager windowManager)
@@ -395,6 +394,63 @@ public class CustomWebView extends WebView
 		applyWhiteScreenFix = enable;
 	}
 
+	public void clearWebViewCache(boolean includeDiskFiles)
+	{
+		if (applyWhiteScreenFix)
+		{
+			this.clearCache(includeDiskFiles);
+		}
+	}
+
+	public void removeWebViewReferencesFromWebKit(){
+		if(!Utils.isBelowLollipop() || !applyWhiteScreenFix){
+			return;
+		}
+		try {
+			detachAllViewsFromParent();
+			Class classWV = Class.forName("android.webkit.WebView");
+			Field mProviderField = classWV.getDeclaredField("mProvider");
+			Object webViewClassic = getFieldValueSafely(mProviderField, this);
+
+			Class classWVCl = Class.forName("android.webkit.WebViewClassic");
+			Field html5VideoProxyField = classWVCl.getDeclaredField("mHTML5VideoViewProxy");
+			Object html5videoproxy = getFieldValueSafely(html5VideoProxyField, webViewClassic);
+			if(html5videoproxy != null){
+				//video proxy object is only populated in case of video view  present in the webview full story page.
+				Class html5class = Class.forName("android.webkit.HTML5VideoViewProxy");
+				Field wvcField = html5class.getDeclaredField("mWebView");
+				setFieldValueSafely( wvcField, html5videoproxy, null );
+				setFieldValueSafely( html5VideoProxyField, webViewClassic, null );
+			}
+			Field webviewCore = classWV.getDeclaredField("mWebViewCore");
+			Object webViewCoreObj = getFieldValueSafely(webviewCore, this);
+			Class classwvCore = Class.forName("android.webkit.WebViewCore");
+			Field deviceMotionField = classwvCore.getDeclaredField("mDeviceMotionAndOrientationManager");
+			Object deviceMotionObj = getFieldValueSafely(deviceMotionField, webViewCoreObj);
+			if(deviceMotionObj != null){
+				Class classDeviceMotion = Class.forName("android.webkit.DeviceMotionAndOrientationManager");
+				webviewCore = classDeviceMotion.getDeclaredField("mWebViewCore");
+				setFieldValueSafely(webviewCore,deviceMotionObj,null);
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private Object getFieldValueSafely( Field field, Object classInstance ) throws IllegalArgumentException, IllegalAccessException {
+		boolean oldAccessibleValue = field.isAccessible();
+		field.setAccessible( true );
+		Object result = field.get( classInstance );
+		field.setAccessible( oldAccessibleValue );
+		return result;
+	}
+
+	private void setFieldValueSafely( Field field, Object classInstance, Object value ) throws IllegalArgumentException, IllegalAccessException {
+		boolean oldAccessibleValue = field.isAccessible();
+		field.setAccessible( true );
+		field.set(classInstance, value);
+		field.setAccessible( oldAccessibleValue );
+	}
 }
 
 

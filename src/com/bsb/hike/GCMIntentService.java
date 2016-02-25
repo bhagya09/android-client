@@ -11,9 +11,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
@@ -56,6 +57,7 @@ public class GCMIntentService extends GCMBaseIntentService
 
 		prefs = HikeSharedPreferenceUtil.getInstance();
 
+		String reconnectVal = "0";
 		if (!Utils.isUserAuthenticated(context))
 		{
 
@@ -68,6 +70,7 @@ public class GCMIntentService extends GCMBaseIntentService
 				prefs.saveData(PreloadNotificationSchedular.NOTIFICATION_TIMELINE, notification);
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
+			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
 			return;
 		}
 
@@ -81,7 +84,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 		else
 		{
-			String reconnectVal = intent.getStringExtra("pushReconnect");
+			reconnectVal = intent.getStringExtra("pushReconnect");
 			boolean reconnect = false;
 			Logger.d(getClass().getSimpleName(), "Server sent packet pushReconnect : " + reconnectVal);
 			if (RECONNECT_VALUE.equals(reconnectVal))
@@ -100,12 +103,39 @@ public class GCMIntentService extends GCMBaseIntentService
 					HikeMessengerApp.getPubSub().publish(HikePubSub.HIKE_TO_OFFLINE_PUSH, bundle);
 				}
 			
-		}
+			}
 		context.sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("reconnect", reconnect));
 		}
+		
+		sendAnalyticsEvent(intent, message, reconnectVal, true);
 
 	}
+	
 
+	private void sendAnalyticsEvent( Intent intent, String message, String reconnectVal, boolean userAuthenticated)
+	{
+		//if server switch is off
+		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.GCM_PROD_AREA_LOGGING, true))
+		{
+			return;
+		}
+		
+		JSONObject infoJson = new JSONObject();
+		try 
+		{
+			infoJson.put("intent", intent.toString());
+			infoJson.put("extras", intent.getExtras());
+			infoJson.put("reconnectVal", reconnectVal);
+			infoJson.put("userAuthenticated", userAuthenticated);
+		
+			String devArea = "gcm";	
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, devArea, infoJson);
+		} 
+		catch (JSONException jsonEx) 
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",jsonEx);
+		}
+	}
 
 	@Override
 	protected void onRegistered(final Context context, String regId)
@@ -136,6 +166,7 @@ public class GCMIntentService extends GCMBaseIntentService
 	protected void onUnregistered(Context context, String regId)
 	{
 		Logger.d(getClass().getSimpleName(), "UNREGISTERED ID: " + regId);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(new Intent(HikeService.REGISTER_TO_GCM_ACTION));
 	}
 	
 	/**
