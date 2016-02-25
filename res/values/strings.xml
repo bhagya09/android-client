@@ -508,7 +508,6 @@
     <string name="delete_leave">Delete and exit group</string>
     <string name="broadcast_participant_info"><![CDATA[<font color=\"#848484\"><b>Note: </b>Only hike contacts with %1$s in their address book will receive this broadcast.</font>]]></string>
     <string name="confirm_delete_chat_msg">Delete chat with \"%1$s\"? </string>
-    <string name="confirm_delete_group_msg">Delete and exit \"%1$s\" group?</string>
     <string name="email_chat">Email Chat</string>
     <string name="change_keyboard">Change Keyboard</string>
     <string name="hike_keyboard">Hike Keyboard</string>
@@ -1129,6 +1128,9 @@
     <string name="contacts_sync_no_contacts_found">No contacts to sync</string>
     <string name="cloud_file_error">This file is not present on your phone. Please download it externally before sharing</string>
     <string name="unknown_file_error">We could not locate the file on disk. Please try again</string>
+    <string name="confirm_delete_group_msg">Are you sure you want to leave \"%1$s\"?</string>
+    <string name="delete_conversation">Delete Conversation</string>
+    <string name="delete_group_confirm">Are you sure you want to delete \"%1$s\"?</string>
     <string name="add_to_fav_confirmation">You can like status posts by your favorites. Do you want to add %1$s as a favourite?</string>
     <string name="invite_free_sms">Free SMS Invite</string>
     <string name="sticker_recommend_settings_toast">You can enable Sticker suggestions from Settings > Chat settings anytime</string>
@@ -1505,6 +1507,7 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
      <string name="wallet_menu">Hike Wallet</string>

@@ -1642,6 +1642,7 @@ public class PlatformUtils
 
 
 
+
 	public static String getRunningGame(Context context)
 	{
 		String gameId = "";
@@ -1667,6 +1668,7 @@ public class PlatformUtils
 		Logger.d(TAG, "getRunningGame: " + gameId);
 		return gameId;
 	}
+
 
     public static void sendStickertoAllHikeContacts(String stickerId, String categoryId) {
 
