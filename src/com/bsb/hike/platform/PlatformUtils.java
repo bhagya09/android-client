@@ -1844,4 +1844,13 @@ public class PlatformUtils
 
 
 	}
+
+	public static List<Header> getHeaderForOauth(String oAuth) {
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
+				"OAUTH" + "=" + oAuth));
+
+		return headers;
+
+	}
 }

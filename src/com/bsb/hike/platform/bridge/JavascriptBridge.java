@@ -40,10 +40,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -58,6 +60,8 @@ import com.bsb.hike.platform.NativeBridge;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -70,6 +74,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.Headers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,6 +85,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -112,6 +118,11 @@ public abstract class JavascriptBridge
 	protected static final int SHARE_EXTERNAL = 5;
 
 	boolean sendIntentData = false;
+
+	protected static final int MAX_COUNT =1;
+
+	//Hashmap of URL vs Count
+	HashMap<String,Integer> platformRequest=new HashMap<String,Integer>();
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -1471,5 +1482,112 @@ public abstract class JavascriptBridge
 	{
 
 	}
+
+	private class PlatformPostListener implements IRequestListener
+	{
+		String id;
+		String urlKey;
+		String data;
+		int current_count=platformRequest.get(urlKey);
+		public PlatformPostListener(String id, String urlKey, final String data)
+		{
+			this.id =id;
+			this.urlKey =urlKey;
+			this.data=data;
+		}
+		@Override
+		public void onRequestFailure(HttpException httpException) {
+			PlatformAuthenticationManager manager =new PlatformAuthenticationManager(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null), new AuthListener() {
+				@Override
+				public void onTokenResponse(String authToken) {
+					platformRequest.put(urlKey,current_count-1);
+					doInfraPost(id,urlKey,data);
+
+				}
+
+				@Override
+				public void onTokenErrorResponse(String error) {
+
+				}
+			});
+			manager.requestAuthToken();
+
+
+
+		}
+
+		@Override
+		public void onRequestSuccess(Response result) {
+			Logger.d("JavascriptBridge", "microapp request success with code " + result.getStatusCode());
+			JSONObject success = new JSONObject();
+			try
+			{
+				success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
+				success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
+				success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
+			}
+			catch (JSONException e)
+			{
+				Logger.e("JavascriptBridge", "Error while parsing success request");
+				e.printStackTrace();
+			}
+
+
+			callbackToJS(id, String.valueOf(success));
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress) {
+
+		}
+
+	}
+
+	/**
+	 * Platform Version 11
+	 */
+	@JavascriptInterface
+
+	public void doInfraPostinit(final String id,String urlKey, String data)
+{
+		platformRequest.put(urlKey,MAX_COUNT);
+		doInfraPost(id,urlKey,data);
+}
+	public void doInfraPost(final String id,String urlKey, String data)
+	{
+		try
+		{
+			JSONObject jsonObject = new JSONObject(data);
+			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
+			JSONObject json;
+			if(TextUtils.isEmpty(params))
+			{
+				json=null;
+			}
+			else
+			{
+				json=new JSONObject(params);
+			}
+			String url= HikeConversationsDatabase.getInstance().getURL(urlKey);
+			if(TextUtils.isEmpty(url))
+			{
+				callbackToJS(id,"Invalid Key");
+				return;
+			}
+			String oAuth = HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.PLATFORM_AUTH_TOKEN_EXPIRY,"");
+			RequestToken token = HttpRequests.platformPostRequest(url, json,PlatformUtils.getHeaderForOauth(oAuth),new PlatformPostListener(id,urlKey,data));
+			if(platformRequest.get(urlKey) > 0) {
+				if (!token.isRequestRunning()) {
+					token.execute();
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "error in JSON");
+			e.printStackTrace();
+		}
+	}
+
 
 }
