@@ -973,6 +973,40 @@ public class IntentFactory
 		return intent;
 	}
 
+    /*
+     * This method is used for fetching an intent object meant to forward some text to hike chats.
+     */
+	public static Intent getForwardIntentForPlainText(Context context, String text)
+	{
+		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
+		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		JSONArray multipleMsgArray = new JSONArray();
+		JSONObject multiMsgFwdObject = new JSONObject();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE, convMessage.getMessage());
+			multipleMsgArray.put(multiMsgFwdObject);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
+
+		return intent;
+	}
+    /*
+     * This method to used for fetching an intent object to share text to hike or other apps.
+     */
+	public static Intent getShareIntentForPlainText(String text){
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.putExtra(Intent.EXTRA_TEXT, text);
+		intent.setType("text/plain");
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		return intent;
+	}
 	public static Intent getComposeChatIntent(Activity context)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
