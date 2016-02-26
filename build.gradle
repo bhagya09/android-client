@@ -50,10 +50,10 @@ android {
             res.srcDirs = ['res-black']
         }
 
-        debug {
-            // http://www.littlerobots.nl/blog/stetho-for-android-debug-builds-only/
-            java.srcDirs = ['src/debug']
-        }
+        // http://www.littlerobots.nl/blog/stetho-for-android-debug-builds-only/
+        strawberry.java.srcDirs = ['src/strawberry']
+
+        vanilla.java.srcDirs = ['src/vanilla']
 
     }
     compileOptions {
