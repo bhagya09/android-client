@@ -180,7 +180,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getDefaultPath()
 	{
-		return (categoryId + ":" + stickerId).toLowerCase();
+		return (categoryId + HikeConstants.DELIMETER + stickerId).toLowerCase();
 	}
 
 	/**
