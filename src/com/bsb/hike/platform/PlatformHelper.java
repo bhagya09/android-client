@@ -173,10 +173,13 @@ public class PlatformHelper
 			 */
 			cardObj.put(HikePlatformConstants.APP_NAME, metadata.getAppName());
 			cardObj.put(HikePlatformConstants.APP_PACKAGE, metadata.getAppPackage());
+
             /*
              *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
              */
-            cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
+            JSONObject forwardCardObj = metadata.getFwdCardObj();
+            int mAppVersionCode = forwardCardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+            cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE,mAppVersionCode);
 
 			JSONObject webMetadata = new JSONObject();
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());
