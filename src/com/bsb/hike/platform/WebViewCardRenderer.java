@@ -105,6 +105,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
     // usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
 
+    private String[] pubsub = new String[]{HikePubSub.PLATFORM_CARD_ALARM, HikePubSub.MESSAGE_EVENT_RECEIVED,  HikePubSub.BOT_CREATED, HikePubSub.MAPP_CREATED};
+
 	public WebViewCardRenderer(Activity context, MovingList<ConvMessage> convMessages, BaseAdapter adapter)
 	{
 		this.mContext = context;
@@ -112,10 +114,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		this.convMessages = convMessages;
 		cardAlarms = new SparseArray<String>(3);
 		events = new SparseArray<String>(3);
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.PLATFORM_CARD_ALARM, this);
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
-        HikeMessengerApp.getPubSub().addListener(HikePubSub.BOT_CREATED, this);
-        HikeMessengerApp.getPubSub().addListener(HikePubSub.MAPP_CREATED, this);
+        HikeMessengerApp.getPubSub().addListeners(this, pubsub);
 	}
 	
 	public void updateMessageList(MovingList<ConvMessage> objects)
@@ -613,10 +612,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	public void onDestroy()
 	{
 		PlatformRequestManager.onDestroy();
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.PLATFORM_CARD_ALARM, this);
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.MESSAGE_EVENT_RECEIVED, this);
-        HikeMessengerApp.getPubSub().removeListener(HikePubSub.BOT_CREATED, this);
-        HikeMessengerApp.getPubSub().removeListener(HikePubSub.MAPP_CREATED, this);
+        HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
 		for(WebViewHolder holder : holderList)
 		{
 			holder.platformJavaScriptBridge.onDestroy();
