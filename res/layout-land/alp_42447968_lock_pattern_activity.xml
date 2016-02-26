@@ -52,7 +52,7 @@
                 android:minEms="8"
                 android:paddingTop="9dp"
                 android:password="true"
-                android:imeOptions="flagNoExtractUi"
+                android:imeOptions="actionDone"
                 android:textColor="@android:color/white"
                 android:visibility="gone" />
          
