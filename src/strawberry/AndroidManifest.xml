@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name="debug.HikeMessengerAppDebug"
+        android:name="strawberry.HikeMessengerAppStrawberry"
         tools:replace="android:name"/>
 
 </manifest>

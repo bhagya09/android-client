@@ -1,4 +1,4 @@
-package debug;
+package strawberry;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
@@ -7,9 +7,9 @@ import com.facebook.stetho.Stetho;
 /**
  * Created by piyush on 25/02/16.
  */
-public class HikeMessengerAppDebug extends HikeMessengerApp
+public class HikeMessengerAppStrawberry extends HikeMessengerApp
 {
-	public static final String TAG = "HikeMessengerAppDebug";
+	public static final String TAG = "HikeMessengerAppStrawberry";
 	@Override
 	public void onCreate()
 	{
