@@ -374,6 +374,7 @@ public class PlatformZipDownloader
 		switch (mRequest.getBotType())
 		{
 		case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
+            unzipPath += PlatformContentConstants.HIKE_WEB_MICRO_APPS;
 			break;
 		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS;
