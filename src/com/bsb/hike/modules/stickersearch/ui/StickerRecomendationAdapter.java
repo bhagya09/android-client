@@ -36,7 +36,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	public StickerRecomendationAdapter(List<Sticker> stickerList, StickerRecommendationFragment listener)
 	{
 		this.stickerList = stickerList;
-		this.stickerLoader = new StickerLoader(true, true, true);
+		this.stickerLoader = new StickerLoader(true, true, false);
 		this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;
