@@ -13,6 +13,11 @@ public class StickerConstants
 		NEW_CATEGORY, UPDATE, MORE_STICKERS
 	}
 
+	public enum StickerType
+	{
+		MINI, SMALL, LARGE
+	}
+
 	public enum DownloadSource
 	{
 		FIRST_TIME(0), X_MORE(1), SHOP(2), RETRY(3), SETTINGS(4), PREVIEW(5), POPUP(7);

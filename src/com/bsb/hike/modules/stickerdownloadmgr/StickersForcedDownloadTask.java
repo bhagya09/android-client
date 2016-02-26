@@ -98,31 +98,33 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
 						while (stickers.hasNext())
 						{
-							String sticker = stickers.next();
+							String stickerID = stickers.next();
 
-							JSONObject stickersData = categoryData.optJSONObject(sticker);
+							JSONObject stickersData = categoryData.optJSONObject(stickerID);
 
 							if ((stickersData == null) || (stickersData.length() <= 0))
 							{
-								Logger.e(TAG, "onRequestSuccess(), Empty json sticker data for sticker: " + sticker);
+								Logger.e(TAG, "onRequestSuccess(), Empty json sticker data for sticker: " + stickerID);
 								continue;
 							}
 
 							JSONObject stickersMetaData = stickersData.optJSONObject("md");
 							if ((stickersMetaData == null) || (stickersMetaData.length() <= 0))
 							{
-								Logger.e(TAG, "onRequestSuccess(), Empty json sticker metadata for pack: " + sticker);
+								Logger.e(TAG, "onRequestSuccess(), Empty json sticker metadata for pack: " + stickerID);
 								continue;
 							}
 
-							if (isValidForcedSticker(category, sticker))
+							Sticker sticker = new Sticker(category,stickerID);
+
+							if (isValidForcedSticker(sticker))
 							{
 								if (stickersMetaData.has("image"))
 								{
 									switch (stickersMetaData.getInt("image"))
 									{
 										case 1:
-											StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker, category, null);
+											StickerManager.getInstance().initiateSingleStickerDownloadTask(stickerID, category, null);
 											break;
 									}
 								}
@@ -132,7 +134,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 									switch (stickersMetaData.getInt("mini_image"))
 									{
 										case 1:
-											StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker, category);
+											StickerManager.getInstance().initiateMiniStickerDownloadTask(stickerID, category);
 											break;
 									}
 								}
@@ -142,14 +144,14 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 									switch (stickersMetaData.getInt("tags"))
 									{
 										case 1:
-											stickerToDownloadTagsSet.add(StickerManager.getInstance().getUniqueStickerID(sticker, category));
+											stickerToDownloadTagsSet.add(sticker.getDefaultPath());
 											break;
 									}
 								}
 							}
 							else
 							{
-								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + StickerManager.getInstance().getUniqueStickerID(sticker, category));
+								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + sticker.getDefaultPath());
 							}
 
 
@@ -162,7 +164,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
 								JSONObject recentsSticker = stickersMetaData.getJSONObject("recents");
 								recentsSticker.put("catId", category);
-								recentsSticker.put("sId", sticker);
+								recentsSticker.put("sId", stickerID);
 
 								forcedRecentsStickers.add(recentsSticker.toString());
 							}
@@ -255,11 +257,9 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 		Logger.e(TAG, "Forced Download Failed ", exception);
 	}
 
-	private boolean isValidForcedSticker(String catId, String sId)
+	private boolean isValidForcedSticker(Sticker sticker)
 	{
-		Sticker current = new Sticker(catId, sId);
-
-		return !current.isStickerAvailable();
+		return !sticker.isStickerAvailable();
 	}
 
 }

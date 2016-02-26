@@ -1436,7 +1436,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			return;
 		}
 
-		String stickerCode = StickerManager.getInstance().getStickerSetString(sticker);
+		String stickerCode = sticker.getDefaultPath();
 		Cursor c = null;
 		int totalCount = 0;
 		String[] rowIds = null;

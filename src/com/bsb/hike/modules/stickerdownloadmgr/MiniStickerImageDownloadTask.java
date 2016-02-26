@@ -148,7 +148,10 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
 
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
-					CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(StickerManager.getInstance().getMiniStickerKey(stickerId, categoryId))
+					
+					Sticker sticker = new Sticker(categoryId, stickerId);
+					
+					CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath())
 							.setString(stickerImage).build();
 					HikeMessengerApp.getDiskCache().put(cacheRequest);
 					doOnSuccess(categoryId);

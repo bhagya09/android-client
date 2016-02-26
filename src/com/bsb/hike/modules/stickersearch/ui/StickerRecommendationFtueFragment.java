@@ -26,6 +26,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
 import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
@@ -146,7 +147,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private void loadStickerImage(boolean stickerLoaded)
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
-		stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker), ivSticker, false);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ivSticker);
 	}
 	
 	

@@ -12,11 +12,9 @@ import android.widget.ImageView.ScaleType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.StickerLoader;
-import com.bsb.hike.utils.StickerManager;
-
-import java.util.List;
 
 import java.util.List;
 
@@ -65,7 +63,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(StickerManager.getInstance().getUniqueStickerID(sticker), imageView, false);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, imageView);
 	}
 
 	@Override

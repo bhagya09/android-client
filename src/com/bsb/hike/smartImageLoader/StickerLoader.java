@@ -1,12 +1,14 @@
 package com.bsb.hike.smartImageLoader;
 
 import android.graphics.Bitmap;
+import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
 
@@ -51,17 +53,46 @@ public class StickerLoader extends ImageWorker
 
 		if(path.contains("mini"))
 		{
-			bitmap = loadMiniSticker(path);
+			bitmap = loadMiniStickerBitmap(path);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		else
 		{
-			bitmap = loadSticker(path);
+			bitmap = loadStickerBitmap(path);
 			checkAndDownloadLargeSticker(bitmap, sticker);
 			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
 			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
 		}
 		return bitmap;
+	}
+
+	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView)
+	{
+		loadSticker(sticker,stickerType,imageView,false);
+	}
+
+	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView, boolean isFlinging)
+	{
+		loadSticker(sticker,stickerType,imageView,false,false);
+	}
+
+	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView, boolean isFlinging, boolean runOnUiThread)
+	{
+		String path = sticker.getDefaultPath();
+		switch(stickerType)
+		{
+			case MINI :
+				path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
+				break;
+			case SMALL:
+				path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+				break;
+			case LARGE:
+				path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
+				break;
+		}
+
+		loadImage(path,imageView,isFlinging,runOnUiThread);
 	}
 
 	@Override
@@ -70,12 +101,12 @@ public class StickerLoader extends ImageWorker
 		return processBitmap(data);
 	}
 
-	private Bitmap loadSticker(String path)
+	private Bitmap loadStickerBitmap(String path)
 	{
 		return HikeBitmapFactory.decodeFile(path);
 	}
 
-	private Bitmap loadMiniSticker(String key)
+	private Bitmap loadMiniStickerBitmap(String key)
 	{
 		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(key);
 		if(cacheResponse != null)
@@ -90,7 +121,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if(bitmap == null && lookForOfflineSticker)
 		{
-			return loadSticker(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
+			return loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
 		}
 		return null;
 	}
@@ -99,7 +130,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if(bitmap == null && loadMiniStickerIfNotFound)
 		{
-			bitmap = loadMiniSticker(sticker.getMiniStickerPath());
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath());
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return  bitmap;

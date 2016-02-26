@@ -305,7 +305,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			}
 		}
 
-		HikeMessengerApp.getLruCache().removeItemForKey(StickerManager.getInstance().getUniqueStickerID(stickerId,categoryId));
+		//ToDO remove sticker from cache
+		//HikeMessengerApp.getLruCache().removeItemForKey(StickerManager.getInstance().getUniqueStickerID(stickerId,categoryId));
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
 	}
 

@@ -3036,7 +3036,7 @@ public class MqttMessagesManager
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
-					StickerManager.getInstance().removeSticker(categoryId, stickerIds.getString(i));
+					StickerManager.getInstance().removeSticker(new Sticker(categoryId, stickerIds.getString(i)));
 					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
