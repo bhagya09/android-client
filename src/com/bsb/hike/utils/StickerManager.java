@@ -571,9 +571,9 @@ public class StickerManager
 		}
 	}
 
-	public void removeSticker(String categoryId, String stickerId)
+	public void removeSticker(Sticker sticker)
 	{
-		String categoryDirPath = getStickerDirectoryForCategoryId(categoryId);
+		String categoryDirPath = getStickerDirectoryForCategoryId(sticker.getCategoryId());
 		if (categoryDirPath == null)
 		{
 			return;
@@ -587,14 +587,16 @@ public class StickerManager
 		{
 			return;
 		}
-		File stickerSmall = new File(categoryDir + HikeConstants.SMALL_STICKER_ROOT, stickerId);
+
+		File stickerSmall = new File(categoryDir + HikeConstants.SMALL_STICKER_ROOT, sticker.getStickerId());
 		stickerSmall.delete();
+		deactivateSticker(sticker);
 
 		if (stickerCategoriesMap == null)
 		{
 			return;
 		}
-		Sticker st = new Sticker(categoryId, stickerId);
+		Sticker st = new Sticker(sticker.getCategoryId(), sticker.getStickerId());
 		removeStickerFromCustomCategory(st);
 	}
 
@@ -2014,14 +2016,11 @@ public class StickerManager
 		}
 	}
 
-	public String getStickerSetString(Sticker sticker)
-	{
-		return sticker.getCategoryId() + HikeConstants.DELIMETER + sticker.getStickerId();
-	}
-
 	public String getStickerSetString(String stkId, String catId)
 	{
-		return catId + STRING_DELIMETER + stkId;
+
+		//ToDo remove this
+		return (new Sticker(catId,stkId)).getDefaultPath();
 	}
 
 	public Sticker getStickerFromSetString(String info)
@@ -2592,30 +2591,6 @@ public class StickerManager
 		}
 	}
 
-	public boolean isStickerExists(String categoryId, String stickerId)
-	{
-		if (TextUtils.isEmpty(categoryId) || TextUtils.isEmpty(stickerId))
-		{
-			return false;
-		}
-
-		String categoryDirPath = StickerManager.getInstance().getStickerCategoryDirPath(categoryId) + HikeConstants.LARGE_STICKER_ROOT;
-
-		if (TextUtils.isEmpty(categoryDirPath))
-		{
-			return false;
-		}
-
-		File stickerImage = new File(categoryDirPath, stickerId);
-
-		if (stickerImage == null || !stickerImage.exists())
-		{
-			return false;
-		}
-
-		return true;
-	}
-
 	public void toggleStickerRecommendation(boolean state)
 	{
 		if (Utils.isHoneycombOrHigher())
@@ -2633,12 +2608,6 @@ public class StickerManager
 	public void resetSignupUpgradeCallPreference()
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
-	}
-
-	public String getMiniStickerKey(String stickerId, String categoryId)
-	{
-		stickerId = stickerId.substring(0, stickerId.indexOf("."));
-		return ("mini_" + categoryId + "_" + stickerId).toLowerCase();
 	}
 
 	public ArrayList<Sticker> getFrocedRecentsStickers()
@@ -2714,7 +2683,7 @@ public class StickerManager
 		{
 			for (Sticker sticker : stickerList)
 			{
-				stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+				stickerSet.add(sticker.getDefaultPath());
 			}
 		}
 		return stickerSet;
@@ -2748,16 +2717,6 @@ public class StickerManager
 		}
 	}
 
-	public String getUniqueStickerID(String stickerId, String categoryId)
-	{
-		return (categoryId + ":" + stickerId).toLowerCase();
-	}
-
-	public String getUniqueStickerID(Sticker sticker)
-	{
-		return (sticker.getCategoryId() + ":" + sticker.getStickerId()).toLowerCase();
-	}
-
 	public boolean isMiniStickersEnabled()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, false);
@@ -2773,5 +2732,17 @@ public class StickerManager
 	public void saveSticker(List<Sticker> stickers)
 	{
 		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers);
+	}
+
+	public void deactivateSticker(Sticker sticker)
+	{
+		List<Sticker> stickers = new ArrayList<Sticker>(1);
+		stickers.add(sticker);
+		saveSticker(stickers);
+	}
+
+	public void deactivateSticker(List<Sticker> stickers)
+	{
+		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(stickers);
 	}
 }
