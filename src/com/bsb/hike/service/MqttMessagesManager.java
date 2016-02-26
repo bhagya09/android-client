@@ -50,7 +50,6 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -58,6 +57,9 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -74,6 +76,7 @@ import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+import com.google.android.gcm.GCMRegistrar;
 
 /**
  * 
@@ -815,8 +818,7 @@ public class MqttMessagesManager
 			
 			if(!StickerManager.getInstance().isStickerExists(sticker.getCategoryId(), sticker.getStickerId()))
 			{
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
-				singleStickerDownloadTask.execute();
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), convMessage);
 			}
 		}
 	}
@@ -1718,6 +1720,11 @@ public class MqttMessagesManager
 		{
 			int val = data.getInt(HikeConstants.VOIP_AEC_TAIL_TYPE);
 			editor.putInt(HikeConstants.VOIP_AEC_TAIL_TYPE, val);
+		}
+		if (data.has(HikeConstants.VOIP_RATINGS_LEFT))
+		{
+			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
+			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
 		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
 		{
@@ -2665,6 +2672,12 @@ public class MqttMessagesManager
 			String options = data.getJSONObject(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS).toString();
 			HikeSharedPreferenceUtil.getInstance().saveData(OfflineConstants.HIKE_DIRECT_MENU_OPTIONS, options);
 		}
+
+		if (data.has(HikePlatformConstants.RECURRING_LOCATION))
+		{
+			JSONObject json = data.getJSONObject(HikePlatformConstants.RECURRING_LOCATION);
+			PlatformUtils.requestRecurringLocationUpdates(json);
+		}
 		if (data.has(HikeConstants.LOCALIZATION_ENABLED))
 		{
 			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
@@ -2684,6 +2697,11 @@ public class MqttMessagesManager
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
         }
 
+		if(data.has(HikePlatformConstants.CUSTOM_TABS))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
+		}
 		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
 		{
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
@@ -2706,6 +2724,24 @@ public class MqttMessagesManager
 			Logger.d("Platform", "New Retry Count is : " + newRetryCount);
 
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
+		}
+
+		if(data.has(HikeConstants.SINGLE_STICKER_CDN))
+		{
+			boolean singleStickerCdnEnabled = data.getBoolean(HikeConstants.SINGLE_STICKER_CDN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_STICKER_CDN, singleStickerCdnEnabled);
+		}
+
+		if(data.has(HikeConstants.STICKER_PACK_CDN))
+		{
+			boolean stickerPackCdnEnabled = data.getBoolean(HikeConstants.STICKER_PACK_CDN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN, stickerPackCdnEnabled);
+		}
+
+		if(data.has(HikeConstants.STICKER_PACK_CDN_THRESHOLD))
+		{
+			int stickerPackCdnThreshold = data.getInt(HikeConstants.STICKER_PACK_CDN_THRESHOLD);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
 		editor.commit();
@@ -2762,6 +2798,10 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_AFTER_SIGNUP);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(HikeService.SEND_TO_SERVER_ACTION));
 		}
+                if (data.optBoolean(HikeConstants.GCM_STALE_REGISTRATION_REFRESH))
+                {
+                    GCMRegistrar.unregister(context.getApplicationContext());
+                }
 		if (data.optBoolean(HikeConstants.DEFAULT_SMS_CLIENT_TUTORIAL))
 		{
 			setDefaultSMSClientTutorialSetting();
@@ -2959,10 +2999,12 @@ public class MqttMessagesManager
 			else
 			{
 				JSONArray stickerIds = data.getJSONArray(HikeConstants.STICKER_IDS);
+				Set<String> removedStickerSet = new HashSet<String>();
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
 					StickerManager.getInstance().removeSticker(categoryId, stickerIds.getString(i));
+					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
@@ -2970,6 +3012,9 @@ public class MqttMessagesManager
 				 * We should not update updateAvailable field in this case
 				 */
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize);
+
+				// Remove tags being used for sticker search w.r.t. deleted stickers here
+				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
 			}
 		}
 		else if (HikeConstants.SHOP.equals(subType))
@@ -3511,14 +3556,11 @@ public class MqttMessagesManager
 							botInfo.setLastConversationMsg(Utils.makeConvMessage(destination, hikeMessage, true, State.RECEIVED_UNREAD));
 						}
 						
-						if (Utils.isConversationMuted(destination))
-						{
-							Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
-						}
+						Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 						
-						else if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
-							generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+							generateNotification(body, destination, silent);
 						}
 
 						//to update the badge counter
@@ -3545,10 +3587,15 @@ public class MqttMessagesManager
 							String contentId = metadata.optString(HikePlatformConstants.CONTENT_ID);
 							String nameSpace = metadata.optString(HikePlatformConstants.NAMESPACE);
 
-							if (!Utils.isConversationMuted(destination)
-									&& convDb.isContentMessageExist(destination, contentId, nameSpace))
+							if (convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								generateNotification(body, destination, silent, rearrangeChat, updateUnreadCount);
+								if( !Utils.isConversationMuted(destination) )
+								{
+									Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+								}
+
+								generateNotification(body, destination, silent);
+
 							}
 						}
 					}
@@ -3567,12 +3614,11 @@ public class MqttMessagesManager
 	}
 
 
-	private void generateNotification(String body, String destination, boolean silent, boolean rearrangeChat, boolean updateUnreadCount)
+	private void generateNotification(String body, String destination, boolean silent)
 	{
 
 		HikeNotification.getInstance().notifyStringMessage(destination, body, silent, NotificationType.OTHER);
-		
-		Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
+
 	}
 
 	private void blockedMessageAnalytics(String type)

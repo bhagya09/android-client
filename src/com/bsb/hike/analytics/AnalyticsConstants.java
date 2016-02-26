@@ -11,12 +11,12 @@ public class AnalyticsConstants
 	
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
-	public static final Object PARTIAL_FILE_DOWNLOADED ="partialFileDownloaded" ;
-
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
 	public static final Object MICRO_APP_LOADED ="microAppLoaded";
 	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
+	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -172,8 +172,6 @@ public class AnalyticsConstants
 
 	public static final String HIKE_SDK_INSTALL_DECLINE = "hikeSDKInstallDecline";
 
-	public static final String ANALYTICS_THREAD_WRITER = "THREAD-WRITER";
-
 	// Added For Session
 	public static final String SESSION_ID = "sid";
 
@@ -216,7 +214,15 @@ public class AnalyticsConstants
 	public static String UPGRADE_EVENT = "upgrade";
 	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
 	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
+	public static String EVENT_DELETE_ACCOUNT = "evAccDel";
 
+	public static String DELETE_ACCOUNT = "delAcc";
+
+	public static String RESET_ACCOUNT = "resAcc";
+
+	public static String EVENT_USER_GOOGLE_ACCOUNTS = "evUsrGoogleAccs";
+
+	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
@@ -621,5 +627,7 @@ public class AnalyticsConstants
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
+	public static final String USER_LOCATION = "location";
+	
 	public static final String DATABASE_ERROR = "db_error";
 }

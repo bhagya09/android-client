@@ -56,7 +56,7 @@ public class VoIPConstants {
 	 * If packet loss increases beyond this threshold, congestion control
 	 * will be triggered. 
 	 */
-	public static final int ACCEPTABLE_PACKET_LOSS = 10;
+	public static final int ACCEPTABLE_PACKET_LOSS = 0;
 
 	/**
 	 * If the number of participants in a conference exceeds this threshold, 
@@ -104,7 +104,7 @@ public class VoIPConstants {
 	 * Maximum round trip time between clients. If RTT is more than this
 	 * value, then quality will suffer since repeat audio requests won't work.
 	 */
-	public static final int MAX_RTT = 2;
+	public static final int MAX_RTT = 1;
 	
 	/**
 	 * Wait before sending an error message to the activity for an outgoing
@@ -112,6 +112,13 @@ public class VoIPConstants {
 	 * before the error fragment is shown on top.
 	 */
 	public static final int SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY = 2000;
+
+	/**
+	 * We need to have an upper limit on how many times we ask a user to rate their VoIP
+	 * call. This can be overridden with a server message.
+	 */
+	public static final int DEFAULT_MAX_RATINGS_REQUESTS = 2;
+
 	
 	public static final int INITIAL_ICE_SOCKET_TIMEOUT = 2;
 	
@@ -151,7 +158,7 @@ public class VoIPConstants {
 	public static final int MSG_AUDIORECORD_FAILURE = 14;
 	public static final int MSG_UPDATE_REMOTE_HOLD = 15;
 	public static final int MSG_VOIP_CLIENT_STOP = 16;
-	public static final int MSG_START_RECORDING_AND_PLAYBACK = 19;
+	public static final int MSG_CALL_ACTIVE = 19;
 	public static final int MSG_START_RECONNECTION_BEEPS = 21;
 	public static final int MSG_STOP_RECONNECTION_BEEPS = 22;
 	public static final int MSG_CONNECTED = 23;
@@ -165,7 +172,6 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
-	public static final int MSG_ACCEPT_CALL = 35;
 
 	public static final class Analytics
 	{
@@ -261,7 +267,7 @@ public class VoIPConstants {
 		
 		public static final String CONFERENCE = "conf";
 		
-		public static final String REMOVE_FAILED_FRAGMENT = "removeFailedFrag";
+		public static final String REMOVE_FRAGMENTS = "removeFailedFrag";
 		
 		public static final String STATUS = "st";
 		
@@ -280,7 +286,7 @@ public class VoIPConstants {
 	 * </p>
 	 *
 	 */
-	public static enum CallStatus
+	public enum CallStatus
 	{
 		OUTGOING_CONNECTING, 
 		OUTGOING_RINGING, 
@@ -294,9 +300,4 @@ public class VoIPConstants {
 		UNUSED_PLACEHOLDER_FOR_BACKWARD_COMPATIBILITY
 	}
 
-	/**
-	 * Track packets received for last X seconds
-	 */
-	public static final int QUALITY_WINDOW = 3;
-	
 }

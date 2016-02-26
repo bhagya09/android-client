@@ -24,6 +24,8 @@ public class HttpRequestConstants
 	public static final String PLATFORM_STAGING_API = "staging.platform.hike.in";
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
+
+	public static final String STICKERS_CDN_PRODUCTION_API = "static-stickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
@@ -43,11 +45,15 @@ public class HttpRequestConstants
 	
 	private static String BASE_STICKERS_URL = HTTP + STICKERS_PRODUCTION_API;
 
+	private static String BASE_STICKERS_CDN_URL = HTTP + STICKERS_CDN_PRODUCTION_API;
+
 	private static final String BASE_V1 = "/v1";
 
 	private static final String BASE_V2 = "/v2";
 	
 	private static final String BASE_V3 = "/v3";
+
+	private static final String BASE_V4 = "/v4";
 
 	private static final String BASE_ACCOUNT = "/account";
 
@@ -78,6 +84,8 @@ public class HttpRequestConstants
 	private static final String STAGING_HIKECALLER_API = "http://52.76.46.27:5000/name";
 	
 	private static final String PRODUCTION_HIKECALLER_API = "https://caller.hike.in/name";
+
+	private static final String ANALYTICS_UPLOAD_PATH = "/logs/analytics";
 	
 	public static synchronized void setUpBase()
 	{
@@ -150,6 +158,10 @@ public class HttpRequestConstants
 		BASE_STICKERS_URL = "";
 		BASE_STICKERS_URL += (isSSL) ? HTTPS : HTTP;
 		BASE_STICKERS_URL += (isProduction) ? STICKERS_PRODUCTION_API : STAGING_API;
+
+		BASE_STICKERS_CDN_URL = "";
+		BASE_STICKERS_CDN_URL += (isSSL) ? HTTPS : HTTP;
+		BASE_STICKERS_CDN_URL += (isProduction) ? STICKERS_CDN_PRODUCTION_API : STAGING_API;
 	}
 	
 	
@@ -161,9 +173,19 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
 	}
 
+	public static String singleStickerImageDownloadBase()
+	{
+		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
+	}
+
 	public static String multiStickerDownloadUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;
+	}
+
+	public static String multiStickerImageDownloadUrl()
+	{
+		return BASE_STICKERS_CDN_URL + BASE_V4 + BASE_STICKER + "/image";
 	}
 	
 	public static String stickerPalleteImageDownloadUrl()
@@ -191,6 +213,11 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
 	}
 
+	public static String singleStickerTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
+	}
+	
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -435,4 +462,7 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
+	public static String getAnalyticsUrl() {
+		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
 }
