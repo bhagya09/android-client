@@ -35,35 +35,6 @@ android {
         preDexLibraries = false 
         jumboMode = true
     }
-    dependencies {
-        compile(project(':appcompatv7')) {
-            exclude module: 'support-v4'
-        }
-        compile(project(':google-play')) {
-            exclude module: 'support-v4'
-        }
-        compile(project(':viewpager-indicator-library')) {
-            exclude module: 'support-v4'
-        }
-        compile(project(':cardview')) {
-            exclude module: 'support-v4'
-        }
-        compile(project(':recyclerview')) {
-            exclude module: 'support-v4'
-        } 
-        compile(project(':kpt-host')) {
-            exclude module: 'support-v4'
-        }
-         compile(project(':transporter-library')) {
-            exclude module: 'support-v4'
-        }
-         compile(project(':cropper')) {
-            exclude module: 'support-v4'
-        }
-        compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
-
-        debugCompile 'com.facebook.stetho:stetho:1.3.0'
-    }
 
     sourceSets {
         main {
@@ -143,6 +114,37 @@ android {
     	}
 	}
 }
+
+dependencies {
+    compile(project(':appcompatv7')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':google-play')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':viewpager-indicator-library')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':cardview')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':recyclerview')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':kpt-host')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':transporter-library')) {
+        exclude module: 'support-v4'
+    }
+    compile(project(':cropper')) {
+        exclude module: 'support-v4'
+    }
+    compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
+
+    debugCompile 'com.facebook.stetho:stetho:1.3.0'
+}
+
 
 def getBranchAndCommitID() {
     ext.revision = getGitRevParseInfo ( "--short" )
