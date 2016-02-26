@@ -124,6 +124,7 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
 import com.bsb.hike.models.PhonebookContact;
@@ -167,12 +168,14 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.StopWatch;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.bsb.hike.voip.VoIPDataPacket;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
@@ -191,6 +194,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
@@ -393,7 +403,31 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean keyboardSelectedLanguageChanged;
 
 	ObjectAnimator tipFadeInAnimation;
-	
+
+	private AtomicBoolean isFetchConversationStarted=new AtomicBoolean(false);
+
+	Callable<Conversation> callable=new Callable<Conversation>() {
+		@Override
+		public Conversation call() throws Exception {
+			isFetchConversationStarted.set(true);
+			return fetchConversation();
+		}
+	};
+
+
+	private class MyFetchConversationAsyncTask extends AsyncTask<Void,Boolean,Boolean>
+	{
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			conversationFuture.run();
+			return true;
+		}
+	}
+	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
+
+
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -621,13 +655,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected Bundle savedState;
 
+	MyFetchConversationAsyncTask fetchConversationAsyncTask=null;
+
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
-
+		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
+		fetchConversationAsyncTask=new MyFetchConversationAsyncTask();
+		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
+		StopWatch initTime=new StopWatch();
 		init();
+		initTime.start();
 		setContentView();
+		initTime.stop();
+		Logger.d(TAG,"Time taken to render view is "+initTime.getElapsedTime());
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
@@ -2527,14 +2569,34 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected final void fetchConversation(boolean async)
 	{
+		StopWatch watch=new StopWatch();
+		watch.start();
 		Logger.i(TAG, "fetch conversation called , isAsync " + async);
 		if (async)
 		{
 			activity.getSupportLoaderManager().initLoader(FETCH_CONV, null, this);
 		}
-		else
-		{
-			setupConversation(fetchConversation());
+		else {
+
+
+			Conversation conv = null;
+			if (fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
+				Logger.d(TAG,"Conversation called due to aynstask not started");
+				fetchConversationAsyncTask.cancel(true);
+				conv = fetchConversation();
+			} else {
+				Logger.d(TAG, "trying to get it from future object");
+				try {
+					conv = conversationFuture.get();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				}
+			}
+			watch.stop();
+			Logger.d(TAG,"Time taken to execuet fetchConversation is -->" +watch.getElapsedTime());
+			setupConversation(conv);
 		}
 	}
 	
