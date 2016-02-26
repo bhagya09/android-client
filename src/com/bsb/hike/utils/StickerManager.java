@@ -525,13 +525,6 @@ public class StickerManager
 		return stickerSet;
 	}
 
-	public List<Sticker> getStickerListForStickerTableMigration()
-	{
-		List<Sticker> allStickerList = getAllStickers();
-		return allStickerList;
-	}
-
-
 	public void addRecentSticker(Sticker st)
 	{
 		if (stickerCategoriesMap.containsKey(StickerManager.RECENT))

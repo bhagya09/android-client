@@ -9064,8 +9064,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void moveStickerInfoToStickerTable()
 	{
-		List<Sticker> stickerList = StickerManager.getInstance().getStickerListForStickerTableMigration();
-		insertStickersToDB(stickerList);
+		List<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
+		insertStickersToDB(stickerSet);
 	}
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
