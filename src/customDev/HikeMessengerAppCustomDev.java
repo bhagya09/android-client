@@ -7,9 +7,9 @@ import com.facebook.stetho.Stetho;
 /**
  * Created by piyush on 25/02/16.
  */
-public class HikeMessengerAppStrawberry extends HikeMessengerApp
+public class HikeMessengerAppCustomDev extends HikeMessengerApp
 {
-	public static final String TAG = "HikeMessengerAppStrawberry";
+	public static final String TAG = "HikeMessengerAppCustomDev";
 	@Override
 	public void onCreate()
 	{
