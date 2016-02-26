@@ -2684,17 +2684,20 @@ public class MqttMessagesManager
 			if (enableIntercepts.has(HikeConstants.INTERCEPTS.VIDEO) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT))
 			{
 				boolean video = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
 			}
 			if (enableIntercepts.has(HikeConstants.INTERCEPTS.IMAGE) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT))
 			{
 				boolean image = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
 			}
 			if (enableIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS)
 					&& !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT))
 			{
 				boolean screenshot = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
                 InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
