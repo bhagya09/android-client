@@ -1,4 +1,4 @@
-package strawberry;
+package customDev;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
