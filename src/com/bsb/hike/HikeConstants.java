@@ -2487,65 +2487,9 @@ public class HikeConstants
 		
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
-		public static final String AUTO_CAPITALIZATION_ON = "auto_cap";
-		
-		public static final String AUTO_SPACING_ON = "auto_spc";
-		
-		public static final String GLIDE_ON = "glide";
-		
-		public static final String KEYPRESS_SOUND_ON = "key_sound";
-		
-		public static final String KEYPRESS_POPUP_ON = "key_popup";
-		
-		public static final String KEYPRESS_VIBRATION_ON = "key_vib";
-		
-		public static final String AUTO_CORRECT_ON = "auto_crct";
-		
-		public static final String DISPLAY_SUGGESTION_ON = "disp_sug";
-		
-		public static final String PRIVATE_MODE_ON = "prvt_mod";
-		
-		public static final String HIKE_KEYBOARD_ON = "hike_kbd";
-		
-		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "kbd_lng_dl";
-		
-		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_ERROR = "kbd_lng_dl_err";
-		
-		public static final String LANGUAGE_DOWNLOADING = "lng";
-		
-		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "kbd_lng_cng";
-		
-		public static final String APP_LANGUAGE_FTUE = "app_language_ftue";
-		
-		public static final String KEYBOARD_FTUE_INITIATED = "kbd_ftue_init";
-		
-		public static final String KEYBOARD_FTUE_CLOSE_BUTTON = "kbd_ftue_clos";
-		
-		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "kbd_ftue_chg_lng";
-		
-		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "kbd_ftue_clos_lang";
-		
-		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "kbd_ftue_inst";
-
-		public static final String KEYBOARD_FTUE_COMPLETES = "kbd_ftue_comp";
-		
-		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
-
-		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
-
-		public static final String KEYBOARD_LANGUAGE_UNLOADED_EVENT = "lng_ul";
-		
-		public static final String KEYBOARD_LANGUAGE_LOADED_EVENT = "lng_l";
-		
-		public static final String KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT = "lng_uns";
-
 		public static final String APP_LANGUAGE_DIALOG_OPEN_EVENT = "app_lng_dlg";
 		
 		public static final String APP_LANGUAGE_FTUE_SHOWN_EVENT = "app_lng_ftue";
-		
-		public static final String KEYBOARD_FTUE_LANG_LIST_SCREEN = "kbd_ftue_sc_2";
-		
-		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
 		
 		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
 

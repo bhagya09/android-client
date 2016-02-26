@@ -1222,13 +1222,6 @@
 	<string name="enable_saved_contact_view_side_text">കോളർ വിവരം സംരക്ഷിത കോണ്ടാക്ട്സ് പ്രദർശിപ്പിക്കുക</string>
     <string name="choose_language">ഭാഷ തിരഞ്ഞെടുക്കുക</string>
     <string name="choose_language_desciption">ഇപ്പോൾ നിങ്ങളുടെ പ്രിയപ്പെട്ട മെസഞ്ചർ പ്രിയപ്പെട്ട ഭാഷയിൽ</string>
-    <string name="system_language">സിസ്റ്റം ഭാഷ</string>
-    <string name="regional_keyboard">പ്രദേശിക കീബോർഡ്</string>
-    <string name="regional_keyboard_subtext">പുതിയ കീബോർഡ് ഉപയോഗിച്ച് നിങ്ങളുടെ പ്രിയപ്പെട്ട ഭാഷയിൽ ചാറ്റുചെയ്യുക</string>
-    <string name="CHOOSE_LANGUAGE">ഭാഷ തിരഞ്ഞെടുക്കുക</string>
-	<string name="apply">പ്രയോഗിക്കുക</string>
-    <string name="keyboad_ftue_swipe">ഭാഷ മാറാൻ സ്വൈപ്പുചെയ്യുക</string>
-    <string name="setting_up_keyboard">കീബോർഡ് സജ്ജമാക്കുന്നു</string>
 	<string name="close_gps">ബാറ്ററി ലാഭിക്കാൻ നിങ്ങൾക്കിപ്പോൾ ലൊക്കേഷൻ ഓഫാക്കാവുന്നതാണ്. Hike ഡയറക്റ്റ് കണക്ഷൻ ബാധിക്കപ്പെടില്ല.</string>
 	<string name="gps_not_on">gps ഓണല്ലെങ്കിൽ Hike ഡയറക്റ്റ് പ്രവർത്തിക്കില്ല</string>
 	<string name="switch_on_gps">Hike ഡയറക്റ്റ് പ്രവർത്തിക്കാൻ ലൊക്കേഷൻ സജീവമാക്കുക. ചെയ്തുകഴിഞ്ഞാൽ മടങ്ങുക ക്ലിക്കുചെയ്യുക </string>

@@ -1221,13 +1221,6 @@
 	<string name="enable_saved_contact_view_side_text">సేవ్ చేయబడ్డ కాంటాక్ట్‌లకూ కాలర్ సమాచారాన్ని చూపించు</string>
     <string name="choose_language">భాషను ఎంచుకోండి</string>
     <string name="choose_language_desciption">ఇప్పుడు మీకు ఇష్టమైన మెసెంజర్ మీకు ఇష్టమైన భాషలో ఇప్పుడు</string>
-    <string name="system_language">సిస్టమ్ భాష</string>
-    <string name="regional_keyboard">ప్రాంతీయ కీబోర్డు</string>
-    <string name="regional_keyboard_subtext">కొత్త కీబోర్డుతో మీకు ఇష్టమైన భాషలో ఇప్పుడు చాట్ చేయండి</string>
-    <string name="CHOOSE_LANGUAGE">భాషను ఎంచుకోండి</string>
-	<string name="apply">అప్లై</string>
-    <string name="keyboad_ftue_swipe">మీ భాష మధ్య మారడం కొరకు స్వైప్ చేయండి</string>
-    <string name="setting_up_keyboard">కీబోర్డ్ ఏర్పాటుచేస్తోంది</string>
 	<string name="close_gps">బ్యాటరీ సేవ్ చేయడం కొరకు మీ స్థానాన్ని మీరు ఆఫ్ చేయవచ్చు. మీ Hike డైరెక్ట్ కనెక్షన్‌పై ప్రభావం ఉండదు.</string>
 	<string name="gps_not_on">క్షమించండి, ఒకవేళ జిపిఎస్ ఆన్ చేయనట్లయితే Hike డైరెక్ట్ పనిచేయదు</string>
 	<string name="switch_on_gps">Hike డైరెక్ట్ పనిచేయడం కొరకు దయచేసి స్థలాన్ని ప్రారంభించు మీరు పూర్తి చేసిన బ్యాక్ ప్రెస్ చేయండి. </string>

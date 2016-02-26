@@ -1230,13 +1230,6 @@
     <string name="enable_saved_contact_view_side_text">ಉಳಿಸಿದ ಸಂಪರ್ಕಗಳಿಗೂ ಕಾಲರ್ ಮಾಹಿತಿ ತೋರಿಸಿ</string>
     <string name="choose_language">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="choose_language_desciption">ಈಗ ನಿಮ್ಮ ಇಷ್ಟದ ಮೆಸೆಂಜರ್ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ</string>
-    <string name="system_language">ಸಿಸ್ಟಂ ಭಾಷೆ</string>
-    <string name="regional_keyboard">ಪ್ರಾದೇಶಿಕ ಕೀಬೋರ್ಡ‌</string>
-    <string name="regional_keyboard_subtext">ಹೊಸ ಕೀಬೋರ್ಡ‌ನೊಂದಿಗೆ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ ಚಾಟ್‌ ಮಾಡಿ</string>
-    <string name="CHOOSE_LANGUAGE">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
-    <string name="apply">ಅನ್ವಯಿಸಿ</string>
-    <string name="keyboad_ftue_swipe">ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿನ ಬದಲಾವಣೆಗಾಗಿ ಸ್ವೈಪ್‌ ಮಾಡಿ</string>
-    <string name="setting_up_keyboard">ಕೀಬೋರ್ಡ‌ ಸೆಟ್‌ ಅಪ್‌ ಮಾಡುವುದು</string>
     <string name="close_gps">ಬ್ಯಾಟರಿ ಉಳಿಸಲು ನೀವು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಆಫ್‌ ಮಾಡಬಹುದಾಗಿದೆ. ನಿಮ್ಮ Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕದ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.</string>
     <string name="gps_not_on">ಕ್ಷಮಿಸಿ ಜಿಪಿಎಸ್‌ ಆನ್‌ ಆಗಿಲ್ಲದಿದ್ದರೆ Hike ಡೈರೆಕ್ಟ್ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ</string>
     <string name="switch_on_gps">ಕೆಲಸ ಮಾಡಲು Hike ಡೈರೆಕ್ಟ್ಗೆ ಸ್ಥಳವನ್ನು ದಯವಿಟ್ಟು ಎನೇಬಲ್‌ ಮಾಡಿ. ಮುಗಿದ ನಂತರ ಬ್ಯಾಕ್‌ ಒತ್ತಿ. </string>

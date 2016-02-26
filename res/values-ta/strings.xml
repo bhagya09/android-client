@@ -1222,13 +1222,6 @@
 	<string name="enable_saved_contact_view_side_text">சேவ் செய்துள்ள தொடர்புகளுக்கும் அழைப்பவர் தகவல்களைக் காண்பிக்கவும்</string>
     <string name="choose_language">மொழியைத் தேர்ந்தெடு</string>
     <string name="choose_language_desciption">இதோ உங்களுக்குப் பிடித்த மெஸ்ஸெஞ்சர், உங்களுக்குப் பிடித்த மொழியில்</string>
-    <string name="system_language">சிஸ்டம் மொழி</string>
-    <string name="regional_keyboard">ரீஜீனல் கீபோர்டு</string>
-    <string name="regional_keyboard_subtext">இப்போது, புதிய கீபோர்டு கொண்டு உங்களுக்குப் பிடித்தமான மொழியில் சேட் செய்க</string>
-    <string name="CHOOSE_LANGUAGE">மொழியைத் தேர்ந்தெடு</string>
-	<string name="apply">பொருந்துகிறது</string>
-    <string name="keyboad_ftue_swipe">உங்கள் மொழியை மாற்ற ஸ்வைப் செய்க</string>
-    <string name="setting_up_keyboard">கீபோர்டு செட் செய்தல்</string>
 	<string name="close_gps">இப்போது, பேட்டரியை சேமிக்க உங்கள் லோக்கேஷனை ஆஃப் செய்ய முடியும். உங்களது Hike டைரக்ட் கனெக்க்ஷன் பாதிக்காது.</string>
 	<string name="gps_not_on">மன்னிக்க, gps ஆனாக இல்லை எனில் Hike டைரக்ட் வேலை செய்யாது</string>
 	<string name="switch_on_gps">Hike டைரக்ட் வேலை செய்ய தயவுசெய்து லொக்கேஷனை எனேபிள் செய்க எனேபிள் செய்ததும் பேக்-ஐ பிரெஸ் செய்க. </string>
