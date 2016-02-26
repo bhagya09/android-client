@@ -3,6 +3,8 @@ package com.bsb.hike.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import android.app.PendingIntent;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.util.Pair;
@@ -145,6 +147,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	private  long time;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
+	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
+	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -1659,7 +1664,16 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		intentBuilder.setShowTitle(true);
 		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back));
 		intentBuilder.setCloseButtonIcon(bm);
-		CustomTabActivityHelper.openCustomTab(this, intentBuilder.build(), url, this, title);
+
+		//set overflow menu
+		PendingIntent sharePendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(getResources().getString(R.string.share), sharePendingIntent);
+
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(getResources().getString(R.string.forward), forwardPendingIntent);
+
+		CustomTabsIntent intent = intentBuilder.build();
+		CustomTabActivityHelper.openCustomTab(this, intent, url, this, title);
 	}
 
 	private void setupCustomTabHelper(){
