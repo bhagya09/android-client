@@ -1987,10 +1987,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HEIGHT + " INTEGER, "
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
-				+ DBConstants.FREQUENCY_FUNCTION + " TEXT,"
-				+ DBConstants.RELEVANCE_FUNCTION + " TEXT,"
-				+ DBConstants.LANGUAGE + " TEXT,"
-				+ DBConstants.AGE + " INTEGER,"
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE
 				+ " )";
 
@@ -9068,7 +9064,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void moveStickerInfoToStickerTable()
 	{
-		List<Sticker> stickerSet = StickerManager.getInstance().getStickerListForStickerTableMigration();
+		List<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
 		insertStickersToDB(stickerSet);
 	}
 

@@ -1299,7 +1299,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
 		}
-		
+
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
@@ -2232,50 +2232,4 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	}
 
-	public HashMap<String,StickerAppositeDataContainer> getStickersList()
-	{
-		HashMap<String,StickerAppositeDataContainer> resultList = new HashMap<String,StickerAppositeDataContainer>();
-		Cursor c = null;
-
-		try
-		{
-			c = mDb.query(true,
-					HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING,
-					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY,HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE},
-					HikeStickerSearchBaseConstants.STICKER_AVAILABILITY+HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_NEGATIVE_CHECK,
-					new String[]{String.valueOf(HikeStickerSearchBaseConstants.STICKER_NOT_AVAILABLE)},
-					null,null,null,null);
-
-			int rowCount = (c == null) ? 0 : c.getCount();
-
-			if (rowCount > 0)
-			{
-				int stickerIdIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
-				int ageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE);
-				int compositeFrequencyIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY);
-				int languageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE);
-				while (c.moveToNext())
-				{
-					String stickerCode = c.getString(stickerIdIndex);
-					int stickertagAge = c.getInt(ageIndex);
-					String frequencyFunction = c.getString(compositeFrequencyIndex);
-					StickerAppositeDataContainer temp = new StickerAppositeDataContainer(stickerCode,frequencyFunction,0,HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY,stickertagAge);
-					temp.setLanguageFunction(c.getString(languageIndex));
-					resultList.put(stickerCode,temp);
-				}
-			}
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-				c = null;
-			}
-			SQLiteDatabase.releaseMemory();
-		}
-
-		return resultList;
-
-	}
 }

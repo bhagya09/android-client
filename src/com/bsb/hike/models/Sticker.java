@@ -39,12 +39,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private int height;
 
-	private int age;
-
-	private String mOverallFrequencyFunction;
-
-	private String mLanguageFunction;
-
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
@@ -326,36 +320,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void setWidth(int width) {
 		this.width = width;
-	}
-
-	public String getOverallFrequencyFunction()
-	{
-		return mOverallFrequencyFunction;
-	}
-
-	public String getLanguageFunction()
-	{
-		return mLanguageFunction;
-	}
-
-	public void setLanguage(String language)
-	{
-		this.mLanguageFunction = language;
-	}
-
-	public int getAge()
-	{
-		return age;
-	}
-
-	public void setAge(int age)
-	{
-		this.age = age;
-	}
-
-	public void setFrequencyFunction(String overallFrequencyFunction)
-	{
-		this.mOverallFrequencyFunction = overallFrequencyFunction;
 	}
 
 	public void clear()
