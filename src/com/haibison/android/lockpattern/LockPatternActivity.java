@@ -33,7 +33,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
 import com.haibison.android.lockpattern.util.IEncrypter;
 import com.haibison.android.lockpattern.util.InvalidEncrypterException;
 import com.haibison.android.lockpattern.util.LoadingDialog;
@@ -68,6 +67,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 /**
@@ -311,7 +311,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
      */
     private TextView mTextInfo;
     private LockPatternView mLockPatternView;
-    private CustomFontEditText mLockPinView;
+    private EditText mLockPinView;
     private View mFooter;
     private Button mBtnCancel;
     private Button mBtnConfirm;
@@ -490,7 +490,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         
         mTextInfo = (TextView) findViewById(R.id.alp_42447968_textview_info);
         mLockPatternView = (LockPatternView) findViewById(R.id.alp_42447968_view_lock_pattern);
-        mLockPinView = (CustomFontEditText) findViewById(R.id.alp_42447968_lock_pin);
+        mLockPinView = (EditText) findViewById(R.id.alp_42447968_lock_pin);
 
         mFooter = findViewById(R.id.alp_42447968_viewgroup_footer);
         mBtnCancel = (Button) findViewById(R.id.alp_42447968_button_cancel);
@@ -635,6 +635,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
             	mLockPatternView.setVisibility(View.VISIBLE);
             	mLockPinView.setVisibility(View.GONE);
 				mLockPatternView.requestFocus();
+				Utils.hideSoftKeyboard(LockPatternActivity.this, mLockPinView);
         	}
         	else
         	{
@@ -643,6 +644,7 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         		changePasswordSetting.setText(getString(R.string.stealth_set_pattern));
             	mTextInfo.setText(R.string.stealth_msg_enter_an_unlock_pin);
             	mLockPinView.requestFocus();
+            	Utils.showSoftKeyboard(LockPatternActivity.this, mLockPinView);
             	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         	}
         	changePasswordSetting.setOnClickListener(new View.OnClickListener()
