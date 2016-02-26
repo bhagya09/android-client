@@ -165,7 +165,13 @@ public class NonMessagingBotConfiguration extends BotConfiguration
 				List<OverFlowMenuItem> items = new ArrayList<OverFlowMenuItem>();
 				for (int i = 0; i < menuItems.length(); i++)
 				{
-					items.add(parseMenuItemFromJSON(menuItems.getJSONObject(i)));
+					// Fix starts for AND-4737 : parseMenuItem can return null item which was causing NPE later on
+					OverFlowMenuItem overFlowMenuItem = parseMenuItemFromJSON(menuItems.getJSONObject(i));
+					if (null != overFlowMenuItem)
+					{
+						items.add(overFlowMenuItem);
+					}
+					// Fix for AND-4737 ends
 				}
 				
 				return items;

@@ -1039,5 +1039,20 @@ public class HttpRequests
 
 	}
 
+	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener,
+                                                              IRequestInterceptor requestInterceptor,
+                                                              String requestId, int retryCount, int delayBeforeRetry) {
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(HttpRequestConstants.getAnalyticsUrl())
+                .setRequestType(Request.REQUEST_TYPE_LONG)
+                .setAsynchronous(true)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .post(null)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
+        return requestToken;
+	}
 
 }
