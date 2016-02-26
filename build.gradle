@@ -107,11 +107,16 @@ android {
         }
     }
     productFlavors {
-    arm {
+    vanilla {
         ndk {
             abiFilters "armeabi", "armeabi-v7a"
         	}
     	}
+        strawberry {  //This flavor will contain all those dependencies which are useful for debugging purposes but are not meant to be shipped
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
 	}
 }
 
