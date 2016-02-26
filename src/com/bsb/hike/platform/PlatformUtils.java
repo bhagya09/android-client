@@ -23,14 +23,20 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.*;
@@ -1403,8 +1409,17 @@ public class PlatformUtils
 	
 	public static String getLastGame()
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		if (BotUtils.isBot(HikePlatformConstants.GAME_CHANNEL))
+		{
+			return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME, BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		}
+
+		else //Highly improbable, can only happen when Games Channel is not yet installed.
+		{
+			return "";
+		}
 	}
+
 	public static void killProcess(Activity context,String process)
 	{
 		if (context != null)
@@ -1640,8 +1655,56 @@ public class PlatformUtils
 		return jsonObj.optString(HikeConstants.BODY);
 	}
 
+	public static void share(String text, String caption, Activity context, CustomWebView mWebView) {
+		FileOutputStream fos = null;
+		File cardShareImageFile = null;
+		if (context != null) {
+			try {
+				if (TextUtils.isEmpty(text)) {
+					//text = mContext.getString(R.string.cardShareHeading); // fallback
+				}
 
+				cardShareImageFile = new File(context.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
+				fos = new FileOutputStream(cardShareImageFile);
+				View share = LayoutInflater.from(context).inflate(com.bsb.hike.R.layout.web_card_share, null);
+				// set card image
+				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
+				Bitmap b = Utils.viewToBitmap(mWebView);
+				image.setImageBitmap(b);
 
+				// set heading here
+				TextView heading = (TextView) share.findViewById(R.id.heading);
+				heading.setText(text);
+
+				// set description text
+				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
+				tv.setText(Html.fromHtml(context.getString(com.bsb.hike.R.string.cardShareDescription)));
+
+				Bitmap shB = Utils.undrawnViewToBitmap(share);
+				Logger.i(TAG, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
+				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+				fos.flush();
+				Logger.i(TAG, "share webview card " + cardShareImageFile.getAbsolutePath());
+				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
+						TextUtils.isEmpty(caption) ? context.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Toast.makeText(context, context.getString(com.bsb.hike.R.string.error_card_sharing), Toast.LENGTH_SHORT).show();
+			} finally {
+				if (fos != null) {
+					try {
+						fos.close();
+					} catch (IOException e) {
+						// Do nothing
+						e.printStackTrace();
+					}
+				}
+			}
+			if (cardShareImageFile != null && cardShareImageFile.exists()) {
+				cardShareImageFile.deleteOnExit();
+			}
+		}
+	}
 
 	public static String getRunningGame(Context context)
 	{
@@ -1744,4 +1807,5 @@ public class PlatformUtils
 		}
 		return convMessage;
 	}
+
 }
