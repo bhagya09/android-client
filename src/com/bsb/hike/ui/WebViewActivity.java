@@ -777,7 +777,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 			@Override
-			public void onComplete(PlatformContentModel content)
+			public void onComplete(final PlatformContentModel content)
 			{
 				if(null != webView && null != content)
 				{
@@ -794,7 +794,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					}
 
 					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
-					webView.loadMicroAppData(content.getFormedData());
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.loadMicroAppData(content.getFormedData());
+                        }
+                    });
 				}
 			}
 		});
