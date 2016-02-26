@@ -39,10 +39,12 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.HikeAudioRecordListener;
 import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.HikeAudioRecordView;
+//import com.bsb.hike.media.HikeAudioRecordListener;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -199,7 +201,7 @@ import android.widget.Toast;
  */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
-		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
+		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
@@ -313,6 +315,7 @@ import android.widget.Toast;
 	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
+	protected HikeAudioRecordView walkieView;
 
 	protected Conversation mConversation;
 
@@ -711,7 +714,6 @@ import android.widget.Toast;
 
 	}
 
-
 	/**
 	 * This function must be called after setting content view
 	 */
@@ -723,8 +725,9 @@ import android.widget.Toast;
 
 		if (!isSystemKeyboard())
 			initCustomKeyboard();
-		
-		audioRecordView = new AudioRecordView(activity, this);
+
+		audioRecordView = new AudioRecordView(activity,this);
+		walkieView = new HikeAudioRecordView(activity,this);
 
 		initShareablePopup();
 
@@ -905,6 +908,7 @@ import android.widget.Toast;
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
 		activity.findViewById(R.id.send_message).setOnClickListener(this);
+		activity.findViewById(R.id.send_message_audio).setOnTouchListener(this);
 		activity.findViewById(R.id.new_message_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_bottom_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_top_indicator).setOnClickListener(this);
@@ -1470,18 +1474,11 @@ import android.widget.Toast;
 
 	protected void sendButtonClicked()
 	{
-		if (TextUtils.isEmpty(mComposeView.getText()))
-		{
-			audioRecordClicked();
-		}
-		else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			customKeyboardUpdateCore();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-		}
+		sendMessageForStickerRecommendLearning();
+		sendMessage();
+		customKeyboardUpdateCore();
+		dismissStickerRecommendationPopup();
+		dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 	}
 
 	/**
@@ -1562,11 +1559,6 @@ import android.widget.Toast;
 		{
 			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
-	}
-
-	protected void audioRecordClicked()
-	{
-		showAudioRecordView();
 	}
 
 	protected void showAudioRecordView()
@@ -2830,7 +2822,7 @@ import android.widget.Toast;
 		/* get the number of credits and also listen for changes */
 		int mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
-		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), mCredits,
+		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), (ImageButton) activity.findViewById(R.id.send_message_audio), mCredits,
 				activity.getApplicationContext());
 
 		mComposeViewWatcher.init();
@@ -3908,13 +3900,13 @@ import android.widget.Toast;
 	{
 		switch (v.getId())
 		{
-		case R.id.msg_compose:
+			case R.id.msg_compose:
 
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
 			}
-			
+
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -3924,9 +3916,24 @@ import android.widget.Toast;
 				mComposeView.requestFocusFromTouch();
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
+			case R.id.send_message_audio:
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing());
+						walkieView.update(event);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						walkieView.update(event);
+						break;
+					case MotionEvent.ACTION_UP:
+						walkieView.update(event);
+						break;
+				}
 
-		default:
-			return mGestureDetector.onTouchEvent(event);
+				return true;
+
+			default:
+				return mGestureDetector.onTouchEvent(event);
 		}
 
 	}

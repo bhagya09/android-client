@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="slide_to_cancel">Slide to Cancel</string>
     <string name="app_name">hike</string>
     <string name="app_label">&#160;hike</string>
     <string name="invite">Tell a friend</string>
