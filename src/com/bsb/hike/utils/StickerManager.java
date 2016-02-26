@@ -1571,17 +1571,8 @@ public class StickerManager
 
 	public void initiateSingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true))
-		{
-			SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, false);
-			singleStickerDownloadTask.execute();
-
-		}
-		else
-		{
-			SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, true);
-			singleStickerDownloadTask.execute();
-		}
+		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true));
+		singleStickerDownloadTask.execute();
 	}
 
 	public void initiateMiniStickerDownloadTask(String stickerId,String categoryId)
