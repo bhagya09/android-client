@@ -10,6 +10,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 public class StickerLoader extends ImageWorker
@@ -66,33 +67,33 @@ public class StickerLoader extends ImageWorker
 		return bitmap;
 	}
 
-	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView)
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView)
 	{
-		loadSticker(sticker,stickerType,imageView,false);
+		loadSticker(sticker, stickerType, imageView, false);
 	}
 
-	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView, boolean isFlinging)
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging)
 	{
-		loadSticker(sticker,stickerType,imageView,false,false);
+		loadSticker(sticker, stickerType, imageView, false, false);
 	}
 
-	public void loadSticker(Sticker sticker,StickerConstants.StickerType stickerType,ImageView imageView, boolean isFlinging, boolean runOnUiThread)
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
 	{
 		String path = sticker.getDefaultPath();
-		switch(stickerType)
+		switch (stickerType)
 		{
-			case MINI :
-				path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
-				break;
-			case SMALL:
-				path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
-				break;
-			case LARGE:
-				path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
-				break;
+		case MINI:
+			path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
+			break;
+		case SMALL:
+			path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+			break;
+		case LARGE:
+			path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
+			break;
 		}
 
-		loadImage(path,imageView,isFlinging,runOnUiThread);
+		loadImage(path, imageView, isFlinging, runOnUiThread);
 	}
 
 	@Override
@@ -123,7 +124,7 @@ public class StickerLoader extends ImageWorker
 		{
 			return loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
 		}
-		return null;
+		return bitmap;
 	}
 
 	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker)

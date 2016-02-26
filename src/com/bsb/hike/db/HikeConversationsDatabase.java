@@ -1987,10 +1987,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.HEIGHT + " INTEGER, "
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
-				+ DBConstants.FREQUENCY_FUNCTION + " TEXT,"
-				+ DBConstants.RELEVANCE_FUNCTION + " TEXT,"
-				+ DBConstants.LANGUAGE + " TEXT,"
-				+ DBConstants.AGE + " INTEGER,"
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE
 				+ " )";
 
@@ -9068,8 +9064,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private void moveStickerInfoToStickerTable()
 	{
-		List<Sticker> stickerSet = StickerManager.getInstance().getStickerListForStickerTableMigration();
-		insertStickersToDB(stickerSet);
+		List<Sticker> stickerList = StickerManager.getInstance().getStickerListForStickerTableMigration();
+		insertStickersToDB(stickerList);
 	}
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
@@ -9124,7 +9120,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			while(c.moveToNext())
 			{
-				String stickerId = c.getColumnName(stidIdx);
+				String stickerId = c.getString(stidIdx);
 				stickerIdsList.add(stickerId);
 
 			}
@@ -9155,8 +9151,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerFilePath());
 				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
 				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
-				mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 			}
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
@@ -9179,6 +9176,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
 						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
 			}
+			mDb.setTransactionSuccessful();
 		}
 		finally
 		{

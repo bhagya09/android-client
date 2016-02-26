@@ -855,8 +855,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			dayHolder = stickerHolder;
-			stickerHolder.placeHolder.setBackgroundResource(0);
-			stickerHolder.loader.setVisibility(View.GONE);
 			Sticker sticker = metadata.getSticker();
 			setSenderDetails(convMessage, position, stickerHolder, true);
 			boolean isStickerOffline=false;
@@ -865,7 +863,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if(sticker.isStickerAvailable())
 			{
 				stickerHolder.placeHolder.setBackgroundResource(0);
+				stickerHolder.loader.setVisibility(View.GONE);
 				stickerHolder.image.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				stickerHolder.loader.setVisibility(View.VISIBLE);
+				stickerHolder.placeHolder.setBackgroundResource(R.drawable.bg_sticker_placeholder);
+				stickerHolder.image.setVisibility(View.GONE);
+				stickerHolder.image.setImageDrawable(null);
 			}
 
 			/**

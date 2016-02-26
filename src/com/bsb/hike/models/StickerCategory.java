@@ -223,6 +223,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			
 			Collections.sort(stickersList);
 			long t2 = System.currentTimeMillis();
+			Logger.d(getClass().getSimpleName(), "category id : " + categoryId + " sticker list " +  stickersList);
 			Logger.d(getClass().getSimpleName(), "Time to sort category : " + getCategoryId() + " in ms : " + (t2 - t1));
 		}
 		return stickersList;

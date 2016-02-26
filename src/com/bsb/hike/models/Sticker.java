@@ -7,8 +7,8 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,24 +33,15 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private String largeStickerPath;
 
-	private boolean isAvailable;
-
 	private int width;
 
 	private int height;
-
-	private int age;
-
-	private String mOverallFrequencyFunction;
-
-	private String mLanguageFunction;
 
 	public Sticker(StickerCategory category, String stickerId)
 	{
 		this.category = category;
 		this.stickerId = stickerId;
 		this.categoryId = category.getCategoryId();
-		this.isAvailable = true; /* Default value */
 	}
 
 	public Sticker(String categoryId, String stickerId)
@@ -58,15 +49,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = stickerId;
 		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
 		this.categoryId = categoryId;
-		this.isAvailable = true; /* Default value */
-	}
-
-	public Sticker(String categoryId, String stickerId, boolean isAvailable)
-	{
-		this.stickerId = stickerId;
-		this.category = StickerManager.getInstance().getCategoryForId(categoryId);
-		this.categoryId = categoryId;
-		this.isAvailable = isAvailable;
 	}
 
 	public Sticker()
@@ -89,24 +71,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = category;
 	}
 
-	public void setStickerAvailability()
-	{
-		boolean result;
-		String path = getLargeStickerPath();
-
-		if (!Utils.isBlank(path))
-		{
-			File file = new File(path);
-			result = file.isFile() && file.exists();
-		}
-		else
-		{
-			result = false;
-		}
-
-		this.isAvailable = result;
-	}
-
 	public String getCategoryId()
 	{
 		return categoryId;
@@ -115,14 +79,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	public boolean isStickerAvailable()
 	{
 		return !getLargeStickerPath().equalsIgnoreCase(getDefaultPath());
-	}
-
-	/* Call this method, only if one needs current download-status of sticker */
-	public boolean getStickerCurrentAvailability()
-	{
-		setStickerAvailability();
-
-		return this.isAvailable;
 	}
 
 	/**
@@ -180,7 +136,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getDefaultPath()
 	{
-		return (categoryId + HikeConstants.DELIMETER + stickerId).toLowerCase();
+		return (categoryId + HikeConstants.DELIMETER + stickerId);
 	}
 
 	/**
@@ -301,17 +257,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = category;
 	}
 
-	public void setStickerData(String stickerId, String categoryId)
-	{
-		this.stickerId = stickerId;
-		this.categoryId = categoryId;
-	}
-
-	public boolean isValidStickerData()
-	{
-		return (TextUtils.isEmpty(categoryId) && TextUtils.isEmpty(stickerId));
-	}
-
 	public int getHeight() {
 		return height;
 	}
@@ -328,42 +273,11 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.width = width;
 	}
 
-	public String getOverallFrequencyFunction()
-	{
-		return mOverallFrequencyFunction;
-	}
-
-	public String getLanguageFunction()
-	{
-		return mLanguageFunction;
-	}
-
-	public void setLanguage(String language)
-	{
-		this.mLanguageFunction = language;
-	}
-
-	public int getAge()
-	{
-		return age;
-	}
-
-	public void setAge(int age)
-	{
-		this.age = age;
-	}
-
-	public void setFrequencyFunction(String overallFrequencyFunction)
-	{
-		this.mOverallFrequencyFunction = overallFrequencyFunction;
-	}
-
 	public void clear()
 	{
 		this.stickerId = null;
 		this.category = null;
 		this.categoryId = null;
-		this.isAvailable = false;
 	}
 
 	public Sticker(Parcel in)
@@ -371,7 +285,6 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.stickerId = in.readString();
 		this.categoryId = in.readString();
 		this.category = (StickerCategory) in.readSerializable();
-		this.isAvailable = true;
 		this.largeStickerPath = in.readString();
 		this.smallStickerPath = in.readString();
 		this.width = in.readInt();

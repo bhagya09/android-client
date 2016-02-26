@@ -87,7 +87,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		this.mStickerPickerListener = listener;
 		instantiateStickerList();
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
-		worker = new StickerLoader(true, true, true);
+		worker = new StickerLoader(false, false, true);
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
 		Logger.d(getClass().getSimpleName(), "Sticker Adapter instantiated ....");
