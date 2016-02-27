@@ -218,7 +218,20 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					Utils.makeNoMediaFile(smallDir);
 					Utils.makeNoMediaFile(largeDir);
 					
+					Sticker sticker = new Sticker(categoryId,stickerId);
+
+					if(stickerData.has(HikeConstants.WIDTH))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
+					}
+
+					if(stickerData.has(HikeConstants.HEIGHT))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
+					}
+
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
+					sticker.setLargeStickerPath(largeStickerPath);
 
 					boolean isDisabled = stickerData.optBoolean(HikeConstants.DISABLED_ST);
 					if (!isDisabled)
@@ -228,6 +241,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						if (thumbnail != null) {
 							File smallImage = new File(smallStickerPath);
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
+
+							sticker.setSmallStickerPath(smallStickerPath);
+
 							thumbnail.recycle();
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 							if (imageOnly)
@@ -241,10 +257,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 							}
 
-							StickerManager.getInstance().saveSticker(new Sticker(categoryId,stickerId));
-
 							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
 						}
+
+						StickerManager.getInstance().saveSticker(sticker);
+
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 					doOnSuccess(categoryId);

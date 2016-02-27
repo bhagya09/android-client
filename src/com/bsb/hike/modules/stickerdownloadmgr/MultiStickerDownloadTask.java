@@ -225,14 +225,31 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							String stickerId = keys.next();
 							JSONObject stickerData = stickers.getJSONObject(stickerId);
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
+							Sticker sticker = new Sticker(categoryId,stickerId);
+
+							if(stickerData.has(HikeConstants.WIDTH))
+							{
+								sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
+							}
+
+							if(stickerData.has(HikeConstants.HEIGHT))
+							{
+								sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
+							}
+
 							existingStickerNumber++;
 
 							try
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+
+								sticker.setLargeStickerPath(sticker.getLargeStickerFilePath());
+								sticker.setSmallStickerPath(sticker.getSmallStickerFilePath());
+
 								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-								stickerList.add(new Sticker(categoryId,stickerId));
+								stickerList.add(sticker);
 							}
 							catch (FileNotFoundException e)
 							{

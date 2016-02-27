@@ -163,6 +163,16 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 					
 					Sticker sticker = new Sticker(categoryId, stickerId);
 
+					if(stickerData.has(HikeConstants.WIDTH))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
+					}
+
+					if(stickerData.has(HikeConstants.HEIGHT))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
+					}
+
 					if (type == StickerConstants.StickerType.MINI.getValue())
 					{
 						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
@@ -182,6 +192,11 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 						String largeStickerPath = dirPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
 
 						Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
+					}
+
+					if(!sticker.isStickerAvailable())
+					{
+						StickerManager.getInstance().saveSticker(sticker);
 					}
 
 					doOnSuccess(categoryId);
