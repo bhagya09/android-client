@@ -130,7 +130,36 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public String getMiniStickerPath()
 	{
-		return ("mini" + "_" + stickerId.substring(0, stickerId.indexOf(".")) + "_" + categoryId).toLowerCase();
+
+		String path = "mini_";
+
+		String key = "";
+		char[] code = getStickerCode().toCharArray();
+
+		for (int i = 0; i < code.length; i++)
+		{
+			char c = code[i];
+			int dist = c - '0';
+			if (dist < 0)
+			{
+				key += "_" + Integer.toString(-dist);
+			}
+			else
+			{
+				key += Integer.toString(dist);
+			}
+
+			if (i != code.length - 1)
+			{
+				key += "_";
+			}
+
+		}
+
+		path += key;
+
+		return path;
+
 	}
 
 	public String getDefaultPath()
