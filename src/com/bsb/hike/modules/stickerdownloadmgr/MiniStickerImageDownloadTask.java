@@ -19,6 +19,9 @@ import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
 
@@ -147,19 +150,52 @@ public class MiniStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTas
 
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
 
+					if (!stickerData.has(HikeConstants.STICKER_TYPE))
+					{
+						Logger.e(TAG, "Sticker download failed : no type key found");
+						doOnFailure(null);
+						return;
+					}
+					
+					int type = stickerData.getInt(HikeConstants.STICKER_TYPE);
+
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 					
 					Sticker sticker = new Sticker(categoryId, stickerId);
-					
-					CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath())
-							.setString(stickerImage).build();
-					HikeMessengerApp.getDiskCache().put(cacheRequest);
+
+					if (type == StickerConstants.StickerType.MINI.getValue())
+					{
+						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
+						HikeMessengerApp.getDiskCache().put(cacheRequest);
+					}
+					else
+					{
+						String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
+
+						if (dirPath == null)
+						{
+							Logger.e(TAG, "Mini Sticker download failed directory does not exist;type = LARGE");
+							doOnFailure(null);
+							return;
+						}
+
+						String largeStickerPath = dirPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
+
+						Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
+					}
+
 					doOnSuccess(categoryId);
 				}
 				catch (JSONException ex)
 				{
 					Logger.e(TAG, "Sticker download Json Exception", ex);
 					doOnFailure(new HttpException("json exception", ex));
+					return;
+				}
+				catch (IOException ex)
+				{
+					Logger.e(TAG, "Sticker download Io Exception", ex);
+					doOnFailure(new HttpException("io exception", ex));
 					return;
 				}
 
