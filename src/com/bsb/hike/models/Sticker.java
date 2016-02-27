@@ -77,7 +77,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public boolean isStickerAvailable()
 	{
-		return !getLargeStickerPath().equalsIgnoreCase(getDefaultPath());
+		return !getLargeStickerPath().contains(getDefaultPath());
 	}
 
 	/**
@@ -161,11 +161,11 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		loadStickerFromDb();
 		if(largeSticker)
 		{
-			return largeStickerPath != null ? largeStickerPath : getDefaultPath();
+			return largeStickerPath != null ? largeStickerPath : HikeConstants.LARGE_STICKER_ROOT+HikeConstants.DELIMETER+getDefaultPath();
 		}
 		else
 		{
-			return smallStickerPath != null ? smallStickerPath : getDefaultPath();
+			return smallStickerPath != null ? smallStickerPath : HikeConstants.SMALL_STICKER_ROOT+HikeConstants.DELIMETER+getDefaultPath();
 		}
 	}
 
