@@ -1973,7 +1973,7 @@ public class StickerManager
 	{
 
 		//ToDo remove this
-		return (new Sticker(catId,stkId)).getDefaultPath();
+		return (new Sticker(catId,stkId)).getStickerCode();
 	}
 
 	public Sticker getStickerFromSetString(String info)
@@ -2636,7 +2636,7 @@ public class StickerManager
 		{
 			for (Sticker sticker : stickerList)
 			{
-				stickerSet.add(sticker.getDefaultPath());
+				stickerSet.add(sticker.getStickerCode());
 			}
 		}
 		return stickerSet;

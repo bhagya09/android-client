@@ -83,7 +83,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 				{
 					for (Sticker sticker : stickerList)
 					{
-						stickerSet.add(sticker.getDefaultPath());
+						stickerSet.add(sticker.getStickerCode());
 					}
 				}
 			}

@@ -144,14 +144,14 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 									switch (stickersMetaData.getInt("tags"))
 									{
 										case 1:
-											stickerToDownloadTagsSet.add(sticker.getDefaultPath());
+											stickerToDownloadTagsSet.add(sticker.getStickerCode());
 											break;
 									}
 								}
 							}
 							else
 							{
-								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + sticker.getDefaultPath());
+								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + sticker.getStickerCode());
 							}
 
 
