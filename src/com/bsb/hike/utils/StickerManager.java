@@ -2691,7 +2691,7 @@ public class StickerManager
 	{
 		List<Sticker> stickers = new ArrayList<Sticker>(1);
 		stickers.add(sticker);
-		saveSticker(stickers);
+		deactivateSticker(stickers);
 	}
 
 	public void deactivateSticker(List<Sticker> stickers)
