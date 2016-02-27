@@ -3109,6 +3109,10 @@ public class MqttMessagesManager
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MINI_STICKER_ENABLED, data.optBoolean(HikeConstants.BADGE, false));
 		}
+		else if (HikeConstants.DISPLAY_MINI_IN_CT.equals(subType))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISPLAY_MINI_IN_CT, data.optBoolean(HikeConstants.BADGE, false));
+		}
 		else if (HikeConstants.UNDOWNLOADED_DATA.equals(subType))
 		{
 

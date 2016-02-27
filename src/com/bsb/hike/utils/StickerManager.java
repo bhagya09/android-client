@@ -2698,4 +2698,9 @@ public class StickerManager
 	{
 		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(stickers);
 	}
+
+	public boolean shouldDisplayMiniStickerOnChatThread()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
+	}
 }

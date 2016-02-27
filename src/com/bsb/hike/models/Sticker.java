@@ -7,7 +7,6 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
 import java.io.File;

@@ -73,6 +73,8 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private String word;
 
 	private String phrase;
+
+	private boolean loadMini;
 	
 	public static StickerRecommendationFtueFragment newInstance(IStickerRecommendFragmentListener istickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
 	{
@@ -94,7 +96,8 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	{
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
-		this.stickerLoader = new StickerLoader(true, true, !StickerManager.getInstance().isMiniStickersEnabled());
+		loadMini = StickerManager.getInstance().isMiniStickersEnabled();
+		this.stickerLoader = new StickerLoader(loadMini, loadMini, !loadMini);
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 	}
 	
@@ -147,7 +150,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	private void loadStickerImage(boolean stickerLoaded)
 	{
 		ivSticker.setScaleType(ScaleType.CENTER_INSIDE);
-		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ivSticker);
+		stickerLoader.loadSticker(sticker, loadMini?StickerConstants.StickerType.MINI:StickerConstants.StickerType.SMALL, ivSticker);
 	}
 	
 	

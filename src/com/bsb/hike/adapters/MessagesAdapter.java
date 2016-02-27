@@ -380,7 +380,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		hqThumbLoader.setImageFadeIn(false);
 		hqThumbLoader.setDefaultDrawableNull(false);
 
-		boolean useMini = ((Utils.getNetworkType(context) == 2) & StickerManager.getInstance().isMiniStickersEnabled());  // 2g
+		boolean useMini =  StickerManager.getInstance().shouldDisplayMiniStickerOnChatThread();
 		stickerLoader = new StickerLoader(true, useMini, useMini, true);
 
 		this.mChatThreadCardRenderer = new CardRenderer(context);

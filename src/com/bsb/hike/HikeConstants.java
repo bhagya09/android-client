@@ -3849,4 +3849,6 @@ public class HikeConstants
 	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
 
 	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+
+	public static final String DISPLAY_MINI_IN_CT = "d_m_ct";
 }
