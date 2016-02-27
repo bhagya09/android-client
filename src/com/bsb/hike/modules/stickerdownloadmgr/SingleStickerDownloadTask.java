@@ -12,6 +12,8 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.diskcache.request.Base64StringRequest;
+import com.bsb.hike.modules.diskcache.request.CacheRequest;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -54,6 +56,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	private ConvMessage convMessage;
 
 	private boolean imageOnly;
+
+	private boolean downloadMini;
 	
 	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
 	{
@@ -61,6 +65,16 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		this.categoryId = categoryId;
 		this.convMessage = convMessage;
 		this.imageOnly = imageOnly;
+		this.downloadMini = false;
+	}
+
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly,boolean downloadMini)
+	{
+		this.stickerId = stickerId;
+		this.categoryId = categoryId;
+		this.convMessage = convMessage;
+		this.imageOnly = imageOnly;
+		this.downloadMini = downloadMini;
 	}
 
 	public void execute()
@@ -80,7 +94,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					requestId,
 					stickerId,
 					categoryId,
-					false,
+					downloadMini,
 					getRequestListener());
 		}
 		else
@@ -179,8 +193,41 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					}
 						
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
-					
+
+					int type = StickerConstants.StickerType.LARGE.getValue();
+
+					if (stickerData.has(HikeConstants.STICKER_TYPE))
+					{
+						type = stickerData.getInt(HikeConstants.STICKER_TYPE);
+					}
+
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
+					Sticker sticker = new Sticker(categoryId,stickerId);
+
+					if(stickerData.has(HikeConstants.WIDTH))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
+					}
+
+					if(stickerData.has(HikeConstants.HEIGHT))
+					{
+						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
+					}
+
+					if (type == StickerConstants.StickerType.MINI.getValue())
+					{
+						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
+						HikeMessengerApp.getDiskCache().put(cacheRequest);
+
+						if(!sticker.isStickerAvailable())
+						{
+							StickerManager.getInstance().saveSticker(sticker);
+						}
+
+						doOnSuccess(categoryId);
+						return;
+					}
 
 					String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 
@@ -217,18 +264,6 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					Utils.makeNoMediaFile(smallDir);
 					Utils.makeNoMediaFile(largeDir);
-					
-					Sticker sticker = new Sticker(categoryId,stickerId);
-
-					if(stickerData.has(HikeConstants.WIDTH))
-					{
-						sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
-					}
-
-					if(stickerData.has(HikeConstants.HEIGHT))
-					{
-						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
-					}
 
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
 					sticker.setLargeStickerPath(largeStickerPath);

@@ -35,7 +35,6 @@ import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.MiniStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
@@ -1577,8 +1576,8 @@ public class StickerManager
 
 	public void initiateMiniStickerDownloadTask(String stickerId,String categoryId)
 	{
-		MiniStickerImageDownloadTask miniStickerImageDownloadTask = new MiniStickerImageDownloadTask(stickerId,categoryId);
-		miniStickerImageDownloadTask.execute();
+		SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, null,true,true);
+		singleStickerDownloadTask.execute();
 	}
 
 	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, Context context)
