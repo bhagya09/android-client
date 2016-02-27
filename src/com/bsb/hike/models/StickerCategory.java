@@ -248,6 +248,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 				for (String stickerId : stickerIds)
 				{
 					Sticker s = new Sticker(this, stickerId);
+					s.setLargeStickerPath(s.getLargeStickerFilePath());
+					s.setSmallStickerPath(s.getSmallStickerFilePath());
 					stickersList.add(s);
 				}
 				setDownloadedStickersCount(stickerIds.length);

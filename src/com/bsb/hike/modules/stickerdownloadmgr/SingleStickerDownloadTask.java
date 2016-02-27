@@ -215,7 +215,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
 					}
 
-					if (type == StickerConstants.StickerType.MINI.getValue())
+					if (downloadMini && type == StickerConstants.StickerType.MINI.getValue())
 					{
 						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
 						HikeMessengerApp.getDiskCache().put(cacheRequest);
