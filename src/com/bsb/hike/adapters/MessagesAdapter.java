@@ -381,6 +381,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		hqThumbLoader.setDefaultDrawableNull(false);
 
 		boolean useMini =  StickerManager.getInstance().shouldDisplayMiniStickerOnChatThread();
+
+		//the sticker loader will attempt to download mini sticker if sticker not present(will also check for offline image) provided the server switch is enabled other wise will download full sticker
 		stickerLoader = new StickerLoader(true, useMini, useMini, true);
 
 		this.mChatThreadCardRenderer = new CardRenderer(context);

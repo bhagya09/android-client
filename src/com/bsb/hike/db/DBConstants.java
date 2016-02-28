@@ -287,14 +287,6 @@ public interface DBConstants
 
 	public static final String HEIGHT = "height";
 
-	public static final String FREQUENCY_FUNCTION = "frequency_function";
-
-	public static final String RELEVANCE_FUNCTION = "relevance_function";
-
-	public static final String LANGUAGE = "language";
-
-	public static final String AGE = "age";
-
 	public static final String IS_ACTIVE = "is_active";
 
 	public static final int DEFAULT_ACTIVE_STATE = 1;
