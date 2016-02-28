@@ -9,7 +9,6 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
