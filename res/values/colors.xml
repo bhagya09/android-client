@@ -313,6 +313,16 @@
     <color name="dp_bg_10">#9e9e9e</color>
     <color name="dp_bg_11">#4dd0e1</color>
     <color name="dp_bg_12">#ffd54f</color>
+    <color name="v2_dp_bg_1">#ff8a65</color>
+    <color name="v2_dp_bg_2">#9e9e9e</color>
+    <color name="v2_dp_bg_3">#9ccc65</color>
+    <color name="v2_dp_bg_4">#9575cd</color>
+    <color name="v2_dp_bg_5">#a1887f</color>
+    <color name="v2_dp_bg_6">#e06055</color>
+    <color name="v2_dp_bg_7">#f06292</color>
+    <color name="v2_dp_bg_8">#7986cb</color>
+    <color name="v2_dp_bg_9">#90a4ae</color>
+
     <color name="gallery_selection_action_bar">#0f0f0f</color>
     <color name="update_tip_default">#04c687</color>
     <color name="update_tip_header_text">#f7f8f9</color>
