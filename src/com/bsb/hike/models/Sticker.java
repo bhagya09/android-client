@@ -109,6 +109,16 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		return !TextUtils.isEmpty(largeStickerPath) ? largeStickerPath : loadStickerPath(true);
 	}
 
+    public String getLargeStickerPath(boolean getCurrent)
+    {
+        if(getCurrent)
+        {
+            return largeStickerPath;
+        }
+
+        return !TextUtils.isEmpty(largeStickerPath) ? largeStickerPath : loadStickerPath(true);
+    }
+
 	public void setLargeStickerPath(String largeStickerPath)
 	{
 		if (!TextUtils.isEmpty(largeStickerPath))

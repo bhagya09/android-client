@@ -9148,8 +9148,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.clear();
 				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
 				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
-				contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
-				contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+
+                if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
+                {
+                    contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
+                    contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+                }
+
 				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
 				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
 				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
