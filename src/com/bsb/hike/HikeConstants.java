@@ -3858,5 +3858,14 @@ public class HikeConstants
 
 	public static final String STICKER_TYPE = "type";
 
+    public static final String STICKER_IMAGE = "image";
+
+    public static final String MINI_STICKER_IMAGE = "mini_image";
+
+    public static final String TAGS = "tags";
+
+    public static final String RECENTS = "recents";
+
+    public static final String getMetadata = "md";
 
 }

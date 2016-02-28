@@ -41,6 +41,8 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
 	private Set<String> stickerToDownloadTagsSet;
 
+    private final int FORCE_DOWNLOAD = 1;
+
 	public StickersForcedDownloadTask(Set<String> languagesSet)
 	{
 		this.languagesSet = languagesSet;
@@ -55,126 +57,72 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				try
+
+				JSONObject response = (JSONObject) result.getBody().getContent();
+
+				if (!Utils.isResponseValid(response))
 				{
-					JSONObject response = (JSONObject) result.getBody().getContent();
-
-					if (!Utils.isResponseValid(response))
-					{
-						Logger.e(TAG, "Forced Sticker download failed null or invalid response");
-						doOnFailure(null);
-						return;
-					}
-					Logger.d(TAG, "Got response for Forced download task " + response.toString());
-
-					JSONObject data = response.optJSONObject(HikeConstants.DATA_2);
-
-					if (null == data)
-					{
-						Logger.e(TAG, "Sticker download failed null data");
-						doOnFailure(null);
-						return;
-					}
-
-					Iterator<String> categories = data.keys();
-
-					while (categories.hasNext())
-					{
-						String category = categories.next();
-						if (Utils.isBlank(category))
-						{
-							Logger.e(TAG, "onRequestSuccess(),Invalid category id.");
-							continue;
-						}
-
-						JSONObject categoryData = data.optJSONObject(category);
-						if ((categoryData == null) || (categoryData.length() <= 0))
-						{
-							Logger.e(TAG, "onRequestSuccess(), Empty json data for pack: " + category);
-							continue;
-						}
-
-						Iterator<String> stickers = categoryData.keys();
-
-						while (stickers.hasNext())
-						{
-							String stickerID = stickers.next();
-
-							JSONObject stickersData = categoryData.optJSONObject(stickerID);
-
-							if ((stickersData == null) || (stickersData.length() <= 0))
-							{
-								Logger.e(TAG, "onRequestSuccess(), Empty json sticker data for sticker: " + stickerID);
-								continue;
-							}
-
-							JSONObject stickersMetaData = stickersData.optJSONObject("md");
-							if ((stickersMetaData == null) || (stickersMetaData.length() <= 0))
-							{
-								Logger.e(TAG, "onRequestSuccess(), Empty json sticker metadata for pack: " + stickerID);
-								continue;
-							}
-
-							Sticker sticker = new Sticker(category,stickerID);
-
-							if (isValidForcedSticker(sticker))
-							{
-								if (stickersMetaData.has("image"))
-								{
-									switch (stickersMetaData.getInt("image"))
-									{
-										case 1:
-											StickerManager.getInstance().initiateSingleStickerDownloadTask(stickerID, category, null);
-											break;
-									}
-								}
-
-								if (stickersMetaData.has("mini_image"))
-								{
-									switch (stickersMetaData.getInt("mini_image"))
-									{
-										case 1:
-											StickerManager.getInstance().initiateMiniStickerDownloadTask(stickerID, category);
-											break;
-									}
-								}
-
-								if (stickersMetaData.has("tags"))
-								{
-									switch (stickersMetaData.getInt("tags"))
-									{
-										case 1:
-											stickerToDownloadTagsSet.add(sticker.getStickerCode());
-											break;
-									}
-								}
-							}
-							else
-							{
-								Logger.e(TAG, "Invalid(Already Present) forced sticker JSON" + sticker.getStickerCode());
-							}
-
-
-							if (stickersMetaData.has("recents"))
-							{
-								if (forcedRecentsStickers == null)
-								{
-									forcedRecentsStickers = new HashSet<String>();
-								}
-
-								JSONObject recentsSticker = stickersMetaData.getJSONObject("recents");
-								recentsSticker.put("catId", category);
-								recentsSticker.put("sId", stickerID);
-
-								forcedRecentsStickers.add(recentsSticker.toString());
-							}
-						}
-					}
+					Logger.e(TAG, "Forced Sticker download failed null or invalid response");
+					doOnFailure(null);
+					return;
 				}
-				catch (JSONException e)
+				Logger.d(TAG, "Got response for Forced download task " + response.toString());
+
+				JSONObject data = response.optJSONObject(HikeConstants.DATA_2);
+
+				if (null == data)
 				{
-					Logger.w(TAG, "Exception in JSON" + e.getMessage());
-					e.printStackTrace();
+					Logger.e(TAG, "Sticker download failed null data");
+					doOnFailure(null);
+					return;
+				}
+
+				Iterator<String> categories = data.keys();
+
+				while (categories.hasNext())
+				{
+					String category = categories.next();
+					if (Utils.isBlank(category))
+					{
+						Logger.e(TAG, "onRequestSuccess(),Invalid category id.");
+						continue;
+					}
+
+					JSONObject categoryData = data.optJSONObject(category);
+					if ((categoryData == null) || (categoryData.length() <= 0))
+					{
+						Logger.e(TAG, "onRequestSuccess(), Empty json data for pack: " + category);
+						continue;
+					}
+
+					Iterator<String> stickers = categoryData.keys();
+
+					while (stickers.hasNext())
+					{
+						String stickerID = stickers.next();
+
+						JSONObject stickersData = categoryData.optJSONObject(stickerID);
+
+						if ((stickersData == null) || (stickersData.length() <= 0))
+						{
+							Logger.e(TAG, "onRequestSuccess(), Empty json sticker data for sticker: " + stickerID);
+							continue;
+						}
+
+						JSONObject stickersMetaData = stickersData.optJSONObject(HikeConstants.METADATA);
+						if ((stickersMetaData == null) || (stickersMetaData.length() <= 0))
+						{
+							Logger.e(TAG, "onRequestSuccess(), Empty json sticker metadata for pack: " + stickerID);
+							continue;
+						}
+
+						Sticker sticker = new Sticker(category, stickerID);
+
+						getForcedStickerData(sticker, stickersMetaData);
+
+                        forcefullyPutInRecents(sticker, stickersMetaData);
+
+					}
 				}
 
 				doOnSuccess(null);
@@ -203,31 +151,15 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 	@Override
 	public void execute()
 	{
-		try
+
+		RequestToken requestToken = HttpRequests.getForcedDownloadListRequest(getRequestId(), getResponseListener(), getBody());
+
+		if (requestToken.isRequestRunning())
 		{
-			JSONObject json = new JSONObject();
-
-			if (Utils.isEmpty(languagesSet))
-			{
-				languagesSet.add(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE);
-			}
-			Logger.d(TAG, "language list for download : " + languagesSet);
-			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesSet));
-
-			RequestToken requestToken = HttpRequests.getForcedDownloadListRequest(getRequestId(), getResponseListener(), json);
-
-			if (requestToken.isRequestRunning())
-			{
-				return;
-			}
-
-			requestToken.execute();
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "json exception ", e);
+			return;
 		}
 
+		requestToken.execute();
 	}
 
 	@Override
@@ -260,6 +192,88 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 	private boolean isValidForcedSticker(Sticker sticker)
 	{
 		return !sticker.isStickerAvailable();
+	}
+
+	private JSONObject getBody()
+	{
+		JSONObject json = null;
+
+		try
+		{
+			json = new JSONObject();
+
+			if (Utils.isEmpty(languagesSet))
+			{
+				languagesSet.add(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE);
+			}
+
+			Logger.d(TAG, "language list for download : " + languagesSet);
+
+			json.put(HikeConstants.KEYBOARD_LIST, new JSONArray(languagesSet));
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "json exception ", e);
+		}
+
+		return json;
+	}
+
+    private void getForcedStickerData(Sticker sticker,JSONObject stickersMetaData)
+    {
+		if (isValidForcedSticker(sticker))
+		{
+
+			switch (stickersMetaData.optInt(HikeConstants.IMAGE))
+			{
+                case FORCE_DOWNLOAD:
+                    StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
+                    break;
+			}
+
+			switch (stickersMetaData.optInt(HikeConstants.MINI_STICKER_IMAGE))
+			{
+                case FORCE_DOWNLOAD:
+                    StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
+                    break;
+			}
+
+			switch (stickersMetaData.optInt(HikeConstants.TAGS))
+			{
+                case FORCE_DOWNLOAD:
+                    stickerToDownloadTagsSet.add(sticker.getStickerCode());
+                    break;
+			}
+		}
+		else
+		{
+			Logger.e(TAG, "Invalid(Already Present) forced sticker" + sticker.getStickerCode());
+		}
+    }
+
+	private void forcefullyPutInRecents(Sticker sticker, JSONObject stickersMetaData)
+	{
+		try
+		{
+			if (stickersMetaData.has(HikeConstants.RECENTS))
+			{
+				if (forcedRecentsStickers == null)
+				{
+					forcedRecentsStickers = new HashSet<String>();
+				}
+
+				JSONObject recentsSticker = stickersMetaData.getJSONObject(HikeConstants.RECENTS);
+				recentsSticker.put(HikeConstants.CATEGORY_ID, sticker.getCategoryId());
+				recentsSticker.put(HikeConstants.STICKER_ID, sticker.getStickerId());
+
+				forcedRecentsStickers.add(recentsSticker.toString());
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.wtf(TAG, "Exception in Forced recents JSON" + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 }
