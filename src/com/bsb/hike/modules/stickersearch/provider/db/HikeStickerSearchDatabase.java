@@ -992,6 +992,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			SQLiteDatabase.releaseMemory();
 		}
 
+		existingEvents.clear();
+		existingEvents = null;
+		existingEventIdMap.clear();
+		existingEventIdMap = null;
+
 		return eventIdMap;
 	}
 

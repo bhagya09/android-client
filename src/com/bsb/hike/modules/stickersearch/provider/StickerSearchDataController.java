@@ -608,15 +608,15 @@ public enum StickerSearchDataController
 			{
 				switch (type)
 				{
-				case StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED: // List of categories deleted
+				case StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED: // Set of categories deleted
 					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedCategories(infoSet);
 					break;
 
-				case StickerSearchConstants.REMOVAL_BY_STICKER_DELETED: // List of stickers deleted
+				case StickerSearchConstants.REMOVAL_BY_STICKER_DELETED: // Set of stickers deleted
 					HikeStickerSearchDatabase.getInstance().removeTagsForDeletedStickers(infoSet);
 					break;
 
-				case StickerSearchConstants.REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS: // List of current existing stickers
+				case StickerSearchConstants.REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS: // Set of current existing stickers
 					HikeStickerSearchDatabase.getInstance().removeTagsForNonExistingStickers(infoSet);
 					break;
 
