@@ -111,7 +111,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void setLargeStickerPath(String largeStickerPath)
 	{
-		if(!TextUtils.isEmpty(largeStickerPath))
+		if (!TextUtils.isEmpty(largeStickerPath))
 		{
 			this.largeStickerPath = largeStickerPath;
 		}
@@ -124,7 +124,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public void setSmallStickerPath(String smallStickerPath)
 	{
-		if(!TextUtils.isEmpty(smallStickerPath))
+		if (!TextUtils.isEmpty(smallStickerPath))
 		{
 			this.smallStickerPath = smallStickerPath;
 		}
@@ -303,7 +303,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.smallStickerPath = in.readString();
 		this.width = in.readInt();
 		this.height = in.readInt();
-		 /* Default value */
+		/* Default value */
 	}
 
 	public static final Parcelable.Creator<Sticker> CREATOR = new Parcelable.Creator<Sticker>()

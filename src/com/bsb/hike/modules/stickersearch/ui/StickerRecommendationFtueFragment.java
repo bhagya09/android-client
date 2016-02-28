@@ -96,8 +96,11 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	{
 		super.onActivityCreated(savedInstanceState);
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
+
+		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
 		loadMini = StickerManager.getInstance().isMiniStickersEnabled();
 		this.stickerLoader = new StickerLoader(loadMini, loadMini, !loadMini);
+
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 	}
 	

@@ -88,7 +88,7 @@ public class CustomStickerCategory extends StickerCategory
 
 			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FORCED_RECENTS_PRESENT, false))
 			{
-				List<Sticker> forcedRecentStickers = StickerManager.getInstance().getFrocedRecentsStickers();
+				List<Sticker> forcedRecentStickers = StickerManager.getInstance().getForcedRecentsStickers();
 
 				if(forcedRecentStickers != null)
 				{
