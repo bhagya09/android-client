@@ -2615,7 +2615,7 @@ public class StickerManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_PRESENT, false);
 		}
 
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_LIST, input);
+		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.FORCED_RECENTS_LIST, input);
 
 		for(int i =resultSet.size()-1;i>=0;i--)
 		{
