@@ -234,16 +234,9 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 						String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
 						Sticker sticker = new Sticker(categoryId,stickerId);
+						sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+						sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
 
-						if(stickerData.has(HikeConstants.WIDTH))
-						{
-							sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
-						}
-
-						if(stickerData.has(HikeConstants.HEIGHT))
-						{
-							sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
-						}
 						existingStickerNumber++;
 
 						try

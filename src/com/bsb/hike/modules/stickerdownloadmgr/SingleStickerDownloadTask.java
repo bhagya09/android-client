@@ -194,28 +194,16 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
 
-					int type = StickerConstants.StickerType.LARGE.getValue();
-
-					if (stickerData.has(HikeConstants.STICKER_TYPE))
-					{
-						type = stickerData.getInt(HikeConstants.STICKER_TYPE);
-					}
+					int type = stickerData.optInt(HikeConstants.STICKER_TYPE, StickerConstants.StickerType.LARGE.ordinal());
 
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
 					Sticker sticker = new Sticker(categoryId,stickerId);
+					sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+					sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
 
-					if(stickerData.has(HikeConstants.WIDTH))
-					{
-						sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
-					}
 
-					if(stickerData.has(HikeConstants.HEIGHT))
-					{
-						sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
-					}
-
-					if (downloadMini && type == StickerConstants.StickerType.MINI.getValue())
+					if (downloadMini && type == StickerConstants.StickerType.MINI.ordinal())
 					{
 						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
 						HikeMessengerApp.getDiskCache().put(cacheRequest);
