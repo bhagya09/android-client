@@ -2702,4 +2702,45 @@ public class StickerManager
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
 	}
+
+
+    /**
+     *
+     * @param sticker object for which the mini sticker key has to be generated
+     * @return A sticker based unique code that contains only alphanumeric characters separated by '_' (as per key name format constraints of disk cache)
+     */
+    public String generateMiniStickerPath(Sticker sticker)
+    {
+        String miniStickerPath = "mini_";
+
+        String key = "";
+        char[] code = sticker.getStickerCode().toCharArray();
+
+        for (int i = 0; i < code.length; i++)
+        {
+            char c = code[i];
+            int dist = c - '0';
+            if (dist < 0)
+            {
+                key += "_" + Integer.toString(-dist);
+            }
+            else
+            {
+                key += Integer.toString(dist);
+            }
+
+            if (i != code.length - 1)
+            {
+                key += "_";
+            }
+
+        }
+
+        miniStickerPath += key;
+
+        sticker.setMiniStickerPath(miniStickerPath);
+
+        return miniStickerPath;
+    }
+
 }

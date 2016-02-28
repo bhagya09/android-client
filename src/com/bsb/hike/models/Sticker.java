@@ -32,6 +32,8 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	private String largeStickerPath;
 
+	private String miniStickerPath;
+
 	private int width;
 
 	private int height;
@@ -131,34 +133,14 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	public String getMiniStickerPath()
 	{
 
-		String path = "mini_";
-
-		String key = "";
-		char[] code = getStickerCode().toCharArray();
-
-		for (int i = 0; i < code.length; i++)
+		if(!TextUtils.isEmpty(miniStickerPath))
 		{
-			char c = code[i];
-			int dist = c - '0';
-			if (dist < 0)
-			{
-				key += "_" + Integer.toString(-dist);
-			}
-			else
-			{
-				key += Integer.toString(dist);
-			}
-
-			if (i != code.length - 1)
-			{
-				key += "_";
-			}
-
+			return miniStickerPath;
 		}
 
-		path += key;
+        StickerManager.getInstance().generateMiniStickerPath(this);
 
-		return path;
+		return miniStickerPath;
 
 	}
 
@@ -357,5 +339,10 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	@Override
 	public String toString() {
 		return categoryId + ":" + stickerId;
+	}
+
+	public void setMiniStickerPath(String miniStickerPath)
+	{
+		this.miniStickerPath = miniStickerPath;
 	}
 }
