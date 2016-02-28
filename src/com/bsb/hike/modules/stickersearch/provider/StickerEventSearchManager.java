@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer.Range;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -150,7 +151,7 @@ public enum StickerEventSearchManager
 							range = timeStampRanges.optJSONObject(i);
 							if (range != null)
 							{
-								start = range.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, -1L);
+								start = range.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, Range.TIME_APPLICABILITY_BOUNDARY);
 								end = range.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, (start + StickerSearchConstants.DEFAULT_EVENT_DURATION));
 
 								if ((start > 0) && (StickerEventSearchManager.sLatestEventLoadingTime >= start) && (StickerEventSearchManager.sLatestEventLoadingTime < end))

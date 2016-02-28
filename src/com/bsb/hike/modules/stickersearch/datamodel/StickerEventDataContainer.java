@@ -140,7 +140,7 @@ public class StickerEventDataContainer
 				Range r = rangeDataList.get(i);
 
 				// Skip the range, if it is overlapping (contained) in another range (i.e. next range as ranges are sorted)
-				if ((i < (count - 1)) && (r.getStart() > -1))
+				if ((i < (count - 1)) && (r.getStart() > Range.TIME_APPLICABILITY_BOUNDARY))
 				{
 					Range rnext = rangeDataList.get(i + 1);
 
@@ -154,7 +154,7 @@ public class StickerEventDataContainer
 					if (isDayRange)
 					{
 						// Check rotation (Cases where range overlap between 2 different weeks, e.g. Friday to Monday)
-						if ((rnext.getEnd() > -1) && (rnext.getStart() > rnext.getEnd()))
+						if ((rnext.getEnd() > Range.TIME_APPLICABILITY_BOUNDARY) && (rnext.getStart() > rnext.getEnd()))
 						{
 							if (r.getEnd() <= rnext.getEnd())
 							{
@@ -167,12 +167,12 @@ public class StickerEventDataContainer
 				JSONObject json = new JSONObject();
 				try
 				{
-					if (r.getStart() > -1)
+					if (r.getStart() > Range.TIME_APPLICABILITY_BOUNDARY)
 					{
 						json.put(StickerSearchConstants.KEY_EVENT_RANGE_START, r.getStart());
 					}
 
-					if (r.getEnd() > -1)
+					if (r.getEnd() > Range.TIME_APPLICABILITY_BOUNDARY)
 					{
 						json.put(StickerSearchConstants.KEY_EVENT_RANGE_END, r.getEnd());
 					}
@@ -358,8 +358,10 @@ public class StickerEventDataContainer
 				+ ">]";
 	}
 
-	private static class Range implements Comparable<Range>
+	public static class Range implements Comparable<Range>
 	{
+		public static final long TIME_APPLICABILITY_BOUNDARY = -1L;
+
 		private long mStart;
 
 		private long mEnd;
@@ -370,8 +372,8 @@ public class StickerEventDataContainer
 
 		private Range(JSONObject rangeData, boolean isDayRange)
 		{
-			mStart = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, -1L);
-			mEnd = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, -1L);
+			mStart = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, TIME_APPLICABILITY_BOUNDARY);
+			mEnd = rangeData.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, TIME_APPLICABILITY_BOUNDARY);
 			mRank = rangeData.optInt(StickerSearchConstants.KEY_EVENT_RANK, StickerSearchConstants.MAX_RANK_DURING_EVENT);
 			if (isDayRange)
 			{
@@ -381,16 +383,16 @@ public class StickerEventDataContainer
 			{
 				isValidRange = true;
 
-				if (mStart > -1)
+				if (mStart > TIME_APPLICABILITY_BOUNDARY)
 				{
-					if ((mEnd > -1) && (mEnd <= mStart))
+					if ((mEnd > TIME_APPLICABILITY_BOUNDARY) && (mEnd <= mStart))
 					{
 						isValidRange = false;
 					}
 				}
 				else
 				{
-					if (mEnd > -1)
+					if (mEnd > TIME_APPLICABILITY_BOUNDARY)
 					{
 						isValidRange = false;
 					}
