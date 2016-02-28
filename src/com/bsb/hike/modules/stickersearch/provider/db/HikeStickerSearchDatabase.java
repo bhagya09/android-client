@@ -194,10 +194,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			db.execSQL(sql);
 		}
 
-		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_EVENT_RANGE_ADDED)
+		if (oldVersion < HikeStickerSearchBaseConstants.VERSION_STICKER_EVENT_ADDED)
 		{
 			String sql = "ALTER TABLE " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING + " ADD COLUMN " + HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS
 					+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST;
+			db.execSQL(sql);
+
+			// Create unique index on fixed table: TABLE_STICKER_TAG_ENTITY for 2 columns 'Entity Type' and 'Entity Type' together (as described in onCreate())
+			sql = "CREATE UNIQUE INDEX " + HikeStickerSearchBaseConstants.ENTITY_UNIQUE_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY + "("
+					+ HikeStickerSearchBaseConstants.ENTITY_NAME + ", " + HikeStickerSearchBaseConstants.ENTITY_TYPE + ")";
 			db.execSQL(sql);
 		}
 
@@ -212,7 +217,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		// Create fixed table: TABLE_STICKER_TAG_ENTITY
 		// Primary key : Integer [Compulsory]
-		// Name of Entity : String [Compulsory], eg. InitMarker, ContactNumber, GrouId, ChatStory, Region/Language, State etc.
+		// Name of Entity : String [Compulsory], eg. InitMarker, ContactNumber, GrouId, ChatStory, Region/Language, State, Event etc.
 		// Type of Entity : Integer [Compulsory], Recognize to know what kind of entity is in above examples
 		// Qualified Data : String [Optional], Data of entity, which can be directly 'imposed over'/'defined for' client user as it is mostly non-dynamic data
 		// Unqualified data : String [Optional], Data of entity, which can be used relatively to determine order of probability distribution as it may change time to time
@@ -221,6 +226,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.ENTITY_NAME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.ENTITY_TYPE
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.ENTITY_QUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.ENTITY_UNQUALIFIED_HISTORY + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+		db.execSQL(sql);
+
+		// Create unique index on fixed table: TABLE_STICKER_TAG_ENTITY for 2 columns 'Entity Type' and 'Entity Type' together (as described above)
+		sql = "CREATE UNIQUE INDEX " + HikeStickerSearchBaseConstants.ENTITY_UNIQUE_INDEX + " ON " + HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY + "("
+				+ HikeStickerSearchBaseConstants.ENTITY_NAME + ", " + HikeStickerSearchBaseConstants.ENTITY_TYPE + ")";
 		db.execSQL(sql);
 
 		// Create fixed table: TABLE_STICKER_PACK_CATEGORY_HISTORY
@@ -265,9 +275,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-				+ HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
+				+ HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE
+				+ HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT + HikeStickerSearchBaseConstants.STICKER_STRING_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_WORDS_NOT_USED_WITH_TAG + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
 				+ HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
 				+ HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT + HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT

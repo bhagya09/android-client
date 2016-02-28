@@ -17,7 +17,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int VERSION_STICKER_REGIONAL_TAG_MAPPING_ADDED = 3;
 
-	public static final int VERSION_STICKER_EVENT_RANGE_ADDED = 4;
+	public static final int VERSION_STICKER_EVENT_ADDED = 4;
 
 	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
 
@@ -72,6 +72,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String ENTITY_QUALIFIED_HISTORY = "qualifiedData";
 
 	public static final String ENTITY_UNQUALIFIED_HISTORY = "unqualifiedData";
+
+	public static final String ENTITY_UNIQUE_INDEX = "entityIndex";
 
 	// Table: TABLE_STICKER_PACK_CATEGORY_HISTORY
 	public static final String CATEGORY_ID = "categoryId";
