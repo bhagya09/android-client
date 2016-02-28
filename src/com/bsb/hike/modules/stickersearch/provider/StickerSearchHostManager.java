@@ -6,15 +6,8 @@
 
 package com.bsb.hike.modules.stickersearch.provider;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
+import android.content.Context;
+import android.util.Pair;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -31,8 +24,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-import android.content.Context;
-import android.util.Pair;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StickerSearchHostManager
 {
@@ -1401,8 +1401,7 @@ public class StickerSearchHostManager
 				for (int i = 0; i < count; i++)
 				{
 					stickerAppositeDataContainer = tempStickerDataList.get(i);
-					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
-							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
+					stickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode()));
 				}
 
 				tempStickerDataList.clear();
@@ -1417,7 +1416,7 @@ public class StickerSearchHostManager
 
 					for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
 					{
-						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
+						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode()));
 					}
 
 					leastButSignificantStickerDataList.clear();
@@ -1435,8 +1434,7 @@ public class StickerSearchHostManager
 				for (int i = 0; i < timelyStickersCount; i++)
 				{
 					stickerAppositeDataContainer = timePrioritizedStickerList.get(i);
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
-							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
+					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up

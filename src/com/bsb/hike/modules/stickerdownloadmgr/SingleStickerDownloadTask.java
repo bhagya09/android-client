@@ -12,6 +12,8 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.diskcache.request.Base64StringRequest;
+import com.bsb.hike.modules.diskcache.request.CacheRequest;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -54,6 +56,8 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	private ConvMessage convMessage;
 
 	private boolean imageOnly;
+
+	private boolean downloadMini;
 	
 	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
 	{
@@ -61,10 +65,21 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		this.categoryId = categoryId;
 		this.convMessage = convMessage;
 		this.imageOnly = imageOnly;
+		this.downloadMini = false;
+	}
+
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly,boolean downloadMini)
+	{
+		this.stickerId = stickerId;
+		this.categoryId = categoryId;
+		this.convMessage = convMessage;
+		this.imageOnly = imageOnly;
+		this.downloadMini = downloadMini;
 	}
 
 	public void execute()
 	{
+		Logger.e(TAG, categoryId+":"+stickerId+" : started");
 		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
 		{
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
@@ -79,7 +94,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					requestId,
 					stickerId,
 					categoryId,
-					false,
+					downloadMini,
 					getRequestListener());
 		}
 		else
@@ -178,8 +193,29 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					}
 						
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
-					
+
+					int type = stickerData.optInt(HikeConstants.STICKER_TYPE, StickerConstants.StickerType.LARGE.ordinal());
+
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
+					Sticker sticker = new Sticker(categoryId,stickerId);
+					sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+					sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
+
+
+					if (downloadMini && type == StickerConstants.StickerType.MINI.ordinal())
+					{
+						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
+						HikeMessengerApp.getDiskCache().put(cacheRequest);
+
+						if(!sticker.isStickerAvailable())
+						{
+							StickerManager.getInstance().saveSticker(sticker);
+						}
+
+						doOnSuccess(categoryId);
+						return;
+					}
 
 					String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 
@@ -216,8 +252,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					Utils.makeNoMediaFile(smallDir);
 					Utils.makeNoMediaFile(largeDir);
-					
+
 					Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
+					sticker.setLargeStickerPath(largeStickerPath);
 
 					boolean isDisabled = stickerData.optBoolean(HikeConstants.DISABLED_ST);
 					if (!isDisabled)
@@ -227,6 +264,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 						if (thumbnail != null) {
 							File smallImage = new File(smallStickerPath);
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
+
+							sticker.setSmallStickerPath(smallStickerPath);
+
 							thumbnail.recycle();
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 							if (imageOnly)
@@ -239,8 +279,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 							}
+
 							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
 						}
+
+						StickerManager.getInstance().saveSticker(sticker);
+
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 					doOnSuccess(categoryId);
@@ -279,7 +323,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	{
 		
 		String newCategoryId = (String) result;
-		
+		Logger.e(TAG, categoryId+":"+stickerId+" : done");
 		if(convMessage != null && !(TextUtils.isEmpty(categoryId)))
 		{
 			
@@ -300,6 +344,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 			}
 		}
+
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
 	}
 

@@ -1203,7 +1203,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">പുതിയ ഫോട്ടോ</string>
     <string name="upgrade_for_larger_files">ഈ ഫയൽ സ്വീകരിക്കുന്നതിന് %1$s അപ്‌ഗ്രേഡ് ചെയ്യേണ്ടതുണ്ട്. Hike ഡയറക്റ്റ് വഴിയായി ഏറ്റവും പുതിയ Hike പതിപ്പ് പങ്കിടുക</string>
-    <string name="group_participant_info">നിങ്ങൾക്ക് ഗ്രൂപ്പിലേക്ക് 500 അംഗങ്ങളെ ചേർക്കാനാകും</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">ഇപ്പോൾ നിങ്ങൾക്ക് </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> അംഗങ്ങളെ  ചേർക്കാൻ കഴിയും</font>]]></string>
     <string name="maxContactInGroupErr">പരമാവധി %1$s അംഗങ്ങളെ ചേർക്കാം</string>
     <string name="added_in_group">ഈ കൊണ്ടാക്ട് ഇതിനകം അംഗമാണ്</string>
     <string name="watsapp">WhatsApp വഴി ചേർക്കുക</string>
@@ -1419,5 +1419,8 @@
     <string name="language_ftue_complete_message">കീബോർഡിന്റെ ഭാഷ മാറ്റുവാൻ \n സെറ്റിംഗ്സ് -> ഭാഷയും &amp; ഈൻപുട്ടും</string>
     <string name="error_message_upgrade_peer">ഓക്കേ/സഹായംക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. നിങളുടെ സുഹൃത്ത്‌ hike ഡയറക്റ്റ് ഉള്ള hike-ന്റെ പുതിയ വെർഷനിൽ അല്ല.</string>
     <string name="error_message_unsupported_peer">ക്ഷമിക്കണം, കണക്ട് ചെയ്യാൻ സാധിച്ചില്ല. hike ഡയറക്റ്റ് ആൻഡ്രോയ്ഡിൽ മാത്രമേ ലഭിക്കുകയുള്ളൂ.</string>
-    
+    <string name="delete_conversation">സംഭാഷണങ്ങള്‍ ഇല്ലാതാക്കുക</string>
+    <string name="switch_to_old_key">"ഫോൺ കീബോർഡ് ഉപയോഗിക്കുക"</string>
+    <string name="switch_to_hike_key">"hike കീബോർഡ് ഉപയോഗിക്കുക"</string>
+    <string name="admin_error">ഈ വ്യക്തി ഇനി ഈ ഗ്രൂപ്പിലെ അംഗമല്ല</string>
 </resources>

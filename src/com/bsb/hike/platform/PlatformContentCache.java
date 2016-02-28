@@ -97,7 +97,7 @@ public class PlatformContentCache
 	 *            the content
 	 * @return the template or null if the template is not found on disk
 	 */
-	private static Template loadTemplateFromDisk(PlatformContentRequest content)
+	private static Template loadTemplateFromDisk(final PlatformContentRequest content)
 	{
 		Logger.d(TAG, "loading template from disk");
 
@@ -110,10 +110,20 @@ public class PlatformContentCache
 		// return null;
 		// }
 
-		File file = new File(
-				PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+		IExceptionHandler exceptionHandler = new IExceptionHandler()
+		{
+			@Override
+			public void onExceptionOcurred(Exception ex)
+			{
+				Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
+				PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
+			}
+		};
 
-		String templateString = PlatformContentUtils.readDataFromFile(file);
+		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+
+		String templateString;
+		templateString = PlatformContentUtils.readDataFromFile(file, exceptionHandler);
 
 		if (TextUtils.isEmpty(templateString))
 		{
@@ -122,7 +132,7 @@ public class PlatformContentCache
 
 		Logger.d(TAG, "loading template from disk - complete");
 
-		Template downloadedTemplate = PlatformTemplateEngine.compileTemplate(templateString);
+		Template downloadedTemplate = PlatformTemplateEngine.compileTemplate(templateString, exceptionHandler);
 
 		if (downloadedTemplate == null)
 		{
@@ -168,7 +178,7 @@ public class PlatformContentCache
 			{
 				File configFile = new File(file.getAbsolutePath() + File.separator + fileList[0]);
 
-				String configFileData = PlatformContentUtils.readDataFromFile(configFile);
+				String configFileData = PlatformContentUtils.readDataFromFile(configFile, null);
 
 				if (TextUtils.isEmpty(configFileData))
 				{
@@ -226,5 +236,10 @@ public class PlatformContentCache
 		Logger.d(TAG, "get formed content from cache");
 
 		return formedContentCache.get(request.getContentData().hashCode());
+	}
+
+	public interface IExceptionHandler
+	{
+		public void onExceptionOcurred(Exception ex);
 	}
 }

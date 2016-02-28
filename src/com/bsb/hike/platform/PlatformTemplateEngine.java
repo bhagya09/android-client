@@ -25,7 +25,7 @@ public class PlatformTemplateEngine
 	 *            the template content
 	 * @return the template
 	 */
-	public static Template compileTemplate(String templateContent)
+	public static Template compileTemplate(String templateContent, PlatformContentCache.IExceptionHandler listener)
 	{
 		Logger.d(TAG, "compile template");
 
@@ -36,6 +36,10 @@ public class PlatformTemplateEngine
 		catch (MustacheException mex)
 		{
 			mex.printStackTrace();
+			if (listener != null)
+			{
+				listener.onExceptionOcurred(mex);
+			}
 			return null;
 		}
 	}

@@ -36,6 +36,8 @@ public class HikePubSub implements Runnable
 	 */
 	public static final String MESSAGE_SENT = "messagesent";
 	
+	public static final String UPDATE_MEMBER_COUNT = "membercount";
+	
 	public static final String UPDATE_THREAD = "updateThread";
 	
 	public static final String MULTI_MESSAGE_SENT = "multimessagesent";
@@ -508,6 +510,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE = "stickerCategoryDetailsDownloadFailure";
 	
+	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

@@ -177,6 +177,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String SYNTAX_SINGLE_PARAMETER_CHECK = "=?";
 
+	public static final String SYNTAX_SINGLE_PARAMETER_NEGATIVE_CHECK = "!=?";
+
 	public static final String SYNTAX_SINGLE_PARAMETER_UNSIGNED_CHECK = " IS ";
 
 	public static final String SYNTAX_NULL = "NULL";
@@ -212,11 +214,21 @@ public class HikeStickerSearchBaseConstants
 	public static final String TOTAL_CALASSIFICATION = "stateCount";
 
 	// =============================Constants used for Sticker-Tag relation and recommendations]]
-
-	// Decision constants======================================================================[[
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;
+
+
+	// Decision constants======================================================================[[
+	public static final int STICKER_NOT_AVAILABLE = 0;
+
+	public static final int LARGE_STICKER_AVAILABLE_ONLY = 1;
+
+	public static final int MINI_STICKER_AVAILABLE_ONLY = 2;
+
+	public static final int LARGE_AND_MINI_STICKERS_AVAILABLE = 3;
+
+	public static final int DEFAULT_AVAILABILITY_STATUS = -1;
 
 	// ======================================================================Decision constants]]
 
@@ -244,6 +256,12 @@ public class HikeStickerSearchBaseConstants
 	public static final String KEY_PREF_LAST_GLOBAL_SUMMERIZATION_TIME = "last_global_summerization_time";
 
 	public static final String KEY_PREF_STICKER_SEARCH_VT_TABLES_LIST = "virtualTableList";
+
+	public static final String KEY_PREF_UNDOWNLOADED_CACHE_LIMIT = "ud_t_c_l";
+
+	public static final String KEY_PREF_UNDOWNLOADED_TAG_COUNT= "ud_t_c";
+
+	public static final String KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT= "ud_v_c";
 
 	// ==============================================Constants used in shared_pref or system_db]]
 

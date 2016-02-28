@@ -24,6 +24,8 @@ public class StickerSearchConstants
 
 	public static final int STATE_LANGUAGE_TAGS_DOWNLOAD = 2;
 
+	public static final int STATE_FORCED_TAGS_DOWNLOAD = 3;
+
 	public static final int DECISION_STATE_NO = 0;
 
 	public static final int DECISION_STATE_YES = 1;
@@ -203,4 +205,8 @@ public class StickerSearchConstants
 
 	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
 	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
+
+	public static final int DEFAULT_STICKER_CACHE_LIMIT = 100;
+
+	public static final String MINI_STICKER_KEY_CODE = "mini";
 }

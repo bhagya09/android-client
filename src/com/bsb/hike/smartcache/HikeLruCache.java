@@ -1,10 +1,5 @@
 package com.bsb.hike.smartcache;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -13,21 +8,24 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.util.LruCache;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class HikeLruCache extends LruCache<String, BitmapDrawable>
 {
@@ -377,27 +375,6 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 	public void clearIconCache()
 	{
 		evictAll();
-	}
-
-	public Drawable getSticker(String path)
-	{
-		BitmapDrawable bd = get(path);
-		if (bd != null)
-			return bd;
-
-		Bitmap stickerBitmap = HikeBitmapFactory.decodeFile(path);
-		if (stickerBitmap == null)
-		{
-			return null;
-		}
-
-		bd = HikeBitmapFactory.getBitmapDrawable(mResources, stickerBitmap);
-
-		if (bd != null)
-		{
-			putInCache(path, bd);
-		}
-		return bd;
 	}
 
 	public void removeItemForKey(String key)

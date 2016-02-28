@@ -302,11 +302,11 @@ public class OfflineUtils
 			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
 
 			Sticker tempStk = new Sticker(ctgId, stkId);
-			path = tempStk.getStickerPath();
+			path = tempStk.getLargeStickerPath();
 		}
 		catch (JSONException e)
 		{
-			Logger.e(TAG, "JSONException in getStickerPath. Check whether JSONObject is a sticker.");
+			Logger.e(TAG, "JSONException in getLargeStickerPath. Check whether JSONObject is a sticker.");
 			e.printStackTrace();
 		}
 		return path;
@@ -406,7 +406,7 @@ public class OfflineUtils
         	return null;
         }
         
-        //String stickerPath = sticker.getStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
+        //String stickerPath = sticker.getLargeStickerPath(HikeMessengerApp.getInstance().getApplicationContext());
         stickerImage = new File(tempPath);
 
         // sticker is not present

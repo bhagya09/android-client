@@ -1,73 +1,155 @@
 package com.bsb.hike.smartImageLoader;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.text.TextUtils;
+import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.utils.Logger;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.diskcache.response.CacheResponse;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
-
-import java.io.File;
 
 public class StickerLoader extends ImageWorker
 {
 	private static final String TAG = "StickerLoader";
-	
-	private Context ctx;
-	
-	private boolean downloadIfNotFound;
 
-	public StickerLoader(Context ctx, boolean downloadIfNotFound)
+	private boolean lookForOfflineSticker;
+
+	private boolean loadMiniStickerIfNotFound;
+
+	private boolean downloadMiniStickerIfNotFound;
+
+	private boolean downloadLargeStickerIfNotFound;
+
+	public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
 	{
 		super();
-		this.ctx = ctx;
-		this.downloadIfNotFound = downloadIfNotFound;
-		mResources = ctx.getResources();
+		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
+		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
+		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
+		mResources = HikeMessengerApp.getInstance().getResources();
+	}
+
+	public StickerLoader(boolean lookForOfflineSticker, boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
+	{
+		super();
+		this.lookForOfflineSticker = lookForOfflineSticker;
+		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
+		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
+		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
+		mResources = HikeMessengerApp.getInstance().getResources();
 	}
 
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
-		if (data.contains("res:"))
+		String[] args = data.split(HikeConstants.DELIMETER);
+		Sticker sticker = new Sticker(args[0], args[1]);
+		String path = args[2];
+		Bitmap bitmap;
+
+		if(path.contains("mini"))
 		{
-			int id = Integer.parseInt(data.substring(data.indexOf(":") + 1));
-			return HikeBitmapFactory.decodeResource(mResources, id);
+			bitmap = loadMiniStickerBitmap(path);
+			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		else
 		{
-			Bitmap bitmap = HikeBitmapFactory.decodeFile(data);
-			checkAndDownload(bitmap, data);
-			return bitmap;
+			bitmap = loadStickerBitmap(path);
+			checkAndDownloadLargeSticker(bitmap, sticker);
+			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
 		}
+		return bitmap;
+	}
+
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView)
+	{
+		loadSticker(sticker, stickerType, imageView, false);
+	}
+
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging)
+	{
+		loadSticker(sticker, stickerType, imageView, false, false);
+	}
+
+	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
+	{
+		String path = sticker.getStickerCode();
+		switch (stickerType)
+		{
+		case MINI:
+			path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
+			break;
+		case SMALL:
+			path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+			break;
+		case LARGE:
+			path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
+			break;
+		}
+
+		loadImage(path, imageView, isFlinging, runOnUiThread);
 	}
 
 	@Override
 	protected Bitmap processBitmapOnUiThread(String data)
 	{
-		// TODO Auto-generated method stub
+		return processBitmap(data);
+	}
+
+	private Bitmap loadStickerBitmap(String path)
+	{
+		return HikeBitmapFactory.decodeFile(path);
+	}
+
+	private Bitmap loadMiniStickerBitmap(String key)
+	{
+		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(key);
+		if(cacheResponse != null)
+		{
+			return HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
+		}
 		return null;
 	}
 
-	private void checkAndDownload(Bitmap bitmap, String data)
+
+	private Bitmap checkAndLoadOfflineSticker(Bitmap bitmap, Sticker sticker)
 	{
-		try
+		if(bitmap == null && lookForOfflineSticker)
 		{
-			if((bitmap == null) && downloadIfNotFound && !TextUtils.isEmpty(data))
-			{
-				String[] args = data.split(File.separator);
-				int length = args.length;
-
-				String stickerId = args[length - 1];
-				String categoryId = args[length - 3];
-
-				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId, categoryId, null);
-			}
+			return loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
 		}
-		catch(Exception e)
+		return bitmap;
+	}
+
+	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker)
+	{
+		if(bitmap == null && loadMiniStickerIfNotFound)
 		{
-			//Safety catch as don't want to hamper existing experience
-			Logger.e(TAG, "exception in downloading sticker from loader : ", e);
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath());
+			checkAndDownloadMiniSticker(bitmap, sticker);
+		}
+		return  bitmap;
+	}
+
+	private void checkAndDownloadMiniSticker(Bitmap bitmap, Sticker sticker)
+	{
+		if(bitmap == null && downloadMiniStickerIfNotFound)
+		{
+			StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
 		}
 	}
+
+	private void checkAndDownloadLargeSticker(Bitmap bitmap, Sticker sticker)
+	{
+		if(bitmap == null && downloadLargeStickerIfNotFound)
+		{
+			StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
+		}
+	}
+
 }

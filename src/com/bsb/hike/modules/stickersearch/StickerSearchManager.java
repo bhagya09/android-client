@@ -1,14 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -17,6 +8,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickersForcedDownloadTask;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -40,6 +32,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -399,12 +400,12 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		downloadStickerTags(firstTime, state, null, languagesSet);
+		downloadStickerTags(firstTime, state, languagesSet,null);
 	}
 
-	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
+	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet,Set<String> stickerSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet,stickerSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
@@ -768,5 +769,11 @@ public class StickerSearchManager
 		this.tapOnHighlightWordClicksPerLanguageMap = null;
 
 		_instance = null;
+	}
+
+	public void downloadForcedStickers()
+	{
+		StickersForcedDownloadTask stickersForcedDownloadTask= new StickersForcedDownloadTask(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE));
+		stickersForcedDownloadTask.execute();
 	}
 }
