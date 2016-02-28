@@ -2702,4 +2702,39 @@ public class StickerManager
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
 	}
+
+    public String generateMiniStickerPath(Sticker s)
+    {
+        String miniStickerPath = "mini_";
+
+        String key = "";
+        char[] code = s.getStickerCode().toCharArray();
+
+        for (int i = 0; i < code.length; i++)
+        {
+            char c = code[i];
+            int dist = c - '0';
+            if (dist < 0)
+            {
+                key += "_" + Integer.toString(-dist);
+            }
+            else
+            {
+                key += Integer.toString(dist);
+            }
+
+            if (i != code.length - 1)
+            {
+                key += "_";
+            }
+
+        }
+
+        miniStickerPath += key;
+
+        s.setMiniStickerPath(miniStickerPath);
+
+        return miniStickerPath;
+    }
+
 }
