@@ -305,14 +305,14 @@
 
     <array name="dp_bg">
         <item>@color/v2_dp_bg_1</item>
-        <item>@color/v2_dp_bg_2</item>
         <item>@color/v2_dp_bg_3</item>
         <item>@color/v2_dp_bg_4</item>
-        <item>@color/v2_dp_bg_5</item>
         <item>@color/v2_dp_bg_6</item>
         <item>@color/v2_dp_bg_7</item>
         <item>@color/v2_dp_bg_8</item>
         <item>@color/v2_dp_bg_9</item>
+        <item>@color/v2_dp_bg_10</item>
+        <item>@color/v2_dp_bg_11</item>
     </array>
 
 </resources>

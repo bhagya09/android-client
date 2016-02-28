@@ -109,7 +109,7 @@
 	<dimen name="home_sreen_divider_right_padding">16dp</dimen>
 	<dimen name="conv_item_height">68dp</dimen>
 	<dimen name="conv_item_padding">16dp</dimen>
-	<dimen name="conv_item_avatar">52dp</dimen>
+	<dimen name="conv_item_avatar">50dp</dimen>
 	<dimen name="compose_item_height">63dp</dimen>
 	<dimen name="compose_avatar_dimen">40dp</dimen>
 	<dimen name="settings_item_height">57dp</dimen>
