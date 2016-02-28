@@ -145,8 +145,6 @@ public class StickerSearchConstants
 
 	public static final String REGEX_SPACE = " ";
 
-	public static final String REGEX_DISSOCIATOR = ",";
-
 	// =====================================================================Regular expressions]]
 
 	// Generic constants=======================================================================[[

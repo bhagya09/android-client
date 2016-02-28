@@ -128,7 +128,12 @@ public enum StickerEventSearchManager
 		public Event(String eventId, String names, String ranges)
 		{
 			mEventName = eventId;
-			mOtherNames = StickerSearchUtility.split(names, StickerSearchConstants.REGEX_SPACE);
+
+			if (!Utils.isBlank(names))
+			{
+				/* TODO */
+				/* Implementation of personal events based on user's calendar data */
+			}
 
 			if (!Utils.isBlank(ranges))
 			{

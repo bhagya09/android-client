@@ -26,7 +26,7 @@ public class StickerEventDataContainer
 
 	private String mEventId;
 
-	private String mOtherNames;
+	private JSONArray mOtherNames;
 
 	private JSONArray mTimeStampRanges;
 
@@ -39,7 +39,7 @@ public class StickerEventDataContainer
 	public StickerEventDataContainer(String eventId, JSONObject eventData)
 	{
 		// Fetch all alternate names of the event
-		JSONArray alternateEventNames = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
+		JSONArray alternateEventNameArray = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_NAMES);
 
 		// Fetch all possible date-time ranges of current event with ranks (if available)
 		JSONArray timeStampRangeDataArray = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
@@ -47,23 +47,38 @@ public class StickerEventDataContainer
 		// Fetch all possible day ranges of current event with ranks (if available)
 		JSONArray dayRangeDataArray = eventData.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
 
-		populateEventData(eventId, alternateEventNames, timeStampRangeDataArray, dayRangeDataArray);
+		populateEventData(eventId, alternateEventNameArray, timeStampRangeDataArray, dayRangeDataArray);
 	}
 
-	public StickerEventDataContainer(String eventId, JSONArray alternateEventNames, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
+	public StickerEventDataContainer(String eventId, String alternateEventNames, String ranges)
 	{
-		populateEventData(eventId, alternateEventNames, timeStampRangeDataArray, dayRangeDataArray);
+		try
+		{
+			JSONArray alternateEventNameArray = new JSONArray(alternateEventNames);
+			JSONObject rangeJSONObject = new JSONObject(ranges);
+
+			// Fetch all possible date-time ranges of current event with ranks (if available)
+			JSONArray timeStampRangeDataArray = rangeJSONObject.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_TIME);
+
+			// Fetch all possible day ranges of current event with ranks (if available)
+			JSONArray dayRangeDataArray = rangeJSONObject.optJSONArray(StickerSearchConstants.KEY_EVENT_RANGE_DAY);
+
+			populateEventData(eventId, alternateEventNameArray, timeStampRangeDataArray, dayRangeDataArray);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
-	private void populateEventData(String eventId, JSONArray alternateEventNames, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
+	private void populateEventData(String eventId, JSONArray alternateEventNameArray, JSONArray timeStampRangeDataArray, JSONArray dayRangeDataArray)
 	{
-		mEventId = eventId;
+		mEventId = (eventId == null) ? null : eventId.trim();
+		mOtherNames = alternateEventNameArray;
 		mTimeStampRanges = new JSONArray(); // Range only data i.e. list of start-end pairs in the form of time-stamp
 		mDayRanges = new JSONArray();  // Range only data i.e. list of start-end pairs in the form of day
 		mTimeStampRangesRanks = new JSONArray();  // Rank only data i.e. list of ranks for each range listed in mTimeStampRanges
 		mDayRangesRanks = new JSONArray(); // Rank only data i.e. list of ranks for each range listed in mDayRanges
-
-		populateAlternateNames(alternateEventNames);
 
 		if (!populateRangesAndRanks(timeStampRangeDataArray, mTimeStampRanges, mTimeStampRangesRanks, false))
 		{
@@ -75,32 +90,6 @@ public class StickerEventDataContainer
 		{
 			mDayRanges = null;
 			mDayRangesRanks = null;
-		}
-	}
-
-	private void populateAlternateNames(JSONArray names)
-	{
-		if (names != null)
-		{
-			StringBuilder namesStringBuilder = new StringBuilder();
-			String alternateName;
-
-			for (int i = 0; i < names.length(); i++)
-			{
-				alternateName = names.optString(i);
-				if (!Utils.isBlank(alternateName))
-				{
-					namesStringBuilder.append(alternateName.trim().toUpperCase(Locale.ENGLISH));
-					namesStringBuilder.append(StickerSearchConstants.STRING_DISSOCIATOR);
-				}
-			}
-
-			if (namesStringBuilder.length() > 0)
-			{
-				namesStringBuilder.setLength(namesStringBuilder.length() - 1);
-			}
-
-			mOtherNames = namesStringBuilder.toString();
 		}
 	}
 
@@ -203,7 +192,7 @@ public class StickerEventDataContainer
 
 	public String getOtherNames()
 	{
-		return mOtherNames;
+		return (mOtherNames == null) ? null : mOtherNames.toString();
 	}
 
 	public String getRangeJSONString()
