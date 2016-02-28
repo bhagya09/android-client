@@ -4385,6 +4385,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int last = mListView.getLastVisiblePosition();
 		for (int i = start, j = last; i <= j; i++)
 		{
+			// adding a defensive check here ACRA crash IOB it suggests we are accessing i=convMessages.size()
+			if(i>=convMessages.size())
+			{
+				continue;
+			}
 			Object object = mListView.getItemAtPosition(i);
 			if (object instanceof ConvMessage)
 			{
