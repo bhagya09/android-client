@@ -15,20 +15,7 @@ public class StickerConstants
 
 	public enum StickerType
 	{
-		MINI(0), SMALL(1), LARGE(2);
-
-		private int value;
-
-		StickerType(int value)
-		{
-			this.value = value;
-		}
-
-		public int getValue()
-		{
-			return value;
-		}
-
+		MINI, SMALL, LARGE;
 	}
 
 	public enum DownloadSource
@@ -90,6 +77,6 @@ public class StickerConstants
 
 	public static final int DEFAULT_STICKER_THRESHOLD_FOR_CDN = 5;
 
-	public static final long DEFAULT_TTL_MINI_STICKERS =  10 * 1000;//1 * 24 * 60 * 60 * 1000; // 1 day
+	public static final long DEFAULT_TTL_MINI_STICKERS =  1 * 24 * 60 * 60 * 1000; // 1 day
 
 }

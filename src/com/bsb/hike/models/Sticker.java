@@ -267,19 +267,23 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 		this.category = category;
 	}
 
-	public int getHeight() {
+	public int getHeight()
+	{
 		return height;
 	}
 
-	public void setHeight(int height) {
+	public void setHeight(int height)
+	{
 		this.height = height;
 	}
 
-	public int getWidth() {
+	public int getWidth()
+	{
 		return width;
 	}
 
-	public void setWidth(int width) {
+	public void setWidth(int width)
+	{
 		this.width = width;
 	}
 
@@ -337,7 +341,8 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return categoryId + ":" + stickerId;
 	}
 

@@ -227,16 +227,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
 							Sticker sticker = new Sticker(categoryId,stickerId);
-
-							if(stickerData.has(HikeConstants.WIDTH))
-							{
-								sticker.setWidth(stickerData.getInt(HikeConstants.WIDTH));
-							}
-
-							if(stickerData.has(HikeConstants.HEIGHT))
-							{
-								sticker.setWidth(stickerData.getInt(HikeConstants.HEIGHT));
-							}
+							sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+							sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
 
 							existingStickerNumber++;
 
