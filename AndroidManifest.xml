@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1605"
-    android:versionName="4.1.0.33.media" >
+    android:versionName="4.2.0.33.media" >
 
     <uses-sdk
         android:minSdkVersion="14"
