@@ -682,11 +682,21 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             // Bot creation pubsub would send a Pair of BotInfo and its isSuccess field
             if (object instanceof Pair)
             {
-                BotInfo botInfo = (BotInfo)(((Pair) object).first);
-                Boolean isBotCreationSuccess = (Boolean) (((Pair) object).second);
+                BotInfo botInfo = null;
+                Boolean isBotCreationSuccess = false;
+
+                if((((Pair) object).first) instanceof  BotInfo)
+                     botInfo = (BotInfo)(((Pair) object).first);
+
+                if((((Pair) object).second) instanceof  Boolean)
+                    isBotCreationSuccess = (Boolean) (((Pair) object).second);
 
                 NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
                 String appName = metadata.getAppName();
+
+                // Precautionary check for checking if appName is null, return from here
+                if(appName == null)
+                    return;
                 ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
                 if(viewHolders != null) {
@@ -708,9 +718,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             // Mapp creation pubsub would send a Pair of appName and its isSuccess field
             if (object instanceof Pair)
             {
-                String appName = (String)(((Pair) object).first);
-                Boolean isMappCreationSuccess = (Boolean) (((Pair) object).second);
+                String appName = null;
+                Boolean isMappCreationSuccess = false;
 
+                if((((Pair) object).second) instanceof  String)
+                    appName = (String)(((Pair) object).first);
+
+                if((((Pair) object).second) instanceof  Boolean)
+                    isMappCreationSuccess = (Boolean) (((Pair) object).second);
+
+                // Precautionary check for checking if appName is null, return from here
+                if(appName == null)
+                    return;
                 ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
                 if(viewHolders != null) {
