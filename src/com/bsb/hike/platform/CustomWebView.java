@@ -7,8 +7,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.view.WindowManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -142,12 +142,15 @@ public class CustomWebView extends WebView
 			if (!isDestroyed)
 			{
 				getSettings().setJavaScriptEnabled(false);
-				removeAllViews();
-				if(Utils.isKitkatOrHigher()){
+
+				if (Utils.isKitkatOrHigher())
+				{
 					setWebViewClient(null);
-				}else{
-					//Giving a dummy object to avoid
-					//android.util.AndroidRuntimeException: Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag
+				}
+				else
+				{
+					// Giving a dummy object to avoid
+					// android.util.AndroidRuntimeException: Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag
 					setWebViewClient(new WebViewClient());
 				}
 				setWebChromeClient(null);
@@ -155,20 +158,18 @@ public class CustomWebView extends WebView
 			}
 		}
 
-		else
+		if (!isDestroyed)
 		{
-			if (!isDestroyed)
+			if (Utils.isHoneycombOrHigher())
 			{
-				stopLoading();
-				removeAllViews();
-				if (Utils.isHoneycombOrHigher())
-				{
-					removeJavascriptInterface(javaScriptInterface);
-				}
-				isDestroyed = true;
+				removeJavascriptInterface(javaScriptInterface);
 			}
+			isDestroyed = true;
 		}
 
+		stopLoading();
+		removeAllViews();
+		clearHistory();
 	}
 
 	@Override
@@ -268,8 +269,6 @@ public class CustomWebView extends WebView
 			return;
 		}
 
-		stopLoading();
-		clearHistory();
 //		setConfigCallback(null);
 		if (ON_PAUSE_METHOD != null)
 		{
