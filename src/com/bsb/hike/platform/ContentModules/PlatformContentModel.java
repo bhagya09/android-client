@@ -128,12 +128,15 @@ public class PlatformContentModel
 			{
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-				String basePath = microApp + File.separator;
+                // Keeping default code path as newer hierarichal versioning path
+				String basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
-                // If files are not found in the newer structured hierarchy directory path used after versioning , then update base path
+                // Check if micro app is present in newer versioning path, else check for micro app in content directory
                 if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp)).isDirectory())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
+                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microApp).isDirectory())
+                    basePath = microApp + File.separator;
 
 				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
@@ -181,12 +184,15 @@ public class PlatformContentModel
 			{
 				String microApp = object.cardObj.getAppName();
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-				String basePath = microApp + File.separator;
+                // Keeping default code path as newer hierarichal versioning path
+				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
-                // If files are not found in the newer structured hierarchy directory path used after versioning , then update base path
+                // Check if micro app is present in newer versioning path, else check for micro app in content directory
                 if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).isDirectory())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
+                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microApp).isDirectory())
+                    basePath = microApp + File.separator;
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
