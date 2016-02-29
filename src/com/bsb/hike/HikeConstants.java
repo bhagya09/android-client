@@ -3879,6 +3879,4 @@ public class HikeConstants
     public static final String END = "end";
 
     public static final String RANK = "rank";
-
-    public static final String RECENTS = "recents";
 }
