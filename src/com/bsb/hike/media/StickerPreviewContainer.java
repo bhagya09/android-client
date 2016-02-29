@@ -16,6 +16,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.packPreview.PackPreviewFragment;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
@@ -93,7 +94,7 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		this.packPreviewFragment = packPreviewFragment;
 		calculateGridBounds();
 
-		stickerLoader = new StickerLoader(getContext(), true);
+		stickerLoader = new StickerLoader(true, true, true);
 		stickerLoader.setImageFadeIn(false);
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 
@@ -134,7 +135,7 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		pbStickerPreview.setVisibility(VISIBLE);
 		ivStickerPreview.setVisibility(GONE);
 
-		stickerLoader.loadImage(sticker.getStickerPath(), ivStickerPreview);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ivStickerPreview);
 		gridView.setAlpha(0.2f);
 	}
 
@@ -217,7 +218,7 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 						{
 							return;
 						}
-						stickerLoader.loadImage(sticker.getStickerPath(), ivStickerPreview);
+						stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ivStickerPreview);
 					}
 				}
 			});
