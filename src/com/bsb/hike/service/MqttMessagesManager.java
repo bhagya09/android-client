@@ -2707,6 +2707,27 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_CHANGE, enableABSyncChange);
 		}
 
+		if (data.has(HikeConstants.ENABLE_AB_SYNC_DEBUGING))
+		{
+			boolean enableABSyncDebug = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_DEBUGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_DEBUGING, enableABSyncDebug);
+			if(!HikeMessengerApp.syncingContacts)
+			{
+				if(Utils.isUserOnline(this.context))
+				{
+					Intent contactSyncIntent = new Intent(HikeService.MQTT_CONTACT_SYNC_ACTION);
+					contactSyncIntent.putExtra(HikeConstants.Extras.MANUAL_SYNC, true);
+					this.context.sendBroadcast(contactSyncIntent);
+				}
+			}
+		}
+
+		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
+		{
+			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
