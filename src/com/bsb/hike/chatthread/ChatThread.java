@@ -2940,6 +2940,13 @@ import android.widget.Toast;
 	{
 		Logger.i(TAG, "take action based on intent");
 		Intent intent = activity.getIntent();
+
+		if ((intent == null) || (intent.getExtras() == null) || (TextUtils.isEmpty(intent.getExtras().toString())))
+		{
+			Logger.w(TAG, "Either intent was null or could not find extras!");
+			return;
+		}
+
 		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
