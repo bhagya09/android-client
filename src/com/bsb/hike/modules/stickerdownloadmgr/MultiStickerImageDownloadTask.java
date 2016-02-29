@@ -224,7 +224,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				{
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId, getStickerDownloadSize());
+                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
 					for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 					{
