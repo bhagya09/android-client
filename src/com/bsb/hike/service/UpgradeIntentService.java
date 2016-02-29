@@ -10,9 +10,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -120,7 +118,7 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 0) == 1)
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
 		{
 			if(upgradeForStickerTable())
 			{

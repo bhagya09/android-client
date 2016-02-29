@@ -12,8 +12,10 @@ import android.widget.ImageView.ScaleType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.StickerLoader;
+import com.bsb.hike.utils.StickerManager;
 
 import java.util.List;
 
@@ -35,8 +37,12 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	public StickerRecomendationAdapter(List<Sticker> stickerList, StickerRecommendationFragment listener)
 	{
 		this.stickerList = stickerList;
-		this.stickerLoader = new StickerLoader(true, true, true);
-		this.mContext = HikeMessengerApp.getInstance();
+
+		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
+		boolean loadMini = StickerManager.getInstance().isMiniStickersEnabled();
+		this.stickerLoader = new StickerLoader(loadMini, loadMini, !loadMini);
+        
+        this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;
 	}
@@ -62,7 +68,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), imageView, false);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, imageView);
 	}
 
 	@Override

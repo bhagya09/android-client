@@ -31,13 +31,13 @@ public final class Cache implements DiskLruCache.EvictListener
 	private static final int VERSION = 1;
 
 	private static final int ENTRY_METADATA = 0;
-	
+
 	private static final int ENTRY_BODY = 1;
 
 	private static final int ENTRY_COUNT = 2;
 
 	private static final int CLEANUP_THRESHOLD = 10;   // if there is less than 10% space available in disk cache do a clean up of outlived entries
-	
+
 	final InternalCache internalCache = new InternalCache()
 	{
 		@Override
@@ -121,7 +121,7 @@ public final class Cache implements DiskLruCache.EvictListener
 	}
 	/**
 	 *  Get cached data for particular key
-		
+
 	 * @param key
 	 * @return {@link CacheResponse}
 	 */
@@ -175,7 +175,7 @@ public final class Cache implements DiskLruCache.EvictListener
 	 * <li>Note : metadata file is named as key.0</li>
 	 * <li>Note : data file is named as key.1</li>
 	 * <li> metadata information consists of key, full headerlist and cache control info </li>
-	 * 
+	 *
 	 * @param request
 	 * @return true if entry is successfully inserted in cache, false otherwise
 	 */
@@ -226,7 +226,7 @@ public final class Cache implements DiskLruCache.EvictListener
 
 	/**
 	 * For now it is same as put call
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -250,7 +250,7 @@ public final class Cache implements DiskLruCache.EvictListener
 	{
 		cache.evictAll();
 	}
-	
+
 	/**
 	 * Returns the number of bytes currently being used to store the values in this cache. This may be greater than the max size if a background deletion is pending.
 	 * @throws IOException
@@ -402,16 +402,16 @@ public final class Cache implements DiskLruCache.EvictListener
 		}
 
 		/**
-	     * Reads an entry from an input stream. A typical entry looks like this:
-	     * <pre>{@code 
-	     *   key
-	     *   last modified time
-	     *   ttl
-	     *   headers each seperated by new line
-	     *   data
-	     * }</pre>
-	     *
-	     */
+		 * Reads an entry from an input stream. A typical entry looks like this:
+		 * <pre>{@code
+		 *   key
+		 *   last modified time
+		 *   ttl
+		 *   headers each seperated by new line
+		 *   data
+		 * }</pre>
+		 *
+		 */
 
 		public Entry(Source metadataSource, Source bodySource) throws IOException
 		{

@@ -10,7 +10,7 @@ public interface InternalCache
 	boolean put(CacheRequest request);
 
 	boolean remove(String key);
-	
+
 	boolean update(CacheRequest request);
 
 	boolean isKeyExists(String key);

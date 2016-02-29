@@ -1,10 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,9 +30,14 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator.StickerEmoticonIconPagerAdapter;
+import com.bsb.hike.view.StickerIconPageIndicator.StickerIconPagerAdapter;
 
-public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconPagerAdapter
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter
 {
 	private List<StickerCategory> stickerCategoryList;
 
@@ -87,7 +87,10 @@ public class StickerAdapter extends PagerAdapter implements StickerEmoticonIconP
 		this.mStickerPickerListener = listener;
 		instantiateStickerList();
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
-		worker = new StickerLoader(true, true, true);
+
+		//only loading full stickers or downloading the full version if not yet downloaded
+		worker = new StickerLoader(false, false, true);
+
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
 		Logger.d(getClass().getSimpleName(), "Sticker Adapter instantiated ....");

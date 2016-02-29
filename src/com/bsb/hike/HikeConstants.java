@@ -3543,6 +3543,8 @@ public class HikeConstants
 
 	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
 
+	public static final String STICKER_UNDOWNLOADED_TAG_TRIGGER = "sudtt";
+
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID = "callbackid";
@@ -3822,11 +3824,21 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
+	public static final String STICKER_FORCE_DOWNLOAD = "f_download";
+
+	public static final String FORCED_RECENTS_PRESENT = "forced_recents";
+
+	public static final String FORCED_RECENTS_LIST = "forced_recents_list";
+
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final String MINI_STICKER_ENABLED = "m_stk_st";
+
+	public static final String UNDOWNLOADED_DATA = "ud_d";
 
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
 
@@ -3837,4 +3849,29 @@ public class HikeConstants
 	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
 
 	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+
+	public static final String DISPLAY_MINI_IN_CT = "d_m_ct";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String STICKER_TYPE = "type";
+
+    public static final String STICKER_IMAGE = "image";
+
+    public static final String MINI_STICKER_IMAGE = "mini_image";
+
+    public static final String TAGS = "tags";
+
+    public static final String RECENTS = "recents";
+
+    public static final String getMetadata = "md";
+
+    public static final String START = "start";
+
+    public static final String END = "end";
+
+    public static final String RANK = "rank";
+
 }

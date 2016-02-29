@@ -9,35 +9,35 @@ public final class CacheStrategy
 	private static final String TAG = CacheStrategy.class.getSimpleName();
 
 	public final CacheRequest cacheRequest;
-	
+
 	public final CacheResponse cacheResponse;
-	
+
 	public CacheStrategy(CacheRequest request, CacheResponse response)
 	{
 		this.cacheRequest = request;
 		this.cacheResponse = response;
 	}
-	
+
 	public static class Factory
 	{
 		private CacheRequest request;
-		
+
 		private CacheResponse response;
-		
+
 		private InternalCache cache;
-		
+
 		private String key;
-		
+
 		private boolean isExpired;
-		
+
 		public Factory(CacheRequest request, CacheResponse response, InternalCache cache)
 		{
 			this.request = request;
 			this.response = response;
 			this.cache = cache;
-			
+
 			this.key = request.getKey();
-			
+
 			isExpired = response.isExpired();
 		}
 
@@ -47,7 +47,7 @@ public final class CacheStrategy
 			{
 				return new CacheStrategy(request, null);
 			}
-			
+
 			else if(isExpired)
 			{
 				Logger.d(TAG, "time expired for key : " + key + "with ttl : " + request.getTtl());
@@ -59,5 +59,5 @@ public final class CacheStrategy
 			return new CacheStrategy(request, response);
 		}
 	}
-	
+
 }

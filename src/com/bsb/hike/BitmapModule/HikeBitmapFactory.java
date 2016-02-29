@@ -1,13 +1,8 @@
 package com.bsb.hike.BitmapModule;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -23,8 +18,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -37,6 +30,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.diskcache.response.CacheResponse;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
@@ -44,6 +39,10 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class HikeBitmapFactory
 {
@@ -1767,6 +1766,22 @@ public class HikeBitmapFactory
 		}
 
 		return new Pair<Integer, Integer>(imgWidth, imgHeight);
+	}
+
+	public static Bitmap getMiniStickerBitmap(String key)
+	{
+		int stickerSize = StickerSearchUtils.getStickerSize();
+
+		CacheResponse response =  HikeMessengerApp.getDiskCache().get(key) ;
+		if(response == null)
+		{
+			return null;
+		}
+
+		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeSampledBitmapFromByteArray(response.getData(), stickerSize, stickerSize), 250, 250, true, Config.ARGB_8888);
+
+		return bitmap;
+
 	}
 
 }

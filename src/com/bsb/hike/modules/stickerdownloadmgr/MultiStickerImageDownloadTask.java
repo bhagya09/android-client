@@ -224,17 +224,21 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				{
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
+                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
 					for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 					{
 						String stickerId = keys.next();
 						JSONObject stickerData = stickers.getJSONObject(stickerId);
 						String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
 						existingStickerNumber++;
 
 						try
 						{
 							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
+
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 							stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
 						}
@@ -247,6 +251,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							Logger.w(TAG, e);
 						}
 					}
+
 				}
 
 				requestCompleted(requestToken, false);

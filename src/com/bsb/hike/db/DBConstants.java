@@ -275,22 +275,23 @@ public interface DBConstants
 
 	//StickerTable
 
-	String STICKER_TABLE = "sticker_table";
+	public static final String STICKER_TABLE = "sticker_table";
 
-	String STICKER_ID = "st_id";
+	public static final String STICKER_ID = "st_id";
 
-	String SMALL_STICKER_PATH = "sm_st_path";
+	public static final String SMALL_STICKER_PATH = "sm_st_path";
 
-	String LARGE_STICKER_PATH = "lr_st_path";
+	public static final String LARGE_STICKER_PATH = "lr_st_path";
 
-	String WIDTH = "width";
+	public static final String WIDTH = "width";
 
-	String HEIGHT = "height";
+	public static final String HEIGHT = "height";
 
-	String FREQUENCY_FUNCTION = "frequencyFunction";
+	public static final String IS_ACTIVE = "is_active";
 
+	public static final int DEFAULT_ACTIVE_STATE = 1;
 
-
+	public static final int DEFAULT_IN_ACTIVE_STATE = 0;
 
 	public static interface HIKE_CONV_DB
 	{

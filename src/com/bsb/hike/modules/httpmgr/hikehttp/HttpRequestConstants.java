@@ -217,6 +217,11 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
 	}
+
+	public static String getForcedStickersUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+	}
 	
 	public static String lastSeenUrl()
 	{

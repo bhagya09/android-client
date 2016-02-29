@@ -10,9 +10,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -79,25 +82,46 @@ public class StickerSearchUtils
 	/**
 	 * 
 	 * @param stickerList
-	 * @return a pair of boolean and sticker list where boolean represents whether first sticker in original list is available or not. if boolean is true it return list containing
-	 *         available stickers only and original sticker list if boolean is false
+	 * @return a pair of boolean and sticker list where boolean represents whether all stickers in original list are available or not. if boolean is true it return list containing
+	 *         allowed stickers only and original sticker list if boolean is false
 	 */
 	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
 	{
-		Sticker sticker = stickerList.get(0);
-		if (!sticker.getStickerCurrentAvailability())
+
+		boolean result = false;
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0) == 0)
 		{
-			return new Pair<Boolean, List<Sticker>>(false, stickerList);
+			result = stickerList.get(0).isStickerAvailable();
+		}
+		else
+		{
+			for (int i = 0; i < stickerList.size(); i++)
+			{
+				Sticker sticker = stickerList.get(i);
+				result = result || sticker.isStickerAvailable();
+			}
 		}
 
-		return new Pair<Boolean, List<Sticker>>(true, getAvailableStickerList(stickerList));
+		if (result)
+		{
+			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList));
+		}
+		else
+		{
+			return new Pair<Boolean, List<Sticker>>(result, stickerList);
+		}
+
 	}
 
-	private static List<Sticker> getAvailableStickerList(List<Sticker> stickerList)
+	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList)
 	{
-		int length = stickerList.size();
+		int length = stickerList.size(), count = 0;
 
-		List<Sticker> resultList = new ArrayList<>(length);
+		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
+
+		List<Sticker> resultList = new ArrayList<Sticker>(length);
+		List<Sticker> undownloadedList = new ArrayList<Sticker>();
 
 		for (int i = 0; i < length; i++)
 		{
@@ -106,14 +130,27 @@ public class StickerSearchUtils
 			{
 				resultList.add(sticker);
 			}
+			else if (count < allowedUndownloadedLimit)
+			{
+				undownloadedList.add(count,sticker);
+				count++;
+			}
+			else
+			{
+				Logger.i(TAG, "Undownloaded sticker found but not shown : " + sticker.getCategoryId() + " : " + sticker.getStickerId());
+			}
+		}
+
+		if(undownloadedList.size()>0)
+		{
+			resultList.addAll(undownloadedList);
 		}
 
 		return resultList;
 	}
-
-    /***
-     * @return current keyboard language in ISO 639-2/T format
-     */
+	/***
+	 * @return current keyboard language in ISO 639-2/T format
+	 */
 	public static String getCurrentLanguageISOCode()
 	{
 		if (!HikeMessengerApp.isSystemKeyboard())
@@ -138,6 +175,31 @@ public class StickerSearchUtils
 		}
 
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
+	}
+
+	public static int getTagCacheLimit(int tagType)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		switch (tagType)
+		{
+		case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+			return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
+		}
+
+		return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
+	}
+
+	public static int getUndownloadedTagsStickersCount()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, 0);
+	}
+
+	public static boolean tagCacheLimitReached(int tagType)
+	{
+		return getUndownloadedTagsStickersCount() - getTagCacheLimit(tagType) > 0;
 	}
 
 	public static String getISOCodeFromLocale(Locale locale)
