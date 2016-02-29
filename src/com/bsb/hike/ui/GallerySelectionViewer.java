@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -69,9 +71,6 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
 import com.edmodo.cropper.CropImageView;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, OnScrollListener, OnPageChangeListener, HikePubSub.Listener, View.OnClickListener
 {
@@ -559,13 +558,26 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			JSONObject mdJson = new JSONObject();
 			ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
 
-			int numberEdited = Utils.isEmpty(editedImages)?0:editedImages.size();
-			int numberTotal = Utils.isEmpty(selectedFiles)?0:selectedFiles.size();
+			int actualEditedImageSize = 0;
 
-			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_FILTER,numberEdited);
-			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_NO_FILTER,Math.max(0,numberTotal - numberEdited));
+			if (!Utils.isEmpty(editedImages))
+			{
+				for (String image : editedImages)
+				{
+					if (!TextUtils.isEmpty(image))
+					{
+						++actualEditedImageSize;
+					}
+				}
+			}
 
-			json.put(AnalyticsConstants.METADATA,mdJson);
+			int numberEdited = actualEditedImageSize;
+			int numberTotal = Utils.isEmpty(selectedFiles) ? 0 : selectedFiles.size();
+
+			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_FILTER, numberEdited);
+			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_NO_FILTER, Math.max(0, numberTotal - numberEdited));
+
+			json.put(AnalyticsConstants.METADATA, mdJson);
 
 			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
