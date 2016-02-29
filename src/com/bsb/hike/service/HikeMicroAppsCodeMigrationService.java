@@ -2,6 +2,7 @@ package com.bsb.hike.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -59,12 +60,22 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
 					String botName = entry.getValue().getMsisdn();
                     botName =  botName.substring(1, botName.length()-1);
-                    String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, botName);
+
+                    // Keeping default bot type as web micro apps
+                    byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+                    if(botMetadata.isNativeMode())
+                        botType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                    String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, botName);
 
 					File newFilePath = new File(newVersioningCodePath);
 
 					// File instance for source file directory path that was in use before versioning release
 					String microAppName = botMetadata.getAppName();
+
+                    if(TextUtils.isEmpty(microAppName))
+                        continue;
+
 					File originalFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microAppName);
 
 					// Copy from source to destination
@@ -89,6 +100,9 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						HikeConversationsDatabase.getInstance().updateBotMetaData(entry.getKey(), botMetadataJson);
 						entry.getValue().setMetadata(botMetadataJson);
 						mapForMigratedApps.put(entry.getKey(), true);
+
+                        // Delete the files that have already been copied
+                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_DIR + microAppName);
 					}
 				}
 				catch (FileNotFoundException fnfe)
