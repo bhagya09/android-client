@@ -197,7 +197,10 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
-						StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
+						if(!sticker.isStickerAvailable())
+                        {
+                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
+                        }
 
 						saveMiniStickerImage(sticker, stickerImage);
 
