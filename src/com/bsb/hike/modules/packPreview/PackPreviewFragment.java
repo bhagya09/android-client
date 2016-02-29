@@ -234,6 +234,10 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			@Override
 			public int getSpanSize(int position)
 			{
+				if(stickerCategory.getAllStickers() == null)
+				{
+					return 1;
+				}
 				if (position == 0 || position > stickerCategory.getAllStickers().size())
 				{
 					return NUM_COLUMNS;
