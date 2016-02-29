@@ -419,7 +419,7 @@ public class PlatformZipDownloader
 		{
 			if (platformRequests.containsKey(key))
 			{
-				reduceRefCountInDownloadingRequests(key);
+				reduceRefCountInDownloadingRequests(key,requestTokenIntegerPair);
 			}
 
 			else
@@ -430,13 +430,14 @@ public class PlatformZipDownloader
 		}
 	}
 
-	private static void reduceRefCountInDownloadingRequests(String key)
+	private static void reduceRefCountInDownloadingRequests(String key,PairModified<RequestToken, Integer> requestTokenIntegerPair)
 	{
 		if (platformRequests != null)
 		{
 			if (platformRequests.containsKey(key))
 			{
 				PairModified<RequestToken, Integer> tokenIntegerPair = platformRequests.get(key);
+				tokenIntegerPair.setFirst(requestTokenIntegerPair.getFirst()); // Replacing the token also
 				tokenIntegerPair.setSecond(tokenIntegerPair.getSecond() - 1);
 				Logger.d("PlatformRequests", "Reducing Ref Count For :  " + key + " New Ref Count : "+ tokenIntegerPair.getSecond());
 			}
