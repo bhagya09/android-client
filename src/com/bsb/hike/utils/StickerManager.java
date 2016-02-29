@@ -2562,7 +2562,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
 
-	public ArrayList<Sticker> getForcedRecentsStickers()
+	public List<Sticker> getForcedRecentsStickers()
 	{
 		Set<String> input = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.FORCED_RECENTS_LIST, null);
 
