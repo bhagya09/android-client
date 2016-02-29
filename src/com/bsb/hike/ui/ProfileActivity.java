@@ -739,8 +739,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mName.setText(oneToNConversation.getLabel());
 			mName.setVisibility(View.VISIBLE);
 			mNameEdit.setVisibility(View.GONE);
-			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(oneToNConversation.getLabel(),-1,defAvBgColor);
-			mAvatarEdit.setImageDrawable(drawable);
+			if (mAvatarEdit.getDrawable() instanceof TextDrawable)
+			{
+				Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(oneToNConversation.getLabel(),-1,defAvBgColor);
+				mAvatarEdit.setImageDrawable(drawable);
+			}
+
 			setupActionBar();
 		}
 	}
