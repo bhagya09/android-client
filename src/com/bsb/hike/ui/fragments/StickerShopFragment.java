@@ -38,6 +38,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -75,6 +76,8 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	TextView loadingFailedEmptyStateMainText, loadingFailedEmptyStateSubText;
 	
 	private int currentCategoriesCount;
+
+	private static final String TAG = StickerShopFragment.class.getSimpleName();
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -554,6 +557,11 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
+		if(position <= 0)
+		{
+			Logger.d(TAG, "position is less than 0. wrong item clicked");
+			return ;
+		}
 		String categoryId = mAdapter.getItem(position - 1);
 		IntentFactory.startStickerPreviewIntent(getActivity(), categoryId);
 	}

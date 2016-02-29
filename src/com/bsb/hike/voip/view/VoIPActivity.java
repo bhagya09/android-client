@@ -76,8 +76,11 @@ public class VoIPActivity extends AppCompatActivity implements CallFragmentListe
 	{
 		super.onNewIntent(intent);
 		
-		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FAILED_FRAGMENT) && isShowingCallFailedFragment())
+		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FRAGMENTS) && isShowingCallFailedFragment())
 			removeCallFailedFragment();
+
+		if (intent.hasExtra(VoIPConstants.Extras.REMOVE_FRAGMENTS) && isFragmentAdded(HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG))
+			removeFragment(HikeConstants.VOIP_CALL_DECLINE_MESSAGE_FRAGMENT_TAG);
 
 		if(intent.getBooleanExtra(VoIPConstants.Extras.INCOMING_CALL, false))
 		{

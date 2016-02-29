@@ -234,6 +234,10 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			@Override
 			public int getSpanSize(int position)
 			{
+				if(stickerCategory.getAllStickers() == null)
+				{
+					return 1;
+				}
 				if (position == 0 || position > stickerCategory.getAllStickers().size())
 				{
 					return NUM_COLUMNS;
@@ -470,7 +474,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 				case StickerCategory.NONE:
 				case StickerCategory.DONE_SHOP_SETTINGS:
 				case StickerCategory.DONE:
-					if (stickerCategory.getDownloadedStickersCount() == 0)
+					if (stickerCategory.getDownloadedStickersCount() == 0 || !stickerCategory.isDownloaded())
 					{
 						StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
 						stickerPalleteImageDownloadTask.execute();
@@ -512,7 +516,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		case StickerCategory.NONE:
 		case StickerCategory.DONE_SHOP_SETTINGS:
 		case StickerCategory.DONE:
-			if (stickerCategory.getDownloadedStickersCount() == 0)
+			if (stickerCategory.getDownloadedStickersCount() == 0 || !stickerCategory.isDownloaded())
 			{
 				downloadBtn.setText(getResources().getString(R.string.download));
 			}

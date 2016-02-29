@@ -11,9 +11,10 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.ImageWorker;
-import com.bsb.hike.smartImageLoader.MiniStickerLoader;
+import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -37,7 +38,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private int stickerListSize, headerListSize, footerListSize;
 
-	private MiniStickerLoader miniStickerLoader;
+	private StickerLoader stickerLoader;
 
 	private int sizeEachImage;
 
@@ -73,10 +74,10 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private void init()
 	{
-		miniStickerLoader = new MiniStickerLoader(true);
-		miniStickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
-		miniStickerLoader.setImageFadeIn(false);
-		miniStickerLoader.setSuccessfulImageLoadingListener(this);
+		stickerLoader = new StickerLoader(true, true, false);
+		stickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
+		stickerLoader.setImageFadeIn(false);
+		stickerLoader.setSuccessfulImageLoadingListener(this);
 		sizeEachImage = StickerSearchUtils.getStickerSize();
 		rowSize = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
@@ -109,7 +110,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			ImageView stickerIv = stickerViewHolder.stickerIv;
 			stickerIv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 			applyPadding(stickerIv, position);
-			miniStickerLoader.loadImage(StickerManager.getInstance().getStickerSetString(sticker.getStickerId(), sticker.getCategoryId()), stickerIv);
+			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.MINI, stickerIv);
 			break;
 		}
 	}
