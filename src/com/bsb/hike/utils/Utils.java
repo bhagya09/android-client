@@ -3199,7 +3199,7 @@ public class Utils
 				object.put(HikeConstants.SUB_TYPE, HikeConstants.FOREGROUND);
 
 				JSONObject data = new JSONObject();
-				data.put(HikeConstants.JUST_OPENED, HikeMessengerApp.currentState == CurrentState.OPENED);
+				data.put(AnalyticsConstants.JUST_OPENED, HikeMessengerApp.currentState == CurrentState.OPENED);
 				/*
 				 * We don't need to request for the bulk last seen from here anymore. We have the HTTP call for this.
 				 */

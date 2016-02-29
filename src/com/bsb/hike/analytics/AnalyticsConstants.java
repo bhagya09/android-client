@@ -223,6 +223,8 @@ public class AnalyticsConstants
 	public static String EVENT_USER_GOOGLE_ACCOUNTS = "evUsrGoogleAccs";
 
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
+	public static String FORWARD = "forward";
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
@@ -647,4 +649,11 @@ public class AnalyticsConstants
 	public static final String USER_LOCATION = "location";
 	
 	public static final String DATABASE_ERROR = "db_error";
+
+	public static String ANALYTICS_EXTRA = "analyticsExtra";
+
+	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
+
+	public static final String JUST_OPENED = "justOpened";
+
 }

@@ -1669,7 +1669,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		PendingIntent sharePendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
 		intentBuilder.addMenuItem(getResources().getString(R.string.share), sharePendingIntent);
 
-		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
 		intentBuilder.addMenuItem(getResources().getString(R.string.forward), forwardPendingIntent);
 
 		CustomTabsIntent intent = intentBuilder.build();
