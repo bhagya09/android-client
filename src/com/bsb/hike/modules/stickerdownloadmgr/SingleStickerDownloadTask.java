@@ -52,13 +52,13 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	private String smallStickerPath;
 
 	private RequestToken token;
-	
+
 	private ConvMessage convMessage;
 
 	private boolean imageOnly;
 
 	private boolean downloadMini;
-	
+
 	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
 	{
 		this.stickerId = stickerId;
@@ -68,7 +68,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		this.downloadMini = false;
 	}
 
-	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly,boolean downloadMini)
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly, boolean downloadMini)
 	{
 		this.stickerId = stickerId;
 		this.categoryId = categoryId;
@@ -88,14 +88,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		String requestId = getRequestId(); // for duplicate check
 
-		if(imageOnly)
+		if (imageOnly)
 		{
-			token = singleStickerImageDownloadRequest(
-					requestId,
-					stickerId,
-					categoryId,
-					downloadMini,
-					getRequestListener());
+			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener());
 		}
 		else
 		{
@@ -175,118 +170,61 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					}
 
 					JSONObject categoryData = packs.getJSONObject(categoryId);
-					
+
 					if (!categoryData.has(HikeConstants.STICKERS))
 					{
 						Logger.e(TAG, "Sticker download failed null stkrs data");
 						doOnFailure(null);
 						return;
 					}
-						
+
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
-					
+
 					if (!stickers.has(stickerId))
 					{
 						Logger.e(TAG, "Sticker download failed null sticker data");
 						doOnFailure(null);
 						return;
 					}
-						
+
+					Sticker sticker = new Sticker(categoryId, stickerId);
+
 					JSONObject stickerData = stickers.getJSONObject(stickerId);
 
-					int type = stickerData.optInt(HikeConstants.STICKER_TYPE, StickerConstants.StickerType.LARGE.ordinal());
+					String type = stickerData.optString(HikeConstants.STICKER_TYPE, StickerConstants.StickerType.LARGE.getValue());
 
 					String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
-					Sticker sticker = new Sticker(categoryId,stickerId);
-					sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
-					sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
-
-
-					if (downloadMini && type == StickerConstants.StickerType.MINI.ordinal())
+					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
-						CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
-						HikeMessengerApp.getDiskCache().put(cacheRequest);
-
 						if(!sticker.isStickerAvailable())
-						{
-							StickerManager.getInstance().saveSticker(sticker);
-						}
+                        {
+                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
+                        }
 
-						doOnSuccess(categoryId);
-						return;
+						saveMiniStickerImage(sticker, stickerImage);
+
+                        doOnSuccess(null);
 					}
-
-					String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
-
-					if (dirPath == null)
+					else
 					{
-						Logger.e(TAG, "Sticker download failed directory does not exist");
-						doOnFailure(null);
-						return;
-					}
+						StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-					largeStickerPath = dirPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
-					smallStickerPath = dirPath + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+						boolean failed = !saveFullStickerImage(stickerImage, stickerData);
 
-                    sticker.setLargeStickerPath(largeStickerPath);
-                    sticker.setSmallStickerPath(smallStickerPath);
-                    StickerManager.getInstance().saveSticker(sticker);
+                        if (!failed)
+                        {
+                            getStickerTags(data);
 
-					File largeDir = new File(dirPath + HikeConstants.LARGE_STICKER_ROOT);
-					if (!largeDir.exists())
-					{
-						if (!largeDir.mkdirs())
-						{
-							Logger.e(TAG, "Sticker download failed directory not created");
-							doOnFailure(null);
-							return;
-						}
-					}
-					File smallDir = new File(dirPath + HikeConstants.SMALL_STICKER_ROOT);
-					if (!smallDir.exists())
-					{
-						if (!smallDir.mkdirs())
-						{
-							Logger.e(TAG, "Sticker download failed directory not created");
-							doOnFailure(null);
-							return;
-						}
-					}
+                            StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
 
-					Utils.makeNoMediaFile(smallDir);
-					Utils.makeNoMediaFile(largeDir);
+                            StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                    Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
-
-					boolean isDisabled = stickerData.optBoolean(HikeConstants.DISABLED_ST);
-					if (!isDisabled)
-					{
-						Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(largeStickerPath, StickerManager.SIZE_IMAGE, StickerManager.SIZE_IMAGE, true, false);
-
-						if (thumbnail != null) {
-							File smallImage = new File(smallStickerPath);
-                            BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
-
-							thumbnail.recycle();
-							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-							if (imageOnly)
-							{
-								SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
-								singleStickerTagDownloadTask.execute();
-							}
-							else
-							{
-								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
-								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
-							}
-
-							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
-						}
+                            doOnSuccess(null);
+                        }
 
 					}
-					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
-					doOnSuccess(categoryId);
+
 				}
 				catch (JSONException ex)
 				{
@@ -320,12 +258,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void doOnSuccess(Object result)
 	{
-		
+
 		String newCategoryId = (String) result;
-		Logger.e(TAG, categoryId+":"+stickerId+" : done");
-		if(convMessage != null && !(TextUtils.isEmpty(categoryId)))
+		Logger.e(TAG, categoryId + ":" + stickerId + " : done");
+		if (convMessage != null && !(TextUtils.isEmpty(categoryId)))
 		{
-			
+
 			StickerManager.getInstance().checkAndRemoveUpdateFlag(newCategoryId);
 			String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
 			if (!oldCategoryId.equals(newCategoryId))
@@ -356,4 +294,89 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		}
 		(new File(largeStickerPath)).delete();
 	}
+
+	private void saveMiniStickerImage(Sticker sticker, String stickerImage)
+	{
+
+		CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
+		HikeMessengerApp.getDiskCache().put(cacheRequest);
+
+	}
+
+	private void getStickerTags(JSONObject data)
+	{
+		StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+
+		if (imageOnly)
+		{
+			SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+			singleStickerTagDownloadTask.execute();
+		}
+		else
+		{
+			StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
+			StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+		}
+
+	}
+
+	private boolean saveFullStickerImage(String stickerImage, JSONObject stickerData) throws IOException
+	{
+		String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
+
+		if (dirPath == null)
+		{
+			Logger.e(TAG, "Sticker download failed directory does not exist");
+			doOnFailure(null);
+			return false;
+		}
+
+		largeStickerPath = dirPath + HikeConstants.LARGE_STICKER_ROOT + "/" + stickerId;
+		smallStickerPath = dirPath + HikeConstants.SMALL_STICKER_ROOT + "/" + stickerId;
+
+		File largeDir = new File(dirPath + HikeConstants.LARGE_STICKER_ROOT);
+		if (!largeDir.exists())
+		{
+			if (!largeDir.mkdirs())
+			{
+				Logger.e(TAG, "Sticker download failed directory not created");
+				doOnFailure(null);
+				return false;
+			}
+		}
+		File smallDir = new File(dirPath + HikeConstants.SMALL_STICKER_ROOT);
+		if (!smallDir.exists())
+		{
+			if (!smallDir.mkdirs())
+			{
+				Logger.e(TAG, "Sticker download failed directory not created");
+				doOnFailure(null);
+				return false;
+			}
+		}
+
+		Utils.makeNoMediaFile(smallDir);
+		Utils.makeNoMediaFile(largeDir);
+
+		Utils.saveBase64StringToFile(new File(largeStickerPath), stickerImage);
+
+		boolean isDisabled = stickerData.optBoolean(HikeConstants.DISABLED_ST);
+		if (!isDisabled)
+		{
+			Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(largeStickerPath, StickerManager.SIZE_IMAGE, StickerManager.SIZE_IMAGE, true, false);
+
+			if (thumbnail != null)
+			{
+				File smallImage = new File(smallStickerPath);
+				BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
+
+				thumbnail.recycle();
+			}
+
+		}
+
+		return true;
+
+	}
+
 }

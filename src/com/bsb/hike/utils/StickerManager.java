@@ -2857,15 +2857,14 @@ public class StickerManager
         return miniStickerPath;
     }
 
-	public void saveStickerSetFromJSON(JSONObject stickers, String categoryId, int length) throws JSONException
+	public void saveStickerSetFromJSON(JSONObject stickers, String categoryId) throws JSONException
 	{
-		List<Sticker> stickerList = new ArrayList<>(length);
+		List<Sticker> stickerList = new ArrayList<>();
 
 		for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 		{
 			String stickerId = keys.next();
 			JSONObject stickerData = stickers.getJSONObject(stickerId);
-			String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
 			Sticker sticker = new Sticker(categoryId, stickerId);
 			sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
@@ -2877,4 +2876,22 @@ public class StickerManager
 
 		saveSticker(stickerList);
 	}
+
+    public void saveMiniStickerSetFromJSON(JSONObject stickers, String categoryId) throws JSONException
+    {
+        List<Sticker> stickerList = new ArrayList<>();
+
+        for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
+        {
+            String stickerId = keys.next();
+            JSONObject stickerData = stickers.getJSONObject(stickerId);
+
+            Sticker sticker = new Sticker(categoryId, stickerId);
+            sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+            sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
+            stickerList.add(sticker);
+        }
+
+        saveSticker(stickerList);
+    }
 }

@@ -15,7 +15,19 @@ public class StickerConstants
 
 	public enum StickerType
 	{
-		MINI, SMALL, LARGE;
+		MINI("mini"), SMALL("small"), LARGE("large");
+
+        private String value;
+
+        StickerType(String value)
+        {
+            this.value = value;
+        }
+
+        public String getValue()
+        {
+            return value;
+        }
 	}
 
 	public enum DownloadSource
