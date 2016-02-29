@@ -1326,11 +1326,6 @@ public class HikeBitmapFactory
 		return getDefaultTextAvatar(text, -1);
 	}
 
-	public static Drawable getDefaultTextAvatar(String text, boolean isFirstName)
-	{
-		return getDefaultTextAvatar(text, -1, -1, isFirstName);
-	}
-
 	public static Drawable getDefaultTextAvatar(String text, int fontSize)
 	{
 		return getDefaultTextAvatar(text,fontSize,-1);

@@ -23,6 +23,7 @@ import org.apache.http.util.TextUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -34,11 +35,14 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TextDrawable.Builder;
 
@@ -244,14 +248,17 @@ public abstract class ImageWorker
 		loadImage(data, imageView, isFlinging, runOnUiThread, setDefaultAvatarInitially, null);
 	}
 
+	TypedArray bgColorArray = Utils.getDefaultAvatarBG();
 	protected void setDefaultAvatar(ImageView imageView, String data, Object refObj)
 	{
-		if (refObj instanceof String)
+		if (refObj instanceof ContactInfo)
 		{
-			String name = (String) refObj;
-			if(!TextUtils.isEmpty(name))
+			ContactInfo cInfo = (ContactInfo) refObj;
+			if(!TextUtils.isEmpty(cInfo.getFirstName()))
 			{
-				imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(name,true));
+				int index = BitmapUtils.iconHash(cInfo.getMsisdn()) % (bgColorArray.length());
+				int bgColor = bgColorArray.getColor(index, 0);
+				imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(cInfo.getFirstName(),-1,bgColor,true));
 			}
 			else
 			{
