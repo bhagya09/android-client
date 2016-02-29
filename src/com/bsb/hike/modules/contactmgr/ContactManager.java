@@ -1727,6 +1727,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(deviceContacts);
 		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeContacts);
 		Map<String, ContactInfo> hike_contacts_by_msisdn = convertToMapWithMsisdnAsKey(hikeContacts);
+		Map<String, ContactInfo> hike_contacts_by_name_msisdn = convertToMapWithNameMsisdnAsKey(hikeContacts);
 
 		/*
 		 * iterate over every item in the phone db, items that are equal remove from both maps items that are different, leave in 'new' map and remove from 'hike' map send the
@@ -1784,6 +1785,35 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 				}
 				continue;
 			}
+			else if(contacts_for_id != null && contacts_for_id.size() < hike_contacts_for_id.size())
+			{
+				for (ContactInfo con : hike_contacts_for_id)
+				{
+					msisdns.add(con.getMsisdn());
+				}
+				for (Iterator<ContactInfo> itrtr = contacts_for_id.iterator(); itrtr.hasNext();)
+				{
+					ContactInfo c1 = (ContactInfo) itrtr.next();
+					for (Iterator<ContactInfo> itrtr2 = hike_contacts_for_id.iterator(); itrtr2.hasNext();)
+					{
+						ContactInfo c2 = (ContactInfo) itrtr2.next();
+						if(c1.hashCode() == c2.hashCode())
+						{
+							itrtr2.remove();
+							hike_contacts_by_name_msisdn.remove(c2.getName()  + "_" + c2.getPhoneNum());
+						}
+					}
+				}
+				if(contacts_for_id.isEmpty())
+				{
+					iterator.remove();
+				}
+				if(hike_contacts_for_id.isEmpty())
+				{
+					hike_contacts_by_id.remove(id);
+				}
+				continue;
+			}
 			/* item is different than our db, so send an update */
 			for (ContactInfo con : hike_contacts_for_id)
 			{
@@ -1798,7 +1828,6 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		 */
 		if(!new_contacts_by_id.isEmpty() || !hike_contacts_by_id.isEmpty())
 		{
-			Map<String, ContactInfo> hike_contacts_by_name_msisdn = convertToMapWithNameMsisdnAsKey(hikeContacts);
 			for (Iterator<Map.Entry<String, List<ContactInfo>>> iterator = new_contacts_by_id.entrySet().iterator(); iterator.hasNext();)
 			{
 				entry = iterator.next();
@@ -1814,14 +1843,16 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 						if(!hike_contacts_by_id.isEmpty())
 						{
 							ContactInfo tInfo = hike_contacts_by_name_msisdn.get(addKey);
-							if(hike_contacts_by_id.containsKey(tInfo.getId()))
+							if(tInfo != null && hike_contacts_by_id.containsKey(tInfo.getId()))
 							{
 								List<ContactInfo> hike_contacts_for_id = hike_contacts_by_id.get(tInfo.getId());
-								for (ContactInfo contactInfo : hike_contacts_for_id) {
-									String removeKey = contactInfo.getName() + "_" + contactInfo.getPhoneNum();
+								for (Iterator<ContactInfo> itrtr = hike_contacts_for_id.iterator(); itrtr.hasNext();)
+								{
+									ContactInfo c2 = (ContactInfo) itrtr.next();
+									String removeKey = c2.getName() + "_" + c2.getPhoneNum();
 									if(addKey.equals(removeKey))
 									{
-										hike_contacts_for_id.remove(contactInfo);
+										itrtr.remove();
 									}
 								}
 							}

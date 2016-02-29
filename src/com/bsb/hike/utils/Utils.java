@@ -6370,7 +6370,7 @@ public class Utils
 			Logger.w("Utils", "Recording network blocked state = " + data);
 			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.NET_BLOCKED_STATE_ANALYTICS, data);
 		}
-		catch (JSONException e)
+		catch (Exception e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
