@@ -168,9 +168,13 @@ public class CocosGamingActivity extends Cocos2dxActivity
 					}
                     String appName = json.optString(HikeConstants.NAME);
                     cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
-				}
+				    File cocosEngineFile = new File(cocosEnginePath);
+                    if(!(cocosEngineFile.exists() && cocosEngineFile.isDirectory()))
+                        cocosEnginePath = platform_content_dir + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
+
+                }
 			}
-			cocosGamePath = getAppBasePath()  + PlatformContentConstants.GAME_SO_FILE;
+			cocosGamePath = getAppBasePath() + PlatformContentConstants.GAME_SO_FILE;
 		}
 
 		loadSoFile(cocosEnginePath, true);
