@@ -2014,7 +2014,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
-				+ "PRIMARY KEY ("+DBConstants.STICKER_ID +" , "+ DBConstants.CATEGORY_ID +" )"
+				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
 
 		return sql;
@@ -9217,8 +9217,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.clear();
 				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
 				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
-				contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
-				contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+
+                if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
+                {
+                    contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
+                    contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+                }
+
 				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
 				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
 				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);

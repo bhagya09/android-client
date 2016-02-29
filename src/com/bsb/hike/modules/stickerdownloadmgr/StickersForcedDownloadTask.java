@@ -41,6 +41,8 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
 	private Set<String> stickerToDownloadTagsSet;
 
+    private final int FORCE_DOWNLOAD = 1;
+
 	public StickersForcedDownloadTask(Set<String> languagesSet)
 	{
 		this.languagesSet = languagesSet;
@@ -107,7 +109,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 							continue;
 						}
 
-						JSONObject stickersMetaData = stickersData.optJSONObject("md");
+						JSONObject stickersMetaData = stickersData.optJSONObject(HikeConstants.METADATA);
 						if ((stickersMetaData == null) || (stickersMetaData.length() <= 0))
 						{
 							Logger.e(TAG, "onRequestSuccess(), Empty json sticker metadata for pack: " + stickerID);
@@ -174,7 +176,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 		if (forcedRecentsStickers != null)
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_PRESENT, true);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_LIST, forcedRecentsStickers);
+			HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.FORCED_RECENTS_LIST, forcedRecentsStickers);
 
 			//ToDo Add correct PubSub for recent updated
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
@@ -224,21 +226,21 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 
 			switch (stickersMetaData.optInt(HikeConstants.IMAGE))
 			{
-                case 1:
+                case FORCE_DOWNLOAD:
                     StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
                     break;
 			}
 
 			switch (stickersMetaData.optInt(HikeConstants.MINI_STICKER_IMAGE))
 			{
-                case 1:
+                case FORCE_DOWNLOAD:
                     StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
                     break;
 			}
 
 			switch (stickersMetaData.optInt(HikeConstants.TAGS))
 			{
-                case 1:
+                case FORCE_DOWNLOAD:
                     stickerToDownloadTagsSet.add(sticker.getStickerCode());
                     break;
 			}

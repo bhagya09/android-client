@@ -3,7 +3,6 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -225,17 +224,13 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				{
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-					List<Sticker> stickerList = new ArrayList<>(getStickerDownloadSize());
+                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId, getStickerDownloadSize());
 
 					for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 					{
 						String stickerId = keys.next();
 						JSONObject stickerData = stickers.getJSONObject(stickerId);
 						String stickerImage = stickerData.getString(HikeConstants.IMAGE);
-
-						Sticker sticker = new Sticker(categoryId,stickerId);
-						sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
-						sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
 
 						existingStickerNumber++;
 
@@ -244,12 +239,8 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
 
-							sticker.setLargeStickerPath(sticker.getLargeStickerFilePath());
-							sticker.setSmallStickerPath(sticker.getSmallStickerFilePath());
-
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
 							stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
-							stickerList.add(sticker);
 						}
 						catch (FileNotFoundException e)
 						{
@@ -261,7 +252,6 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 						}
 					}
 
-					StickerManager.getInstance().saveSticker(stickerList);
 				}
 
 				requestCompleted(requestToken, false);

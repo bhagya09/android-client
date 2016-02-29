@@ -2619,7 +2619,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, false);
 	}
 
-	public ArrayList<Sticker> getForcedRecentsStickers()
+	public List<Sticker> getForcedRecentsStickers()
 	{
 		Set<String> input = HikeSharedPreferenceUtil.getInstance().getDataSet(HikeConstants.FORCED_RECENTS_LIST, null);
 
@@ -2641,15 +2641,15 @@ public class StickerManager
 
 				JSONObject recentSticker = new JSONObject(resultsStickers.next());
 
-				long startdate = recentSticker.getLong("start");
-				long endDate = recentSticker.getLong("end");
+				long startDate = recentSticker.getLong(HikeConstants.START);
+				long endDate = recentSticker.getLong(HikeConstants.END);
 
-				if (System.currentTimeMillis() > startdate && System.currentTimeMillis() < endDate)
+				if (System.currentTimeMillis() > startDate && System.currentTimeMillis() < endDate)
 				{
-					Sticker temp = new Sticker(recentSticker.getString("catId"), recentSticker.getString("sId"));
+					Sticker temp = new Sticker(recentSticker.getString(HikeConstants.CATEGORY_ID), recentSticker.getString(HikeConstants.STICKER_ID));
 					if(temp.isStickerAvailable())
 					{
-						int rank = recentSticker.getInt("rank");
+						int rank = recentSticker.getInt(HikeConstants.RANK);
 						resultSet.ensureCapacity(rank);
 						resultSet.add(rank-1,temp);
 					}
@@ -2672,7 +2672,7 @@ public class StickerManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_PRESENT, false);
 		}
 
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FORCED_RECENTS_LIST, input);
+		HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.FORCED_RECENTS_LIST, input);
 
 		for(int i =resultSet.size()-1;i>=0;i--)
 		{
@@ -2818,12 +2818,17 @@ public class StickerManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
 	}
 
-    public String generateMiniStickerPath(Sticker s)
+    /**
+     *
+     * @param sticker object for which the mini sticker key has to be generated
+     * @return A sticker based unique code that contains only alphanumeric characters separated by '_' (as per key name format constraints of disk cache)
+     */
+    public String generateMiniStickerPath(Sticker sticker)
     {
         String miniStickerPath = "mini_";
 
         String key = "";
-        char[] code = s.getStickerCode().toCharArray();
+        char[] code = sticker.getStickerCode().toCharArray();
 
         for (int i = 0; i < code.length; i++)
         {
@@ -2847,8 +2852,29 @@ public class StickerManager
 
         miniStickerPath += key;
 
-        s.setMiniStickerPath(miniStickerPath);
+        sticker.setMiniStickerPath(miniStickerPath);
 
         return miniStickerPath;
     }
+
+	public void saveStickerSetFromJSON(JSONObject stickers, String categoryId, int length) throws JSONException
+	{
+		List<Sticker> stickerList = new ArrayList<>(length);
+
+		for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
+		{
+			String stickerId = keys.next();
+			JSONObject stickerData = stickers.getJSONObject(stickerId);
+			String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
+			Sticker sticker = new Sticker(categoryId, stickerId);
+			sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
+			sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
+			sticker.setLargeStickerPath(sticker.getLargeStickerFilePath());
+			sticker.setSmallStickerPath(sticker.getSmallStickerFilePath());
+			stickerList.add(sticker);
+		}
+
+		saveSticker(stickerList);
+	}
 }

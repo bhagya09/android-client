@@ -1253,7 +1253,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					new String[] { HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
 
 			c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE },
-					whereConditionToGetSavedStickers, new String[] { String.valueOf(HikeStickerSearchBaseConstants.LARGE_STICKER_AVAILABLE_ONLY) }, null, null, null, null);
+					whereConditionToGetSavedStickers, new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_YES) }, null, null, null, null);
 		}
 		finally
 		{
@@ -2151,7 +2151,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING,
 					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE, HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE, HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY },
 					HikeStickerSearchBaseConstants.STICKER_AVAILABILITY+HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK,
-					new String[]{String.valueOf(HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY)},
+					new String[]{String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_NO)},
 					null,
 					null,
 					HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_AGE + HikeStickerSearchBaseConstants.SYNTAX_DESCENDING,
@@ -2171,7 +2171,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					String stickerCode = c.getString(stickerIdIndex);
 					int stickertagAge = c.getInt(ageIndex);
 					String frequencyFunction = c.getString(compositeFrequencyIndex);
-					StickerAppositeDataContainer temp = new StickerAppositeDataContainer(stickerCode,frequencyFunction,0,HikeStickerSearchBaseConstants.MINI_STICKER_AVAILABLE_ONLY,stickertagAge);
+					StickerAppositeDataContainer temp = new StickerAppositeDataContainer(stickerCode,frequencyFunction,0,HikeStickerSearchBaseConstants.DECISION_STATE_NO,stickertagAge);
 					resultSet.add(temp);
 
 					if(maxGlobalFrequency < temp.getGlobalFrequency())

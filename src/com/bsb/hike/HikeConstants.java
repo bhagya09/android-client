@@ -3871,4 +3871,14 @@ public class HikeConstants
     public static final String TAGS = "tags";
 
     public static final String RECENTS = "recents";
+
+    public static final String getMetadata = "md";
+
+    public static final String START = "start";
+
+    public static final String END = "end";
+
+    public static final String RANK = "rank";
+
+    public static final String RECENTS = "recents";
 }

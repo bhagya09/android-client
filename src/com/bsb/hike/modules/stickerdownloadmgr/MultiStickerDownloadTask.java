@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -32,9 +31,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.multiStickerDownloadRequest;
@@ -218,7 +215,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					{
 						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-						List<Sticker> stickerList = new ArrayList<>(getStickerDownloadSize());
+                        StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId, getStickerDownloadSize());
 
 						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
@@ -226,22 +223,13 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							JSONObject stickerData = stickers.getJSONObject(stickerId);
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
-							Sticker sticker = new Sticker(categoryId,stickerId);
-							sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
-							sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
-
 							existingStickerNumber++;
 
 							try
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
-
-								sticker.setLargeStickerPath(sticker.getLargeStickerFilePath());
-								sticker.setSmallStickerPath(sticker.getSmallStickerFilePath());
-
 								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-								stickerList.add(sticker);
 							}
 							catch (FileNotFoundException e)
 							{
@@ -254,8 +242,6 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 						}
 
 						StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.POST);
-
-						StickerManager.getInstance().saveSticker(stickerList);
 
 					}
 
