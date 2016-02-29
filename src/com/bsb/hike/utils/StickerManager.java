@@ -2584,15 +2584,15 @@ public class StickerManager
 
 				JSONObject recentSticker = new JSONObject(resultsStickers.next());
 
-				long startdate = recentSticker.getLong("start");
-				long endDate = recentSticker.getLong("end");
+				long startDate = recentSticker.getLong(HikeConstants.START);
+				long endDate = recentSticker.getLong(HikeConstants.END);
 
-				if (System.currentTimeMillis() > startdate && System.currentTimeMillis() < endDate)
+				if (System.currentTimeMillis() > startDate && System.currentTimeMillis() < endDate)
 				{
-					Sticker temp = new Sticker(recentSticker.getString("catId"), recentSticker.getString("sId"));
+					Sticker temp = new Sticker(recentSticker.getString(HikeConstants.CATEGORY_ID), recentSticker.getString(HikeConstants.STICKER_ID));
 					if(temp.isStickerAvailable())
 					{
-						int rank = recentSticker.getInt("rank");
+						int rank = recentSticker.getInt(HikeConstants.RANK);
 						resultSet.ensureCapacity(rank);
 						resultSet.add(rank-1,temp);
 					}
