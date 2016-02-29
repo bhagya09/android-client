@@ -1988,7 +1988,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
-				+ "PRIMARY KEY ("+DBConstants.STICKER_ID +" , "+ DBConstants.CATEGORY_ID +" )"
+				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
 
 		return sql;
