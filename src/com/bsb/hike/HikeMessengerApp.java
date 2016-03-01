@@ -57,6 +57,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.facebook.stetho.Stetho;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 import org.acra.ACRA;
@@ -759,6 +760,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ACRA.init(this);
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
+
+		Stetho.initialize(
+				Stetho.newInitializerBuilder(this)
+						.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+						.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+						.build());
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
