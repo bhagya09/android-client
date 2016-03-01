@@ -197,12 +197,6 @@ public interface DBConstants
 
 	public static final String PLATFORM_USER_ID = "platformUserId";
 
-	public static final String CHAT_BG_TABLE = "chatBgTable";
-
-	public static final String BG_ID = "bgId";
-
-	public static final String CHAT_BG_INDEX = "chatBgIndex";
-
 	public static final String IS_STEALTH = "isStealth";
 	
 	public static final String MESSAGE_HASH_INDEX = "messageHashIndex";
@@ -421,6 +415,67 @@ public interface DBConstants
 		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
 	}
 
+	public static class ChatThemes
+	{
+		public static final String CHAT_BG_TABLE = "chatBgTable";
+
+		//analogous to a unique id for every theme (themeId)
+		public static final String THEME_COL_BG_ID = "bgId";
+
+		public static final String CHAT_BG_INDEX = "chatBgIndex";
+
+		//stores the assetIds associated with a particular theme
+		public static final String CHAT_THEME_TABLE = "chatThemeTable";
+
+		//stores the asset value/location corresponding to a unique asset
+		public static final String CHAT_THEME_ASSET_TABLE = "chatThemeAssetTable";
+
+		public static final String CHAT_THEME_TIMESTAMP_COL = "timestamp";
+
+
+		//Columns for CHAT_THEME_ASSET_TABLE
+
+		public static final String ASSET_COL_ID = "assetId";
+
+		public static final String ASSET_COL_TYPE = "assetType";
+
+		public static final String ASSET_COL_VAL = "assetVal";
+
+		public static final String ASSET_COL_IS_DOWNLOADED = "isDownloaded";
+
+
+
+		//Columns for CHAT_THEME_TABLE
+
+		// to tell whether a theme is animated/tiled/audio or none
+		public static final String THEME_COL_TYPE = "themeType";
+
+		public static final String THEME_COL_BG_PORTRAIT = "bgPortrait"; //BG = background
+
+		public static final String THEME_COL_BG_LANDSCAPE = "bgLandscape";
+
+		public static final String THEME_COL_BUBBLE = "bubble";
+
+		public static final String THEME_COL_HEADER = "header";
+
+		public static final String THEME_COL_SEND_NUDGE = "sendNudge";
+
+		public static final String THEME_COL_RECEIVE_NUDGE = "receiveNudge";
+
+		public static final String THEME_COL_INLINE_UPDATE_BG = "inlineUpdateBG";
+
+		public static final String THEME_COL_SMS_BG = "smsBg";
+
+		public static final String THEME_COL_MULTI_SELECT_BUBBLE_COLOR = "multiSelectBubbleColor";
+
+		public static final String THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR = "offlineMessageTextColor";
+
+		public static final String THEME_COL_THUMBNAIL = "thumbnail";
+
+		public static final String THEME_COL_METADATA = "metadata";
+
+	}
+
 	public static final String CATEGORY_NAME = "categoryName";
 
 	public static final String IS_VISIBLE = "isVisible";
@@ -472,5 +527,11 @@ public interface DBConstants
 	 */
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
+
+	public static final String COLUMN_TYPE_TEXT = " TEXT";
+
+	public static final String COLUMN_TYPE_INTEGER = " INTEGER";
+
+	public static final String COMMA_SEPARATOR = ",";
 	
 }
