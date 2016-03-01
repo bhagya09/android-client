@@ -614,6 +614,8 @@ public class AnalyticsConstants
 
 	public static final String LOG_FIELD_2 = "fld2";
 
+    public static final String LOG_FIELD_3 = "fld3";
+
 	public static final String LOG_FIELD_4 = "fld4";
 	
 	public static final String LOG_FIELD_5 = "fld5";
@@ -645,6 +647,12 @@ public class AnalyticsConstants
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
 	public static final String USER_LOCATION = "location";
-	
+
 	public static final String DATABASE_ERROR = "db_error";
+
+    public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
+
+    public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
+
+    public static final String APP_UPDATE_TRIGGER = "app_updated";
 }
