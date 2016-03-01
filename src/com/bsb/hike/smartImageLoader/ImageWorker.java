@@ -45,6 +45,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.view.TextDrawable.Builder;
+import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 /**
  * This class wraps up completing some arbitrary long running work when loading a bitmap to an ImageView. It handles things like using a memory and disk cache, running the work in
@@ -239,7 +240,7 @@ public abstract class ImageWorker
 			// NOTE: This uses a custom version of AsyncTask that has been pulled from the
 			// framework and slightly modified. Refer to the docs at the top of the class
 			// for more info on what was changed.
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, key);
+			task.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR, key);
 		}
 	}
 
@@ -463,7 +464,7 @@ public abstract class ImageWorker
 	/**
 	 * The actual AsyncTask that will asynchronously process the image.
 	 */
-	private class BitmapWorkerTask extends AsyncTask<String, Void, BitmapDrawable>
+	private class BitmapWorkerTask extends MyAsyncTask<String, Void, BitmapDrawable>
 	{
 		private String data;
 
