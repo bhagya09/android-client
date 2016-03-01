@@ -432,8 +432,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		doneBtn.setVisibility(View.VISIBLE);
 		postText.setText(R.string.send);
 
-		title.setText(R.string.preview);
-
 		if(editEnabled)
 		{
 			actionsView.setVisibility(View.INVISIBLE);
