@@ -49,6 +49,19 @@ public class HikeChatTheme
 		return this.assets[type];
 	}
 
+	public String getAssetValue(HikeChatThemeAsset asset)
+	{
+		if(asset == null)
+			return null;
+
+		return asset.getValue();
+	}
+
+	public String getAssetValueForType(byte type)
+	{
+		return getAssetValue(getAsset(type));
+	}
+
 	public HikeChatThemeAsset[] getAssets()
 	{
 		return this.assets;
@@ -118,4 +131,5 @@ public class HikeChatTheme
 	{
 		return ((this.assetDownloadStatus & assetStatus) > 0);
 	}
+
 }
