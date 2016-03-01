@@ -3876,4 +3876,6 @@ public class HikeConstants
 
     public static final int MAX_DISK_CACHE_KEY_LENGTH = 115;
 
+    public static final String MINI_KEY_PREFIX = "mini_";
+
 }
