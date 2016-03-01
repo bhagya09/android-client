@@ -1823,11 +1823,11 @@ public class PlatformUtils
 				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
 				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
 				File microAppFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path);
-				long fileSize = Utils.folderSize(microAppFile);
 
-				if (microAppFile.isDirectory() && fileSize > 0)
+				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
 				{
-					JSONObject json = new JSONObject();
+                    long fileSize = Utils.folderSize(microAppFile);
+                    JSONObject json = new JSONObject();
 					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
 					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
@@ -1852,9 +1852,13 @@ public class PlatformUtils
         try
         {
             JSONObject json = new JSONObject();
-            // Determine disk space consumed by micro app installed and total content directory size
-            long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
-            long botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
+            long contentFolderLength = 0,botFileSize =0;
+
+            // Precautionary check to check if these files are indeed folders and preventing NPE
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
+                contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName).isDirectory())
+                botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
 
             json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
             json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.MICROAPP_DISK_CONSUMPTION);
