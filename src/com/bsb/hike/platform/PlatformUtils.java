@@ -1822,23 +1822,20 @@ public class PlatformUtils
 				String path = (String) mArray.get(i);
 				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
 				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				File microAppFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path);
+				long fileSize = Utils.folderSize(microAppFile);
 
-				if (new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path).isDirectory())
+				if (microAppFile.isDirectory() && fileSize > 0)
 				{
-					long fileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path));
-					if (fileSize > 0)
-					{
-						JSONObject json = new JSONObject();
-						json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
-                        json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
-                        json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
-						json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
-                        json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
-						json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
-						HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
-					}
+					JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
+					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 				}
-
 			}
 			catch (JSONException e)
 			{
