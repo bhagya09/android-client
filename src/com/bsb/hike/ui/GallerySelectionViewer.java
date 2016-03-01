@@ -554,8 +554,6 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.EDIT_SEND);
-
-			JSONObject mdJson = new JSONObject();
 			ArrayList<Uri> selectedFiles = getSelectedFilesAsUri();
 
 			int actualEditedImageSize = 0;
@@ -574,10 +572,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			int numberEdited = actualEditedImageSize;
 			int numberTotal = Utils.isEmpty(selectedFiles) ? 0 : selectedFiles.size();
 
-			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_FILTER, numberEdited);
-			mdJson.put(HikeConstants.LogEvent.EDIT_SEND_NO_FILTER, Math.max(0, numberTotal - numberEdited));
-
-			json.put(AnalyticsConstants.METADATA, mdJson);
+			json.put(HikeConstants.LogEvent.EDIT_SEND_FILTER, numberEdited);
+			json.put(HikeConstants.LogEvent.EDIT_SEND_NO_FILTER, Math.max(0, numberTotal - numberEdited));
 
 			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}

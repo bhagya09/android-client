@@ -3643,15 +3643,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.MULSEL_SEND);
-
-			JSONObject mdJson = new JSONObject();
-
-			mdJson.put(HikeConstants.LogEvent.MULSEL_TIMELINE_SEL,timeline_sel);
-			mdJson.put(HikeConstants.LogEvent.MULSEL_CONTACT_SEL,contact_sel);
-			mdJson.put(HikeConstants.LogEvent.MULSEL_IS_SHARE,isShareSend);
-
-			json.put(AnalyticsConstants.METADATA,mdJson);
-
+			json.put(HikeConstants.LogEvent.MULSEL_TIMELINE_SEL,timeline_sel);
+			json.put(HikeConstants.LogEvent.MULSEL_CONTACT_SEL,contact_sel);
+			json.put(HikeConstants.LogEvent.MULSEL_IS_SHARE,isShareSend);
 			HikeAnalyticsEvent.analyticsForPhotos(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		}
 		catch (JSONException e)
