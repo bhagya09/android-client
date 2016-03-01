@@ -332,5 +332,6 @@
     <color name="update_tip_header_text">#f7f8f9</color>
     <color name="update_tip_body_text">#e6f7f8f9</color>
     <color name="crop_actionbar_bg">#0f0f0f</color>
+    <color name="block_contact">#C70000</color>
 </resources>
 	
