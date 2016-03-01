@@ -1811,7 +1811,7 @@ public class PlatformUtils
     /*
      * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
      */
-	public static void platformDiskConsumptionAnalytics()
+	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
 	{
         // Get list of all micro apps installed in content directory
 		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
@@ -1829,9 +1829,11 @@ public class PlatformUtils
 					if (fileSize > 0)
 					{
 						JSONObject json = new JSONObject();
-						json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
-                        json.put(AnalyticsConstants.EVENT, "platform_disk_consumption");
-						json.putOpt(AnalyticsConstants.LOG_FIELD_1, path); // App Name
+						json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+                        json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+                        json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
+                        json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
 						json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
 						HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 					}
@@ -1857,14 +1859,14 @@ public class PlatformUtils
             long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
             long botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
 
-            json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
-            json.put(AnalyticsConstants.EVENT, "bot_disk_consumption");
+            json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.MICROAPP_DISK_CONSUMPTION);
 
             json.putOpt(AnalyticsConstants.LOG_FIELD_1, appName); //App Name
             json.putOpt(AnalyticsConstants.LOG_FIELD_5, botFileSize); // installed microapp disk consumption
             json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
 
-            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
         }
         catch (JSONException e)
         {
