@@ -667,7 +667,7 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
@@ -1807,5 +1807,70 @@ public class PlatformUtils
 		}
 		return convMessage;
 	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
+     */
+	public static void platformDiskConsumptionAnalytics()
+	{
+        // Get list of all micro apps installed in content directory
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			try
+			{
+				String path = (String) mArray.get(i);
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+
+				if (new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path).isDirectory())
+				{
+					long fileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path));
+					if (fileSize > 0)
+					{
+						JSONObject json = new JSONObject();
+						json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+                        json.put(AnalyticsConstants.EVENT, "platform_disk_consumption");
+						json.putOpt(AnalyticsConstants.LOG_FIELD_1, path); // App Name
+						json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+						HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+					}
+				}
+
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the micro app just being installed. This method is called on successful cbot,mapp and popup creation
+     */
+    public static void microAppDiskConsumptionAnalytics(String appName)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            // Determine disk space consumed by micro app installed and total content directory size
+            long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+            long botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
+
+            json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.put(AnalyticsConstants.EVENT, "bot_disk_consumption");
+
+            json.putOpt(AnalyticsConstants.LOG_FIELD_1, appName); //App Name
+            json.putOpt(AnalyticsConstants.LOG_FIELD_5, botFileSize); // installed microapp disk consumption
+            json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
+
+            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 
 }

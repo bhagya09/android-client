@@ -1,6 +1,5 @@
 package com.bsb.hike.service;
 
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +13,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -92,6 +92,7 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 				HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, freeSMSOn);
 			}
 
+            PlatformUtils.platformDiskConsumptionAnalytics();
 		}
 	}
 }
