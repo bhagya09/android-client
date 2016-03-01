@@ -1,13 +1,10 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import android.support.annotation.Nullable;
-
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 
 /**
@@ -48,7 +45,7 @@ public class RequestRunner
 			{
 				if (null == response)
 				{
-					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
+					requestListenerNotifier.notifyListenersOfRequestFailure(request, response, ex);
 				}
 				else
 				{

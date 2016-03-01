@@ -58,6 +58,11 @@ public class ResponseBody<T>
 		this.content = content;
 	}
 
+	public String getErrorString()
+	{
+		return errorString;
+	}
+
 	/**
 	 * Returns the {@link ResponseBody} object using mime type and content byte array
 	 * 

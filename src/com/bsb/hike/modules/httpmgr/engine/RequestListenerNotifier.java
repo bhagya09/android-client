@@ -1,8 +1,5 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
@@ -11,6 +8,9 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseCall;
 import com.bsb.hike.modules.httpmgr.response.ResponseFacade;
+
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class is responsible for notifying the request listeners of the request about the success or failure of the request. The response is either sent synchronously i.e on same
@@ -165,41 +165,41 @@ public class RequestListenerNotifier
 	 * @param request
 	 * @param ex
 	 */
-	public void notifyListenersOfRequestFailure(Request<?> request, HttpException ex)
+	public void notifyListenersOfRequestFailure(Request<?> request, Response response, HttpException ex)
 	{
 		if (!request.isAsynchronous())
 		{
 			// send response on same thread
-			sendFailure(request, ex);
+			sendFailure(request, response, ex);
 		}
 		else if (request.isResponseOnUIThread())
 		{
 			// send response on ui thread
-			ResponseCall call = getResponseCall(request, ex);
+			ResponseCall call = getResponseCall(request, response, ex);
 			uiExecuter.execute(call);
 		}
 		else
 		{
 			// send response on other thread
-			ResponseCall call = getResponseCall(request, ex);
+			ResponseCall call = getResponseCall(request, response, ex);
 			engine.submit(call);
 		}
 	}
 
-	private ResponseCall getResponseCall(final Request<?> request, final HttpException ex)
+	private ResponseCall getResponseCall(final Request<?> request, final Response response, final HttpException ex)
 	{
 		ResponseCall call = new ResponseCall()
 		{
 			@Override
 			public void execute()
 			{
-				sendFailure(request, ex);
+				sendFailure(request, response, ex);
 			}
 		};
 		return call;
 	}
 
-	private void sendFailure(Request<?> request, HttpException ex)
+	private void sendFailure(Request<?> request, Response response, HttpException ex)
 	{
 		try
 		{
@@ -211,12 +211,12 @@ public class RequestListenerNotifier
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
 			{
-				listener.onRequestFailure(null, ex);
+				listener.onRequestFailure(response, ex);
 			}
 		}
 		finally
 		{
-			HttpUtils.finish(request, null);
+			HttpUtils.finish(request, response);
 		}
 	}
 
