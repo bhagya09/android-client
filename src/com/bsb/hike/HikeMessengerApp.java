@@ -754,19 +754,20 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
-		Logger.d("KptDebug", "HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
+		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
-		token =HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOKEN_SETTING, null);
-		msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
-		String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
+		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		String uid = settings.getString(HikeMessengerApp.UID_SETTING, null);
 		// this is the setting to check whether the conv DB migration has
 		// started or not
 		// -1 in both cases means an uninitialized setting, mostly on first
 		// launch or interrupted upgrades.
-		int convInt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
-		int msgHashGrpReadUpgrade = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
-		int upgradeForDbVersion28 = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
+		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
+		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
+		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
 		ACRA.init(this);
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
@@ -786,25 +787,31 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// first time or failed DB upgrade.
 		if (convInt == -1)
 		{
+			Editor mEditor = settings.edit();
 			// set the pref to 0 to indicate we've reached the state to init the
 			// hike conversation database.
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_AVATAR_CONV_DB, 0);
+			mEditor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 0);
+			mEditor.commit();
 		}
 
 		if (msgHashGrpReadUpgrade == -1)
 		{
+			Editor mEditor = settings.edit();
 			// set the pref to 0 to indicate we've reached the state to init the
 			// hike conversation database.
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 0);
+			mEditor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 0);
+			mEditor.commit();
 		}
 
 		if (upgradeForDbVersion28 == -1)
 		{
+			Editor mEditor = settings.edit();
 			// set the pref to 0 to indicate we've reached the state to init the
 			// hike conversation database.
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 0);
+			mEditor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 0);
+			mEditor.commit();
 		}
-		String currentAppVersion = HikeSharedPreferenceUtil.getInstance().getData(CURRENT_APP_VERSION, "");
+		String currentAppVersion = settings.getString(CURRENT_APP_VERSION, "");
 		String actualAppVersion = "";
 		try
 		{
@@ -819,7 +826,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			if (!currentAppVersion.equals(""))
 			{
-				Utils.resetUpdateParams();
+				Utils.resetUpdateParams(settings);
 				// for restore notification default setting
 				HikeNotificationUtils.restoreNotificationParams(getApplicationContext());
 			}
@@ -827,16 +834,18 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			/*
 			 * Updating the app version.
 			 */
-			HikeSharedPreferenceUtil.getInstance().saveData(CURRENT_APP_VERSION, actualAppVersion);
+			Editor editor = settings.edit();
+			editor.putString(CURRENT_APP_VERSION, actualAppVersion);
+			editor.commit();
 		}
 
-		initImportantAppComponents();
+		initImportantAppComponents(settings);
 
 		// if the setting value is 1 , this means the DB onUpgrade was called
 		// successfully.
-		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
-				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || HikeSharedPreferenceUtil.getInstance().getData(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||HikeSharedPreferenceUtil.getInstance().getData(UPGRADE_LANG_ORDER, 0)==0|| TEST)
+		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
+				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -845,7 +854,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		}
 
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
+		if (settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 2)
 		{
 			sm.doInitialSetup();
 		}
@@ -854,7 +863,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// String twitterTokenSecret = settings.getString(HikeMessengerApp.TWITTER_TOKEN_SECRET, "");
 		// makeTwitterInstance(twitterToken, twitterTokenSecret);
 
-		String countryCode = HikeSharedPreferenceUtil.getInstance().getData(COUNTRY_CODE, "");
+		String countryCode = settings.getString(COUNTRY_CODE, "");
 		setIndianUser(countryCode.equals(HikeConstants.INDIA_COUNTRY_CODE));
 
 		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
@@ -866,7 +875,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		boolean isSAUser = countryCode.equals(HikeConstants.SAUDI_ARABIA_COUNTRY_CODE);
 
 		// Setting SSL_PREF as false for existing SA users with SSL_PREF = true
-		if (!preferenceManager.contains(HikeConstants.SSL_PREF) || (isSAUser && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SSL_PREF, false)))
+		if (!preferenceManager.contains(HikeConstants.SSL_PREF) || (isSAUser && settings.getBoolean(HikeConstants.SSL_PREF, false)))
 		{
 			Editor editor = preferenceManager.edit();
 			editor.putBoolean(HikeConstants.SSL_PREF, !(isIndianUser || isSAUser));
@@ -926,7 +935,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		/*
 		 * Replacing GB keys' strings.
 		 */
-		if (!HikeSharedPreferenceUtil.getInstance().contains(GREENBLUE_DETAILS_SENT))
+		if (!settings.contains(GREENBLUE_DETAILS_SENT))
 		{
 			replaceGBKeys();
 		}
@@ -955,7 +964,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
-	private void initImportantAppComponents()
+	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
 		// succeeded by the onUpgrade() calls being triggered in the respective databases.
@@ -970,7 +979,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
 
-		Utils.setupServerURL(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
+		Utils.setupServerURL(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true), Utils.switchSSLOn(getApplicationContext()));
 		HttpRequestConstants.setUpBase();
 
 		typingNotificationMap = new HashMap<String, TypingNotification>();
@@ -992,7 +1001,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		ProductInfoManager.getInstance().init();
 
-		PlatformContent.init(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION, true));
+		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
 		ChatHeadUtils.startOrStopService(false);
 

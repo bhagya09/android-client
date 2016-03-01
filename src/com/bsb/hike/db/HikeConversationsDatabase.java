@@ -554,7 +554,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			// Edit the preference to ensure that HikeMessenger app knows we've
 			// reached the
 			// upgrade flow for version 18
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_AVATAR_CONV_DB, 1);
+			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+			editor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 1);
+			editor.commit();
 		}
 
 		/*
@@ -636,7 +638,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			// Edit the preference to ensure that HikeMessenger app knows we've
 			// reached the
 			// upgrade flow for version 27
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 1);
+			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+			editor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 1);
+			editor.commit();
 		}
 
 		/*
@@ -647,7 +651,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			// Edit the preference to ensure that HikeMessenger app knows we've
 			// reached the
 			// upgrade flow for version 28
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 1);
+			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 1);
+			editor.commit();
 		}
 
 		/*
@@ -678,8 +684,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			// Edit the preference to ensure that HikeMessenger app knows we've
 			// reached the
 			// upgrade flow for version 31
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1);
+			Editor editor = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
+			editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1);
+			editor.commit();
 		}
 
 		/**
