@@ -757,8 +757,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d("KptDebug", "HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
-		super.onCreate();
-		_instance = this;
 		token =HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 		String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
@@ -773,9 +771,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
 
+		super.onCreate();
 
-
-
+		_instance = this;
 
 		// We need to set all AppConfig params on the start when _instance have been initialized
 		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to

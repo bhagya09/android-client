@@ -32,7 +32,7 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 		{
 			Logger.d(getClass().getSimpleName(), "App has been updated");
 
-			final HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 
 			Intent intentKpt = new Intent();
@@ -51,16 +51,18 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			/*
 			 * Checking if the current version is the latest version. If it is we reset the preference which prompts the user to update the app.
 			 */
-			if (!Utils.isUpdateRequired(prefs.getData(HikeConstants.Extras.LATEST_VERSION, ""), context))
+			if (!Utils.isUpdateRequired(prefs.getString(HikeConstants.Extras.LATEST_VERSION, ""), context))
 			{
-				prefs.removeData(HikeConstants.Extras.UPDATE_AVAILABLE);
-				prefs.removeData(HikeConstants.Extras.SHOW_UPDATE_OVERLAY);
-				prefs.removeData(HikeConstants.Extras.SHOW_UPDATE_TOOL_TIP);
-				prefs.removeData(HikeConstants.Extras.UPDATE_TO_IGNORE);
-				prefs.removeData(HikeConstants.Extras.LATEST_VERSION);
-				prefs.removeData(HikeMessengerApp.NUM_TIMES_HOME_SCREEN);
-				prefs.removeData(HikeConstants.Extras.URL);
-
+				Editor editor = prefs.edit();
+				editor.remove(HikeConstants.Extras.UPDATE_AVAILABLE);
+				editor.remove(HikeConstants.Extras.SHOW_UPDATE_OVERLAY);
+				editor.remove(HikeConstants.Extras.SHOW_UPDATE_TOOL_TIP);
+				editor.remove(HikeConstants.Extras.UPDATE_TO_IGNORE);
+				editor.remove(HikeConstants.Extras.LATEST_VERSION);
+				editor.remove(HikeMessengerApp.NUM_TIMES_HOME_SCREEN);
+				editor.remove(HikeConstants.Extras.URL);
+				editor.commit();
+				
 				//Removing Upgrade tips, persistent notifications
 				Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Flushing update tips and persistent notifs.");
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOULD_SHOW_PERSISTENT_NOTIF, false);
@@ -72,9 +74,11 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			/*
 			 * This will happen for builds older than 1.1.15
 			 */
-			if (!prefs.contains(HikeMessengerApp.COUNTRY_CODE) && prefs.getData(HikeMessengerApp.MSISDN_SETTING, "").startsWith(HikeConstants.INDIA_COUNTRY_CODE))
+			if (!prefs.contains(HikeMessengerApp.COUNTRY_CODE) && prefs.getString(HikeMessengerApp.MSISDN_SETTING, "").startsWith(HikeConstants.INDIA_COUNTRY_CODE))
 			{
-				prefs.saveData(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE);
+				Editor editor = prefs.edit();
+				editor.putString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE);
+				editor.commit();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REFRESH_RECENTS, null);
 			}
 
@@ -82,8 +86,9 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			if (!appPrefs.contains(HikeConstants.FREE_SMS_PREF))
 			{
 				Editor editor = appPrefs.edit();
-				boolean freeSMSOn = prefs.getData(HikeMessengerApp.COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE);
-				prefs.saveData(HikeConstants.FREE_SMS_PREF, freeSMSOn);
+				boolean freeSMSOn = prefs.getString(HikeMessengerApp.COUNTRY_CODE, "").equals(HikeConstants.INDIA_COUNTRY_CODE);
+				editor.putBoolean(HikeConstants.FREE_SMS_PREF, freeSMSOn);
+				editor.commit();
 				HikeMessengerApp.getPubSub().publish(HikePubSub.FREE_SMS_TOGGLED, freeSMSOn);
 			}
 

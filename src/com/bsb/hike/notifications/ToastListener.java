@@ -679,13 +679,16 @@ public class ToastListener implements Listener
 	private void notifyConnStatus(MQTTConnectionStatus status)
 	{
 		/* only show the trying to connect message after we've connected once */
-		boolean connectedOnce = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.CONNECTED_ONCE, false);
+		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		boolean connectedOnce = settings.getBoolean(HikeMessengerApp.CONNECTED_ONCE, false);
 		if (status == MqttConstants.MQTTConnectionStatus.CONNECTED)
 		{
 			HikeNotification.getInstance().cancelNotification(HikeConstants.HIKE_SYSTEM_NOTIFICATION);
 			if (!connectedOnce)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONNECTED_ONCE, true);
+				Editor editor = settings.edit();
+				editor.putBoolean(HikeMessengerApp.CONNECTED_ONCE, true);
+				editor.commit();
 			}
 			return;
 		}
