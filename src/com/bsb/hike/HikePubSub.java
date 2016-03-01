@@ -508,6 +508,10 @@ public class HikePubSub implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_SUCCESS = "chatThemeContentDownloadSuccess";
+
+	public static final String CHATTHEME_CONTENT_DOWNLOAD_FAILURE = "chatThemeContentDownloadFailure";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
