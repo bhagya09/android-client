@@ -2712,9 +2712,9 @@ public class StickerManager
      */
     public String generateMiniStickerPath(Sticker sticker)
     {
-        String miniStickerPath = "mini_";
+        String miniStickerPath = HikeConstants.MINI_KEY_PREFIX;
 
-        String key = sticker.getStickerCode().toLowerCase().substring(0,HikeConstants.MAX_DISK_CACHE_KEY_LENGTH).replaceAll("[^a-z0-9_-]", "");
+        String key = sticker.getStickerCode().toLowerCase().substring(0, HikeConstants.MAX_DISK_CACHE_KEY_LENGTH).replaceAll("[^a-z0-9_-]", "");
 
         sticker.setMiniStickerPath(miniStickerPath);
 

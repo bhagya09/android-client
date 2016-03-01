@@ -51,7 +51,7 @@ public class StickerLoader extends ImageWorker
 		String path = args[2];
 		Bitmap bitmap;
 
-		if(path.contains("mini"))
+		if(path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
 			bitmap = loadMiniStickerBitmap(path);
 			checkAndDownloadMiniSticker(bitmap, sticker);
