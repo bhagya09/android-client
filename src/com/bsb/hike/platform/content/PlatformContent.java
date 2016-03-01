@@ -36,7 +36,7 @@ public class PlatformContent
 					@Override
 					public String toString()
 					{
-						return "low_con";
+						return "low_con"+errorCode;
 					}
 				},
 
@@ -103,7 +103,12 @@ public class PlatformContent
 					{
 						return "empty_url";
 					}
-				}
+				};
+		int errorCode;
+		public void setErrorCode(int errorCode)
+		{
+			this.errorCode = errorCode;
+		}
 	}
 
 	/**
