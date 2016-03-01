@@ -506,6 +506,12 @@ public class PlatformZipDownloader
                             return;
                         }
                     }
+                    else if(zipFileLength == 0)
+                    {
+                        HttpException exception = new HttpException(HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD);
+                        onRequestFailure(exception);
+                        return;
+                    }
 
                     JSONObject json = new JSONObject();
 					try
@@ -557,6 +563,8 @@ public class PlatformZipDownloader
                 EventCode eventCode = EventCode.LOW_CONNECTIVITY;
                 if(httpException.getErrorCode() == HttpException.REASON_CODE_INCOMPLETE_REQUEST)
                     eventCode = EventCode.INCOMPLETE_ZIP_DOWNLOAD;
+                else if(httpException.getErrorCode() == HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD)
+                    eventCode = EventCode.ZERO_BYTE_ZIP_DOWNLOAD;
 
 				callbackProgress.remove(callbackId);
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
