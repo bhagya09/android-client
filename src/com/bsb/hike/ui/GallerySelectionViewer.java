@@ -305,6 +305,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		setupActionBar();
 
 		showTipIfRequired();
+
+		setSelection(0);
 	}
 
 	private void arrangeHeights()
