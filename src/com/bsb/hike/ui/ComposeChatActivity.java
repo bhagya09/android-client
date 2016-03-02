@@ -2091,6 +2091,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else if (type != null && presentIntent.hasExtra(Intent.EXTRA_STREAM))
 		{
 			Uri fileUri = presentIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+			if(fileUri == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
+				return arrayList;
+			}
 			if (type.startsWith(HikeConstants.SHARE_CONTACT_CONTENT_TYPE))
 			{
 				String lookupKey = fileUri.getLastPathSegment();
