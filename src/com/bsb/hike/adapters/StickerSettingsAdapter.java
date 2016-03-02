@@ -171,16 +171,29 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		checkAndEnableDeleteButton(category.getCategoryId(), viewHolder.deleteButton);
-		if (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK)
+		//doing task specific things
+		switch(stickerSettingsTask)
 		{
-			viewHolder.updateButton.setVisibility(View.VISIBLE);
-			viewHolder.updateButton.setImageLevel(UPDATE_AVAILABLE);
+			case STICKER_DELETE_TASK:
+				viewHolder.deleteButton.setVisibility(View.VISIBLE);
+				break;
+
+			case STICKER_REORDER_TASK:
+				viewHolder.reorderIcon.setVisibility(View.VISIBLE);
+				break;
+
+			case STICKER_UPDATE_TASK:
+				viewHolder.updateButton.setVisibility(View.VISIBLE);
+				viewHolder.updateButton.setImageLevel(UPDATE_AVAILABLE);
+				viewHolder.updateStickersCount.setVisibility(View.VISIBLE);
+				viewHolder.updateStickersCount.setText(mContext.getString(R.string.n_more_stickers, category.getMoreStickerCount()));
+				break;
 		}
+
 		viewHolder.downloadProgress.setVisibility(View.GONE); //This is being done to clear the spinner animation.
 		viewHolder.downloadProgress.clearAnimation();
 		
-		if(category.getTotalStickers() > 0)
+		if(category.getTotalStickers() > 0 && (stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK))		//showing no. of more stickers rather than total stickers in case of update packs
 		{
 			viewHolder.categorySize.setVisibility(View.VISIBLE);
 			viewHolder.categorySize.setText(category.getTotalStickers() == 1 ? mContext.getString(R.string.singular_stickers, category.getTotalStickers()) : mContext.getString(R.string.n_stickers, category.getTotalStickers()));
