@@ -471,6 +471,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
 	}
 
+	public ContactInfo()
+	{
+		// Does nothing
+	}
+
 	public ContactInfo(ContactInfo contactInfo)
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo

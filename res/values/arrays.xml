@@ -14,8 +14,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- -->
+-->
 <resources>
+
     <string-array name="default_smiley_texts">
         <item>:))</item> <!-- 01 bigsmile -->
         <item>:-)</item> <!-- 02 happy -->
@@ -193,48 +194,46 @@
         <item>(dd)</item>
     </string-array>
 
-	<!-- We have a single element array so that if new options are added to the dialog we just have to add strings to this array.  -->
-	<string-array name="profile_pic_dialog">
-	    <item>@string/edit_photos</item>
-	</string-array>
+    <!-- We have a single element array so that if new options are added to the dialog we just have to add strings to this array. -->
+    <string-array name="profile_pic_dialog">
+        <item>@string/edit_photos</item>
+    </string-array>
+    <string-array name="mood_headings">
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>In love</item>
+        <item>Surprised</item>
+        <item>Confused</item>
+        <item>Angry</item>
+        <item>Sleepy</item>
+        <item>Hungover</item>
+        <item>Chilling</item>
+        <item>Studying</item>
+        <item>Busy</item>
+        <item>Love</item>
+        <item>Middle finger</item>
+        <item>Boozing</item>
+        <item>In a movie</item>
+        <item>Caffeinated</item>
+        <item>Insomniac</item>
+        <item>Driving</item>
+        <item>Stuck in traffic</item>
+        <item>Running late</item>
+        <item>Shopping</item>
+        <item>Gaming</item>
+        <item>Coding</item>
+        <item>Watching TV</item>
+        <item>Music</item>
+        <item>Partying Hard</item>
+        <item>Singing</item>
+        <item>Eating</item>
+        <item>Working Out</item>
+        <item>Cooking</item>
+        <item>Beauty Saloon</item>
+        <item>Sick</item>
+    </string-array>
 
-
-	<string-array name="mood_headings">
-	    <item>Happy</item>
-	    <item>Sad</item>
-	    <item>In love</item>
-	    <item>Surprised</item>
-	    <item>Confused</item>
-	    <item>Angry</item>
-	    <item>Sleepy</item>
-	    <item>Hungover</item>
-	    <item>Chilling</item>
-	    <item>Studying</item>
-	    <item>Busy</item>
-	    <item>Love</item>
-	    <item>Middle finger</item>
-	    <item>Boozing</item>
-	    <item>In a movie</item>
-	    <item>Caffeinated</item>
-	    <item>Insomniac</item>
-	    <item>Driving</item>
-	    <item>Stuck in traffic</item>
-	    <item>Running late</item>
-	    <item>Shopping</item>
-	    <item>Gaming</item>
-	    <item>Coding</item>
-	    <item>Watching TV</item>
-	    <item>Music</item>
-	    <item>Partying Hard</item>
-	    <item>Singing</item>
-	    <item>Eating</item>
-	    <item>Working Out</item>
-	    <item>Cooking</item>
-	    <item>Beauty Saloon</item>
-	    <item>Sick</item>
-	</string-array>	
-	
-	<array name="call_glowpad_drawables">
+    <array name="call_glowpad_drawables">
         <item>@drawable/ic_item_call_pick</item>
         <item>@drawable/ic_item_decline_message</item>
         <item>@drawable/ic_item_call_hang</item>
@@ -280,6 +279,40 @@
 	    <item>POLAROID</item>
 	    <item>SEPIA</item>
 	    <item>GRAYSCALE</item>
+    </array>
+
+    <array name="dp_bg3">
+        <item>@color/avatar_color_apricot</item>
+        <item>@color/avatar_color_bubblegum</item>
+        <item>@color/avatar_color_carnation</item>
+        <item>@color/avatar_color_light_gold</item>
+        <item>@color/avatar_color_sky_blue</item>
+    </array>
+
+    <array name="dp_bg2">
+        <item>@color/dp_bg_1</item>
+        <item>@color/dp_bg_2</item>
+        <item>@color/dp_bg_3</item>
+        <item>@color/dp_bg_5</item>
+        <item>@color/dp_bg_6</item>
+        <item>@color/dp_bg_7</item>
+        <item>@color/dp_bg_8</item>
+        <item>@color/dp_bg_9</item>
+        <item>@color/dp_bg_10</item>
+        <item>@color/dp_bg_11</item>
+        <item>@color/dp_bg_12</item>
+    </array>
+
+    <array name="dp_bg">
+        <item>@color/v2_dp_bg_1</item>
+        <item>@color/v2_dp_bg_3</item>
+        <item>@color/v2_dp_bg_4</item>
+        <item>@color/v2_dp_bg_6</item>
+        <item>@color/v2_dp_bg_7</item>
+        <item>@color/v2_dp_bg_8</item>
+        <item>@color/v2_dp_bg_9</item>
+        <item>@color/v2_dp_bg_10</item>
+        <item>@color/v2_dp_bg_11</item>
     </array>
 
 </resources>

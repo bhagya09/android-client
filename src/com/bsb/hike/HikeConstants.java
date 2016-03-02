@@ -66,6 +66,8 @@ public class HikeConstants
 	public static final String SMS_MESSAGE = "sm";
 
 	public static final String PIN_MESSAGE = "pin";
+	
+	public static final String CAPTION = "cptn";
 
 	public static final String TIMESTAMP = "ts";
 
@@ -536,6 +538,14 @@ public class HikeConstants
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
 	
 	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+
+	public static final String STEALTH_INDICATOR_ANIM_ON_RESUME = "stealthIndicatorAnimOnResume";
+
+	public static final int STEALTH_INDICATOR_RESUME_EXPIRED = -1;
+
+	public static final int STEALTH_INDICATOR_RESUME_ACTIVE = 1;
+
+	public static final int STEALTH_INDICATOR_RESUME_RESET = 0;
 	
 	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
@@ -1253,7 +1263,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 1 * 60 * 1000;
 
 	public static final String ENABLED = "enabled";
 
@@ -1302,6 +1312,7 @@ public class HikeConstants
 	public static final String STATUS_BAR_BLUE = "blue";
 
 	public static final String STATUS_BAR_TRANSPARENT = "transparent";
+	public static final String STATUS_BAR_TIMELINE = "timeline";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 
@@ -2476,6 +2487,31 @@ public class HikeConstants
 
 		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
 
+		public static final String TAP_EDIT = "photo_filter";
+
+		public static final String TAP_CROP = "photo_crop";
+
+		public static final String TAP_CROP_ACCEPT = "photo_crop_ac";
+
+		public static final String TAP_DELETE = "photo_dlt";
+
+		public static final String TAP_ROTATE = "photo_rotate";
+
+		public static final String EDIT_SEND = "edit_send";
+
+		public static final String EDIT_SEND_FILTER = "flt";
+
+		public static final String EDIT_SEND_NO_FILTER = "no_flt";
+
+		public static final String MULSEL_SEND = "mlsel_send";
+
+		public static final String MULSEL_IS_SHARE = "is_share";
+
+		public static final String MULSEL_TIMELINE_SEL = "tl_sel";
+
+		public static final String MULSEL_CONTACT_SEL = "conv_sel";
+
+
 		// Broadcast
 		public static final String NEW_BROADCAST_VIA_OVERFLOW = "nbcOf";
 
@@ -3261,6 +3297,8 @@ public class HikeConstants
 
 		public static final int MAX_IMAGE_DIMEN = 1240;
 
+		public static final int MODIFIED_MAX_IMAGE_DIMEN = 1540;
+
 		public static final String HOME_ON_BACK_PRESS = "from_dp_upload";
 
 		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
@@ -3284,6 +3322,9 @@ public class HikeConstants
 
 	public static int DEFAULT_AVATARS[] = { R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold,
 			R.drawable.avatar_sky_blue };
+
+	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.avatar_color_apricot, R.color.avatar_color_bubblegum, R.color.avatar_color_carnation,
+			R.color.avatar_color_light_gold, R.color.avatar_color_sky_blue };
 
 	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_buggle_gum", "avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue" };
 
@@ -3448,6 +3489,8 @@ public class HikeConstants
 	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 
 	public static final String IMAGE_PATHS = "image-paths";
+
+	public static final String EDITED_IMAGE_PATHS = "edited-image-paths";
 
 	public static final String OFFLINE_MESSAGE_REQUEST = "omr";
 

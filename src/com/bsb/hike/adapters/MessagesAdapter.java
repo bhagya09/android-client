@@ -105,6 +105,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -239,6 +240,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private static class ImageViewHolder extends FTViewHolder
 	{
+
+		public TextView caption;
 	}
 
 	private static class FileViewHolder extends FTViewHolder
@@ -350,6 +353,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
+
+	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -1387,6 +1392,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
 						imageHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1425,6 +1431,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1516,6 +1523,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setTag(convMessage);
 				imageHolder.fileThumb.setOnClickListener(this);
 				imageHolder.fileThumb.setOnLongClickListener(this);
+
+				// Set caption
+				if (TextUtils.isEmpty(convMessage.getMetadata().getCaption()))
+				{
+					imageHolder.caption.setText(null);
+					imageHolder.caption.setVisibility(View.GONE);
+				}
+				else
+				{
+					imageHolder.caption.setVisibility(View.VISIBLE);
+					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
+					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
+				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
 			{
@@ -2700,6 +2721,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
+	
+	private void setAvatar(String msisdn, String name, ImageView imageView)
+	{
+		iconLoader.loadImage(msisdn, imageView, false, true, false, name);
+	}
 
 	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
 	{
@@ -2788,7 +2814,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			detailHolder.avatarImage.setVisibility(View.VISIBLE);
-			setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+
+			String name = null;
+			if (conversation instanceof OneToNConversation)
+			{
+				name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+			}
+
+			if (name != null)
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), name, detailHolder.avatarImage);
+			}
+			else
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+			}
+
 			detailHolder.avatarContainer.setVisibility(View.VISIBLE);
 		}
 		else if (detailHolder.avatarContainer != null)
@@ -3700,8 +3741,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (hikeFile.exactFilePathFileExists())
 			{
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
-				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
-						.getGroupParticipantMsisdn()));
+				HikeSharedFile sharedFile = new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
+						.getGroupParticipantMsisdn());
+				if(!TextUtils.isEmpty(hikeFile.getCaption()))
+				{
+					sharedFile.setCaption(hikeFile.getCaption());
+				}
+				hsf.add(sharedFile);
 				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
 					((ChatThreadActivity)mActivity).hideKeyboard();
 				}

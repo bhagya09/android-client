@@ -272,6 +272,8 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
+	
+	public static final String FEED_INDEX = "feed_idx";
 
 	public static interface HIKE_CONV_DB
 	{

@@ -224,7 +224,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 		finished = true;
 
 		/* clear any toast notifications */
-
 		try
 		{
 			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);

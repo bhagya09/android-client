@@ -142,7 +142,7 @@ public class NotificationThread implements Runnable
 				Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(connectingMsisdn);
 				if (drawable == null)
 				{
-					drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(connectingMsisdn, false);
+					drawable = HikeBitmapFactory.getDefaultTextAvatar(connectingMsisdn);
 				}
 				// bitmap = HikeBitmapFactory.drawableToBitmap(drawable);
 				bitmap = HikeBitmapFactory.getCircularBitmap(HikeBitmapFactory.returnScaledBitmap((HikeBitmapFactory.drawableToBitmap(drawable, Bitmap.Config.RGB_565)), context));
