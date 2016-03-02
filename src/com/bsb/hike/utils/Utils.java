@@ -7060,8 +7060,10 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
-	public static String getStackTrace(Throwable ex)
-	{
+	public static String getStackTrace(Throwable ex) {
+		if (ex == null) {
+			return "";
+		}
 		StringWriter errorTrace = new StringWriter();
 		ex.printStackTrace(new PrintWriter(errorTrace));
 		return errorTrace.toString();

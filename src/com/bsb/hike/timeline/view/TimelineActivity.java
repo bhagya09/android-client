@@ -543,6 +543,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 		catch (IllegalStateException ignored)
 		{
+			this.finish();
 			//An exception here could be caused by changing activity states when we call openHomeActivity.
 			//The assumed scenario happening is onBackPressed() --> openHomeActivity() --> onPause() --> onSaveInstanceState() --> super.onBackPressed() --> popBackStackImmediate().
 			//Its OK to lose fragment state since we are moving out of this activity anyways.

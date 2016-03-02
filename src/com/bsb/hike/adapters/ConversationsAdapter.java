@@ -1,19 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -54,12 +40,12 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.photos.HikePhotosUtils;
@@ -71,6 +57,20 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ConversationsAdapter extends BaseAdapter
 {
@@ -502,6 +502,13 @@ public class ConversationsAdapter extends BaseAdapter
 			List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
 			for (ContactInfo contact : allContacts)
 			{
+
+				//defensive check here .Need to figure out how come a contact is present without a valid msisdn.This check can be placed here Small risk only
+				if (contact == null || TextUtils.isEmpty(contact.getMsisdn()))
+				{
+					continue;
+				}
+
 				ConvInfo convInfo = new ConvInfo.ConvInfoBuilder(contact.getMsisdn()).setConvName(contact.getName()).setOnHike(contact.isOnhike()).build();
 				
 				if(stealthConversations.contains(convInfo) || conversationsMsisdns.contains(contact.getMsisdn()) || !convInfo.isOnHike())

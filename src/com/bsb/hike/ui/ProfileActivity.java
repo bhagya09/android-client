@@ -1789,9 +1789,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			isBackPressed = true;
 			saveChanges();
 		}
-		else
+		else if(isActivityVisible())
 		{
 			super.onBackPressed();
+		}
+		else
+		{
+			//consume this event as the activity is not visible and now its safe as activity is shutting down.so if super is called,
+			//then its going to crash.
 		}
 	}
 
