@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.acra.util.HttpRequest;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttActionListenerNew;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
