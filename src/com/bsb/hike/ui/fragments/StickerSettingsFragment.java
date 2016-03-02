@@ -55,7 +55,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
-	private Set<StickerCategory> visibleAndUpdateStickerSet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
+	private Set<StickerCategory> updateStickerSet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
 
 	private StickerSettingsAdapter mAdapter;
 	
@@ -100,7 +100,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	private void checkAndInflateUpdateView()
 	{
 		if(shouldAddUpdateView())
-		{	
+		{
 			final View parent = getView();
 			final View updateAll = parent.findViewById(R.id.update_all_ll);
 			final View confirmAll = parent.findViewById(R.id.confirmation_ll);
@@ -147,7 +147,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		TextView totalStickers = (TextView) parent.findViewById(R.id.pack_details);
 		TextView cancelBtn = (TextView) parent.findViewById(R.id.cancel_btn);
 		TextView confirmBtn = (TextView) parent.findViewById(R.id.confirm_btn);
-		totalPacks.setText(visibleAndUpdateStickerSet.size() == 1 ? getString(R.string.singular_packs, visibleAndUpdateStickerSet.size()) : getString(R.string.n_packs, visibleAndUpdateStickerSet.size()));
+		totalPacks.setText(updateStickerSet.size() == 1 ? getString(R.string.singular_packs, updateStickerSet.size()) : getString(R.string.n_packs, updateStickerSet.size()));
 		categoryCost.setText(R.string.sticker_pack_free);
 		
 		displayTotalStickersCount(totalStickers);
@@ -175,7 +175,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			public void onClick(View v)
 			{
 				isUpdateAllTapped = false;
-				for(StickerCategory category : visibleAndUpdateStickerSet)
+				for(StickerCategory category : updateStickerSet)
 				{
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, getActivity());
 				}
@@ -200,7 +200,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	{
 		int totalCount = 0;
 		int totalSize = 0;
-		for(StickerCategory category : visibleAndUpdateStickerSet)
+		for(StickerCategory category : updateStickerSet)
 		{
 			if(category.getMoreStickerCount() > 0)
 			{
@@ -246,7 +246,23 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		}
 		else
 		{
-			return false;
+			initUpdateStickerSet();
+			if (updateStickerSet.size() > 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	private void initUpdateStickerSet()
+	{
+		updateStickerSet.clear();
+		for (StickerCategory category : stickerCategories) {
+			if (category.shouldAddToUpdateAll())                //the update option will have only packs with update available; so checking for only done and downloading state
+			{
+				updateStickerSet.add(category);
+			}
 		}
 	}
 
