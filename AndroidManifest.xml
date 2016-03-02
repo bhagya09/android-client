@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1606"
-    android:versionName="4.2.0.10.Sticker_DB" >
+    android:versionCode="1609"
+    android:versionName="4.2.0.13.Sticker_DB" >
 
     <uses-sdk
         android:minSdkVersion="14"
