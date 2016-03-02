@@ -1879,16 +1879,8 @@ public class MqttMessagesManager
 			boolean doNotify = data.optBoolean(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
 			if(doNotify)
 			{
-				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
-				String sentData = PlatformUtils.trimFilePath(mArray).toString();
-				long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
-				JSONObject json = new JSONObject();
-				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
-				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
-				json.putOpt(AnalyticsConstants.FILE_SIZE, contentFolderLength);
-				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+				PlatformUtils.platformDiskConsumptionAnalytics(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
 			}
-				
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
