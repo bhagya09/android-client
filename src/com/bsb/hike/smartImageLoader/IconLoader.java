@@ -77,6 +77,12 @@ public class IconLoader extends ImageWorker
 	}
 
 	@Override
+	protected Bitmap processBitmap(String data, Object refObj)
+	{
+		return processBitmap(data);
+	}
+	
+	@Override
 	protected Bitmap processBitmapOnUiThread(String id)
 	{
 		return processBitmap(id);
