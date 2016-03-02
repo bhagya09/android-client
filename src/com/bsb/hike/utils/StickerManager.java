@@ -2720,6 +2720,8 @@ public class StickerManager
 
         String key = code.toLowerCase().substring(0, keyLength).replaceAll("[^a-z0-9_-]", "");
 
+        miniStickerPath += key;
+
         sticker.setMiniStickerPath(miniStickerPath);
 
         return miniStickerPath;
