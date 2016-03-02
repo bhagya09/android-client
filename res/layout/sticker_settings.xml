@@ -87,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-    
+
     <RelativeLayout
         android:id="@+id/reorder_tip"
         android:layout_width="match_parent"
@@ -96,33 +96,71 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp" 
+        android:layout_marginTop="12dp"
         android:visibility="gone">
-        
-       	 <com.bsb.hike.view.CustomFontTextView
+
+        <RelativeLayout
+            android:id="@+id/tap_and_drag_tip"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:visibility="visible">
+
+            <LinearLayout
                 android:id="@+id/drag_tip"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:ellipsize="end"
-                android:paddingLeft="@dimen/sticker_settings_tip_margin"
-                android:paddingRight="@dimen/sticker_settings_tip_margin"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                 <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:paddingLeft="@dimen/sticker_settings_tip_margin"
+                    android:paddingRight="@dimen/sticker_settings_tip_margin"
+                    android:textStyle="bold"
+                    android:text="@string/drag_tip_text"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"/>
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:paddingLeft="@dimen/sticker_settings_tip_margin"
+                    android:paddingRight="@dimen/sticker_settings_tip_margin"
+                    android:textStyle="normal"
+                    android:text="@string/drag_tip_subtext"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"/>
+
+            </LinearLayout>
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="centerInside"
+                android:layout_marginLeft="18dp"
+                android:layout_marginRight="18dp"
+                android:layout_alignParentRight="true"
                 android:gravity="center"
-                android:textStyle="normal"
-                android:text="@string/drag_tip_text"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:visibility="visible" />
-       	 
-       	 <LinearLayout 
+                android:layout_centerVertical="true"
+                android:src="@drawable/sticker_pack_reorder"/>
+
+        </RelativeLayout>
+
+
+        <LinearLayout
        	     android:id="@+id/great_job"
        	     android:layout_width="wrap_content"
        	     android:layout_height="wrap_content"
        	     android:layout_centerInParent="true"
        	     android:gravity="center"
-       	     android:visibility="gone" 
+       	     android:visibility="gone"
        	     android:orientation="horizontal" >
-       	 
+
 		<ImageView
         	    android:id="@+id/reorder_indicator"
             	android:layout_width="wrap_content"
@@ -131,8 +169,8 @@
             	android:scaleType="centerInside"
            		android:visibility="visible"
             	android:src="@drawable/art_tick" />
-		
-		<com.bsb.hike.view.CustomFontTextView 
+
+		<com.bsb.hike.view.CustomFontTextView
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="16sp"
@@ -156,7 +194,7 @@
         android:paddingBottom="0dp"
         dslv:collapsed_height="2dp"
         dslv:drag_enabled="false"
-        dslv:drag_handle_id="@id/drag_handle" 
+        dslv:drag_handle_id="@id/drag_handle"
         dslv:drag_scroll_start="0.33"
         dslv:drag_start_mode="onLongPress"
         dslv:float_alpha="0.6"
@@ -168,7 +206,7 @@
         dslv:use_default_controller="true"
         android:layout_below="@id/reorder_tip"
         android:scrollbarStyle="outsideOverlay"/>
-    
+
     </LinearLayout>
 
    <LinearLayout
@@ -194,8 +232,8 @@
             android:gravity="center"
             android:textSize="14sp" />
     </LinearLayout>
-    
-   <RelativeLayout 
+
+   <RelativeLayout
        android:id="@+id/confirmation_ll"
        android:layout_width="match_parent"
        android:layout_height="103.5dp"
@@ -204,8 +242,8 @@
        android:layout_marginLeft="8dp"
        android:layout_marginRight="8dp"
        android:background="@drawable/update_stickers_btn_round"
-	   android:visibility="gone">       
-       
+	   android:visibility="gone">
+
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
@@ -214,8 +252,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_centerInParent="true" />
-        
-        <com.bsb.hike.view.CustomFontTextView 
+
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/sticker_cost"
             android:layout_width="wrap_content"
             android:layout_height="52dp"
@@ -228,8 +266,8 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="18dp"
             android:layout_marginLeft="10dp"/>
-        
-        <LinearLayout 
+
+        <LinearLayout
             android:id="@+id/pack_details_ll"
             android:orientation="vertical"
             android:layout_above="@id/divider"
@@ -238,16 +276,16 @@
             android:gravity="center_vertical"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@id/sticker_cost">
-                    
-            <com.bsb.hike.view.CustomFontTextView 
+
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/total_packs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:layout_marginLeft="18dp"
                 android:textColor="@color/white" />
-            
-             <com.bsb.hike.view.CustomFontTextView 
+
+             <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/pack_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -255,14 +293,14 @@
                 android:layout_marginLeft="18dp"
                 android:textColor="@color/shop_update_details_color"/>
            </LinearLayout>
-           
-        <RelativeLayout 
+
+        <RelativeLayout
             android:id="@+id/buttons_ll"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_below="@id/divider"
             android:gravity="center" >
-             
+
            <View
             android:id="@+id/divider"
             android:layout_width="1dp"
@@ -270,7 +308,7 @@
             android:layout_centerVertical="true"
             android:background="#5f9f22"
             android:layout_centerInParent="true" />
-            
+
            <com.bsb.hike.view.CustomFontTextView
                android:id="@+id/cancel_btn"
                android:layout_toLeftOf="@id/divider"
@@ -292,8 +330,10 @@
                android:textColor="@color/white"
                android:background="@drawable/sticker_settings_btn_selector"
                android:textSize="14sp" />
-               
+
            </RelativeLayout>
 </RelativeLayout>
 
 </RelativeLayout>
+
+</FrameLayout>

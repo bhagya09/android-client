@@ -285,71 +285,71 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private void showDragTip()
 	{
-		if(!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false))  //Showing the tip here
-		{
-			final View parent = getView().findViewById(R.id.list_ll);
-			final View v =(View) parent.findViewById(R.id.reorder_tip);
-			v.setVisibility(View.VISIBLE);
+		//Showing drag tip every time reorder packs is selected
+		final View parent = getView().findViewById(R.id.list_ll);
+		final View v =(View) parent.findViewById(R.id.reorder_tip);
+		v.setVisibility(View.VISIBLE);
+		prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false); // resetting the tip flag
 
-			mDslv.addDropListener(new DropListener() {
-				@Override
-				public void drop(int from, int to) {
-					if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
-						StickerCategory category = mAdapter.getDraggedCategory();
+		mDslv.addDropListener(new DropListener() {
+			@Override
+			public void drop(int from, int to) {
+				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
+					StickerCategory category = mAdapter.getDraggedCategory();
 
-						if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
-						{
-							return;
-						}
-
-						if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
-							return;
-						}
-						prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true); // Setting the tip flag
-
-						try {
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEEN_REORDERING_TIP);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						} catch (JSONException e) {
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-
-						ImageView tickImage = (ImageView) parent.findViewById(R.id.reorder_indicator);
-						tickImage.setImageResource(R.drawable.art_tick);
-						TextView tipText = (TextView) parent.findViewById(R.id.drag_tip);
-						tipText.setVisibility(View.GONE);
-						parent.findViewById(R.id.great_job).setVisibility(View.VISIBLE);
-
-						TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0,
-								Animation.ABSOLUTE, -v.getHeight());
-						animation.setDuration(400);
-						animation.setStartOffset(800);
-						parent.setAnimation(animation);
-
-						animation.setAnimationListener(new AnimationListener() {
-							@Override
-							public void onAnimationStart(Animation animation) {
-							}
-
-							@Override
-							public void onAnimationRepeat(Animation animation) {
-
-							}
-
-							@Override
-							public void onAnimationEnd(Animation animation) {
-								v.setVisibility(View.GONE);
-								TranslateAnimation temp = new TranslateAnimation(0, 0, 0, 0);
-								temp.setDuration(1l);
-								parent.startAnimation(temp);
-							}
-						});
+					if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
+					{
+						return;
 					}
-				}
-			});
-		}
 
+					if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
+						return;
+					}
+
+					// Setting the tip flag so that drag tip disappears after first reorder is done
+					prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true);
+
+					try {
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEEN_REORDERING_TIP);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					} catch (JSONException e) {
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+
+					ImageView tickImage = (ImageView) parent.findViewById(R.id.reorder_indicator);
+					tickImage.setImageResource(R.drawable.art_tick);
+					View tapAndDragTip = parent.findViewById(R.id.tap_and_drag_tip);
+					tapAndDragTip.setVisibility(View.GONE);
+					parent.findViewById(R.id.great_job).setVisibility(View.VISIBLE);
+
+					TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0,
+							Animation.ABSOLUTE, -v.getHeight());
+					animation.setDuration(400);
+					animation.setStartOffset(800);
+					parent.setAnimation(animation);
+
+					animation.setAnimationListener(new AnimationListener() {
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+
+						}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							v.setVisibility(View.GONE);
+							TranslateAnimation temp = new TranslateAnimation(0, 0, 0, 0);
+							temp.setDuration(1l);
+							parent.startAnimation(temp);
+						}
+					});
+				}
+			}
+		});
 	}
 
 	private void initStickerCategoriesList() {
