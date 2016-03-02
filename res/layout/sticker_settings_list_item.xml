@@ -46,6 +46,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/hide_pack_switch"
             android:layout_gravity="center"
+            android:clickable="false"
+            android:focusable="false"
             android:visibility="gone"/>
 
             <ImageButton

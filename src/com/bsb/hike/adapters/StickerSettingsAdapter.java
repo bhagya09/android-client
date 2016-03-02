@@ -163,7 +163,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.reorderIcon = (ImageView) convertView.findViewById(R.id.reorder_icon);
 			viewHolder.updateStickersCount = (TextView) convertView.findViewById(R.id.update_stickers_count);
 			viewHolder.hideSwitch = (SwitchCompat) convertView.findViewById(R.id.hide_switch);
-			viewHolder.hideSwitch.setOnClickListener(this);
 
 			convertView.setTag(viewHolder);
 			
@@ -225,6 +224,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
 				viewHolder.hideSwitch.setVisibility(View.GONE);
 				viewHolder.updateButton.setVisibility(View.GONE);
+				viewHolder.reorderIcon.setVisibility(View.GONE);
 
 				break;
 			case StickerCategory.DONE_SHOP_SETTINGS:  //To be treated as same
@@ -427,11 +427,11 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		this.notifyDataSetChanged();
 	}
 
-	private void onStickerPackHide(View v, StickerCategory category)
+	public void onStickerPackHide(View listItem, StickerCategory category)
 	{
 		boolean visibility = !category.isVisible();
 		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
-		SwitchCompat hideSwitch = (SwitchCompat) v;
+		SwitchCompat hideSwitch = (SwitchCompat) listItem.findViewById(R.id.hide_switch);
 		hideSwitch.setChecked(visibility);
 		category.setVisible(visibility);
 		stickerSet.add(category);
@@ -484,10 +484,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
 					this.notifyDataSetChanged();
-					break;
-
-				case R.id.hide_switch:
-					onStickerPackHide(v, category);
 					break;
 
 				default:

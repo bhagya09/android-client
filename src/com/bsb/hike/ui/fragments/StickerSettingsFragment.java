@@ -511,6 +511,13 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return;
 		}
 		StickerCategory category = mAdapter.getItem(position);
+
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
+		{
+			mAdapter.onStickerPackHide(view, category);
+			return;
+		}
+
 		if(category.getState() == StickerCategory.RETRY && category.isVisible())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
