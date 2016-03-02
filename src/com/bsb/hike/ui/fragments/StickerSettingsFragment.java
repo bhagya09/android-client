@@ -47,13 +47,14 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
 {
-	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED, HikePubSub.ALL_PACKS_UPDATED};
+	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED};
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
@@ -241,9 +242,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			View redirectToShopBtn = parent.findViewById(R.id.redirect_to_shop_btn);
 			redirectToShopBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					Intent i = new Intent(getActivity(), StickerShopActivity.class);
-					startActivity(i);
+				public void onClick(View v)
+				{
+					Context context = getContext();
+					Intent intent = IntentFactory.getStickerShopIntent(context);
+					context.startActivity(intent);
 					getActivity().finish();
 				}
 			});
@@ -460,26 +463,6 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 				});
 
 				break;
-
-			case HikePubSub.ALL_PACKS_UPDATED:
-				if (!isAdded()) {
-					return;
-				}
-				getActivity().runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-						//Displaying All Done after last pack in update list gets updated
-						View parent = getView();
-						View updateAll = parent.findViewById(R.id.update_all_ll);
-						updateAll.setClickable(false);
-						TextView updateText = (TextView) parent.findViewById(R.id.update_text);
-						updateText.setText(R.string.all_done);
-						updateAll.setVisibility(View.VISIBLE);
-					}
-				});
-
-				break;
 		}
 	}
 
@@ -543,7 +526,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
 	{
 		@Override
-		public void onReceive(Context context, Intent intent)
+		public void onReceive(Context context,final Intent intent)
 		{
 			if(!isAdded())
 			{
@@ -551,6 +534,8 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			}
 			if (intent.getAction().equals(StickerManager.STICKERS_UPDATED) || intent.getAction().equals(StickerManager.MORE_STICKERS_DOWNLOADED))
 			{
+				final String categoryId = intent.getStringExtra(StickerManager.CATEGORY_ID);
+
 				if(getActivity() == null)
 				{
 					return;
@@ -562,6 +547,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					public void run()
 					{
 						mAdapter.notifyDataSetChanged();
+						checkAndSetAllDone(categoryId);
 					}
 				});
 			}
@@ -603,6 +589,21 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			}
 		}
 	};
+
+	private void checkAndSetAllDone(String categoryId)
+	{
+		final StickerCategory category = StickerManager.getInstance().getCategoryForId(categoryId);
+		updateStickerSet.remove(category);
+		if(Utils.isEmpty(updateStickerSet))
+		{
+			View parent = getView();
+			View updateAll = parent.findViewById(R.id.update_all_ll);
+			updateAll.setClickable(false);
+			TextView updateText = (TextView) parent.findViewById(R.id.update_text);
+			updateText.setText(R.string.all_done);
+			updateAll.setVisibility(View.VISIBLE);
+		}
+	}
 	
 	public void unregisterListeners()
 	{

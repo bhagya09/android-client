@@ -231,11 +231,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			case StickerCategory.DONE:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
 				viewHolder.updateButton.setImageLevel(FULLY_DOWNLOADED);
-				if ((stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK) && areAllUpdated())
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.ALL_PACKS_UPDATED, null);
-				}
-
 				break;
 			case StickerCategory.RETRY:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
