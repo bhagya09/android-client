@@ -79,7 +79,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public boolean isStickerAvailable()
 	{
-		return !getLargeStickerPath().contains(getStickerCode());
+		return !getLargeStickerPath().endsWith(getStickerCode());
 	}
 
 	/**
