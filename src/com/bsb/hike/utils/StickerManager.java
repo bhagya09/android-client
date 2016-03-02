@@ -182,6 +182,8 @@ public class StickerManager
 
 	public static final String HUMANOID = "humanoid";
 
+	public static final String LOVE = "love";
+
 	public static final String OTHER_STICKER_ASSET_ROOT = "/other";
 
 	public static final String PALLATE_ICON = "pallate_icon";

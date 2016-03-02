@@ -116,7 +116,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
 		
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
-		items.add(new SettingsDisplayPojo(getString(R.string.settings_sticker), R.string.settings_sticker, R.drawable.ic_settings_chat));
+		items.add(new SettingsDisplayPojo(getString(R.string.settings_sticker), R.string.settings_sticker, R.drawable.ic_settings_sticker));
 
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{

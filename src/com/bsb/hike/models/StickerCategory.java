@@ -51,6 +51,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	private int state;
 
+	public static String[] defaultPacksCatIdList = {StickerManager.HUMANOID, StickerManager.EXPRESSIONS, StickerManager.LOVE};
+
 	public StickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded,
 			int catIndex, int totalStickers, int categorySize)
 	{
@@ -103,9 +105,20 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return updateAvailable;
 	}
 
+	public static List<StickerCategory> getDefaultPacksList()
+	{
+		List<StickerCategory> defaultPacksList = new ArrayList<>();
+		for (String catId : defaultPacksCatIdList)
+		{
+			defaultPacksList.add(new StickerCategory(catId));
+		}
+
+		return defaultPacksList;
+	}
+
 	public boolean shouldShowUpdateAvailable() {
 		// Providing update for packs in Update state, Retry state or having zero stickers due to download failure
-		if (isVisible && (updateAvailable || (state == RETRY) || (state == NONE && getDownloadedStickersCount() <= 0)))
+		if ((state == UPDATE) || (state == RETRY) || (state == NONE && getDownloadedStickersCount() <= 0))
 		{
 			return true;
 		}
@@ -335,7 +348,20 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		}
 		return null;
 	}
-	
+
+	public boolean shouldAddToUpdateAll()
+	{
+		switch(this.state)
+		{
+			case DONE:
+			case DONE_SHOP_SETTINGS:
+			case DOWNLOADING:
+				return false;
+			default:
+				return true;
+		}
+	}
+
 	public int getMoreStickerCount()
 	{
 		return this.totalStickers - getDownloadedStickersCount();
