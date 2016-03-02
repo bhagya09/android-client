@@ -355,19 +355,26 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	private void initStickerCategoriesList() {
 		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
 
-		if (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK)
+		switch(stickerSettingsTask)
 		{
-			Iterator it = stickerCategories.iterator();
-			StickerCategory category;
+			case STICKER_UPDATE_TASK:
+				Iterator it = stickerCategories.iterator();
+				StickerCategory category;
 
-			while (it.hasNext()) {
-				category = (StickerCategory) it.next();
-				if (!category.shouldShowUpdateAvailable())
-				{
-					it.remove();
+				while (it.hasNext()) {
+					category = (StickerCategory) it.next();
+					if (!category.shouldShowUpdateAvailable())
+					{
+						it.remove();
+					}
+
 				}
+				break;
 
-			}
+			case STICKER_DELETE_TASK:
+			case STICKER_HIDE_TASK:
+				stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+				break;
 		}
 	}
 

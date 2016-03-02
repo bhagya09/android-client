@@ -51,6 +51,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	private int state;
 
+	public static String[] defaultPacksCatIdList = {StickerManager.HUMANOID, StickerManager.EXPRESSIONS};
+
 	public StickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded,
 			int catIndex, int totalStickers, int categorySize)
 	{
@@ -101,6 +103,17 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public boolean isUpdateAvailable()
 	{
 		return updateAvailable;
+	}
+
+	public static List<StickerCategory> getDefaultPacksList()
+	{
+		List<StickerCategory> defaultPacksList = new ArrayList<>();
+		for (String catId : defaultPacksCatIdList)
+		{
+			defaultPacksList.add(new StickerCategory(catId));
+		}
+
+		return defaultPacksList;
 	}
 
 	public boolean shouldShowUpdateAvailable() {
