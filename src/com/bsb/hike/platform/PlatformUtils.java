@@ -1810,6 +1810,7 @@ public class PlatformUtils
 
     /*
      * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
+     * Json generated here :: {"fld1":"disk_consumption","fld3":"app_updated","fld2":"DP","ek":"micro_app","fld5":111107,"event":"nmapp"}
      */
 	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
 	{
@@ -1846,6 +1847,7 @@ public class PlatformUtils
 
     /*
      * Method to determine and send analytics for disk space occupied by the micro app just being installed. This method is called on successful cbot,mapp and popup creation
+     * Json generated here :: {"fld6":3237192,"fld1":"hikecoupons","ek":"micro_app","fld5":448390,"event":"microapp_disk_consumption"}
      */
     public static void microAppDiskConsumptionAnalytics(String appName)
     {
