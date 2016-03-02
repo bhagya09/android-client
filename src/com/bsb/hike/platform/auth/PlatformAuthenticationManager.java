@@ -1,11 +1,24 @@
 package com.bsb.hike.platform.auth;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
+import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -21,11 +34,13 @@ import com.bsb.hike.utils.Logger;
 public class PlatformAuthenticationManager
 {
 
-	private HikeSharedPreferenceUtil _mPrefs;
-
 	private AuthListener _callBack;
 
 	private String _clientId;
+
+	private boolean _isLongTermTokenRequired;
+
+	private String _mAppId;
 
 	private static String _pUID;
 
@@ -33,166 +48,68 @@ public class PlatformAuthenticationManager
 
 	public static final String tag = "PlatformAuthenticationManager";
 
-	public PlatformAuthenticationManager(String platformUID, String platformToken, AuthListener callback)
+	public PlatformAuthenticationManager(String clientId,String mAppId,String platformUID, String platformToken, AuthListener callback)
 	{
 
 		_pUID = platformUID;
 		_pToken = platformToken;
-		_mPrefs = HikeSharedPreferenceUtil.getInstance();
-		_clientId = _mPrefs.getData(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID, null);
+		_clientId = clientId;
 		_callBack = callback;
+		_mAppId = mAppId;
 	}
-
 	
-	//Check whether clientId generated or not 
-	//If not generated yet..... firstly generate client id
-	//Otherwise start request for auth token
-	
-	public String requestAuthToken()
+	public String requestAuthToken(boolean longTermToken)
 	{
-		if (haveClientId())
+		_isLongTermTokenRequired = longTermToken;
+		if (_clientId!=null)
 		{
 			requestAuthToken(_clientId);
 		}
-		else
-		{
-			requestBrandRegisteration();
+		else{
+			Logger.d(tag, "Client id is null");
+			_callBack.onTokenErrorResponse(null);
 		}
 		return null;
-	}
-
-	//Check for clientid (if its generated or not)
-	private boolean haveClientId()
-	{
-		if (_clientId != null)
-		{
-			return true;
-		}
-		return false;
-
-	}
-
-	// Request for brand registeration
-	private void requestBrandRegisteration()
-	{
-		RequestToken brandRequest = AuthHttpRequestUtility.registerBrandRequest(new BrandRequestListener());
-		brandRequest.execute();
-
-	}
-
-	// Request for client id
-	private void requestForClientId(String product, String email)
-	{
-		RequestToken clientId = AuthHttpRequestUtility.clientIdRequest(product, email, new ClientIDRequestListener());
-		clientId.execute();
 	}
 
 	// Request for auth token
 	public void requestAuthToken(String clientId)
 	{
-		RequestToken requestToken = AuthHttpRequestUtility.authSDKRequest(_pUID, _pToken, clientId, new AuthTokenRequestListener());
+		RequestToken requestToken = authSDKRequest(_pUID, _pToken, clientId, new AuthTokenRequestListener());
 		requestToken.execute();
 	}
-
-	// Request listener for brand registeration
-	private class BrandRequestListener implements IRequestListener
+	private static String getAuthGetData(String clientId)
 	{
-		public static final String tag = "BrandRequestListener";
-		public void onRequestFailure(HttpException httpException)
+		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
+		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_RESPONSE_TYPE,HikePlatformConstants.AuthConstants.AUTH_TEST_RESPONSE_TYPE));
+		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID, clientId));
+		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_SCOPE, HikePlatformConstants.AuthConstants.AUTH_TEST_PARAM_SCOPE));
+		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_PACKAGE_NAME, HikePlatformConstants.AuthConstants.AUTH_TEST_CLIENT_PACKAGE_NAME));
+		String paramString = URLEncodedUtils.format(params, "UTF-8");
+		try
 		{
-			Logger.d(tag, "brand registeration request failed: "+httpException.getErrorCode());
+			paramString = URLDecoder.decode(paramString, "UTF-8");
 		}
-
-		@Override
-		public void onRequestSuccess(Response result)
+		catch (UnsupportedEncodingException e1)
 		{
-			try
-			{
-				Logger.d(tag, "register brand ---on task success");
-				JSONObject responseData = (JSONObject) result.getBody().getContent();
-
-				if (responseData.has(HikePlatformConstants.ERROR))
-				{
-					Logger.d(tag, "brand registeration request failed: "+responseData);
-					onRequestFailure(null);
-					return;
-				}
-				String product = "";
-				String email = "";
-				if (responseData.has(HikeConstants.PRODUCT))
-				{
-					product = responseData.getString(HikeConstants.PRODUCT);
-				}
-				if (responseData.has(HikeConstants.EMAIL))
-				{
-					email = responseData.getString(HikeConstants.EMAIL);
-				}
-				requestForClientId(product, email);
-
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-				onRequestFailure(null);
-				return;
-			}
+			e1.printStackTrace();
+			return null;
 		}
-
-		@Override
-		public void onRequestProgressUpdate(float progress)
-		{
-		}
+		return paramString;
 	}
 
-	// /Request listener for client id
-	private class ClientIDRequestListener implements IRequestListener
+	
+	//////////////////Request Tokens/////////////////////
+	public static RequestToken authSDKRequest(String puid, String pToken,String clientId, IRequestListener requestListener)
 	{
-		public static final String tag = "ClientIDRequestListener";
-		@Override
-		public void onRequestFailure(HttpException httpException)
-		{
-			Logger.d(tag, "client id request failed: "+httpException.getErrorCode());
-		}
+		List<Header> headerList = new ArrayList<Header>(1);
+		headerList.add(new Header(HikePlatformConstants.COOKIE, HikePlatformConstants.PLATFORM_USER_ID + "=" + puid + ";" + HikePlatformConstants.PLATFORM_TOKEN + "=" + pToken));
 
-		@Override
-		public void onRequestSuccess(Response result)
-		{
-			try
-			{
-				Logger.d(tag, "clientId request ---on task success");
-				JSONObject responseData = (JSONObject) result.getBody().getContent();
-
-				if (responseData.has(HikePlatformConstants.ERROR))
-				{
-					Logger.d(tag, "client id request failed: "+responseData);
-					onRequestFailure(null);
-					return;
-				}
-				if (responseData.has(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID))
-				{
-					String clientId = responseData.getString(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID);
-					_mPrefs.saveData(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID, clientId);
-					requestAuthToken(clientId);
-				}
-
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-				onRequestFailure(null);
-				return;
-			}
-
-		}
-
-		@Override
-		public void onRequestProgressUpdate(float progress)
-		{
-			// TODO Auto-generated method stub
-
-		}
-
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(HttpRequestConstants.authBaseUrl() + getAuthGetData(clientId)).setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener).setResponseOnUIThread(true).setHeaders(headerList).build();
+		return requestToken;
 	}
+
 
 	// /Request listener for auth Token
 	private class AuthTokenRequestListener implements IRequestListener
@@ -216,13 +133,10 @@ public class PlatformAuthenticationManager
 					if (responseData.has(HikePlatformConstants.PLATFORM_AUTH_TOKEN))
 					{
 						String accessToken = responseData.getString(HikePlatformConstants.PLATFORM_AUTH_TOKEN);
-						_mPrefs.saveData(HikePlatformConstants.PLATFORM_AUTH_TOKEN, accessToken.hashCode());
-						if (responseData.has(HikePlatformConstants.PLATFORM_AUTH_TOKEN_EXPIRY))
-						{
-							_mPrefs.saveData(HikePlatformConstants.PLATFORM_AUTH_TOKEN_EXPIRY, responseData.getString(HikePlatformConstants.PLATFORM_AUTH_TOKEN_EXPIRY));
-
+						if(_isLongTermTokenRequired){
+							HikeContentDatabase.getInstance().addAuthToken(_mAppId,accessToken);
 						}
-						Logger.d(tag, "access token recieved");
+									Logger.d(tag, "access token recieved");
 						_callBack.onTokenResponse(accessToken);
 
 					}
@@ -257,5 +171,7 @@ public class PlatformAuthenticationManager
 
 		}
 	}
+	
+	
 
 }

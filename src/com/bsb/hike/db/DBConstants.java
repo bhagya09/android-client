@@ -370,7 +370,14 @@ public interface DBConstants
 		public static final String UPDATED_VERSION = "u_v";
 		
 		public static final String BOT_DISCOVERY_TABLE = "bot_discovery";
+		
 		// --- Bot Discovery Table ends here ---
+		
+		// AUTH TABLE ->auth_table--> microApp_id,token
+		public static final String AUTH_TABLE = "auth_table";
+		public static final String MICROAPP_ID = "microapp_id";
+		public static final String TOKEN = "token";
+
 	}
 	
 	public static interface HIKE_PERSISTENCE
