@@ -197,14 +197,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
-						if(!sticker.isStickerAvailable())
-                        {
-                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
-                        }
+
+                        StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 
 						saveMiniStickerImage(sticker, stickerImage);
 
-                        doOnSuccess(null);
+                        doOnSuccess(categoryId);
 					}
 					else
 					{
@@ -220,7 +218,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                            doOnSuccess(null);
+                            doOnSuccess(categoryId);
                         }
 
 					}

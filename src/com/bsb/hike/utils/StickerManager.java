@@ -2757,6 +2757,12 @@ public class StickerManager
             JSONObject stickerData = stickers.getJSONObject(stickerId);
 
             Sticker sticker = new Sticker(categoryId, stickerId);
+
+            if(sticker.isStickerAvailable())
+            {
+                continue;
+            }
+
             sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
             sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
             stickerList.add(sticker);
