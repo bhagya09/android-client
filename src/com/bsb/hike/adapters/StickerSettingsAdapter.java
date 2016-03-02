@@ -122,18 +122,20 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		return mListMapping[position] - 1;
 	}
 
-	/* Method for deciding visibility of sticker pack delete option */
-	private void checkAndEnableDeleteButton (String categoryId, ImageButton deleteButton) {
-		if (stickerSettingsTask != StickerSettingsTask.STICKER_DELETE_TASK || categoryId.equals(StickerManager.HUMANOID)
-				|| categoryId.equals(StickerManager.EXPRESSIONS))
+	//Mwthod to check if all the packs in update list have got updated
+	private boolean areAllUpdated()
+	{
+		int count = 0;
+
+		for (StickerCategory category: stickerCategories)
 		{
-			deleteButton.setVisibility(View.GONE);
-		}
-		else
-		{
-			deleteButton.setVisibility(View.VISIBLE);
+			if ((category.getState() == StickerCategory.DONE) || (category.getState() == StickerCategory.DONE_SHOP_SETTINGS))
+			{
+				count++;
+			}
 		}
 
+		return count==stickerCategories.size();
 	}
 
 	@Override
@@ -211,6 +213,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			case StickerCategory.DONE:
 				showUIForState(state, viewHolder, category.getCategoryId(), category.isVisible());
 				viewHolder.updateButton.setImageLevel(FULLY_DOWNLOADED);
+				if ((stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK) && areAllUpdated())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.ALL_PACKS_UPDATED, null);
+				}
 
 				break;
 			case StickerCategory.RETRY:

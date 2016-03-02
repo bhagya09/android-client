@@ -51,7 +51,7 @@ import com.bsb.hike.utils.Utils;
 
 public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
 {
-	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED};
+	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED, HikePubSub.ALL_PACKS_UPDATED};
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
@@ -431,28 +431,46 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		if (HikePubSub.STICKER_PACK_DELETED.equals(type))
-		{
-			final StickerCategory category = (StickerCategory) object;
+		switch(type) {
+			case HikePubSub.STICKER_PACK_DELETED:
+				final StickerCategory category = (StickerCategory) object;
 
-			if(!isAdded())
-			{
-				return;
-			}
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					if(mAdapter == null)
-					{
-						return;
-					}
-					Toast.makeText(getActivity(), getString(R.string.pack_deleted) + " " + category.getCategoryName(), Toast.LENGTH_SHORT).show();
-					mAdapter.onStickerPackDelete(category);
+				if (!isAdded()) {
+					return;
 				}
-			});
+				getActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						if (mAdapter == null) {
+							return;
+						}
+						Toast.makeText(getActivity(), getString(R.string.pack_deleted) + " " + category.getCategoryName(), Toast.LENGTH_SHORT).show();
+						mAdapter.onStickerPackDelete(category);
+					}
+				});
+
+				break;
+
+			case HikePubSub.ALL_PACKS_UPDATED:
+				if (!isAdded()) {
+					return;
+				}
+				getActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						//Displaying All Done after last pack in update list gets updated
+						View parent = getView();
+						View updateAll = parent.findViewById(R.id.update_all_ll);
+						updateAll.setClickable(false);
+						TextView updateText = (TextView) parent.findViewById(R.id.update_text);
+						updateText.setText(R.string.all_done);
+						updateAll.setVisibility(View.VISIBLE);
+					}
+				});
+
+				break;
 		}
 	}
 
