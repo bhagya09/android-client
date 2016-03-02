@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -41,7 +42,7 @@ public class CustomWebView extends WebView
 	private static final Method ON_PAUSE_METHOD = findOnPauseMethod();
 
 	private static final Method ON_RESUME_METHOD = findOnResumeMethod();
-
+	private Handler mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -166,7 +167,7 @@ public class CustomWebView extends WebView
 			}
 			isDestroyed = true;
 		}
-
+        mHandler = null;
 		stopLoading();
 		removeAllViews();
 		clearHistory();
@@ -232,23 +233,24 @@ public class CustomWebView extends WebView
 
 
 	@Override
-	public void loadUrl(String url)
+	public void loadUrl(final String url)
 	{
-		if (Utils.isKitkatOrHigher() && url.startsWith("javascript"))
-		{
-			evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>()
-			{
-				@Override
-				public void onReceiveValue(String value)
-				{
-					Logger.d("CustomWebView", value);
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (Utils.isKitkatOrHigher() && url.startsWith("javascript")) {
+					evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>() {
+						@Override
+						public void onReceiveValue(String value) {
+							Logger.d("CustomWebView", value);
+						}
+					});
+				} else {
+					CustomWebView.super.loadUrl(Utils.appendTokenInURL(url));
 				}
-			});
-		}
-		else
-		{
-			super.loadUrl(Utils.appendTokenInURL(url));
-		}
+			}
+		});
 	}
 
 	public boolean isWebViewShowing()

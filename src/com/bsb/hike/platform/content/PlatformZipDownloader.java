@@ -561,6 +561,7 @@ public class PlatformZipDownloader
 			{
                 // Check to make event code as per http exception received
                 EventCode eventCode = EventCode.LOW_CONNECTIVITY;
+				eventCode.setErrorCode(httpException.getErrorCode()); //Setting error code also
                 if(httpException.getErrorCode() == HttpException.REASON_CODE_INCOMPLETE_REQUEST)
                     eventCode = EventCode.INCOMPLETE_ZIP_DOWNLOAD;
                 else if(httpException.getErrorCode() == HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD)

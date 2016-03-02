@@ -36,7 +36,7 @@ public class PlatformContent
 					@Override
 					public String toString()
 					{
-						return "low_con";
+						return "low_con"+errorCode;
 					}
 				},
 
@@ -111,7 +111,12 @@ public class PlatformContent
                     {
                         return "zero_byte_zip_download";
                     }
-		        }
+		        };
+		int errorCode;
+		public void setErrorCode(int errorCode)
+		{
+			this.errorCode = errorCode;
+		}
 	}
 
 	/**

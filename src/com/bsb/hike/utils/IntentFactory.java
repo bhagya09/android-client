@@ -976,12 +976,16 @@ public class IntentFactory
     /*
      * This method is used for fetching an intent object meant to forward some text to hike chats.
      */
-	public static Intent getForwardIntentForPlainText(Context context, String text)
+	public static Intent getForwardIntentForPlainText(Context context, String text ,String analyticsExtra)
 	{
 		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
 		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		if (!TextUtils.isEmpty(analyticsExtra))
+		{
+			intent.putExtra(AnalyticsConstants.ANALYTICS_EXTRA, analyticsExtra);
+		}
 		JSONArray multipleMsgArray = new JSONArray();
 		JSONObject multiMsgFwdObject = new JSONObject();
 		try

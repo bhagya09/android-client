@@ -347,8 +347,6 @@ public class HikeConstants
 
 	public static final String BACKGROUND = "bg";
 
-	public static final String JUST_OPENED = "justOpened";
-
 	public static final String BULK_LAST_SEEN = "bulklastseen";
 
 	public static final String LAST_SEEN = "ls";
