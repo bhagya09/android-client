@@ -51,7 +51,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	private int state;
 
-	public static String[] defaultPacksCatIdList = {StickerManager.HUMANOID, StickerManager.EXPRESSIONS};
+	public static String[] defaultPacksCatIdList = {StickerManager.HUMANOID, StickerManager.EXPRESSIONS, StickerManager.LOVE};
 
 	public StickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded,
 			int catIndex, int totalStickers, int categorySize)
