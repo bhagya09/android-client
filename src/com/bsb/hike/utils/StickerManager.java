@@ -2714,7 +2714,11 @@ public class StickerManager
     {
         String miniStickerPath = HikeConstants.MINI_KEY_PREFIX;
 
-        String key = sticker.getStickerCode().toLowerCase().substring(0, HikeConstants.MAX_DISK_CACHE_KEY_LENGTH).replaceAll("[^a-z0-9_-]", "");
+        String code = sticker.getStickerCode();
+
+        int keyLength = code.length()>HikeConstants.MAX_DISK_CACHE_KEY_LENGTH?HikeConstants.MAX_DISK_CACHE_KEY_LENGTH:code.length();
+
+        String key = code.toLowerCase().substring(0, keyLength).replaceAll("[^a-z0-9_-]", "");
 
         sticker.setMiniStickerPath(miniStickerPath);
 
