@@ -575,8 +575,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					int stickerCodeIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE);
 					int tagLanguageIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_LANGUAGE);
 					int popularityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY);
-					int timeStampEventsRanksIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS);
-					int dayEventsRanksIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS);
 					int availabilityIndex = c.getColumnIndex(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY);
 
 					while (c.moveToNext())
@@ -585,8 +583,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, c.getInt(exactnessOrderIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, c.getInt(momentCodeIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, c.getInt(popularityIndex));
-						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, c.getString(timeStampEventsRanksIndex));
-						existingCv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, c.getString(dayEventsRanksIndex));
 						existingCv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, c.getInt(availabilityIndex));
 
 						uniqueKey = c.getString(stickerCodeIndex) + StickerSearchConstants.STRING_DELIMITER + c.getString(tagPhraseIndex) + StickerSearchConstants.STRING_DELIMITER
@@ -649,11 +645,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				List<Integer> tagExactnessPriorities = stickerTagData.getTagExactMatchPriorityList();
 				List<Integer> tagPopularities = stickerTagData.getTagPopularityList();
 				int stickerMoment = stickerTagData.getMomentCode();
-				Pair<String, String> ranks = buildRankDataForRelatedEvents(stickerTagData.getFestiveData(), eventIdMap);
-				String timeStampEventsRanks = ranks.first;
-				String dayEventsRanks = ranks.second;
 				int availability = stickerTagData.getStickerAvailabilityStatus() ? HikeStickerSearchBaseConstants.DECISION_STATE_YES
 						: HikeStickerSearchBaseConstants.DECISION_STATE_NO;
+				ContentValues cv = new ContentValues();
 				int size = stickerTags.size();
 
 				for (int j = 0; j < size; j++)
@@ -662,13 +656,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					language = tagLanguages.get(j);
 					script = tagScripts.get(j);
 
-					ContentValues cv = new ContentValues();
 					cv.put(HikeStickerSearchBaseConstants.STICKER_EXACTNESS_WITH_TAG_PRIORITY, tagExactnessPriorities.get(j));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME, stickerMoment);
 					cv.put(HikeStickerSearchBaseConstants.STICKER_TAG_POPULARITY, tagPopularities.get(j));
 					cv.put(HikeStickerSearchBaseConstants.STICKER_AVAILABILITY, availability);
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, timeStampEventsRanks);
-					cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, dayEventsRanks);
 
 					uniqueKey = stickerCode + StickerSearchConstants.STRING_DELIMITER + tag + StickerSearchConstants.STRING_DELIMITER + language;
 					ContentValues existingCv = existingTagData.get(uniqueKey);
@@ -729,7 +720,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 						existingCv.clear();
 						existingCv = null;
 					}
+
+					cv.clear();
 				}
+
+				// Update ranks of related events for a given sticker
+				Pair<String, String> ranks = buildRankDataForRelatedEvents(stickerTagData.getFestiveData(), eventIdMap);
+				cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_TIME_STAMP_EVENTS, ranks.first);
+				cv.put(HikeStickerSearchBaseConstants.STICKER_ATTRIBUTE_DAY_EVENTS, ranks.second);
+				mDb.update(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, cv, HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE + "=?", new String[] { stickerCode });
+				cv.clear();
 			}
 
 			mDb.setTransactionSuccessful();
