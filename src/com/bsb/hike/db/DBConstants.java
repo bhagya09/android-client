@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 47;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -272,6 +272,8 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
+	
+	public static final String FEED_INDEX = "feed_idx";
 
 	public static interface HIKE_CONV_DB
 	{
