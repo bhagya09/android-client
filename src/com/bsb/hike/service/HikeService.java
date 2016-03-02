@@ -24,8 +24,6 @@ import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -36,9 +34,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.IncomingCallReceiver;
-import com.bsb.hike.chatHead.OutgoingCallReceiver;
-import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
@@ -47,6 +42,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.contactmgr.FetchContactIconRunnable;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -98,6 +94,10 @@ public class HikeService extends Service
 
 				HikeMessengerApp.syncingContacts = false;
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
+				
+				//After AB sync, begin fetching contact icons
+				// TODO Add a server side switch for this
+				// HikeHandlerUtil.getInstance().postRunnable(new FetchContactIconRunnable(ContactManager.getInstance().getAllContacts()));
 			}
 
 		}

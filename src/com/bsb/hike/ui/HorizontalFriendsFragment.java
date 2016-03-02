@@ -25,7 +25,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,7 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.NUXConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.NuxSelectFriends;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -157,7 +156,7 @@ public class HorizontalFriendsFragment extends Fragment implements OnClickListen
 			Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
 			if (drawable == null)
 			{
-				drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
 			}
 			iv.setImageDrawable(drawable);
         	
