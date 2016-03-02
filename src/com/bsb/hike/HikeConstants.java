@@ -249,6 +249,8 @@ public class HikeConstants
 
 	public static final String PUSH = "push";
 
+	public static final String GCM_STALE_REGISTRATION_REFRESH = "gcmSRR";
+
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
@@ -424,6 +426,12 @@ public class HikeConstants
 	public static final String EVENT_TYPE = "et";
 
 	public static final String EVENT_KEY = "ek";
+	
+	public static final String EVENT_PATH = "src";
+	
+	public static final String EVENT_CHECKED = "check";
+	
+	public static final String EVENT_CONFIRM = "cnfrm";
 
 	public static final String PACKAGE = "pkg";
 
@@ -752,6 +760,8 @@ public class HikeConstants
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
 
+	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -898,7 +908,7 @@ public class HikeConstants
 
 	public static final int MAX_CHAR_IN_NAME = 20;
 
-	public static final int MAX_CONTACTS_IN_GROUP = 500;
+	public static final int MAX_CONTACTS_IN_GROUP = 1000;
 
 	public static final int MAX_CONTACTS_IN_BROADCAST = 500;
 
@@ -1323,17 +1333,11 @@ public class HikeConstants
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
 
-	public static final String VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS = "apl";
-
-	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
-
 	public static final String VOIP_AEC_ENABLED = "aec";
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
 
 	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
-
-	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
@@ -1346,6 +1350,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_CNP = "cnp";
 
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
+
+	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final class ChatHead
 	{
@@ -1948,7 +1954,15 @@ public class HikeConstants
 		public static final String DELETE_ALL_CONVERSATIONS_MENU = "hoSdelAC";
 
 		public static final String DELETE_CONVERSATION = "hoSdelC";
-
+		
+		public static final String EXIT_GC_CONVERSATION = "exitgc";
+		
+		public static final String DELETE_GC_CONVERSATION = "delgc";
+		
+		public static final String LEAVE_GROUP_VIA_PROFILE = "gcinfo";
+		
+		public static final String LEAVE_GROUP_VIA_HOME = "cvl";
+		
 		public static final String COMPOSE_BUTTON = "hoScompB";
 
 		public static final String ADD_SHORTCUT = "hoSaddSC";
@@ -3423,6 +3437,8 @@ public class HikeConstants
 
 	public static final String CONN_PROD_AREA_LOGGING = "connProdAreaLogs";
 
+	public static final String GCM_PROD_AREA_LOGGING = "gcmProdAreaLogs";
+
 	public static final String SERVER_CONFIGURABLE_GROUP_SETTING = "gse";
 
 	public static final String MESSAGING = "messaging";
@@ -3707,6 +3723,8 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
+	public static final String IS_BLOCK = "is_block";
+
 	public static final String BOT_TABLE_REFRESH = "btr";
 	
 	public static final String BOTS = HikePlatformConstants.BOTS;
@@ -3778,11 +3796,17 @@ public class HikeConstants
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN = "ct_ovrflw_keyboard_indicator_shown";
+	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+
+	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
 
 	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
 
 	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+
+	public static final String CALLER_BLOKED_LIST_SYNCHED = "caller_block_list_synched";
+
+	public static final String CALLER_BLOKED_LIST_SYNCHED_SIGNUP = "caller_block_list_synched_signup";
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 
@@ -3815,4 +3839,8 @@ public class HikeConstants
 	public static final String ENABLE_AB_SYNC_DEBUGING = "ab_sync_debug";
 
 	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
+	
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 }

@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -3954,6 +3953,11 @@ public class Utils
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		}
 
+		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		{
+			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
+		}
+
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
@@ -7027,8 +7031,10 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
-	public static String getStackTrace(Throwable ex)
-	{
+	public static String getStackTrace(Throwable ex) {
+		if (ex == null) {
+			return "";
+		}
 		StringWriter errorTrace = new StringWriter();
 		ex.printStackTrace(new PrintWriter(errorTrace));
 		return errorTrace.toString();
@@ -7856,7 +7862,7 @@ public class Utils
 
 	/**
 	 * Sample logging JSON :
-	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512,"fld6":12422 }
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
 	 * @param dbObj
 	 */
 	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
@@ -7869,10 +7875,6 @@ public class Utils
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
 			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
-			if(dbObj.isOpen())
-			{
-				json.put(AnalyticsConstants.LOG_FIELD_6, DatabaseUtils.longForQuery(dbObj, "PRAGMA page_count;", null));
-			}
 
 			Logger.d("db", json.toString());
 

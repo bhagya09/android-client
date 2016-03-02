@@ -1,120 +1,7 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.media.AttachmentPicker;
-import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
-import com.bsb.hike.media.EmoticonPicker;
-import com.bsb.hike.media.HikeActionBar;
-import com.bsb.hike.media.ImageParser;
-import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
-import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.media.PickFileParser;
-import com.bsb.hike.media.PickFileParser.PickFileListener;
-import com.bsb.hike.media.PopupListener;
-import com.bsb.hike.media.ShareablePopupLayout;
-import com.bsb.hike.media.StickerPicker;
-import com.bsb.hike.media.StickerPickerListener;
-import com.bsb.hike.media.ThemePicker;
-import com.bsb.hike.media.ThemePicker.ThemePickerListener;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
-import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Unique;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
-import com.bsb.hike.modules.kpt.KptUtils;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.IOfflineCallbacks;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CardComponent;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.EmailConversationsAsyncTask;
-import com.bsb.hike.ui.ComposeViewWatcher;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SearchManager;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
-import com.bsb.hike.view.CustomLinearLayout;
-import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -189,6 +76,123 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.localisation.LocalLanguage;
+import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.AudioRecordView;
+import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
+import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
+import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.PickContactParser;
+import com.bsb.hike.media.PickFileParser;
+import com.bsb.hike.media.PickFileParser.PickFileListener;
+import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.media.ShareablePopupLayout;
+import com.bsb.hike.media.StickerPicker;
+import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.media.ThemePicker;
+import com.bsb.hike.media.ThemePicker.ThemePickerListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
+import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
+import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
+import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CardComponent;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.tasks.EmailConversationsAsyncTask;
+import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SearchManager;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
+import com.bsb.hike.view.CustomLinearLayout;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+import com.kpt.adaptxt.beta.KPTAddonItem;
+import com.kpt.adaptxt.beta.util.KPTConstants;
+import com.kpt.adaptxt.beta.view.AdaptxtEditText;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -385,6 +389,10 @@ import android.widget.Toast;
 	protected KeyboardFtue keyboardFtue;
 	
 	protected boolean changeKbdClicked = false;
+
+	protected boolean keyboardSelectedLanguageChanged;
+
+	ObjectAnimator tipFadeInAnimation;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -846,7 +854,12 @@ import android.widget.Toast;
 						hideCustomKeyboard(mComposeView);
 						showCustomKeyboard(mComposeView);
 					}
+					//changeKeybaordSelectedLanguage();
 				}
+			}
+			else if (state == KeyboardFtue.COMPLETE)
+			{
+				//changeKeybaordSelectedLanguage();
 			}
 		}
 
@@ -854,9 +867,23 @@ import android.widget.Toast;
 		public void onDestroyed()
 		{
 			Utils.unblockOrientationChange(activity);
+			showOverflowMenuKeyboardTipIfRequired();
 		}
 	};
 
+	private void changeKeybaordSelectedLanguage()
+	{
+		if (!keyboardSelectedLanguageChanged && KptKeyboardManager.getInstance().getInstalledLanguagesList().size() > 1)
+		{
+			if (LocalLanguageUtils.isLocalLanguageSelected() &&
+					!LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale().equals(LocalLanguage.English.getLocale())) {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(LocalLanguageUtils.getApplicationLocalLanguage(activity).getLocale());
+			} else {
+				KptKeyboardManager.getInstance().topPriorityForLanguage(KptKeyboardManager.getInstance().getInstalledLanguagesList().get(1));
+			}
+			keyboardSelectedLanguageChanged = true;
+		}
+	}
 	/**
 	 * Updates the mainView for KeyBoard popup as well as updates the Picker Listeners for Emoticon and Stickers
 	 */
@@ -901,39 +928,119 @@ import android.widget.Toast;
 			// overflow is common between all, one to one and group
 			MenuItemCompat.getActionView(menu.findItem(R.id.overflow_menu)).setOnClickListener(this);
 			mActionBar.setOverflowViewListener(this);
-			showOverflowMenuIndicatorIfRequired();
+			showOverflowMenuIndicatorsIfRequired();
 			return true;
 		}
 		return false;
 	}
 
-	private void showOverflowMenuIndicatorIfRequired()
+	private void showOverflowMenuIndicatorsIfRequired()
 	{
-		showOverflowMenuKeyboardIndicatorIfRequired();
+		showOverflowMenuKeyboardTipIfRequired();
 	}
 
-	private boolean showOverflowMenuKeyboardIndicatorIfRequired()
+	protected boolean showOverflowMenuKeyboardTipIfRequired()
 	{
-		// Show keyboard change discoverability option if:
+		// Show Ist keyboard change tip if:
+		// - it is not done yet
 		// - already the indicator is not in use
+		// - already the tip is not in use
 		// - user is Indian
 		// - keyboard ftue will not be shown in this session
-		// - it has not been shown before
-		// - if keyboard option is not yet used
 		// - if custom keyboard is enabled in the app
-		if (!mActionBar.isOverflowMenuIndicatorInUse()
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
 				&& HikeMessengerApp.isIndianUser()
 				&& !keyboardFtue.isReadyForFTUE()
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, false)
-				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
-				&& HikeMessengerApp.isCustomKeyboardUsable())
+				&& !HikeMessengerApp.isSystemKeyboard())
 		{
-			mActionBar.updateOverflowMenuIndicatorImage(R.drawable.ic_red_dot_overflow_key, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_INDICATOR_SHOWN, true);
+			showOverflowTip(R.string.switch_to_old_key);
+			return true;
+		}
+		// Show IInd keyboard change tip if:
+		// - first keyboard tip is successfully done.
+		// - second keyboard tip is not yet done.
+		// - already the indicator is not in use
+		// - already the tip is not in use
+		// - keyboard ftue will not be shown in this session
+		// - system keyboard is selected.
+		else if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, false)
+				&& !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, false)
+				&& !mActionBar.isOverflowMenuIndicatorInUse()
+				&& !isOverflowTipShowing()
+				&& !keyboardFtue.isReadyForFTUE()
+				&& HikeMessengerApp.isSystemKeyboard())
+		{
+			showOverflowTip(R.string.switch_to_hike_key);
 			return true;
 		}
 		return false;
 	}
+
+	protected void showOverflowTip(final int stringResId)
+	{
+		final TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		tipFadeInAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
+		tipFadeInAnimation.setDuration(600);
+		tipFadeInAnimation.setStartDelay(1200);
+		tipFadeInAnimation.addListener(new Animator.AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+				if (activity == null || activity.isFinishing() || (mActionMode != null && mActionMode.isActionModeOn()))
+				{
+					return;
+				}
+				tip.setText(stringResId);
+				tip.setVisibility(View.VISIBLE);
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {}
+		});
+		tipFadeInAnimation.start();
+
+		tip.setOnClickListener(this);
+	}
+
+	private boolean isOverflowTipShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		if (tip != null && tip.getVisibility() == View.VISIBLE)
+			return true;
+
+		if (tipFadeInAnimation != null && tipFadeInAnimation.isStarted())
+			return true;
+
+		return false;
+	}
+	private void dismissOverflowTipIfShowing()
+	{
+		TextView tip = (TextView) activity.findViewById(R.id.overflow_tip);
+		if (isOverflowTipShowing())
+		{
+			tip.setVisibility(View.GONE);
+			tip.setOnClickListener(null);
+
+			if (!TextUtils.isEmpty(tip.getText()))
+			{
+				if (tip.getText().equals(getString(R.string.switch_to_old_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, true);
+				} else if (tip.getText().equals(getString(R.string.switch_to_hike_key)))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, true);
+				}
+			}
+		}
+	}
+
 	public boolean onPrepareOptionsMenu(Menu menu)
 	{
 		return false;
@@ -1267,6 +1374,9 @@ import android.widget.Toast;
 		// Remove the indicator if any on the overflow menu.
 		mActionBar.updateOverflowMenuIndicatorImage(0,false);
 
+		// Dismiss Overflow Tip
+		dismissOverflowTipIfShowing();
+
 		/**
 		 * Hiding the softkeyboard if we are in landscape mode
 		 */
@@ -1347,6 +1457,9 @@ import android.widget.Toast;
 			break;
 		case R.id.search_text:
 			showKeyboard();
+			break;
+		case R.id.overflow_tip:
+			showOverflowMenu();
 			break;
 		default:
 			Logger.e(TAG, "onClick Registered but not added in onClick : " + v.toString());
@@ -1779,7 +1892,13 @@ import android.widget.Toast;
 			return;
 		}
 
-		activity.backPressed();
+		if (isActivityVisible) {
+			activity.backPressed();
+		}
+		else {
+			// if activity is not visible then this is coming after onPause has been called and in next step app will crash
+			//with a illegal argument exception.It's okay to consume this event anyway as the actiivty is going to stop anyway
+		}
 	}
 
 	private void removeBroadcastReceiver()
@@ -2060,7 +2179,7 @@ import android.widget.Toast;
 		public void analyticalData(KPTAddonItem kptAddonItem)
 		{
 			KptUtils.generateKeyboardAnalytics(kptAddonItem);
-			StickerSearchManager.getInstance().inputMethodChanged(new Locale(kptAddonItem.getlocaleName()).getISO3Language());
+			StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getISOCodeFromLocale(new Locale(kptAddonItem.getlocaleName())));
 		}
 
 		@Override
@@ -2827,6 +2946,13 @@ import android.widget.Toast;
 	{
 		Logger.i(TAG, "take action based on intent");
 		Intent intent = activity.getIntent();
+
+		if ((intent == null) || (intent.getExtras() == null) || (TextUtils.isEmpty(intent.getExtras().toString())))
+		{
+			Logger.w(TAG, "Either intent was null or could not find extras!");
+			return;
+		}
+
 		if(savedState!=null && (savedState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA) == intent.getExtras().toString().hashCode())) {
 			Logger.i(TAG, "consumed forwarded data");
 			return;
@@ -4328,6 +4454,8 @@ import android.widget.Toast;
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_TIP, true);
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
+
+		keyboardFtue.destroy();
 		
 		hideActionMode();
 
@@ -4340,24 +4468,31 @@ import android.widget.Toast;
 		releaseMessageAdapterResources();
 
 		StickerManager.getInstance().saveCustomCategories();
-		
+
 		releaseMessageMap();
 		
 		((CustomLinearLayout) activity.findViewById(R.id.chat_layout)).setOnSoftKeyboardListener(null);
 		
 		releaseActionBarResources();
-		
+
 		releaseOfflineListeners();
 
 		releaseShareablePopUpResources();
-		
+
 		releaseStickerResources();
 		
 		releaseEmoticonResources();
 		
 		releaseStickerSearchResources();
 
-		keyboardFtue.destroy();
+		if (tipFadeInAnimation != null)
+			tipFadeInAnimation.cancel();
+
+		// removing touch listener to stop receiving callback after onDestroy as we are getting a NPE in onTouch as mSharaeableLayout is null
+		if(mComposeView!=null)
+		{
+			mComposeView.setOnTouchListener(null);
+		}
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -6207,8 +6342,8 @@ import android.widget.Toast;
 		}
 
 		else
-		{
-			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
+		{ //Passing application context was causing a crash since, we were showing a dialog later on
+			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity,
 					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
 
 		}
@@ -6451,7 +6586,7 @@ import android.widget.Toast;
 			setEditTextListeners();
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED,null);
-
+		showOverflowMenuKeyboardTipIfRequired();
 		StickerSearchManager.getInstance().inputMethodChanged(StickerSearchUtils.getCurrentLanguageISOCode());
 	}
 	
@@ -6598,5 +6733,10 @@ import android.widget.Toast;
 	{
 		if (mCustomKeyboard != null)
 			mCustomKeyboard.swtichToDefaultKeyboard(tv);
+	}
+
+	public void onPostResume()
+	{
+
 	}
 }

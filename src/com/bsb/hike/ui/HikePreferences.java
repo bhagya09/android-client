@@ -8,6 +8,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -299,6 +300,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_LANGUAGE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.CALLER_BLOKED_LIST_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
@@ -741,11 +743,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		View backContainer = findViewById(R.id.back);
 		TextView title = (TextView) findViewById(R.id.title);
 		title.setText(titleRes);
-		backContainer.setOnClickListener(new View.OnClickListener()
-		{
+		backContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				onBackPressed();
 			}
 		});
@@ -889,6 +889,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			intent.putExtra(HikeConstants.Extras.BLOCKED_LIST, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+		}
+		else if (HikeConstants.CALLER_BLOKED_LIST_PREF.equals(preference.getKey()))
+		{
+			Intent intent = new Intent(HikePreferences.this, BlockCallerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK_LIST, null,
+					AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null);
 		}
 		else if (HikeConstants.SYSTEM_HEALTH_PREF.equals(preference.getKey()))
 		{
@@ -1441,6 +1449,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
 				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, HikeConstants.TOGGLE, isChecked);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
+				if (AppConfig.SHOW_LOGS)
+				{
+					Toast.makeText(getApplicationContext(), kptSettings.getKptSdkVersion(), Toast.LENGTH_SHORT).show();
+				}
 			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {
 				kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
 				trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, HikeConstants.TOGGLE, isChecked);

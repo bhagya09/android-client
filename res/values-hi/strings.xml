@@ -1201,7 +1201,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">नई फ़ोटो</string>
     <string name = "upgrade_for_larger_files">यह फ़ाइल प्राप्त करने के लिए %1$s को अपग्रेड करना आवश्यक है। Hike डायरेक्ट द्वारा Hike का नवीनतम संस्करण शेयर करें</string>
-    <string name="group_participant_info">आप किसी ग्रुप में 500 सदस्य तक जोड़ सकते हैं</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">अब आप </font><font color=\"#1090e0\"><b>१०००</b> </font><font color=\"#000000\"> सदस्यों तक को जोड़ सकते हैं। </font>]]></string>
     <string name="maxContactInGroupErr">अधिकतम %1$s सदस्य जोड़े जा सकते हैं</string>
     <string name="added_in_group">यह संपर्क पहले से एक सदस्य है</string>
     <string name="watsapp">WhatsApp द्वारा जोड़ें</string>
@@ -1419,5 +1419,9 @@
     <string name="language_ftue_complete_message">कीबोर्ड की भाषा बदलने के लिए \nसेटिंग्स -> भाषा &amp; इनपुट में जाऐं</string>
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
+    <string name="delete_conversation">चैट हटायें</string>
+    <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
+    <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
+    <string name="admin_error">यह सदस्य अब इस ग्रुप चैट का हिस्सा नहीं है</string>
     
 </resources>
