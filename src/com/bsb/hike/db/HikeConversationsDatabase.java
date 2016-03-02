@@ -900,7 +900,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(alterTable);
 			}
 		}
-		
+
 		if (oldVersion < 47)
 		{
 			Long time = System.currentTimeMillis();
@@ -909,7 +909,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
 		}
 
-		if(oldVersion < 46)
+
+		if(oldVersion < 48)
 		{
 			try
 			{
@@ -925,6 +926,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(sqlIndex);
 			}
 		}
+
 
 	}
 
