@@ -19,13 +19,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -238,7 +238,10 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		{
 			//Displaying "All Updated" message along with sticker when update list is empty
 			View parent = getView();
-			parent.findViewById(R.id.all_updated_message).setVisibility(View.VISIBLE);
+			ViewStub allUpdatedView = (ViewStub) parent.findViewById(R.id.all_updated_message_view_stub);
+			allUpdatedView.inflate();
+
+
 			View redirectToShopBtn = parent.findViewById(R.id.redirect_to_shop_btn);
 			redirectToShopBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
