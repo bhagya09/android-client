@@ -82,7 +82,7 @@
                 android:layout_alignParentRight="true"
                 android:gravity="center"
                 android:layout_centerVertical="true"
-                android:src="@drawable/sticker_pack_reorder"/>
+                android:src="@drawable/ic_pack_reorder"/>
 
         </RelativeLayout>
 

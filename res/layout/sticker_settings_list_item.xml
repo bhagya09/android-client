@@ -54,7 +54,7 @@
             android:id="@+id/delete_button"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/sticker_pack_delete"
+            android:src="@drawable/ic_pack_delete"
             android:scaleType="centerInside"
             android:clickable="true"
             android:layout_gravity="center"
@@ -67,7 +67,7 @@
             android:layout_height="24dp"
             android:scaleType="centerInside"
             android:layout_gravity="center"
-            android:src="@drawable/sticker_pack_reorder"
+            android:src="@drawable/ic_pack_reorder"
             android:visibility="gone"/>
 
             <com.bsb.hike.ui.utils.RecyclingImageView
