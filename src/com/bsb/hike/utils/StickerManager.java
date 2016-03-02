@@ -2072,7 +2072,7 @@ public class StickerManager
 		{
 			Sticker sticker = stickerList.get(i);
 			// // TODO: 01/03/16 remove duplicate code 
-			String cacheKey = sticker.getStickerCode() + HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+			String cacheKey = getStickerCacheKey(sticker, StickerConstants.StickerType.SMALL);
 			Bitmap bitmap = HikeBitmapFactory.decodeFile(sticker.getSmallStickerPath());
 			if (bitmap != null)
 			{
@@ -2763,6 +2763,26 @@ public class StickerManager
         }
 
         saveSticker(stickerList);
+    }
+
+    public String getStickerCacheKey(Sticker sticker, StickerConstants.StickerType stickerType)
+    {
+        String path = sticker.getStickerCode();
+        switch (stickerType)
+        {
+            case MINI:
+                path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
+                break;
+            case SMALL:
+                path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+                break;
+            case LARGE:
+                path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
+                break;
+        }
+
+        return path;
+
     }
     
 }

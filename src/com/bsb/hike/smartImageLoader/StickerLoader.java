@@ -78,20 +78,7 @@ public class StickerLoader extends ImageWorker
 
 	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
 	{
-		String path = sticker.getStickerCode();
-		switch (stickerType)
-		{
-		case MINI:
-			path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
-			break;
-		case SMALL:
-			path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
-			break;
-		case LARGE:
-			path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
-			break;
-		}
-
+        String path = StickerManager.getInstance().getStickerCacheKey(sticker,stickerType);
 		loadImage(path, imageView, isFlinging, runOnUiThread);
 	}
 
