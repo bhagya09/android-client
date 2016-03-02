@@ -231,18 +231,23 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return false;
 		}
 
-		visibleAndUpdateStickerSet.clear();
-		for(StickerCategory category : stickerCategories)
+		if (stickerCategories.size() == 0)
 		{
-			if (category.shouldAddToUpdateAll())				//the update option will have only packs with update available; so checking for only done and downloading state
-			{
-				visibleAndUpdateStickerSet.add(category);
-			}
-		}
-		
-		if(visibleAndUpdateStickerSet.size() > 0)
-		{
-			return true;
+			//Displaying "All Updated" message along with sticker when update list is empty
+			View parent = getView();
+			parent.findViewById(R.id.all_updated_message).setVisibility(View.VISIBLE);
+			View redirectToShopBtn = parent.findViewById(R.id.redirect_to_shop_btn);
+			redirectToShopBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent i = new Intent(getActivity(), StickerShopActivity.class);
+					startActivity(i);
+					getActivity().finish();
+				}
+			});
+			parent.findViewById(R.id.sticker_settings).setVisibility(View.GONE);
+
+			return false;
 		}
 		else
 		{
