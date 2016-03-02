@@ -349,8 +349,6 @@ public class HikeConstants
 
 	public static final String BACKGROUND = "bg";
 
-	public static final String JUST_OPENED = "justOpened";
-
 	public static final String BULK_LAST_SEEN = "bulklastseen";
 
 	public static final String LAST_SEEN = "ls";
@@ -3883,7 +3881,9 @@ public class HikeConstants
 
 	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
 	
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 }
