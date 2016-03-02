@@ -73,7 +73,7 @@ public class StickerLoader extends ImageWorker
 
 	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging)
 	{
-		loadSticker(sticker, stickerType, imageView, false, false);
+		loadSticker(sticker, stickerType, imageView, isFlinging, false);
 	}
 
 	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
