@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +41,7 @@ public enum StickerEventSearchManager
 	{
 		Logger.i(TAG, "loadNowCastEvents()");
 
-		sLatestEventLoadingTime = System.currentTimeMillis();
+		sLatestEventLoadingTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()); // System time in seconds
 		Map<Long, Event> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();
 
 		int eventCount = (rawData == null) ? 0 : rawData.size();
@@ -159,7 +160,8 @@ public enum StickerEventSearchManager
 								start = range.optLong(StickerSearchConstants.KEY_EVENT_RANGE_START, Range.TIME_APPLICABILITY_BOUNDARY);
 								end = range.optLong(StickerSearchConstants.KEY_EVENT_RANGE_END, (start + StickerSearchConstants.DEFAULT_EVENT_DURATION));
 
-								if ((start > 0) && (StickerEventSearchManager.sLatestEventLoadingTime >= start) && (StickerEventSearchManager.sLatestEventLoadingTime < end))
+								/* Duration of event is 1 second at least (theoretical value) */
+								if ((start > 0) && (StickerEventSearchManager.sLatestEventLoadingTime >= start) && (StickerEventSearchManager.sLatestEventLoadingTime < (end - 1)))
 								{
 									mTimeStampRangeIndex = i;
 									mNowCast = true;
