@@ -32,8 +32,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatus
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -75,7 +77,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private TextView postText;
 
 	private Bitmap groupBitmap;
-	
+
+	private int defAvBgColor;
+
 	private TextView groupNote;
 	
 	/**
@@ -134,6 +138,12 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					break;
 			}
 			setConversationId(conversationId);
+
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			int index = BitmapUtils.iconHash(conversationId) % (bgColorArray.length());
+
+			defAvBgColor = bgColorArray.getColor(index, 0);
 		}
 
 		Object object = getLastCustomNonConfigurationInstance();
@@ -146,11 +156,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		{
 			if (convType == ConvType.BROADCAST)
 			{
-				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				((ImageView) findViewById(R.id.broadcast_profile_image)).setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 			else if (convType == ConvType.GROUP)
 			{
-				convImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				convImage.setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 		}
 		
@@ -197,7 +207,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		if (convType == ConvType.BROADCAST)
 		{
 			setContentView(R.layout.create_new_broadcast);
-
 			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.broadcast_name);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
@@ -219,9 +228,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 		}
@@ -256,9 +282,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
-					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(s.toString().trim()));
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 			

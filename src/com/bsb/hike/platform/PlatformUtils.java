@@ -1706,6 +1706,7 @@ public class PlatformUtils
 		}
 	}
 
+
 	public static String getRunningGame(Context context)
 	{
 		String gameId = "";
