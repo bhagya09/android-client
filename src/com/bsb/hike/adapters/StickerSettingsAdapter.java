@@ -430,6 +430,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 									Utils.executeAsyncTask(deletePackTask);
 									//Displaying delete progress bar and deleting message in delete dialog box
 									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
+									View buttonPanel = deleteDialog.findViewById(R.id.button_panel);
+									buttonPanel.setVisibility(View.GONE);
 									ProgressBar deletingProgress = (ProgressBar) deleteDialog.findViewById(R.id.loading_progress);
 									deletingProgress.setVisibility(View.VISIBLE);
 									deleteDialog.setMessage(R.string.deleting_pack);
