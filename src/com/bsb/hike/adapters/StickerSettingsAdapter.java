@@ -149,16 +149,18 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			convertView = mInflater.inflate(R.layout.sticker_settings_list_item, null);
 			viewHolder = new ViewHolder();
 			viewHolder.categoryName = (TextView) convertView.findViewById(R.id.category_name);
-			viewHolder.checkBox = (ImageButton) convertView.findViewById(R.id.category_checkbox);
 			viewHolder.categoryPreviewImage = (ImageView) convertView.findViewById(R.id.category_icon);
 			viewHolder.categorySize = (TextView) convertView.findViewById(R.id.category_size);
 			viewHolder.updateAvailable = (TextView) convertView.findViewById(R.id.update_available);
 			viewHolder.downloadProgress = (ProgressBar) convertView.findViewById(R.id.download_progress);
-			viewHolder.checkBox.setOnClickListener(this);
 			viewHolder.deleteButton = (ImageButton) convertView.findViewById(R.id.delete_button);
 			viewHolder.deleteButton.setOnClickListener(this);
 			viewHolder.updateButton = (ImageView) convertView.findViewById(R.id.update_button);
 			viewHolder.updateButton.setOnClickListener(this);
+			viewHolder.reorderIcon = (ImageView) convertView.findViewById(R.id.reorder_icon);
+			viewHolder.updateStickersCount = (TextView) convertView.findViewById(R.id.update_stickers_count);
+			viewHolder.hideSwitch = (SwitchCompat) convertView.findViewById(R.id.hide_switch);
+			viewHolder.hideSwitch.setOnClickListener(this);
 
 			convertView.setTag(viewHolder);
 			
@@ -196,7 +198,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.updateAvailable.setText(mContext.getResources().getString(R.string.update_sticker));
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
+				checkAndDisableHideSwitch(viewHolder.hideSwitch);
 
 				break;
 			case StickerCategory.DOWNLOADING:
@@ -205,7 +207,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.VISIBLE);
 				viewHolder.deleteButton.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
-				viewHolder.checkBox.setVisibility(View.GONE);
+				viewHolder.hideSwitch.setVisibility(View.GONE);
 				viewHolder.updateButton.setVisibility(View.GONE);
 
 				break;
@@ -228,15 +230,15 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			default:
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				checkAndDisableCheckBox(category.getCategoryId(), viewHolder.checkBox);
+				checkAndDisableHideSwitch(viewHolder.hideSwitch);
 				
 		}
 			
-		viewHolder.checkBox.setTag(category);
+		viewHolder.hideSwitch.setTag(category);
 		viewHolder.deleteButton.setTag(category);
 		viewHolder.updateButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
-		viewHolder.checkBox.setSelected(category.isVisible());
+		viewHolder.hideSwitch.setChecked(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 		return convertView;
@@ -255,7 +257,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		viewHolder.updateAvailable.setText(state == StickerCategory.DONE ? R.string.see_them : R.string.RETRY);
 		viewHolder.updateAvailable.setTextColor(isVisible ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 		viewHolder.downloadProgress.setVisibility(View.GONE);
-		checkAndDisableCheckBox(categoryId, viewHolder.checkBox);
+		checkAndDisableHideSwitch(viewHolder.hideSwitch);
 	}
 
 	public void setIsListFlinging(boolean b)
@@ -376,8 +378,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	{
 		TextView categoryName;
 		
-		ImageButton checkBox;
-
 		ImageButton deleteButton;
 
 		ImageView categoryPreviewImage;
@@ -389,6 +389,12 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		ProgressBar downloadProgress;
 
 		ImageView updateButton;
+
+		ImageView reorderIcon;
+
+		TextView updateStickersCount;
+
+		SwitchCompat hideSwitch;
 	}
 
 	public void onStickerPackDelete(StickerCategory category)
@@ -409,9 +415,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	{
 		boolean visibility = !category.isVisible();
 		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
-		ImageButton checkBox = (ImageButton) v;
+		SwitchCompat hideSwitch = (SwitchCompat) v;
+		hideSwitch.setChecked(visibility);
 		category.setVisible(visibility);
-		checkBox.setSelected(visibility);
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
 		updateLastVisibleIndex(categoryIdx, category);
@@ -464,7 +470,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 					this.notifyDataSetChanged();
 					break;
 
-				case R.id.category_checkbox:
+				case R.id.hide_switch:
 					onStickerPackHide(v, category);
 					break;
 
@@ -502,18 +508,18 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	/**
 	 * Hides/makes the ImageButton visible conditionally
 	 * @param categoryId
-	 * @param cb
+	 * @param hideSwitch
 	 */
-	private void checkAndDisableCheckBox(String categoryId, ImageButton cb)
+	private void checkAndDisableHideSwitch(SwitchCompat hideSwitch)
 	{
-		if(stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK || categoryId.equals(StickerManager.HUMANOID)
-				|| categoryId.equals(StickerManager.EXPRESSIONS))
+
+		if(stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK)
 		{
-			cb.setVisibility(View.GONE);
+			hideSwitch.setVisibility(View.GONE);
 		}
 		else
 		{
-			cb.setVisibility(View.VISIBLE);
+			hideSwitch.setVisibility(View.VISIBLE);
 		}
 	}
 
