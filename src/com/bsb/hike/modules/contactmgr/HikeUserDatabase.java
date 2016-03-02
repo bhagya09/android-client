@@ -1538,6 +1538,13 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.USERS_TABLE, DBConstants.ID + " in " + ids_joined, null);
 	}
 
+	void deleteMultipleRows(Collection<String> ids, Collection<String> pNums)
+	{
+		String ids_joined = "(" + Utils.join(ids, ",", "\"", "\"") + ")";
+		String phoneNumbers = "(" + Utils.join(pNums, ",", "\"", "\"") + ")";
+		mDb.delete(DBConstants.USERS_TABLE, DBConstants.ID + " in " + ids_joined + " AND " + DBConstants.PHONE + " in " + phoneNumbers, null);
+	}
+
 	void updateContacts(List<ContactInfo> updatedContacts)
 	{
 		if (updatedContacts == null)
@@ -1546,11 +1553,13 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 		ArrayList<String> ids = new ArrayList<String>(updatedContacts.size());
+		ArrayList<String> pNums = new ArrayList<String>(updatedContacts.size());
 		for (ContactInfo c : updatedContacts)
 		{
 			ids.add(c.getId());
+			pNums.add(c.getPhoneNum());
 		}
-		deleteMultipleRows(ids);
+		deleteMultipleRows(ids, pNums);
 		try
 		{
 			addContacts(updatedContacts, false);

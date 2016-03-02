@@ -6326,8 +6326,13 @@ public class Utils
 	{
 		try
 		{
+			JSONObject blockedStateData = new JSONObject();
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
+			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			{
+				blockedStateData.put(HikeConstants.LogEvent.NET_INFO, netInfo.getDetailedState());
+			}
 
 			if (netInfo != null && netInfo.isConnected())
 			{
@@ -6336,6 +6341,10 @@ public class Utils
 			}
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			{
+				blockedStateData.put(HikeConstants.LogEvent.NET_INFO_MOBILE, netInfo.getDetailedState());
+			}
 
 			if (netInfo != null && netInfo.isConnected())
 			{
@@ -6345,12 +6354,17 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+				if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+				{
+					blockedStateData.put(HikeConstants.LogEvent.NET_INFO_WIFI, netInfo.getDetailedState());
+				}
 				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
 				}
 			}
+			recordBlockedNetworkState(blockedStateData);
 		}
 		catch (Exception e)
 		{
@@ -6377,6 +6391,23 @@ public class Utils
 			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.GET_ACTIVE_NETWORK_INFO, metadata);
 		}
 		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	private static void recordBlockedNetworkState(JSONObject data)
+	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		{
+			return;
+		}
+		try
+		{
+			Logger.w("Utils", "Recording network blocked state = " + data);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.NET_BLOCKED_STATE_ANALYTICS, data);
+		}
+		catch (Exception e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
