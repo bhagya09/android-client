@@ -702,7 +702,7 @@
     <string name="update_all">UPDATE ALL</string>
     <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
-    <string name="drag_tip_text">Drag to Reorder Packs</string>
+    <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
     <string name="CANCEL">CANCEL</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1069,27 +1069,6 @@
     <string name="cancel_offline_connection">Cancel Connection</string>
     <string name="retry_connection">Couldn\'t connect via \n Hike Direct.Try again?</string>
     <string name="file_attachment_info_offline">Share apk , media , files  up to any size</string>
-	<string name="actionbar_activity_feed_title">Activity</string>
-	<string name="photo_like_text">Liked your photo</string>
-	<string name="dp_like_text">Liked your profile photo</string>
-	<string name="liked_this_post">Liked this post</string>
-	<string name="liked_your_post">Liked your post</string>
-	<string name="activity_feed_actionbar_title">Activity Feed</string>
-	<string name="posted_photo">Posted a photo</string>
-	<string name="love_failed">No internet. Please try again later.</string>
-	<string name="delete_post">Delete post</string>
-	<string name="message_person">Message %1$s</string>
-	<string name="delete_status_confirmation">Are you sure you want to delete this update?</string>
-	<string name="delete_status_timeline_confirmation">This will delete your post from your and your friends\' timeline</string>
-	<string name="clear_timeline">Clear Timeline</string>
-	<string name="favourites">Favorites</string>
-	<string name="clear_timeline_dialog">Are you sure you want to clear your timeline?</string>
-	<string name="liked_it">Liked</string>
-	<string name="status_hint">What are you upto?</string>
-	<string name="status_hint_image">Something about this photo</string>
-	<string name="add_mood">Mood</string>
-    <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="actionbar_activity_feed_title">Activity</string>
     <string name="photo_like_text">Liked your photo</string>
     <string name="dp_like_text">Liked your profile photo</string>
@@ -1506,8 +1485,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
-    <string name="group_selected">%1$s/1000 selected</string>		
-	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
+    <string name="group_selected">%1$s/1000 selected</string>
+    <string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
@@ -1537,17 +1516,6 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
-    <string name="deleting">DELETING</string>
-    <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
-    <string name="sticker_delete_setting_header">Delete</string>
-    <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
-    <string name="sticker_hide_setting_header">Hide</string>
-    <string name="sticker_update_setting_info">Update the downloaded Sticker Packs</string>
-    <string name="sticker_update_setting_header">Update</string>
-    <string name="delete_pack_question">Are you sure you want to delete sticker pack?</string>
-    <string name="settings_sticker">Sticker Settings</string>
-    <string name="deleting_pack">Deleting Pack...</string>
-    <string name="pack_deleted">Deleted pack</string>
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
@@ -1566,6 +1534,17 @@
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
+    <string name="deleting">DELETING</string>
+    <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
+    <string name="sticker_delete_setting_header">Delete</string>
+    <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
+    <string name="sticker_hide_setting_header">Hide</string>
+    <string name="sticker_update_setting_info">Update the downloaded Sticker Packs</string>
+    <string name="sticker_update_setting_header">Update</string>
+    <string name="delete_pack_question">Are you sure you want to delete sticker pack?</string>
+    <string name="settings_sticker">Sticker Settings</string>
+    <string name="deleting_pack">Deleting Pack...</string>
+    <string name="pack_deleted">Deleted pack</string>
     <string name="n_more_stickers">%1$d More Stickers</string>
     <string name="all_packs_updated_heading">All packs are updated!</string>
     <string name="all_packs_updated_info">All your packs are up to date, if you want more stickers visit sticker shop</string>
