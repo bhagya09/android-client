@@ -85,7 +85,6 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
 			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
-			StickerManager.getInstance().doInitialSetup();
 		}
 		
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
@@ -127,6 +126,7 @@ public class UpgradeIntentService extends IntentService
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
 				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
+                StickerManager.getInstance().doInitialSetup();
 			}
 		}
 
