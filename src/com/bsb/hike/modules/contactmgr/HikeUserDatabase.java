@@ -32,6 +32,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.provider.BaseColumns;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -42,6 +43,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
@@ -49,6 +53,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -117,6 +122,9 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.FAVORITE_TYPE + " INTEGER" + " ) ";
 		db.execSQL(create);
 
+		create = getHikeCallerTable();
+		db.execSQL(create);
+
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.USER_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
 
@@ -125,6 +133,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
+
 	}
 
 	@Override
@@ -266,6 +275,106 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			editor.putInt(HikePlatformConstants.PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH, HikePlatformConstants.MAKE_HTTP_CALL);
 			editor.commit();
 		}
+		if (oldVersion < 18)
+		{
+			db.execSQL(getHikeCallerTable());
+		}
+
+	}
+
+	private String getHikeCallerTable()
+	{
+
+		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
+				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, " + DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1 "+ ")";
+
+		return hikeCallerTable;
+	}
+
+	public CallerContentModel getCallerContentModelFromMsisdn(String msisdn)
+	{
+		try
+		{
+			Cursor cursor = mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, DBConstants.MSISDN + "=? ", new String[] { msisdn }, null, null, null, "1");
+			cursor.moveToFirst();
+			CallerContentModel callerContentModel = new CallerContentModel();
+			callerContentModel.setBlock(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_BLOCK)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setFullName(cursor.getString(cursor.getColumnIndex(DBConstants.NAME)));
+			callerContentModel.setIsOnHike(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_ON_HIKE)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setIsSpam(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SPAM)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setIsSynced(!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED))
+					&& (cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.IS_SYNCED)) == ChatHeadUtils.VALUE_TRUE));
+			callerContentModel.setLocation(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.LOCATION)));
+			callerContentModel.setSpamCount(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) ? cursor.getInt(cursor.getColumnIndex(DBConstants.HIKE_USER.SPAM_COUNT)) : 0);
+			callerContentModel.setMsisdn(cursor.getString(cursor.getColumnIndex(DBConstants.MSISDN)));
+			callerContentModel.setCreationTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) : 0);
+			callerContentModel.setUpdationTime(
+					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) : 0);
+
+			return callerContentModel;
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+
+	public Cursor getCallerBlockContactCursor()
+	{
+		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.NAME, DBConstants.HIKE_USER.IS_BLOCK, BaseColumns._ID}, DBConstants.HIKE_USER.IS_BLOCK + "=? ", new String[] {"1"}, null, null, DBConstants.NAME + " ASC", null);
+		cursor.moveToFirst();
+		return cursor;
+	}
+
+	public void updateCallerSyncStatus(JSONObject callerSyncJSON)
+	{
+		JSONArray blockedArray = null;
+		JSONArray unBlockedArray = null;
+		try
+		{
+			if (callerSyncJSON.has(StickyCaller.BLOCKED_LIST))
+			{
+				blockedArray = callerSyncJSON.getJSONArray(StickyCaller.BLOCKED_LIST);
+			}
+			if (callerSyncJSON.has(StickyCaller.UNBLOCKED_LIST))
+			{
+				unBlockedArray = callerSyncJSON.getJSONArray(StickyCaller.UNBLOCKED_LIST);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		if (blockedArray != null && blockedArray.length() >0)
+		{
+			String blockedString = blockedArray.toString();
+			blockedString = blockedString.replace("[", "").replace("]", "");
+			ContentValues blocked = new ContentValues();
+			blocked.put(DBConstants.HIKE_USER.IS_SYNCED, ChatHeadUtils.VALUE_TRUE);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, blocked, DBConstants.HIKE_USER.IS_BLOCK + "=" + ChatHeadUtils.VALUE_TRUE + " AND " + DBConstants.MSISDN + " IN (" + blockedString + ")", null);
+		}
+		if (unBlockedArray != null && unBlockedArray.length() >0)
+		{
+			String unBlockedString = unBlockedArray.toString();
+			unBlockedString = unBlockedString.replace("[", "").replace("]", "");
+			ContentValues unBlocked = new ContentValues();
+			unBlocked.put(DBConstants.HIKE_USER.IS_SYNCED, ChatHeadUtils.VALUE_TRUE);
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, unBlocked, DBConstants.HIKE_USER.IS_BLOCK + "=" + ChatHeadUtils.VALUE_FALSE + " AND " + DBConstants.MSISDN + " IN (" + unBlockedString + ")", null);
+		}
+	}
+
+
+	public Cursor getAllUnsyncedContactCursor()
+	{
+		Cursor cursor =  mDb.query(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, new String[]{DBConstants.MSISDN, DBConstants.HIKE_USER.IS_BLOCK}, DBConstants.HIKE_USER.IS_SYNCED + "=? ", new String[] {String.valueOf(ChatHeadUtils.VALUE_FALSE)}, null, null, null, null);
+		cursor.moveToFirst();
+		return cursor;
 	}
 
 	void addContacts(List<ContactInfo> contacts, boolean isFirstSync) throws DbException
@@ -383,6 +492,94 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			}
 			db.endTransaction();
 		}
+	}
+
+
+
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, isCompleteData, setIsBlock);
+			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		}
+	}
+
+	public void insertAllBlockedContactsIntoCallerTable(ArrayList<CallerContentModel> callerContent)
+	{
+		try
+		{
+			mDb.beginTransaction();
+			if (callerContent != null)
+			{
+				for (CallerContentModel callerContentModel : callerContent)
+				{
+					if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+					{
+						ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true, true);
+						contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+						contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
+						contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+						mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+					}
+				}
+			}
+			mDb.setTransactionSuccessful();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CALLER_BLOKED_LIST_SYNCHED_SIGNUP, true);
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+	}
+
+	private ContentValues getBasicCallerContentValues(CallerContentModel callerContentModel, boolean setIsOnHikeTime, boolean setIsBlock)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.HIKE_USER.IS_ON_HIKE, callerContentModel.getIsOnHike() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		contentValues.put(DBConstants.HIKE_USER.LOCATION, callerContentModel.getLocation());
+		contentValues.put(DBConstants.HIKE_USER.IS_SPAM, callerContentModel.isSpam() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		contentValues.put(DBConstants.HIKE_USER.SPAM_COUNT, callerContentModel.getSpamCount());
+		contentValues.put(DBConstants.HIKE_USER.ON_HIKE_TIME, setIsOnHikeTime ? System.currentTimeMillis() : 0);
+		if (setIsBlock)
+		{
+			contentValues.put(DBConstants.HIKE_USER.IS_BLOCK, callerContentModel.isBlock() ? ChatHeadUtils.VALUE_TRUE : ChatHeadUtils.VALUE_FALSE);
+		}
+		return  contentValues;
+	}
+
+	public void updateCallerTable(CallerContentModel callerContentModel, boolean setIsBlock)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null)
+		{
+			ContentValues contentValues = getBasicCallerContentValues(callerContentModel, true, setIsBlock);
+			if (callerContentModel.getFullName() != null)
+			{
+				contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, System.currentTimeMillis());
+				if (ChatHeadUtils.getNameFromNumber(mContext, callerContentModel.getMsisdn())  == null)
+				{
+					contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
+				}
+			}
+			int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { callerContentModel.getMsisdn() });
+			if (noOfRow == 0 && callerContentModel.getFullName() != null)
+			{
+				insertIntoCallerTable(callerContentModel, true, setIsBlock);
+			}
+		}
+	}
+
+	public int updateBlockStatusIntoCallerTable(String msisdn, ContentValues contentValues)
+	{
+		if (msisdn != null)
+		{
+			return mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { msisdn });
+		}
+		return 0;
 	}
 
 	void addBlockList(List<String> msisdns) throws DbException
@@ -1418,6 +1615,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		mDb.delete(DBConstants.BLOCK_TABLE, null, null);
 		mDb.delete(DBConstants.THUMBNAILS_TABLE, null, null);
 		mDb.delete(DBConstants.FAVORITES_TABLE, null, null);
+		mDb.delete(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, null);
 	}
 
 	ContactInfo getContactInfoFromPhoneNo(String number)

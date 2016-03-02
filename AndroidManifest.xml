@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-
-    android:versionCode="1588"
-    android:versionName="4.2.0.5.ab_sync" >
+    android:versionCode="1607"
+    android:versionName="4.2.0.11.alter_libs" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -172,6 +171,11 @@
             android:name=".ui.AddFriendsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".ui.BlockCallerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
         </activity>
         <activity
             android:name=".ui.WelcomeActivity"

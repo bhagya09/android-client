@@ -1203,7 +1203,7 @@
     <string name="timeline_transition_anim">टाइमलाईन_प्रतिमा_संक्रमण</string>
     <string name="home_overflow_new_photo">नवीन फोटो</string>
     <string name="upgrade_for_larger_files">ही फाइल प्राप्त करण्यासाठी %1$s ला श्रेणीसुधारित करणे आवश्यक आहे. Hike डायरेक्ट द्वारे आता Hike ची नवीनतम आवृत्ती सामायिक करा</string>
-    <string name="group_participant_info">तुम्ही एका समूहामध्ये 500 पर्यन्त सदस्य जोडू शकता</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">आता तुम्ही </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> पर्यंत मेम्बर्स जोडू शकता</font>]]></string>
     <string name="maxContactInGroupErr">कमाल %1$s सदस्य जोडता येतात</string>
     <string name="added_in_group">हा संपर्क आधीच सदस्य आहे</string>
     <string name="watsapp">WhatsApp द्वारे जोडा</string>
@@ -1423,5 +1423,8 @@
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
     <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
     <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
-    
+    <string name="delete_conversation">संभाषण हटवा</string>
+    <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
+    <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
+    <string name="admin_error">हा वापरकर्ता आता या ग्रुप चा सभासद नाही</string>
 </resources>
