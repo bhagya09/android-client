@@ -37,10 +37,11 @@ public enum StickerEventSearchManager
 		return INSTANCE;
 	}
 
-	public void loadNowCastEvents()
+	public synchronized void loadNowCastEvents()
 	{
 		Logger.i(TAG, "loadNowCastEvents()");
 
+		sCacheForNowCastEvents.clear();
 		sLatestEventLoadingTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()); // System time in seconds
 		Map<Long, Event> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();
 
@@ -110,7 +111,7 @@ public enum StickerEventSearchManager
 		return -1;
 	}
 
-	public void clearNowCastEvents()
+	public synchronized void clearNowCastEvents()
 	{
 		sCacheForNowCastEvents.clear();
 		sLatestEventLoadingTime = 0;
@@ -122,7 +123,7 @@ public enum StickerEventSearchManager
 
 		private ArrayList<String> mOtherNames;
 
-		private int mTimeStampRangeIndex = -1;
+		private int mTimeStampRangeIndex = -1; // Which range is applicable in current time
 
 		private boolean mNowCast = false;
 

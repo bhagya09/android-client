@@ -24,6 +24,7 @@ import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer
 import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager.Event;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -997,6 +998,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		existingEventIdMap.clear();
 		existingEventIdMap = null;
 
+		// Update pre-loaded events
+		StickerEventSearchManager.getInstance().loadNowCastEvents();
+
 		return eventIdMap;
 	}
 
@@ -1019,14 +1023,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			{
 				try
 				{
+					String referenceId = String.valueOf(ids.get(eventName));
+
 					if (eventDataContainer.getTimeStampEventsRanks() != null)
 					{
-						jsonType1Ranks.put(String.valueOf(ids.get(eventName)), eventDataContainer.getTimeStampEventsRanks());
+						jsonType1Ranks.put(referenceId, eventDataContainer.getTimeStampEventsRanks());
 					}
 
 					if (eventDataContainer.getDayEventsRanks() != null)
 					{
-						jsonType2Ranks.put(String.valueOf(ids.get(eventName)), eventDataContainer.getDayEventsRanks());
+						jsonType2Ranks.put(referenceId, eventDataContainer.getDayEventsRanks());
 					}
 				}
 				catch (JSONException e)
