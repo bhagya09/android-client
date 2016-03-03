@@ -9293,6 +9293,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return stmt;
 	}
 
+	/**
+	 * method to load all the chat themes from the DB to memory
+	 * @return a list of chat theme objects each of which represents a row in the theme table
+	 */
 	public ArrayList<HikeChatTheme> getAllChatThemes()
 	{
 		ArrayList<HikeChatTheme> themes = new ArrayList<HikeChatTheme>();
@@ -9322,6 +9326,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return themes;
 	}
 
+	/**
+	 * method to make a chat theme object from a row cursor of theme table
+	 * @param themeDbRow a cursor to a row in the theme table
+	 * @return a chat theme object made from the row
+	 */
 	public HikeChatTheme makeChatThemeFromDbRow(Cursor themeDbRow)
 	{
 		String themeId = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_ID));
@@ -9362,5 +9371,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		chatTheme.setMetadata(meta);
 
 		return chatTheme;
+	}
+
+	/**
+	 * method to load all assets from the db to memory
+	 * @return a map of assets with the key as the UUID of the asset
+	 */
+	public HashMap<String, HikeChatThemeAsset> getAllChatThemeAssets()
+	{
+		HashMap<String, HikeChatThemeAsset> assetMap = new HashMap<>();
+
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_ASSET_TABLE;
+		Cursor assetListCursor = mDb.rawQuery(getThemesQuery, null);
+		try
+		{
+			if (assetListCursor.moveToFirst())
+			{
+				//loading all assets from the database to the memory
+				while (!assetListCursor.isAfterLast())
+				{
+					HikeChatThemeAsset asset = makeAssetFromDbRow(assetListCursor);
+					if(asset != null)
+					{
+						assetMap.put(asset.getAssetId(), asset);
+					}
+					assetListCursor.moveToNext();
+				}
+			}
+		}
+		finally
+		{
+			if (assetListCursor != null)
+			{
+				assetListCursor.close();
+			}
+		}
+		return assetMap;
+	}
+
+	/**
+	 * method to make a chat theme asset from a row in the asset table
+	 * @param assetDbCursor cursor to the asset to be loaded
+	 * @return a chat theme asset object corresponding to the row the cursor points to
+	 */
+	public HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor)
+	{
+		String assetId = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_ID));
+		int assetType = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_TYPE));
+		String assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
+		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
+
+		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal);
+		asset.setIsDownloaded(isDownloaded == 1 ? true : false);
+
+		return asset;
 	}
 }
