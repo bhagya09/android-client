@@ -708,7 +708,7 @@ public class HikeFile
 		{
 			return -1;
 		}
-		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "='" + filePath + "'", null, null);
+		Cursor cur = context.getContentResolver().query(uri, retCol, MediaStore.MediaColumns.DATA + "=?", new String[] { filePath }, null);
 		if (cur != null)
 		{
 			try
