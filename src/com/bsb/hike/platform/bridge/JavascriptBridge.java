@@ -339,7 +339,7 @@ public abstract class JavascriptBridge
 	 * @param caption : intent caption
 	 */
 	@JavascriptInterface
-	public void share(String text, String caption)
+	public void share(final String text, final String caption)
 	{
 		JSONObject json = new JSONObject();
 		try
@@ -352,6 +352,7 @@ public abstract class JavascriptBridge
 		{
 			Logger.e(tag, "Error in share");
 		}
+
 	}
 
 	/**

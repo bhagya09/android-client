@@ -1989,10 +1989,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							}
 						}
 					}
+
 				}
 				catch (Exception e)
 				{
 					Logger.e("ComposeChatActivity", "Bot Content Error");
+				}
+// {"t":"le_android","d":{"et":"nonUiEvent","st":"repl","ep":"HIGH","cts":1456826454120,"tag":"plf","md":{"ek":"micro_app","event":"chromeCustomTabs","fld4":"forward","fld6":1,"sid":1456826429219
+				if(!TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.ANALYTICS_EXTRA)))
+				{
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,presentIntent.getStringExtra(AnalyticsConstants.ANALYTICS_EXTRA));
+						json.putOpt(AnalyticsConstants.LOG_FIELD_4,AnalyticsConstants.FORWARD);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,arrayList.size());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
 				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
@@ -2589,6 +2607,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		else if (type != null && presentIntent.hasExtra(Intent.EXTRA_STREAM))
 		{
 			Uri fileUri = presentIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+			if(fileUri == null)
+			{
+				Toast.makeText(getApplicationContext(), R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
+				return arrayList;
+			}
 			if (type.startsWith(HikeConstants.SHARE_CONTACT_CONTENT_TYPE))
 			{
 				String lookupKey = fileUri.getLastPathSegment();
