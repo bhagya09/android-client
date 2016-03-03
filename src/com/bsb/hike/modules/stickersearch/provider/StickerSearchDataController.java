@@ -432,21 +432,29 @@ public enum StickerSearchDataController
 									JSONObject festiveData = attributeData.optJSONObject(key);
 									Logger.v(TAG, "setupStickerSearchWizard(), sticker id: " + stickerInfo + ", events: " + festiveData);
 
-									if ((festiveData != null) && (festiveData.length() > 0))
+									if (festiveData != null)
 									{
-										Iterator<String> events = festiveData.keys();
-										stickerEvents = new ArrayList<StickerEventDataContainer>(festiveData.length());
-
-										while (events.hasNext())
+										if (festiveData.length() > 0)
 										{
-											String event = events.next();
-											JSONObject eventData = festiveData.optJSONObject(event);
-											if (eventData != null)
+											Iterator<String> events = festiveData.keys();
+											stickerEvents = new ArrayList<StickerEventDataContainer>(festiveData.length());
+
+											while (events.hasNext())
 											{
-												StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, eventData);
-												stickerEvents.add(stickerEvent);
-												eventsData.add(stickerEvent);
+												String event = events.next();
+												JSONObject eventData = festiveData.optJSONObject(event);
+												if (eventData != null)
+												{
+													StickerEventDataContainer stickerEvent = new StickerEventDataContainer(event, eventData);
+													stickerEvents.add(stickerEvent);
+													eventsData.add(stickerEvent);
+												}
 											}
+										}
+										/* If some sticker converts from non-festive to festive, then server has to send *afestival key-data but with empty list */
+										else
+										{
+											stickerEvents = new ArrayList<StickerEventDataContainer>(0);
 										}
 									}
 								}
