@@ -292,6 +292,7 @@ public class StickerManager
 		context = HikeMessengerApp.getInstance();
 		String externalDir = getExternalFilesDirPath(null);
 		stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
+		checkAndSendStickerError();
 	}
 
 	public void doInitialSetup()
@@ -2514,4 +2515,84 @@ public class StickerManager
 	{
 		return TextUtils.isEmpty(stickerExternalDir);
 	}
+
+	private void checkAndSendStickerError()
+	{
+		long lastStickerErrorLogTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, 0L);
+		long currentTime = System.currentTimeMillis();
+
+		if(currentTime - lastStickerErrorLogTime > HikeConstants.ONE_DAY_MILLS)
+		{
+			sendStickerFolderError();
+			sendSingleStickerDownloadError();
+			sendStickerPackDownloadError();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, currentTime);
+		}
+	}
+
+	private void sendStickerFolderError()
+	{
+		if(isStickerFolderError())
+		{
+			sendStickerFolderLockedError("Unable to access android folder.");
+		}
+	}
+
+	private void sendSingleStickerDownloadError()
+	{
+		int count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SINGLE_STICKER_DOWNLOAD_ERROR_COUNT, 0);
+		if(count > 0)
+		{
+			sendStickerDownloadErrors(HikeConstants.SINGLE_STICKER, count);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SINGLE_STICKER_DOWNLOAD_ERROR_COUNT, 0);
+		}
+	}
+
+
+	private void sendStickerPackDownloadError()
+	{
+		int count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, 0);
+		if(count > 0)
+		{
+			sendStickerDownloadErrors(HikeConstants.STICKER_PACK, count);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, 0);
+		}
+	}
+
+	private void sendStickerDownloadErrors(String eventType, int count)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_ERROR);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.COUNT, count);
+
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+	}
+
+
+	public void logStickerDownloadError(String type)
+	{
+		switch (type)
+		{
+			case HikeConstants.SINGLE_STICKER:
+				int count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SINGLE_STICKER_DOWNLOAD_ERROR_COUNT, 0);
+				count +=1;
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SINGLE_STICKER_DOWNLOAD_ERROR_COUNT, count);
+				break;
+			case HikeConstants.STICKER_PACK:
+				count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, 0);
+				count +=1;
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, count);
+				break;
+		}
+	}
+
+
 }
