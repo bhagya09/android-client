@@ -75,6 +75,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDev
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerViewActionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendDeviceDetailBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendUserLogsInfoBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProfileUrl;
@@ -353,6 +354,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken getBlockedCallerList(String url, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken postPlatformUserIdForPartialAddressBookFetchRequest(String url,JSONObject json, IRequestListener requestListener, List<Header> headers)
 	{
 		JsonBody body = new JsonBody(json);
@@ -367,17 +379,17 @@ public class HttpRequests
 
 		return requestToken;
 	}
-	
-	public static RequestToken postNumberAndGetCallerDetails(String url,JSONObject json, IRequestListener requestListener, int delay, int multiplier)
+
+	public static RequestToken postCallerMsisdn(String url, JSONObject json, IRequestListener requestListener, int noOfRetry, int delay, float multiplier, boolean responseOnUiThread)
 	{		
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, delay, multiplier))
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, delay, multiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
-				.setResponseOnUIThread(true)
+				.setResponseOnUIThread(responseOnUiThread)
 				.build();
 
 		return requestToken;
@@ -740,6 +752,7 @@ public class HttpRequests
 				.setUrl(editProfileAvatarBase())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(2,BasicRetryPolicy.DEFAULT_RETRY_DELAY,BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
@@ -807,7 +820,21 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
-	
+
+	public static RequestToken sendViewsLink(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(registerViewActionUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(false)
+				.setRetryPolicy(new BasicRetryPolicy(2,BasicRetryPolicy.DEFAULT_RETRY_DELAY,BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken removeLoveLink(JSONObject json, IRequestListener requestListener,String id)
 	{
 		JsonBody body = new JsonBody(json);
@@ -1041,11 +1068,12 @@ public class HttpRequests
 
 	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener,
                                                               IRequestInterceptor requestInterceptor,
-                                                              int retryCount, int delayBeforeRetry) {
+                                                              String requestId, int retryCount, int delayBeforeRetry) {
         RequestToken requestToken = new JSONObjectRequest.Builder()
                 .setUrl(HttpRequestConstants.getAnalyticsUrl())
                 .setRequestType(Request.REQUEST_TYPE_LONG)
                 .setAsynchronous(true)
+                .setId(requestId)
                 .setRequestListener(requestListener)
                 .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
                 .post(null)

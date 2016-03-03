@@ -1,22 +1,8 @@
 package com.bsb.hike.tasks;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
-import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformUIDFetch;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -28,9 +14,9 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
@@ -41,12 +27,23 @@ import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
 import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -63,7 +60,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					SmsMessage sms = SmsMessage.createFromPdu((byte[]) extra[i]);
 					String body = sms.getMessageBody();
-					String pin = Utils.getSMSPinCode(body);
+					String pin = null;
+
+					if (!TextUtils.isEmpty(body))
+					{
+						pin = Utils.getSMSPinCode(body);
+					}
+
 					if (pin != null)
 					{
 						if(getDisplayChild() != SignupActivity.PIN){
@@ -489,7 +492,19 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			ContactManager conMgr = ContactManager.getInstance();
-			List<ContactInfo> contactinfos = conMgr.getContacts(this.context);
+			List<ContactInfo> contactinfos = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			{
+				contactinfos = conMgr.getContacts(this.context);
+			}
+			else
+			{
+				contactinfos = conMgr.getContactsOld(this.context);
+			}
+			if(contactinfos == null)
+			{
+				return Boolean.FALSE;
+			}
 			conMgr.setGreenBlueStatus(this.context, contactinfos);
 			
 			try
@@ -742,7 +757,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		isAlreadyFetchingNumber = false;
 
 		settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
-		
+
 		return Boolean.TRUE;
 	}
 	

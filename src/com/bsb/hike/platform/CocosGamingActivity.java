@@ -104,6 +104,12 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		if(TextUtils.isEmpty(msisdn))
+		{
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
