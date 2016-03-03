@@ -905,7 +905,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			try
 			{
-				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, null, whereConditionToQueryAndUpdate, argsInCondition, null, null, null);
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_ENTITY, null, whereConditionToQueryAndUpdate, argsInCondition, null, null, null);
 
 				if ((c != null) && (c.getCount() > 0))
 				{
