@@ -937,8 +937,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// You can call any combination of these three methods
 		if (!TextUtils.isEmpty(msisdn)) {
 			Crashlytics.setUserIdentifier(msisdn);
-			Crashlytics.setUserEmail("user@fabric.io");
-			Crashlytics.setUserName("Test User");
 		}
 	}
 
