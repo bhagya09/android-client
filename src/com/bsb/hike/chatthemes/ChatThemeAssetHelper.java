@@ -1,6 +1,6 @@
 package com.bsb.hike.chatthemes;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
@@ -11,17 +11,17 @@ import com.bsb.hike.models.HikeChatThemeAsset;
 public class ChatThemeAssetHelper
 {
 
-	// maintains the hashset of downloaded themes
-	private HashSet<String> mDownloadedAssets;
+	// maintains the hashset of all recorded downloaded and non-downloaded assets
+	private HashMap<String, HikeChatThemeAsset> mAssets;
 
 	public ChatThemeAssetHelper()
 	{
-		mDownloadedAssets = new HashSet<>();
+		mAssets = new HashMap<>();
 	}
 
-	public void addDownloadedAsset(String assetId)
+	public void addDownloadedAsset(String assetId, HikeChatThemeAsset asset)
 	{
-		this.mDownloadedAssets.add(assetId);
+		this.mAssets.put(assetId, asset);
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class ChatThemeAssetHelper
 		{
 			updateAssetsDownloadStatus(theme);
 		}
-		return ((theme.getAssetDownloadStatus() & HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE) == HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
+		return (theme.getAssetDownloadStatus() == HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
 	}
 
 	/**
@@ -50,10 +50,10 @@ public class ChatThemeAssetHelper
 	 *
 	 */
 	public void updateAssetsDownloadStatus(HikeChatTheme theme){
-		HikeChatThemeAsset[] assets = theme.getAssets();
+		String[] assets = theme.getAssets();
 		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
-			if ((assets[i] != null) && (mDownloadedAssets.contains(assets[i].getAssetId())))
+			if ((assets[i] != null) && (isAssetRecorded(assets[i])))
 			{
 				theme.setAssetDownloadStatus(1 << i);
 			}
@@ -78,6 +78,29 @@ public class ChatThemeAssetHelper
 		theme.overrideAssetDownloadStatus(assetStatus);
 
 		// TODO CHATTHEME Update asset missing in DB here
+	}
+
+	/**
+	 * method to check if an asset is recorded or not
+	 * @param assetId assetId to be verified
+	 * @return true if the asset is recorded, else false
+	 */
+	public boolean isAssetRecorded(String assetId)
+	{
+		return mAssets.containsKey(assetId);
+	}
+
+	/**
+	 * method to return the value of an asset given it's UUID
+	 * @param assetId the asset to be searched
+	 * @return value of the asset if present, null otherwise
+	 */
+	public HikeChatThemeAsset getAssetIfRecorded(String assetId)
+	{
+		if(!isAssetRecorded(assetId))
+			return null;
+
+		return mAssets.get(assetId);
 	}
 
 }
