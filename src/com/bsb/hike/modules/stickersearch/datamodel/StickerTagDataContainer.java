@@ -9,6 +9,7 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,6 +126,14 @@ public class StickerTagDataContainer
 				result = (mLanguages.size() == size) && (mScripts.size() == size) && (mTagCategories.size() == size) && (mTagExactMatchPriorities.size() == size)
 						&& (mTagPriorities.size() == size) && (mThemes.size() >= 0);
 			}
+		}
+		/* Explicitly, attribute only data was sent by server.
+		 * Currently, festival list is the attribute, which can be sent without any tag attached.
+		 * Add conditions for other attributes in future as the case may be.
+		 */
+		else
+		{
+			result = !Utils.isEmpty(mEvents);
 		}
 
 		if (!isValidMomentCode())
