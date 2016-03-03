@@ -24,6 +24,8 @@ public class StickerLoader extends ImageWorker
 
 	private boolean downloadLargeStickerIfNotFound;
 
+	private boolean getStretchedStickerOfMini;
+
 	public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
 	{
 		super();
@@ -43,6 +45,17 @@ public class StickerLoader extends ImageWorker
 		mResources = HikeMessengerApp.getInstance().getResources();
 	}
 
+	public StickerLoader(boolean lookForOfflineSticker, boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound, boolean getStretchedStickerOfMini)
+	{
+		super();
+		this.lookForOfflineSticker = lookForOfflineSticker;
+		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
+		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
+		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
+		this.getStretchedStickerOfMini = getStretchedStickerOfMini;
+		mResources = HikeMessengerApp.getInstance().getResources();
+	}
+
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
@@ -53,7 +66,7 @@ public class StickerLoader extends ImageWorker
 
 		if(path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			bitmap = loadMiniStickerBitmap(path);
+			bitmap = loadMiniStickerBitmap(sticker);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		else
@@ -93,12 +106,20 @@ public class StickerLoader extends ImageWorker
 		return HikeBitmapFactory.decodeFile(path);
 	}
 
-	private Bitmap loadMiniStickerBitmap(String key)
+	private Bitmap loadMiniStickerBitmap(Sticker sticker)
 	{
+		String key = sticker.getMiniStickerPath();
 		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(key);
-		if(cacheResponse != null)
+		if (cacheResponse != null)
 		{
-			return HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
+			if (getStretchedStickerOfMini)
+			{
+				return HikeBitmapFactory.getMiniStickerBitmap(cacheResponse, sticker);
+			}
+			else
+			{
+				return HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
+			}
 		}
 		return null;
 	}
@@ -117,7 +138,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if(bitmap == null && loadMiniStickerIfNotFound)
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath());
+			bitmap = loadMiniStickerBitmap(sticker);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return  bitmap;

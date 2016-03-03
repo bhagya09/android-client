@@ -30,6 +30,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.photos.HikePhotosListener;
@@ -1772,17 +1773,14 @@ public class HikeBitmapFactory
 
 
 
-	public static Bitmap getMiniStickerBitmap(String key)
+	public static Bitmap getMiniStickerBitmap(CacheResponse response, Sticker sticker)
 	{
-		int stickerSize = StickerSearchUtils.getStickerSize();
-
-		CacheResponse response =  HikeMessengerApp.getDiskCache().get(key) ;
-		if(response == null)
+		if(response == null || sticker == null)
 		{
 			return null;
 		}
 
-		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeSampledBitmapFromByteArray(response.getData(), stickerSize, stickerSize), StickerManager.getStickerSize(), StickerManager.getStickerSize(), true, Config.ARGB_8888);
+		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeStream(response.getInputStream()), sticker.getWidth(), sticker.getHeight(), true, Config.ARGB_8888);
 
 		return bitmap;
 
