@@ -968,7 +968,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
