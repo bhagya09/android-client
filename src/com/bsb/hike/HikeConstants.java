@@ -3878,4 +3878,6 @@ public class HikeConstants
 
     public static final String MINI_KEY_PREFIX = "mini_";
 
+	public static final String STICKER_SIZE = "stkr_size";
+
 }

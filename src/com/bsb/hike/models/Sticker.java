@@ -279,7 +279,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public int getHeight()
 	{
-		return height;
+		return height !=0? height:StickerManager.getStickerSize();
 	}
 
 	public void setHeight(int height)
@@ -289,7 +289,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public int getWidth()
 	{
-		return width;
+		return width != 0? width:StickerManager.getStickerSize();
 	}
 
 	public void setWidth(int width)

@@ -38,7 +38,9 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -1768,6 +1770,8 @@ public class HikeBitmapFactory
 		return new Pair<Integer, Integer>(imgWidth, imgHeight);
 	}
 
+
+
 	public static Bitmap getMiniStickerBitmap(String key)
 	{
 		int stickerSize = StickerSearchUtils.getStickerSize();
@@ -1778,7 +1782,7 @@ public class HikeBitmapFactory
 			return null;
 		}
 
-		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeSampledBitmapFromByteArray(response.getData(), stickerSize, stickerSize), 250, 250, true, Config.ARGB_8888);
+		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeSampledBitmapFromByteArray(response.getData(), stickerSize, stickerSize), StickerManager.getStickerSize(), StickerManager.getStickerSize(), true, Config.ARGB_8888);
 
 		return bitmap;
 
