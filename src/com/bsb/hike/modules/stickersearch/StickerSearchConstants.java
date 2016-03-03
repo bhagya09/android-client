@@ -220,5 +220,5 @@ public class StickerSearchConstants
 	
 	public static final int MAX_RANK_DURING_EVENT = 1000;
 
-	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60 * 1000L; // 24 hours in milliseconds
+	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60L; // 24 hours in seconds
 }
