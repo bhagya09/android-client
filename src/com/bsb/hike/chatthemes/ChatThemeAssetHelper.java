@@ -2,26 +2,39 @@ package com.bsb.hike.chatthemes;
 
 import java.util.HashMap;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
 
 /**
  * Created by sriram on 22/02/16.
  */
-public class ChatThemeAssetHelper
+public class ChatThemeAssetHelper implements HikePubSub.Listener
 {
 
 	// maintains the hashset of all recorded downloaded and non-downloaded assets
 	private HashMap<String, HikeChatThemeAsset> mAssets;
 
+	private String[] mPubSubListeners = { HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE };
+
 	public ChatThemeAssetHelper()
 	{
 		mAssets = new HashMap<>();
+		HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
 	}
 
 	public void addDownloadedAsset(String assetId, HikeChatThemeAsset asset)
 	{
 		this.mAssets.put(assetId, asset);
+	}
+
+	public void addDownloadedAssets(HikeChatThemeAsset[] assets)
+	{
+		for (int i = 0; i < assets.length; i++)
+		{
+			addDownloadedAsset(assets[i].getAssetId(), assets[i]);
+		}
 	}
 
 	/**
@@ -49,7 +62,9 @@ public class ChatThemeAssetHelper
 	 * @return void
 	 *
 	 */
-	public void updateAssetsDownloadStatus(HikeChatTheme theme){
+
+	public void updateAssetsDownloadStatus(HikeChatTheme theme)
+	{
 		String[] assets = theme.getAssets();
 		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
@@ -77,7 +92,27 @@ public class ChatThemeAssetHelper
 		assetStatus &= ~(1 << assetIndex);
 		theme.overrideAssetDownloadStatus(assetStatus);
 
-		// TODO CHATTHEME Update asset missing in DB here
+		// TODO CHATTHEME Update asset missing in to DB here
+	}
+
+	public void getMissingAssets(HikeChatTheme theme)
+	{
+		// TODO CHATTHEME To Pool Missing assets from DB
+	}
+
+	/**
+	 * Places the Network request to Download Assets, Place request only for image assets.
+	 *
+	 * @param String
+	 *            [] assetIds
+	 * @return void
+	 *
+	 */
+	// TODO CHATTHEME Validation , to place request only for images, on the calling side
+	public void assetDownloadRequest(String[] assetIds)
+	{
+		DownloadAssetsTask downloadAssets = new DownloadAssetsTask(assetIds);
+		downloadAssets.execute();
 	}
 
 	/**
@@ -103,4 +138,13 @@ public class ChatThemeAssetHelper
 		return mAssets.get(assetId);
 	}
 
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type))
+		{
+			HikeChatThemeAsset[] downloadedAssets = (HikeChatThemeAsset[]) object;
+			addDownloadedAssets(downloadedAssets);
+		}
+	}
 }

@@ -101,4 +101,7 @@ public class HikeChatThemeConstants
 	public static final String FILEEXTN_JPG = "jpg";
 
 	public static final String FILEEXTN_JPEG = "jpeg";
+
+	// JSON Constants
+	public static final String JSON_DWNLD_ASSET_ID = "asset_ids";
 }
