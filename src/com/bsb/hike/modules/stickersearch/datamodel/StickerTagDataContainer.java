@@ -133,7 +133,7 @@ public class StickerTagDataContainer
 		 */
 		else
 		{
-			result = !Utils.isEmpty(mEvents);
+			result = (mStickerCode != null) && !Utils.isEmpty(mEvents);
 		}
 
 		if (!isValidMomentCode())
