@@ -9085,8 +9085,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return false;
 
 		boolean allSaved = true;
-		for(HikeChatThemeAsset saveAsset : saveAssets)
-			allSaved = allSaved && saveChatThemeAsset(saveAsset, insertPrepStmt, updatePrepStmt);
+		mDb.beginTransaction();
+		try
+		{
+			for (HikeChatThemeAsset saveAsset : saveAssets)
+				allSaved = allSaved && saveChatThemeAsset(saveAsset, insertPrepStmt, updatePrepStmt);
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
 
 		return allSaved;
 	}
@@ -9215,8 +9224,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return false;
 
 		boolean allSaved = true;
-		for(HikeChatTheme saveTheme : saveThemes)
-			allSaved = allSaved && saveChatTheme(saveTheme, insertPrepStmt, updatePrepStmt);
+
+		mDb.beginTransaction();
+		try
+		{
+			for(HikeChatTheme saveTheme : saveThemes)
+				allSaved = allSaved && saveChatTheme(saveTheme, insertPrepStmt, updatePrepStmt);
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
 
 		return allSaved;
 	}
