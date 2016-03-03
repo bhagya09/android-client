@@ -1450,7 +1450,7 @@ public class StickerSearchHostManager
 				if (count > 0)
 				{
 					stickers = new LinkedHashSet<Sticker>(count);
-
+					/* Already sorted list as TreeSet */
 					for (StickerAppositeDataContainer marginalSticker : leastButSignificantStickerDataList)
 					{
 						stickers.add(StickerManager.getInstance().getStickerFromSetString(marginalSticker.getStickerCode(), marginalSticker.getStickerAvailabilityStatus()));
@@ -1461,30 +1461,35 @@ public class StickerSearchHostManager
 				}
 			}
 
-			// Apply time division and event priority, if such stickers are found after ordering
-			eventPrioritizedStickerList.addAll(timePrioritizedStickerList);
-			timePrioritizedStickerList.clear();
-			timePrioritizedStickerList = eventPrioritizedStickerList;
-			int timelyStickersCount = timePrioritizedStickerList.size();
-			if (timelyStickersCount > 0)
+			/* Apply time division and event priority, if such stickers are found after ordering */
+
+			// Add event based stickers on first priority and time based stickers on second priority
+			if (timePrioritizedStickerList.size() > 0)
 			{
-				LinkedHashSet<Sticker> timePrioritizedStickers = new LinkedHashSet<Sticker>(NUMBER_OF_MAX_FESTIVE_PRIORITIZED_STICKERS + timelyStickersCount + count);
 				Collections.sort(timePrioritizedStickerList);
-				
-				for (int i = 0; i < timelyStickersCount; i++)
+				eventPrioritizedStickerList.addAll(timePrioritizedStickerList);
+				timePrioritizedStickerList.clear();
+			}
+
+			int explicitlyPriortizedStickersCount = eventPrioritizedStickerList.size(); // Combined list of event based and moment based stickers
+			if (explicitlyPriortizedStickersCount > 0)
+			{
+				LinkedHashSet<Sticker> prioritizedStickers = new LinkedHashSet<Sticker>(explicitlyPriortizedStickersCount + count);
+
+				for (int i = 0; i < explicitlyPriortizedStickersCount; i++)
 				{
-					stickerAppositeDataContainer = timePrioritizedStickerList.get(i);
-					timePrioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
+					stickerAppositeDataContainer = eventPrioritizedStickerList.get(i);
+					prioritizedStickers.add(StickerManager.getInstance().getStickerFromSetString(stickerAppositeDataContainer.getStickerCode(),
 							stickerAppositeDataContainer.getStickerAvailabilityStatus()));
 				}
 
 				// Put remaining stickers after time-prioritized stickers in pop-up
 				if (count > 0)
 				{
-					timePrioritizedStickers.addAll(stickers);
+					prioritizedStickers.addAll(stickers);
 					stickers.clear();
 				}
-				stickers = timePrioritizedStickers;
+				stickers = prioritizedStickers;
 			}
 		}
 
