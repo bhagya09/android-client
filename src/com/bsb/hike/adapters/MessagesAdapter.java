@@ -383,7 +383,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		boolean useMini =  StickerManager.getInstance().shouldDisplayMiniStickerOnChatThread();
 
 		//the sticker loader will attempt to download mini sticker if sticker not present(will also check for offline image) provided the server switch is enabled other wise will download full sticker
-		stickerLoader = new StickerLoader(true, useMini, useMini, true);
+		stickerLoader = new StickerLoader(true, useMini, useMini, true, useMini);
 
 		this.mChatThreadCardRenderer = new CardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
@@ -860,7 +860,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			dayHolder = stickerHolder;
 			Sticker sticker = metadata.getSticker();
 			setSenderDetails(convMessage, position, stickerHolder, true);
-			boolean isStickerOffline=false;
 
 			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerHolder.image, isListFlinging, true);
 			if(sticker.isStickerAvailable())

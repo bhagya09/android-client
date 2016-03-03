@@ -30,6 +30,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.photos.HikePhotosListener;
@@ -38,7 +39,9 @@ import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -1768,17 +1771,16 @@ public class HikeBitmapFactory
 		return new Pair<Integer, Integer>(imgWidth, imgHeight);
 	}
 
-	public static Bitmap getMiniStickerBitmap(String key)
-	{
-		int stickerSize = StickerSearchUtils.getStickerSize();
 
-		CacheResponse response =  HikeMessengerApp.getDiskCache().get(key) ;
-		if(response == null)
+
+	public static Bitmap getMiniStickerBitmap(CacheResponse response, Sticker sticker)
+	{
+		if(response == null || sticker == null)
 		{
 			return null;
 		}
 
-		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeSampledBitmapFromByteArray(response.getData(), stickerSize, stickerSize), 250, 250, true, Config.ARGB_8888);
+		Bitmap bitmap = HikePhotosUtils.compressBitamp(HikeBitmapFactory.decodeStream(response.getInputStream()), sticker.getWidth(), sticker.getHeight(), true, Config.ARGB_8888);
 
 		return bitmap;
 
