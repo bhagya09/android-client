@@ -248,6 +248,8 @@ public class HttpRequests
 		final MediaType MEDIA_TYPE_TEXTPLAIN = MediaType.parse("text/plain; charset=UTF-8");
 
 		boolean isAnyHeaderPresent = false;
+
+		boolean isUploadingImage = false;
 		
 		RequestToken requestToken = null;
 		
@@ -274,9 +276,11 @@ public class HttpRequests
 				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
 						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
 				isAnyHeaderPresent = true;
+				isUploadingImage = true;
 			}
 		}
-		
+
+		//TODO isAnyHeaderPresent is useless. Remove this.
 		if(isAnyHeaderPresent)
 		{
 			final RequestBody requestBody = multipartBuilder.build();
@@ -284,8 +288,12 @@ public class HttpRequests
 			MultipartRequestBody body = new MultipartRequestBody(requestBody);
 
 			requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
-			
-			requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+
+			// GZIP only for text updates
+			if(!isUploadingImage)
+			{
+				requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+			}
 		}
 
 		return requestToken;
@@ -755,7 +763,6 @@ public class HttpRequests
 				.setRetryPolicy(new BasicRetryPolicy(2,BasicRetryPolicy.DEFAULT_RETRY_DELAY,BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(body)
 				.build();
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 	

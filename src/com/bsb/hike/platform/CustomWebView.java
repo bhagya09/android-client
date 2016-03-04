@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -41,7 +42,7 @@ public class CustomWebView extends WebView
 	private static final Method ON_PAUSE_METHOD = findOnPauseMethod();
 
 	private static final Method ON_RESUME_METHOD = findOnResumeMethod();
-
+	private Handler mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -166,7 +167,7 @@ public class CustomWebView extends WebView
 			}
 			isDestroyed = true;
 		}
-
+        mHandler = null;
 		stopLoading();
 		removeAllViews();
 		clearHistory();
@@ -232,23 +233,24 @@ public class CustomWebView extends WebView
 
 
 	@Override
-	public void loadUrl(String url)
+	public void loadUrl(final String url)
 	{
-		if (Utils.isKitkatOrHigher() && url.startsWith("javascript"))
-		{
-			evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>()
-			{
-				@Override
-				public void onReceiveValue(String value)
-				{
-					Logger.d("CustomWebView", value);
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (Utils.isKitkatOrHigher() && url.startsWith("javascript")) {
+					evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>() {
+						@Override
+						public void onReceiveValue(String value) {
+							Logger.d("CustomWebView", value);
+						}
+					});
+				} else {
+					CustomWebView.super.loadUrl(Utils.appendTokenInURL(url));
 				}
-			});
-		}
-		else
-		{
-			super.loadUrl(Utils.appendTokenInURL(url));
-		}
+			}
+		});
 	}
 
 	public boolean isWebViewShowing()
@@ -402,8 +404,8 @@ public class CustomWebView extends WebView
 		}
 	}
 
-	public void removeWebViewReferencesFromWebKit(){
-		if(!Utils.isBelowLollipop() || !applyWhiteScreenFix){
+	public void removeWebViewReferencesFromWebKit() {
+		if (Utils.isKitkatOrHigher() || !applyWhiteScreenFix) {
 			return;
 		}
 		try {
@@ -411,28 +413,54 @@ public class CustomWebView extends WebView
 			Class classWV = Class.forName("android.webkit.WebView");
 			Field mProviderField = classWV.getDeclaredField("mProvider");
 			Object webViewClassic = getFieldValueSafely(mProviderField, this);
-
-			Class classWVCl = Class.forName("android.webkit.WebViewClassic");
-			Field html5VideoProxyField = classWVCl.getDeclaredField("mHTML5VideoViewProxy");
-			Object html5videoproxy = getFieldValueSafely(html5VideoProxyField, webViewClassic);
-			if(html5videoproxy != null){
-				//video proxy object is only populated in case of video view  present in the webview full story page.
-				Class html5class = Class.forName("android.webkit.HTML5VideoViewProxy");
-				Field wvcField = html5class.getDeclaredField("mWebView");
-				setFieldValueSafely( wvcField, html5videoproxy, null );
-				setFieldValueSafely( html5VideoProxyField, webViewClassic, null );
+			if (webViewClassic == null) {
+				return;
 			}
-			Field webviewCore = classWV.getDeclaredField("mWebViewCore");
-			Object webViewCoreObj = getFieldValueSafely(webviewCore, this);
+			clearHtml5VideoProxyView(webViewClassic);
+			Class classWVCl = Class.forName("android.webkit.WebViewClassic");
+			Field webviewCore = classWVCl.getDeclaredField("mWebViewCore");
+			Object webViewCoreObj = getFieldValueSafely(webviewCore, webViewClassic);
+			if (webViewCoreObj != null) {
+				clearDeviceMotionAndOrientationManager(webViewCoreObj);
+			}
+			Class classwvCore = Class.forName("android.webkit.WebViewCore");
+			Field contextField = classwvCore.getDeclaredField("mContext");
+			setFieldValueSafely(contextField, webViewCoreObj, null);
+			contextField = classWVCl.getDeclaredField("mContext");
+			setFieldValueSafely(contextField, webViewClassic, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void clearDeviceMotionAndOrientationManager(Object webViewCoreObj) {
+		try {
 			Class classwvCore = Class.forName("android.webkit.WebViewCore");
 			Field deviceMotionField = classwvCore.getDeclaredField("mDeviceMotionAndOrientationManager");
 			Object deviceMotionObj = getFieldValueSafely(deviceMotionField, webViewCoreObj);
-			if(deviceMotionObj != null){
+			if (deviceMotionObj != null) {
 				Class classDeviceMotion = Class.forName("android.webkit.DeviceMotionAndOrientationManager");
-				webviewCore = classDeviceMotion.getDeclaredField("mWebViewCore");
-				setFieldValueSafely(webviewCore,deviceMotionObj,null);
+				Field webviewCore = classDeviceMotion.getDeclaredField("mWebViewCore");
+				setFieldValueSafely(webviewCore, deviceMotionObj, null);
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void clearHtml5VideoProxyView(Object webViewClassic) {
+		try {
+			Class classWVCl = Class.forName("android.webkit.WebViewClassic");
+			Field html5VideoProxyField = classWVCl.getDeclaredField("mHTML5VideoViewProxy");
+			Object html5videoproxy = getFieldValueSafely(html5VideoProxyField, webViewClassic);
+			if (html5videoproxy != null) {
+				//video proxy object is only populated in case of video view  present in the webview full story page.
+				Class html5class = Class.forName("android.webkit.HTML5VideoViewProxy");
+				Field wvcField = html5class.getDeclaredField("mWebView");
+				setFieldValueSafely(wvcField, html5videoproxy, null);
+				setFieldValueSafely(html5VideoProxyField, webViewClassic, null);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

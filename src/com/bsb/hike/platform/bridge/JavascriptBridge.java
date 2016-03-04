@@ -352,6 +352,7 @@ public abstract class JavascriptBridge
 		{
 			Logger.e(tag, "Error in share");
 		}
+
 	}
 
 	/**

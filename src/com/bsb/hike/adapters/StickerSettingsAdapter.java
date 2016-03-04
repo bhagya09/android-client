@@ -61,13 +61,15 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	private HikeDialog deleteDialog;
 
+	private ItemButtonClickListener clickListener;
+
 	private final int FULLY_DOWNLOADED = 0;
 
 	private final int UPDATE_AVAILABLE = 2;
 
 	private final int RETRY = 3;
 
-	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask)
+	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask, ItemButtonClickListener clickListener)
 	{
 		this.mContext = context;
 		this.stickerCategories = stickerCategories;
@@ -75,8 +77,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		mListMapping = new int[stickerCategories.size()];
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.stickerSettingsTask = stickerSettingsTask;
+		this.clickListener = clickListener;
 		initialiseMapping(mListMapping, stickerCategories);
 		
+	}
+
+	public interface ItemButtonClickListener
+	{
+		void onDownloadClicked(StickerCategory stickerCategory);
 	}
 
 	/**
@@ -190,6 +198,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateStickersCount.setVisibility(View.VISIBLE);
 				viewHolder.updateStickersCount.setText(mContext.getString(R.string.n_more_stickers, category.getMoreStickerCount()));
 				break;
+			case STICKER_HIDE_TASK:
+				viewHolder.hideSwitch.setVisibility(View.VISIBLE);
+				break;
 		}
 
 		viewHolder.downloadProgress.setVisibility(View.GONE); //This is being done to clear the spinner animation.
@@ -213,19 +224,18 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.updateAvailable.setText(mContext.getResources().getString(R.string.update_sticker));
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				checkAndDisableHideSwitch(viewHolder.hideSwitch);
 
 				break;
 			case StickerCategory.DOWNLOADING:
-				viewHolder.updateAvailable.setTextColor(category.isVisible() ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
-				viewHolder.updateAvailable.setText(R.string.downloading_stk);
-				viewHolder.updateAvailable.setVisibility(View.VISIBLE);
-				viewHolder.deleteButton.setVisibility(View.GONE);
-				viewHolder.downloadProgress.setVisibility(View.VISIBLE);
-				viewHolder.hideSwitch.setVisibility(View.GONE);
-				viewHolder.updateButton.setVisibility(View.GONE);
-				viewHolder.reorderIcon.setVisibility(View.GONE);
-
+				if((stickerSettingsTask == StickerSettingsTask.STICKER_DELETE_TASK) || (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK))
+				{
+					viewHolder.updateAvailable.setTextColor(category.isVisible() ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
+					viewHolder.updateAvailable.setText(R.string.downloading_stk);
+					viewHolder.updateAvailable.setVisibility(View.VISIBLE);
+					viewHolder.deleteButton.setVisibility(View.GONE);
+					viewHolder.downloadProgress.setVisibility(View.VISIBLE);
+					viewHolder.updateButton.setVisibility(View.GONE);
+				}
 				break;
 			case StickerCategory.DONE_SHOP_SETTINGS:  //To be treated as same
 			case StickerCategory.DONE:
@@ -241,9 +251,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			default:
 				viewHolder.updateAvailable.setVisibility(View.GONE);
 				viewHolder.downloadProgress.setVisibility(View.GONE);
-				checkAndDisableHideSwitch(viewHolder.hideSwitch);
-				
 		}
+
+
 			
 		viewHolder.hideSwitch.setTag(category);
 		viewHolder.deleteButton.setTag(category);
@@ -268,7 +278,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		viewHolder.updateAvailable.setText(state == StickerCategory.DONE ? R.string.see_them : R.string.RETRY);
 		viewHolder.updateAvailable.setTextColor(isVisible ? mContext.getResources().getColor(R.color.sticker_settings_update_color) : mContext.getResources().getColor(R.color.shop_update_invisible_color));
 		viewHolder.downloadProgress.setVisibility(View.GONE);
-		checkAndDisableHideSwitch(viewHolder.hideSwitch);
 	}
 
 	public void setIsListFlinging(boolean b)
@@ -478,12 +487,21 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
 					break;
 
 				default:
 					break;
 			}
+	}
+
+	private void sendDownloadClicked(StickerCategory stickerCategory)
+	{
+		if(clickListener != null)
+		{
+			clickListener.onDownloadClicked(stickerCategory);
+		}
 	}
 
 	/**
@@ -511,23 +529,6 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	public StickerOtherIconLoader getStickerPreviewLoader()
 	{
 		return stickerOtherIconLoader;
-	}
-	/**
-	 * Hides/makes the ImageButton visible conditionally
-	 * @param categoryId
-	 * @param hideSwitch
-	 */
-	private void checkAndDisableHideSwitch(SwitchCompat hideSwitch)
-	{
-
-		if(stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK)
-		{
-			hideSwitch.setVisibility(View.GONE);
-		}
-		else
-		{
-			hideSwitch.setVisibility(View.VISIBLE);
-		}
 	}
 
 	public int getLastVisibleIndex()
