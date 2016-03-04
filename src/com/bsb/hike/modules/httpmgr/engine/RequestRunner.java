@@ -9,9 +9,9 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 
 /**
  * This class clones the {@link IClient} object and passes it to {@link RequestExecuter} for the final execution of the request
- *
+ * 
  * @author sidharth & anubhav
- *
+ * 
  */
 public class RequestRunner
 {
@@ -19,9 +19,9 @@ public class RequestRunner
 
 	private HttpEngine engine;
 
-	private com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier;
+	private RequestListenerNotifier requestListenerNotifier;
 
-	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
+	public RequestRunner(ClientOptions options, HttpEngine engine, RequestListenerNotifier requestListenerNotifier)
 	{
 		defaultClient = new OkUrlClient(options);
 		this.engine = engine;
@@ -30,7 +30,7 @@ public class RequestRunner
 
 	/**
 	 * Clones the {@link IClient} object if parameter <code>options</code> is not null and then passes this client to the {@link RequestExecuter} for final execution of the request
-	 *
+	 * 
 	 * @param request
 	 * @param options
 	 */
@@ -38,12 +38,12 @@ public class RequestRunner
 	{
 		IClient client = (null != options) ? defaultClient.clone(options) : defaultClient;
 
-		com.bsb.hike.modules.httpmgr.engine.RequestExecuter requestExecuter = new com.bsb.hike.modules.httpmgr.engine.RequestExecuter(client, engine, request, new com.bsb.hike.modules.httpmgr.engine.IResponseListener()
+		RequestExecuter requestExecuter = new RequestExecuter(client, engine, request, new IResponseListener()
 		{
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
-				com.bsb.hike.modules.httpmgr.engine.RequestProcessor.removeRequest(request);
+				RequestProcessor.removeRequest(request);
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
@@ -56,7 +56,7 @@ public class RequestRunner
 		});
 		requestExecuter.execute();
 	}
-
+	
 	/**
 	 * Shutdown method to close everything (setting all variables to null for easy garbage collection)
 	 */
