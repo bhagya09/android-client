@@ -702,7 +702,7 @@
     <string name="update_all">UPDATE ALL</string>
     <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
-    <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
+    <string name="drag_tip_text">Drag to Reorder Packs</string>
     <string name="CANCEL">CANCEL</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1089,7 +1089,7 @@
     <string name="status_hint_image">Something about this photo</string>
     <string name="add_mood">Add Mood</string>
     <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Change sticker pack order</string>
+    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
     <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
     <string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
