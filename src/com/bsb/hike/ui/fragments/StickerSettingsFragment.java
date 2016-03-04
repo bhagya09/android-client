@@ -2,6 +2,7 @@ package com.bsb.hike.ui.fragments;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,10 +14,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -27,31 +30,35 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.Fragment;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragScrollProfile;
 import com.bsb.hike.DragSortListView.DragSortListView.DropListener;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerSettingsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
+import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
 {
-	private String[] pubSubListeners = {};
+	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED};
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
-	private Set<StickerCategory> visibleAndUpdateStickerSet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
+	private Set<StickerCategory> updateStickerSet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
 
 	private StickerSettingsAdapter mAdapter;
 	
@@ -69,11 +76,13 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	
 	private boolean isUpdateAllTapped = false;
 
+	private StickerSettingsTask stickerSettingsTask;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.sticker_settings, null);
-		
+		stickerSettingsTask = (StickerSettingsTask) getArguments().getSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG);
 		return parent;
 	}
 	
@@ -94,11 +103,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	private void checkAndInflateUpdateView()
 	{
 		if(shouldAddUpdateView())
-		{	
+		{
 			final View parent = getView();
 			final View updateAll = parent.findViewById(R.id.update_all_ll);
 			final View confirmAll = parent.findViewById(R.id.confirmation_ll);
-			
+
 			Animation alphaIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_noalpha);
 			alphaIn.setDuration(800);
 			updateAll.setAnimation(alphaIn);
@@ -141,27 +150,22 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		TextView totalStickers = (TextView) parent.findViewById(R.id.pack_details);
 		TextView cancelBtn = (TextView) parent.findViewById(R.id.cancel_btn);
 		TextView confirmBtn = (TextView) parent.findViewById(R.id.confirm_btn);
-		totalPacks.setText(visibleAndUpdateStickerSet.size() == 1 ? getString(R.string.singular_packs, visibleAndUpdateStickerSet.size()) : getString(R.string.n_packs, visibleAndUpdateStickerSet.size()));
+		totalPacks.setText(updateStickerSet.size() == 1 ? getString(R.string.singular_packs, updateStickerSet.size()) : getString(R.string.n_packs, updateStickerSet.size()));
 		categoryCost.setText(R.string.sticker_pack_free);
 		
 		displayTotalStickersCount(totalStickers);
 		
-		cancelBtn.setOnClickListener(new View.OnClickListener()
-		{
+		cancelBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v)
-			{
+			public void onClick(View v) {
 				isUpdateAllTapped = false;
 				confirmView.setVisibility(View.GONE);
-				
-				try
-				{
+
+				try {
 					JSONObject metadata = new JSONObject();
 					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.UPDATE_ALL_CANCEL_CLICKED);
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				}
-				catch(JSONException e)
-				{
+				} catch (JSONException e) {
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
 			}
@@ -174,7 +178,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			public void onClick(View v)
 			{
 				isUpdateAllTapped = false;
-				for(StickerCategory category : visibleAndUpdateStickerSet)
+				for(StickerCategory category : updateStickerSet)
 				{
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, getActivity());
 				}
@@ -199,7 +203,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	{
 		int totalCount = 0;
 		int totalSize = 0;
-		for(StickerCategory category : visibleAndUpdateStickerSet)
+		for(StickerCategory category : updateStickerSet)
 		{
 			if(category.getMoreStickerCount() > 0)
 			{
@@ -225,22 +229,53 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private boolean shouldAddUpdateView()
 	{
-		visibleAndUpdateStickerSet.clear();
-		for(StickerCategory category : stickerCategories)
+		if (stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK)
 		{
-			if(category.isVisible() && (category.getState() == StickerCategory.UPDATE))
-			{
-				visibleAndUpdateStickerSet.add(category);
-			}
+			return false;
 		}
-		
-		if(visibleAndUpdateStickerSet.size() > 0)
+
+		if (stickerCategories.size() == 0)
 		{
-			return true;
+			//Displaying "All Updated" message along with sticker when update list is empty
+			View parent = getView();
+			ViewStub allUpdatedView = (ViewStub) parent.findViewById(R.id.all_updated_message_view_stub);
+			allUpdatedView.inflate();
+
+
+			View redirectToShopBtn = parent.findViewById(R.id.redirect_to_shop_btn);
+			redirectToShopBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v)
+				{
+					Context context = getContext();
+					Intent intent = IntentFactory.getStickerShopIntent(context);
+					context.startActivity(intent);
+					getActivity().finish();
+				}
+			});
+			parent.findViewById(R.id.sticker_settings).setVisibility(View.GONE);
+
+			return false;
 		}
 		else
 		{
-			return false;
+			initUpdateStickerSet();
+			if (updateStickerSet.size() > 0) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	private void initUpdateStickerSet()
+	{
+		updateStickerSet.clear();
+		for (StickerCategory category : stickerCategories) {
+			if (category.shouldAddToUpdateAll())                //the update option will have only packs with update available; so checking for only done and downloading state
+			{
+				updateStickerSet.add(category);
+			}
 		}
 	}
 
@@ -250,102 +285,124 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	 */
 	private void showTipIfRequired()
 	{
-		showDragTip();
+		if(stickerSettingsTask == StickerSettingsTask.STICKER_REORDER_TASK)
+		{
+			showDragTip();
+		}
 	}
 
 	private void showDragTip()
 	{
-		if(!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false))  //Showing the tip here
-		{
-			final View parent = getView().findViewById(R.id.list_ll);
-			final View v =(View) parent.findViewById(R.id.reorder_tip);
-			v.setVisibility(View.VISIBLE);
-			
-			mDslv.addDropListener(new DropListener()
-			{
-				@Override
-				public void drop(int from, int to)
-				{	
-					if(!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false))
+		//Showing drag tip every time reorder packs is selected
+		final View parent = getView().findViewById(R.id.list_ll);
+		final View v =(View) parent.findViewById(R.id.reorder_tip);
+		v.setVisibility(View.VISIBLE);
+		prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false); // resetting the tip flag
+
+		mDslv.addDropListener(new DropListener() {
+			@Override
+			public void drop(int from, int to) {
+				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
+					StickerCategory category = mAdapter.getDraggedCategory();
+
+					if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
 					{
-						StickerCategory category = mAdapter.getDraggedCategory();
-						
-						if ((from == to) || (category == null) ||(!category.isVisible())) // Dropping at the same position. No need to perform Drop.
-						{
-							return;
-						}
-
-						if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1)
-						{
-							return;
-						}
-						prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true); // Setting the tip flag
-						
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEEN_REORDERING_TIP);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-						
-						ImageView tickImage = (ImageView) parent.findViewById(R.id.reorder_indicator);
-						tickImage.setImageResource(R.drawable.art_tick);
-						TextView tipText = (TextView) parent.findViewById(R.id.drag_tip);
-						tipText.setVisibility(View.GONE);
-						parent.findViewById(R.id.great_job).setVisibility(View.VISIBLE);
-						
-						TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0,
-								Animation.ABSOLUTE, -v.getHeight());
-						animation.setDuration(400);
-						animation.setStartOffset(800);
-						parent.setAnimation(animation);
-						
-						animation.setAnimationListener(new AnimationListener()
-						{
-							@Override
-							public void onAnimationStart(Animation animation)
-							{
-							}
-
-							@Override
-							public void onAnimationRepeat(Animation animation)
-							{
-
-							}
-
-							@Override
-							public void onAnimationEnd(Animation animation)
-							{
-								v.setVisibility(View.GONE);
-								TranslateAnimation temp = new TranslateAnimation(0, 0, 0, 0);
-								temp.setDuration(1l);
-								parent.startAnimation(temp);
-							}
-						});
+						return;
 					}
-				}
-			});
-		}
 
+					if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
+						return;
+					}
+
+					// Setting the tip flag so that drag tip disappears after first reorder is done
+					prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true);
+
+					try {
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEEN_REORDERING_TIP);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					} catch (JSONException e) {
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
+
+					ImageView tickImage = (ImageView) parent.findViewById(R.id.reorder_indicator);
+					tickImage.setImageResource(R.drawable.art_tick);
+					View tapAndDragTip = parent.findViewById(R.id.tap_and_drag_tip);
+					tapAndDragTip.setVisibility(View.GONE);
+					parent.findViewById(R.id.great_job).setVisibility(View.VISIBLE);
+
+					TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, 0,
+							Animation.ABSOLUTE, -v.getHeight());
+					animation.setDuration(400);
+					animation.setStartOffset(800);
+					parent.setAnimation(animation);
+
+					animation.setAnimationListener(new AnimationListener() {
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+
+						}
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							v.setVisibility(View.GONE);
+							TranslateAnimation temp = new TranslateAnimation(0, 0, 0, 0);
+							temp.setDuration(1l);
+							parent.startAnimation(temp);
+						}
+					});
+				}
+			}
+		});
+	}
+
+	private void initStickerCategoriesList() {
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+
+		switch(stickerSettingsTask)
+		{
+			case STICKER_UPDATE_TASK:
+				Iterator it = stickerCategories.iterator();
+				StickerCategory category;
+
+				while (it.hasNext()) {
+					category = (StickerCategory) it.next();
+					if (!category.shouldShowUpdateAvailable())
+					{
+						it.remove();
+					}
+
+				}
+				break;
+
+			case STICKER_DELETE_TASK:
+			case STICKER_HIDE_TASK:
+				stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+				break;
+		}
 	}
 
 	private void initAdapterAndList()
 	{
 		View parent = getView();
-		stickerCategories.addAll(StickerManager.getInstance().getMyStickerCategoryList());
-		mAdapter = new StickerSettingsAdapter(getActivity(), stickerCategories);
+		initStickerCategoriesList();
+		mAdapter = new StickerSettingsAdapter(getActivity(), stickerCategories, stickerSettingsTask);
 		mDslv = (DragSortListView) parent.findViewById(R.id.item_list);
 		//mDslv.setOnScrollListener(this);
 		footerView = getActivity().getLayoutInflater().inflate(R.layout.sticker_settings_footer, null);
 		mDslv.addFooterView(footerView);
 		mDslv.setAdapter(mAdapter);
-		mDslv.setDragScrollProfile(this);
 		mDslv.setClickable(true);
 		mDslv.setOnItemClickListener(this);
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_REORDER_TASK)
+		{
+			mDslv.setDragEnabled(true);
+			mDslv.setDragScrollProfile(this);
+		}
 	}
 
 	@Override
@@ -389,8 +446,27 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
-		// TODO Auto-generated method stub
+		switch(type) {
+			case HikePubSub.STICKER_PACK_DELETED:
+				final StickerCategory category = (StickerCategory) object;
 
+				if (!isAdded()) {
+					return;
+				}
+				getActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						if (mAdapter == null) {
+							return;
+						}
+						Toast.makeText(getActivity(), getString(R.string.pack_deleted) + " " + category.getCategoryName(), Toast.LENGTH_SHORT).show();
+						mAdapter.onStickerPackDelete(category);
+					}
+				});
+
+				break;
+		}
 	}
 
 	public static StickerSettingsFragment newInstance()
@@ -421,6 +497,13 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return;
 		}
 		StickerCategory category = mAdapter.getItem(position);
+
+		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
+		{
+			mAdapter.onStickerPackHide(view, category);
+			return;
+		}
+
 		if(category.getState() == StickerCategory.RETRY && category.isVisible())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
@@ -446,7 +529,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
 	{
 		@Override
-		public void onReceive(Context context, Intent intent)
+		public void onReceive(Context context,final Intent intent)
 		{
 			if(!isAdded())
 			{
@@ -454,6 +537,8 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			}
 			if (intent.getAction().equals(StickerManager.STICKERS_UPDATED) || intent.getAction().equals(StickerManager.MORE_STICKERS_DOWNLOADED))
 			{
+				final String categoryId = intent.getStringExtra(StickerManager.CATEGORY_ID);
+
 				if(getActivity() == null)
 				{
 					return;
@@ -465,6 +550,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					public void run()
 					{
 						mAdapter.notifyDataSetChanged();
+						checkAndSetAllDone(categoryId);
 					}
 				});
 			}
@@ -506,6 +592,21 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			}
 		}
 	};
+
+	private void checkAndSetAllDone(String categoryId)
+	{
+		final StickerCategory category = StickerManager.getInstance().getCategoryForId(categoryId);
+		updateStickerSet.remove(category);
+		if(Utils.isEmpty(updateStickerSet))
+		{
+			View parent = getView();
+			View updateAll = parent.findViewById(R.id.update_all_ll);
+			updateAll.setClickable(false);
+			TextView updateText = (TextView) parent.findViewById(R.id.update_text);
+			updateText.setText(R.string.all_done);
+			updateAll.setVisibility(View.VISIBLE);
+		}
+	}
 	
 	public void unregisterListeners()
 	{

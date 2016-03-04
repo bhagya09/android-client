@@ -48,6 +48,8 @@ import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -179,6 +181,8 @@ public class StickerManager
 	public static final String EXPRESSIONS = "expressions";
 
 	public static final String HUMANOID = "humanoid";
+
+	public static final String LOVE = "love";
 
 	public static final String OTHER_STICKER_ASSET_ROOT = "/other";
 
@@ -376,17 +380,25 @@ public class StickerManager
 		stickerCategoriesMap.putAll(HikeConversationsDatabase.getInstance().getAllStickerCategoriesWithVisibility(true));
 	}
 
-	public void removeCategory(String removedCategoryId)
+	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId);
-		StickerCategory cat = stickerCategoriesMap.remove(removedCategoryId);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
+		stickerCategoriesMap.remove(removedCategoryId);
+		StickerCategory cat = new StickerCategory(removedCategoryId); 	//creating new instance because of invisible category
+
 		if (!cat.isCustom())
 		{
 			String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);
 			if (categoryDirPath != null)
 			{
 				File smallCatDir = new File(categoryDirPath + HikeConstants.SMALL_STICKER_ROOT);
-				File bigCatDir = new File(categoryDirPath);
+				String bigCatDirPath = categoryDirPath;
+				//Removing only large and small stickers folders in case of pack delete by user; otherwise removing entire category folder
+				if (!forceRemoveCategory)
+				{
+					bigCatDirPath += HikeConstants.LARGE_STICKER_ROOT;
+				}
+				File bigCatDir = new File(bigCatDirPath);
 				if (smallCatDir.exists())
 				{
 					String[] stickerIds = smallCatDir.list();

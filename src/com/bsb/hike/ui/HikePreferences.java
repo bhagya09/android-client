@@ -32,6 +32,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -290,6 +291,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.BACKUP_PREF);
 		addOnPreferenceClickListeners(HikeConstants.UNLINK_PREF);
 		addOnPreferenceClickListeners(HikeConstants.STICKER_REORDER_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_DELETE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_HIDE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_UPDATE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.BLOKED_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.SYSTEM_HEALTH_PREF);
 		addOnPreferenceClickListeners(HikeConstants.HELP_FAQS_PREF);
@@ -300,6 +304,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_LANGUAGE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.CALLER_BLOKED_LIST_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
 		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
@@ -889,6 +894,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 		}
+		else if (HikeConstants.CALLER_BLOKED_LIST_PREF.equals(preference.getKey()))
+		{
+			Intent intent = new Intent(HikePreferences.this, BlockCallerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK_LIST, null,
+					AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null);
+		}
 		else if (HikeConstants.SYSTEM_HEALTH_PREF.equals(preference.getKey()))
 		{
 			Logger.d(getClass().getSimpleName(), "system health preference selected");
@@ -1147,6 +1160,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
 		{
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_REORDER_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_DELETE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_DELETE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_HIDE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_HIDE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_UPDATE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
 			startActivity(i);
 		}
 		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))

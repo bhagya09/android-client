@@ -51,7 +51,7 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 		this.msisdn = msisdn;
 		this.imageView = new WeakReference<ImageView>(imageView);
 		this.imageSize = imageSize;
-		this.defaultDrawable = HikeBitmapFactory.getDefaultAvatar(context.getResources(), msisdn, true);
+		this.defaultDrawable = HikeBitmapFactory.getRectTextAvatar(msisdn);
 		basePath = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
 		mappedId = msisdn + ProfileActivity.PROFILE_PIC_SUFFIX;
 		this.isStatusImage = isStatusImage;
