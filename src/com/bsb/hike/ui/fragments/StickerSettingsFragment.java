@@ -569,6 +569,15 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	}
 
+	@Override
+	public void onDelete(StickerCategory stickerCategory)
+	{
+		if(Utils.isEmpty(stickerCategories))
+		{
+			shouldAddUpdateView();
+		}
+	}
+
 	private void registerListener()
 	{
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_UPDATED);
