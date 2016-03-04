@@ -10,6 +10,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.diskcache.response.CacheResponse;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.utils.StickerManager;
 
 public class StickerLoader extends ImageWorker
@@ -24,7 +25,14 @@ public class StickerLoader extends ImageWorker
 
 	private boolean downloadLargeStickerIfNotFound;
 
-	private boolean getStretchedStickerOfMini;
+	private boolean stretchMini;
+
+	public StickerLoader(boolean downloadLargeStickerIfNotFound)
+	{
+		super();
+		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
+		mResources = HikeMessengerApp.getInstance().getResources();
+	}
 
 	public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
 	{
@@ -32,27 +40,6 @@ public class StickerLoader extends ImageWorker
 		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
 		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
 		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-		mResources = HikeMessengerApp.getInstance().getResources();
-	}
-
-	public StickerLoader(boolean lookForOfflineSticker, boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
-	{
-		super();
-		this.lookForOfflineSticker = lookForOfflineSticker;
-		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
-		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
-		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-		mResources = HikeMessengerApp.getInstance().getResources();
-	}
-
-	public StickerLoader(boolean lookForOfflineSticker, boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound, boolean getStretchedStickerOfMini)
-	{
-		super();
-		this.lookForOfflineSticker = lookForOfflineSticker;
-		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
-		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
-		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-		this.getStretchedStickerOfMini = getStretchedStickerOfMini;
 		mResources = HikeMessengerApp.getInstance().getResources();
 	}
 
@@ -64,15 +51,14 @@ public class StickerLoader extends ImageWorker
 		String path = args[2];
 		Bitmap bitmap;
 
-		if(path.startsWith(HikeConstants.MINI_KEY_PREFIX))
+		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			bitmap = loadMiniStickerBitmap(sticker);
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		else
 		{
 			bitmap = loadStickerBitmap(path);
-			checkAndDownloadLargeSticker(bitmap, sticker);
 			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
 			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
 		}
@@ -91,7 +77,13 @@ public class StickerLoader extends ImageWorker
 
 	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
 	{
-        String path = StickerManager.getInstance().getStickerCacheKey(sticker,stickerType);
+		String path = StickerManager.getInstance().getStickerCacheKey(sticker, stickerType);
+
+		if (stickerType != StickerConstants.StickerType.MINI)
+		{
+			checkAndDownloadLargeSticker(sticker);
+		}
+
 		loadImage(path, imageView, isFlinging, runOnUiThread);
 	}
 
@@ -106,28 +98,30 @@ public class StickerLoader extends ImageWorker
 		return HikeBitmapFactory.decodeFile(path);
 	}
 
-	private Bitmap loadMiniStickerBitmap(Sticker sticker)
+	private Bitmap loadMiniStickerBitmap(String path, int width, int height)
 	{
-		String key = sticker.getMiniStickerPath();
-		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(key);
-		if (cacheResponse != null)
-		{
-			if (getStretchedStickerOfMini)
-			{
-				return HikeBitmapFactory.getMiniStickerBitmap(cacheResponse, sticker);
-			}
-			else
-			{
-				return HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
-			}
-		}
-		return null;
-	}
+		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(path);
 
+		if (cacheResponse == null)
+		{
+			return null;
+		}
+
+		Bitmap bitmap = null;
+
+		bitmap = HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
+
+		if (bitmap != null && stretchMini)
+		{
+			bitmap = HikePhotosUtils.compressBitamp(bitmap, width, height, true, Bitmap.Config.ARGB_8888);
+		}
+
+		return bitmap;
+	}
 
 	private Bitmap checkAndLoadOfflineSticker(Bitmap bitmap, Sticker sticker)
 	{
-		if(bitmap == null && lookForOfflineSticker)
+		if (lookForOfflineSticker && bitmap == null)
 		{
 			return loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
 		}
@@ -136,28 +130,38 @@ public class StickerLoader extends ImageWorker
 
 	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker)
 	{
-		if(bitmap == null && loadMiniStickerIfNotFound)
+		if (loadMiniStickerIfNotFound && bitmap == null)
 		{
-			bitmap = loadMiniStickerBitmap(sticker);
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
-		return  bitmap;
+		return bitmap;
 	}
 
 	private void checkAndDownloadMiniSticker(Bitmap bitmap, Sticker sticker)
 	{
-		if(bitmap == null && downloadMiniStickerIfNotFound)
+		if (downloadMiniStickerIfNotFound && bitmap == null)
 		{
 			StickerManager.getInstance().initiateMiniStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId());
 		}
 	}
 
-	private void checkAndDownloadLargeSticker(Bitmap bitmap, Sticker sticker)
+	private void checkAndDownloadLargeSticker(Sticker sticker)
 	{
-		if(bitmap == null && downloadLargeStickerIfNotFound)
+		if (downloadLargeStickerIfNotFound && !sticker.isStickerFileAvailable())
 		{
 			StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
 		}
+	}
+
+	public void setStretchMini(boolean stretchMini)
+	{
+		this.stretchMini = stretchMini;
+	}
+
+	public void setLookForOfflineSticker(boolean lookForOfflineSticker)
+	{
+		this.lookForOfflineSticker = lookForOfflineSticker;
 	}
 
 }

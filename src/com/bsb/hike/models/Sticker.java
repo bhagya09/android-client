@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.StickerManager;
 
@@ -81,6 +82,12 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	{
 		return !getLargeStickerPath().endsWith(getStickerCode());
 	}
+
+    public boolean isStickerFileAvailable()
+    {
+        File f = new File(getLargeStickerPath());
+        return f.exists();
+    }
 
 	/**
 	 * if sticker small image does'nt exist then its disabled
@@ -279,7 +286,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public int getHeight()
 	{
-		return height !=0? height:StickerManager.getStickerSize();
+		return height >0? height:StickerManager.getStickerSize();
 	}
 
 	public void setHeight(int height)
@@ -289,7 +296,7 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 
 	public int getWidth()
 	{
-		return width != 0? width:StickerManager.getStickerSize();
+		return width > 0? width:StickerManager.getStickerSize();
 	}
 
 	public void setWidth(int width)
@@ -360,4 +367,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	{
 		this.miniStickerPath = miniStickerPath;
 	}
+
+    public boolean isMiniStickerAvailable()
+    {
+       return HikeMessengerApp.getDiskCache().isKeyExists(getMiniStickerPath());
+    }
 }
