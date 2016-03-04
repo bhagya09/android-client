@@ -521,6 +521,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 	{
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_UPDATED);
 		filter.addAction(StickerManager.STICKERS_FAILED);
+		filter.addAction(StickerManager.STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.MORE_STICKERS_DOWNLOADED);
 		filter.addAction(StickerManager.STICKER_PREVIEW_DOWNLOADED);
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
@@ -543,18 +544,16 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 				{
 					return;
 				}
-				getActivity().runOnUiThread(new Runnable()
-				{
+				getActivity().runOnUiThread(new Runnable() {
 
 					@Override
-					public void run()
-					{
+					public void run() {
 						mAdapter.notifyDataSetChanged();
 						checkAndSetAllDone(categoryId);
 					}
 				});
 			}
-			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED) || intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
 			{
 				if(mAdapter == null)
 				{
