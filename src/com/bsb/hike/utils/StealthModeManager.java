@@ -25,6 +25,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.utils.LockPattern;
 
@@ -93,6 +94,21 @@ public class StealthModeManager
 	public void clearStealthMsisdn()
 	{
 		stealthMsisdn.clear();
+	}
+
+	public void clearStealthTimeline()
+	{
+		final int[] DEFAULT_CANDIDATES = new int[] { StatusMessage.StatusMessageType.IMAGE.getKey(), StatusMessage.StatusMessageType.TEXT_IMAGE.getKey(), StatusMessage.StatusMessageType.PROFILE_PIC.getKey(),StatusMessage.StatusMessageType.TEXT.getKey() };
+		ArrayList<StatusMessage> statusMessages = (ArrayList<StatusMessage>) HikeConversationsDatabase.getInstance().getStatusMessages(false, -1, DEFAULT_CANDIDATES,true);
+		if(!Utils.isEmpty(statusMessages))
+		{
+			for(StatusMessage statusMessage : statusMessages)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_STATUS, statusMessage.getMappedId());
+			}
+		}
+
+		HikeConversationsDatabase.getInstance().deleteActivityFeedForMsisdn(StealthModeManager.getInstance().getStealthMsisdns());
 	}
 
 	public boolean isStealthMsisdn(String msisdn)

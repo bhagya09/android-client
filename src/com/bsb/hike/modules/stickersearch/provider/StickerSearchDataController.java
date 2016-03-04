@@ -642,7 +642,18 @@ public enum StickerSearchDataController
 
 		if (Utils.isHoneycombOrHigher())
 		{
-			HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
+
+			synchronized (StickerSearchDataController.class)
+			{
+				try
+				{
+					HikeStickerSearchDatabase.getInstance().analyseMessageSent(prevText, sticker, nextText);
+				}
+				catch (Throwable t)
+				{
+					Logger.wtf(HikeStickerSearchDatabase.TAG, "Error while updating sent message-sticker history!!!", t);
+				}
+			}
 		}
 		else
 		{

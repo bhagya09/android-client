@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/sticky_caller_settings" >
+    android:title="@string/sticky_caller_settings">
 
     <com.bsb.hike.view.SwitchPreferenceCompat
         android:key="activateStickyCaller"
@@ -22,5 +22,19 @@
         android:summary="@string/sms_card_settings_side_text"
         android:title="@string/sms_card_settings_heading"
         android:widgetLayout="@layout/switch_widget" />
+    <PreferenceCategory
+        android:layout="@layout/settings_section_header"
+        android:orderingFromXml="true"
+        android:selectable="false"
+        android:title="@string/caller_manage_list">
+
+        <!-- icon="@drawable/ic_blocked_list" -->
+        <com.bsb.hike.view.IconPreference
+            android:key="callerBlockedList"
+            android:layout="@layout/icon_preference"
+            android:summary="@string/caller_blocked_list_hinttext"
+            android:title="@string/blocked_list" />
+    </PreferenceCategory>
+
 
 </PreferenceScreen>
