@@ -385,7 +385,7 @@ public class StickerManager
 		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
 		stickerCategoriesMap.remove(removedCategoryId);
 		StickerCategory cat = new StickerCategory(removedCategoryId); 	//creating new instance because of invisible category
-        Set<String> removedCategorySet = new HashSet<String>();
+		Set<String> removedStickerSet = new HashSet<String>();
 		if (!cat.isCustom())
 		{
 			String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);
@@ -405,18 +405,18 @@ public class StickerManager
 					for (String stickerId : stickerIds)
 					{
 						removeStickerFromCustomCategory(new Sticker(removedCategoryId, stickerId));
-                        removedCategorySet.add(getStickerSetString(stickerId, removedCategoryId));
+                        			removedStickerSet.add(getStickerSetString(stickerId, removedCategoryId));
 					}
 				}
-				com.bsb.hike.utils.Utils.deleteFile(bigCatDir);
-				com.bsb.hike.utils.Utils.deleteFile(smallCatDir);
+				Utils.deleteFile(bigCatDir);
+				Utils.deleteFile(smallCatDir);
 			}
         }
         HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 
 		// Remove tags being used for sticker search w.r.t. deleted sticker category here
 
-        removeTagForDeletedStickers(removedCategorySet);
+        removeTagForDeletedStickers(removedStickerSet);
 	}
 
 	public void removeTagForDeletedStickers(Set<String> removedStickerInfoSet)
