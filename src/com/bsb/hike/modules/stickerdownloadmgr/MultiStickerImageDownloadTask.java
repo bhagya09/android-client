@@ -354,6 +354,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			b.putBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE, true);
 		}
 		StickerManager.getInstance().stickersDownloadFailed(b);
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.STICKER_PACK);
 	}
 
 	@Override

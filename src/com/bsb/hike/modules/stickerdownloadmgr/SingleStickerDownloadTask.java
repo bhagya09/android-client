@@ -306,6 +306,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void doOnFailure(HttpException e)
 	{
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
 		if (largeStickerPath == null)
 		{
 			return;
