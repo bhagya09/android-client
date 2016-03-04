@@ -117,10 +117,12 @@ android {
             abiFilters "armeabi", "armeabi-v7a"
         	}
     	}
+
         customDev {  //This flavor will contain all those dependencies which are useful for debugging purposes but are not meant to be shipped
             ndk {
                 abiFilters "armeabi", "armeabi-v7a"
             }
+            versionName computeCustomDevVersionName()
         }
 	}
 }
@@ -187,4 +189,12 @@ def getDateTime() {
     def date = new Date()
     def formattedDate = date.format('yyyy_MM_dd-HH_mm_ss')
     return formattedDate
+}
+
+// This function appends "Custom_Dev_Flavor" to the versionName present in AndroidManifest file
+def computeCustomDevVersionName()
+{
+    def manifestParser = new com.android.builder.core.DefaultManifestParser()
+    def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+    return versionName + ".Custom_Dev_Flavor"
 }
