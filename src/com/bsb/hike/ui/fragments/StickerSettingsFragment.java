@@ -595,6 +595,10 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private void checkAndSetAllDone(String categoryId)
 	{
+		if(stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK)
+		{
+			return;
+		}
 		final StickerCategory category = StickerManager.getInstance().getCategoryForId(categoryId);
 		updateStickerSet.remove(category);
 		if(Utils.isEmpty(updateStickerSet))
