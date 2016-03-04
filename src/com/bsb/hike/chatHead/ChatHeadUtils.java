@@ -685,9 +685,9 @@ public class ChatHeadUtils
 
 	private static boolean isNameValid(CallerContentModel callerContentModel)
 	{
-		if (callerContentModel!= null && !TextUtils.isEmpty(callerContentModel.getMsisdn) && !TextUtils.isEmpty(callerContentModel.getFullName))
+		if (callerContentModel!= null && !TextUtils.isEmpty(callerContentModel.getMsisdn()) && !TextUtils.isEmpty(callerContentModel.getFullName()))
 		{
-			return !(callerContentModel.getMsisdn.replaceAll("\\s+","").equalsIgnoreCase(callerContentModel.getFullName.replaceAll("\\s+","")));
+			return !(callerContentModel.getMsisdn().replaceAll("\\s+","").equalsIgnoreCase(callerContentModel.getFullName().replaceAll("\\s+","")));
 		}
 		return false;
 	}
