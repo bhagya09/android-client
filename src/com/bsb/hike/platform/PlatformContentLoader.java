@@ -120,9 +120,9 @@ public class PlatformContentLoader extends Handler
 //		}
 
 		if (PlatformZipDownloader
-				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
+				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getId()))
 		{
-			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
+			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getId());
 
 			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
 			{
