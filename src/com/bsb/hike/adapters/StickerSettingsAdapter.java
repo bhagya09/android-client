@@ -61,13 +61,15 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 	private HikeDialog deleteDialog;
 
+	private ItemButtonClickListener clickListener;
+
 	private final int FULLY_DOWNLOADED = 0;
 
 	private final int UPDATE_AVAILABLE = 2;
 
 	private final int RETRY = 3;
 
-	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask)
+	public StickerSettingsAdapter(Context context, List<StickerCategory> stickerCategories, StickerSettingsTask stickerSettingsTask, ItemButtonClickListener clickListener)
 	{
 		this.mContext = context;
 		this.stickerCategories = stickerCategories;
@@ -75,8 +77,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		mListMapping = new int[stickerCategories.size()];
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.stickerSettingsTask = stickerSettingsTask;
+		this.clickListener = clickListener;
 		initialiseMapping(mListMapping, stickerCategories);
 		
+	}
+
+	public interface ItemButtonClickListener
+	{
+		void onDownloadClicked(StickerCategory stickerCategory);
 	}
 
 	/**
@@ -479,12 +487,21 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
 					break;
 
 				default:
 					break;
 			}
+	}
+
+	private void sendDownloadClicked(StickerCategory stickerCategory)
+	{
+		if(clickListener != null)
+		{
+			clickListener.onDownloadClicked(stickerCategory);
+		}
 	}
 
 	/**

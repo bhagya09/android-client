@@ -118,7 +118,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	public boolean shouldShowUpdateAvailable() {
 		// Providing update for packs in Update state, Retry state or having zero stickers due to download failure
-		if ((state == UPDATE) || (state == RETRY) || (state == NONE && getDownloadedStickersCount() <= 0))
+		if ((state == UPDATE) || (state == DOWNLOADING) || (state == RETRY) || (state == NONE && getDownloadedStickersCount() <= 0))
 		{
 			return true;
 		}

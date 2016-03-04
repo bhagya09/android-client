@@ -16,6 +16,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,13 +53,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener
+public class StickerSettingsFragment extends Fragment implements Listener, DragScrollProfile, OnItemClickListener, StickerSettingsAdapter.ItemButtonClickListener
 {
 	private String[] pubSubListeners = {HikePubSub.STICKER_PACK_DELETED};
 
 	private List<StickerCategory> stickerCategories = new ArrayList<StickerCategory>();
 	
 	private Set<StickerCategory> updateStickerSet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
+
+	private Set<StickerCategory> downloadingStickerCategorySet = new HashSet<StickerCategory>();  //Stores the categories which have update available and are visible
 
 	private StickerSettingsAdapter mAdapter;
 	
@@ -102,43 +105,47 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private void checkAndInflateUpdateView()
 	{
+		final View parent = getView();
+		final View updateAll = parent.findViewById(R.id.update_all_ll);
+		final View confirmAll = parent.findViewById(R.id.confirmation_ll);
+
 		if(shouldAddUpdateView())
 		{
-			final View parent = getView();
-			final View updateAll = parent.findViewById(R.id.update_all_ll);
-			final View confirmAll = parent.findViewById(R.id.confirmation_ll);
 
-			Animation alphaIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_noalpha);
-			alphaIn.setDuration(800);
-			updateAll.setAnimation(alphaIn);
-			updateAll.setVisibility(View.VISIBLE);
-			alphaIn.start();
-			
-			updateAll.setOnClickListener(new View.OnClickListener()
+			if(updateAll.getVisibility() == View.VISIBLE || confirmAll.getVisibility() == View.VISIBLE)
 			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					isUpdateAllTapped = true;
-					if(shouldAddUpdateView())
-					{
-						updateAll.setVisibility(View.INVISIBLE);
-						confirmAll.setVisibility(View.VISIBLE);
-						setUpdateDetails(parent, confirmAll);
+				setUpdateDetails(parent, confirmAll);
+			}
+			else
+			{
+				Animation alphaIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up_noalpha);
+				alphaIn.setDuration(800);
+				updateAll.setAnimation(alphaIn);
+				updateAll.setVisibility(View.VISIBLE);
+				alphaIn.start();
+
+				updateAll.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						isUpdateAllTapped = true;
+						if (shouldAddUpdateView()) {
+							updateAll.setVisibility(View.INVISIBLE);
+							confirmAll.setVisibility(View.VISIBLE);
+							setUpdateDetails(parent, confirmAll);
+						} else {
+							Toast.makeText(getActivity(), R.string.update_all_fail_string, Toast.LENGTH_SHORT).show();
+						}
+
+						mDslv.removeFooterView(footerView);
 					}
-					else
-					{
-						Toast.makeText(getActivity(), R.string.update_all_fail_string, Toast.LENGTH_SHORT).show();
-					}
-				
-					mDslv.removeFooterView(footerView);
-				}
-			});
+				});
+			}
 		}
-		
 		else
 		{
+			updateAll.setVisibility(View.GONE);
+			confirmAll.setVisibility(View.GONE);
 			mDslv.removeFooterView(footerView);
 		}
 	}
@@ -386,11 +393,21 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		}
 	}
 
+	private void initDownloadingCategoriesSet()
+	{
+		if(Utils.isEmpty(stickerCategories))
+		{
+			return ;
+		}
+		downloadingStickerCategorySet.addAll(stickerCategories);
+	}
+
 	private void initAdapterAndList()
 	{
 		View parent = getView();
 		initStickerCategoriesList();
-		mAdapter = new StickerSettingsAdapter(getActivity(), stickerCategories, stickerSettingsTask);
+		initDownloadingCategoriesSet();
+		mAdapter = new StickerSettingsAdapter(getActivity(), stickerCategories, stickerSettingsTask, this);
 		mDslv = (DragSortListView) parent.findViewById(R.id.item_list);
 		//mDslv.setOnScrollListener(this);
 		footerView = getActivity().getLayoutInflater().inflate(R.layout.sticker_settings_footer, null);
@@ -516,7 +533,15 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return;
 		}
 	}
-	
+
+	@Override
+	public void onDownloadClicked(StickerCategory stickerCategory)
+	{
+		updateStickerSet.remove(stickerCategory);
+		checkAndInflateUpdateView();
+
+	}
+
 	private void registerListener()
 	{
 		IntentFilter filter = new IntentFilter(StickerManager.STICKERS_UPDATED);
@@ -555,10 +580,15 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			}
 			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED) || intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
 			{
-				if(mAdapter == null)
+				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
+				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
+
+				if(mAdapter == null || TextUtils.isEmpty(categoryId))
 				{
 					return ;
 				}
+
+				checkAndSetAllDone(categoryId);
 				mAdapter.notifyDataSetChanged();
 			}
 			else if(intent.getAction().equals(StickerManager.STICKERS_FAILED))
@@ -585,6 +615,8 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 							}
 							category.setState(StickerCategory.RETRY);
 							mAdapter.notifyDataSetChanged();
+							updateStickerSet.add(category);
+							checkAndInflateUpdateView();
 						}
 					});
 				}
@@ -599,8 +631,8 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return;
 		}
 		final StickerCategory category = StickerManager.getInstance().getCategoryForId(categoryId);
-		updateStickerSet.remove(category);
-		if(Utils.isEmpty(updateStickerSet))
+		downloadingStickerCategorySet.remove(category);
+		if(Utils.isEmpty(downloadingStickerCategorySet))
 		{
 			View parent = getView();
 			View updateAll = parent.findViewById(R.id.update_all_ll);
