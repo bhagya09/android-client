@@ -339,7 +339,7 @@ public abstract class JavascriptBridge
 	 * @param caption : intent caption
 	 */
 	@JavascriptInterface
-	public void share(final String text, final String caption)
+	public void share(String text, String caption)
 	{
 		JSONObject json = new JSONObject();
 		try
