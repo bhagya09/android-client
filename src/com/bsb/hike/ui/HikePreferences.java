@@ -77,6 +77,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -535,8 +536,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference recommendationPref = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+				screen.removePreference(recommendationPref);
 			}
 		}
 	}
@@ -577,8 +579,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference autoPopUpPreference = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
+				screen.removePreference(autoPopUpPreference);
 			}
 		}
 	}
