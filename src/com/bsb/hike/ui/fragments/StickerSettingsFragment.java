@@ -236,18 +236,42 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 	private boolean shouldAddUpdateView()
 	{
-		if (stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK)
-		{
-			return false;
-		}
-
 		if (stickerCategories.size() == 0)
 		{
-			//Displaying "All Updated" message along with sticker when update list is empty
+			int stickerId;
+			int headingId;
+			int infoId;
+
+			//Displaying "All Updated" message along with sticker when update/delete/hide list is empty
+			switch(stickerSettingsTask)
+			{
+				case STICKER_UPDATE_TASK:
+					stickerId = R.drawable.sticker_019_allthebest;
+					headingId = R.string.all_packs_updated_heading;
+					infoId = R.string.all_packs_updated_info;
+					break;
+
+				case STICKER_DELETE_TASK:
+				case STICKER_HIDE_TASK:
+					stickerId = R.drawable.sticker_063_boss;
+					headingId = R.string.all_packs_deleted_heading;
+					infoId = R.string.all_packs_deleted_info;
+					break;
+
+				default:
+					return false;
+			}
+
 			View parent = getView();
 			ViewStub allUpdatedView = (ViewStub) parent.findViewById(R.id.all_updated_message_view_stub);
 			allUpdatedView.inflate();
+			ImageView sticker = (ImageView) parent.findViewById(R.id.all_updated_image);
+			TextView heading = (TextView) parent.findViewById(R.id.all_packs_updated_text);
+			TextView info = (TextView) parent.findViewById(R.id.all_packs_updated_subtext);
 
+			sticker.setImageResource(stickerId);
+			heading.setText(getString(headingId));
+			info.setText(getString(infoId));
 
 			View redirectToShopBtn = parent.findViewById(R.id.redirect_to_shop_btn);
 			redirectToShopBtn.setOnClickListener(new View.OnClickListener() {
@@ -264,14 +288,17 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 			return false;
 		}
-		else
+
+		if (stickerSettingsTask != StickerSettingsTask.STICKER_UPDATE_TASK)
 		{
-			initUpdateStickerSet();
-			if (updateStickerSet.size() > 0) {
-				return true;
-			} else {
-				return false;
-			}
+			return false;
+		}
+
+		initUpdateStickerSet();
+		if (updateStickerSet.size() > 0) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
