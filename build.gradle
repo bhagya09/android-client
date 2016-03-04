@@ -39,7 +39,7 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src/com', 'src/org']
+            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
@@ -51,9 +51,14 @@ android {
         }
 
         // http://www.littlerobots.nl/blog/stetho-for-android-debug-builds-only/
-        customDev.java.srcDirs = ['src/customDev']
+        customDev {
+            manifest.srcFile 'customDev/AndroidManifest.xml'
+            java.srcDirs = ['customDev']
+        }
 
-        arm.java.srcDirs = ['src/arm']
+        arm {
+            java.srcDirs = ['arm']
+        }
 
     }
     compileOptions {
