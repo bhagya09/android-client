@@ -1,6 +1,5 @@
-package customDev;
+package com.bsb.hike;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 import com.facebook.stetho.Stetho;
 
@@ -10,6 +9,7 @@ import com.facebook.stetho.Stetho;
 public class HikeMessengerAppCustomDev extends HikeMessengerApp
 {
 	public static final String TAG = "HikeMessengerAppCustomDev";
+
 	@Override
 	public void onCreate()
 	{

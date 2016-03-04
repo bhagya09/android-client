@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name="customDev.HikeMessengerAppCustomDev"
+        android:name=".HikeMessengerAppCustomDev"
         tools:replace="android:name"/>
 
 </manifest>
