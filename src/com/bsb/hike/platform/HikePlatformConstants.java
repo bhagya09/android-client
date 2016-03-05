@@ -285,9 +285,7 @@ public interface HikePlatformConstants
 	
 	final static String RESUME_SUPPORT = "resume_support";
 
-    public static final String VERSIONING_DIRECTORY_NAME = "Version_";
-
-    public static final class PlatformBotType
+    final class PlatformBotType
     {
         public static final byte WEB_MICRO_APPS = 1;
 
