@@ -38,6 +38,14 @@ public class HikeAppStateUtils
 				handleResumeOrStart(activity);
 			}
 		}
+		else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
+		{
+			// if back is pressed OR finish is called on an activity B
+			// and the activity stack has another activity A lying below activity B
+			// then at least onResume of activity A will be called
+			// where we change the state to OLD_ACTIVITY (onStart might not be called for partially visible A)
+			HikeMessengerApp.currentState = CurrentState.OLD_ACTIVITY;
+		}
 	}
 
 	public static void onStart(Activity activity)
@@ -114,8 +122,7 @@ public class HikeAppStateUtils
 
 	private static void handlePauseOrStop(Activity activity)
 	{
-		if ((HikeMessengerApp.currentState == CurrentState.BACK_PRESSED) && (activity instanceof HomeActivity
-				|| activity instanceof NUXInviteActivity||activity instanceof HomeFtueActivity))
+		if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
 		{
 			Logger.d(TAG + activity.getClass().getSimpleName(), "App was closed");
 			HikeMessengerApp.currentState = CurrentState.CLOSED;
@@ -123,16 +130,12 @@ public class HikeAppStateUtils
 		}
 		else
 		{
-			if (HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY)
+			if (HikeMessengerApp.currentState == CurrentState.NEW_ACTIVITY || HikeMessengerApp.currentState == CurrentState.OLD_ACTIVITY)
 			{
-				Logger.d(TAG, "App was going to another activity");
+				Logger.d(TAG, "App was going to another activity new or a previous one through finish");
 				HikeMessengerApp.currentState = CurrentState.RESUMED;
 			}
-			else if (HikeMessengerApp.currentState == CurrentState.BACK_PRESSED)
-			{
-				//case when back is pressed but the user was not on HomeActivity (still inside the app)
-				HikeMessengerApp.currentState = CurrentState.RESUMED;
-			}
+
 			else if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED
 					&& HikeMessengerApp.currentState != CurrentState.NEW_ACTIVITY_IN_BG)
 			{
