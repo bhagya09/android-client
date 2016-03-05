@@ -209,6 +209,8 @@ public class AnalyticsConstants
 
 	public static String MESSAGES_COUNT = "msg_count";
 
+    public static String CLICK_COUNT = "clk_count";
+
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";

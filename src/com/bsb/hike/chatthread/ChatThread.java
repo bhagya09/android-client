@@ -1796,6 +1796,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
+
+        StickerManager.getInstance().sendEmoticonButtonClickAnalytics();
 		
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
