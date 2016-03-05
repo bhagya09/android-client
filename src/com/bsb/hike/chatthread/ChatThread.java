@@ -1797,8 +1797,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 
-        StickerManager.getInstance().sendEmoticonButtonClickAnalytics();
-		
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
@@ -1807,6 +1805,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+
+        StickerManager.getInstance().sendEmoticonButtonClickAnalytics();
+
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 

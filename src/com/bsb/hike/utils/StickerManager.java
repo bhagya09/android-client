@@ -2089,35 +2089,43 @@ public class StickerManager
 
 	public void sendEmoticonButtonClickAnalytics()
 	{
-		long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, 0L);
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-		long currentTime = System.currentTimeMillis();
 
-		if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			try
+			@Override
+			public void run()
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
-				metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, 0L);
+				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+				long currentTime = System.currentTimeMillis();
 
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, currentTime);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+				{
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
+						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-				sendEmoticonUsageAnalytics();
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, currentTime);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
+						sendEmoticonUsageAnalytics();
+
+					}
+					catch (JSONException e)
+					{
+						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+					}
+				}
 			}
-			catch (JSONException e)
-			{
-				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-			}
+		});
 
-		}
 	}
 
-	public void sendEmoticonUsageAnalytics() throws JSONException
+	public void sendEmoticonUsageAnalytics()
 	{
 		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
 
@@ -2126,60 +2134,74 @@ public class StickerManager
 			return;
 		}
 
-		JSONObject emojiList = new JSONObject(emoticonsSent);
-		Iterator<String> emoticons = emojiList.keys();
-
-		while (emoticons.hasNext())
+		try
 		{
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
-			int i = 0;
-			for (i = 0; i < 8 && emoticons.hasNext(); i++)
+			JSONObject emojiList = new JSONObject(emoticonsSent);
+			Iterator<String> emoticons = emojiList.keys();
+
+			while (emoticons.hasNext())
 			{
-				String emoji = emoticons.next();
-				int count = emojiList.getInt(emoji);
-				metadata.put(HikeConstants.TAG + HikeConstants.SEPARATOR_ + Integer.toString(i), emoji + HikeConstants.SEPARATOR_ + count);
+				JSONObject metadata = new JSONObject();
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
+				int i = 0;
+				for (i = 0; i < 8 && emoticons.hasNext(); i++)
+				{
+					String emoji = emoticons.next();
+					int count = emojiList.getInt(emoji);
+					metadata.put(HikeConstants.TAG + HikeConstants.SEPARATOR_ + Integer.toString(i), emoji + HikeConstants.SEPARATOR_ + count);
+				}
+
+				if (i > 0)
+				{
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+				}
 			}
 
-			if (i > 0)
-			{
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-			}
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
 		}
-
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 
 	}
 
-	public void logEmoticonUsageAnalytics(String emoticon)
+	public void logEmoticonUsageAnalytics(final String emoticon)
 	{
 		if (TextUtils.isEmpty(emoticon))
 		{
 			return;
 		}
 
-		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
-
-		try
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			JSONObject emojiList = null;
-
-			if (TextUtils.isEmpty(emoticonsSent))
+			@Override
+			public void run()
 			{
-				emojiList = new JSONObject();
-			}
-			else
-			{
-				emojiList = new JSONObject(emoticonsSent);
-			}
+				String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
 
-			emojiList.put(emoticon, (emojiList.optInt(emoticon, 0) + 1));
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, emojiList.toString());
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
+				try
+				{
+					JSONObject emojiList = null;
+
+					if (TextUtils.isEmpty(emoticonsSent))
+					{
+						emojiList = new JSONObject();
+					}
+					else
+					{
+						emojiList = new JSONObject(emoticonsSent);
+					}
+
+					emojiList.put(emoticon, (emojiList.optInt(emoticon, 0) + 1));
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, emojiList.toString());
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
