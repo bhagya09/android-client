@@ -10,6 +10,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -22,6 +23,7 @@ import com.google.gson.annotations.Expose;
 /**
  * Content model
  */
+@DoNotObfuscate
 public class PlatformContentModel
 {
 	private static String TAG = "PlatformContentModel";
@@ -424,6 +426,7 @@ public class PlatformContentModel
 		this.msisdn = msisdn;
 	}
 
+	@DoNotObfuscate
 	public class PlatformCardObjectModel
 	{
 

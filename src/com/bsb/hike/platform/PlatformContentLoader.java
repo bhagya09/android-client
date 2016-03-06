@@ -1,11 +1,11 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
 
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.platform.content.PlatformRequestManager;
@@ -112,9 +112,10 @@ public class PlatformContentLoader extends Handler
 	{
 		PlatformRequestManager.setWaitState(argContentRequest);
 
-		if (PlatformZipDownloader.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getLayout_url()))
+		if (PlatformZipDownloader
+				.getCurrentDownloadingRequests().containsKey(argContentRequest.getContentData().getId()))
 		{
-			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getLayout_url());
+			PairModified<RequestToken, Integer> requestTokenIntegerPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(argContentRequest.getContentData().getId());
 
 			if (requestTokenIntegerPair != null && (requestTokenIntegerPair.getSecond() < 1))
 			{

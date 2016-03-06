@@ -1,4 +1,4 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
 import android.content.res.AssetManager;
 import android.net.Uri;

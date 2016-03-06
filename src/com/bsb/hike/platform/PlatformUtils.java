@@ -1,18 +1,50 @@
 package com.bsb.hike.platform;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -32,6 +64,8 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageEvent;
+import com.bsb.hike.models.MultipleConvMessage;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.Header;
@@ -46,9 +80,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
-import com.bsb.hike.platform.ContentModules.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
@@ -67,31 +99,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author piyush
@@ -632,6 +639,7 @@ public class PlatformUtils
             Logger.e(TAG, "Stop the micro app download flow for incorrect request");
 			return;
 		}
+
 
 		rqst.setBotType(botInfo.getBotType());
 		rqst.getContentData().cardObj.setmAppVersionCode(botInfo.getMAppVersionCode());
@@ -1329,9 +1337,7 @@ public class PlatformUtils
 	{
 		StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(category.getCategoryId());
 		stickerPalleteImageDownloadTask.execute();
-		StickerManager.getInstance().initialiseDownloadStickerTask(category, StickerConstants.DownloadSource.POPUP, StickerConstants.DownloadType.NEW_CATEGORY,
-				HikeMessengerApp.getInstance().getApplicationContext());
-
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerConstants.DownloadSource.POPUP, StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance().getApplicationContext());
 	}
 
 	public static void OnChatHeadPopupActivateClick()
@@ -1630,11 +1636,18 @@ public class PlatformUtils
 
 	public static String getLastGame()
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,
-				BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		if (BotUtils.isBot(HikePlatformConstants.GAME_CHANNEL))
+		{
+			return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME, BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		}
+
+		else //Highly improbable, can only happen when Games Channel is not yet installed.
+		{
+			return "";
+		}
 	}
 
-	public static void killProcess(Activity context, String process)
+	public static void killProcess(Activity context,String process)
 	{
 		if (context != null)
 		{
@@ -1666,7 +1679,7 @@ public class PlatformUtils
 		switch (botType)
 		{
 		case HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS:
-			unzipPath += PlatformContentConstants.HIKE_WEB_MICRO_APPS +microAppName + File.separator;
+			unzipPath += PlatformContentConstants.HIKE_WEB_MICRO_APPS + microAppName + File.separator;
 			break;
 		case HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS:
 			unzipPath += PlatformContentConstants.HIKE_ONE_TIME_POPUPS + microAppName + File.separator;
@@ -1738,11 +1751,16 @@ public class PlatformUtils
 	 */
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
 	{
+		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+	}
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
 			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), body, new IRequestListener()
 			{
@@ -2032,6 +2050,230 @@ public class PlatformUtils
             return false;
 
         return (unzipPath.exists() && mAppVersionCode <= currentMappVersionCode) ? true : false;
+    }
+
+
+	public static void share(String text, String caption, Activity context, CustomWebView mWebView) {
+		FileOutputStream fos = null;
+		File cardShareImageFile = null;
+		if (context != null) {
+			try {
+				if (TextUtils.isEmpty(text)) {
+					//text = mContext.getString(R.string.cardShareHeading); // fallback
+				}
+
+				cardShareImageFile = new File(context.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
+				fos = new FileOutputStream(cardShareImageFile);
+				View share = LayoutInflater.from(context).inflate(com.bsb.hike.R.layout.web_card_share, null);
+				// set card image
+				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
+				Bitmap b = Utils.viewToBitmap(mWebView);
+				image.setImageBitmap(b);
+
+				// set heading here
+				TextView heading = (TextView) share.findViewById(R.id.heading);
+				heading.setText(text);
+
+				// set description text
+				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
+				tv.setText(Html.fromHtml(context.getString(com.bsb.hike.R.string.cardShareDescription)));
+
+				Bitmap shB = Utils.undrawnViewToBitmap(share);
+				Logger.i(TAG, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
+				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+				fos.flush();
+				Logger.i(TAG, "share webview card " + cardShareImageFile.getAbsolutePath());
+				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
+						TextUtils.isEmpty(caption) ? context.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Toast.makeText(context, context.getString(com.bsb.hike.R.string.error_card_sharing), Toast.LENGTH_SHORT).show();
+			} finally {
+				if (fos != null) {
+					try {
+						fos.close();
+					} catch (IOException e) {
+						// Do nothing
+						e.printStackTrace();
+					}
+				}
+			}
+			if (cardShareImageFile != null && cardShareImageFile.exists()) {
+				cardShareImageFile.deleteOnExit();
+			}
+		}
+	}
+
+
+	public static String getRunningGame(Context context)
+	{
+		String gameId = "";
+		String lastGame = getLastGame();
+
+		if (context == null || TextUtils.isEmpty(lastGame))
+		{
+			Logger.e(TAG, "Either activity is null or lastgame is null in getRunningGame");
+			return gameId;
+		}
+
+		ActivityManager activityManager = (ActivityManager) context
+				.getSystemService(context.ACTIVITY_SERVICE);
+		List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+		for (int i = 0; i < procInfos.size(); i++)
+		{
+			if (procInfos.get(i).processName.equals(HikePlatformConstants.GAME_PROCESS))
+			{
+				gameId = lastGame;
+				break;
+			}
+		}
+		Logger.d(TAG, "getRunningGame: " + gameId);
+		return gameId;
+	}
+
+
+    public static void sendStickertoAllHikeContacts(String stickerId, String categoryId) {
+
+        List<ContactInfo> allContacts = ContactManager.getInstance().getAllContacts();
+        List<ContactInfo> recentList = ContactManager.getInstance().getAllConversationContactsSorted(true, true);
+        //reversing it so maintain order
+
+		if (allContacts == null || allContacts.isEmpty()) {
+			return;
+		}
+        Collections.reverse(recentList);
+
+        //removing duplicate contacts
+        allContacts.removeAll(recentList);
+
+        //creating new order-->recent contacts-->all contacts
+        recentList.addAll(allContacts);
+        allContacts = recentList;
+
+
+        List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
+        for (ContactInfo ci : allContacts) {
+            if(!ci.isBot()&&ci.isOnhike())  // add more check here ..ex:stealth,unknown etc...
+            {
+                finalContacts.add(ci);
+            }
+        }
+
+        Sticker sticker = new Sticker(categoryId, stickerId);
+        ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
+
+        if (cm != null) {
+            List<ConvMessage> multiMsg = new ArrayList<>();
+            multiMsg.add(cm);
+            sendMultiMessages(multiMsg, finalContacts);
+        } else {
+            Logger.wtf("productpopup", "ConvMessage is Null");
+        }
+    }
+
+	private static void sendMultiMessages(List<ConvMessage> multipleMessageList, List<ContactInfo> arrayList)
+	{
+		MultipleConvMessage multiMessages = new MultipleConvMessage(multipleMessageList, arrayList, System.currentTimeMillis() / 1000, false, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MULTI_MESSAGE_SENT, multiMessages);
+	}
+
+	public static ConvMessage getConvMessageForSticker(Sticker sticker, String categoryIdIfUnknown, ContactInfo contactInfo, String source)
+	{
+		if (contactInfo == null)
+		{
+			return null;
+		}
+		ConvMessage convMessage = Utils.makeConvMessage(contactInfo.getMsisdn(), "Sticker",contactInfo.isOnhike());
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			String categoryId = sticker.getCategoryId();
+			metadata.put(StickerManager.CATEGORY_ID, categoryId);
+
+			metadata.put(StickerManager.STICKER_ID, sticker.getStickerId());
+
+			if(!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
+			{
+				metadata.put(StickerManager.SEND_SOURCE, source);
+			}
+			convMessage.setMetadata(metadata);
+			Logger.d("productpopup", "metadata: " + metadata.toString());
+		}
+		catch (JSONException e)
+		{
+			Logger.e("productpopup", "Invalid JSON", e);
+		}
+		return convMessage;
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
+     * Json generated here :: {"fld1":"disk_consumption","fld3":"app_updated","fld2":"DP","ek":"micro_app","fld5":111107,"event":"nmapp"}
+     */
+	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
+	{
+        // Get list of all micro apps installed in content directory
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			try
+			{
+				String path = (String) mArray.get(i);
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				File microAppFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path);
+
+				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
+				{
+                    long fileSize = Utils.folderSize(microAppFile);
+                    JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
+					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the micro app just being installed. This method is called on successful cbot,mapp and popup creation
+     * Json generated here :: {"fld6":3237192,"fld1":"hikecoupons","ek":"micro_app","fld5":448390,"event":"microapp_disk_consumption"}
+     */
+    public static void microAppDiskConsumptionAnalytics(String appName)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            long contentFolderLength = 0,botFileSize =0;
+
+            // Precautionary check to check if these files are indeed folders and preventing NPE
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
+                contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName).isDirectory())
+                botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
+
+            json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.MICROAPP_DISK_CONSUMPTION);
+
+            json.putOpt(AnalyticsConstants.LOG_FIELD_1, appName); //App Name
+            json.putOpt(AnalyticsConstants.LOG_FIELD_5, botFileSize); // installed microapp disk consumption
+            json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
+
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     /*

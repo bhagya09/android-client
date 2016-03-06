@@ -30,6 +30,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -450,7 +451,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
 		}
 		profileImgView.setImageDrawable(drawable);
 		
@@ -542,13 +543,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
 					String name = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.NAME_SETTING, contactInfo.getNameOrMsisdn());
 					contactInfo.setName(name);
 					setNameInHeader(nameView);
+					addProfileImgInHeader();
 				}
 			});
 		}

@@ -1,15 +1,11 @@
-package com.bsb.hike.platform.ContentModules;
+package com.bsb.hike.platform;
 
 import java.io.File;
-import java.io.FilenameFilter;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
-import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformRequestManager;
@@ -19,7 +15,7 @@ import com.samskivert.mustache.Template;
 /**
  * Responsible for maintaining cache for formed data and pre-compiled templates.
  */
-class PlatformContentCache
+public class PlatformContentCache
 {
 
 	private static String TAG = "PlatformContentCache";
@@ -101,6 +97,16 @@ class PlatformContentCache
 	{
 		Logger.d(TAG, "loading template from disk");
 
+        IExceptionHandler exceptionHandler = new IExceptionHandler()
+        {
+            @Override
+            public void onExceptionOcurred(Exception ex)
+            {
+                Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
+                PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
+            }
+        };
+
 		String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
 		String microAppName = content.getContentData().cardObj.getAppName();
 
@@ -113,16 +119,6 @@ class PlatformContentCache
 		{
 			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
 		}
-
-		IExceptionHandler exceptionHandler = new IExceptionHandler()
-		{
-			@Override
-			public void onExceptionOcurred(Exception ex)
-			{
-				Logger.wtf(TAG, "Got an  exception while reading from disk." + ex.toString());
-				PlatformUtils.microappIOFailedAnalytics(content.getContentData().getId(), ex.toString(), true);
-			}
-		};
 
 		String templateString;
 		templateString = PlatformContentUtils.readDataFromFile(file, exceptionHandler);

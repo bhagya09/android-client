@@ -18,8 +18,9 @@ import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.ToastListener;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
-
 
 /**
  * Download and store template. First
@@ -161,17 +161,29 @@ public class PlatformZipDownloader
 	 */
 	public void downloadAndUnzip()
 	{
-		File zipFile = getZipPath();
-
-        //If resume is supported we donot want to delete the zipfile on download failure.
-		if (zipFile.exists()&&!resumeSupported)
+		// Instead of getting an ex
+		if (TextUtils.isEmpty(mRequest.getContentData().getLayout_url()))
 		{
-			unzipMicroApp(zipFile);
+			if (null != mRequest.getListener())
+			{
+				mRequest.getListener().onEventOccured(0, EventCode.INVALID_DATA);
+			}
+
 			return;
 		}
 
-		// Download zip file from web on given url
-		getZipFromWeb(zipFile);
+        File zipFile = getZipPath();
+
+        //If resume is supported we donot want to delete the zipfile on download failure.
+        if (zipFile.exists()&&!resumeSupported)
+        {
+            unzipMicroApp(zipFile);
+            return;
+        }
+
+        // Download zip file from web on given url
+        getZipFromWeb(zipFile);
+
 	}
 
 
@@ -204,7 +216,7 @@ public class PlatformZipDownloader
 			token.execute();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 //			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
-			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getLayout_url(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)));
+			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getId(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)));
 		}
 	}
 
@@ -347,7 +359,6 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
                                 PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
-							    PlatformUtils.deleteDirectory(unzipPath);
                             }
 							zipFile.delete();
 						}
@@ -405,7 +416,7 @@ public class PlatformZipDownloader
 		{
 			if (platformRequests.containsKey(key))
 			{
-				reduceRefCountInDownloadingRequests(key);
+				reduceRefCountInDownloadingRequests(key,requestTokenIntegerPair);
 			}
 
 			else
@@ -416,13 +427,14 @@ public class PlatformZipDownloader
 		}
 	}
 
-	private static void reduceRefCountInDownloadingRequests(String key)
+	private static void reduceRefCountInDownloadingRequests(String key,PairModified<RequestToken, Integer> requestTokenIntegerPair)
 	{
 		if (platformRequests != null)
 		{
 			if (platformRequests.containsKey(key))
 			{
 				PairModified<RequestToken, Integer> tokenIntegerPair = platformRequests.get(key);
+				tokenIntegerPair.setFirst(requestTokenIntegerPair.getFirst()); // Replacing the token also
 				tokenIntegerPair.setSecond(tokenIntegerPair.getSecond() - 1);
 				Logger.d("PlatformRequests", "Reducing Ref Count For :  " + key + " New Ref Count : "+ tokenIntegerPair.getSecond());
 			}
@@ -488,6 +500,12 @@ public class PlatformZipDownloader
                             return;
                         }
                     }
+                    else if(zipFileLength == 0)
+                    {
+                        HttpException exception = new HttpException(HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD);
+                        onRequestFailure(exception);
+                        return;
+                    }
 
                     JSONObject json = new JSONObject();
 					try
@@ -513,7 +531,6 @@ public class PlatformZipDownloader
 
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadSuccess"));
 				callbackProgress.remove(callbackId);
-//				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());
 				unzipMicroApp(zipFile);
 			}
 
@@ -535,13 +552,16 @@ public class PlatformZipDownloader
 			{
                 // Check to make event code as per http exception received
                 EventCode eventCode = EventCode.LOW_CONNECTIVITY;
+				eventCode.setErrorCode(httpException.getErrorCode()); //Setting error code also
                 if(httpException.getErrorCode() == HttpException.REASON_CODE_INCOMPLETE_REQUEST)
                     eventCode = EventCode.INCOMPLETE_ZIP_DOWNLOAD;
+                else if(httpException.getErrorCode() == HttpException.REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD)
+                    eventCode = EventCode.ZERO_BYTE_ZIP_DOWNLOAD;
 
 				callbackProgress.remove(callbackId);
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
-				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion);
+				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion,httpException.getErrorCode());
 
 				PlatformRequestManager.failure(mRequest, eventCode, isTemplatingEnabled);
 //				PlatformRequestManager.getCurrentDownloadingTemplates().remove((Integer) mRequest.getContentData().appHashCode());

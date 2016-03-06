@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent" >
+    android:background="@color/transparent"
+    android:gravity="center">
 
-    <ImageView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@color/transparent"
-        android:src="@drawable/btn_cam" />
+        android:layout_alignWithParentIfMissing="true"
+        android:drawablePadding="2dp"
+        android:drawableTop="@drawable/btn_cam"
+        android:gravity="center"
+        android:text="@string/home_overflow_new_photo"
+        android:textColor="@color/white_alpha_48"
+        android:textSize="10sp" />
 
-</RelativeLayout>
+</LinearLayout>

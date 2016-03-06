@@ -1,22 +1,13 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
-
-import java.io.File;
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageMetadata;
@@ -25,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
+import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
@@ -34,6 +26,16 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
 
 public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -50,12 +52,15 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	private RequestToken token;
 	
 	private ConvMessage convMessage;
+
+	private boolean imageOnly;
 	
-	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage)
+	public SingleStickerDownloadTask(String stickerId, String categoryId, ConvMessage convMessage, boolean imageOnly)
 	{
 		this.stickerId = stickerId;
 		this.categoryId = categoryId;
 		this.convMessage = convMessage;
+		this.imageOnly = imageOnly;
 	}
 
 	public void execute()
@@ -68,14 +73,26 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		String requestId = getRequestId(); // for duplicate check
 
-		token = singleStickerDownloadRequest(
-				requestId,
-				stickerId,
-				categoryId,
-				getRequestListener(),
-				StickerLanguagesManager.getInstance().listToString(
-						StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
-								StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+		if(imageOnly)
+		{
+			token = singleStickerImageDownloadRequest(
+					requestId,
+					stickerId,
+					categoryId,
+					false,
+					getRequestListener());
+		}
+		else
+		{
+			token = singleStickerDownloadRequest(
+					requestId,
+					stickerId,
+					categoryId,
+					getRequestListener(),
+					StickerLanguagesManager.getInstance().listToString(
+							StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE,
+									StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+		}
 
 		if (token.isRequestRunning()) // return if request is running
 		{
@@ -207,14 +224,22 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					{
 						Bitmap thumbnail = HikeBitmapFactory.scaleDownBitmap(largeStickerPath, StickerManager.SIZE_IMAGE, StickerManager.SIZE_IMAGE, true, false);
 
-						if (thumbnail != null)
-						{
+						if (thumbnail != null) {
 							File smallImage = new File(smallStickerPath);
 							BitmapUtils.saveBitmapToFile(smallImage, thumbnail);
 							thumbnail.recycle();
 							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-							StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
-							StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+							if (imageOnly)
+							{
+								SingleStickerTagDownloadTask singleStickerTagDownloadTask = new SingleStickerTagDownloadTask(stickerId, categoryId);
+								singleStickerTagDownloadTask.execute();
+							}
+							else
+							{
+								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
+								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
+							}
+							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
@@ -281,6 +306,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void doOnFailure(HttpException e)
 	{
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
 		if (largeStickerPath == null)
 		{
 			return;

@@ -142,6 +142,12 @@ public class HikeDialogFactory
 	
 	public static final int MAPP_DOWNLOAD_DIALOG = 47;
 
+	public static final int CALLER_BLOCK_CONTACT_DIALOG = 48;
+
+	public static final int CALLER_UNBLOCK_CONTACT_DIALOG = 49;
+
+	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 45;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -206,6 +212,7 @@ public class HikeDialogFactory
 		case DELETE_ALL_CONVERSATIONS:
 		case DELETE_MESSAGES_DIALOG:
 		case DELETE_BROADCAST_DIALOG:
+		case DELETE_GROUP_CONVERSATION_DIALOG:
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
@@ -232,10 +239,34 @@ public class HikeDialogFactory
 			return showMicroAppDialog(dialogId,context,listener,data);
 		case MAPP_DOWNLOAD_DIALOG:
 			return showMicroappDownloadDialog(dialogId, context, listener, data);
+		case CALLER_BLOCK_CONTACT_DIALOG:
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			return showBlockContactDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
-	
+
+	private static HikeDialog showBlockContactDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog blockConfirmDialog = new CustomAlertDialog(context, dialogId);
+		switch (dialogId)
+		{
+		case CALLER_BLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.block_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.block_contact));
+			break;
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.unblock_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.unblock_contact));
+			break;
+		}
+		blockConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
+		blockConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
+		blockConfirmDialog.setCancelable(true);
+		blockConfirmDialog.show();
+		return blockConfirmDialog;
+	}
+
 	public static <T> HikeDialog showDialog(Context context, int dialogId, T data1, HikeDialogListener listener, Object... data2)
 	{
 		switch (dialogId)
@@ -888,16 +919,23 @@ public class HikeDialogFactory
 			break;
 			
 		case DELETE_GROUP_DIALOG:
-			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(R.string.confirm_delete_group_msg, (String) data[0]));
-			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
+			deleteConfirmDialog.setCheckBox(R.string.delete_conversation,null, false);
+			deleteConfirmDialog.setPositiveButton(R.string.YES, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			deleteConfirmDialog.setTitle(R.string.leave_group);
 			break;
 			
 		case DELETE_BROADCAST_DIALOG:
 			deleteConfirmDialog.setTitle(R.string.delete);
 			deleteConfirmDialog.setMessage(context.getString(R.string.delete_broadcast_confirm));
 			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			break;
+		case DELETE_GROUP_CONVERSATION_DIALOG:
+			deleteConfirmDialog.setTitle(R.string.delete);
+			deleteConfirmDialog.setMessage(context.getString(R.string.delete_group_confirm, (String) data[0]));
+			deleteConfirmDialog.setPositiveButton(context.getString(R.string.DELETE), listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
 			

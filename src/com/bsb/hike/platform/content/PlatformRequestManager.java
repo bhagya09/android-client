@@ -3,14 +3,15 @@ package com.bsb.hike.platform.content;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.ContentModules.PlatformContentRequest;
 import com.bsb.hike.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static com.bsb.hike.platform.ContentModules.PlatformContentLoader.getLoader;
+import static com.bsb.hike.platform.PlatformContentLoader.getLoader;
+
 
 public class PlatformRequestManager
 {

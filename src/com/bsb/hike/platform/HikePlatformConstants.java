@@ -94,6 +94,7 @@ public interface HikePlatformConstants
 	public static final String GAME_ACTIVE ="gameActive" ;
     public static final String IS_SDK ="isSdk" ;
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
+	public static final String CUSTOM_TABS="customTabs";
 
     public static final class PlatformFetchType
 	{
@@ -336,4 +337,6 @@ public interface HikePlatformConstants
 
     public static final String APPS = "apps";
 
+    int CHROME_TABS_PENDING_INTENT_SHARE = -299;
+	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
 }

@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -19,14 +20,18 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.AppState;
+import com.bsb.hike.models.EventData;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
+import android.widget.Toast;
 
+@DoNotObfuscate
 public class NativeBridge
 {
 	protected CocosGamingActivity activity;
@@ -464,7 +469,10 @@ public class NativeBridge
 
 			@Override
 			public void run() {
-				helper.deleteEvent(eventId);
+				EventData eventData = new EventData(true,eventId);
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
+				activity.startService(hikeProcessIntentService);
 			}
 		});
 	}
@@ -483,7 +491,10 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				helper.deleteAllEventsForMessage(messageHash);
+				EventData eventData = new EventData(false,messageHash);
+				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
+				activity.startService(hikeProcessIntentService);
 			}
 		});
 	}
@@ -504,12 +515,14 @@ public class NativeBridge
 				String uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null);
 				String name = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, null);
 				String anonName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.ANONYMOUS_NAME_SETTING, "");
+				String user_msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
 				final JSONObject result = new JSONObject();
 				try
 				{
 					result.put("uid", uid);
 					result.put("name", name);
 					result.put("anonName", anonName);
+					result.put("msisdn", user_msisdn);
 				}
 				catch (JSONException e)
 				{
@@ -659,6 +672,54 @@ public class NativeBridge
 		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 		hikeProcessIntentService.putExtra(HikeProcessIntentService.SEND_APP_STATE, appState);
 		activity.startService(hikeProcessIntentService);
+	}
+
+	/**
+	 * Opens an activity in hike based on the data passed
+	 *
+	 * @param data
+	 */
+	public void openActivity(final String data)
+	{
+
+		if (mThread == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+		Log.d("cocos2d-x", data);
+		mThread.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				PlatformUtils.openActivity(weakActivity.get(), data);
+			}
+		});
+	}
+
+	/**
+	 * show Toast msg
+	 *
+	 * @param data: message to be displayed
+	 */
+	public void showToast(String data, String duration)
+	{
+
+		if (mThread == null || weakActivity == null || weakActivity.get() == null)
+		{
+			return;
+		}
+
+		final String message = data;
+		final Application application = weakActivity.get().getApplication();
+		final int length = duration.equals("long") ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+
+		mThread.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Toast.makeText(application, message, length).show();
+			}
+		});
 	}
 
 }

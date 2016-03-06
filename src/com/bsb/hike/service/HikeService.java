@@ -35,6 +35,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.contactmgr.FetchContactIconRunnable;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -91,6 +92,10 @@ public class HikeService extends Service
 
 				HikeMessengerApp.syncingContacts = false;
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_SYNCED, new Pair<Boolean, Byte>(manualSync, contactSyncResult));
+				
+				//After AB sync, begin fetching contact icons
+				// TODO Add a server side switch for this
+				// HikeHandlerUtil.getInstance().postRunnable(new FetchContactIconRunnable(ContactManager.getInstance().getAllContacts()));
 			}
 
 		}

@@ -43,13 +43,15 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MovingList;
+
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.ContentModules.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentListener;
+
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;

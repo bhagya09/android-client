@@ -30,6 +30,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -40,6 +41,7 @@ import com.chukong.cocosplay.client.CocosPlayClient;
  * @author sk
  * 
  */
+@DoNotObfuscate
 public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
@@ -102,6 +104,12 @@ public class CocosGamingActivity extends Cocos2dxActivity
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		if(TextUtils.isEmpty(msisdn))
+		{
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)

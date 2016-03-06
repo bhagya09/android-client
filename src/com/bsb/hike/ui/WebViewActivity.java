@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.PendingIntent;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +28,8 @@ import android.net.ParseException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.*;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,6 +54,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -69,16 +74,16 @@ import com.bsb.hike.media.OverflowItemClickListener;
 import com.bsb.hike.media.TagPicker.TagOnClickListener;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.WhitelistDomain;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.IBridgeCallback;
 import com.bsb.hike.platform.bridge.NonMessagingJavaScriptBridge;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.ContentModules.PlatformContentListener;
-import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -90,7 +95,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
-		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback, OnClickListener
+		OnDismissListener, OverflowViewListener, HikePubSub.Listener, IBridgeCallback, OnClickListener, CustomTabActivityHelper.CustomTabFallback
 {
 	
 	private static final String tag = "WebViewActivity";
@@ -164,6 +169,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private long time;
 
+	private CustomTabActivityHelper mCustomTabActivityHelper;
+	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
+	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
+	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -197,6 +206,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+			{
+				setupCustomTabHelper();
+			}
 			initMsisdn();
 			JSONObject json = new JSONObject();
 			try
@@ -225,15 +238,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		
 		super.onCreate(savedInstanceState);
 		checkForWebViewPackageInstalled();
-		
 		setContentView(R.layout.webview_activity);
 		initView();	
 		initActionBar();
 		initAppsBasedOnMode();
 		HikeMessengerApp.getPubSub().addListeners(this, pubsub);
-		
 		alignAnchorForOverflowMenu();
-		
 		checkAndRecordBotOpen();
 	}
 
@@ -496,6 +506,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
+		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
+			mCustomTabActivityHelper.unbindCustomTabsService(this);
+		}
+		msisdn=null;
 		if(webView!=null)
 		{
 			webView.stopLoading();
@@ -718,7 +732,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 		}
 		avatar.setScaleType(ScaleType.FIT_CENTER);
 		avatar.setImageDrawable(drawable);
@@ -1055,16 +1069,26 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	public void openFullPageWithTitle(String url, String title, String interceptUrlJson)
 	{
+
 		startWebViewWithBridge(url, title, interceptUrlJson);
 	}
 	
 	private void startWebViewWithBridge(String url, String title)
 	{
-		startWebViewWithBridge(url, title, null);
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+		{
+			//TODO: Analytics impl
+			openCustomTab(url, title);
+		}
+		else
+		{
+			startWebViewWithBridge(url, title, null);
+		}
 	}
 
 	private void startWebViewWithBridge(String url, String title, String interceptUrlJson)
 	{
+
 		if (TextUtils.isEmpty(title))
 		{
 			title = botConfig.getFullScreenTitle();
@@ -1165,6 +1189,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		TextView actionBarTitle = (TextView) actionBarView.findViewById(R.id.contact_name);
 		actionBarTitle.setText(title);
 	}
+
+	@Override
+	public void openUri(String url, String title) {
+		startWebViewWithBridge(url, title, null);
+	}
+
 
 	private class HikeWebChromeClient extends WebChromeClient
 	{
@@ -1651,5 +1681,43 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			e.printStackTrace();
 		}
 
+	}
+
+	private void openCustomTab(String url, String title)
+	{
+		CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+		intentBuilder.enableUrlBarHiding();
+		int titleColor = getResources().getColor(R.color.credits_blue);
+		intentBuilder.setToolbarColor(titleColor);
+		intentBuilder.setShowTitle(true);
+		Bitmap bm = HikeBitmapFactory.drawableToBitmap(ContextCompat.getDrawable(this, R.drawable.ic_arrow_back));
+		intentBuilder.setCloseButtonIcon(bm);
+
+		//set overflow menu
+		PendingIntent sharePendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(getResources().getString(R.string.share), sharePendingIntent);
+
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
+		intentBuilder.addMenuItem(getResources().getString(R.string.forward), forwardPendingIntent);
+
+		CustomTabsIntent intent = intentBuilder.build();
+		CustomTabActivityHelper.openCustomTab(this, intent, url, this, title);
+	}
+
+	private void setupCustomTabHelper(){
+		mCustomTabActivityHelper = CustomTabActivityHelper.getInstance();
+		mCustomTabActivityHelper.bindCustomTabsService(this);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
 	}
 }
