@@ -2063,31 +2063,40 @@ public class StickerManager
 	 */
 	public void sendStickerButtonClickAnalytics()
 	{
-		long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
-		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-		long currentTime = System.currentTimeMillis();
-
-		if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			try
+			@Override
+			public void run()
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
-				metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
+				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+				long currentTime = System.currentTimeMillis();
 
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-			}
-			catch (JSONException e)
-			{
-				Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-			}
-		}
-	}
+				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+				{
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
+						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-	public void sendEmoticonButtonClickAnalytics()
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+
+					}
+					catch (JSONException e)
+					{
+						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+					}
+				}
+			}
+		});
+
+    }
+
+	public void sendEmoticonAnalytics()
 	{
 
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -2095,7 +2104,7 @@ public class StickerManager
 			@Override
 			public void run()
 			{
-				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, 0L);
+				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, 0L);
 				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
 				long currentTime = System.currentTimeMillis();
@@ -2109,7 +2118,7 @@ public class StickerManager
 						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
 						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_ANALYTICS_TIME, currentTime);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
 						sendEmoticonUsageAnalytics();

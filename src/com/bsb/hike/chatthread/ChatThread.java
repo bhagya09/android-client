@@ -1806,7 +1806,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 		}
 
-        StickerManager.getInstance().sendEmoticonButtonClickAnalytics();
+        StickerManager.getInstance().sendEmoticonAnalytics();
 
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}

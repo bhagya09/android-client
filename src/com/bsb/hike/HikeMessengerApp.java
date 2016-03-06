@@ -565,7 +565,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
 
-    public static final String LAST_EMOTICON_ANALYTICS_TIME = "lastEmoticonButtonClickAnalyticsTime";
+    public static final String LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME = "lastEmoticonButtonClickAnalyticsTime";
 
     public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
 
