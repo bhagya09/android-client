@@ -107,7 +107,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 {
 	public static enum CurrentState
 	{
-		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY
+		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
