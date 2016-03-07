@@ -407,6 +407,18 @@ public class HikeConstants
 
 	public static final String DOWNLOAD = "dwnld";
 
+	public static final String CONNECTION_TYPE = "cnnctn";
+
+	public static final String DOWNLOAD_TIME = "dwnTm";
+
+	public static final String APK_SIZE_MULTIPLIER = "sm";
+
+	public static final String INSTALL_PROMPT_FREQUENCY = "ipf";
+
+	public static final String INSTALL_PROMPT_METHOD = "ipm";
+
+	public static final String INSTALL_PROMPT_INTERVAL = "ipi";
+
 	public static final String LOGEVENT_TAG = "mob";
 
 	public static final String FREE_SMS_ON = "free_sms_on";
@@ -2595,6 +2607,8 @@ public class HikeConstants
 	
 	public static final class MqttMessageTypes
 	{
+		public static final String AUTO_APK = "atapk";
+		
 		public static final String MESSAGE_READ = "mr";
 
 		public static final String NEW_MESSAGE_READ = "nmr";
@@ -3482,6 +3496,25 @@ public class HikeConstants
 		public static final String ACTION_KEYBOARD_OPEN = "com.bsb.hike.action.keyboardopen";
 
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
+	}
+
+	public static class AutoApkDownload
+	{
+		public static final String NEW_APK_VERSION = "new_apk_version";
+
+		public static final String UPDATE_FROM_DOWNLOADED_APK = "update_from_downloaded_apk";
+
+		public static final String NEW_APK_SIZE = "new_apk_size";
+
+		public static final String NEW_APK_JSON = "HFAPK";
+
+		public static final String DOWNLOAD_APK_URL = "download_url";
+
+		public static final String DOWNLOAD_APK_VERSION = "version";
+
+		public static final String NEW_APK_TIP_JSON = "new_apk_tip_json";
+
+		public static final String DOWNLOAD_APK_SIZE = "apk_size";
 	}
 
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
