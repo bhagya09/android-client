@@ -646,7 +646,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 					@Override
 					public void run() {
-						mAdapter.notifyDataSetChanged();
+						//Not refreshing sticker packs list in case of Reorder and Hide packs
+						if ((stickerSettingsTask != StickerSettingsTask.STICKER_REORDER_TASK) && (stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK))
+						{
+							mAdapter.notifyDataSetChanged();
+						}
 						checkAndSetAllDone(categoryId);
 					}
 				});
@@ -669,7 +673,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					return ;
 				}
 				checkAndSetAllDone(categoryId);
-				mAdapter.notifyDataSetChanged();
+				//Not refreshing sticker packs list in case of Reorder and Hide packs
+				if ((stickerSettingsTask != StickerSettingsTask.STICKER_REORDER_TASK) && (stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK))
+				{
+					mAdapter.notifyDataSetChanged();
+				}
 			}
 			else if(intent.getAction().equals(StickerManager.STICKERS_FAILED))
 			{
