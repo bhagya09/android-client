@@ -54,7 +54,7 @@ public enum StickerEventSearchManager
 	{
 		Logger.i(TAG, "loadNowCastEvents()");
 
-		/* Following condition-check will be leading the events's loading only once in a day or at the start of application */
+		/* Following condition-check will be leading the events's loading only once in a day or at the start of application or while adding new events from server */
 		if ((sLatestEventLoadingDay > 0) && !idDayChanged())
 		{
 			return;

@@ -404,7 +404,7 @@ public class StickerSearchManager
 	}
 
 	/**
-	 * This will trigger events loading. This will run this task on background thread. All caller should call this method instead of directly calling
+	 * This will trigger events loading. This will run loading task on background thread. All caller should call this method instead of directly calling
 	 * StickerSearchDataController:loadStickerEvents() to avoid loading on UI thread.
 	 */
 	public void loadStickerEvents()

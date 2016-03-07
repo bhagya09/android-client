@@ -999,11 +999,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		existingEventIdMap.clear();
 		existingEventIdMap = null;
 
-		// Update pre-loaded events, if sticker recommendation is running.
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
-				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		// Reset and update pre-loaded events, if sticker recommendation is running and new events have been added from server
+		if (eventIdMap.size() > 0)
 		{
-			StickerSearchManager.getInstance().loadStickerEvents();
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+			{
+				StickerEventSearchManager.getInstance().clearNowCastEvents();
+				StickerSearchManager.getInstance().loadStickerEvents();
+			}
 		}
 
 		return eventIdMap;
