@@ -267,7 +267,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0,"//bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0 " //by default ... its hould be 0 as not any trigger point
 				+ ")";
 		db.execSQL(sql);
 
@@ -864,6 +865,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
 		}
+		
+		if (oldVersion < 48)
+		{
+			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0";
+			db.execSQL(alter);
+		}
+
 
 	}
 
@@ -2957,6 +2965,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
+		values.put(HIKE_CONTENT.BOT_TRIGGER_POINT, botInfo.getTriggerPointFormenu());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		
 	}
@@ -8207,6 +8216,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 			int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+			int triggerIdx = c.getColumnIndex(HIKE_CONTENT.BOT_TRIGGER_POINT);
 
 			if (c.moveToFirst())
 			{
@@ -8220,8 +8230,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
+				int trigger = c.getInt(triggerIdx);
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setTriggerPoint(trigger).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;

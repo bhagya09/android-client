@@ -3528,6 +3528,14 @@ public class HikeConstants
 
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
 	}
+	
+	public static class MicroApp_Msisdn
+	{
+		public static final String HIKE_WALLET = "+hikepay+";
+
+	}
+	
+
 
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 

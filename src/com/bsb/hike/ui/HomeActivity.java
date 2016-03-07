@@ -67,12 +67,14 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -1882,15 +1884,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}else if (HikePubSub.BOT_CREATED.equals(type))
 		{
-			 BotInfo info = ((BotInfo) object);
-			 if(info.getMsisdn().equalsIgnoreCase("+hikepay+"))
+			 final BotInfo info = ((BotInfo) object);
+			 if(info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
 			 {
 				 runOnUiThread(new Runnable()
 					{
 						@Override
 						public void run()
 						{
-							invalidateOptionsMenu();
+							ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
+							addBotItem(optionsList,info);
 						}
 					});
 			 }
@@ -2141,7 +2144,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		addEmailLogItem(optionsList);
 		
-		addBotItem(optionsList);
+		addBotItems(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -2202,7 +2205,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					break;
 				case R.string.wallet_menu:
 					
-					intent = IntentFactory.getNonMessagingBotIntent("+hikepay+",getApplicationContext());
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET,getApplicationContext());
 					break;
 					
 				case R.string.timeline:
@@ -2322,12 +2325,23 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
-	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems)
+	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
 	{
-		BotInfo info= BotUtils.getBotInfoForBotMsisdn("+hikepay+");
-		if(info!=null)
+		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
-		
+		}
+		else
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(info.getNamespace(), 0, 0, Integer.valueOf(info.getMsisdn())));
+		}
+
+	}
+	
+	private void addBotItems(List<OverFlowMenuItem> overFlowMenuItems)
+	{
+
+		BotUtils.addAllMicroAppMenu(overFlowMenuItems, BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU, getApplicationContext());
 	}
 	
 	private void addEmailLogItem(List<OverFlowMenuItem> overFlowMenuItems)

@@ -362,6 +362,8 @@ public interface DBConstants
 		
 		public static final String BOT_VERSION = "version";
 		
+		public static final String BOT_TRIGGER_POINT = "trigger_point";
+		
 		//Bot Discrovery Table starts here
 		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
 		

@@ -25,6 +25,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private int configuration = Integer.MAX_VALUE;
 
 	private String namespace;
+	
+	private int triggerPointFormenu;
 
 	private String metadata;
 
@@ -48,9 +50,17 @@ public class BotInfo extends ConvInfo implements Cloneable
 	
 	private int updatedVersion;
 	
+	public static final class TriggerEntryPoint
+	{
+		public static final int ENTRY_AT_HOME_MENU = 1;
+
+		public static final int ENTRY_AT_CHATTHREAD = 2;
+
+	}
+	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type, config, version, updatedVersion;
+		private int type, config, version, updatedVersion, triggerPointForMenu;
 
 		private String namespace;
 
@@ -64,6 +74,12 @@ public class BotInfo extends ConvInfo implements Cloneable
 		public P setType(int type)
 		{
 			this.type = type;
+			return getSelfObject();
+		}
+		
+		public P setTriggerPoint(int triggerPoint)
+		{
+			this.triggerPointForMenu = triggerPoint;
 			return getSelfObject();
 		}
 
@@ -84,7 +100,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.type = type;
 			return getSelfObject();
 		}
-
+		
 		public P setConfigData(String configData)
 		{
 			this.configData = configData;
@@ -180,6 +196,16 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.namespace = namespace;
 	}
 
+	public int getTriggerPointFormenu()
+	{
+		return triggerPointFormenu;
+	}
+
+	public void setTriggerPointFormenu(int triggerPointFormenu)
+	{
+		this.triggerPointFormenu = triggerPointFormenu;
+	}
+
 	public String getNotifData()
 	{
 		return notifData == null ? "{}" : notifData;
@@ -251,6 +277,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
 		this.namespace = builder.namespace;
+		this.triggerPointFormenu = builder.triggerPointForMenu;
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
 		this.setOnHike(true);
