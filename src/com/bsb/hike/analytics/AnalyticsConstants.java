@@ -477,7 +477,15 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
-	
+
+	public static final class AutoApkEvents
+	{
+		public static final String RECEIVED_INITIAL_PING = "atapk_chk1";
+
+		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
+
+		public static String SERVER_RESPONSE_HTTP = "atapk_cnf";
+	}
 	
 	public static final class StickyCallerEvents
 	{
