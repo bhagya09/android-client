@@ -2138,7 +2138,7 @@ public class StickerManager
 	{
 		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
 
-		if (TextUtils.isEmpty(emoticonsSent))
+		if (TextUtils.isEmpty(emoticonsSent) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, true))
 		{
 			return;
 		}
@@ -2177,7 +2177,7 @@ public class StickerManager
 
 	public void logEmoticonUsageAnalytics(final String emoticon)
 	{
-		if (TextUtils.isEmpty(emoticon))
+		if (TextUtils.isEmpty(emoticon) || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, true))
 		{
 			return;
 		}

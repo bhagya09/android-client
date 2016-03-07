@@ -3900,4 +3900,6 @@ public class HikeConstants
 	public static final String SINGLE_STICKER= "sst";
 
 	public static final String STICKER_PACK = "spc";
+
+    public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 }

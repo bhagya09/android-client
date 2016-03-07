@@ -3081,6 +3081,12 @@ public class MqttMessagesManager
 			
 			StickerManager.getInstance().addNewCategoryInPallete(stickerCategory);
 		}
+		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
+		{
+			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+		}
+
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
