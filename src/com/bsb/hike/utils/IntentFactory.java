@@ -2,6 +2,7 @@ package com.bsb.hike.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,14 +41,15 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -59,6 +61,7 @@ import com.bsb.hike.ui.ConnectedAppsActivity;
 import com.bsb.hike.ui.CreateNewGroupOrBroadcastActivity;
 import com.bsb.hike.ui.FileSelectActivity;
 import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.GallerySelectionViewer;
 import com.bsb.hike.ui.HikeAuthActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HikeDirectHelpPageActivity;
@@ -73,6 +76,7 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.ui.PinHistoryActivity;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
@@ -85,22 +89,6 @@ import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
-
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.provider.ContactsContract.Contacts;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 public class IntentFactory
 {
@@ -798,7 +786,7 @@ public class IntentFactory
 	public static Intent getForwardImageIntent(Context context, File argFile)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
-		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.setAction(Intent.ACTION_SEND);
 		intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(argFile));
 		intent.setType("image");
 		return intent;
@@ -814,6 +802,23 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery)
+	{
+		return getImageSelectionIntent(argContext,argSelectedImages,fromDeviceGallery,false);
+	}
+
+	/*
+	TODO: Fix input params
+	 */
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture)
+	{
+		Intent multiIntent = new Intent(argContext,GallerySelectionViewer.class);
+		multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList(argSelectedImages));
+		multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, fromDeviceGallery);
+		multiIntent.putExtra(GallerySelectionViewer.FROM_CAMERA_CAPTURE, fromCameraCapture);
+		return multiIntent;
+	}
+
 	public static Intent getHikeGalleryPickerIntent(Context context, int flags,String outputDestination)
 	{
 		
@@ -823,6 +828,7 @@ public class IntentFactory
 		boolean editSelectedImage = (flags & GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE)!=0;
 		boolean compressEdited = (flags & GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE)!=0;
 		boolean forProfileUpdate = (flags & GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE)!=0;
+		boolean cropDPImage = (flags & GalleryActivity.GALLERY_CROP_FOR_DP_IMAGE)!=0;
 		boolean cropImage = (flags & GalleryActivity.GALLERY_CROP_IMAGE)!=0;
 		
 		Intent intent = new Intent(context, GalleryActivity.class);
@@ -835,13 +841,18 @@ public class IntentFactory
 		
 		if(editSelectedImage && Utils.isPhotosEditEnabled())
 		{
-			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropImage?null:outputDestination, forProfileUpdate));
+			destIntents.add(IntentFactory.getPictureEditorActivityIntent(context, null, compressEdited, cropDPImage?null:outputDestination, forProfileUpdate));
 		}
 		
 		if(cropImage)
 		{
+			CropCompression compression = new CropCompression().maxWidth(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN).maxHeight(HikeConstants.HikePhotos.MAX_IMAGE_DIMEN).quality(80);
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression,true,false));
+		}
+		else if(cropDPImage)
+		{
 			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression));
+			destIntents.add(IntentFactory.getCropActivityIntent(context, null, outputDestination, compression,false,true));
 		}
 		
 		if(destIntents.size()>0)
@@ -849,6 +860,52 @@ public class IntentFactory
 			b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
 		}
 		
+		intent.putExtras(b);
+		return intent;
+	}
+
+	public static Intent getProfilePicUpdateIntent(Context context, int galleryFlags)
+	{
+
+		boolean allowMultiSelect = (galleryFlags & GalleryActivity.GALLERY_ALLOW_MULTISELECT) != 0;
+		boolean categorizeByFolders = (galleryFlags & GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS) != 0;
+		boolean enableCameraPick = (galleryFlags & GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM) != 0;
+
+		Intent intent = new Intent(context, GalleryActivity.class);
+		Bundle b = new Bundle();
+		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
+		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
+
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
+
+		destIntents.add(new Intent(context, ProfilePicActivity.class));
+
+		b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+
+		intent.putExtras(b);
+		return intent;
+	}
+
+	public static Intent getImageChooserIntent(Context context, int galleryFlags,String destFile, CropCompression cropCompression, boolean fixAspectRatio)
+	{
+
+		boolean allowMultiSelect = (galleryFlags & GalleryActivity.GALLERY_ALLOW_MULTISELECT) != 0;
+		boolean categorizeByFolders = (galleryFlags & GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS) != 0;
+		boolean enableCameraPick = (galleryFlags & GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM) != 0;
+
+		Intent intent = new Intent(context, GalleryActivity.class);
+		Bundle b = new Bundle();
+		b.putBoolean(GalleryActivity.DISABLE_MULTI_SELECT_KEY, !allowMultiSelect);
+		b.putBoolean(GalleryActivity.FOLDERS_REQUIRED_KEY, categorizeByFolders);
+		b.putBoolean(GalleryActivity.ENABLE_CAMERA_PICK, enableCameraPick);
+
+		ArrayList<Intent> destIntents = new ArrayList<Intent>();
+
+		destIntents.add(getCropActivityIntent(context,null,destFile,cropCompression,true,fixAspectRatio));
+
+		b.putParcelableArrayList(HikeBaseActivity.DESTINATION_INTENT, destIntents);
+
 		intent.putExtras(b);
 		return intent;
 	}
@@ -1062,6 +1119,44 @@ public class IntentFactory
 		return intent;
 	}
 
+    /*
+     * This method is used for fetching an intent object meant to forward some text to hike chats.
+     */
+	public static Intent getForwardIntentForPlainText(Context context, String text ,String analyticsExtra)
+	{
+		String myMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getString(HikeMessengerApp.MSISDN_SETTING, null);
+		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		if (!TextUtils.isEmpty(analyticsExtra))
+		{
+			intent.putExtra(AnalyticsConstants.ANALYTICS_EXTRA, analyticsExtra);
+		}
+		JSONArray multipleMsgArray = new JSONArray();
+		JSONObject multiMsgFwdObject = new JSONObject();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE, convMessage.getMessage());
+			multipleMsgArray.put(multiMsgFwdObject);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
+
+		return intent;
+	}
+    /*
+     * This method to used for fetching an intent object to share text to hike or other apps.
+     */
+	public static Intent getShareIntentForPlainText(String text){
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.putExtra(Intent.EXTRA_TEXT, text);
+		intent.setType("text/plain");
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		return intent;
+	}
 	public static Intent getComposeChatIntent(Activity context)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
@@ -1224,11 +1319,13 @@ public class IntentFactory
 		startShareImageIntent(mimeType, imagePath, null);
 	}
 	
-	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression)
+	public static Intent getCropActivityIntent(Context argActivity, String argPath, String argDestPath, CropCompression argCropCompression,boolean allowEditing,boolean fixAspectRatio)
 	{
 		Intent cropIntent = new Intent(argActivity, HikeCropActivity.class);
 		cropIntent.putExtra(HikeCropActivity.CROPPED_IMAGE_PATH, argDestPath);
 		cropIntent.putExtra(HikeCropActivity.SOURCE_IMAGE_PATH, argPath);
+		cropIntent.putExtra(HikeCropActivity.ALLOW_EDITING,allowEditing);
+		cropIntent.putExtra(HikeCropActivity.FIXED_ASPECT_RATIO,fixAspectRatio);
 		
 		//https://code.google.com/p/android/issues/detail?id=6822
 		Bundle cropCompBundle = new Bundle();
@@ -1305,7 +1402,7 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static Intent getPostStatusUpdateIntent(Activity argActivity, String argImagePath)
+	public static Intent getPostStatusUpdateIntent(Activity argActivity, String text, String argImagePath, boolean compressImage)
 	{
 		Intent intent = new Intent(argActivity, StatusUpdate.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1313,7 +1410,14 @@ public class IntentFactory
 		if (!TextUtils.isEmpty(argImagePath))
 		{
 			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
+			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
 		}
+
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
+		}
+
 		return intent;
 	}
 
@@ -1405,6 +1509,40 @@ public class IntentFactory
 			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
 		}
 		return intent;
+	}
+
+	public static String getTextFromActionSendIntent(Intent presentIntent)
+	{
+		String msg = null;
+
+		if(presentIntent == null)
+		{
+			return msg;
+		}
+
+		if (presentIntent.hasExtra(Intent.EXTRA_TEXT) || presentIntent.hasExtra(HikeConstants.Extras.MSG))
+		{
+			msg = presentIntent.getStringExtra(presentIntent.hasExtra(HikeConstants.Extras.MSG) ? HikeConstants.Extras.MSG : Intent.EXTRA_TEXT);
+			if (msg == null)
+			{
+				Bundle extraText = presentIntent.getExtras();
+				if (extraText.get(Intent.EXTRA_TEXT) != null)
+				{
+					msg = extraText.get(Intent.EXTRA_TEXT).toString();
+				}
+			}
+
+			if (msg != null && presentIntent.hasExtra(Intent.EXTRA_SUBJECT))
+			{
+				String subject = presentIntent.getStringExtra(Intent.EXTRA_SUBJECT).toString();
+				if (!TextUtils.isEmpty(subject))
+				{
+					msg = subject + "\n" + msg;
+				}
+			}
+
+		}
+		return msg;
 	}
 
 }

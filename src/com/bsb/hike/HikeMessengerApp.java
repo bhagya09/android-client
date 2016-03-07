@@ -589,6 +589,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
+	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
+
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
+
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -754,6 +760,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
+		super.onCreate();
+		_instance = this;
+
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
@@ -771,15 +780,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ACRA.init(this);
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
-
-		super.onCreate();
-
-		_instance = this;
-
-		// We need to set all AppConfig params on the start when _instance have been initialized
-		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
-		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
-		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -974,7 +974,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);

@@ -41,6 +41,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -1662,16 +1663,6 @@ public class MqttMessagesManager
 			int port = data.getInt(HikeConstants.VOIP_RELAY_SERVER_PORT);
 			editor.putInt(HikeConstants.VOIP_RELAY_SERVER_PORT, port);
 		}
-		if (data.has(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS))
-		{
-			int apl = data.getInt(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS);
-			editor.putInt(HikeConstants.VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS, apl);
-		}
-		if (data.has(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION))
-		{
-			int scd = data.getInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION);
-			editor.putInt(HikeConstants.VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION, scd);
-		}
 		if (data.has(HikeConstants.VOIP_AEC_ENABLED))
 		{
 			boolean aecEnabled = data.getBoolean(HikeConstants.VOIP_AEC_ENABLED);
@@ -1686,11 +1677,6 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED);
 			editor.putBoolean(HikeConstants.VOIP_GROUP_CALL_ENABLED, enabled);
-		}
-		if (data.has(HikeConstants.VOIP_NETWORK_TEST_ENABLED))
-		{
-			boolean enabled = data.getBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED);
-			editor.putBoolean(HikeConstants.VOIP_NETWORK_TEST_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.VOIP_AEC_CPU_NR))
 		{
@@ -1894,16 +1880,8 @@ public class MqttMessagesManager
 			boolean doNotify = data.optBoolean(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
 			if(doNotify)
 			{
-				JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
-				String sentData = PlatformUtils.trimFilePath(mArray).toString();
-				long contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
-				JSONObject json = new JSONObject();
-				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
-				json.putOpt(AnalyticsConstants.MICRO_APP_INFO, sentData);
-				json.putOpt(AnalyticsConstants.FILE_SIZE, contentFolderLength);
-				HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+				PlatformUtils.platformDiskConsumptionAnalytics(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS);
 			}
-				
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.DELETE_MULTIPLE_BOTS))
 		{
@@ -2551,13 +2529,13 @@ public class MqttMessagesManager
 		{
 			Utils.setSharedPrefValue(context, HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, data.optBoolean(HikeConstants.ENABLE_KNOWN_NUMBER_CARD_PREF, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREECALL_BUTTON))
+		if (data.has(StickyCaller.SHOW_FREEMESSAGE))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL_BUTTON, data.optBoolean(StickyCaller.SHOW_FREECALL_BUTTON, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE, true));
 		}
-		if (data.has(StickyCaller.SHOW_FREEMESSAGE_BUTTON))
+		if (data.has(StickyCaller.SHOW_FREECALL))
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREEMESSAGE_BUTTON, data.optBoolean(StickyCaller.SHOW_FREEMESSAGE_BUTTON, true));
+			HikeSharedPreferenceUtil.getInstance().saveData(StickyCaller.SHOW_FREECALL, data.optBoolean(StickyCaller.SHOW_FREECALL, true));
 		}
 		if(data.has(StickyCaller.SHOW_SMS_CARD_PREF))
 		{
@@ -2791,6 +2769,33 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+		if (data.has(HikeConstants.ENABLE_AB_SYNC_CHANGE))
+		{
+			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_CHANGE, enableABSyncChange);
+		}
+
+		if (data.has(HikeConstants.ENABLE_AB_SYNC_DEBUGING))
+		{
+			boolean enableABSyncDebug = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_DEBUGING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_DEBUGING, enableABSyncDebug);
+			if(!HikeMessengerApp.syncingContacts)
+			{
+				if(Utils.isUserOnline(this.context))
+				{
+					Intent contactSyncIntent = new Intent(HikeService.MQTT_CONTACT_SYNC_ACTION);
+					contactSyncIntent.putExtra(HikeConstants.Extras.MANUAL_SYNC, true);
+					this.context.sendBroadcast(contactSyncIntent);
+				}
+			}
+		}
+
+		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
+		{
+			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2815,7 +2820,19 @@ public class MqttMessagesManager
 		if (data.optBoolean(HikeConstants.POST_AB))
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
-			List<ContactInfo> contactinfos = ContactManager.getInstance().getContacts(this.context);
+			List<ContactInfo> contactinfos = null;
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			{
+				contactinfos = ContactManager.getInstance().getContacts(this.context);
+			}
+			else
+			{
+				contactinfos = ContactManager.getInstance().getContactsOld(this.context);
+			}
+			if(contactinfos == null)
+			{
+				return;
+			}
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{

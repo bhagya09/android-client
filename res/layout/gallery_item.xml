@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content">
 
     <com.bsb.hike.ui.utils.SquareRecyclingImageView
         android:id="@+id/album_image"
@@ -10,18 +10,13 @@
         android:background="@color/dialog_header_bg"
         android:scaleType="centerCrop" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignBottom="@id/album_image"
         android:background="@color/gallery_camera_tile_bg"
-        android:layout_alignLeft="@id/album_image"
-        android:layout_alignRight="@id/album_image"
-        android:layout_alignTop="@id/album_image"
         android:gravity="center"
-        android:visibility="gone" >
-    </RelativeLayout>
+        android:visibility="gone"></LinearLayout>
 
     <RelativeLayout
         android:id="@+id/vid_time_layout"
@@ -33,7 +28,7 @@
         android:layout_marginLeft="3dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/play_media"
@@ -61,11 +56,11 @@
         android:layout_width="match_parent"
         android:layout_height="25dp"
         android:layout_alignLeft="@id/album_image"
-        android:layout_alignRight="@id/album_image"
         android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/album_image"
         android:background="#CD000000"
         android:gravity="center_vertical"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/album_title"
