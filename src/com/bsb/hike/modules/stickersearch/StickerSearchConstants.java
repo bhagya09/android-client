@@ -126,6 +126,8 @@ public class StickerSearchConstants
 
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT = 3;
 
+	public static final float MAXIMUM_FESTIVE_SCORE = 0.50f;
+
 	// ====================================================Constants used for calculating score]]
 
 	// Regular expressions=====================================================================[[
@@ -203,4 +205,20 @@ public class StickerSearchConstants
 
 	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
 	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
+
+	public static final String KEY_EVENT_NAMES = "names";
+
+	public static final String KEY_EVENT_RANGE_TIME = "ran_ts";
+
+	public static final String KEY_EVENT_RANGE_DAY = "ran_day";
+
+	public static final String KEY_EVENT_RANK = "rank";
+
+	public static final String KEY_EVENT_RANGE_START = "s";
+
+	public static final String KEY_EVENT_RANGE_END = "e";
+	
+	public static final int MAX_RANK_DURING_EVENT = 1000;
+
+	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60L; // 24 hours in seconds
 }
