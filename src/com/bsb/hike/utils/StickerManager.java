@@ -423,9 +423,9 @@ public class StickerManager
 			removedSet.add(removedCategoryId);
 			StickerSearchManager.getInstance().removeDeletedStickerTags(removedSet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
 		}
-	        else
-	        {
-	        	removeTagForDeletedStickers(removedSet);
+		else
+		{
+			removeTagForDeletedStickers(removedSet);
 		}
 	}
 

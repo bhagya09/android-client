@@ -85,6 +85,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	public interface ItemButtonClickListener
 	{
 		void onDownloadClicked(StickerCategory stickerCategory);
+
+		void onDelete(StickerCategory stickerCategory);
 	}
 
 	/**
@@ -429,6 +431,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		mListMapping = new int[stickerCategories.size()];
 		initialiseMapping(mListMapping, stickerCategories);				//reinitialising mapping
 		this.notifyDataSetChanged();
+		sendDeleteClicked(category);
 	}
 
 	public void onStickerPackHide(View listItem, StickerCategory category)
@@ -501,6 +504,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		if(clickListener != null)
 		{
 			clickListener.onDownloadClicked(stickerCategory);
+		}
+	}
+
+	private void sendDeleteClicked(StickerCategory stickerCategory)
+	{
+		if(clickListener != null)
+		{
+			clickListener.onDelete(stickerCategory);
 		}
 	}
 
