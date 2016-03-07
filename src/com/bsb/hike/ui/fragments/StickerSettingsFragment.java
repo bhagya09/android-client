@@ -605,16 +605,23 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					}
 				});
 			}
-			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED) || intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
 			{
-				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
-				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
-
-				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				if(mAdapter == null)
 				{
 					return ;
 				}
 
+				mAdapter.notifyDataSetChanged();
+			}
+			else if(intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			{
+				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
+				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
+				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				{
+					return ;
+				}
 				checkAndSetAllDone(categoryId);
 				mAdapter.notifyDataSetChanged();
 			}
@@ -663,7 +670,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		{
 			View parent = getView();
 			View updateAll = parent.findViewById(R.id.update_all_ll);
-			updateAll.setClickable(false);
+			updateAll.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					getActivity().finish();
+				}
+			});
 			TextView updateText = (TextView) parent.findViewById(R.id.update_text);
 			updateText.setText(R.string.all_done);
 			updateAll.setVisibility(View.VISIBLE);
