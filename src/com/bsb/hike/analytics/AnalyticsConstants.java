@@ -660,6 +660,35 @@ public class AnalyticsConstants
 
 	public static final String DATABASE_ERROR = "db_error";
 
+	public static final class InterceptEvents
+	{
+		public static final String INTERCEPTS = "intrcpt";
+
+		public static final String INTERCPET_NOTIF_EVENT = "incNtf";
+
+		public static final String INTERCEPT_ACTION = "incActn";
+
+		public static final String INTERCEPT_SCREENSHOT = "incScrn";
+
+		public static final String INTERCEPT_IMAGE = "incImg";
+
+		public static final String INTERCEPT_VIDEO = "incVid";
+
+		public static final String INTERCEPT_NOTIF_CREATED = "incNtfCr";
+
+		public static final String INTERCEPT_SHARE_CLICKED = "incShrClk";
+
+		public static final String INTERCEPT_SET_DP_CLICKED = "incDPClk";
+
+		public static final String INTERCEPT_IMAGE_CLICKED = "incImgClk";
+
+		public static final String INTERCEPT_SETTING_TURNED_ON = "incStgOn";
+
+		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
+
+		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+	}
+
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
 
     public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
