@@ -421,7 +421,7 @@ public class StickerManager
 		if(forceRemoveCategory)
 		{
 			removedSet.add(removedCategoryId);
-			StickerSearchManager.getInstance().removeDeletedStickerTags(removedCategorySet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
+			StickerSearchManager.getInstance().removeDeletedStickerTags(removedSet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
 		}
 	        else
 	        {
