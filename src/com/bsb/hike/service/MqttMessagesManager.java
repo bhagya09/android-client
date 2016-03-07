@@ -528,7 +528,7 @@ public class MqttMessagesManager
 			setting = metadata.optInt(HikeConstants.GROUP_SETTING);
 		}
 		if(setting>-1 ||role>-1){
-			this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(),setting,role, new ContentValues());
+			this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), setting, role, new ContentValues());
 			Logger.d(getClass().getSimpleName(), "GCJ Message - GS setting change");
 		}
 	}
@@ -683,34 +683,26 @@ public class MqttMessagesManager
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
-		{
+				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>() {
 
-			@Override
-			public void onComplete(PlatformContentModel content)
-			{
-				saveMessage(convMessage);
-			}
+					@Override
+					public void onComplete(PlatformContentModel content) {
+						saveMessage(convMessage);
+					}
 
-			@Override
-			public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
-			{
-				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-				{
-					//do nothing
-					return;
-				}
-				else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-				{
-					Logger.d(HikePlatformConstants.TAG, "microapp already exists");
-				}
-				else
-				{
-					saveMessage(convMessage);
-					HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
-				}
-			}
-		});
+					@Override
+					public void onEventOccured(int uniqueId, PlatformContent.EventCode event) {
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED) {
+							//do nothing
+							return;
+						} else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED) {
+							Logger.d(HikePlatformConstants.TAG, "microapp already exists");
+						} else {
+							saveMessage(convMessage);
+							HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
+						}
+					}
+				});
 
 		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
 		if (!downloader.isMicroAppExist())
@@ -1058,7 +1050,7 @@ public class MqttMessagesManager
         if (!OneToNConversationUtils.isOneToNConversation(id))
 		{
 			Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerIds(serverIdsArrayList, id);
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. "+ map);
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. " + map);
 			if (map != null && !map.isEmpty())
 			{
 				for (String chatMsisdn : map.keySet())
@@ -2672,7 +2664,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0 : 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
@@ -2708,6 +2700,11 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
 		}
 
+		if(data.has(HikeConstants.CRASH_REPORTING_TOOL))
+		{
+			String crashRepT=data.optString(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CRASH_REPORTING_TOOL,crashRepT);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

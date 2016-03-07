@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -76,6 +77,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.fabric.sdk.android.Fabric;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -747,12 +750,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+
 
 		super.onCreate();
-		Fabric.with(this, new Crashlytics());
+
 
 		_instance = this;
 
@@ -943,6 +944,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
+	private void initCrashReportingTool()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		{
+			Logger.d("HikeMessangerApp","Initializing Crashlytics");
+			Fabric.with(this, new Crashlytics());
+			logUser();
+		}
+		else
+		{
+			Logger.d("HikeMessangerApp","Initializing ACRA");
+			ACRA.init(this);
+			CustomReportSender customReportSender = new CustomReportSender();
+			ErrorReporter.getInstance().setReportSender(customReportSender);
+		}
+	}
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1001,7 +1018,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
-		logUser();
+		initCrashReportingTool();
 	}
 
 	private void logUser() {
