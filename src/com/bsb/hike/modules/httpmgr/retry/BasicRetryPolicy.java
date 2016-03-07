@@ -31,10 +31,10 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 public class BasicRetryPolicy
 {
 	/** The default number of retry attempts. */
-	private static final int DEFAULT_RETRY_COUNT = 1;
+	public static final int DEFAULT_RETRY_COUNT = 1;
 
 	/** The default delay before retry a request (in ms). */
-	private static final int DEFAULT_RETRY_DELAY = 2000;
+	public static final int DEFAULT_RETRY_DELAY = 2000;
 
 	/** The max retry delay value (2 min) which should not be exceeded in retry process (in ms) */
 	public static final int MAX_RETRY_DELAY = 2 * 60 * 1000;

@@ -1,5 +1,29 @@
 package com.bsb.hike;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -565,7 +589,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
+	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
 
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
+
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -732,6 +760,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
+		super.onCreate();
+		_instance = this;
+
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		Utils.enableNetworkListner(this);
@@ -750,15 +781,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ACRA.init(this);
 		CustomReportSender customReportSender = new CustomReportSender();
 		ErrorReporter.getInstance().setReportSender(customReportSender);
-
-		super.onCreate();
-
-		_instance = this;
-
-		// We need to set all AppConfig params on the start when _instance have been initialized
-		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
-		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
-		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -939,6 +961,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
+		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
@@ -952,7 +975,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);

@@ -1,19 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -28,6 +14,11 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
@@ -72,7 +63,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -89,6 +79,9 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.OriginType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.BotConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -98,12 +91,7 @@ import com.bsb.hike.models.MessageMetadata.NudgeAnimationType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.Conversation.BotConversation;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -117,6 +105,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -128,7 +117,22 @@ import com.bsb.hike.view.CustomFontButton;
 import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
+import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -236,6 +240,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private static class ImageViewHolder extends FTViewHolder
 	{
+
+		public TextView caption;
 	}
 
 	private static class FileViewHolder extends FTViewHolder
@@ -347,6 +353,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
+
+	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -921,10 +929,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.image.setVisibility(View.GONE);
 				stickerHolder.image.setImageDrawable(null);
 
-				SingleStickerDownloadTask singleStickerDownloadTask = new SingleStickerDownloadTask(stickerId, categoryId, convMessage);
-				singleStickerDownloadTask.execute();
-
-
+				StickerManager.getInstance().initialiseSingleStickerDownloadTask(stickerId,categoryId, convMessage);
 			}
 			displayMessageIndicator(convMessage, stickerHolder.broadcastIndicator, false);
 			setTimeNStatus(position, stickerHolder, true, stickerHolder.placeHolder);
@@ -995,7 +1000,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, R.anim.valetines_nudge_anim));
+					int animId = chatTheme.getAnimationId();
+					if(animId != -1)
+					{
+						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
+					}
 				}
 			}
 			setTimeNStatus(position, nudgeHolder, true, nudgeHolder.nudge);
@@ -1383,6 +1392,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
 						imageHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1421,6 +1431,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1512,6 +1523,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setTag(convMessage);
 				imageHolder.fileThumb.setOnClickListener(this);
 				imageHolder.fileThumb.setOnLongClickListener(this);
+
+				// Set caption
+				if (TextUtils.isEmpty(convMessage.getMetadata().getCaption()))
+				{
+					imageHolder.caption.setText(null);
+					imageHolder.caption.setVisibility(View.GONE);
+				}
+				else
+				{
+					imageHolder.caption.setVisibility(View.VISIBLE);
+					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
+					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
+				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
 			{
@@ -2696,6 +2721,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
+	
+	private void setAvatar(String msisdn, String name, ImageView imageView)
+	{
+		iconLoader.loadImage(msisdn, imageView, false, true, false, name);
+	}
 
 	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
 	{
@@ -2784,7 +2814,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			detailHolder.avatarImage.setVisibility(View.VISIBLE);
-			setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+
+			String name = null;
+			if (conversation instanceof OneToNConversation)
+			{
+				name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+			}
+
+			if (name != null)
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), name, detailHolder.avatarImage);
+			}
+			else
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+			}
+
 			detailHolder.avatarContainer.setVisibility(View.VISIBLE);
 		}
 		else if (detailHolder.avatarContainer != null)
@@ -3696,8 +3741,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (hikeFile.exactFilePathFileExists())
 			{
 				ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
-				hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
-						.getGroupParticipantMsisdn()));
+				HikeSharedFile sharedFile = new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
+						.getGroupParticipantMsisdn());
+				if(!TextUtils.isEmpty(hikeFile.getCaption()))
+				{
+					sharedFile.setCaption(hikeFile.getCaption());
+				}
+				hsf.add(sharedFile);
 				if(mActivity!=null && mActivity instanceof ChatThreadActivity){
 					((ChatThreadActivity)mActivity).hideKeyboard();
 				}
@@ -3912,7 +3962,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		PLAYING, PAUSED, STOPPED
 	};
 
-	private class VoiceMessagePlayer
+	private class VoiceMessagePlayer implements SensorEventListener
 	{
 		String fileKey;
 
@@ -3928,9 +3978,33 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		VoiceMessagePlayerState playerState;
 
+		private SensorManager sensorManager;
+
+		private Sensor proximitySensor;
+
+		private boolean proximitySensorExists;
+
+		private AudioManager audioManager;
+
+		private float proximitySensorMaxRange;
+
+		private int initialAudioMode;
+
+
 		public VoiceMessagePlayer()
 		{
 			handler = new Handler();
+			audioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
+			initialAudioMode = audioManager.getMode();
+			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
+			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+
+			if (proximitySensor == null) {
+				proximitySensorExists = false;
+			} else {
+				proximitySensorExists = true;
+				proximitySensorMaxRange = proximitySensor.getMaximumRange();
+			}
 		}
 
 		public void playMessage(HikeFile hikeFile)
@@ -3942,6 +4016,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			try
 			{
+				audioManager.setMode(AudioManager.STREAM_MUSIC);
 				mediaPlayer = new MediaPlayer();
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
@@ -3958,6 +4033,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 				});
 				handler.post(updateTimer);
+
+				if (proximitySensorExists)
+					sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -3984,6 +4062,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.pause();
 			setTimer();
 			setFileBtnResource();
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
 		}
 
 		public void resumePlayer()
@@ -3997,6 +4077,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.start();
 			handler.post(updateTimer);
 			setFileBtnResource();
+
+			if (proximitySensorExists)
+				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 
 		public void resetPlayer()
@@ -4017,6 +4100,27 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			fileBtn = null;
 			durationTxt = null;
 			durationProgress = null;
+
+			if (proximitySensorExists)
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			audioManager.setMode(initialAudioMode);
+		}
+
+		@Override
+		public void onSensorChanged(SensorEvent sensorEvent) {
+			float distance = sensorEvent.values[0];
+			if (distance != proximitySensorMaxRange) {
+				Logger.d(VoIPConstants.TAG, "Phone is near.");
+				audioManager.setSpeakerphoneOn(false);
+			} else {
+				Logger.d(VoIPConstants.TAG, "Phone is far.");
+				audioManager.setSpeakerphoneOn(true);
+			}
+		}
+
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int i) {
+			// Do nothing
 		}
 
 		public String getFileKey()
@@ -4109,6 +4213,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				Logger.w(getClass().getSimpleName(), e);
 			}
 		}
+
 	}
 
 	public void resetPlayerIfRunning()
@@ -4326,6 +4431,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int last = mListView.getLastVisiblePosition();
 		for (int i = start, j = last; i <= j; i++)
 		{
+			// adding a defensive check here ACRA crash IOB it suggests we are accessing i=convMessages.size()
+			if(i>=convMessages.size())
+			{
+				continue;
+			}
 			Object object = mListView.getItemAtPosition(i);
 			if (object instanceof ConvMessage)
 			{

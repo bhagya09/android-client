@@ -115,6 +115,9 @@ public class StickerSearchConstants
 
 	public static final float DEFAULT_FREQUENCY_VALUE = 0.00f;
 
+	public static final int MAXIMUM_ACCEPTED_SPECTRUM_SCORING_SIZE = 3; // this value is based on average length of tag words, but this doesn't guarantee to give correct results in
+																		// 100% cases.
+
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_TRENDING = 0;
 
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_LOCAL = 1;
@@ -122,6 +125,8 @@ public class StickerSearchConstants
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_GLOBAL = 2;
 
 	public static final int FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT = 3;
+
+	public static final float MAXIMUM_FESTIVE_SCORE = 0.50f;
 
 	// ====================================================Constants used for calculating score]]
 
@@ -192,4 +197,28 @@ public class StickerSearchConstants
 
 	// Threshold number of stickers left, below which sticker recommendation will be turned on by default
 	public static final int THRESHOLD_NUM_STICKERS = 50;
+
+	// Constants used for removing tags for given stickers/ stickers excluded in currently available stickers=================[[
+	public static final int REMOVAL_BY_CATEGORY_DELETED = 0;
+
+	public static final int REMOVAL_BY_STICKER_DELETED = 1;
+
+	public static final int REMOVAL_BY_EXCLUSION_IN_EXISTING_STCIKERS = 2;
+	// =================Constants used for removing tags for given stickers/ stickers excluded in currently available stickers]]
+
+	public static final String KEY_EVENT_NAMES = "names";
+
+	public static final String KEY_EVENT_RANGE_TIME = "ran_ts";
+
+	public static final String KEY_EVENT_RANGE_DAY = "ran_day";
+
+	public static final String KEY_EVENT_RANK = "rank";
+
+	public static final String KEY_EVENT_RANGE_START = "s";
+
+	public static final String KEY_EVENT_RANGE_END = "e";
+	
+	public static final int MAX_RANK_DURING_EVENT = 1000;
+
+	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60L; // 24 hours in seconds
 }

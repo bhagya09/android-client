@@ -1,14 +1,5 @@
 package com.bsb.hike.notifications;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,28 +21,23 @@ import android.support.v4.app.TaskStackBuilder;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.Protip;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -59,15 +45,14 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.*;
 
 public class HikeNotification
 {
@@ -448,6 +433,12 @@ public class HikeNotification
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
 
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
+
+		if (BotUtils.isBot(msisdn))
+		{
+			notificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF);
+		}
+
 		if (contactInfo != null)
 		{
 			if (contactInfo.getName() != null)

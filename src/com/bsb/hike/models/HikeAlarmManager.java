@@ -79,9 +79,11 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
+	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
 
-	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4576;
+	public static final int REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER = 4577;
 
+	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -294,7 +296,6 @@ public class HikeAlarmManager
 		break;
 		
 		case HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP:
-			HikeSharedPreferenceUtil.getInstance(HikeConstants.CALLER_SHARED_PREF).getPref().edit().clear().commit();
 			AccountBackupRestore.getInstance(context).backup();
 			AccountBackupRestore.getInstance(context).scheduleNextAutoBackup();
 			break;
@@ -322,7 +323,12 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
 				FTApkManager.alarmForUpdate();
 				break;
-			
+		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
+			ChatHeadUtils.syncFromClientToServer();
+			break;
+		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
+			ChatHeadUtils.syncAllCallerBlockedContacts();
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -397,6 +403,12 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
 				FTApkManager.alarmForUpdate();
 				break;
+		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
+			processTasks(intent, context);
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

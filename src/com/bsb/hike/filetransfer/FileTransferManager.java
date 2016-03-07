@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,6 +43,8 @@ import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -52,6 +55,7 @@ import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -259,6 +263,10 @@ public class FileTransferManager extends BroadcastReceiver
 				FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), task.msgId));
 				String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
 				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS);
+				if(BotUtils.isBot(((ConvMessage) task.userContext).getMsisdn())&& task instanceof DownloadFileTask)
+				{
+					FTAnalyticEvents.platformAnalytics(((ConvMessage) task.userContext).getMsisdn(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileKey(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
+				}
 				deleteLogFile(task.msgId, hikefile.getFile());
 			}
 			if (task instanceof DownloadFileTask)
@@ -976,4 +984,7 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		return this.ftHostURIs;
 	}
+
+
+
 }

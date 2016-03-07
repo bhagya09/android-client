@@ -1,23 +1,6 @@
 package com.bsb.hike.ui.fragments;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.animation.ObjectAnimator;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -82,6 +65,7 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -90,20 +74,18 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.EmptyConversationContactItem;
-import com.bsb.hike.models.EmptyConversationFtueCardItem;
-import com.bsb.hike.models.EmptyConversationItem;
-import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.NUXChatReward;
-import com.bsb.hike.models.NUXTaskDetails;
-import com.bsb.hike.models.NuxSelectFriends;
-import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.ConversationTip.ConversationTipClickedListener;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
+import com.bsb.hike.models.EmptyConversationContactItem;
+import com.bsb.hike.models.EmptyConversationFtueCardItem;
+import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.NUXChatReward;
+import com.bsb.hike.models.NUXTaskDetails;
+import com.bsb.hike.models.NuxSelectFriends;
+import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineConstants.DisconnectFragmentType;
@@ -1337,6 +1319,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_THIS_CONVERSATION, convInfo);
 		}
+		StealthModeManager.getInstance().clearStealthTimeline();
 		StealthModeManager.getInstance().clearStealthMsisdn();
 	}
 
@@ -1472,7 +1455,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				else
 				{
-					optionsList.add(getString(R.string.group_info));
+					if (ContactManager.getInstance().isGroupAlive(conv.getMsisdn()))
+						optionsList.add(getString(R.string.group_info));
+
 				}
 			}
 			if (conv.getLabel() != null)
@@ -1487,7 +1472,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 			if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
 			{
-				optionsList.add(getString(R.string.delete_leave));
+				if(ContactManager.getInstance().isGroupAlive(conv.getMsisdn())){
+					optionsList.add(getString(R.string.leave_group));
+				}else{
+					optionsList.add(getString(R.string.delete_chat));
+				}
 			}
 
 			else if (OneToNConversationUtils.isBroadcastConversation(conv.getMsisdn()))
@@ -1534,13 +1523,22 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
-					HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_CHAT_DIALOG, new HikeDialogListener()
+					int dialogId = HikeDialogFactory.DELETE_CHAT_DIALOG;
+					if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
+					{
+						dialogId = HikeDialogFactory.DELETE_GROUP_CONVERSATION_DIALOG;
+					}
+					HikeDialogFactory.showDialog(getActivity(), dialogId, new HikeDialogListener()
 					{
 
 						@Override
 						public void positiveClicked(HikeDialog hikeDialog)
 						{
 							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
+							if (OneToNConversationUtils.isGroupConversation(conv.getMsisdn()))
+							{
+								deleteGCAnalyticEvent(true);
+							}
 
 							hikeDialog.dismiss();
 
@@ -1556,6 +1554,21 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 							}
 						}
 
+						private void deleteGCAnalyticEvent(boolean confirm)
+						{
+							try
+							{
+								JSONObject metadata = new JSONObject();
+								metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.DELETE_GC_CONVERSATION);
+								metadata.put(HikeConstants.EVENT_CONFIRM, confirm);
+								HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+							}
+							catch (JSONException e)
+							{
+								Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+							}
+						}
+						
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
 						{
@@ -1565,24 +1578,35 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
 							hikeDialog.dismiss();
+							deleteGCAnalyticEvent(false);
 						}
 					}, conv.getLabel());
 
 				}
-				else if (getString(R.string.delete_leave).equals(option))
+				else if (getString(R.string.leave_group).equals(option))
 				{
 					HikeDialogFactory.showDialog(getActivity(), HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
 					{
 
 						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							Utils.logEvent(getActivity(), HikeConstants.LogEvent.DELETE_CONVERSATION);
-							HikeMqttManagerNew.getInstance().sendMessage(conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-							HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, conv);
+						public void positiveClicked(HikeDialog hikeDialog) {
+							HikeMqttManagerNew.getInstance().sendMessage(
+									conv.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE),
+									MqttConstants.MQTT_QOS_ONE);
+
+							if (((CustomAlertDialog) hikeDialog).isChecked()) {
+								HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, conv);
+
+							} else {
+
+								if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(conv.getMsisdn(),
+										false) > 0) {
+									OneToNConversationUtils.saveStatusMesg(conv, getActivity().getApplicationContext());
+								}
+							}
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 							hikeDialog.dismiss();
 						}
-
 						@Override
 						public void neutralClicked(HikeDialog hikeDialog)
 						{
@@ -1592,6 +1616,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						public void negativeClicked(HikeDialog hikeDialog)
 						{
 							hikeDialog.dismiss();
+							OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_HOME);
 						}
 					}, conv.getLabel());
 
@@ -1622,6 +1647,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						}
 					}, conv.getLabel());
 				}
+			
 				else if (getString(R.string.email_conversations).equals(option))
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
@@ -2691,6 +2717,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						}
 					}
 				}
+				if (!isAdded()) {
+					return;
+				}
 				getActivity().runOnUiThread(new Runnable()
 				{
 					@Override
@@ -3012,6 +3041,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
+					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
+					convInfo.setMute(botinfo.isMute());
 					if (convInfo != null)
 					{
 						View parentView = getParenViewForConversation(convInfo);
@@ -3043,6 +3074,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						@Override
 						public void run()
 						{
+							/**
+							 * Fix for PlayStore crash for illegal state exception on getListView()
+							 */
+							if (getView() == null || getView().findViewById(android.R.id.list) == null)
+							{
+								return;
+							}
+							/**
+							 * Fix ends here.
+							 */
 							View parentView = getListView().getChildAt(
 									displayedConversations.indexOf(convInfo) - getListView().getFirstVisiblePosition() + getOffsetForListHeader());
 
