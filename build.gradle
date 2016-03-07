@@ -96,9 +96,9 @@ android {
             transitive = true;
         }
 
-        compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.2@aar') {
-            transitive = true;
-        }
+//        compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.2@aar') {
+//            transitive = true;
+//        }
     }
 
     sourceSets {

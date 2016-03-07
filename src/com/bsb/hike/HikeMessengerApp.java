@@ -56,7 +56,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.ndk.CrashlyticsNdk;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 
@@ -680,7 +679,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
 
 		super.onCreate();
-		Fabric.with(this, new Crashlytics(), new CrashlyticsNdk());
+		Fabric.with(this, new Crashlytics());
 
 		_instance = this;
 
