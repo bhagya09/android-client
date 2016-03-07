@@ -4971,6 +4971,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		initShareablePopup();
 		StickerManager.getInstance().showStickerRecommendTurnOnToast();
+		// Update events, if sticker recommendation is running.
 		if (stickerTagWatcher != null)
 		{
 			StickerSearchManager.getInstance().loadStickerEvents();
