@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
@@ -75,6 +76,8 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.imageHttp.HikeImageDownloader;
+import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Birthday;
@@ -89,6 +92,7 @@ import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.ProfileImageLoader;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -218,6 +222,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private boolean restoreInitialized = false;
 
 	private int defAvBgColor;
+
+	private ProfileImageLoader profileImageLoader;
 
 	private class ActivityState
 	{
@@ -867,7 +873,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			enterEditText.addTextChangedListener(nameWatcher);
 			birthdayText = (CustomFontEditText) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
-			
 			if(profilePicCamIcon != null)
 			{
 				profilePicCamIcon.setOnClickListener(new OnClickListener()
@@ -909,11 +914,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		
 		if(mIconView != null)
 		{
-			mIconView.setOnClickListener(new OnClickListener()
-			{			
+			mIconView.setOnClickListener(new OnClickListener() {
 				@Override
-				public void onClick(View v)
-				{
+				public void onClick(View v) {
 					selectNewProfilePicture(SignupActivity.this, false, true);
 				}
 			});
@@ -1091,30 +1094,96 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mActivityState.profileBitmap = savedInstanceState.getParcelable(HikeConstants.Extras.BITMAP);
 		}
 
-		if (mActivityState.profileBitmap == null)
+		if (mActivityState.profileBitmap != null)
 		{
-			Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
-			if (bd == null)
-			{
-				if (TextUtils.isEmpty(ownerName))
-				{
-					bd = HikeBitmapFactory.getDefaultTextAvatar(msisdn, -1, defAvBgColor);
-				}
-				else
-				{
-					bd = HikeBitmapFactory.getDefaultTextAvatar(ownerName,-1,defAvBgColor);
-				}
-			}
-			mIconView.setImageDrawable(bd);
+			mIconView.setImageBitmap(mActivityState.profileBitmap);
+		}
+		else if (HikeMessengerApp.getLruCache().getIconFromCache(msisdn) != null)
+		{
+			mIconView.setImageDrawable(HikeMessengerApp.getLruCache().getIconFromCache(msisdn));
 		}
 		else
 		{
-			mIconView.setImageBitmap(mActivityState.profileBitmap);
+			fetchProfilePic(msisdn);
 		}
 
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		setupActionBarTitle();
 	}
+
+	private void fetchProfilePic(String msisdn)
+	{
+		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
+		profileImageLoader = new ProfileImageLoader(this, msisdn, mIconView, size, true, true);
+		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
+			@Override
+			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
+				return null;
+			}
+
+			@Override
+			public void onLoadFinished(Loader<Boolean> arg0, Boolean arg1) {
+
+			}
+
+			@Override
+			public void onLoaderReset(Loader<Boolean> arg0) {
+
+			}
+
+			@Override
+			public void startDownloading() {
+				beginImageDownload();
+			}
+		});
+		profileImageLoader.loadProfileImage(getSupportLoaderManager());
+	}
+
+	/*
+	Download image from the server.
+	 */
+	private void beginImageDownload()
+	{
+		String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		String fileName = Utils.getProfileImageFileName(msisdn);
+		HikeImageDownloader mImageDownloader = HikeImageDownloader.newInstance(msisdn, fileName, true, false, null, null, null, true, true);
+		mImageDownloader.setTaskCallbacks(imageWorkerTaskCallback);
+		mImageDownloader.startLoadingTask();
+		// Set Default avatar till the image downloads
+		setDefaultProfileImage(msisdn);
+	}
+
+	private void setDefaultProfileImage(String msisdn)
+	{
+		Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		if (bd == null)
+		{
+			String name = enterEditText.getText() == null? null : enterEditText.getText().toString();
+			bd = HikeBitmapFactory.getDefaultTextAvatar(name,-1,defAvBgColor);
+		}
+		mIconView.setImageDrawable(bd);
+	}
+
+	private HikeImageWorker.TaskCallbacks imageWorkerTaskCallback = new HikeImageWorker.TaskCallbacks() {
+		@Override
+		public void onProgressUpdate(float percent) {}
+
+		@Override
+		public void onCancelled() {}
+
+		@Override
+		public void onFailed() {}
+
+		@Override
+		public void onSuccess(Response result) {
+			if (profileImageLoader != null) {
+				profileImageLoader.loadProfileImage(getSupportLoaderManager());
+			}
+		}
+
+		@Override
+		public void onTaskAlreadyRunning() {}
+	};
 
 	private void prepareLayoutForGender(Bundle savedInstanceState)
 	{
@@ -2200,22 +2269,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		public void afterTextChanged(Editable s)
 		{
-			if (s == null || mActivityState.profileBitmap != null)
+			String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+			if (s == null || mActivityState.profileBitmap != null || HikeMessengerApp.getLruCache().getIconFromCache(msisdn) != null)
 			{
 				return;
 			}
-
-			String newText = s.toString();
-
-			if (newText == null || TextUtils.isEmpty(newText.trim()))
-			{
-				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
-				mIconView.setImageDrawable(drawable);
-				return;
-			}
-
-			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor);
-			mIconView.setImageDrawable(drawable);
+			fetchProfilePic(msisdn);
 		}
 	};
 
