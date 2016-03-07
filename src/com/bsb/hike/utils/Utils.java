@@ -5198,13 +5198,17 @@ public class Utils
 	public static void emoticonClicked(Context context, int emoticonIndex, EditText composeBox)
 	{
 		HikeConversationsDatabase.getInstance().updateRecencyOfEmoticon(emoticonIndex, System.currentTimeMillis());
+
 		// We don't add an emoticon if the compose box is near its maximum
 		// length of characters
 		if (composeBox.length() >= context.getResources().getInteger(R.integer.max_length_message) - 20)
 		{
 			return;
 		}
-		SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        String emoji = SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        StickerManager.getInstance().logEmoticonUsageAnalytics(emoji);
 	}
 
 	public static Animation getNotificationIndicatorAnim()
