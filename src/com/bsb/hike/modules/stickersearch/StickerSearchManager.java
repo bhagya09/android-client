@@ -464,12 +464,6 @@ public class StickerSearchManager
 	{
 		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText, currentText);
 		searchEngine.runOnQueryThread(newMessageSentTask);
-
-		// Update events, if sticker recommendation is running as well as day has changed.
-		if (this.listener != null)
-		{
-			loadStickerEvents();
-		}
 	}
 
 	public void receivedMessage(String prevText, Sticker sticker, String nextText)
