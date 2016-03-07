@@ -54,17 +54,17 @@ public class HikeChatTheme
 		return asset;
 	}
 
-	public String getAssetValue(HikeChatThemeAsset asset)
+	public String getAssetId(HikeChatThemeAsset asset)
 	{
 		if(asset == null)
 			return null;
 
-		return asset.getValue();
+		return asset.getAssetId();
 	}
 
-	public String getAssetValueForType(byte type)
+	public String getAssetIdForType(byte type)
 	{
-		return getAssetValue(getAsset(type));
+		return getAssetId(getAsset(type));
 	}
 
 	public String[] getAssets()
