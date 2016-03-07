@@ -19,6 +19,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -43,7 +45,10 @@ import com.bsb.hike.utils.Utils;
  */
 public class AccountBackupRestore
 {
-	
+
+	private static final String LOGTAG = AccountBackupRestore.class.getSimpleName();
+
+	// TODO - Move this to a stand alone file & simplify.
 	private class PreferenceBackup
 	{
 		public static final String PREFS = "pref";
@@ -148,82 +153,7 @@ public class AccountBackupRestore
 		}
 	}
 	
-	private class UserBackupData
-	{
-		public static final String DATA = "data";
 
-		public static final String TIMESTAMP = "ts";
-
-		public static final String VERSION = "version";
-
-		public static final String MSISDN = "msisdn";
-
-		private int appVersion;
-
-		private String msisdn;
-
-		private long backupTime;
-
-		private JSONObject userDataJson;
-
-		public UserBackupData()
-		{
-		}
-
-		public UserBackupData takeBackup() throws Exception
-		{
-			userDataJson = new JSONObject();
-			int appVersionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
-			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
-			long time = System.currentTimeMillis();
-
-			userDataJson.put(VERSION, appVersionCode).put(MSISDN, msisdn).put(TIMESTAMP, time);
-
-			return this;
-		}
-
-		public String serialize()
-		{
-			return userDataJson.toString();
-		}
-
-		public void restore(String userDataJsonString) throws JSONException
-		{
-			userDataJson = new JSONObject(userDataJsonString);
-			HikeSharedPreferenceUtil prefUtil = HikeSharedPreferenceUtil.getInstance();
-
-			if (userDataJson.has(VERSION))
-			{
-				appVersion = userDataJson.getInt(VERSION);
-			}
-
-			if (userDataJson.has(MSISDN))
-			{
-				msisdn = userDataJson.getString(MSISDN);
-			}
-			if (userDataJson.has(TIMESTAMP))
-			{
-				backupTime = userDataJson.getLong(TIMESTAMP);
-			}
-		}
-
-		public int getAppVersion()
-		{
-			return appVersion;
-		}
-
-		public long getBackupTime()
-		{
-			return backupTime;
-		}
-
-		public File getUserDataFile()
-		{
-			new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
-			return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
-		}
-
-	}
 	
 	public static final String RESTORE_EVENT_KEY = "rstr";
 
@@ -242,6 +172,8 @@ public class AccountBackupRestore
 	public static final String DATABASE_EXT = ".db";
 
 	public static final String BACKUP = "backup";
+
+	public static final String DATA = "data";
 
 	private static final String[] dbNames = { DBConstants.CONVERSATIONS_DATABASE_NAME };
 
@@ -286,7 +218,7 @@ public class AccountBackupRestore
 			scheduleTime += 24 * 60 * 60 * 1000;
 		}
 		HikeAlarmManager.setAlarm(mContext, scheduleTime, HikeAlarmManager.REQUESTCODE_PERIODIC_BACKUP, true);
-		Logger.d(getClass().getSimpleName(), "Scheduled next Auto-Backup for: " + Utils.getFormattedDateTimeFromTimestamp(scheduleTime/1000, mContext.getResources().getConfiguration().locale));
+		Logger.d(LOGTAG, "Scheduled next Auto-Backup for: " + Utils.getFormattedDateTimeFromTimestamp(scheduleTime / 1000, mContext.getResources().getConfiguration().locale));
 	}
 
 	/**
@@ -296,7 +228,7 @@ public class AccountBackupRestore
 	 */
 	public boolean backup()
 	{
-		Long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		boolean result = true;
 		String backupToken = getBackupToken();
 		try
@@ -321,20 +253,39 @@ public class AccountBackupRestore
 			}
 		}
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "Backup " + result + " in " + time / 1000 + "." + time % 1000 + "s");
-		recordLog(BACKUP_EVENT_KEY,result,time);
+		Logger.d(LOGTAG, "Backup " + result + " in " + time / 1000 + "." + time % 1000 + "s");
+		recordLog(BACKUP_EVENT_KEY, result, time);
 		return result;
 	}
 	
 	private void backupDB(String backupToken) throws Exception
 	{
-		Logger.d(getClass().getSimpleName(), "encrypting with key: " + backupToken);
+		Logger.d(LOGTAG, "encrypting with key: " + backupToken);
 		if (TextUtils.isEmpty(backupToken))
 		{
 			throw new Exception("Backup Token is empty");
 		}
+
 		for (String fileName : dbNames)
 		{
+			// Backup only if DB is NOT corrupted.
+			SQLiteDatabase db = null;
+			try {
+				String currentDBPath = mContext.getDatabasePath(fileName).getPath();
+				db = SQLiteDatabase.openDatabase(currentDBPath, null, SQLiteDatabase.OPEN_READONLY);
+				if (!db.isDatabaseIntegrityOk()) {
+					Logger.e(LOGTAG, "Found corrupt database - " + fileName + ". Skipping!");
+					continue;
+				}
+			} catch (SQLiteDatabaseCorruptException e) {
+				Logger.e(LOGTAG, "Found corrupt database - " + fileName + ". Skipping!");
+				continue;
+			} finally {
+				if (db != null) {
+					db.close();
+				}
+			}
+
 			File dbCopy = exportDatabse(fileName);
 			if (dbCopy == null || !dbCopy.exists())
 			{
@@ -359,20 +310,19 @@ public class AccountBackupRestore
 	
 	private void backupUserData() throws Exception
 	{
-		UserBackupData userData = new UserBackupData();
-		String userDataString = userData.takeBackup().serialize();
-		File userDataFile = userData.getUserDataFile();
-		writeToFile(userDataString, userDataFile);
+		BackupMetadata backupMetadata = new BackupMetadata(mContext);
+		String dataString = backupMetadata.toString();
+		File userDataFile = getMetadataFile();
+		writeToFile(dataString, userDataFile);
 	}
 	
-	private UserBackupData getUserBackupData()
-	{
-		UserBackupData userData = new UserBackupData();
+	private BackupMetadata getUserBackupData() {
+		BackupMetadata userData;
 		try
 		{
-			File userDataFile = userData.getUserDataFile();
+			File userDataFile = getMetadataFile();
 			String userDataString = readStringFromFile(userDataFile);
-			userData.restore(userDataString);
+			userData = new BackupMetadata(mContext, userDataString);
 		}
 		catch(Exception e)
 		{
@@ -428,7 +378,7 @@ public class AccountBackupRestore
 	 */
 	public File exportDatabse(String databaseName)
 	{
-		Long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		File dbCopy;
 
 		FileChannel src = null;
@@ -457,7 +407,7 @@ public class AccountBackupRestore
 			closeChannelsAndStreams(src, dst, in, out);
 		}
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "DB Export complete!! in " + time / 1000 + "." + time % 1000 + "s");
+		Logger.d(LOGTAG, "DB Export complete!! in " + time / 1000 + "." + time % 1000 + "s");
 		return dbCopy;
 	}
 
@@ -472,7 +422,7 @@ public class AccountBackupRestore
 		boolean result = true;
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		UserBackupData userBackupData = getUserBackupData();
+		BackupMetadata backupMetadata = getUserBackupData();
 		int appCurrentVersionCode = 0;
 		try
 		{
@@ -482,11 +432,11 @@ public class AccountBackupRestore
 		{
 			e1.printStackTrace();
 		}
-		if (state == null && userBackupData == null)
+		if (state == null && backupMetadata == null)
 		{
 			result = false;
 		}
-		else if (userBackupData != null && appCurrentVersionCode > 0 && appCurrentVersionCode < userBackupData.getAppVersion())
+		else if (backupMetadata != null && appCurrentVersionCode > 0 && appCurrentVersionCode < backupMetadata.getAppVersion())
 		{
 			result = false;
 		}
@@ -499,7 +449,7 @@ public class AccountBackupRestore
 			try
 			{
 				restoreDB(backupToken);
-				if (state == null && userBackupData != null)
+				if (state == null && backupMetadata != null)
 				{
 					restorePrefs(backupToken);
 				}
@@ -517,7 +467,7 @@ public class AccountBackupRestore
 			{
 				state.restorePrefs(mContext);
 			}
-			postRestoreSetup(state,userBackupData);
+			postRestoreSetup(state, backupMetadata);
 		}
 		
 		else
@@ -526,25 +476,25 @@ public class AccountBackupRestore
 		}
 		
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
+		Logger.d(LOGTAG, "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
-		logRestoreDetails(userBackupData);
+		logRestoreDetails(backupMetadata);
 		return result;
 	}
 
 	/**
 	 * Logging the backup and current app details.
 	 * Only for the purpose of debugging.
-	 * @param userBackupData
+	 * @param backupMetadata
 	 */
-	private void logRestoreDetails(UserBackupData userBackupData)
+	private void logRestoreDetails(BackupMetadata backupMetadata)
 	{
-		if (userBackupData != null)
-			Logger.d(getClass().getSimpleName(),"Backup Details: " + userBackupData.serialize());
+		if (backupMetadata != null)
+			Logger.d(LOGTAG,"Backup Details: " + backupMetadata.toString());
 		
 		try
 		{
-			Logger.d(getClass().getSimpleName(),"Current App Deatils: " + (new UserBackupData()).takeBackup().serialize());
+			Logger.d(LOGTAG,"Current App Deatils: " + (new BackupMetadata(mContext)).toString());
 		}
 		catch (Exception e)
 		{
@@ -554,7 +504,7 @@ public class AccountBackupRestore
 
 	private void restoreDB(String backupToken) throws Exception
 	{
-		Logger.d(getClass().getSimpleName(), "decrypting with key: " + backupToken);
+		Logger.d(LOGTAG, "decrypting with key: " + backupToken);
 		if (TextUtils.isEmpty(backupToken))
 		{
 			throw new Exception("Backup Token is empty");
@@ -609,7 +559,7 @@ public class AccountBackupRestore
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			Logger.d(getClass().getSimpleName(), "copy fail");
+			Logger.d(LOGTAG, "copy fail");
 			throw e;
 		}
 		finally
@@ -617,7 +567,7 @@ public class AccountBackupRestore
 			closeChannelsAndStreams(src, dst, in, out);
 		}
 		time = System.currentTimeMillis() - time;
-		Logger.d(getClass().getSimpleName(), "DB import complete!! in " + time / 1000 + "." + time % 1000 + "s");
+		Logger.d(LOGTAG, "DB import complete!! in " + time / 1000 + "." + time % 1000 + "s");
 	}
 	
 	private void recordLog(String eventKey, boolean result, long timeTaken)
@@ -653,13 +603,13 @@ public class AccountBackupRestore
 		return backupToken;
 	}
 
-	private void postRestoreSetup(BackupState state, UserBackupData userBackupData)
+	private void postRestoreSetup(BackupState state, BackupMetadata backupMetadata)
 	{
 		if (state != null && state.getDBVersion() < DBConstants.CONVERSATIONS_DATABASE_VERSION)
 		{
 			HikeConversationsDatabase.getInstance().reinitializeDB();
 		}
-		else if (userBackupData != null)
+		else if (backupMetadata != null)
 		{
 			HikeConversationsDatabase.getInstance().reinitializeDB();
 		}
@@ -725,7 +675,7 @@ public class AccountBackupRestore
 	{
 		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		UserBackupData userData = getUserBackupData();
+		BackupMetadata userData = getUserBackupData();
 		if (userData != null)
 		{
 			backupTime = userData.getBackupTime();
@@ -770,8 +720,7 @@ public class AccountBackupRestore
 		}
 		getBackupStateFile().delete();
 		getPrefBackupFile().delete();
-		UserBackupData userData = new UserBackupData();
-		userData.getUserDataFile().delete();
+		getMetadataFile().delete();
 		deleteTempDBFiles();
 		deleteTempPrefFile();
 	}
@@ -790,7 +739,7 @@ public class AccountBackupRestore
 	private File getCurrentDBFile(String dbName)
 	{
 		File data = Environment.getDataDirectory();
-		String currentDBPath = "//data//" + HIKE_PACKAGE_NAME + "//databases//" + dbName + "";
+		String currentDBPath = "//data//" + HIKE_PACKAGE_NAME + "//databases//" + dbName;
 		File currentDB = new File(data, currentDBPath);
 		return currentDB;
 	}
@@ -866,4 +815,8 @@ public class AccountBackupRestore
 		return prefUpdated;
 	}
 
+	private File getMetadataFile() {
+		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
+		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
+	}
 }
