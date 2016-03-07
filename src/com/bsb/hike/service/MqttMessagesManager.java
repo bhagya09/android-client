@@ -2,7 +2,17 @@ package com.bsb.hike.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
@@ -37,6 +47,8 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.DownloadFileTask;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -49,6 +61,11 @@ import com.bsb.hike.models.Conversation.*;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -70,6 +87,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPConstants;
@@ -1604,6 +1622,57 @@ public class MqttMessagesManager
 		}
 	}
 
+	public void saveAutoApkInstallConfig(JSONObject jsonObj) throws JSONException
+	{
+
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.RECEIVED_INITIAL_PING);
+
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("AUTOAPK", "Invalid json");
+		}
+
+
+		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+		final Editor e = settings.edit();
+
+		String connectionType = data.optString(HikeConstants.CONNECTION_TYPE, "wifi");
+		e.putString(HikeConstants.CONNECTION_TYPE, connectionType);
+
+		final int downloadTime = data.optInt(HikeConstants.DOWNLOAD_TIME, 72);
+		e.putInt(HikeConstants.DOWNLOAD_TIME, downloadTime);
+
+		final int installPromptFreq = data.optInt(HikeConstants.INSTALL_PROMPT_FREQUENCY, 3);
+		e.putInt(HikeConstants.INSTALL_PROMPT_FREQUENCY, installPromptFreq);
+
+
+		final long installPromptInterval = data.optLong(HikeConstants.INSTALL_PROMPT_INTERVAL, 0l);
+		e.putLong(HikeConstants.INSTALL_PROMPT_INTERVAL, installPromptInterval);
+
+		final double apkSizeMultiplier = data.optDouble(HikeConstants.APK_SIZE_MULTIPLIER, 3.0);
+		e.putFloat(HikeConstants.APK_SIZE_MULTIPLIER, (float)apkSizeMultiplier);
+
+		JSONObject tipJson = data.optJSONObject(HikeConstants.INSTALL_PROMPT_METHOD);
+		if(tipJson != null)
+		{
+			e.putString(HikeConstants.AutoApkDownload.NEW_APK_TIP_JSON, tipJson.toString());
+		}
+		else
+		{
+			Logger.d("AUTOAPK","tip json not present");
+		}
+
+		FTApkManager.makeRequest(apkSizeMultiplier);
+
+		e.commit();
+	}
+	
 	private void saveAccountConfig(JSONObject jsonObj) throws JSONException
 	{
 		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
@@ -3901,6 +3970,10 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG.equals(type))
 		{
 			saveAccountConfig(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.AUTO_APK.equals(type))
+		{
+			saveAutoApkInstallConfig(jsonObj);
 		}
 		else if (HikeConstants.MqttMessageTypes.REWARDS.equals(type))
 		{
