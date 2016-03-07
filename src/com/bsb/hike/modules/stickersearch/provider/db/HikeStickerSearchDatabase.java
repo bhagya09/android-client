@@ -1550,7 +1550,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
 		}
-		
+
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
@@ -1798,7 +1798,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
 				: stickerDataSharedPref.getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT,
-						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
+				HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : stickerDataSharedPref.getData(
 				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);
