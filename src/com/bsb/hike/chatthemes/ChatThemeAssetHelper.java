@@ -143,8 +143,8 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 	{
 		if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type))
 		{
-			HikeChatThemeAsset[] downloadedAssets = (HikeChatThemeAsset[]) object;
-			addDownloadedAssets(downloadedAssets);
+			String[] downloadedAssets = (String[]) object;
+			//TODO Add method to write the assets associated to these assetIds into DB
 		}
 	}
 }

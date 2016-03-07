@@ -138,9 +138,8 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		return null;
 	}
 
-	private HikeChatThemeAsset[] parseAssetContent(JSONObject resp)
+	private String[] parseAssetContent(JSONObject resp)
 	{
-		HikeChatThemeAsset[] assets = new HikeChatThemeAsset[mAssetIds.length];
 		try
 		{
 			JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
@@ -162,6 +161,6 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 			e.printStackTrace();
 		}
 
-		return assets;
+		return mAssetIds;
 	}
 }
