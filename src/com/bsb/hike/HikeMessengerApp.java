@@ -107,7 +107,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 {
 	public static enum CurrentState
 	{
-		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG
+		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
@@ -565,6 +565,14 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
 
+    public static final String LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME = "lastEmoticonButtonClickAnalyticsTime";
+
+    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+
+    public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
+
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
 	public static final String LAST_STICKER_TAG_REFRESH_TIME = "lastStickerTagRefreshTime";
@@ -588,6 +596,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String FORBIDDEN_LANGUAGES_SET = "forbiddenLanguagesSet";
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
+
+	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
+
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
+
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -759,6 +773,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
+		Utils.enableNetworkListner(this);
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -968,7 +983,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);

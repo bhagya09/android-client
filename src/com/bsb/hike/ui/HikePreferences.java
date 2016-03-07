@@ -43,6 +43,7 @@ import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -166,6 +167,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addSMSCardEnablePref();
 				
 		addStealthPrefListeners();
+        addInterceptsPrefListeners();
 		
 		Preference videoCompressPreference = getPreferenceScreen().findPreference(HikeConstants.COMPRESS_VIDEO_CATEGORY);
 		if(videoCompressPreference != null && android.os.Build.VERSION.SDK_INT < 18)
@@ -375,7 +377,49 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				getPreferenceScreen().removePreference(knownContactEnablePref);
 			}
 		}
-	}
+    }
+
+	private void addInterceptsPrefListeners()
+	{
+		final SwitchPreferenceCompat enableVideoIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT);
+		if (enableVideoIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, false))
+			{
+				enableVideoIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableVideoIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableScreenshotIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT);
+		if (enableScreenshotIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, false))
+			{
+				enableScreenshotIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableScreenshotIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableImageIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT);
+		if (enableImageIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, false))
+			{
+				enableImageIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableImageIntercept);
+			}
+		}
+    }
 	
 	private void addAppLanguagePreference()
 	{
@@ -1464,6 +1508,48 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 				} catch (JSONException e) {
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			} else if(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+				InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
 				}
 			} else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);

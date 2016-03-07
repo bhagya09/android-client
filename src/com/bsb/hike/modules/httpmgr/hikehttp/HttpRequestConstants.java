@@ -214,6 +214,11 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
 	
+	public static String latestApkInfoUrl()
+	{
+		return BASE_URL + BASE_V1 + "/latest-apk-info";
+	}
+	
 	public static String getStickerTagsUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER + "/tagdata";
