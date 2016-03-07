@@ -173,20 +173,27 @@ public class SmileyParser
 	 * @param whichEmoticon
 	 *            : Integer value of the emoticon which is to be shown.
 	 */
-	public void addSmiley(EditText composeBox, int whichEmoticon)
+	public String addSmiley(EditText composeBox, int whichEmoticon)
 	{
 		int cursorStart = composeBox.getSelectionStart();
 		Editable text = composeBox.getText();
+
+        String emoji = null;
+
 		if (whichEmoticon <= mSmileyTexts.length - 1)
 		{
-			text.insert(cursorStart, mSmileyTexts[whichEmoticon]);
+			emoji = mSmileyTexts[whichEmoticon];
 		}
 		else
 		{
 			whichEmoticon = whichEmoticon - mSmileyTexts.length;
-			text.insert(cursorStart, EmoticonConstants.mEmojiUnicodes[whichEmoticon]);
+			emoji = EmoticonConstants.mEmojiUnicodes[whichEmoticon];
 		}
-	}
+
+        text.insert(cursorStart,emoji);
+
+        return emoji;
+    }
 
 	/**
 	 * Used for adding smileys to the compose box while the user is typing.

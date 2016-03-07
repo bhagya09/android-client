@@ -2241,6 +2241,10 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String EMOTICON_SENT = "eSnt";
+
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
@@ -3172,6 +3176,8 @@ public class HikeConstants
 
 	public static final String DELIMETER = ":";
 
+    public static final String SEPARATOR_ = "_";
+
 	public static final String HIKE_EXTRAS_NAME = "hike_extras_name";
 
 	public static final String HIKE_EXTRAS_URL = "hike_extras_url";
@@ -3961,4 +3967,6 @@ public class HikeConstants
 	public static final String SINGLE_STICKER= "sst";
 
 	public static final String STICKER_PACK = "spc";
+
+    public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 }
