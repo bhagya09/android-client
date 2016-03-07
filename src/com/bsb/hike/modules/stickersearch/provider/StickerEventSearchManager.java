@@ -46,6 +46,10 @@ public enum StickerEventSearchManager
 		return (sLatestEventLoadingDay != currentDay);
 	}
 
+	/**
+	 * Load all events into the cache (events, which are likely to occur in near future === now cast events). This method will update such events to cache only, if at least 24
+	 * hours have been passed from last loading or application is just started (first loading).
+	 */
 	public synchronized void loadNowCastEvents()
 	{
 		Logger.i(TAG, "loadNowCastEvents()");

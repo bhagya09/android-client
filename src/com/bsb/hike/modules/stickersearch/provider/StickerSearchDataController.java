@@ -659,9 +659,9 @@ public enum StickerSearchDataController
 		}
 	}
 
-	public void loadEvents()
+	public void loadStickerEvents()
 	{
-		Logger.i(TAG, "loadEvents()");
+		Logger.i(TAG, "loadStickerEvents()");
 
 		if (Utils.isHoneycombOrHigher())
 		{

@@ -31,7 +31,7 @@ import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
-import com.bsb.hike.modules.stickersearch.tasks.StickerEventLoadTask;
+import com.bsb.hike.modules.stickersearch.tasks.StickerEventsLoadTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
@@ -403,10 +403,14 @@ public class StickerSearchManager
 		downloadStickerTags(firstTime, state, null, languagesSet);
 	}
 
+	/**
+	 * This will trigger events loading. This will run this task on background thread. All caller should call this method instead of directly calling
+	 * StickerSearchDataController:loadStickerEvents() to avoid loading on UI thread.
+	 */
 	public void loadStickerEvents()
 	{
-		StickerEventLoadTask stickerEventLoadTask = new StickerEventLoadTask();
-		searchEngine.runOnQueryThread(stickerEventLoadTask);
+		StickerEventsLoadTask stickerEventsLoadTask = new StickerEventsLoadTask();
+		searchEngine.runOnQueryThread(stickerEventsLoadTask);
 	}
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
