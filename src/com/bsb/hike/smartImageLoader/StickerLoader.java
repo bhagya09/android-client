@@ -59,6 +59,7 @@ public class StickerLoader extends ImageWorker
 		else
 		{
 			bitmap = loadStickerBitmap(path);
+            checkAndDownloadLargeSticker(bitmap, sticker);
 			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
 			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
 		}
@@ -78,11 +79,6 @@ public class StickerLoader extends ImageWorker
 	public void loadSticker(Sticker sticker, StickerConstants.StickerType stickerType, ImageView imageView, boolean isFlinging, boolean runOnUiThread)
 	{
 		String path = StickerManager.getInstance().getStickerCacheKey(sticker, stickerType);
-
-		if (stickerType != StickerConstants.StickerType.MINI)
-		{
-			checkAndDownloadLargeSticker(sticker);
-		}
 
 		loadImage(path, imageView, isFlinging, runOnUiThread);
 	}
@@ -150,14 +146,13 @@ public class StickerLoader extends ImageWorker
 		}
 	}
 
-	private void checkAndDownloadLargeSticker(Sticker sticker)
-	{
-		if (downloadLargeStickerIfNotFound && !sticker.isStickerFileAvailable())
-		{
-			StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
-		}
-	}
-
+    private void checkAndDownloadLargeSticker(Bitmap bitmap, Sticker sticker)
+    {
+        if(bitmap == null && downloadLargeStickerIfNotFound)
+        {
+            StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
+        }
+    }
 	public void setStretchMini(boolean stretchMini)
 	{
 		this.stretchMini = stretchMini;
