@@ -3413,29 +3413,7 @@ public class MqttMessagesManager
 				}
 				else
 				{
-					boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY, false);
-					String version = data.optString(HikeConstants.UPDATE_VERSION, "");
-					String updateURL = data.optString(HikeConstants.Extras.URL, "");
-					int update = Utils.isUpdateRequired(version, context) ? ((isCritical) ? HikeConstants.CRITICAL_UPDATE
-							: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
-					if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
-					{
-						Editor editor = settings.edit();
-						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical);
-						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical);
-						Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for update tip:"+version);
-						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
-						
-						if (!TextUtils.isEmpty(updateURL))
-							editor.putString(HikeConstants.Extras.URL, updateURL);
-						editor.commit();
-						
-					}
+					performUpdateTask(data, false);
 				}
 			}
 			
@@ -3500,6 +3478,40 @@ public class MqttMessagesManager
 		{
 			// updatePopUpData
 			updateAtomicPopUpData(jsonObj);
+		}
+	}
+
+	public void performUpdateTask(JSONObject data, boolean isApkDownloaded)
+	{
+		boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY, false);
+		String version = data.optString(HikeConstants.UPDATE_VERSION, isApkDownloaded ?
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "") : "");
+
+		int update = Utils.isUpdateRequired(version, context) ? ((isCritical || isApkDownloaded) ? HikeConstants.CRITICAL_UPDATE
+				: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
+		if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
+		{
+			Editor editor = settings.edit();
+			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical || isApkDownloaded);
+			editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical && !isApkDownloaded);
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for update tip:"+version);
+			editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+			editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
+			editor.putBoolean(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK, isApkDownloaded);
+
+			String updateURL = data.optString(HikeConstants.Extras.URL, "");
+			if (!TextUtils.isEmpty(updateURL) && !isApkDownloaded)
+				editor.putString(HikeConstants.Extras.URL, updateURL);
+			editor.commit();
+			if(isApkDownloaded)
+			{
+				this.pubSub.publish(HikePubSub.UPDATE_PUSH, update);
+			}
+
 		}
 	}
 	

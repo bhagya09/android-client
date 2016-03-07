@@ -324,6 +324,22 @@ public class HikeNotification
 	 */
 	public void notifyUpdatePush(int updateType, String packageName, String message, boolean isApplicationsPushUpdate)
 	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK, false))
+		{
+			String tipHeaderText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_HEADER, context.getResources().getString(R.string.update_tip_header_text));
+			String tipMsgTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_TIP_BODY, context.getResources().getString(R.string.update_tip_body_text));
+			final int smallIconId = returnSmallIcon();
+
+			NotificationCompat.Builder mBuilder = getNotificationBuilder(tipHeaderText, tipMsgTxt, message, null, smallIconId, false);
+
+			Intent intent = Utils.getHomeActivityIntent(context);
+			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			mBuilder.setContentIntent(PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT));
+			notifyNotification(APP_UPDATE_AVAILABLE_ID, mBuilder);
+
+		}
+		else
+		{
 		message = (TextUtils.isEmpty(message)) ? context.getString(R.string.update_app) : message;
 		final int smallIconId = returnSmallIcon();
 
@@ -340,6 +356,7 @@ public class HikeNotification
 			notifyNotification(notificationId, mBuilder);
 		}
 		// TODO:: we should reset the gaming download message from preferences
+		}
 	}
 	
 	public void notifyPersistentUpdate(String notifTitle, String message, String actionText, String laterText, Uri url, Long alarmInterval)
