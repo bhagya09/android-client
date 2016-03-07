@@ -167,8 +167,11 @@ public class CustomWebView extends WebView
 			}
 			isDestroyed = true;
 		}
-		mHandler.removeCallbacks(postJSRunnable);
-        mHandler = null;
+		if (mHandler != null && postJSRunnable != null)
+		{
+			mHandler.removeCallbacks(postJSRunnable);
+		}
+		mHandler = null;
 		postJSRunnable = null;
 		stopLoading();
 		removeAllViews();
