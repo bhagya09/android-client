@@ -394,28 +394,74 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		});
 	}
 
-	private void initStickerCategoriesList() {
+	//Initialising stickerCategories list to have only packs with updates available
+	private void getUpdateCategoriesList()
+	{
 		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+
+		Iterator it = stickerCategories.iterator();
+		StickerCategory category;
+
+		while (it.hasNext()) {
+			category = (StickerCategory) it.next();
+			if (!category.shouldShowUpdateAvailable())
+			{
+				it.remove();
+			}
+
+		}
+	}
+
+	//Initialising stickerCategories list to have only visible packs for reordering
+	private void getReorderCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+
+		Iterator it = stickerCategories.iterator();
+		StickerCategory category;
+
+		while (it.hasNext()) {
+			category = (StickerCategory) it.next();
+			if (!category.isVisible())
+			{
+				it.remove();
+			}
+
+		}
+	}
+
+	//Initialising stickerCategories list to have all packs except default packs for Deleting
+	private void getDeleteCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+	}
+
+	//Initialising stickerCategories list to have all packs except default packs for Hiding
+	private void getHideCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+	}
+
+	private void initStickerCategoriesList() {
 
 		switch(stickerSettingsTask)
 		{
 			case STICKER_UPDATE_TASK:
-				Iterator it = stickerCategories.iterator();
-				StickerCategory category;
+				getUpdateCategoriesList();
+				break;
 
-				while (it.hasNext()) {
-					category = (StickerCategory) it.next();
-					if (!category.shouldShowUpdateAvailable())
-					{
-						it.remove();
-					}
-
-				}
+			case STICKER_REORDER_TASK:
+				getReorderCategoriesList();
 				break;
 
 			case STICKER_DELETE_TASK:
+				getDeleteCategoriesList();
+				break;
+
 			case STICKER_HIDE_TASK:
-				stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+				getHideCategoriesList();
 				break;
 		}
 	}
@@ -609,23 +655,38 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 
 					@Override
 					public void run() {
-						mAdapter.notifyDataSetChanged();
+						//Not refreshing sticker packs list in case of Reorder and Hide packs
+						if ((stickerSettingsTask != StickerSettingsTask.STICKER_REORDER_TASK) && (stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK))
+						{
+							mAdapter.notifyDataSetChanged();
+						}
 						checkAndSetAllDone(categoryId);
 					}
 				});
 			}
-			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED) || intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
 			{
-				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
-				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
-
-				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				if(mAdapter == null)
 				{
 					return ;
 				}
 
-				checkAndSetAllDone(categoryId);
 				mAdapter.notifyDataSetChanged();
+			}
+			else if(intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			{
+				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
+				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
+				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				{
+					return ;
+				}
+				checkAndSetAllDone(categoryId);
+				//Not refreshing sticker packs list in case of Reorder and Hide packs
+				if ((stickerSettingsTask != StickerSettingsTask.STICKER_REORDER_TASK) && (stickerSettingsTask != StickerSettingsTask.STICKER_HIDE_TASK))
+				{
+					mAdapter.notifyDataSetChanged();
+				}
 			}
 			else if(intent.getAction().equals(StickerManager.STICKERS_FAILED))
 			{
@@ -672,7 +733,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		{
 			View parent = getView();
 			View updateAll = parent.findViewById(R.id.update_all_ll);
-			updateAll.setClickable(false);
+			updateAll.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					getActivity().finish();
+				}
+			});
 			TextView updateText = (TextView) parent.findViewById(R.id.update_text);
 			updateText.setText(R.string.all_done);
 			updateAll.setVisibility(View.VISIBLE);
