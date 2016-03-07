@@ -88,11 +88,13 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
 		numCalls += ((totalStickers % getStickerDownloadSize() == 0) ? 0 : 1);
 
-		int call = 0, offset = 0;
+		int call = 0, offset = -1;
 		requestTokenList = new ArrayList<>(numCalls);
 
 		while(!isCancelled && (call < numCalls))
 		{
+			call ++;
+			offset ++;
 			RequestListener requestListener = new RequestListener();
 			RequestToken requestToken = multiStickerImageDownloadRequest(getRequestId(offset), new RequestInterceptor(offset, requestListener), requestListener);
 			requestListener.setRequestToken(requestToken);
@@ -102,9 +104,6 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				continue;
 			}
 			requestToken.execute();
-
-			call ++;
-			offset ++;
 		}
 	}
 
@@ -355,6 +354,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			b.putBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE, true);
 		}
 		StickerManager.getInstance().stickersDownloadFailed(b);
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.STICKER_PACK);
 	}
 
 	@Override

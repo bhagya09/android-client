@@ -593,6 +593,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
+	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
+
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
+
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -763,6 +769,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
+		Utils.enableNetworkListner(this);
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -972,7 +979,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);

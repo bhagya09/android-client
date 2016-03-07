@@ -20,13 +20,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
+import com.bsb.hike.smartImageLoader.ImageWorker.ImageLoaderListener;
 import com.bsb.hike.smartImageLoader.SharedFileImageLoader;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.view.TouchImageView;
 
-public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, SuccessfulImageLoadingListener
+public class SharedMediaAdapter extends PagerAdapter implements OnClickListener, ImageLoaderListener
 {
 	private LayoutInflater layoutInflater;
 
@@ -47,7 +47,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		this.sharedMediaLoader = new SharedFileImageLoader(context, size_image,false);
 		sharedMediaLoader.setDefaultDrawable(context.getResources().getDrawable(R.drawable.ic_file_thumbnail_missing));
 		sharedMediaLoader.setCachingEnabled(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, true));
-		sharedMediaLoader.setSuccessfulImageLoadingListener(this);
+		sharedMediaLoader.setImageLoaderListener(this);
 		this.sharedMediaItems = sharedMediaItems;
 		this.photoViewerFragment = photoViewerFragment;
 		this.mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
@@ -194,7 +194,7 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 	 * then image is shown to user, so there is no loader seen or there is black screen shown
 	 */
 	@Override
-	public void onSuccessfulImageLoaded(final ImageView imageView)
+	public void onImageWorkSuccess(final ImageView imageView)
 	{
 		if(photoViewerFragment.isAdded())
 		{
@@ -203,7 +203,13 @@ public class SharedMediaAdapter extends PagerAdapter implements OnClickListener,
 		}
 		
 	}
-	
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+		// Do nothing
+	}
+
 	public static class RemoveLoaderRunnable implements Runnable
 	{
 		private ImageView imageView;

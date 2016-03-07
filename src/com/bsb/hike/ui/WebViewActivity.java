@@ -29,13 +29,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.*;
+import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.ViewStub.OnInflateListener;
-import android.webkit.*;
-import android.widget.*;
+import android.webkit.GeolocationPermissions;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.PopupWindow.OnDismissListener;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -68,7 +85,13 @@ import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.TagEditText.Tag;
 
 public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements OnInflateListener, TagOnClickListener, OverflowItemClickListener,
@@ -483,7 +506,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onDestroy()
 	{
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-		if(mCustomTabActivityHelper != null && HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false)&&Utils.isJellybeanOrHigher()) {
+		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(this);
 		}
 		msisdn=null;
@@ -709,7 +732,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 		}
 		avatar.setScaleType(ScaleType.FIT_CENTER);
 		avatar.setImageDrawable(drawable);
@@ -1669,7 +1692,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		PendingIntent sharePendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_SHARE, IntentFactory.getShareIntentForPlainText(url), PendingIntent.FLAG_UPDATE_CURRENT);
 		intentBuilder.addMenuItem(getResources().getString(R.string.share), sharePendingIntent);
 
-		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent forwardPendingIntent = PendingIntent.getActivity(this, HikePlatformConstants.CHROME_TABS_PENDING_INTENT_FORWARD, IntentFactory.getForwardIntentForPlainText(this, url,AnalyticsConstants.CHROME_CUSTOM_TABS), PendingIntent.FLAG_UPDATE_CURRENT);
 		intentBuilder.addMenuItem(getResources().getString(R.string.forward), forwardPendingIntent);
 
 		CustomTabsIntent intent = intentBuilder.build();

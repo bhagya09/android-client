@@ -36,7 +36,7 @@ public class PlatformContent
 					@Override
 					public String toString()
 					{
-						return "low_con";
+						return "low_con"+errorCode;
 					}
 				},
 
@@ -89,21 +89,34 @@ public class PlatformContent
 					}
 				},
 		INCOMPLETE_ZIP_DOWNLOAD
-		    {
-			        @Override
-			        public String toString()
-			{
-				return "incomplete_zip_download";
-			}
-		    },
+		        {
+                    @Override
+                    public String toString()
+                    {
+                        return "incomplete_zip_download";
+                    }
+		        },
 		EMPTY_URL
-				{
-					@Override
-					public String toString()
-					{
-						return "empty_url";
-					}
-				}
+		        {
+                    @Override
+                    public String toString()
+                    {
+                        return "empty_url";
+                    }
+		        },
+		ZERO_BYTE_ZIP_DOWNLOAD
+		        {
+                    @Override
+                    public String toString()
+                    {
+                        return "zero_byte_zip_download";
+                    }
+		        };
+		int errorCode;
+		public void setErrorCode(int errorCode)
+		{
+			this.errorCode = errorCode;
+		}
 	}
 
 	/**

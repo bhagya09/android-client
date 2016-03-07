@@ -1,10 +1,12 @@
 package com.bsb.hike.timeline.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -47,6 +49,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -76,6 +79,10 @@ import android.widget.Toast;
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener,
 		AdaptxtKeyboordVisibilityStatusListner
 {
+
+	private BitmapFactory.Options options;
+
+	private String mPrefillCaption;
 
 	private class ActivityTask
 	{
@@ -179,6 +186,10 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private boolean isForeground;
 
 	public static final String STATUS_UPDATE_IMAGE_PATH = "SUIMGPTH";
+
+	public static final String STATUS_UPDATE_TEXT = "SUTEXT";
+
+	public static final String ENABLE_COMPRESSION = "SUCOMPRESS";
 	
 	StatusUpdateTaskFinishedRunnable suUploadTaskFinishRunnable;
 
@@ -187,6 +198,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	private View addItemsLayout;
 
 	private String mInputIntentData;
+
+	private boolean enableCompression = true;
 
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
@@ -219,6 +232,14 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		initVarRef();
+
+		options = new BitmapFactory.Options();
+
+		options.inScaled = false;
+
+		options.inDither = true;
+
+		options.inPreferQualityOverSpeed = true;
 		
 		initEmoticonPicker();
 		
@@ -251,6 +272,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				addPhoto(mImagePath);
 			}
+
+			mPrefillCaption = savedInstanceState.getString(STATUS_UPDATE_TEXT);
 		}
 		else
 		{
@@ -265,7 +288,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		String selfMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 
-		avatar.setImageDrawable(HikeMessengerApp.getLruCache().getDefaultAvatar(selfMsisdn, false));
+		avatar.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(selfMsisdn));
 
 		mIconImageLoader.loadImage(selfMsisdn, avatar, false, true, false);
 
@@ -273,7 +296,17 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (!TextUtils.isEmpty(mImagePath) && !mActivityTask.imageDeleted)
 		{
-			Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+			Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+					(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.ARGB_8888, options, true);
+			bmp = Utils.getRotatedBitmap(mImagePath,bmp);
+
+			if(bmp == null)
+			{
+				bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+						(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
+				bmp = Utils.getRotatedBitmap(mImagePath, bmp);
+			}
+
 			if(bmp == null)
 			{
 				removePhoto(null);
@@ -290,6 +323,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		else
 		{
 			removePhoto(null);
+		}
+
+		if(!TextUtils.isEmpty(mPrefillCaption))
+		{
+			statusTxt.setText(mPrefillCaption);
+			mPrefillCaption = null;
 		}
 
 		setMood(mActivityTask.moodId, mActivityTask.moodIndex);
@@ -342,6 +381,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		outState.putBoolean(IS_IMAGE_DELETED, mActivityTask.imageDeleted);
 		outState.putString(STATUS_UPDATE_IMAGE_PATH, mImagePath);
+		outState.putString(STATUS_UPDATE_TEXT, mPrefillCaption);
 		outState.putInt(SELECTED_MOOD_ID, mActivityTask.moodId);
 		outState.putInt(SELECTED_MOOD_INDEX, mActivityTask.moodIndex);
 		super.onSaveInstanceState(outState);
@@ -374,7 +414,9 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 		mImagePath = intent.getStringExtra(STATUS_UPDATE_IMAGE_PATH);
+		mPrefillCaption = intent.getStringExtra(STATUS_UPDATE_TEXT);
 		mInputIntentData = intent.toUri(Intent.URI_INTENT_SCHEME);
+		enableCompression = intent.getBooleanExtra(ENABLE_COMPRESSION,true);
 	}
 
 	/**
@@ -550,7 +592,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		
 		Utils.hideSoftKeyboard(getApplicationContext(), getWindow().getDecorView());
 		
-		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
+		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_CROP_IMAGE | GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE
 				| GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
 		Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(StatusUpdate.this, galleryFlags, Utils.getNewImagePostFilePath());
@@ -575,7 +617,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	public void addPhoto(String imagePath)
 	{
 		mImagePath = imagePath;
-		Bitmap bmp = HikeBitmapFactory.decodeFile(mImagePath);
+		Bitmap bmp = HikeBitmapFactory.decodeSampledBitmapFromFile(mImagePath, (HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN),
+				(HikeConstants.HikePhotos.MODIFIED_MAX_IMAGE_DIMEN), Bitmap.Config.RGB_565, options, true);
 		if (bmp == null)
 		{
 			removePhoto(null);
@@ -712,20 +755,11 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			status = statusTxt.getText().toString();
 		}
 
-		try
-		{
-			mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath);
-			if(!HikeMessengerApp.isSystemKeyboard())
+		mActivityTask.task = new StatusUpdateTask(status, mActivityTask.moodId, mImagePath, null,enableCompression);
+		if (!HikeMessengerApp.isSystemKeyboard())
 			addLanguageAnalytics();
-		}
-		catch (IOException e)
-		{
-			Toast.makeText(getApplicationContext(), R.string.could_not_post_pic, Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-			return;
-		}
-		
-		if(mActivityTask.task != null)
+
+		if (mActivityTask.task != null)
 		{
 			mActivityTask.task.execute();
 
@@ -1164,6 +1198,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void imageParsed(String imagePath)
 				{
+					enableCompression = false;
 					addPhoto(imagePath);
 				}
 
