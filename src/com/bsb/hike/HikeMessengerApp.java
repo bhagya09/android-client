@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -58,6 +57,15 @@ import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,9 +77,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.fabric.sdk.android.Fabric;
-
 //https://github.com/ACRA/acra/wiki/Backends
+@ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
+		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
 public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.Listener
 {
 	public static enum CurrentState
@@ -653,6 +661,68 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 	}
 
+	/*
+	 * Implement a Custom report sender to add our own custom msisdn and token for the username and password
+	 */
+	private class CustomReportSender implements ReportSender
+	{
+		@Override
+		public void send(Context arg0, CrashReportData crashReportData) throws ReportSenderException
+		{
+			try
+			{
+				final String reportUrl = AccountUtils.base + "/logs/android";
+				Logger.d(HikeMessengerApp.this.getClass().getSimpleName(), "Connect to " + reportUrl.toString());
+
+				final String login = msisdn;
+				final String password = token;
+
+				if (login != null && password != null)
+				{
+					final HttpRequest request = new HttpRequest();
+					request.setLogin(login);
+					request.setPassword(password);
+					String paramsAsString = getParamsAsString(crashReportData);
+					Logger.e(HikeMessengerApp.this.getClass().getSimpleName(), "Params: " + paramsAsString);
+					request.send(arg0, new URL(reportUrl), HttpSender.Method.POST, paramsAsString, HttpSender.Type.FORM);
+				}
+			}
+			catch (IOException e)
+			{
+				Logger.e(HikeMessengerApp.this.getClass().getSimpleName(), "IOException", e);
+			}
+		}
+
+	}
+
+	/**
+	 * Converts a Map of parameters into a URL encoded Sting.
+	 * 
+	 * @param parameters
+	 *            Map of parameters to convert.
+	 * @return URL encoded String representing the parameters.
+	 * @throws UnsupportedEncodingException
+	 *             if one of the parameters couldn't be converted to UTF-8.
+	 */
+	private String getParamsAsString(Map<?, ?> parameters) throws UnsupportedEncodingException
+	{
+
+		final StringBuilder dataBfr = new StringBuilder();
+		for (final Object key : parameters.keySet())
+		{
+			if (dataBfr.length() != 0)
+			{
+				dataBfr.append('&');
+			}
+			final Object preliminaryValue = parameters.get(key);
+			final Object value = (preliminaryValue == null) ? "" : preliminaryValue;
+			dataBfr.append(URLEncoder.encode(key.toString(), "UTF-8"));
+			dataBfr.append('=');
+			dataBfr.append(URLEncoder.encode(value.toString(), "UTF-8"));
+		}
+
+		return dataBfr.toString();
+	}
 
 	@Override
 	public void onTrimMemory(int level)
@@ -677,6 +747,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
+		ACRA.init(this);
+		CustomReportSender customReportSender = new CustomReportSender();
+		ErrorReporter.getInstance().setReportSender(customReportSender);
 
 		super.onCreate();
 		Fabric.with(this, new Crashlytics());
