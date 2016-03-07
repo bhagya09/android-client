@@ -670,7 +670,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		{
 			View parent = getView();
 			View updateAll = parent.findViewById(R.id.update_all_ll);
-			updateAll.setClickable(false);
+			updateAll.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					getActivity().finish();
+				}
+			});
 			TextView updateText = (TextView) parent.findViewById(R.id.update_text);
 			updateText.setText(R.string.all_done);
 			updateAll.setVisibility(View.VISIBLE);
