@@ -7,6 +7,7 @@
 package com.bsb.hike.modules.stickersearch.provider;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -30,19 +31,38 @@ public enum StickerEventSearchManager
 
 	private static ConcurrentHashMap<Long, Event> sCacheForNowCastEvents = new ConcurrentHashMap<Long, Event>();
 
-	private static long sLatestEventLoadingTime;
+	private static long sLatestEventLoadingTime = 0L; // In seconds since start of 1970
+
+	private static int sLatestEventLoadingDay = 0; // Running Day of the week
 
 	public static StickerEventSearchManager getInstance()
 	{
 		return INSTANCE;
 	}
 
+	private boolean idDayChanged()
+	{
+		int currentDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+		return (sLatestEventLoadingDay != currentDay);
+	}
+
+	/**
+	 * Load all events into the cache (events, which are likely to occur in near future === now cast events). This method will update such events to cache only, if at least 24
+	 * hours have been passed from last loading or application is just started (first loading).
+	 */
 	public synchronized void loadNowCastEvents()
 	{
 		Logger.i(TAG, "loadNowCastEvents()");
 
+		/* Following condition-check will be leading the events's loading only once in a day or at the start of application or while adding new events from server */
+		if ((sLatestEventLoadingDay > 0) && !idDayChanged())
+		{
+			return;
+		}
+
 		sCacheForNowCastEvents.clear();
-		sLatestEventLoadingTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()); // System time in seconds
+		sLatestEventLoadingTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+		sLatestEventLoadingDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
 		Map<Long, Event> rawData = HikeStickerSearchDatabase.getInstance().readAllEventsData();
 
 		int eventCount = (rawData == null) ? 0 : rawData.size();
@@ -114,7 +134,8 @@ public enum StickerEventSearchManager
 	public synchronized void clearNowCastEvents()
 	{
 		sCacheForNowCastEvents.clear();
-		sLatestEventLoadingTime = 0;
+		sLatestEventLoadingTime = 0L;
+		sLatestEventLoadingDay = 0;
 	}
 
 	public static class Event
