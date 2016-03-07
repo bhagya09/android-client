@@ -394,28 +394,74 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		});
 	}
 
-	private void initStickerCategoriesList() {
+	//Initialising stickerCategories list to have only packs with updates available
+	private void getUpdateCategoriesList()
+	{
 		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+
+		Iterator it = stickerCategories.iterator();
+		StickerCategory category;
+
+		while (it.hasNext()) {
+			category = (StickerCategory) it.next();
+			if (!category.shouldShowUpdateAvailable())
+			{
+				it.remove();
+			}
+
+		}
+	}
+
+	//Initialising stickerCategories list to have only visible packs for reordering
+	private void getReorderCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+
+		Iterator it = stickerCategories.iterator();
+		StickerCategory category;
+
+		while (it.hasNext()) {
+			category = (StickerCategory) it.next();
+			if (!category.isVisible())
+			{
+				it.remove();
+			}
+
+		}
+	}
+
+	//Initialising stickerCategories list to have all packs except default packs for Deleting
+	private void getDeleteCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+	}
+
+	//Initialising stickerCategories list to have all packs except default packs for Hiding
+	private void getHideCategoriesList()
+	{
+		stickerCategories = StickerManager.getInstance().getMyStickerCategoryList();
+		stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+	}
+
+	private void initStickerCategoriesList() {
 
 		switch(stickerSettingsTask)
 		{
 			case STICKER_UPDATE_TASK:
-				Iterator it = stickerCategories.iterator();
-				StickerCategory category;
+				getUpdateCategoriesList();
+				break;
 
-				while (it.hasNext()) {
-					category = (StickerCategory) it.next();
-					if (!category.shouldShowUpdateAvailable())
-					{
-						it.remove();
-					}
-
-				}
+			case STICKER_REORDER_TASK:
+				getReorderCategoriesList();
 				break;
 
 			case STICKER_DELETE_TASK:
+				getDeleteCategoriesList();
+				break;
+
 			case STICKER_HIDE_TASK:
-				stickerCategories.removeAll(StickerCategory.getDefaultPacksList());
+				getHideCategoriesList();
 				break;
 		}
 	}

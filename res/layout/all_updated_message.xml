@@ -1,61 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/all_updated_message"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="visible">
-
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/all_updated_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="visible">
 
-        <com.bsb.hike.ui.utils.RecyclingImageView
+    <com.bsb.hike.ui.utils.RecyclingImageView
             android:id="@+id/all_updated_image"
+            android:layout_marginTop="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_weight="0"
+            android:layout_gravity="center_horizontal"
             android:scaleType="centerInside"
             android:src="@drawable/sticker_019_allthebest" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/all_packs_updated_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_weight="0"
+            android:layout_marginTop="40dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
+            android:layout_gravity="center_horizontal"
             android:gravity="center"
-            android:layout_gravity="center"
             android:text="@string/all_packs_updated_heading"
             android:textColor="@color/standard_black"
             android:textSize="24sp" />
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/all_packs_updated_subtext"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="11dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
-            android:gravity="center"
-            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center|top"
             android:text="@string/all_packs_updated_info"
             android:textSize="16sp" />
 
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/redirect_to_shop_btn"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:background="#1ECE84"
+        android:layout_weight="0"
+        android:layout_gravity="bottom"
         android:gravity="center">
 
         <com.bsb.hike.view.CustomFontTextView
@@ -69,4 +68,4 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
