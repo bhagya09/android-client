@@ -235,6 +235,10 @@ public class CustomWebView extends WebView
 	@Override
 	public void loadUrl(final String url)
 	{
+		if (mHandler == null)
+		{
+			return;
+		}
 
 		mHandler.post(new Runnable() {
 			@Override
