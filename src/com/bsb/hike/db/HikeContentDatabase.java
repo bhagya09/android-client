@@ -93,7 +93,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[8];
+		String[] createAndIndexes = new String[9];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -140,7 +140,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		// Auth_TABLE
 				String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
 						+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
-						+ TOKEN + " TEXT, "
+						+ TOKEN + " TEXT "
 					 + ")";
 				createAndIndexes[i++]= authTable;
 		// Auth Table ENDS
@@ -231,7 +231,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			//Auth_Table
 			String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
 					+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
-					+ TOKEN + " TEXT, "
+					+ TOKEN + " TEXT "
 				 + ")";
 			queries.add(authTable);
 		}
