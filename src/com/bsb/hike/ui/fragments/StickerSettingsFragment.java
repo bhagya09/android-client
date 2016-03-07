@@ -605,16 +605,23 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					}
 				});
 			}
-			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED) || intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
 			{
-				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
-				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
-
-				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				if(mAdapter == null)
 				{
 					return ;
 				}
 
+				mAdapter.notifyDataSetChanged();
+			}
+			else if(intent.getAction().equals(StickerManager.STICKERS_DOWNLOADED))
+			{
+				Bundle b = intent.getBundleExtra(StickerManager.STICKER_DATA_BUNDLE);
+				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
+				if(mAdapter == null || TextUtils.isEmpty(categoryId))
+				{
+					return ;
+				}
 				checkAndSetAllDone(categoryId);
 				mAdapter.notifyDataSetChanged();
 			}
