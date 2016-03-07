@@ -89,12 +89,6 @@ android {
         black {
             res.srcDirs = ['res-black']
         }
-        debug {
-            assets.srcDirs= ['assets-debug']
-        }
-        release{
-            assets.srcDirs=['assets-release']
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
