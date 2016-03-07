@@ -19,6 +19,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 
@@ -70,13 +71,15 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_START_STICKER_SHARE_SERVICE = 4573;
 	
-	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
+	public static final int REQUEST_CODE_STICKER_RECOMMENDATION = 4574;
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
 	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
 
 	public static final int REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER = 4577;
+
+    public static final int REQUESTCODE_PUSH_HIKE_ANALYTICS = 4578;
 
 	// ******************************************************//
 	
@@ -306,7 +309,7 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			ChatHeadUtils.startOrStopService(false);
 			break;
-		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
+		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION:
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
@@ -320,6 +323,9 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			ChatHeadUtils.syncAllCallerBlockedContacts();
 			break;
+        case HikeAlarmManager.REQUESTCODE_PUSH_HIKE_ANALYTICS:
+            StickerManager.getInstance().sendStickerDailyAnalytics();
+            break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -383,7 +389,7 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ChatHead.SNOOZE, false);
 			ChatHeadUtils.startOrStopService(false);
 			break;
-		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING:	
+		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION:
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
@@ -397,6 +403,9 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			processTasks(intent, context);
 			break;
+        case HikeAlarmManager.REQUESTCODE_PUSH_HIKE_ANALYTICS:
+            StickerManager.getInstance().sendStickerDailyAnalytics();
+            break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

@@ -210,6 +210,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -5961,6 +5962,17 @@ public class Utils
 
 		return calendar.getTimeInMillis();
 	}
+
+    /**
+     *
+     * @return returns launch intent with persistant alarm flags
+     */
+    public static Intent getPersistantAlarmIntent()
+    {
+        Intent intent = new Intent();
+        intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
+        return intent;
+    }
 
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS

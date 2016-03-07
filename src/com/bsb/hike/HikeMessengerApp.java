@@ -49,6 +49,7 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -95,7 +96,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -563,10 +566,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
-
-    public static final String LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME = "lastEmoticonButtonClickAnalyticsTime";
-
     public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
 
     public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
@@ -961,8 +960,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
-	
-		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
+
+        setAnalyticsSendAlarm();
+
 		StickerManager.getInstance().refreshTagData();
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
@@ -1013,7 +1013,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 		
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
@@ -1311,4 +1310,16 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
+
+    private void setAnalyticsSendAlarm()
+    {
+        long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),HikeConstants.DEFAULT_SEND_ANALYTICS_TIME_HOUR, 0, 0, 0);
+
+        if (scheduleTime < System.currentTimeMillis())
+        {
+            scheduleTime += HikeConstants.ONE_DAY_MILLS; // Next day at given time
+        }
+
+        HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_PUSH_HIKE_ANALYTICS, false, Utils.getPersistantAlarmIntent(), true);
+    }
 }

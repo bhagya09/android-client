@@ -499,15 +499,8 @@ public class StickerSearchManager
 			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
 
-		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
-				getRebalancingAlarmIntent(), true);
-	}
-
-	private Intent getRebalancingAlarmIntent()
-	{
-		Intent intent = new Intent();
-		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
-		return intent;
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION, true,
+                Utils.getPersistantAlarmIntent(), true);
 	}
 
 	public void startRebalancing(Intent intent)

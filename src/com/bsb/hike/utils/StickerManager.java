@@ -2058,6 +2058,12 @@ public class StickerManager
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 	}
 
+	public void logStickerButtonPressAnalytics()
+	{
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+	}
+
 	/**
 	 * Send sticker button click analytics one time in day
 	 */
@@ -2068,35 +2074,31 @@ public class StickerManager
 			@Override
 			public void run()
 			{
-				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
 				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-				long currentTime = System.currentTimeMillis();
-
-				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+				if (pressCount <= 0)
 				{
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
-						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+					return;
+				}
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
+					metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
-					}
-					catch (JSONException e)
-					{
-						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-					}
+				}
+				catch (JSONException e)
+				{
+					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 				}
 			}
 		});
 
-    }
+	}
 
-	public void sendEmoticonAnalytics()
+	public void sendEmoticonIconClickAnalytics()
 	{
 
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -2104,36 +2106,37 @@ public class StickerManager
 			@Override
 			public void run()
 			{
-				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, 0L);
 				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-				long currentTime = System.currentTimeMillis();
-
-				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
+				if (pressCount <= 0)
 				{
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
-						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+					return;
+				}
 
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
+					metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-						sendEmoticonUsageAnalytics();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
-					}
-					catch (JSONException e)
-					{
-						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-					}
+				}
+				catch (JSONException e)
+				{
+					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 				}
 			}
 		});
 
 	}
 
+
+	public void logEmoticonButtonPressAnalytics()
+	{
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+	}
 
 
     /**
@@ -2242,6 +2245,15 @@ public class StickerManager
 				}
 			}
 		});
+	}
+
+	public void sendStickerDailyAnalytics()
+	{
+		sendStickerButtonClickAnalytics();
+		sendEmoticonIconClickAnalytics();
+		sendEmoticonUsageAnalytics();
+		sendStickerPackAndOrderListForAnalytics();
+        StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 	}
 
 	/**

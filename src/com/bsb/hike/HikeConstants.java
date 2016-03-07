@@ -3902,4 +3902,6 @@ public class HikeConstants
 	public static final String STICKER_PACK = "spc";
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
 }
