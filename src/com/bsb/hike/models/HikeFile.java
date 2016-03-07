@@ -198,6 +198,17 @@ public class HikeFile
 
 	private int attachmentType = -1;
 
+	public HikeFile(String fileName, String fileTypeString, String fileKey, long fileSize, String downloadUrl)
+	{
+		this.fileName = fileName;
+		this.fileTypeString = fileTypeString;
+		this.fileKey = fileKey;
+		this.fileSize = fileSize;
+		this.downloadURL = downloadUrl;
+		this.hikeFileType = HikeFileType.fromString(fileTypeString, recordingDuration != -1);
+		this.isSent = false;
+	}
+
 	public HikeFile(JSONObject fileJSON, boolean isSent)
 	{
 		this();
@@ -355,6 +366,10 @@ public class HikeFile
 			if(attachmentType != -1)
 			{
 				fileJSON.putOpt(FTAnalyticEvents.FT_ATTACHEMENT_TYPE, attachmentType);
+			}
+			if(downloadURL != null)
+			{
+				fileJSON.putOpt(HikeConstants.DOWNLOAD_FILE_URL_KEY, downloadURL);
 			}
 
 			return fileJSON;
