@@ -2253,6 +2253,8 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_ERROR = "stEr";
+
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
@@ -3886,4 +3888,10 @@ public class HikeConstants
 	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final long ONE_DAY_MILLS = 24 * 60 * 60 * 1000L;
+
+	public static final String SINGLE_STICKER= "sst";
+
+	public static final String STICKER_PACK = "spc";
 }
