@@ -9046,7 +9046,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		updatePrepStmt.bindString(1, saveAsset.getAssetId());
 		updatePrepStmt.bindLong(2, saveAsset.getType());
-		updatePrepStmt.bindString(3, saveAsset.getValue());
+
+		if(saveAsset.getValue() != null)
+			updatePrepStmt.bindString(3, saveAsset.getValue());
+		else
+			updatePrepStmt.bindNull(3);
+
 		updatePrepStmt.bindLong(4, saveAsset.isDownloaded() ? 1 : 0);
 		updatePrepStmt.bindString(5, saveAsset.getAssetId());
 
@@ -9057,7 +9062,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			insertPrepStmt.bindString(1, saveAsset.getAssetId());
 			insertPrepStmt.bindLong(2, saveAsset.getType());
-			insertPrepStmt.bindString(3, saveAsset.getValue());
+
+			if(saveAsset.getValue() != null)
+				updatePrepStmt.bindString(3, saveAsset.getValue());
+			else
+				updatePrepStmt.bindNull(3);
+
 			insertPrepStmt.bindLong(4, saveAsset.isDownloaded() ? 1 : 0);
 
 			long rowInserted = insertPrepStmt.executeInsert();
@@ -9157,20 +9167,77 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return false;
 
 		updatePrepStmt.bindString(1, saveTheme.getThemeId());
-		updatePrepStmt.bindString(2, saveTheme.getAssetValueForType(ASSET_INDEX_BG_LANDSCAPE));
-		updatePrepStmt.bindString(3, saveTheme.getAssetValueForType(ASSET_INDEX_BG_PORTRAIT));
-		updatePrepStmt.bindString(4, saveTheme.getAssetValueForType(ASSET_INDEX_BUBBLE_COLOR));
-		updatePrepStmt.bindString(5, saveTheme.getAssetValueForType(ASSET_INDEX_CHAT_BUBBLE_BG));
-		updatePrepStmt.bindString(6, saveTheme.getAssetValueForType(ASSET_INDEX_STATUS_BAR_BG));
-		updatePrepStmt.bindString(7, saveTheme.getAssetValueForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
-		updatePrepStmt.bindString(8, saveTheme.getMetadata());
-		updatePrepStmt.bindString(9, saveTheme.getAssetValueForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
-		updatePrepStmt.bindString(10, saveTheme.getAssetValueForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
-		updatePrepStmt.bindString(11, saveTheme.getAssetValueForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
-		updatePrepStmt.bindString(12, saveTheme.getAssetValueForType(ASSET_INDEX_SENT_NUDGE_BG));
-		updatePrepStmt.bindString(13, saveTheme.getAssetValueForType(ASSET_INDEX_SMS_TOGGLE_BG));
-		updatePrepStmt.bindString(14, saveTheme.getAssetValueForType(ASSET_INDEX_THUMBNAIL));
-		insertPrepStmt.bindString(15, saveTheme.getAssetValueForType(ASSET_INDEX_STATUS_BAR_COLOR));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE) == null)
+			updatePrepStmt.bindNull(2);
+		else
+			updatePrepStmt.bindString(2, saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT) == null)
+			updatePrepStmt.bindNull(3);
+		else
+			updatePrepStmt.bindString(3, saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR) == null)
+			updatePrepStmt.bindNull(4);
+		else
+			updatePrepStmt.bindString(4, saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+			updatePrepStmt.bindNull(5);
+		else
+			updatePrepStmt.bindString(5, saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG) == null)
+			updatePrepStmt.bindNull(6);
+		else
+			updatePrepStmt.bindString(6, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+			updatePrepStmt.bindNull(7);
+		else
+			updatePrepStmt.bindString(7, saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
+		if(saveTheme.getMetadata() == null)
+			updatePrepStmt.bindNull(8);
+		else
+			updatePrepStmt.bindString(8, saveTheme.getMetadata());
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+			updatePrepStmt.bindNull(9);
+		else
+			updatePrepStmt.bindString(9, saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+			updatePrepStmt.bindNull(10);
+		else
+			updatePrepStmt.bindString(10, saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+			updatePrepStmt.bindNull(11);
+		else
+			updatePrepStmt.bindString(11, saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG) == null)
+			updatePrepStmt.bindNull(12);
+		else
+			updatePrepStmt.bindString(12, saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+			updatePrepStmt.bindNull(13);
+		else
+			updatePrepStmt.bindString(13, saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL) == null)
+			updatePrepStmt.bindNull(14);
+		else
+			updatePrepStmt.bindString(14, saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL));
+
+		if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+			updatePrepStmt.bindNull(15);
+		else
+			updatePrepStmt.bindString(15, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR));
+
 		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
 		updatePrepStmt.bindLong(17, System.currentTimeMillis());
 		updatePrepStmt.bindString(18, saveTheme.getThemeId());
@@ -9181,20 +9248,77 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(rowsAffected == 0) // new theme
 		{
 			insertPrepStmt.bindString(1, saveTheme.getThemeId());
-			insertPrepStmt.bindString(2, saveTheme.getAssetValueForType(ASSET_INDEX_BG_LANDSCAPE));
-			insertPrepStmt.bindString(3, saveTheme.getAssetValueForType(ASSET_INDEX_BG_PORTRAIT));
-			insertPrepStmt.bindString(4, saveTheme.getAssetValueForType(ASSET_INDEX_BUBBLE_COLOR));
-			insertPrepStmt.bindString(5, saveTheme.getAssetValueForType(ASSET_INDEX_CHAT_BUBBLE_BG));
-			insertPrepStmt.bindString(6, saveTheme.getAssetValueForType(ASSET_INDEX_STATUS_BAR_BG));
-			insertPrepStmt.bindString(7, saveTheme.getAssetValueForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
-			insertPrepStmt.bindString(8, saveTheme.getMetadata());
-			insertPrepStmt.bindString(9, saveTheme.getAssetValueForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
-			insertPrepStmt.bindString(10, saveTheme.getAssetValueForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
-			insertPrepStmt.bindString(11, saveTheme.getAssetValueForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
-			insertPrepStmt.bindString(12, saveTheme.getAssetValueForType(ASSET_INDEX_SENT_NUDGE_BG));
-			insertPrepStmt.bindString(13, saveTheme.getAssetValueForType(ASSET_INDEX_SMS_TOGGLE_BG));
-			insertPrepStmt.bindString(14, saveTheme.getAssetValueForType(ASSET_INDEX_THUMBNAIL));
-			insertPrepStmt.bindString(15, saveTheme.getAssetValueForType(ASSET_INDEX_STATUS_BAR_COLOR));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE) == null)
+				insertPrepStmt.bindNull(2);
+			else
+				insertPrepStmt.bindString(2, saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT) == null)
+				insertPrepStmt.bindNull(3);
+			else
+				insertPrepStmt.bindString(3, saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR) == null)
+				insertPrepStmt.bindNull(4);
+			else
+				insertPrepStmt.bindString(4, saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+				insertPrepStmt.bindNull(5);
+			else
+				insertPrepStmt.bindString(5, saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG) == null)
+				insertPrepStmt.bindNull(6);
+			else
+				insertPrepStmt.bindString(6, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+				insertPrepStmt.bindNull(7);
+			else
+				insertPrepStmt.bindString(7, saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
+			if(saveTheme.getMetadata() == null)
+				insertPrepStmt.bindNull(8);
+			else
+				insertPrepStmt.bindString(8, saveTheme.getMetadata());
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+				insertPrepStmt.bindNull(9);
+			else
+				insertPrepStmt.bindString(9, saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+				insertPrepStmt.bindNull(10);
+			else
+				insertPrepStmt.bindString(10, saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+				insertPrepStmt.bindNull(11);
+			else
+				insertPrepStmt.bindString(11, saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG) == null)
+				insertPrepStmt.bindNull(12);
+			else
+				insertPrepStmt.bindString(12, saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+				insertPrepStmt.bindNull(13);
+			else
+				insertPrepStmt.bindString(13, saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL) == null)
+				insertPrepStmt.bindNull(14);
+			else
+				insertPrepStmt.bindString(14, saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL));
+
+			if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+				insertPrepStmt.bindNull(15);
+			else
+				insertPrepStmt.bindString(15, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR));
+
 			insertPrepStmt.bindLong(16, saveTheme.getThemeType());
 			insertPrepStmt.bindLong(17, System.currentTimeMillis());
 
@@ -9315,11 +9439,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	/**
 	 * method to load all the chat themes from the DB to memory
-	 * @return a list of chat theme objects each of which represents a row in the theme table
+	 * @return a map of chat theme objects each of which represents a row in the theme table with key as the unique theme id
+	 * and value as the HikeChatTheme object
 	 */
-	public ArrayList<HikeChatTheme> getAllChatThemes()
+	public HashMap<String, HikeChatTheme> getAllChatThemes()
 	{
-		ArrayList<HikeChatTheme> themes = new ArrayList<HikeChatTheme>();
+		HashMap<String, HikeChatTheme> themes = new HashMap<>();
 
 		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE;
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
@@ -9331,7 +9456,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				while (!themeListCursor.isAfterLast())
 				{
 					HikeChatTheme chatTheme = makeChatThemeFromDbRow(themeListCursor);
-					themes.add(chatTheme);
+					themes.put(chatTheme.getThemeId(), chatTheme);
 					themeListCursor.moveToNext();
 				}
 			}
@@ -9354,20 +9479,63 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public HikeChatTheme makeChatThemeFromDbRow(Cursor themeDbRow)
 	{
 		String themeId = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_ID));
-		String landscapeBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_LANDSCAPE));
-		String portraitBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_PORTRAIT));
-		String bubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE));
-		String bubbleBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE_BG));
-		String header = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_HEADER));
-		String inlineBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_INLINE_UPDATE_BG));
-		String meta = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_METADATA));
-		String multiSelBubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR));
-		String offMsg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR));
-		String sendNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SEND_NUDGE));
-		String recNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_RECEIVE_NUDGE));
-		String smsBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SMS_BG));
-		String statusBarCol = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_STATUS_BAR_COL));
-		String thumbnail = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_THUMBNAIL));
+
+		String landscapeBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_LANDSCAPE)))
+			landscapeBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_LANDSCAPE));
+
+		String portraitBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_PORTRAIT)))
+			portraitBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_PORTRAIT));
+
+		String bubble = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE)))
+			bubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE));
+
+		String bubbleBg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE_BG)))
+			bubbleBg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BUBBLE_BG));
+
+		String header = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_HEADER)))
+			header = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_HEADER));
+
+		String inlineBackground = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_INLINE_UPDATE_BG)))
+			inlineBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_INLINE_UPDATE_BG));
+
+		String meta = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_METADATA)))
+			meta = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_METADATA));
+
+		String multiSelBubble = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR)))
+			multiSelBubble = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR));
+
+		String offMsg = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR)))
+			offMsg = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR));
+
+		String sendNudge = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SEND_NUDGE)))
+			sendNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SEND_NUDGE));
+
+		String recNudge = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_RECEIVE_NUDGE)))
+			recNudge = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_RECEIVE_NUDGE));
+
+		String smsBackground = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SMS_BG)))
+			smsBackground = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_SMS_BG));
+
+		String statusBarCol = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_STATUS_BAR_COL)))
+			statusBarCol = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_STATUS_BAR_COL));
+
+		String thumbnail = null;
+		if(!themeDbRow.isNull(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_THUMBNAIL)))
+			thumbnail = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_THUMBNAIL));
+
 		int type = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_TYPE));
 		long timestamp = themeDbRow.getLong(themeDbRow.getColumnIndex(ChatThemes.CHAT_THEME_TIMESTAMP_COL));
 
@@ -9438,7 +9606,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		String assetId = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_ID));
 		int assetType = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_TYPE));
-		String assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
+
+		String assetVal = null;
+		if(!assetDbCursor.isNull(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL)))
+			assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
+
 		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
 
 		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal);
