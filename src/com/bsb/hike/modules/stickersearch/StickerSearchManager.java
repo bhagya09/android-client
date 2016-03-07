@@ -31,6 +31,7 @@ import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
+import com.bsb.hike.modules.stickersearch.tasks.StickerEventLoadTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
@@ -402,6 +403,12 @@ public class StickerSearchManager
 		downloadStickerTags(firstTime, state, null, languagesSet);
 	}
 
+	public void loadStickerEvents()
+	{
+		StickerEventLoadTask stickerEventLoadTask = new StickerEventLoadTask();
+		searchEngine.runOnQueryThread(stickerEventLoadTask);
+	}
+
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
 	{
 		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
@@ -418,6 +425,12 @@ public class StickerSearchManager
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
+
+		// Load events, if sticker recommendation is running.
+		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		{
+			loadStickerEvents();
+		}
 	}
 
 	public void removeDeletedStickerTags(Set<String> infoSet, int removalType)
@@ -446,6 +459,12 @@ public class StickerSearchManager
 	{
 		NewMessageSentTask newMessageSentTask = new NewMessageSentTask(prevText, sticker, nextText, currentText);
 		searchEngine.runOnQueryThread(newMessageSentTask);
+
+		// Update events, if sticker recommendation is running as well as day has changed.
+		if (this.listener != null)
+		{
+			loadStickerEvents();
+		}
 	}
 
 	public void receivedMessage(String prevText, Sticker sticker, String nextText)
