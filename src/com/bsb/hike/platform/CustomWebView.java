@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -43,6 +42,7 @@ public class CustomWebView extends WebView
 
 	private static final Method ON_RESUME_METHOD = findOnResumeMethod();
 	private Handler mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
+	private Runnable postJSRunnable;
 	// Custom WebView to stop background calls when moves out of view.
 	public CustomWebView(Context context)
 	{
@@ -167,7 +167,9 @@ public class CustomWebView extends WebView
 			}
 			isDestroyed = true;
 		}
+		mHandler.removeCallbacks(postJSRunnable);
         mHandler = null;
+		postJSRunnable = null;
 		stopLoading();
 		removeAllViews();
 		clearHistory();
@@ -235,22 +237,17 @@ public class CustomWebView extends WebView
 	@Override
 	public void loadUrl(final String url)
 	{
-
-		mHandler.post(new Runnable() {
+		postJSRunnable = new Runnable() {
 			@Override
 			public void run() {
 				if (Utils.isKitkatOrHigher() && url.startsWith("javascript")) {
-					evaluateJavascript(Utils.appendTokenInURL(url), new ValueCallback<String>() {
-						@Override
-						public void onReceiveValue(String value) {
-							Logger.d("CustomWebView", value);
-						}
-					});
+					evaluateJavascript(Utils.appendTokenInURL(url), null);
 				} else {
 					CustomWebView.super.loadUrl(Utils.appendTokenInURL(url));
 				}
 			}
-		});
+		};
+		mHandler.post(postJSRunnable);
 	}
 
 	public boolean isWebViewShowing()

@@ -1,8 +1,5 @@
 package com.bsb.hike.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,12 +26,12 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -53,6 +50,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HikeDialogFactory
 {
@@ -146,6 +146,8 @@ public class HikeDialogFactory
 
 	public static final int CALLER_UNBLOCK_CONTACT_DIALOG = 49;
 
+	public static final int DELETE_STICKER_PACK_DIALOG = 50;
+
 	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 45;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
@@ -216,7 +218,8 @@ public class HikeDialogFactory
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
-		case ACCESSIBILITY_DIALOG:	
+		case ACCESSIBILITY_DIALOG:
+		case DELETE_STICKER_PACK_DIALOG:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -970,7 +973,13 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
-			
+
+		case DELETE_STICKER_PACK_DIALOG:
+			deleteConfirmDialog.setTitle(context.getString(R.string.delete) + " " + data[0]);
+			deleteConfirmDialog.setMessage(R.string.delete_pack_question);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			break;
 		}
 		deleteConfirmDialog.show();
 		
