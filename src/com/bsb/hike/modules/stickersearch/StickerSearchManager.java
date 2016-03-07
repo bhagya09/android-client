@@ -427,7 +427,8 @@ public class StickerSearchManager
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
 
 		// Load events, if sticker recommendation is running.
-		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
 		{
 			loadStickerEvents();
 		}

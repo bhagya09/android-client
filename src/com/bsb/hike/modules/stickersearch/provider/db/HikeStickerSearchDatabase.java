@@ -20,6 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
@@ -998,8 +999,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		existingEventIdMap.clear();
 		existingEventIdMap = null;
 
-		// Update pre-loaded events
-		StickerEventSearchManager.getInstance().loadNowCastEvents();
+		// Update pre-loaded events, if sticker recommendation is running.
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		{
+			StickerSearchManager.getInstance().loadStickerEvents();
+		}
 
 		return eventIdMap;
 	}
