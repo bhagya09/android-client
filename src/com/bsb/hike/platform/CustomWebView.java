@@ -240,6 +240,11 @@ public class CustomWebView extends WebView
 	@Override
 	public void loadUrl(final String url)
 	{
+		if (mHandler == null)
+		{
+			return;
+		}
+
 		postJSRunnable = new Runnable() {
 			@Override
 			public void run() {
@@ -423,11 +428,6 @@ public class CustomWebView extends WebView
 			if (webViewCoreObj != null) {
 				clearDeviceMotionAndOrientationManager(webViewCoreObj);
 			}
-			Class classwvCore = Class.forName("android.webkit.WebViewCore");
-			Field contextField = classwvCore.getDeclaredField("mContext");
-			setFieldValueSafely(contextField, webViewCoreObj, null);
-			contextField = classWVCl.getDeclaredField("mContext");
-			setFieldValueSafely(contextField, webViewClassic, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
