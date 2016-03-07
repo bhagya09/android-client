@@ -355,7 +355,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private StickerLoader stickerLoader;
 
-    private boolean useMini;
+    private boolean useMiniSticker;
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -382,12 +382,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		hqThumbLoader.setImageFadeIn(false);
 		hqThumbLoader.setDefaultDrawableNull(false);
 
-		useMini =  StickerManager.getInstance().shouldDisplayMiniStickerOnChatThread();
+		useMiniSticker =  StickerManager.getInstance().shouldDisplayMiniStickerOnChatThread();
 
 		//the sticker loader will attempt to download mini sticker if sticker not present(will also check for offline image) provided the server switch is enabled other wise will download full sticker
-		stickerLoader = new StickerLoader( useMini, useMini, true);
+		stickerLoader = new StickerLoader(useMiniSticker, useMiniSticker, true);
         stickerLoader.setLookForOfflineSticker(true);
-        stickerLoader.setStretchMini(useMini);
+        stickerLoader.setStretchMini(useMiniSticker);
 
 		this.mChatThreadCardRenderer = new CardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
@@ -872,7 +872,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				stickerHolder.loader.setVisibility(View.GONE);
 				stickerHolder.image.setVisibility(View.VISIBLE);
 			}
-            else if(useMini && sticker.isMiniStickerAvailable())
+            else if(useMiniSticker && sticker.isMiniStickerAvailable())
             {
                 stickerHolder.placeHolder.setBackgroundResource(0);
                 stickerHolder.loader.setVisibility(View.GONE);

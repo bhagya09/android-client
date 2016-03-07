@@ -102,22 +102,26 @@ public class StickerLoader extends ImageWorker
 	{
 		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(path);
 
-		if (cacheResponse == null)
-		{
-			return null;
-		}
-
 		Bitmap bitmap = null;
 
-		bitmap = HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
-
-		if (bitmap != null && stretchMini)
+		if (cacheResponse != null)
 		{
-			bitmap = HikePhotosUtils.compressBitamp(bitmap, width, height, true, Bitmap.Config.ARGB_8888);
+
+			bitmap = HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
+
+			if (bitmap != null && stretchMini)
+			{
+				bitmap = stretchMiniBitmap(bitmap, width, height);
+			}
 		}
 
 		return bitmap;
 	}
+
+    private Bitmap stretchMiniBitmap(Bitmap bitmap,int width,int height)
+    {
+        return HikePhotosUtils.compressBitamp(bitmap, width, height, true, Bitmap.Config.ARGB_8888);
+    }
 
 	private Bitmap checkAndLoadOfflineSticker(Bitmap bitmap, Sticker sticker)
 	{
