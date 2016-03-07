@@ -10,16 +10,21 @@ import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -73,6 +78,9 @@ public class HikeAlarmManager
 	public static final int REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING = 4574;
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
+
+
+	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4576;
 
 	// ******************************************************//
 	
@@ -311,6 +319,9 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
+				FTApkManager.alarmForUpdate();
+				break;
 			
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
@@ -383,7 +394,9 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
-			
+		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
+				FTApkManager.alarmForUpdate();
+				break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
