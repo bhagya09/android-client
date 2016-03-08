@@ -132,9 +132,6 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 	 */
 	public HikeChatThemeAsset getAssetIfRecorded(String assetId)
 	{
-		if(!isAssetRecorded(assetId))
-			return null;
-
 		return mAssets.get(assetId);
 	}
 

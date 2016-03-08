@@ -45,26 +45,9 @@ public class HikeChatTheme
 		this.assets[type] = assetId;
 	}
 
-	public HikeChatThemeAsset getAsset(byte type)
+	public String getAssetId(byte type)
 	{
-		String assetId = assets[type];
-
-		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(assetId);
-
-		return asset;
-	}
-
-	public String getAssetId(HikeChatThemeAsset asset)
-	{
-		if(asset == null)
-			return null;
-
-		return asset.getAssetId();
-	}
-
-	public String getAssetIdForType(byte type)
-	{
-		return getAssetId(getAsset(type));
+		return assets[type];
 	}
 
 	public String[] getAssets()

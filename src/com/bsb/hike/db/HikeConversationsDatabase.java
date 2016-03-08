@@ -8986,7 +8986,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * Method to create a query for creating CHAT_THEME_ASSET_TABLE in the database
 	 * @return string containing a sql query that creates the CHAT_THEME_ASSET_TABLE
 	 */
-	public static String getAssetTableCreateQuery()
+	private static String getAssetTableCreateQuery()
 	{
 		StringBuilder createAssetTableQuery = new StringBuilder();
 		createAssetTableQuery = createAssetTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_ASSET_TABLE + " (")
@@ -9004,7 +9004,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * Method to create a query for creating CHAT_THEME_TABLE in the database
 	 * @return string containing a sql query that create the CHAT_THEME_TABLE
 	 */
-	public static String getThemeTableCreateQuery()
+	private static String getThemeTableCreateQuery()
 	{
 		StringBuilder createThemeTableQuery = new StringBuilder();
 		createThemeTableQuery = createThemeTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_TABLE + " (")
@@ -9039,7 +9039,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param updatePrepStmt a compiled statement for updating a row in asset table
 	 * @return true if the asset sent is saved or updated successfully in the table, else false
 	 */
-	public boolean saveChatThemeAsset(HikeChatThemeAsset saveAsset, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
+	private boolean saveChatThemeAsset(HikeChatThemeAsset saveAsset, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
 	{
 		if(mDb == null || saveAsset == null)
 			return false;
@@ -9114,7 +9114,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * method to create a compiled sql query for inserting an asset object into the table
 	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
 	 */
-	public SQLiteStatement prepStmtForChatThemeAssetInsert()
+	private SQLiteStatement prepStmtForChatThemeAssetInsert()
 	{
 		String sqlQuery = "INSERT INTO " + ChatThemes.CHAT_THEME_ASSET_TABLE + "("
 						  + ChatThemes.ASSET_COL_ID + COMMA_SEPARATOR
@@ -9140,7 +9140,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * method to create a compiled sql query for updating an asset object into the table
 	 * @return a SQLiteStatement object which stores a compiled query to update an asset
 	 */
-	public SQLiteStatement prepStmtForChatThemeAssetUpdate()
+	private SQLiteStatement prepStmtForChatThemeAssetUpdate()
 	{
 		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_ASSET_TABLE + " SET "
 				+ ChatThemes.ASSET_COL_ID 			 +  " = ?" + COMMA_SEPARATOR
@@ -9161,82 +9161,82 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param saveTheme
 	 * @return true if the theme has been saved/updated successfully, false otherwise
 	 */
-	public boolean saveChatTheme(HikeChatTheme saveTheme, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
+	private boolean saveChatTheme(HikeChatTheme saveTheme, SQLiteStatement insertPrepStmt, SQLiteStatement updatePrepStmt)
 	{
 		if(mDb == null || saveTheme == null)
 			return false;
 
 		updatePrepStmt.bindString(1, saveTheme.getThemeId());
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE) == null)
 			updatePrepStmt.bindNull(2);
 		else
-			updatePrepStmt.bindString(2, saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE));
+			updatePrepStmt.bindString(2, saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT) == null)
 			updatePrepStmt.bindNull(3);
 		else
-			updatePrepStmt.bindString(3, saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT));
+			updatePrepStmt.bindString(3, saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR) == null)
 			updatePrepStmt.bindNull(4);
 		else
-			updatePrepStmt.bindString(4, saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR));
+			updatePrepStmt.bindString(4, saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
 			updatePrepStmt.bindNull(5);
 		else
-			updatePrepStmt.bindString(5, saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG));
+			updatePrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
 			updatePrepStmt.bindNull(6);
 		else
-			updatePrepStmt.bindString(6, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG));
+			updatePrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
 			updatePrepStmt.bindNull(7);
 		else
-			updatePrepStmt.bindString(7, saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+			updatePrepStmt.bindString(7, saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG));
 
 		if(saveTheme.getMetadata() == null)
 			updatePrepStmt.bindNull(8);
 		else
 			updatePrepStmt.bindString(8, saveTheme.getMetadata());
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
 			updatePrepStmt.bindNull(9);
 		else
-			updatePrepStmt.bindString(9, saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+			updatePrepStmt.bindString(9, saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
 			updatePrepStmt.bindNull(10);
 		else
-			updatePrepStmt.bindString(10, saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+			updatePrepStmt.bindString(10, saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
 			updatePrepStmt.bindNull(11);
 		else
-			updatePrepStmt.bindString(11, saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
+			updatePrepStmt.bindString(11, saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG) == null)
 			updatePrepStmt.bindNull(12);
 		else
-			updatePrepStmt.bindString(12, saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG));
+			updatePrepStmt.bindString(12, saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG) == null)
 			updatePrepStmt.bindNull(13);
 		else
-			updatePrepStmt.bindString(13, saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG));
+			updatePrepStmt.bindString(13, saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL) == null)
 			updatePrepStmt.bindNull(14);
 		else
-			updatePrepStmt.bindString(14, saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL));
+			updatePrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
 
-		if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR) == null)
 			updatePrepStmt.bindNull(15);
 		else
-			updatePrepStmt.bindString(15, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR));
+			updatePrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR));
 
 		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
 		updatePrepStmt.bindLong(17, System.currentTimeMillis());
@@ -9249,75 +9249,75 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			insertPrepStmt.bindString(1, saveTheme.getThemeId());
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE) == null)
 				insertPrepStmt.bindNull(2);
 			else
-				insertPrepStmt.bindString(2, saveTheme.getAssetIdForType(ASSET_INDEX_BG_LANDSCAPE));
+				insertPrepStmt.bindString(2, saveTheme.getAssetId(ASSET_INDEX_BG_LANDSCAPE));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT) == null)
 				insertPrepStmt.bindNull(3);
 			else
-				insertPrepStmt.bindString(3, saveTheme.getAssetIdForType(ASSET_INDEX_BG_PORTRAIT));
+				insertPrepStmt.bindString(3, saveTheme.getAssetId(ASSET_INDEX_BG_PORTRAIT));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR) == null)
 				insertPrepStmt.bindNull(4);
 			else
-				insertPrepStmt.bindString(4, saveTheme.getAssetIdForType(ASSET_INDEX_BUBBLE_COLOR));
+				insertPrepStmt.bindString(4, saveTheme.getAssetId(ASSET_INDEX_BUBBLE_COLOR));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG) == null)
 				insertPrepStmt.bindNull(5);
 			else
-				insertPrepStmt.bindString(5, saveTheme.getAssetIdForType(ASSET_INDEX_CHAT_BUBBLE_BG));
+				insertPrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
 				insertPrepStmt.bindNull(6);
 			else
-				insertPrepStmt.bindString(6, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_BG));
+				insertPrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
 				insertPrepStmt.bindNull(7);
 			else
-				insertPrepStmt.bindString(7, saveTheme.getAssetIdForType(ASSET_INDEX_INLINE_STATUS_MSG_BG));
+				insertPrepStmt.bindString(7, saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG));
 
 			if(saveTheme.getMetadata() == null)
 				insertPrepStmt.bindNull(8);
 			else
 				insertPrepStmt.bindString(8, saveTheme.getMetadata());
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG) == null)
 				insertPrepStmt.bindNull(9);
 			else
-				insertPrepStmt.bindString(9, saveTheme.getAssetIdForType(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
+				insertPrepStmt.bindString(9, saveTheme.getAssetId(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG) == null)
 				insertPrepStmt.bindNull(10);
 			else
-				insertPrepStmt.bindString(10, saveTheme.getAssetIdForType(ASSET_INDEX_OFFLINE_MESSAGE_BG));
+				insertPrepStmt.bindString(10, saveTheme.getAssetId(ASSET_INDEX_OFFLINE_MESSAGE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG) == null)
 				insertPrepStmt.bindNull(11);
 			else
-				insertPrepStmt.bindString(11, saveTheme.getAssetIdForType(ASSET_INDEX_RECEIVED_NUDGE_BG));
+				insertPrepStmt.bindString(11, saveTheme.getAssetId(ASSET_INDEX_RECEIVED_NUDGE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG) == null)
 				insertPrepStmt.bindNull(12);
 			else
-				insertPrepStmt.bindString(12, saveTheme.getAssetIdForType(ASSET_INDEX_SENT_NUDGE_BG));
+				insertPrepStmt.bindString(12, saveTheme.getAssetId(ASSET_INDEX_SENT_NUDGE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG) == null)
 				insertPrepStmt.bindNull(13);
 			else
-				insertPrepStmt.bindString(13, saveTheme.getAssetIdForType(ASSET_INDEX_SMS_TOGGLE_BG));
+				insertPrepStmt.bindString(13, saveTheme.getAssetId(ASSET_INDEX_SMS_TOGGLE_BG));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL) == null)
 				insertPrepStmt.bindNull(14);
 			else
-				insertPrepStmt.bindString(14, saveTheme.getAssetIdForType(ASSET_INDEX_THUMBNAIL));
+				insertPrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
 
-			if(saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR) == null)
 				insertPrepStmt.bindNull(15);
 			else
-				insertPrepStmt.bindString(15, saveTheme.getAssetIdForType(ASSET_INDEX_STATUS_BAR_COLOR));
+				insertPrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR));
 
 			insertPrepStmt.bindLong(16, saveTheme.getThemeType());
 			insertPrepStmt.bindLong(17, System.currentTimeMillis());
@@ -9369,7 +9369,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * method to create a compiled sql query for inserting an asset object into the table
 	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
 	 */
-	public SQLiteStatement prepStmtForChatThemeInsert()
+	private SQLiteStatement prepStmtForChatThemeInsert()
 	{
 		String sqlQuery = "INSERT INTO " + ChatThemes.CHAT_THEME_TABLE + "("
 				+ ChatThemes.THEME_COL_BG_ID + COMMA_SEPARATOR
@@ -9408,7 +9408,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * method to make a compiled query for updating a row in the theme table
 	 * @return a compiled statement for the query to update an existing row in the table
 	 */
-	public SQLiteStatement prepStmtForChatThemeUpdate()
+	private SQLiteStatement prepStmtForChatThemeUpdate()
 	{
 		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_ASSET_TABLE + " SET "
 				+ ChatThemes.THEME_COL_BG_ID 						+  " = ?" + COMMA_SEPARATOR
@@ -9476,7 +9476,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param themeDbRow a cursor to a row in the theme table
 	 * @return a chat theme object made from the row
 	 */
-	public HikeChatTheme makeChatThemeFromDbRow(Cursor themeDbRow)
+	private HikeChatTheme makeChatThemeFromDbRow(Cursor themeDbRow)
 	{
 		String themeId = themeDbRow.getString(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_BG_ID));
 
@@ -9602,7 +9602,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param assetDbCursor cursor to the asset to be loaded
 	 * @return a chat theme asset object corresponding to the row the cursor points to
 	 */
-	public HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor)
+	private HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor)
 	{
 		String assetId = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_ID));
 		int assetType = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_TYPE));
