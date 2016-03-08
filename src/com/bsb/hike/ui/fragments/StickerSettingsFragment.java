@@ -144,6 +144,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		}
 		else
 		{
+			updateAll.setOnClickListener(null);		//Removing onclick listener on hiding updateAll
 			updateAll.setVisibility(View.GONE);
 			confirmAll.setVisibility(View.GONE);
 			mDslv.removeFooterView(footerView);
