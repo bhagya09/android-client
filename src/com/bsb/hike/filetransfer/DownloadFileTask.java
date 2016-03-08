@@ -15,9 +15,13 @@ import java.util.concurrent.FutureTask;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -30,7 +34,15 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.service.MqttMessagesManager;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -41,6 +53,16 @@ public class DownloadFileTask extends FileTransferBase
 	private boolean showToast;
 
 	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
+
+	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey,
+							   HikeFileType hikeFileType, String token, String uId)
+	{
+		super(handler, fileTaskMap, ctx, destinationFile, -100, hikeFileType, token, uId);
+		this.fileKey = fileKey;
+		this.showToast = false;
+		this.userContext = null;
+		_state = FTState.INITIALIZED;
+	}
 
 	protected DownloadFileTask(Handler handler, ConcurrentHashMap<Long, FutureTask<FTResult>> fileTaskMap, Context ctx, File destinationFile, String fileKey, long msgId,
 			HikeFileType hikeFileType, ConvMessage userContext, boolean showToast, String token, String uId)
@@ -94,7 +116,16 @@ public class DownloadFileTask extends FileTransferBase
 		RandomAccessFile raf = null;
 		try
 		{
-			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			HikeFile hikeFile;
+			if(userContext == null)
+			{
+				JSONObject jo = new JSONObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_JSON, "{}"));
+				hikeFile = new HikeFile(jo, false);
+			}
+			else
+			{
+				hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+			}
 			mUrl = getDownloadURL(hikeFile);
 
 			this.analyticEvents =  FTAnalyticEvents.getAnalyticEvents(FileTransferManager.getInstance(context).getAnalyticFile(hikeFile.getFile(), msgId));
@@ -123,6 +154,12 @@ public class DownloadFileTask extends FileTransferBase
 					progressPercentage = (int) ((_bytesTransferred * 100) / _totalSize);
 				return downloadFile(raf.length(), raf, AccountUtils.ssl,hikeFile);
 			}
+		}
+		catch (JSONException je)
+		{
+			Logger.e(getClass().getSimpleName(), "JSON Exception", je);
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "JSONException", "DOWNLOAD_FAILED : " , je);
+			return FTResult.DOWNLOAD_FAILED;
 		}
 		catch (MalformedURLException e)
 		{
@@ -168,6 +205,7 @@ public class DownloadFileTask extends FileTransferBase
 				}
 				
 				long time = System.currentTimeMillis();
+				Logger.d("DownloadFileU",getDownloadURL(hikeFile) + "");
 				mUrl = getUpdatedURL(mUrl, "Downloading File", FTAnalyticEvents.DOWNLOAD_FILE_TASK, getDownloadURL(hikeFile));
 
 				conn = initConn();
@@ -264,6 +302,7 @@ public class DownloadFileTask extends FileTransferBase
 
 						// write to buffer
 						try
+
 						{
 							raf.write(data, 0, byteRead);
 						}
@@ -307,6 +346,7 @@ public class DownloadFileTask extends FileTransferBase
 						String file_md5Hash = Utils.fileToMD5(tempDownloadedFile.getPath());
 						if (md5Hash != null)
 						{
+							//TODO phone and server md5 are same but server md5 is inside double quotes, hence the mismatch
 							Logger.d(getClass().getSimpleName(), "Phone's md5 : " + file_md5Hash);
 							if (!md5Hash.equals(file_md5Hash))
 							{
@@ -462,6 +502,10 @@ public class DownloadFileTask extends FileTransferBase
 				}
 				if (HikeFileType.IMAGE == hikeFileType)
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_FILE_DOWNLOADED, userContext);
+				if(HikeFileType.APK == hikeFileType)
+				{
+					FTApkManager.checkAndActOnDownloadedApk(mFile);
+				}
 			}
 		}
 		else if (result != FTResult.PAUSED) // if no PAUSE

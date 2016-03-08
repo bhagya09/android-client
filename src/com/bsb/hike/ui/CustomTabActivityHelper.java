@@ -108,8 +108,13 @@ public class CustomTabActivityHelper
 		mCustomTabsSession = null;
 		if (mConnection == null)
 			return;
-		activity.unbindService(mConnection);
-
+		//Fix for AND-4863
+		try{
+			activity.unbindService(mConnection);
+		} catch (RuntimeException ex){
+            // exception occurs when service is not registered to activity.
+			Logger.e(TAG,ex.getMessage());
+		}
 	}
 
 	/**

@@ -25,7 +25,7 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
-	public static final String STICKERS_CDN_PRODUCTION_API = "static-stickers.im.hike.in";
+	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
 		
@@ -212,6 +212,11 @@ public class HttpRequestConstants
 	public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+	
+	public static String latestApkInfoUrl()
+	{
+		return BASE_URL + BASE_V1 + "/latest-apk-info";
 	}
 	
 	public static String getStickerTagsUrl()
