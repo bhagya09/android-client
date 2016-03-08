@@ -54,7 +54,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 	{
 		public static final int ENTRY_AT_HOME_MENU = 1;
 
-		public static final int ENTRY_AT_CHATTHREAD = 2;
+		public static final int ENTRY_AT_CHAT_MENU = 2;
 
 	}
 	
