@@ -1098,9 +1098,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 			mIconView.setImageBitmap(mActivityState.profileBitmap);
 		}
-		else if (HikeMessengerApp.getLruCache().getIconFromCache(msisdn) != null)
+		else if (getCachedProfilePic() != null)
 		{
-			mIconView.setImageDrawable(HikeMessengerApp.getLruCache().getIconFromCache(msisdn));
+			mIconView.setImageDrawable(getCachedProfilePic());
 		}
 		else
 		{
@@ -1155,13 +1155,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void setDefaultProfileImage(String msisdn)
 	{
-		Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+		Drawable bd = getCachedProfilePic();
 		if (bd == null)
 		{
 			String name = enterEditText.getText() == null? null : enterEditText.getText().toString();
 			bd = HikeBitmapFactory.getDefaultTextAvatar(name,-1,defAvBgColor);
 		}
 		mIconView.setImageDrawable(bd);
+	}
+
+	private Drawable getCachedProfilePic()
+	{
+		String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		return HikeMessengerApp.getLruCache().getIconFromCache(msisdn + ProfileActivity.PROFILE_PIC_SUFFIX);
 	}
 
 	private HikeImageWorker.TaskCallbacks imageWorkerTaskCallback = new HikeImageWorker.TaskCallbacks() {
@@ -2270,7 +2276,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public void afterTextChanged(Editable s)
 		{
 			String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-			if (s == null || mActivityState.profileBitmap != null || HikeMessengerApp.getLruCache().getIconFromCache(msisdn) != null)
+			if (s == null || mActivityState.profileBitmap != null || getCachedProfilePic() != null)
 			{
 				return;
 			}
