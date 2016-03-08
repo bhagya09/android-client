@@ -45,6 +45,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.db.DBUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.DownloadFileTask;
@@ -2963,6 +2964,15 @@ public class MqttMessagesManager
 		{
 			byte contactSyncResult = ContactManager.getInstance().syncUpdates(context);
 			Logger.d(getClass().getSimpleName(), "contacts sync result : " + contactSyncResult);
+		}
+
+		if (data.optBoolean(HikeConstants.LOG_SQLITE_PROPERTIES))
+		{
+			String journalMode = HikeConversationsDatabase.getInstance().getJournalMode();
+			JSONObject json = new JSONObject();
+			json.put(HikeConstants.JOURNAL_MODE, journalMode);
+			json.put(HikeConstants.SQLITE_VERSION, DBUtils.getSqliteVersion());
+			HAManager.getInstance().logDevEvent(AnalyticsConstants.DATABASE_AREA, AnalyticsConstants.SQLITE_PROPERTY, json);
 		}
 	}
 

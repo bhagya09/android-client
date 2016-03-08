@@ -138,6 +138,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return mDb;
 	}
 
+	public String getJournalMode()
+	{
+		String journalMode = null;
+		try
+		{
+			Cursor cursor = mDb.rawQuery("PRAGMA journal_mode;", null);
+			if (cursor.moveToFirst())
+			{
+				journalMode = cursor.getString(0);
+				Logger.d(getClass().getSimpleName(), "Journal mode = " + journalMode);
+			}
+		}
+		catch (Throwable th)
+		{
+			Logger.d(getClass().getSimpleName(), "exception in getting journal mode", th);
+		}
+		return journalMode;
+	}
+
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
