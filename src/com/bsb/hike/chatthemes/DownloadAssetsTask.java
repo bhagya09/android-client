@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -103,8 +104,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 						doOnFailure(null);
 						return;
 					}
-					parseAssetContent(response);
-					doOnSuccess(mAssetIds);
+					doOnSuccess(parseAssetContent(response));
 				}
 				catch (Exception e)
 				{
@@ -138,7 +138,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		return null;
 	}
 
-	private void parseAssetContent(JSONObject resp)
+	private String[] parseAssetContent(JSONObject resp)
 	{
 		try
 		{
@@ -160,5 +160,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 			doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
 			e.printStackTrace();
 		}
+
+		return mAssetIds;
 	}
 }

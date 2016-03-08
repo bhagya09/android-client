@@ -1,6 +1,6 @@
 package com.bsb.hike.chatthemes;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -13,38 +13,27 @@ import com.bsb.hike.models.HikeChatThemeAsset;
 public class ChatThemeAssetHelper implements HikePubSub.Listener
 {
 
-	// maintains the hashset of downloaded themes
-	private HashSet<String> mDownloadedAssets;
+	// maintains the hashset of all recorded downloaded and non-downloaded assets
+	private HashMap<String, HikeChatThemeAsset> mAssets;
 
 	private String[] mPubSubListeners = { HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE };
 
 	public ChatThemeAssetHelper()
 	{
-		mDownloadedAssets = new HashSet<>();
+		mAssets = new HashMap<>();
 		HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
 	}
 
-	/**
-	 * add assets to the downloaded set
-	 *
-	 * @param String
-	 *            assetId Or an array of ids
-	 * @return Void
-	 *
-	 */
-	public void addDownloadedAsset(String assetId)
+	public void addDownloadedAsset(String assetId, HikeChatThemeAsset asset)
 	{
-		if (!mDownloadedAssets.contains(assetId))
-		{
-			mDownloadedAssets.add(assetId);
-		}
+		this.mAssets.put(assetId, asset);
 	}
 
-	public void addDownloadedAssets(String[] assets)
+	public void addDownloadedAssets(HikeChatThemeAsset[] assets)
 	{
 		for (int i = 0; i < assets.length; i++)
 		{
-			addDownloadedAsset(assets[i]);
+			addDownloadedAsset(assets[i].getAssetId(), assets[i]);
 		}
 	}
 
@@ -62,7 +51,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		{
 			updateAssetsDownloadStatus(theme);
 		}
-		return ((theme.getAssetDownloadStatus() & HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE) == HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
+		return (theme.getAssetDownloadStatus() == HikeChatThemeConstants.ASSET_STATUS_DOWNLOAD_COMPLETE);
 	}
 
 	/**
@@ -73,12 +62,13 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 	 * @return void
 	 *
 	 */
+
 	public void updateAssetsDownloadStatus(HikeChatTheme theme)
 	{
-		HikeChatThemeAsset[] assets = theme.getAssets();
+		String[] assets = theme.getAssets();
 		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
-			if ((assets[i] != null) && (mDownloadedAssets.contains(assets[i].getAssetId())))
+			if ((assets[i] != null) && (isAssetRecorded(assets[i])))
 			{
 				theme.setAssetDownloadStatus(1 << i);
 			}
@@ -125,13 +115,36 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		downloadAssets.execute();
 	}
 
+	/**
+	 * method to check if an asset is recorded or not
+	 * @param assetId assetId to be verified
+	 * @return true if the asset is recorded, else false
+	 */
+	public boolean isAssetRecorded(String assetId)
+	{
+		return mAssets.containsKey(assetId);
+	}
+
+	/**
+	 * method to return the value of an asset given it's UUID
+	 * @param assetId the asset to be searched
+	 * @return value of the asset if present, null otherwise
+	 */
+	public HikeChatThemeAsset getAssetIfRecorded(String assetId)
+	{
+		if(!isAssetRecorded(assetId))
+			return null;
+
+		return mAssets.get(assetId);
+	}
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
 		if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type))
 		{
 			String[] downloadedAssets = (String[]) object;
-			addDownloadedAssets(downloadedAssets);
+			//TODO Add method to write the assets associated to these assetIds into DB
 		}
 	}
 }

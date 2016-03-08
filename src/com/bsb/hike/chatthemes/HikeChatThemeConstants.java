@@ -48,7 +48,11 @@ public class HikeChatThemeConstants
 
 	public static final byte ASSET_INDEX_THUMBNAIL = 11;
 
-	public static final byte ASSET_INDEX_COUNT = 12;
+	public static final byte ASSET_INDEX_BUBBLE_COLOR = 12;
+
+	public static final byte ASSET_INDEX_STATUS_BAR_COLOR = 13;
+
+	public static final byte ASSET_INDEX_COUNT = 14;
 
 	// Bit Constants for Asset Status.
 	public static final int ASSET_STATUS_BG_PORTRAIT = 1 << ASSET_INDEX_BG_PORTRAIT;
@@ -75,10 +79,14 @@ public class HikeChatThemeConstants
 
 	public static final int ASSET_STATUS_THUMBNAIL = 1 << ASSET_INDEX_THUMBNAIL;
 
-	// Bit Constant to check if all the assets are download, in our case it is 111 1111 1111. (for 11 Assets)
+	public static final int ASSET_STATUS_BUBBLE_COLOR = 1 << ASSET_INDEX_BUBBLE_COLOR;
+
+	public static final int ASSET_STATUS_STATUS_BAR_COLOR = 1 << ASSET_INDEX_STATUS_BAR_COLOR;
+
+	// Bit Constant to check if all the assets are download, in our case it is 11 1111 1111 1111. (for 14 Assets)
 	public static final int ASSET_STATUS_DOWNLOAD_COMPLETE = ASSET_STATUS_BG_PORTRAIT | ASSET_STATUS_BG_LANDSCAPE | ASSET_STATUS_ACTION_BAR_BG | ASSET_STATUS_CHAT_BUBBLE_BG
 			| ASSET_STATUS_SENT_NUDGE_BG | ASSET_STATUS_RECEIVED_NUDGE_BG | ASSET_STATUS_INLINE_UPDATE_BG | ASSET_STATUS_MULTISELECT_BUBBLE_BG | ASSET_STATUS_OFFLINE_MESSAGE_BG
-			| ASSET_STATUS_STATUS_BAR_BG | ASSET_STATUS_SMS_TOGGLE_BG | ASSET_STATUS_THUMBNAIL;
+			| ASSET_STATUS_STATUS_BAR_BG | ASSET_STATUS_SMS_TOGGLE_BG | ASSET_STATUS_THUMBNAIL | ASSET_STATUS_BUBBLE_COLOR | ASSET_STATUS_STATUS_BAR_COLOR;
 
 	// Asset Download is a Success / Failure
 	public static final byte ASSET_DOWNLOAD_STATUS_SUCCESS = 0;

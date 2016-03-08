@@ -432,6 +432,9 @@ public interface DBConstants
 
 		public static final String CHAT_THEME_TIMESTAMP_COL = "timestamp";
 
+		public static final int CHAT_THEME_ASSET_TABLE_COL_COUNT = 4;
+
+		public static final int CHAT_THEME_TABLE_COL_COUNT = 17;
 
 		//Columns for CHAT_THEME_ASSET_TABLE
 
@@ -456,6 +459,8 @@ public interface DBConstants
 
 		public static final String THEME_COL_BUBBLE = "bubble";
 
+		public static final String THEME_COL_BUBBLE_BG = "bubbleBG";
+
 		public static final String THEME_COL_HEADER = "header";
 
 		public static final String THEME_COL_SEND_NUDGE = "sendNudge";
@@ -473,6 +478,8 @@ public interface DBConstants
 		public static final String THEME_COL_THUMBNAIL = "thumbnail";
 
 		public static final String THEME_COL_METADATA = "metadata";
+
+		public static final String THEME_COL_STATUS_BAR_COL = "statusBarColor";
 
 	}
 

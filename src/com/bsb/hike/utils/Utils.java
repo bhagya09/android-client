@@ -7855,4 +7855,13 @@ public class Utils
 		}
 	}
 
+	public static String repeatString(String repeat, int repeatCount)
+	{
+		StringBuilder repeatedString = new StringBuilder();
+
+		for(int i=0;i<repeatCount;i++)
+			repeatedString.append(repeat);
+
+		return repeatedString.toString();
+	}
 }

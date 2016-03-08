@@ -2,6 +2,7 @@ package com.bsb.hike.models;
 
 import android.graphics.Bitmap;
 
+import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 
 /**
@@ -20,13 +21,13 @@ public class HikeChatTheme
 
 	private int themeType;
 
-	private HikeChatThemeAsset[] assets;
+	private String[] assets;
 
 	private String metadata;
 
 	public HikeChatTheme()
 	{
-		assets = new HikeChatThemeAsset[HikeChatThemeConstants.ASSET_INDEX_COUNT];
+		assets = new String[HikeChatThemeConstants.ASSET_INDEX_COUNT];
 	}
 
 	public boolean isVisible()
@@ -39,17 +40,34 @@ public class HikeChatTheme
 		this.themeVisibilityStatus = status;
 	}
 
-	public void setAsset(byte type, HikeChatThemeAsset asset)
+	public void setAsset(byte type, String assetId)
 	{
-		this.assets[type] = asset;
+		this.assets[type] = assetId;
 	}
 
 	public HikeChatThemeAsset getAsset(byte type)
 	{
-		return this.assets[type];
+		String assetId = assets[type];
+
+		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(assetId);
+
+		return asset;
 	}
 
-	public HikeChatThemeAsset[] getAssets()
+	public String getAssetId(HikeChatThemeAsset asset)
+	{
+		if(asset == null)
+			return null;
+
+		return asset.getAssetId();
+	}
+
+	public String getAssetIdForType(byte type)
+	{
+		return getAssetId(getAsset(type));
+	}
+
+	public String[] getAssets()
 	{
 		return this.assets;
 	}
@@ -118,4 +136,5 @@ public class HikeChatTheme
 	{
 		return ((this.assetDownloadStatus & assetStatus) > 0);
 	}
+
 }
