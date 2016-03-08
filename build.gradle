@@ -124,6 +124,7 @@ android {
             applicationIdSuffix ".black"
             debuggable true
             signingConfig signingConfigs.release
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         release {
         	minifyEnabled true
@@ -138,6 +139,7 @@ android {
             debuggable true
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         debug {
             debuggable true
