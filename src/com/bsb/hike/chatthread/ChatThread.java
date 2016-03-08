@@ -5875,6 +5875,7 @@ import android.widget.Toast;
 		/**
 		 * Hiding soft keyboard
 		 */
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}
