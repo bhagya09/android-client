@@ -541,6 +541,12 @@ public class HikeConstants
 
 	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_DELETE_PREF = "stickerDeletePref";
+
+	public static final String STICKER_HIDE_PREF = "stickerHidePref";
+
+	public static final String STICKER_UPDATE_PREF = "stickerUpdatePref";
+
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
@@ -1942,6 +1948,8 @@ public class HikeConstants
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 
+		public static final String STICKER_SETTINGS_TASK = "stickerSettingsTask";
+
         public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
 
         public static final String LIST = "list";
@@ -2252,6 +2260,10 @@ public class HikeConstants
 		public static final String PIN_HISTORY_VIA_PIN_CLICK = "pinHistoryViaPinClick";
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
+
+        public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String EMOTICON_SENT = "eSnt";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
@@ -3184,6 +3196,8 @@ public class HikeConstants
 
 	public static final String DELIMETER = ":";
 
+    public static final String SEPARATOR_ = "_";
+
 	public static final String HIKE_EXTRAS_NAME = "hike_extras_name";
 
 	public static final String HIKE_EXTRAS_URL = "hike_extras_url";
@@ -3942,9 +3956,45 @@ public class HikeConstants
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 
+	public static final class INTERCEPTS
+	{
+		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
+
+		public static final String SHOW_INTERCEPTS = "show_intercepts";
+
+		public static final String IMAGE = "image";
+
+		public static final String VIDEO = "video";
+
+		public static final String SCREENSHOTS = "sshot";
+
+		public static final String SHOW_IMAGE_INTERCEPT = "show_image_intrcpt";
+
+		public static final String SHOW_VIDEO_INTERCEPT = "show_video_intrcpt";
+
+		public static final String SHOW_SCREENSHOT_INTERCEPT = "show_screenshot_intrcpt";
+
+		public static final String ENABLE_IMAGE_INTERCEPT = "enableImageIntercept";
+
+		public static final String ENABLE_VIDEO_INTERCEPT = "enableVideoIntercept";
+
+		public static final String ENABLE_SCREENSHOT_INTERCEPT = "enableScreenshotIntercept";
+
+		public static final String INTERCEPT_LOG = "intercept_log";
+
+		public static final String INTENT_EXTRA_URI = "intentExtraUri";
+
+		public static final String INTENT_EXTRA_TYPE = "intentExtraType";
+
+		public static final String PREV_MEDIA_URI = "prev_media_uri";
+
+	}
+
 	public static final long ONE_DAY_MILLS = 24 * 60 * 60 * 1000L;
 
 	public static final String SINGLE_STICKER= "sst";
 
 	public static final String STICKER_PACK = "spc";
+
+    public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 }

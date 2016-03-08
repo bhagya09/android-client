@@ -20,6 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerAppositeDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerEventDataContainer;
 import com.bsb.hike.modules.stickersearch.datamodel.StickerTagDataContainer;
@@ -998,8 +999,16 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		existingEventIdMap.clear();
 		existingEventIdMap = null;
 
-		// Update pre-loaded events
-		StickerEventSearchManager.getInstance().loadNowCastEvents();
+		// Reset and update pre-loaded events, if sticker recommendation is running and new events have been added from server
+		if (eventIdMap.size() > 0)
+		{
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+					&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+			{
+				StickerEventSearchManager.getInstance().clearNowCastEvents();
+				StickerSearchManager.getInstance().loadStickerEvents();
+			}
+		}
 
 		return eventIdMap;
 	}
@@ -1550,7 +1559,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 				sb.append(HikeStickerSearchBaseConstants.SYNTAX_OR_NEXT);
 			}
 		}
-		
+
 		HashSet<String> removedStickerInfoSet = new HashSet<String>();
 		Cursor c = null;
 		try
@@ -1798,7 +1807,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 		float THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT = isTestModeOn ? HikeStickerSearchBaseConstants.TEST_THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT
 				: stickerDataSharedPref.getData(HikeConstants.STICKER_SEARCH_BASE_THRESHOLD_FORCED_SHRINK_COEFFICIENT,
-						HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
+				HikeStickerSearchBaseConstants.THRESHOLD_DATABASE_FORCED_SHRINK_COEFFICIENT);
 
 		long TIME_WINDOW_TRENDING_SUMMERY = isTestModeOn ? StickerSearchConstants.TEST_TIME_WINDOW_TRENDING_SUMMERY : stickerDataSharedPref.getData(
 				HikeConstants.STICKER_TAG_SUMMERY_INTERVAL_TRENDING, StickerSearchConstants.TIME_WINDOW_TRENDING_SUMMERY);

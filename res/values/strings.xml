@@ -702,7 +702,7 @@
     <string name="update_all">UPDATE ALL</string>
     <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
-    <string name="drag_tip_text">Tap and hold a pack to reorder your sticker packs</string>
+    <string name="drag_tip_text">Drag to Reorder Packs</string>
     <string name="CANCEL">CANCEL</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1089,7 +1089,7 @@
     <string name="status_hint_image">Something about this photo</string>
     <string name="add_mood">Add Mood</string>
     <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Change sticker pack order</string>
+    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
     <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
     <string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
@@ -1485,8 +1485,8 @@
 
     <string name="made_with_love_in_india">Made with :love: in India</string>
     <string name="timeline_ftue_desc">Timeline is a place for you and friends to share special moments. You\'ve already got few friends posting on their timeline!</string>
-    <string name="group_selected">%1$s/1000 selected</string>		
-	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
+    <string name="group_selected">%1$s/1000 selected</string>
+    <string name="group_participant_info"><![CDATA[<font color=\"#000000\">Now you can add upto </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\">members</font>]]></string>
     <string name="stealth_unread_tip_header">Hide your chats!</string>
     <string name="stealth_unread_tip_message">Hide your chats by tapping on \'hi\'</string>
     <string name="sticker">Sticker</string>
@@ -1535,4 +1535,40 @@
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
      <string name="wallet_menu">Wallet</string>
+    <string name="deleting">DELETING</string>
+    <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
+    <string name="sticker_delete_setting_header">Delete</string>
+    <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
+    <string name="sticker_hide_setting_header">Hide</string>
+    <string name="sticker_update_setting_info">Update the downloaded Sticker Packs</string>
+    <string name="sticker_update_setting_header">Update</string>
+    <string name="delete_pack_question">Are you sure you want to delete sticker pack?</string>
+    <string name="settings_sticker">Sticker Settings</string>
+    <string name="deleting_pack">Deleting Pack...</string>
+    <string name="pack_deleted">Deleted pack</string>
+    <string name="n_more_stickers">%1$d More Stickers</string>
+    <string name="all_packs_updated_heading">All packs are updated!</string>
+    <string name="all_packs_updated_info">All your packs are up to date, if you want more stickers visit sticker shop</string>
+    <string name="redirect_to_shop_text">TAKE ME TO THE SHOP</string>
+    <string name="all_done">"ALL DONE!!"</string>
+    <string name="drag_tip_subtext">Tap and Drag to reorder your sticker packs</string>
+    <string name="all_packs_deleted_heading">We have over 10,000 stickers</string>
+    <string name="all_packs_deleted_info">Check out our sticker shop and download only what you like!</string>
+    <string name="intercept_title_screen_shot">Screenshot captured!</string>
+    <string name="intercept_message_screen_shot">Edit it and share with your friends on hike</string>
+    <string name="intercept_title_image">Great Picture!</string>
+    <string name="intercept_message_image">Share it with your friends on hike</string>
+    <string name="intercept_lable_set_dp">Set DP</string>
+    <string name="intercept_lable_screenshot_share">Edit &amp; Share</string>
+    <string name="intercept_lable_image_share">Share</string>
+    <string name="intercept_title_video">Awesome video!</string>
+    <string name="intercept_message_video">Share it with your friends on hike</string>
+    <string name="intercept_lable_video_share">Share on hike</string>
+    <string name="screenshot_intercept_settings_header">Screenshot notification</string>
+    <string name="screenshot_intercept_settings_content">Notify to share when a screenshot is captured</string>
+    <string name="image_intercept_settings_header">Picture notification</string>
+    <string name="image_intercept_settings_content">Notify when a picture is taken</string>
+    <string name="video_intercept_settings_header">Video notification</string>
+    <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
+>>>>>>> 3275be3e1906a7ceff7651f8418346da55e57c57
 </resources>
