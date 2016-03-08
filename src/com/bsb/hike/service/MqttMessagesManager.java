@@ -2838,6 +2838,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+
 		if (data.has(HikeConstants.ENABLE_AB_SYNC_CHANGE))
 		{
 			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
@@ -2859,10 +2860,34 @@ public class MqttMessagesManager
 			}
 		}
 
-		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
-		{
+		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS)) {
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
+		}
+		if (data.has(HikeConstants.ADD_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.ADD_URL);
+				PlatformUtils.insertUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+		}
+		if (data.has(HikeConstants.DELETE_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.DELETE_URL);
+				PlatformUtils.deleteUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+
 		}
 
 		editor.commit();

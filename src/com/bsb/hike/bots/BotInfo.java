@@ -49,7 +49,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private String botDescription;
 	
 	private int updatedVersion;
-	
+	private String clientId;
 	public static final class TriggerEntryPoint
 	{
 		public static final int ENTRY_AT_HOME_MENU = 1;
@@ -253,7 +253,13 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.notifData = notifData;
 	}
 
+    public String getClientId(){
+		return clientId;
+	}
 
+	public void setClientId(String clientId){
+		this.clientId = clientId;
+	}
 	public static class HikeBotBuilder extends BotInfo.InitBuilder<HikeBotBuilder>
 	{
 		public HikeBotBuilder(String msisdn)

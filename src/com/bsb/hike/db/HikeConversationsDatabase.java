@@ -1,5 +1,6 @@
 package com.bsb.hike.db;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -328,6 +332,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 		db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 
+		sql = getURLTableCreateStatement();
+		db.execSQL(sql);
+
+		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+		db.execSQL(sql);
+
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
 		
@@ -361,6 +371,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
+		mDb.delete(DBConstants.URL_TABLE, null, null);
 	}
 
 	@Override
@@ -935,6 +946,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 
+
+		if (oldVersion < 48)
+		{
+			String sql = getURLTableCreateStatement();
+			db.execSQL(sql);
+
+			sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+			db.execSQL(sql);
+		}
 
 	}
 
@@ -9159,5 +9179,74 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return -1;
 	}
+	//Sql statement to maintain Infra URL table
+
+	private String getURLTableCreateStatement()
+	{
+		return CREATE_TABLE + DBConstants.URL_TABLE
+				+ " ("
+				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
+				+ DBConstants.URL + " TEXT"        //URL THAT IS RELATED TO THIS KEY.
+				+  ")";
+	}
+	// Function to insert URL in URL table in an encrypted manner
+
+	public long insertURL(String urlKey, String url)
+	{
+		try
+		{
+			java.net.URL u = new java.net.URL(url);
+		}
+		catch (MalformedURLException e)
+		{
+			return -1;
+		}
+		try
+		{
+
+			ContentValues values = new ContentValues();
+			values.put(DBConstants.URL_KEY, urlKey);
+			values.put(DBConstants.URL, Utils.encrypt(url));
+			return mDb.insertWithOnConflict(DBConstants.URL_TABLE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+		}
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Error in Inserting URL " + e.toString());
+			return -1;
+		}
+	}
+
+	// Function to get URL and returns decrypted URL
+
+	public String getURL(String urlKey)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
+
+			if (!c.moveToFirst())
+			{
+				return null;
+			}
+
+			return Utils.decrypt(c.getString(c.getColumnIndex(DBConstants.URL)));
+
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	public void deleteURL(String urlKey)
+	{
+		mDb.delete(DBConstants.URL_TABLE, DBConstants.URL_KEY + "=?", new String[]{urlKey});
+	}
+
 
 }

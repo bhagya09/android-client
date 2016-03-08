@@ -40,10 +40,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -58,6 +60,8 @@ import com.bsb.hike.platform.NativeBridge;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -70,6 +74,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.Headers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -80,6 +85,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -112,6 +118,11 @@ public abstract class JavascriptBridge
 	protected static final int SHARE_EXTERNAL = 5;
 
 	boolean sendIntentData = false;
+
+	protected static final int MAX_COUNT =1;
+
+	//Hashmap of URL vs Count
+	HashMap<String,Integer> platformRequest=new HashMap<String,Integer>();
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -1471,5 +1482,4 @@ public abstract class JavascriptBridge
 	{
 
 	}
-
 }

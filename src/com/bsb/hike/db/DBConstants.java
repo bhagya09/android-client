@@ -272,8 +272,9 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
-	
 	public static final String FEED_INDEX = "feed_idx";
+	String URL_KEY = "urlKey";
+	String URL_KEY_INDEX = "urlKeyIndex";
 
 	public static interface HIKE_CONV_DB
 	{
@@ -508,5 +509,9 @@ public interface DBConstants
 	 */
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
+
+	public static final String URL_TABLE = "urlTable";
+
+	public static final String URL = "url";
 	
 }

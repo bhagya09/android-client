@@ -797,6 +797,9 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+	public static String ADD_URL = "addUrl";
+	public static String DELETE_URL = "deleteUrl";
+
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
