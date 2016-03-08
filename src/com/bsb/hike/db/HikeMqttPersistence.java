@@ -38,8 +38,9 @@ public class HikeMqttPersistence extends SQLiteOpenHelper
 	{
 		super(context, DBConstants.HIKE_PERSISTENCE.DATABASE_NAME, null, DBConstants.HIKE_PERSISTENCE.DATABASE_VERSION);
 		mDb = getWritableDatabase();
+		DBUtils.setPragmaJournalMode(mDb);
 	}
-	
+
 	public SQLiteDatabase getDb()
 	{
 		return mDb;

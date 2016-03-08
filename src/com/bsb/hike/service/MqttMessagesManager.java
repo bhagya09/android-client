@@ -2865,6 +2865,11 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
+		{
+			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

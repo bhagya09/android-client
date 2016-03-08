@@ -43,6 +43,7 @@ public class HikeOfflinePersistence implements IPersistanceInterface
 	{
 		hikeMqttPersistence = HikeMqttPersistence.getInstance();
 		mDb = hikeMqttPersistence.getDb();
+		DBUtils.setPragmaJournalMode(mDb);
 	}
 
 	@Override

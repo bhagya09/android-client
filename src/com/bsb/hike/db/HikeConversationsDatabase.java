@@ -125,14 +125,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
-		mDb = getWritableDatabase();
+		getWriteDatabase();
 	}
 	
 	public SQLiteDatabase getWriteDatabase()
 	{
-		if(mDb == null || !mDb.isOpen())
+		if (mDb == null || !mDb.isOpen())
 		{
 			mDb = super.getWritableDatabase();
+			DBUtils.setPragmaJournalMode(mDb);
 		}
 		return mDb;
 	}
@@ -942,7 +943,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
-		mDb = hikeConversationsDatabase.getWriteDatabase(); 
+		hikeConversationsDatabase.getWriteDatabase();
 		Logger.d(getClass().getSimpleName(), "Conversation DB initialization is complete");
 	}
 

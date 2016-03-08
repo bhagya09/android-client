@@ -41,6 +41,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION, new CustomDatabaseErrorHandler());
 		mDB = getWritableDatabase();
+		DBUtils.setPragmaJournalMode(mDB);
 	}
 
 	public static HikeContentDatabase getInstance()
@@ -51,7 +52,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		mDB = db;
 		String[] createQueries = getCreateQueries();
 		for (String create : createQueries)
 		{
@@ -63,7 +63,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		mDB = db;
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 

@@ -3984,4 +3984,5 @@ public class HikeConstants
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
 }
