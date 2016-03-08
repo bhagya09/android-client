@@ -3853,7 +3853,7 @@ public class MqttMessagesManager
 				try
 				{
 					ContactManager.getInstance().getWritableDatabase().beginTransaction();
-					convDb.getWriteDatabase().beginTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -3865,7 +3865,7 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convDb.getWriteDatabase().setTransactionSuccessful();
+					convDb.initializeIfRequiredAndGetWriteDatabase().setTransactionSuccessful();
 					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
@@ -3879,7 +3879,7 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convDb.getWriteDatabase().endTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().endTransaction();
 					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");
