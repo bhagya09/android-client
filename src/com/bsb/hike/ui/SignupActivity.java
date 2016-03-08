@@ -81,6 +81,7 @@ import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Birthday;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
@@ -1113,8 +1114,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private void fetchProfilePic(String msisdn)
 	{
-		int size = getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
-		profileImageLoader = new ProfileImageLoader(this, msisdn, mIconView, size, true, true);
+		profileImageLoader = new ProfileImageLoader(this, msisdn, mIconView, HikeConstants.PROFILE_IMAGE_DIMENSIONS, true, true);
 		profileImageLoader.setLoaderListener(new ProfileImageLoader.LoaderListener() {
 			@Override
 			public Loader<Boolean> onCreateLoader(int arg0, Bundle arg1) {
@@ -1182,6 +1182,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		@Override
 		public void onSuccess(Response result) {
+			setcontactManagerIcon();
 			if (profileImageLoader != null) {
 				profileImageLoader.loadProfileImage(getSupportLoaderManager());
 			}
@@ -1190,6 +1191,24 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void onTaskAlreadyRunning() {}
 	};
+
+
+	private void setcontactManagerIcon()
+	{
+		String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+		File profileImage = (new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT, Utils.getProfileImageFileName(msisdn)));
+		if (profileImage.exists())
+		{
+			Bitmap smallerBitmap = HikeBitmapFactory.scaleDownBitmap(profileImage.getAbsolutePath(), HikeConstants.PROFILE_IMAGE_DIMENSIONS, HikeConstants.PROFILE_IMAGE_DIMENSIONS, Bitmap.Config.RGB_565,
+					true, false);
+
+			if (smallerBitmap != null)
+			{
+				final byte[] bytes = BitmapUtils.bitmapToBytes(smallerBitmap, Bitmap.CompressFormat.JPEG, 100);
+				ContactManager.getInstance().setIcon(msisdn, bytes, true);
+			}
+		}
+	}
 
 	private void prepareLayoutForGender(Bundle savedInstanceState)
 	{
