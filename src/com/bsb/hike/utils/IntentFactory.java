@@ -1,13 +1,5 @@
 package com.bsb.hike.utils;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -47,6 +39,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
@@ -89,6 +82,14 @@ import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IntentFactory
 {
@@ -1552,5 +1553,16 @@ public class IntentFactory
 		}
 		return msg;
 	}
+
+    /**
+     *
+     * @return returns launch intent with persistant alarm flags
+     */
+    public static Intent getPersistantAlarmIntent()
+    {
+        Intent intent = new Intent();
+        intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
+        return intent;
+    }
 
 }

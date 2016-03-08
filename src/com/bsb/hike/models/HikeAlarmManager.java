@@ -17,15 +17,11 @@ import com.bsb.hike.platform.PlatformAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.tasks.SendDailyAnalyticsTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 
 /**
@@ -86,7 +82,7 @@ public class HikeAlarmManager
 
 	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 
-    public static final int REQUESTCODE_PUSH_HIKE_ANALYTICS = 4579;
+    public static final int REQUESTCODE_LOG_HIKE_ANALYTICS = 4579;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -332,8 +328,9 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			ChatHeadUtils.syncAllCallerBlockedContacts();
 			break;
-        case HikeAlarmManager.REQUESTCODE_PUSH_HIKE_ANALYTICS:
-            StickerManager.getInstance().sendStickerDailyAnalytics();
+        case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
+            SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
+            HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
@@ -415,8 +412,9 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			processTasks(intent, context);
 			break;
-        case HikeAlarmManager.REQUESTCODE_PUSH_HIKE_ANALYTICS:
-            StickerManager.getInstance().sendStickerDailyAnalytics();
+        case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
+            SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
+            HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
