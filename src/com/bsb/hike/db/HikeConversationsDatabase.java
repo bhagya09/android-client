@@ -9064,9 +9064,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			insertPrepStmt.bindLong(2, saveAsset.getType());
 
 			if(saveAsset.getValue() != null)
-				updatePrepStmt.bindString(3, saveAsset.getValue());
+				insertPrepStmt.bindString(3, saveAsset.getValue());
 			else
-				updatePrepStmt.bindNull(3);
+				insertPrepStmt.bindNull(3);
 
 			insertPrepStmt.bindLong(4, saveAsset.isDownloaded() ? 1 : 0);
 
