@@ -32,6 +32,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -42,6 +43,7 @@ import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -76,6 +78,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -164,6 +167,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addSMSCardEnablePref();
 				
 		addStealthPrefListeners();
+        addInterceptsPrefListeners();
 		
 		Preference videoCompressPreference = getPreferenceScreen().findPreference(HikeConstants.COMPRESS_VIDEO_CATEGORY);
 		if(videoCompressPreference != null && android.os.Build.VERSION.SDK_INT < 18)
@@ -290,6 +294,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.BACKUP_PREF);
 		addOnPreferenceClickListeners(HikeConstants.UNLINK_PREF);
 		addOnPreferenceClickListeners(HikeConstants.STICKER_REORDER_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_DELETE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_HIDE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_UPDATE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.BLOKED_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.SYSTEM_HEALTH_PREF);
 		addOnPreferenceClickListeners(HikeConstants.HELP_FAQS_PREF);
@@ -370,7 +377,49 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				getPreferenceScreen().removePreference(knownContactEnablePref);
 			}
 		}
-	}
+    }
+
+	private void addInterceptsPrefListeners()
+	{
+		final SwitchPreferenceCompat enableVideoIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT);
+		if (enableVideoIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, false))
+			{
+				enableVideoIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableVideoIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableScreenshotIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT);
+		if (enableScreenshotIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, false))
+			{
+				enableScreenshotIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableScreenshotIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableImageIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT);
+		if (enableImageIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, false))
+			{
+				enableImageIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableImageIntercept);
+			}
+		}
+    }
 	
 	private void addAppLanguagePreference()
 	{
@@ -531,8 +580,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference recommendationPref = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+				screen.removePreference(recommendationPref);
 			}
 		}
 	}
@@ -573,8 +623,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference autoPopUpPreference = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
+				screen.removePreference(autoPopUpPreference);
 			}
 		}
 	}
@@ -1156,6 +1207,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
 		{
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_REORDER_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_DELETE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_DELETE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_HIDE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_HIDE_TASK);
+			startActivity(i);
+		}
+		else if(HikeConstants.STICKER_UPDATE_PREF.equals(preference.getKey()))
+		{
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
 			startActivity(i);
 		}
 		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))
@@ -1438,6 +1508,48 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 				} catch (JSONException e) {
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+			} else if(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+				InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
 				}
 			} else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);

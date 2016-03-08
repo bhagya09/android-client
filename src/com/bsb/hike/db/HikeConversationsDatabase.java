@@ -2116,8 +2116,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues contentValues = new ContentValues(1);
 		contentValues.put(DBConstants.CONVERSATION_METADATA, metadata.toString());
-		mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
-		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_META_DATA_UPDATED, new Pair<String, ConversationMetadata>(msisdn,metadata));
+		mDb.update(DBConstants.CONVERSATIONS_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[]{msisdn});
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CONV_META_DATA_UPDATED, new Pair<String, ConversationMetadata>(msisdn, metadata));
 	}
 
 	private void bindConversationInsert(SQLiteStatement insertStatement, ConvMessage conv,boolean bindForConvId)
@@ -2216,7 +2216,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		ArrayList<ContactInfo> contacts= new ArrayList<ContactInfo>(1);
 		String msisdn = convMessages.get(0).getMsisdn();
-		contacts.add(new ContactInfo(msisdn, msisdn, null, null,!convMessages.get(0).isSMS()));
+		contacts.add(new ContactInfo(msisdn, msisdn, null, null, !convMessages.get(0).isSMS()));
 
 		return addConversations(convMessages, contacts,createConvIfNotExist);
 	}
@@ -5601,10 +5601,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		updateStickerCategoryData(categoryId, null, totalNum, -1);
 	}
 
-	public void removeStickerCategory(String categoryId)
+	public void removeStickerCategory(String categoryId, boolean removeFromShopTable)
 	{
-		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
-		mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
+		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+		if (removeFromShopTable) {
+			mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
+		}
 	}
 
 	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize)
