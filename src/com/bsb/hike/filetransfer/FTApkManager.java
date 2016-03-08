@@ -37,7 +37,7 @@ import java.util.Calendar;
 public class FTApkManager
 {
 
-    private  static Context context;
+    private  static Context context = HikeMessengerApp.getInstance().getApplicationContext();
 
     public static void makeRequest(final double apkSizeMultiplier)
     {
