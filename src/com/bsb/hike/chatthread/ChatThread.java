@@ -235,6 +235,7 @@ import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -1798,7 +1799,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
-		
+
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
@@ -1807,6 +1808,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+
+        StickerManager.getInstance().sendEmoticonAnalytics();
+
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -2154,11 +2158,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return;
 		}
 
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
-				R.color.sticker_recommend_highlight_text)));
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher)
+				: (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
 				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
+
+		StickerSearchManager.getInstance().loadStickerEvents();
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -4355,7 +4361,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			@Override
 			public void run()
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
 				{
 					setupStickerSearch();
 				}
@@ -4363,6 +4369,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				{
 					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
+					StickerEventSearchManager.getInstance().clearNowCastEvents();
 				}
 			}
 		});
@@ -4668,7 +4675,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	private void releaseStickerSearchResources()
 	{
-		if(stickerTagWatcher != null)
+		if (stickerTagWatcher != null)
 		{
 			stickerTagWatcher.releaseResources();
 			mComposeView.removeTextChangedListener(stickerTagWatcher);
@@ -4969,6 +4976,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		initShareablePopup();
 		StickerManager.getInstance().showStickerRecommendTurnOnToast();
+		// Update events, if sticker recommendation is running.
+		if (stickerTagWatcher != null)
+		{
+			StickerSearchManager.getInstance().loadStickerEvents();
+		}
 	}
 
 	protected void hideView(int viewId)
