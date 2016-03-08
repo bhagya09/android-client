@@ -235,6 +235,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+
+    public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
+
 	public static final String MSISDN_ENTERED = "msisdnEntered";
 
 	public static final String BROKER_HOST = "brokerHost";
@@ -1292,12 +1296,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     private void setAnalyticsSendAlarm()
     {
-        if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DAILY_ANALYTICS_ALARM_STATUS, false))
+        if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, false))
         {
             return;
         }
 
-        long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),HikeConstants.DEFAULT_SEND_ANALYTICS_TIME_HOUR, 0, 0, 0);
+        long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),HikeMessengerApp.DEFAULT_SEND_ANALYTICS_TIME_HOUR, 0, 0, 0);
 
         if (scheduleTime < System.currentTimeMillis())
         {
@@ -1306,6 +1310,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
         HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
 
-        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DAILY_ANALYTICS_ALARM_STATUS, true);
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
     }
 }
