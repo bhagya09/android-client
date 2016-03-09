@@ -335,9 +335,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = getURLTableCreateStatement();
 		db.execSQL(sql);
 
-		sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
-		db.execSQL(sql);
-
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
 		
@@ -9186,12 +9183,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return CREATE_TABLE + DBConstants.URL_TABLE
 				+ " ("
 				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
-				+ DBConstants.URL + " TEXT"        //URL THAT IS RELATED TO THIS KEY.
+				+ DBConstants.URL + " TEXT , "        //URL THAT IS RELATED TO THIS KEY.
+				+ DBConstants.LIFE + " INTEGER"       //This column specifies if the particular service access token is short lived(0) or long lived(1).
 				+  ")";
 	}
 	// Function to insert URL in URL table in an encrypted manner
 
-	public long insertURL(String urlKey, String url)
+	public long insertURL(String urlKey, String url, int life)
 	{
 		try
 		{
@@ -9207,6 +9205,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues values = new ContentValues();
 			values.put(DBConstants.URL_KEY, urlKey);
 			values.put(DBConstants.URL, Utils.encrypt(url));
+			values.put(DBConstants.LIFE, life);
 			return mDb.insertWithOnConflict(DBConstants.URL_TABLE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
 		}
 		catch (Exception e)
@@ -9218,19 +9217,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	// Function to get URL and returns decrypted URL
 
-	public String getURL(String urlKey)
+	public Cursor getURL(String urlKey)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
+			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL, DBConstants.LIFE }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
 
 			if (!c.moveToFirst())
 			{
 				return null;
 			}
 
-			return Utils.decrypt(c.getString(c.getColumnIndex(DBConstants.URL)));
+			return c;
 
 		}
 		finally

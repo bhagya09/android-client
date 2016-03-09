@@ -513,5 +513,8 @@ public interface DBConstants
 	public static final String URL_TABLE = "urlTable";
 
 	public static final String URL = "url";
+	String LIFE = "life";
+	int SHORT_LIVED = 0;
+	int LONG_LIVED = 1;
 	
 }

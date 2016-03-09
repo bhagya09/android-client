@@ -328,4 +328,5 @@ public interface HikePlatformConstants
 	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
+	String CLIENT_ID = "clientId";
 }

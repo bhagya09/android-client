@@ -57,7 +57,7 @@ public class PlatformAuthenticationManager
 		_callBack = callback;
 		_mAppId = mAppId;
 	}
-	
+
 	public String requestAuthToken(boolean longTermToken)
 	{
 		_isLongTermTokenRequired = longTermToken;
@@ -67,7 +67,9 @@ public class PlatformAuthenticationManager
 		}
 		else{
 			Logger.d(tag, "Client id is null");
-			_callBack.onTokenErrorResponse(null);
+			if(_callBack != null) {
+				_callBack.onTokenErrorResponse(null);
+			}
 		}
 		return null;
 	}
@@ -137,7 +139,9 @@ public class PlatformAuthenticationManager
 							HikeContentDatabase.getInstance().addAuthToken(_mAppId,accessToken);
 						}
 									Logger.d(tag, "access token recieved");
-						_callBack.onTokenResponse(accessToken);
+						if(_callBack != null) {
+							_callBack.onTokenResponse(accessToken);
+						}
 
 					}
 
@@ -159,9 +163,10 @@ public class PlatformAuthenticationManager
 		@Override
 		public void onRequestFailure(HttpException httpException)
 		{
-			Logger.d(tag, "auth request failed: "+httpException.getErrorCode());
-			_callBack.onTokenErrorResponse(null);
-
+			Logger.d(tag, "auth request failed: " + httpException.getErrorCode());
+			if(_callBack != null){
+				_callBack.onTokenErrorResponse(null);
+			}
 		}
 
 		@Override

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -26,6 +27,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -1577,33 +1579,29 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		String id;
 		String urlKey;
-		String data;
-		int current_count=platformRequest.get(urlKey);
-		public PlatformPostListener(String id, String urlKey, final String data)
+		JSONObject data;
+		int current_count;
+		public PlatformPostListener(String id, String urlKey, final JSONObject data, final int count)
 		{
 			this.id =id;
 			this.urlKey =urlKey;
 			this.data=data;
+			this.current_count = count;
 		}
 		@Override
 		public void onRequestFailure(HttpException httpException) {
-			PlatformAuthenticationManager manager =new PlatformAuthenticationManager(mBotInfo.getClientId(), mBotInfo.getMsisdn(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null), new AuthListener() {
+			AuthListener authListener = new AuthListener() {
 				@Override
 				public void onTokenResponse(String authToken) {
-					platformRequest.put(urlKey,current_count-1);
-					doInfraPost(id,urlKey,data);
-
+					doInfraPost(id,urlKey,data, --current_count);
 				}
 
 				@Override
 				public void onTokenErrorResponse(String error) {
 
 				}
-			});
-			manager.requestAuthToken(mBotInfo.getClientId());
-
-
-
+			};
+			PlatformUtils.requestAuthToken(mBotInfo, authListener);
 		}
 
 		@Override
@@ -1621,8 +1619,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				Logger.e("JavascriptBridge", "Error while parsing success request");
 				e.printStackTrace();
 			}
-
-
 			callbackToJS(id, String.valueOf(success));
 		}
 
@@ -1637,45 +1633,69 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 11
 	 */
 	@JavascriptInterface
-
-	public void doInfraPostinit(final String id,String urlKey, String data)
-	{
-		platformRequest.put(urlKey,MAX_COUNT);
-		doInfraPost(id,urlKey,data);
-	}
-	public void doInfraPost(final String id,String urlKey, String data)
+	public void doInfraPostinit(final String id, String urlKey, String data)
 	{
 		try
 		{
-			JSONObject jsonObject = new JSONObject(data);
-			String params = jsonObject.optString(HikePlatformConstants.PARAMS);
-			JSONObject json;
-			if(TextUtils.isEmpty(params))
-			{
-				json=null;
-			}
-			else
-			{
-				json=new JSONObject(params);
-			}
-			String url= HikeConversationsDatabase.getInstance().getURL(urlKey);
-			if(TextUtils.isEmpty(url))
-			{
-				callbackToJS(id,"Invalid Key");
-				return;
-			}
-			String oAuth = HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.PLATFORM_AUTH_TOKEN_EXPIRY,"");
-			RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, data));
-			if(platformRequest.get(urlKey) > 0) {
-				if (!token.isRequestRunning()) {
-					token.execute();
-				}
-			}
+			JSONObject jsonData = new JSONObject(data);
+			doInfraPost(id, urlKey, jsonData, MAX_COUNT);
 		}
-		catch (JSONException e)
+		catch (JSONException ex)
 		{
-			Logger.e(tag, "error in JSON");
-			e.printStackTrace();
+
+		}
+	}
+
+	public void doInfraPost(final String id, final String urlKey, final JSONObject data, final int count)
+	{
+		if (count <= 0)
+		{
+			return;
+		}
+		Cursor cursor = HikeConversationsDatabase.getInstance().getURL(urlKey);
+		if(cursor == null){
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		final String url  = Utils.decrypt(cursor.getString(cursor.getColumnIndex(DBConstants.URL)));
+		if (TextUtils.isEmpty(url))
+		{
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		int tokenLife = cursor.getInt(cursor.getColumnIndex(DBConstants.LIFE));
+		if(tokenLife == DBConstants.LONG_LIVED) {
+			final String oAuth = HikeContentDatabase.getInstance().getTokenForMicroapp(mBotInfo.getMsisdn());
+			if (TextUtils.isEmpty(oAuth)) {
+				fetchToken(id, urlKey, data, count, url);
+			} else {
+				makePlatformPostRequest(id, url, data, oAuth, urlKey, count);
+			}
+		}else{
+			fetchToken(id, urlKey, data, count, url);
+		}
+	}
+    private void fetchToken(final String id, final String urlKey, final JSONObject data, final int count, final String url){
+		AuthListener authListener = new AuthListener() {
+			@Override
+			public void onTokenResponse(String authToken) {
+				makePlatformPostRequest(id, url, data, authToken, urlKey, count);
+			}
+
+			@Override
+			public void onTokenErrorResponse(String error) {
+
+			}
+		};
+		PlatformUtils.requestAuthToken(mBotInfo, authListener);
+	}
+	private void makePlatformPostRequest(String id, String url, JSONObject json, String oAuth, String urlKey, int count)
+	{
+		RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, json, count));
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
 		}
 	}
 }

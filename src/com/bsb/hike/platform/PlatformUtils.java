@@ -65,6 +65,8 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
@@ -465,6 +467,7 @@ public class PlatformUtils
 	{
 		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
+		requestAuthToken(botInfo, null);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
 	}
@@ -474,6 +477,10 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
+	public static void requestAuthToken(BotInfo botInfo, AuthListener authListener){
+		PlatformAuthenticationManager manager =new PlatformAuthenticationManager(botInfo.getClientId(), botInfo.getMsisdn(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null),authListener);
+		manager.requestAuthToken(botInfo.getClientId());
+	}
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 
@@ -771,23 +778,18 @@ public class PlatformUtils
 		}
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
-		mThread.postRunnable(new Runnable()
-		{
-			
+		mThread.postRunnable(new Runnable() {
+
 			@Override
-			public void run()
-			{
-			    byte[] fileBytes = prepareFileBody(filePath);
-			    if(fileBytes!=null)
-			    {
-				String response = send(fileBytes,filePath,url,fileListener);
-				Logger.d("FileUpload", response);
-			    }
-			    else
-			    {
-			    	Logger.e("fileUpload","Empty File Body");
-			    	return ;
-			    }
+			public void run() {
+				byte[] fileBytes = prepareFileBody(filePath);
+				if (fileBytes != null) {
+					String response = send(fileBytes, filePath, url, fileListener);
+					Logger.d("FileUpload", response);
+				} else {
+					Logger.e("fileUpload", "Empty File Body");
+					return;
+				}
 			}
 		});
 
@@ -1892,6 +1894,7 @@ public class PlatformUtils
 	public static void insertUrl(JSONArray array) {
 		String key;
 		String url;
+		int life;
 		JSONObject jsonObject;
 		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
 		for (int i = 0; i < array.length(); i++) {
@@ -1899,7 +1902,8 @@ public class PlatformUtils
 				jsonObject = array.getJSONObject(i);
 				key = jsonObject.getString(DBConstants.URL_KEY);
 				url = jsonObject.getString(HikeConstants.URL);
-				db.insertURL(key, url);
+				life = jsonObject.getInt(DBConstants.LIFE);
+				db.insertURL(key, url, life);
 			} catch (JSONException e) {
 				Logger.e(TAG, e.toString());
 			}
