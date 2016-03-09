@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 47;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 49;
 
 	public static final int USERS_DATABASE_VERSION = 17;
 
@@ -481,6 +481,9 @@ public interface DBConstants
 
 		public static final String THEME_COL_STATUS_BAR_COL = "statusBarColor";
 
+		// Extra Columns for CHAT_BG_TABLE
+
+		public static final String PREV_THEME_ID_COL = "prevThemeId";
 	}
 
 	public static final String CATEGORY_NAME = "categoryName";
