@@ -30,6 +30,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -39,6 +40,7 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -968,6 +970,35 @@ public class HttpRequests
 				.setResponseOnUIThread(true)
 				.post(null)
 				.build();
+		return requestToken;
+	}
+	
+	public static RequestToken getLatestApkInfo(IRequestListener requestListener)
+	{
+		String url = HttpRequestConstants.latestApkInfoUrl();
+
+		JSONObject js = new JSONObject();
+		try {
+			js.put("version_name", Utils.getAppVersionName());
+			js.put("version_code", Utils.getAppVersionCode());
+			js.put("sim_mcc_mnc", PhoneSpecUtils
+					.getSimDetails(HikeMessengerApp.getInstance().getApplicationContext())
+					.get(PhoneSpecUtils.MCC_MNC));
+			js.put("nwk_mcc_mnc", PhoneSpecUtils
+					.getNetworkDetails(HikeMessengerApp.getInstance().getApplicationContext())
+					.get(PhoneSpecUtils.MCC_MNC));
+		}
+		catch (JSONException je )
+		{
+			Logger.d("AUTOAPK", "exception in handling json : " + je);
+		}
+		Logger.d("AUTOAPK", "json params in request : " + js.toString());
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+		.setUrl(url).setRequestType(Request.REQUEST_TYPE_SHORT)
+		.setRequestListener(requestListener)
+		.setResponseOnUIThread(true)
+		.post(new JsonBody(js))
+		.build();
 		return requestToken;
 	}
 
