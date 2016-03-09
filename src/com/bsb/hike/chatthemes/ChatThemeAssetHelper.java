@@ -1,5 +1,6 @@
 package com.bsb.hike.chatthemes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -143,5 +144,19 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 			String[] downloadedAssets = (String[]) object;
 			//TODO Add method to write the assets associated to these assetIds into DB
 		}
+	}
+
+	public String[] getMissingAssets(String[] assets)
+	{
+		ArrayList<String> missingAssets = new ArrayList<String>();
+		int len = assets.length;
+		for(int i = 0 ; i < len; i++)
+		{
+			if(!(isAssetRecorded(assets[i]) && (mAssets.get(assets[i]).isDownloaded())))
+			{
+				missingAssets.add(assets[i]);
+			}
+		}
+		return (String[]) missingAssets.toArray();
 	}
 }
