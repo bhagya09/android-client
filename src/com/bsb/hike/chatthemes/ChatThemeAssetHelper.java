@@ -157,6 +157,6 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 				missingAssets.add(assets[i]);
 			}
 		}
-		return (String[]) missingAssets.toArray();
+		return missingAssets.toArray(new String[missingAssets.size()]);
 	}
 }
