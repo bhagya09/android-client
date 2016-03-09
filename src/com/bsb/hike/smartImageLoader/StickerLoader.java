@@ -43,6 +43,17 @@ public class StickerLoader extends ImageWorker
 		mResources = HikeMessengerApp.getInstance().getResources();
 	}
 
+    public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound,boolean lookForOfflineSticker,boolean stretchMini)
+    {
+        super();
+        this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
+        this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
+        this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
+        this.lookForOfflineSticker = lookForOfflineSticker;
+        this.stretchMini = stretchMini;
+        mResources = HikeMessengerApp.getInstance().getResources();
+    }
+
 	@Override
 	protected Bitmap processBitmap(String data)
 	{
@@ -155,14 +166,5 @@ public class StickerLoader extends ImageWorker
             StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
         }
     }
-	public void setStretchMini(boolean stretchMini)
-	{
-		this.stretchMini = stretchMini;
-	}
-
-	public void setLookForOfflineSticker(boolean lookForOfflineSticker)
-	{
-		this.lookForOfflineSticker = lookForOfflineSticker;
-	}
 
 }
