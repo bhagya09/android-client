@@ -694,6 +694,7 @@ import android.widget.Toast;
 					activity.getApplicationContext()).getBoolean(
 					HikeConstants.SEND_ENTER_PREF, false))
 			{
+				mComposeView.setInputType(mComposeView.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 			}
 			else if ((mComposeView.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == InputType.TYPE_TEXT_FLAG_MULTI_LINE)
@@ -702,7 +703,9 @@ import android.widget.Toast;
 						^ InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 				mComposeView.setImeOptions(EditorInfo.IME_ACTION_SEND);
 			}
-
+			
+			mComposeView.setHorizontallyScrolling(false);
+			mComposeView.setMaxLines(4);
 		}
 	}
 
@@ -5872,6 +5875,7 @@ import android.widget.Toast;
 		/**
 		 * Hiding soft keyboard
 		 */
+		Utils.hideSoftKeyboard(activity, mComposeView);
 		setUpThemePicker();
 		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
 	}

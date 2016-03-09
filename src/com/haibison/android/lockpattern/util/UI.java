@@ -211,6 +211,7 @@ public class UI {
         if (BuildConfig.DEBUG)
             Log.d(CLASSNAME, String.format(
                     "NEW >>> width = %,d | height = %,d", width, height));
+        dialogWindow.setLayout(width, height);
     }// adjustDialogSizeForLargeScreens()
 
     /**

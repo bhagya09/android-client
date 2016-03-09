@@ -327,7 +327,6 @@
                                     android:inputType="text|textAutoCorrect|textCapSentences"
                                     android:lineSpacingExtra="1dp"
                                     android:maxLength="@integer/max_length_message"
-                                    android:maxLines="4"
                                     android:minHeight="27dp"
                                     android:paddingLeft="5dp"
                                     android:paddingTop="3dp"
