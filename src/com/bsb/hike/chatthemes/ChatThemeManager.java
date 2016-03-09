@@ -164,9 +164,9 @@ public class ChatThemeManager
 		try
 		{
 			int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-			String value = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
-			theme.setAsset(assetIndex, value);
-			assetList.add(new HikeChatThemeAsset(value, type, ""));
+			String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
+			theme.setAsset(assetIndex, id);
+			assetList.add(new HikeChatThemeAsset(id, type, null));
 		}
 		catch(JSONException e)
 		{
