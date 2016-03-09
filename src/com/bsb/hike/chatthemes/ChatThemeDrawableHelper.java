@@ -77,6 +77,9 @@ public class ChatThemeDrawableHelper
 	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex)
 	{
 		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(theme.getAssetId(assetIndex));
+		if(asset == null){
+			return null;
+		}
 		return getDrawableFromSDCard(asset);
 	}
 
