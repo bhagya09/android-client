@@ -10,7 +10,13 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -55,6 +61,21 @@ public class CustomTabActivityHelper
 		}
 		else
 		{
+			//{"t":"le_android","d":{"et":"nonUiEvent","st":"repl","ep":"HIGH","cts":1456826270480,"tag":"plf","md":{"ek":"micro_app","event":"chromeCustomTabs","fld4":"justOpened","fld1":"http:\/\/timesofindia.indiatimes.com\/business\/india-business\/Day-after-Budget-Sensex-surges-over-450-points\/articleshow\/51204579.cms","sid":1456826226544}}}
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+				json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.CHROME_CUSTOM_TABS);
+				json.putOpt(AnalyticsConstants.LOG_FIELD_4,AnalyticsConstants.JUST_OPENED);
+				json.putOpt(AnalyticsConstants.LOG_FIELD_1,uri);
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+
 			customTabsIntent.intent.setPackage(packageName);
 			customTabsIntent.launchUrl(activity, Uri.parse(uri));
 		}
@@ -87,8 +108,13 @@ public class CustomTabActivityHelper
 		mCustomTabsSession = null;
 		if (mConnection == null)
 			return;
-		activity.unbindService(mConnection);
-
+		//Fix for AND-4863
+		try{
+			activity.unbindService(mConnection);
+		} catch (RuntimeException ex){
+            // exception occurs when service is not registered to activity.
+			Logger.e(TAG,ex.getMessage());
+		}
 	}
 
 	/**

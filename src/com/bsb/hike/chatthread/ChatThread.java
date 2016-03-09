@@ -22,11 +22,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -58,6 +60,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
@@ -70,6 +73,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -80,6 +84,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -893,22 +898,20 @@ import android.widget.Toast;
 		switch (requestCode)
 		{
 		case AttachmentPicker.CAMERA:
-			if(!Utils.isPhotosEditEnabled())
+
+			String filename = Utils.getCameraResultFile();
+			if(TextUtils.isEmpty(filename))
 			{
-				ImageParser.parseResult(activity, resultCode, data, this, true);
+				imageParseFailed();
+				return;
 			}
-			else
-			{
-				String filename = Utils.getCameraResultFile();
-				if(filename!=null)
-				{
-					activity.startActivityForResult(IntentFactory.getPictureEditorActivityIntent(activity, filename, false, filename, false), AttachmentPicker.EDITOR);
-				}
-				else
-				{
-					imageParseFailed();
-				}
-			}
+
+			ArrayList<String> filePathArrays = new ArrayList<String>();
+			filePathArrays.add(filename);
+			ArrayList<GalleryItem> galleryItemArrayList = GalleryItem.getGalleryItemsFromFilepaths(filePathArrays);
+
+			Intent selectionIntent = IntentFactory.getImageSelectionIntent(activity, galleryItemArrayList, true, true);
+			activity.startActivityForResult(selectionIntent, AttachmentPicker.GALLERY);
 			break;
 		case AttachmentPicker.AUDIO:
 		case AttachmentPicker.VIDEO:
@@ -930,6 +933,54 @@ import android.widget.Toast;
 			onShareContact(resultCode, data);
 			break;
 		case AttachmentPicker.GALLERY:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				final ArrayList<Uri> imagePathArrayList = data.getParcelableArrayListExtra(HikeConstants.IMAGE_PATHS);
+				final ArrayList<String> imageCaptions = data.getStringArrayListExtra(HikeConstants.CAPTION);
+
+				if(Utils.isEmpty(imagePathArrayList))
+				{
+					imageParseFailed();
+					return;
+				}
+				else
+				{
+					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
+					{
+						@Override
+						public void imageParsed(Uri uri)
+						{
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
+									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParsed(String imagePath)
+						{
+							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
+									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
+						}
+
+						@Override
+						public void imageParseFailed()
+						{
+							ChatThread.this.imageParseFailed();
+						}
+					});
+
+				}
+			}
+			else if (resultCode == GalleryActivity.GALLERY_ACTIVITY_RESULT_CODE)
+			{
+				// This would be executed if photos is not enabled on the device
+				mConversationsView.requestFocusFromTouch();
+				mConversationsView.setSelection(messages.size() - 1);
+			}
+			else
+			{
+				imageParseFailed();
+			}
+			break;
 		case AttachmentPicker.EDITOR:
 			if(resultCode == Activity.RESULT_OK)
 			{
@@ -1263,7 +1314,7 @@ import android.widget.Toast;
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().sendStickerButtonClickAnalytics();
+		StickerManager.getInstance().logStickerButtonPressAnalytics();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
@@ -1337,7 +1388,7 @@ import android.widget.Toast;
 	{
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
-		
+
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
@@ -1346,6 +1397,9 @@ import android.widget.Toast;
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
 		}
+
+        StickerManager.getInstance().logEmoticonButtonPressAnalytics();
+
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
 
@@ -1545,7 +1599,13 @@ import android.widget.Toast;
 			return;
 		}
 
-		activity.backPressed();
+		if (isActivityVisible) {
+			activity.backPressed();
+		}
+		else {
+			// if activity is not visible then this is coming after onPause has been called and in next step app will crash
+			//with a illegal argument exception.It's okay to consume this event anyway as the actiivty is going to stop anyway
+		}
 	}
 
 	private void removeBroadcastReceiver()
@@ -1574,7 +1634,7 @@ import android.widget.Toast;
 	private void startHikeGallery(boolean onHike)
 	{
 		boolean editPic = Utils.isPhotosEditEnabled();
-		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE;
+		int galleryFlags = GalleryActivity.GALLERY_ALLOW_MULTISELECT|GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 		Intent imageIntent = IntentFactory.getHikeGalleryPickerIntent(activity.getApplicationContext(),galleryFlags,null);
 		imageIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 		imageIntent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
@@ -1657,11 +1717,13 @@ import android.widget.Toast;
 			return;
 		}
 
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
-				R.color.sticker_recommend_highlight_text)));
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher)
+				: (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
 				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
+
+		StickerSearchManager.getInstance().loadStickerEvents();
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -2550,7 +2612,7 @@ import android.widget.Toast;
 						}
 						String filePath = msgExtrasJson.getString(HikeConstants.Extras.FILE_PATH);
 						String fileType = msgExtrasJson.getString(HikeConstants.Extras.FILE_TYPE);
-
+						String caption = msgExtrasJson.optString(HikeConstants.CAPTION);
 						boolean isRecording = false;
 						long recordingDuration = -1;
 						if (msgExtrasJson.has(HikeConstants.Extras.RECORDING_TIME))
@@ -2574,7 +2636,7 @@ import android.widget.Toast;
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
 						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-									recordingDuration, true, mConversation.isOnHike(), attachmentType);
+									recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3707,7 +3769,7 @@ import android.widget.Toast;
 			@Override
 			public void run()
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
 				{
 					setupStickerSearch();
 				}
@@ -3715,6 +3777,7 @@ import android.widget.Toast;
 				{
 					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
+					StickerEventSearchManager.getInstance().clearNowCastEvents();
 				}
 			}
 		});
@@ -3977,6 +4040,11 @@ import android.widget.Toast;
 		
 		releaseStickerSearchResources();
 
+		// removing touch listener to stop receiving callback after onDestroy as we are getting a NPE in onTouch as mSharaeableLayout is null
+		if(mComposeView!=null)
+		{
+			mComposeView.setOnTouchListener(null);
+		}
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4008,7 +4076,7 @@ import android.widget.Toast;
 	
 	private void releaseStickerSearchResources()
 	{
-		if(stickerTagWatcher != null)
+		if (stickerTagWatcher != null)
 		{
 			stickerTagWatcher.releaseResources();
 			mComposeView.removeTextChangedListener(stickerTagWatcher);
@@ -4257,6 +4325,11 @@ import android.widget.Toast;
 		 */
 		initShareablePopup();
 		StickerManager.getInstance().showStickerRecommendTurnOnToast();
+		// Update events, if sticker recommendation is running.
+		if (stickerTagWatcher != null)
+		{
+			StickerSearchManager.getInstance().loadStickerEvents();
+		}
 	}
 
 	protected void hideView(int viewId)
@@ -4477,7 +4550,7 @@ import android.widget.Toast;
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 		}
 
 		setAvatarStealthBadge();
@@ -5346,6 +5419,10 @@ import android.widget.Toast;
 			{
 				ConvMessage message = selectedMessagesMap.get(selectedMsgIds.get(0));
 				HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
+				if (!TextUtils.isEmpty(msisdn) && BotUtils.isBot(msisdn))
+				{
+					PlatformUtils.sendBotFileShareAnalytics(hikeFile, msisdn);
+				}
 				hikeFile.shareFile(activity);
 				mActionMode.finish();
 			}
@@ -5749,8 +5826,8 @@ import android.widget.Toast;
 		}
 
 		else
-		{
-			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity.getApplicationContext(),
+		{ //Passing application context was causing a crash since, we were showing a dialog later on
+			Utils.sendInviteUtil(new ContactInfo(msisdn, msisdn, mConversation.getConversationName(), msisdn), activity,
 					HikeConstants.SINGLE_INVITE_SMS_ALERT_CHECKED, getString(R.string.native_header), getString(R.string.native_info));
 
 		}

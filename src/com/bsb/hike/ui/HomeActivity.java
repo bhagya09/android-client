@@ -21,6 +21,7 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
@@ -45,8 +46,6 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
-import android.support.v7.widget.SearchView;		
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -79,6 +78,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -259,6 +260,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 
 		}
+
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
@@ -296,10 +298,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
-
+		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
-		
-	}
+
+    }
 	
 	@Override
 	public void handleUIMessage(Message msg)
@@ -593,7 +595,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onDestroy()
 	{
 		Logger.d(TAG, "onDestroy");
-		
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -608,6 +609,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(null);
 		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
 		super.onDestroy();
 	}
 
@@ -1080,13 +1082,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		Logger.d(TAG,"onResume");
 		super.onResume();
 
 		checkNShowNetworkError();
-		
+
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
@@ -1094,6 +1095,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
+		}
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET) == HikeConstants.STEALTH_INDICATOR_RESUME_ACTIVE)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
@@ -1316,6 +1323,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showUpdatePopup(final int updateType)
 	{
+		//TODO wrong check in place can cause other features to fail
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK,false))
+		{
+			return;
+		}
 		if (updateType == HikeConstants.NO_UPDATE)
 		{
 			return;

@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -74,6 +76,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.voip.VoIPUtils;
 
 import android.app.AlertDialog;
@@ -85,7 +88,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -93,7 +98,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -128,7 +135,11 @@ import android.widget.Toast;
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
 {
-	
+
+	private ImageView mAvatarEdit;
+
+	private int defAvBgColor;
+
 	class ProfileActivityState extends ChangeProfileImageActivityState
 	{
 		public String deleteStatusId;
@@ -476,13 +487,51 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mName = (TextView) parentView.findViewById(R.id.name);
 		mName.setVisibility(View.GONE);
 		mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
+		mAvatarEdit = (ImageView) parentView.findViewById(R.id.group_profile_image);
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(mLocalMSISDN) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
 		mNameEdit.setVisibility(View.VISIBLE);
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
 		Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
+		mNameEdit.addTextChangedListener(nameWatcher);
 		setupGroupNameEditActionBar();
 	}
+
+	private TextWatcher nameWatcher = new TextWatcher()
+	{
+		public void beforeTextChanged(CharSequence s, int start, int count, int after)
+		{
+
+		}
+
+		public void onTextChanged(CharSequence s, int start, int before, int count)
+		{
+
+		}
+
+		public void afterTextChanged(Editable s)
+		{
+			if (! (mAvatarEdit.getDrawable() instanceof TextDrawable))
+			{
+				return;
+			}
+
+			String newText = s.toString();
+
+			if (newText == null || TextUtils.isEmpty(newText.trim()))
+			{
+				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+				mAvatarEdit.setImageDrawable(drawable);
+				return;
+			}
+
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor);
+			mAvatarEdit.setImageDrawable(drawable);
+		}
+	};
 
 	private void setupActionBar()
 	{
@@ -564,6 +613,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				mName.setText(groupName);
 				mName.setVisibility(View.VISIBLE);
 				mNameEdit.setVisibility(View.GONE);
+				mNameEdit.removeTextChangedListener(nameWatcher);
 				setupActionBar();
 			}
 		});
@@ -593,6 +643,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mName.setText(oneToNConversation.getLabel());
 			mName.setVisibility(View.VISIBLE);
 			mNameEdit.setVisibility(View.GONE);
+			if (mAvatarEdit.getDrawable() instanceof TextDrawable)
+			{
+				Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(oneToNConversation.getLabel(),-1,defAvBgColor);
+				mAvatarEdit.setImageDrawable(drawable);
+			}
+
 			setupActionBar();
 		}
 	}
@@ -1023,7 +1079,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if(headerViewInitialized || profileImageUpdated )
 		{
 			int mBigImageSize = getResources().getDimensionPixelSize(R.dimen.avatar_profile_size);
-			(new IconLoader(this, mBigImageSize)).loadImage(msisdn, profileImage, false, false, true);
+			IconLoader iconLoader = new IconLoader(this, mBigImageSize);
+			iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+			iconLoader.loadImage(msisdn, profileImage, false, false, true);
 		}
 
 		if(headerViewInitialized)
@@ -1559,9 +1617,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			isBackPressed = true;
 			saveChanges();
 		}
-		else
+		else if(isActivityVisible())
 		{
 			super.onBackPressed();
+		}
+		else
+		{
+			//consume this event as the activity is not visible and now its safe as activity is shutting down.so if super is called,
+			//then its going to crash.
 		}
 	}
 
