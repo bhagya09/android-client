@@ -548,6 +548,8 @@ public class AnalyticsConstants
 		
 		public static final String CLOSE_BUTTON = "close";
 
+		public static final String CLOSE_SWIPE = "cls_swp";
+
 		public static final String CARD = "crd";
 
 		public static final String SAVE_CONTACT = "svCntct";
