@@ -114,13 +114,14 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 	@Override
 	public void onResume()
 	{
-		// TODO Auto-generated method stub
 		super.onResume();
 		if(friendsAdapter != null)
 		{
 			friendsAdapter.getIconLoader().setExitTasksEarly(false);
 			friendsAdapter.notifyDataSetChanged();
 		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.UNSEEN_STATUS_COUNT_CHANGED, null);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_UNSEEN_FRIEND_REQUEST_CHANGED, new Integer(0));
 	}
 
 	@Override

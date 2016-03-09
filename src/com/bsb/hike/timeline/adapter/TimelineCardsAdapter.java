@@ -2,6 +2,7 @@ package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -114,7 +115,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private ProfileImageLoader profileLoader;
 
 	protected AlertDialog alertDialog;
-	
+
+	private HashSet<String> mSUViewedSet = new HashSet<String>();
+
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
 		ImageView avatar;
@@ -441,6 +444,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		statusMessage.setActionsData(likesData);
 
+		if(!TextUtils.isEmpty(statusMessage.getMappedId()))
+		{
+			mSUViewedSet.add(statusMessage.getMappedId());
+		}
+
 		switch (viewType)
 		{
 		case OTHER_UPDATE:
@@ -488,6 +496,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			//Due to view reusage
 			viewHolder.parent.setOnClickListener(null);
 			viewHolder.parent.setOnLongClickListener(null);
+
+			viewHolder.cardView.setOnClickListener(null);
+			viewHolder.cardView.setOnLongClickListener(null);
 
 			switch (statusMessage.getStatusMessageType())
 			{
@@ -1709,6 +1720,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				});
 			}
 		}
+	}
+
+	public HashSet<String> getSUViewedSet()
+	{
+		return mSUViewedSet;
 	}
 
 	public void onDestroy()

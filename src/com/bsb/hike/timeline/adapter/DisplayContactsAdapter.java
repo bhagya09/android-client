@@ -17,6 +17,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.RoundedImageView;
 
@@ -69,6 +70,7 @@ public class DisplayContactsAdapter extends BaseAdapter
 			// Iterate and remove all msisdns which are
 			// 1) Not saved in Addressbook
 			// 2) Non fav
+
 			for (int j = argMsisdnList.size() - 1; j >= 0; j--)
 			{
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
@@ -78,6 +80,13 @@ public class DisplayContactsAdapter extends BaseAdapter
 					if (contactInfo.isUnknownContact() && !ContactInfo.FavoriteType.FRIEND.equals(contactInfo.getFavoriteType()) && !Utils.isSelfMsisdn(contactInfo.getMsisdn()))
 					{
 						argMsisdnList.remove(j);
+						continue;
+					}
+
+					if(StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+					{
+						argMsisdnList.remove(j);
+						continue;
 					}
 				}
 				else
@@ -86,7 +95,20 @@ public class DisplayContactsAdapter extends BaseAdapter
 				}
 			}
 		}
-
+		else
+		{
+			// Iterate and remove all msisdns which are
+			// Stealth
+			for (int j = argMsisdnList.size() - 1; j >= 0; j--) {
+				ContactInfo contactInfo = ContactManager.getInstance().getContact(argMsisdnList.get(j), true, false);
+				if (contactInfo != null) {
+					if (StealthModeManager.getInstance().isStealthMsisdn(contactInfo.getMsisdn()) && !StealthModeManager.getInstance().isActive()) {
+						argMsisdnList.remove(j);
+						continue;
+					}
+				}
+			}
+		}
 		msisdnList = argMsisdnList;
 	}
 
@@ -191,8 +213,8 @@ public class DisplayContactsAdapter extends BaseAdapter
 
 			// TODO Make this generic
 			holder.contactStatus.setText(R.string.liked_this_post);
+			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar, false, true, true);
 			holder.avatar.setOval(true);
-			mAvatarLoader.loadImage(contactInfo.getMsisdn(), holder.avatar, false, false, true);
 			break;
 
 		case UNKNOWN_CONTACT_VIEW_TYPE:

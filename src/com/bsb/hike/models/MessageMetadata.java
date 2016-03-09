@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -93,6 +94,8 @@ public class MessageMetadata
 	private boolean newBroadcast;
 
 	private String groupAdder;
+
+	private String caption;
 
 	public int getPinMessage()
 	{
@@ -205,7 +208,7 @@ public class MessageMetadata
 		}
 		this.newUser = metadata.optString(HikeConstants.NEW_USER).equals("true");
 		this.dndMissedCallNumber = metadata.optString(HikeConstants.METADATA_DND);
-		this.hikeFileList = getHikeFileListFromJSONArray(metadata.optJSONArray(HikeConstants.FILES), isSent);
+		this.hikeFileList = getHikeFileListFromJSONArray(metadata.optJSONArray(HikeConstants.FILES), isSent, metadata.optString(HikeConstants.CAPTION));
 		if (HikeConstants.LOCATION_CONTENT_TYPE.equals(metadata.optString(HikeConstants.CONTENT_TYPE)))
 		{
 			this.hikeFileList = new ArrayList<HikeFile>();
@@ -213,6 +216,7 @@ public class MessageMetadata
 		}
 		this.isPokeMessage = metadata.optBoolean(HikeConstants.POKE);
 		this.pinMessage  = metadata.optInt(HikeConstants.PIN_MESSAGE);
+		this.setCaption(metadata.optString(HikeConstants.CAPTION));
 		this.json = metadata;
 		if (metadata.has(StickerManager.STICKER_ID))
 		{
@@ -231,7 +235,7 @@ public class MessageMetadata
 		return json.optString(StickerManager.CATEGORY_ID);
 	}
 
-	private List<HikeFile> getHikeFileListFromJSONArray(JSONArray fileList, boolean isSent)
+	private List<HikeFile> getHikeFileListFromJSONArray(JSONArray fileList, boolean isSent, String caption)
 	{
 		if (fileList == null)
 		{
@@ -240,7 +244,12 @@ public class MessageMetadata
 		List<HikeFile> hikeFileList = new ArrayList<HikeFile>();
 		for (int i = 0; i < fileList.length(); i++)
 		{
-			hikeFileList.add(new HikeFile(fileList.optJSONObject(i), isSent));
+			HikeFile newHikeFile = new HikeFile(fileList.optJSONObject(i), isSent);
+			if(!TextUtils.isEmpty(caption))
+			{
+				newHikeFile.setCaption(caption);
+			}
+			hikeFileList.add(newHikeFile);
 		}
 		return hikeFileList;
 	}
@@ -362,5 +371,15 @@ public class MessageMetadata
 			this.json.put(StickerManager.CATEGORY_ID, newCategoryId);
 		}
 		this.sticker.setCategoryId(newCategoryId);
+	}
+
+	public String getCaption()
+	{
+		return caption;
+	}
+
+	public void setCaption(String caption)
+	{
+		this.caption = caption;
 	}
 }
