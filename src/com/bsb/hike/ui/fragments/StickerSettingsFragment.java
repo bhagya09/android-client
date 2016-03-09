@@ -395,6 +395,11 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		});
 	}
 
+	public List<StickerCategory> getStickerCategoriesList()
+	{
+		return stickerCategories;
+	}
+
 	//Initialising stickerCategories list to have only packs with updates available
 	private void getUpdateCategoriesList()
 	{
