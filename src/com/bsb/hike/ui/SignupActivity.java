@@ -2299,7 +2299,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			{
 				return;
 			}
-			fetchProfilePic(msisdn);
+			setDefaultProfileImage(msisdn);
 		}
 	};
 
