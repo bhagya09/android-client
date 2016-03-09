@@ -2,6 +2,7 @@ package com.bsb.hike.chatthemes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
@@ -95,78 +96,31 @@ public class ChatThemeManager
 		{
 			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
 			ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
+			HashSet<String> assetIds = new HashSet<>();
 
 			int len = data.length();
-			for (int i = 0; i < len; i++)
-			{
+			//looping of the n no themes sent in the packet
+			for (int i = 0; i < len; i++) {
 				HikeChatTheme theme = new HikeChatTheme();
 				JSONObject t = data.getJSONObject(i);
 
 				String themeID = t.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
 				theme.setThemeId(themeID);
 
-				JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_ACTION_BAR);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_CHAT_BUBBLE_BG);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_SENT_NUDGE);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_RECEIVE_NUDGE);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_INLINE_STATUS_BG);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_SMS_TOGGLE_BG);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_COLOR);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_COLOR, theme, assetsList);
-
-				assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL);
-				parseSignalIntoChatThemeObjects(assetObj, HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, theme, assetsList);
-
-
+				// looping to the no of indexes for a theme
+				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+					JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME[j]);
+					int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
+					String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
+					theme.setAsset(j, id);
+					if (!assetIds.contains(id)) {
+						assetsList.add(new HikeChatThemeAsset(id, type, null));
+					}
+				}
 				themeList.add(theme);
 			}
-
 			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
-		}
-		catch(JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private void parseSignalIntoChatThemeObjects(JSONObject assetObj, byte assetIndex, HikeChatTheme theme, ArrayList<HikeChatThemeAsset> assetList){
-		try
-		{
-			int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-			String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
-			theme.setAsset(assetIndex, id);
-			assetList.add(new HikeChatThemeAsset(id, type, null));
 		}
 		catch(JSONException e)
 		{
