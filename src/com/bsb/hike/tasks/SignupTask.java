@@ -236,7 +236,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 	@Override
 	protected Boolean doInBackground(Void... unused)
 	{
-		deletePreviouslySavedProfileImages();
 		Logger.e("SignupTask", "FETCHING NUMBER? " + isAlreadyFetchingNumber);
 		isPinError = false;
 		SharedPreferences settings = this.context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -259,6 +258,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/*
 			 * need to get the MSISDN. If we're on Wifi don't bother trying to autodetect
 			 */
+			deletePreviouslySavedProfileImages();
 			ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Activity.CONNECTIVITY_SERVICE);
 			NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
