@@ -1310,6 +1310,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						mTask.addUserInput("true");
 					}
 				});
+
+				retry.setText(getString(R.string.retry));
 			}
 
 			else if (errorMessage.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
@@ -1323,6 +1325,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 						IntentFactory.launchPlayStore(SignupActivity.this.getPackageName(), SignupActivity.this);
 					}
 				});
+
+				retry.setText(getString(R.string.upgrade_hike));
 			}
 
 			restoreProgress.setVisibility(View.INVISIBLE);

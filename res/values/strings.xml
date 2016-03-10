@@ -1571,4 +1571,5 @@
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
     <string name="restore_version_error">Hi! Your backup was taken on a newer version of hike and you currently seem to be on an older version. To ensure everything works perfectly, please update your app and try again!</string>
     <string name="restore_msisdn_error">Bummer! You seem to have a backup file of someone else! This backup cannot be restored to your account.</string>
+    <string name="upgrade_hike">Upgrade</string>
 </resources>
