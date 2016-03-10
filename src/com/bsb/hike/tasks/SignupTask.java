@@ -40,7 +40,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.bsb.hike.db.AccountBackupRestore.*;
+import static com.bsb.hike.db.AccountBackupRestore.STATE_INCOMPATIBLE_APP_VERSION;
+import static com.bsb.hike.db.AccountBackupRestore.STATE_MSISDN_MISMATCH;
+import static com.bsb.hike.db.AccountBackupRestore.STATE_RESTORE_SUCCESS;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
