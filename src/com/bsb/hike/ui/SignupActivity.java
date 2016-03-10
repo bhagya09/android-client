@@ -1284,11 +1284,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final View restoreProgress = (View) restoringBackupLayout.findViewById(R.id.restore_progress);
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
-			
-			retry.setOnClickListener(new OnClickListener()
+
+			if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
 			{
-				@Override
-				public void onClick(View v)
+				retry.setVisibility(View.GONE);
+			}
+
+			else
+			{
+				retry.setVisibility(View.VISIBLE);
+			}
+
 				{
 					JSONObject metadata = new JSONObject();
 					try
