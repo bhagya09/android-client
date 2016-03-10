@@ -2128,13 +2128,14 @@ public class StickerManager
 		for (int i = 0; i < stickersToLoad; i++)
 		{
 			Sticker sticker = stickerList.get(i);
-			String stickerPath = sticker.getSmallStickerPath();
-			Bitmap bitmap = HikeBitmapFactory.decodeFile(stickerPath);
+			// // TODO: 01/03/16 remove duplicate code 
+			String cacheKey = getStickerCacheKey(sticker, StickerConstants.StickerType.SMALL);
+			Bitmap bitmap = HikeBitmapFactory.decodeFile(sticker.getSmallStickerPath());
 			if (bitmap != null)
 			{
 				drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), bitmap);
-				Logger.d(TAG, "Putting data in cache : " + stickerPath);
-				cache.putInCache(stickerPath, drawable);
+				Logger.d(TAG, "Putting data in cache : " + cacheKey);
+				cache.putInCache(cacheKey, drawable);
 			}
 
 		}
@@ -2815,7 +2816,7 @@ public class StickerManager
 
 	public boolean shouldDisplayMiniStickerOnChatThread()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false) && isMiniStickersEnabled();
 	}
 
     /**
@@ -2825,30 +2826,13 @@ public class StickerManager
      */
     public String generateMiniStickerPath(Sticker sticker)
     {
-        String miniStickerPath = "mini_";
+        String miniStickerPath = HikeConstants.MINI_KEY_PREFIX;
 
-        String key = "";
-        char[] code = sticker.getStickerCode().toCharArray();
+        String code = sticker.getStickerCode();
 
-        for (int i = 0; i < code.length; i++)
-        {
-            char c = code[i];
-            int dist = c - '0';
-            if (dist < 0)
-            {
-                key += "_" + Integer.toString(-dist);
-            }
-            else
-            {
-                key += Integer.toString(dist);
-            }
+        int keyLength = code.length()>HikeConstants.MAX_DISK_CACHE_KEY_LENGTH?HikeConstants.MAX_DISK_CACHE_KEY_LENGTH:code.length();
 
-            if (i != code.length - 1)
-            {
-                key += "_";
-            }
-
-        }
+        String key = code.toLowerCase().substring(0, keyLength).replaceAll("[^a-z0-9_-]", "");
 
         miniStickerPath += key;
 
@@ -2887,6 +2871,12 @@ public class StickerManager
             JSONObject stickerData = stickers.getJSONObject(stickerId);
 
             Sticker sticker = new Sticker(categoryId, stickerId);
+
+            if(sticker.isStickerAvailable())
+            {
+                continue;
+            }
+
             sticker.setWidth(stickerData.optInt(HikeConstants.WIDTH));
             sticker.setHeight(stickerData.optInt(HikeConstants.HEIGHT));
             stickerList.add(sticker);
@@ -2894,4 +2884,51 @@ public class StickerManager
 
         saveSticker(stickerList);
     }
+
+    public String getStickerCacheKey(Sticker sticker, StickerConstants.StickerType stickerType)
+    {
+        String path = sticker.getStickerCode();
+        switch (stickerType)
+        {
+            case MINI:
+                path += HikeConstants.DELIMETER + sticker.getMiniStickerPath();
+                break;
+            case SMALL:
+                path += HikeConstants.DELIMETER + sticker.getSmallStickerPath();
+                break;
+            case LARGE:
+                path += HikeConstants.DELIMETER + sticker.getLargeStickerPath();
+                break;
+        }
+
+        return path;
+
+    }
+
+	public static int getStickerSize()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SIZE, -1) != -1)
+		{
+			return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SIZE, -1);
+		}
+		else
+		{
+			switch (Utils.getResolutionId())
+			{
+			case HikeConstants.XXXHDPI_ID:
+			case HikeConstants.XXHDPI_ID:
+				return 540;
+			case HikeConstants.XHDPI_ID:
+				return 356;
+			case HikeConstants.HDPI_ID:
+				return 264;
+			case HikeConstants.MDPI_ID:
+				return 157;
+			case HikeConstants.LDPI_ID:
+				return 120;
+			default:
+				return 356;
+			}
+		}
+	}
 }

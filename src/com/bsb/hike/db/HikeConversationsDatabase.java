@@ -360,6 +360,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
+		mDb.delete(DBConstants.STICKER_TABLE, null, null);
 	}
 
 	@Override

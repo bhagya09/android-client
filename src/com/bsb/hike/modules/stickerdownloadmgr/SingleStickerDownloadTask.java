@@ -197,14 +197,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
-						if(!sticker.isStickerAvailable())
-                        {
-                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
-                        }
+
+                        StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 
 						saveMiniStickerImage(sticker, stickerImage);
 
-                        doOnSuccess(null);
+                        doOnSuccess(categoryId);
 					}
 					else
 					{
@@ -220,7 +218,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                            doOnSuccess(null);
+                            doOnSuccess(categoryId);
                         }
 
 					}
@@ -251,6 +249,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.e(TAG, "Sticker download failed :", httpException);
+                doOnFailure(httpException);
 			}
 		};
 	}
@@ -282,7 +281,10 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			}
 		}
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
+        Sticker sticker = new Sticker(categoryId, stickerId);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, sticker);
+        finish();
 	}
 
 	@Override
@@ -293,6 +295,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			return;
 		}
 		(new File(largeStickerPath)).delete();
+        finish();
 	}
 
 	private void saveMiniStickerImage(Sticker sticker, String stickerImage)
@@ -378,5 +381,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		return true;
 
 	}
+
+    private void finish()
+    {
+        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.LARGE));
+        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.SMALL));
+    }
 
 }

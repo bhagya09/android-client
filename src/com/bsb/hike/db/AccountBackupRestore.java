@@ -238,7 +238,7 @@ public class AccountBackupRestore
 
 	private static final String[] dbNames = { DBConstants.CONVERSATIONS_DATABASE_NAME };
 
-	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE };
+	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE ,DBConstants.STICKER_TABLE};
 
 	private final Context mContext;
 
@@ -661,6 +661,7 @@ public class AccountBackupRestore
 			HikeConversationsDatabase.getInstance().clearTable(table);
 		}
 		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+        HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 		BotUtils.postAccountRestoreSetup();
 	}
 

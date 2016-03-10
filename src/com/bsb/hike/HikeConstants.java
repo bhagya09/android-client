@@ -3879,4 +3879,10 @@ public class HikeConstants
     public static final String END = "end";
 
     public static final String RANK = "rank";
+
+    public static final int MAX_DISK_CACHE_KEY_LENGTH = 115;
+
+    public static final String MINI_KEY_PREFIX = "mini_";
+
+	public static final String STICKER_SIZE = "stkr_size";
 }
