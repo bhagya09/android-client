@@ -35,6 +35,8 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -3262,6 +3264,10 @@ public class MqttMessagesManager
 
 	public void saveChatBackground(JSONObject jsonObj) throws JSONException
 	{
+		if(saveChatThemeSignals(jsonObj))
+		{
+			return;
+		}
 		String from = jsonObj.optString(HikeConstants.FROM);
 		String to = jsonObj.optString(HikeConstants.TO);
 
@@ -3329,6 +3335,31 @@ public class MqttMessagesManager
 			 * will keep on current applied theme.
 			 */
 		}
+	}
+
+	private boolean saveChatThemeSignals(JSONObject jsonObj)
+	{
+		try
+		{
+			String type = jsonObj.getString(HikeConstants.SUB_TYPE);
+	        if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+			{
+				JSONArray data = jsonObj.getJSONArray(HikeConstants.DATA);
+				ChatThemeManager.getInstance().processNewThemeSignal(data);
+				return true;
+			}
+			else if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
+			{
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				ChatThemeManager.getInstance().processDeleteThemeSignal(data);
+				return true;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	private void saveGroupOwnerChange(JSONObject jsonObj) throws JSONException

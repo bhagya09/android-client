@@ -102,6 +102,50 @@ public class HikeChatThemeConstants
 
 	public static final String FILEEXTN_JPEG = "jpeg";
 
+	// JSON Signal Constants
+	public static final String JSON_SIGNAL_NEW_THEME = "addCbg";
+
+	public static final String JSON_SIGNAL_DEL_THEME = "del_cbg";
+
+	public static final String JSON_SIGNAL_THEME_THEMEID = "theme_id";
+
+	public static final String JSON_SIGNAL_THEME_BG_PORTRAIT = "bg_portrait";
+
+	public static final String JSON_SIGNAL_THEME_BG_LANDSCAPE = "bg_landscape";
+
+	public static final String JSON_SIGNAL_THEME_ACTION_BAR = "action_bar";
+
+	public static final String JSON_SIGNAL_THEME_CHAT_BUBBLE_BG = "chat_bubble_bg";
+
+	public static final String JSON_SIGNAL_THEME_SENT_NUDGE = "sent_nudge";
+
+	public static final String JSON_SIGNAL_THEME_RECEIVE_NUDGE = "receive_nudge";
+
+	public static final String JSON_SIGNAL_THEME_INLINE_STATUS_BG = "inline_status_bg";
+
+	public static final String JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE = "multiselect_chat_bubble";
+
+	public static final String JSON_SIGNAL_THEME_OFFLINE_MSG_BG = "offline_msg_bg";
+
+	public static final String JSON_SIGNAL_THEME_STATUS_BAR_BG = "status_bar_bg";
+
+	public static final String JSON_SIGNAL_THEME_SMS_TOGGLE_BG = "sms_toggle_bg";
+
+	public static final String JSON_SIGNAL_THEME_BUBBLE_COLOR = "bubble_color";
+
+	public static final String JSON_SIGNAL_THEME_STATUS_BAR_COLOR = "status_bar_color";
+
+	public static final String JSON_SIGNAL_THEME_THUMBNAIL = "thumbnail";
+
+	public static final String JSON_SIGNAL_ASSET_TYPE = "type";
+
+	public static final String JSON_SIGNAL_ASSET_VALUE = "value";
+
+	//to be defined in the same order of asset indexs
+	public static final String[] JSON_SIGNAL_THEME = {JSON_SIGNAL_THEME_BG_PORTRAIT, JSON_SIGNAL_THEME_BG_LANDSCAPE, JSON_SIGNAL_THEME_ACTION_BAR, JSON_SIGNAL_THEME_CHAT_BUBBLE_BG,
+			JSON_SIGNAL_THEME_SENT_NUDGE, JSON_SIGNAL_THEME_RECEIVE_NUDGE, JSON_SIGNAL_THEME_INLINE_STATUS_BG, JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE, JSON_SIGNAL_THEME_OFFLINE_MSG_BG,
+			JSON_SIGNAL_THEME_STATUS_BAR_BG, JSON_SIGNAL_THEME_SMS_TOGGLE_BG, JSON_SIGNAL_THEME_THUMBNAIL, JSON_SIGNAL_THEME_BUBBLE_COLOR, JSON_SIGNAL_THEME_STATUS_BAR_COLOR};
+
 	// JSON Constants
 	public static final String JSON_DWNLD_ASSET_ID = "asset_ids";
 }

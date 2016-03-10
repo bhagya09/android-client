@@ -1,8 +1,16 @@
 package com.bsb.hike.chatthemes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.models.HikeChatThemeAsset;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by sriram on 22/02/16.
@@ -74,6 +82,55 @@ public class ChatThemeManager
 	{
 		HikeChatTheme theme = getTheme(themeId);
 		return mAssetHelper.isAssetsAvailableForTheme(theme);
+	}
+
+	public String[] getMissingAssetsForTheme(String themeId)
+	{
+		return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
+	}
+
+	//MQTT Signal packet processing
+	public void processNewThemeSignal(JSONArray data)
+	{
+		try
+		{
+			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
+			ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
+			HashSet<String> assetIds = new HashSet<>();
+
+			int len = data.length();
+			//looping of the n no themes sent in the packet
+			for (int i = 0; i < len; i++) {
+				HikeChatTheme theme = new HikeChatTheme();
+				JSONObject t = data.getJSONObject(i);
+
+				String themeID = t.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
+				theme.setThemeId(themeID);
+
+				// looping to the no of indexes for a theme
+				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+					JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME[j]);
+					int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
+					String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
+					theme.setAsset(j, id);
+					if (!assetIds.contains(id)) {
+						assetsList.add(new HikeChatThemeAsset(id, type, null));
+					}
+				}
+				themeList.add(theme);
+			}
+			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
+			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
+		}
+		catch(JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void processDeleteThemeSignal(JSONObject data)
+	{
+
 	}
 
 }
