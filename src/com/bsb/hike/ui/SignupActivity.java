@@ -1272,9 +1272,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 			String errorMessage = getString(R.string.restore_error_hint);
 			// In case of generic restore failure, we send "false" as the state value, else we send the required error to be displayed
-			if (!TextUtils.isEmpty(stateValue.value) && !(Boolean.FALSE.toString().equals(restoreStatus)))
+			if (!TextUtils.isEmpty(restoreStatus) && !(Boolean.FALSE.toString().equals(restoreStatus)))
 			{
-				errorMessage = stateValue.value;
+				errorMessage = restoreStatus;
 			}
 
 			hint.setText(errorMessage);
@@ -1284,16 +1284,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final View restoreProgress = (View) restoringBackupLayout.findViewById(R.id.restore_progress);
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
-
-			if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
-			{
-				retry.setVisibility(View.GONE);
-			}
-
-			else
-			{
-				retry.setVisibility(View.VISIBLE);
-			}
 
 			if (errorMessage.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
 			{
@@ -1337,10 +1327,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 			restoreProgress.setVisibility(View.INVISIBLE);
 			restoreFail.setVisibility(View.VISIBLE);
-			retry.setVisibility(View.VISIBLE);
 			if (savedInstanceState == null)
 			{
 				onRestoreFailAnimation();
+			}
+
+			if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
+			{
+				retry.setVisibility(View.GONE);
+			}
+
+			else
+			{
+				retry.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -1678,8 +1677,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private void onRestoreFailAnimation()
 	{
 		final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
-		final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
-		
+
 		ScaleAnimation scaleUp = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		scaleUp.setInterpolator(new OvershootInterpolator());
 		scaleUp.setStartOffset(100);
@@ -1692,7 +1690,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		
 		restoreFail.startAnimation(scaleUp);
 		restoreFail.setVisibility(View.VISIBLE);
-		retry.setVisibility(View.VISIBLE);
 	}
 	
 	private void setupOnRestoreProgress()
