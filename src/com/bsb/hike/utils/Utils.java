@@ -7454,6 +7454,7 @@ public class Utils
 		catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
+			appVersionCode = BuildConfig.VERSION_CODE;
 		}
 
 		return appVersionCode;
@@ -8014,4 +8015,5 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
 }

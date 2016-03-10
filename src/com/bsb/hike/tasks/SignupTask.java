@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
@@ -30,12 +31,6 @@ import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.*;
 
 import org.json.JSONArray;
@@ -44,6 +39,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import static com.bsb.hike.db.AccountBackupRestore.*;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -715,20 +712,31 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = null;
 					
-					boolean status = restore(settings);
+					int restoreStatus = restore(settings);
 					
 					// A delay so that user is able to understand the UI animations.
 					synchronized (this)
 					{
 						this.wait(HikeConstants.BACKUP_RESTORE_UI_DELAY);
 					}
-					if (status)
+					if (restoreStatus == STATE_RESTORE_SUCCESS)
 					{
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
 					}
 					else
 					{
-						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.FALSE.toString()));
+						switch (restoreStatus)
+						{
+						case STATE_INCOMPATIBLE_APP_VERSION:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_version_error)));
+							break;
+						case STATE_MSISDN_MISMATCH:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_msisdn_error)));
+							break;
+						default:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, Boolean.FALSE.toString()));
+							break;
+						}
 						// After publishing 'restore failed' the task waits for the user to again make an input(Restore or Skip)
 						synchronized (this)
 						{
@@ -761,16 +769,16 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		return Boolean.TRUE;
 	}
 	
-	private boolean restore(SharedPreferences settings)
+	private int restore(SharedPreferences settings)
 	{
 		Editor editor = settings.edit();
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, true);
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = AccountBackupRestore.getInstance(context).restore();
+		int restoreStatus = AccountBackupRestore.getInstance(context).restore();
 		
-		if (status)
+		if (restoreStatus == STATE_RESTORE_SUCCESS)
 		{
 			/**
 			 * This will shutdown the contact manager completely and then Contact Manager will be initialized with new hike user db values that restored during backup restore
@@ -784,7 +792,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, false);
 		editor.commit();
 		
-		return status;
+		return restoreStatus;
 	}
 	
 	@Override
