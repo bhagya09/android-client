@@ -311,7 +311,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 					}
 				});
-				nativeBridge.sendAppState(true); // AND-4907
+				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
 			}
@@ -325,7 +325,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
-		nativeBridge.sendAppState(true);
+		//nativeBridge.sendAppState(true);
 		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
@@ -336,14 +336,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
-		nativeBridge.sendAppState(false);
+		//nativeBridge.sendAppState(false);
 		setIsGameRunning(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		nativeBridge.sendAppState(false);
+		//nativeBridge.sendAppState(false);
 		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
