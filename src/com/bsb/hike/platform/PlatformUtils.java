@@ -23,14 +23,20 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.*;
@@ -661,7 +667,7 @@ public class PlatformUtils
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled , boolean doReplace)
 	{
 		downloadAndUnzip(request, isTemplatingEnabled, doReplace, null);
@@ -1403,8 +1409,17 @@ public class PlatformUtils
 	
 	public static String getLastGame()
 	{
-		return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME,BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		if (BotUtils.isBot(HikePlatformConstants.GAME_CHANNEL))
+		{
+			return HikeContentDatabase.getInstance().getFromContentCache(HikePlatformConstants.LAST_GAME, BotUtils.getBotInfoForBotMsisdn(HikePlatformConstants.GAME_CHANNEL).getNamespace());
+		}
+
+		else //Highly improbable, can only happen when Games Channel is not yet installed.
+		{
+			return "";
+		}
 	}
+
 	public static void killProcess(Activity context,String process)
 	{
 		if (context != null)
@@ -1640,6 +1655,56 @@ public class PlatformUtils
 		return jsonObj.optString(HikeConstants.BODY);
 	}
 
+	public static void share(String text, String caption, Activity context, CustomWebView mWebView) {
+		FileOutputStream fos = null;
+		File cardShareImageFile = null;
+		if (context != null) {
+			try {
+				if (TextUtils.isEmpty(text)) {
+					//text = mContext.getString(R.string.cardShareHeading); // fallback
+				}
+
+				cardShareImageFile = new File(context.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
+				fos = new FileOutputStream(cardShareImageFile);
+				View share = LayoutInflater.from(context).inflate(com.bsb.hike.R.layout.web_card_share, null);
+				// set card image
+				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
+				Bitmap b = Utils.viewToBitmap(mWebView);
+				image.setImageBitmap(b);
+
+				// set heading here
+				TextView heading = (TextView) share.findViewById(R.id.heading);
+				heading.setText(text);
+
+				// set description text
+				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
+				tv.setText(Html.fromHtml(context.getString(com.bsb.hike.R.string.cardShareDescription)));
+
+				Bitmap shB = Utils.undrawnViewToBitmap(share);
+				Logger.i(TAG, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
+				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+				fos.flush();
+				Logger.i(TAG, "share webview card " + cardShareImageFile.getAbsolutePath());
+				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
+						TextUtils.isEmpty(caption) ? context.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
+			} catch (Exception e) {
+				e.printStackTrace();
+				Toast.makeText(context, context.getString(com.bsb.hike.R.string.error_card_sharing), Toast.LENGTH_SHORT).show();
+			} finally {
+				if (fos != null) {
+					try {
+						fos.close();
+					} catch (IOException e) {
+						// Do nothing
+						e.printStackTrace();
+					}
+				}
+			}
+			if (cardShareImageFile != null && cardShareImageFile.exists()) {
+				cardShareImageFile.deleteOnExit();
+			}
+		}
+	}
 
 
 	public static String getRunningGame(Context context)
@@ -1667,6 +1732,7 @@ public class PlatformUtils
 		Logger.d(TAG, "getRunningGame: " + gameId);
 		return gameId;
 	}
+
 
     public static void sendStickertoAllHikeContacts(String stickerId, String categoryId) {
 
@@ -1741,5 +1807,94 @@ public class PlatformUtils
 			Logger.e("productpopup", "Invalid JSON", e);
 		}
 		return convMessage;
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
+     * Json generated here :: {"fld1":"disk_consumption","fld3":"app_updated","fld2":"DP","ek":"micro_app","fld5":111107,"event":"nmapp"}
+     */
+	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
+	{
+        // Get list of all micro apps installed in content directory
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
+		for (int i = 0; i < mArray.length(); i++)
+		{
+			try
+			{
+				String path = (String) mArray.get(i);
+				path = path.replaceAll(PlatformContentConstants.PLATFORM_CONTENT_DIR, "");
+				path = path.replaceAll(HikePlatformConstants.FILE_DESCRIPTOR, "");
+				File microAppFile = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + path);
+
+				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
+				{
+                    long fileSize = Utils.folderSize(microAppFile);
+                    JSONObject json = new JSONObject();
+					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
+					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
+					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+    /*
+     * Method to determine and send analytics for disk space occupied by the micro app just being installed. This method is called on successful cbot,mapp and popup creation
+     * Json generated here :: {"fld6":3237192,"fld1":"hikecoupons","ek":"micro_app","fld5":448390,"event":"microapp_disk_consumption"}
+     */
+    public static void microAppDiskConsumptionAnalytics(String appName)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            long contentFolderLength = 0,botFileSize =0;
+
+            // Precautionary check to check if these files are indeed folders and preventing NPE
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
+                contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+            if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName).isDirectory())
+                botFileSize = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + appName));
+
+            json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.MICROAPP_DISK_CONSUMPTION);
+
+            json.putOpt(AnalyticsConstants.LOG_FIELD_1, appName); //App Name
+            json.putOpt(AnalyticsConstants.LOG_FIELD_5, botFileSize); // installed microapp disk consumption
+            json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
+
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+//{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
+	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)
+	{
+		String fileKey = hikeFile.getFileKey();
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_SHARED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, hikeFile.getHikeFileType());
+			json.putOpt(AnalyticsConstants.BOT_MSISDN, msisdn);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Exception in bot share utils");
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 	}
 }
