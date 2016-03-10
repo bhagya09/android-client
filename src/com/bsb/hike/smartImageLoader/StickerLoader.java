@@ -116,8 +116,9 @@ public class StickerLoader extends ImageWorker
 
 			bitmap = HikeBitmapFactory.decodeStream(cacheResponse.getInputStream());
 
-			bitmap = loadStretchMiniBitmap(bitmap, width, height);
 		}
+
+        bitmap = loadStretchMiniBitmap(bitmap, width, height);
 
 		return bitmap;
 	}
