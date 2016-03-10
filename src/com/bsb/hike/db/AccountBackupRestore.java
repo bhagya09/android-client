@@ -284,33 +284,18 @@ public class AccountBackupRestore
 		return result;
 	}
 	
-	private void backupDB(String backupToken) throws Exception
-	{
+	private void backupDB(String backupToken) throws Exception {
 		Logger.d(LOGTAG, "encrypting with key: " + backupToken);
-		if (TextUtils.isEmpty(backupToken))
-		{
+		if (TextUtils.isEmpty(backupToken)) {
 			throw new Exception("Backup Token is empty");
 		}
 
-		for (String fileName : dbNames)
-		{
-			// Backup only if DB is NOT corrupted.
-			SQLiteDatabase db = null;
-			try {
-				String currentDBPath = mContext.getDatabasePath(fileName).getPath();
-				db = SQLiteDatabase.openDatabase(currentDBPath, null, SQLiteDatabase.OPEN_READONLY);
-				if (!db.isDatabaseIntegrityOk()) {
-					Logger.e(LOGTAG, "Found corrupt database - " + fileName + ". Skipping!");
-					continue;
-				}
-			} catch (SQLiteDatabaseCorruptException e) {
-				Logger.e(LOGTAG, "Found corrupt database - " + fileName + ". Skipping!");
-				continue;
-			} finally {
-				if (db != null) {
-					db.close();
-				}
-			}
+		if (isAnyDBCorrupt()) {
+			Logger.e(LOGTAG, "Found corrupt DBs. Skipping backup!");
+			return;
+		}
+
+		for (String fileName : dbNames) {
 
 			File dbCopy = exportDatabse(fileName);
 			if (dbCopy == null || !dbCopy.exists())
@@ -321,6 +306,31 @@ public class AccountBackupRestore
 			CBCEncryption.encryptFile(dbCopy, backup, backupToken);
 			dbCopy.delete();
 		}
+	}
+
+	private boolean isAnyDBCorrupt() {
+		boolean isDbCorrupt = false;
+		for (String fileName : dbNames) {
+			SQLiteDatabase db = null;
+			try {
+				String currentDBPath = mContext.getDatabasePath(fileName).getPath();
+				db = SQLiteDatabase.openDatabase(currentDBPath, null, SQLiteDatabase.OPEN_READONLY);
+				if (!db.isDatabaseIntegrityOk()) {
+					isDbCorrupt = true;
+					Logger.e(LOGTAG, "Found corrupt database - " + fileName);
+					break;
+				}
+			} catch (SQLiteDatabaseCorruptException e) {
+				Logger.e(LOGTAG, "Found corrupt database - " + fileName);
+				isDbCorrupt = true;
+				break;
+			} finally {
+				if (db != null) {
+					db.close();
+				}
+			}
+		}
+		return isDbCorrupt;
 	}
 	
 	private void backupPrefs(String backupToken) throws Exception
