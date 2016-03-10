@@ -1,21 +1,5 @@
 package com.bsb.hike.db;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.nio.channels.FileChannel;
-import java.util.Calendar;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -32,11 +16,15 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.CBCEncryption;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.util.Calendar;
 
 /**
  * AccountBackupRestore is a singleton class that performs are the backup/restore related
@@ -316,7 +304,7 @@ public class AccountBackupRestore
 		writeToFile(dataString, userDataFile);
 	}
 	
-	private BackupMetadata getUserBackupData() {
+	private BackupMetadata getBackupMetadata() {
 		BackupMetadata userData;
 		try
 		{
@@ -422,7 +410,7 @@ public class AccountBackupRestore
 		boolean result = true;
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		BackupMetadata backupMetadata = getUserBackupData();
+		BackupMetadata backupMetadata = getBackupMetadata();
 		int appCurrentVersionCode = 0;
 		try
 		{
@@ -675,7 +663,7 @@ public class AccountBackupRestore
 	{
 		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		BackupMetadata userData = getUserBackupData();
+		BackupMetadata userData = getBackupMetadata();
 		if (userData != null)
 		{
 			backupTime = userData.getBackupTime();
