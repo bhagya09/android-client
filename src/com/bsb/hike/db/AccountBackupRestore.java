@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -37,6 +38,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 
@@ -64,6 +67,11 @@ public class AccountBackupRestore
 	public static final int STATE_INCOMPATIBLE_APP_VERSION = 3;
 
 	public static final int STATE_RESTORE_ERROR = 4;
+
+
+	@IntDef({STATE_RESTORE_SUCCESS, STATE_MSISDN_MISMATCH,STATE_INCOMPATIBLE_APP_VERSION,STATE_RESTORE_ERROR})
+	@Retention(RetentionPolicy.SOURCE)
+	public @interface RestoreErrorStates {}
 
 
 	// TODO - Move this to a stand alone file & simplify.
@@ -438,10 +446,13 @@ public class AccountBackupRestore
 	 * 3. Available and is incompatible with the current app version <br>
 	 * 4. Restore error
 	 */
+	@RestoreErrorStates
 	public int restore()
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
+
+		@RestoreErrorStates
 		int successState = STATE_RESTORE_SUCCESS;
 
 		String backupToken = getBackupToken();

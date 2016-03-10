@@ -19,6 +19,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.db.AccountBackupRestore.RestoreErrorStates;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
@@ -714,7 +715,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = null;
 					
-					int restoreStatus = restore(settings);
+					@RestoreErrorStates int restoreStatus = restore(settings);
 					
 					// A delay so that user is able to understand the UI animations.
 					synchronized (this)
@@ -770,7 +771,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 		return Boolean.TRUE;
 	}
-	
+
+	@RestoreErrorStates
 	private int restore(SharedPreferences settings)
 	{
 		Editor editor = settings.edit();
@@ -778,7 +780,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		int restoreStatus = AccountBackupRestore.getInstance(context).restore();
+		@RestoreErrorStates  int restoreStatus = AccountBackupRestore.getInstance(context).restore();
 		
 		if (restoreStatus == STATE_RESTORE_SUCCESS)
 		{
