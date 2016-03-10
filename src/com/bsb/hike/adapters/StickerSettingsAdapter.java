@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import android.content.Context;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,8 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
@@ -33,6 +30,7 @@ import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.MaterialElements.Switch;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
 {
@@ -172,7 +170,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.updateButton.setOnClickListener(this);
 			viewHolder.reorderIcon = (ImageView) convertView.findViewById(R.id.reorder_icon);
 			viewHolder.updateStickersCount = (TextView) convertView.findViewById(R.id.update_stickers_count);
-			viewHolder.hideSwitch = (SwitchCompat) convertView.findViewById(R.id.hide_switch);
+			viewHolder.hideSwitch = (Switch) convertView.findViewById(R.id.hide_switch);
 
 			convertView.setTag(viewHolder);
 			
@@ -416,7 +414,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 		TextView updateStickersCount;
 
-		SwitchCompat hideSwitch;
+		Switch hideSwitch;
 	}
 
 	public void onStickerPackDelete(StickerCategory category)
@@ -438,8 +436,9 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 	{
 		boolean visibility = !category.isVisible();
 		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
-		SwitchCompat hideSwitch = (SwitchCompat) listItem.findViewById(R.id.hide_switch);
+		Switch hideSwitch = (Switch) listItem.findViewById(R.id.hide_switch);
 		hideSwitch.setChecked(visibility);
+		this.notifyDataSetChanged();
 		category.setVisible(visibility);
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
