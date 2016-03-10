@@ -294,7 +294,7 @@ public class StickerManager
 		context = HikeMessengerApp.getInstance();
 		String externalDir = getExternalFilesDirPath(null);
 		stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
-		checkAndSendStickerError();
+		logStickerFolderError();
 	}
 
 	public void doInitialSetup()
@@ -2255,6 +2255,7 @@ public class StickerManager
 
 	public void sendStickerDailyAnalytics()
 	{
+		sendStickerError();
 		sendStickerButtonClickAnalytics();
 		sendEmoticonIconClickAnalytics();
 		sendEmoticonUsageAnalytics();
@@ -2705,25 +2706,27 @@ public class StickerManager
 		return TextUtils.isEmpty(stickerExternalDir);
 	}
 
-	private void checkAndSendStickerError()
+	private void sendStickerError()
 	{
-		long lastStickerErrorLogTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, 0L);
-		long currentTime = System.currentTimeMillis();
+		sendStickerFolderError();
+		sendSingleStickerDownloadError();
+		sendStickerPackDownloadError();
+	}
 
-		if(currentTime - lastStickerErrorLogTime > HikeConstants.ONE_DAY_MILLS)
+	private void logStickerFolderError()
+	{
+		if(isStickerFolderError())
 		{
-			sendStickerFolderError();
-			sendSingleStickerDownloadError();
-			sendStickerPackDownloadError();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, currentTime);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, true);
 		}
 	}
 
 	private void sendStickerFolderError()
 	{
-		if(isStickerFolderError())
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, false))
 		{
 			sendStickerFolderLockedError("Unable to access android folder.");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, false);
 		}
 	}
 
