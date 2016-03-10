@@ -27,7 +27,7 @@ public class StickerLoader extends ImageWorker
 
 	private boolean stretchMini;
 
-	public StickerLoader(Builder builder)
+	private StickerLoader(Builder builder)
     {
         super();
         
