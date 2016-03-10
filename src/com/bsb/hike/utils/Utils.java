@@ -6316,20 +6316,6 @@ public class Utils
 				.equals(appContext.getString(R.string.privacy_favorites));
 	}
 
-	public static void launchPlayStore(String packageName, Context context)
-	{
-		Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
-		marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-		try
-		{
-			context.startActivity(marketIntent);
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
-		}
-	}
-
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);

@@ -293,7 +293,7 @@ public class PlatformUtils
 
 				if (!TextUtils.isEmpty(url))
 				{
-					Utils.launchPlayStore(url, context);
+					IntentFactory.launchPlayStore(url, context);
 				}
 			}
 			if (activityName.equals(HIKESCREEN.HELP.toString()))

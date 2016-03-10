@@ -1295,25 +1295,46 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				retry.setVisibility(View.VISIBLE);
 			}
 
+			if (errorMessage.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
+			{
+				retry.setOnClickListener(new OnClickListener()
 				{
-					JSONObject metadata = new JSONObject();
-					try
+					@Override
+					public void onClick(View v)
 					{
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						JSONObject metadata = new JSONObject();
+						try
+						{
+							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						}
+						catch (JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+						nextBtnContainer.setVisibility(View.GONE);
+						restoreProgress.setVisibility(View.VISIBLE);
+						restoreFail.setVisibility(View.INVISIBLE);
+						retry.setVisibility(View.INVISIBLE);
+						setupOnRestoreProgress();
+						mTask.addUserInput("true");
 					}
-					catch(JSONException e)
+				});
+			}
+
+			else if (errorMessage.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
+			{
+				retry.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
 					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						// Open PlayStore
+						IntentFactory.launchPlayStore(SignupActivity.this.getPackageName(), SignupActivity.this);
 					}
-					nextBtnContainer.setVisibility(View.GONE);
-					restoreProgress.setVisibility(View.VISIBLE);
-					restoreFail.setVisibility(View.INVISIBLE);
-					retry.setVisibility(View.INVISIBLE);
-					setupOnRestoreProgress();
-					mTask.addUserInput("true");
-				}
-			});
+				});
+			}
+
 			restoreProgress.setVisibility(View.INVISIBLE);
 			restoreFail.setVisibility(View.VISIBLE);
 			retry.setVisibility(View.VISIBLE);
@@ -2481,4 +2502,5 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		// TODO Auto-generated method stub
 		return true;
 	}
+
 }
