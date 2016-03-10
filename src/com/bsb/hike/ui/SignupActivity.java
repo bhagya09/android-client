@@ -1,13 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -30,40 +22,17 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
+import android.view.animation.*;
 import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -91,13 +60,17 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.ProfileImageLoader;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
 		OnCancelListener, Listener
@@ -1296,7 +1269,15 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			TextView title = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_title);
 			TextView hint = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_hint);
 			title.setText(R.string.restore_error);
-			hint.setText(R.string.restore_error_hint);
+
+			String errorMessage = getString(R.string.restore_error_hint);
+			// In case of generic restore failure, we send "false" as the state value, else we send the required error to be displayed
+			if (!TextUtils.isEmpty(stateValue.value) && !(Boolean.FALSE.toString().equals(restoreStatus)))
+			{
+				errorMessage = stateValue.value;
+			}
+
+			hint.setText(errorMessage);
 			nextBtnContainer.setVisibility(View.VISIBLE);
 			arrow.setVisibility(View.GONE);
 			postText.setText(R.string.skip);
