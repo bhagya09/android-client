@@ -27,30 +27,16 @@ public class StickerLoader extends ImageWorker
 
 	private boolean stretchMini;
 
-	public StickerLoader(boolean downloadLargeStickerIfNotFound)
-	{
-		super();
-		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-		mResources = HikeMessengerApp.getInstance().getResources();
-	}
-
-	public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound)
-	{
-		super();
-		this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
-		this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
-		this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-		mResources = HikeMessengerApp.getInstance().getResources();
-	}
-
-    public StickerLoader(boolean loadMiniStickerIfNotFound, boolean downloadMiniStickerIfNotFound, boolean downloadLargeStickerIfNotFound,boolean lookForOfflineSticker,boolean stretchMini)
+	public StickerLoader(Builder builder)
     {
         super();
-        this.loadMiniStickerIfNotFound = loadMiniStickerIfNotFound;
-        this.downloadMiniStickerIfNotFound = downloadMiniStickerIfNotFound;
-        this.downloadLargeStickerIfNotFound = downloadLargeStickerIfNotFound;
-        this.lookForOfflineSticker = lookForOfflineSticker;
-        this.stretchMini = stretchMini;
+        
+        this.downloadLargeStickerIfNotFound = builder.downloadLargeStickerIfNotFound;
+        this.lookForOfflineSticker = builder.lookForOfflineSticker;
+        this.loadMiniStickerIfNotFound = builder.loadMiniStickerIfNotFound;
+        this.stretchMini = builder.stretchMini;
+        this.downloadMiniStickerIfNotFound = builder.downloadMiniStickerIfNotFound;
+
         mResources = HikeMessengerApp.getInstance().getResources();
     }
 
@@ -167,5 +153,55 @@ public class StickerLoader extends ImageWorker
             StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
         }
     }
+
+    public static class Builder
+    {
+        private boolean downloadLargeStickerIfNotFound = false;
+
+        private boolean lookForOfflineSticker = false;
+
+        private boolean loadMiniStickerIfNotFound = false;
+
+        private boolean downloadMiniStickerIfNotFound = false;
+
+        private boolean stretchMini = false;
+
+        public Builder downloadLargeStickerIfNotFound(boolean state)
+        {
+            this.downloadLargeStickerIfNotFound = state;
+            return this;
+        }
+
+        public Builder lookForOfflineSticker(boolean state)
+        {
+            this.lookForOfflineSticker = state;
+            return this;
+        }
+
+        public Builder loadMiniStickerIfNotFound(boolean state)
+        {
+            this.loadMiniStickerIfNotFound = state;
+            return this;
+        }
+
+        public Builder downloadMiniStickerIfNotFound(boolean state)
+        {
+            this.downloadMiniStickerIfNotFound = state;
+            return this;
+        }
+
+        public Builder stretchMini(boolean state)
+        {
+            this.stretchMini = state;
+            return this;
+        }
+
+        public StickerLoader build()
+        {
+            return new StickerLoader(this);
+        }
+
+    }
+
 
 }

@@ -2701,7 +2701,7 @@ public class StickerManager
 
 	public boolean shouldDisplayMiniStickerOnChatThread()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISPLAY_MINI_IN_CT, false) && isMiniStickersEnabled();
 	}
 
 

@@ -89,7 +89,9 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		stickerObjMap = Collections.synchronizedMap(new HashMap<String, StickerAdapter.StickerPageObjects>());
 
 		//only loading full stickers or downloading the full version if not yet downloaded
-		worker = new StickerLoader(true);
+		worker = new StickerLoader.Builder()
+                .downloadLargeStickerIfNotFound(true)
+                .build();
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
