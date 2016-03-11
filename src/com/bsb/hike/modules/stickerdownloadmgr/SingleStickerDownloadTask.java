@@ -291,11 +291,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	public void doOnFailure(HttpException e)
 	{
 		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
-		if (largeStickerPath == null)
+        Logger.e(TAG, categoryId + ":" + stickerId + " : failed");
+		if (largeStickerPath != null)
 		{
-			return;
+            (new File(largeStickerPath)).delete();
 		}
-		(new File(largeStickerPath)).delete();
+
         finish();
 	}
 
