@@ -102,4 +102,9 @@ public class BackupMetadata {
     public long getBackupTime() {
         return mBackupTimeStamp;
     }
+
+    public String getMsisdn()
+    {
+        return mMsisdn;
+    }
 }

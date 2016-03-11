@@ -1,5 +1,33 @@
 package com.bsb.hike.db;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
+import android.text.TextUtils;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+
+import com.bsb.hike.utils.CBCEncryption;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -9,34 +37,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabaseCorruptException;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.CBCEncryption;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.Utils;
 
 /**
  * AccountBackupRestore is a singleton class that performs are the backup/restore related
@@ -47,6 +52,27 @@ public class AccountBackupRestore
 {
 
 	private static final String LOGTAG = AccountBackupRestore.class.getSimpleName();
+
+	/**
+	 * Restore states : <br>
+	 * 1. Restore is Successful <br>
+	 * 2. Available and does not belong to current msisdn <br>
+	 * 3. Available and is incompatible with the current app version <br>
+	 * 4. Restore error
+	 */
+	public static final int STATE_RESTORE_SUCCESS = 1;
+
+	public static final int STATE_MSISDN_MISMATCH = 2;
+
+	public static final int STATE_INCOMPATIBLE_APP_VERSION = 3;
+
+	public static final int STATE_RESTORE_ERROR = 4;
+
+
+	@IntDef({STATE_RESTORE_SUCCESS, STATE_MSISDN_MISMATCH,STATE_INCOMPATIBLE_APP_VERSION,STATE_RESTORE_ERROR})
+	@Retention(RetentionPolicy.SOURCE)
+	public @interface RestoreErrorStates {}
+
 
 	// TODO - Move this to a stand alone file & simplify.
 	private class PreferenceBackup
@@ -326,7 +352,7 @@ public class AccountBackupRestore
 		writeToFile(dataString, userDataFile);
 	}
 	
-	private BackupMetadata getUserBackupData() {
+	private BackupMetadata getBackupMetadata() {
 		BackupMetadata userData;
 		try
 		{
@@ -423,37 +449,48 @@ public class AccountBackupRestore
 
 	/**
 	 * Restores the complete backup of chats and the specified preferences.
-	 * @return
-	 * 	true for success, and false for for failure. 
+	 *
+	 * @return an integer value which can be amongst the following :
+	 * 1. Restore is Successful <br>
+	 * 2. Available and does not belong to current msisdn <br>
+	 * 3. Available and is incompatible with the current app version <br>
+	 * 4. Restore error
 	 */
-	public boolean restore()
+	@RestoreErrorStates
+	public int restore()
 	{
 		Long time = System.currentTimeMillis();
 		boolean result = true;
+
+		@RestoreErrorStates
+		int successState = STATE_RESTORE_SUCCESS;
+
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		BackupMetadata backupMetadata = getUserBackupData();
-		int appCurrentVersionCode = 0;
-		try
-		{
-			appCurrentVersionCode = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
-		}
-		catch (NameNotFoundException e1)
-		{
-			e1.printStackTrace();
-		}
+		BackupMetadata backupMetadata = getBackupMetadata();
+
 		if (state == null && backupMetadata == null)
 		{
+			successState = STATE_RESTORE_ERROR;
 			result = false;
 		}
-		else if (backupMetadata != null && appCurrentVersionCode > 0 && appCurrentVersionCode < backupMetadata.getAppVersion())
+
+		else if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
 		{
+			successState = STATE_MSISDN_MISMATCH;
 			result = false;
 		}
-		else if (state!= null && state.getDBVersion() > DBConstants.CONVERSATIONS_DATABASE_VERSION)
+		else if (backupMetadata != null && !isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
 		{
+			successState = STATE_INCOMPATIBLE_APP_VERSION;
 			result = false;
 		}
+		else if (state != null && !isBackupDbVersionCompatible(state.getDBVersion()))
+		{
+			successState = STATE_INCOMPATIBLE_APP_VERSION;
+			result = false;
+		}
+
 		if (result)
 		{
 			try
@@ -469,6 +506,7 @@ public class AccountBackupRestore
 				deleteTempDBFiles();
 				e.printStackTrace();
 				result = false;
+				successState = STATE_RESTORE_ERROR;
 			}
 		}
 		if (result)
@@ -489,7 +527,7 @@ public class AccountBackupRestore
 		Logger.d(LOGTAG, "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
 		logRestoreDetails(backupMetadata);
-		return result;
+		return successState;
 	}
 
 	/**
@@ -685,7 +723,7 @@ public class AccountBackupRestore
 	{
 		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		BackupMetadata userData = getUserBackupData();
+		BackupMetadata userData = getBackupMetadata();
 		if (userData != null)
 		{
 			backupTime = userData.getBackupTime();
@@ -828,5 +866,37 @@ public class AccountBackupRestore
 	private File getMetadataFile() {
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
+	}
+
+	/**
+	 * Returns whether the current backup file's properties are compatible with the app version on which they are being restored
+	 *
+	 * @param backupAppVersion
+	 * @return
+	 */
+	private boolean isBackupAppVersionCompatible(int backupAppVersion)
+	{
+		int appCurrentVersionCode = Utils.getAppVersionCode();
+
+		if (appCurrentVersionCode > 0 && appCurrentVersionCode < backupAppVersion)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns whether the current backup file's properties are compatible with the app version on which they are being restored
+	 *
+	 * @param backupDbVersion
+	 * @return
+	 */
+	private boolean isBackupDbVersionCompatible(int backupDbVersion)
+	{
+		if (backupDbVersion > DBConstants.CONVERSATIONS_DATABASE_VERSION)
+		{
+			return false;
+		}
+		return true;
 	}
 }
