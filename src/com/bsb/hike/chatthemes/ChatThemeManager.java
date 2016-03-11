@@ -98,6 +98,12 @@ public class ChatThemeManager
 		return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
 	}
 
+	public void downloadAssetsForTheme(String themeId)
+	{
+		String[] assets = getMissingAssetsForTheme(themeId);
+		mAssetHelper.assetDownloadRequest(assets);
+	}
+
 	//MQTT Signal packet processing
 	public void processNewThemeSignal(JSONArray data)
 	{

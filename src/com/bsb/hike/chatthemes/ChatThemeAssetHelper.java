@@ -94,7 +94,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		theme.overrideAssetDownloadStatus(assetStatus);
 
 		String assetId = theme.getAssetId(assetIndex);
-		mAssets.get(assetId).setIsDownloaded(false);
+		mAssets.get(assetId).setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
 
 		// TODO CHATTHEME Update asset missing in to DB here
 	}
@@ -105,7 +105,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		int len = assets.length;
 		for(int i = 0 ; i < len; i++)
 		{
-			if(!(isAssetRecorded(assets[i]) && (mAssets.get(assets[i]).isDownloaded())))
+			if(!isAssetRecorded(assets[i]) && mAssets.get(assets[i]).isAssetMissing())
 			{
 				missingAssets.add(assets[i]);
 			}
@@ -155,11 +155,6 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		{
 			String[] downloadedAssets = (String[]) object;
 			//TODO CHATTHEME Add method to write the assets associated to these assetIds into DB
-
-			int len = downloadedAssets.length;
-			for(int i = 0 ; i < len; i++){
-				mAssets.get(downloadedAssets[i]).setIsDownloaded(true);
-			}
 		}
 	}
 
