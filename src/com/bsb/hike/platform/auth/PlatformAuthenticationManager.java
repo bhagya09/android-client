@@ -77,6 +77,9 @@ public class PlatformAuthenticationManager
 	// Request for auth token
 	public void requestAuthToken(String clientId)
 	{
+		if(clientId==null){
+			return;
+		}
 		RequestToken requestToken = authSDKRequest(_pUID, _pToken, clientId, new AuthTokenRequestListener());
 		requestToken.execute();
 	}
