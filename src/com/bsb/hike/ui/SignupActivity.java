@@ -1,13 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -30,40 +22,17 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
+import android.view.animation.*;
 import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -91,13 +60,17 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.SignupTask.State;
 import com.bsb.hike.tasks.SignupTask.StateValue;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.ProfileImageLoader;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
 		OnCancelListener, Listener
@@ -1296,44 +1269,90 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			TextView title = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_title);
 			TextView hint = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_hint);
 			title.setText(R.string.restore_error);
-			hint.setText(R.string.restore_error_hint);
+
+			String errorMessage = getString(R.string.restore_error_hint);
+			// In case of generic restore failure, we send "false" as the state value, else we send the required error to be displayed
+			if (!TextUtils.isEmpty(restoreStatus) && !(Boolean.FALSE.toString().equals(restoreStatus)))
+			{
+				errorMessage = restoreStatus;
+			}
+
+			hint.setText(errorMessage);
 			nextBtnContainer.setVisibility(View.VISIBLE);
 			arrow.setVisibility(View.GONE);
 			postText.setText(R.string.skip);
 			final View restoreProgress = (View) restoringBackupLayout.findViewById(R.id.restore_progress);
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
-			
-			retry.setOnClickListener(new OnClickListener()
+
+			if (errorMessage.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
 			{
-				@Override
-				public void onClick(View v)
+				retry.setOnClickListener(new OnClickListener()
 				{
-					JSONObject metadata = new JSONObject();
-					try
+					@Override
+					public void onClick(View v)
 					{
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						JSONObject metadata = new JSONObject();
+						try
+						{
+							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.BACKUP_RESTORE_RETRY);
+							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+						}
+						catch (JSONException e)
+						{
+							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						}
+						nextBtnContainer.setVisibility(View.GONE);
+						restoreProgress.setVisibility(View.VISIBLE);
+						restoreFail.setVisibility(View.INVISIBLE);
+						retry.setVisibility(View.INVISIBLE);
+						setupOnRestoreProgress();
+						mTask.addUserInput("true");
 					}
-					catch(JSONException e)
+				});
+
+				retry.setText(getString(R.string.retry));
+			}
+
+			else if (errorMessage.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
+			{
+				retry.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
 					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+						// Open PlayStore
+						IntentFactory.launchPlayStore(SignupActivity.this.getPackageName(), SignupActivity.this);
 					}
-					nextBtnContainer.setVisibility(View.GONE);
-					restoreProgress.setVisibility(View.VISIBLE);
-					restoreFail.setVisibility(View.INVISIBLE);
-					retry.setVisibility(View.INVISIBLE);
-					setupOnRestoreProgress();
-					mTask.addUserInput("true");
-				}
-			});
+				});
+
+				retry.setText(getString(R.string.upgrade_hike));
+			}
+
+			else if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
+			{
+				retry.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						viewFlipper.setDisplayedChild(POST_SIGNUP);
+						prepareLayoutForPostSignup(null);
+						mTask.addUserInput(null);
+					}
+				});
+
+				retry.setText(getString(R.string.continue_txt));
+			}
+
 			restoreProgress.setVisibility(View.INVISIBLE);
 			restoreFail.setVisibility(View.VISIBLE);
-			retry.setVisibility(View.VISIBLE);
 			if (savedInstanceState == null)
 			{
 				onRestoreFailAnimation();
 			}
+
+			retry.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -1670,8 +1689,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private void onRestoreFailAnimation()
 	{
 		final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
-		final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
-		
+
 		ScaleAnimation scaleUp = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		scaleUp.setInterpolator(new OvershootInterpolator());
 		scaleUp.setStartOffset(100);
@@ -1684,7 +1702,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		
 		restoreFail.startAnimation(scaleUp);
 		restoreFail.setVisibility(View.VISIBLE);
-		retry.setVisibility(View.VISIBLE);
 	}
 	
 	private void setupOnRestoreProgress()
@@ -2494,4 +2511,5 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		// TODO Auto-generated method stub
 		return true;
 	}
+
 }
