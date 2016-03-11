@@ -1329,6 +1329,22 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				retry.setText(getString(R.string.upgrade_hike));
 			}
 
+			else if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
+			{
+				retry.setOnClickListener(new OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						viewFlipper.setDisplayedChild(POST_SIGNUP);
+						prepareLayoutForPostSignup(null);
+						mTask.addUserInput(null);
+					}
+				});
+
+				retry.setText(getString(R.string.continue_txt));
+			}
+
 			restoreProgress.setVisibility(View.INVISIBLE);
 			restoreFail.setVisibility(View.VISIBLE);
 			if (savedInstanceState == null)
@@ -1336,15 +1352,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				onRestoreFailAnimation();
 			}
 
-			if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
-			{
-				retry.setVisibility(View.GONE);
-			}
-
-			else
-			{
-				retry.setVisibility(View.VISIBLE);
-			}
+			retry.setVisibility(View.VISIBLE);
 		}
 	}
 
