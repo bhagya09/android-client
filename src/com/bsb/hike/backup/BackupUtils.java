@@ -20,10 +20,10 @@ import com.bsb.hike.utils.Logger;
 /**
  * Created by gauravmittal on 10/03/16.
  */
-public class Utils
+public class BackupUtils
 {
 
-	public static final String LOGTAG = Utils.class.getSimpleName();
+	public static final String LOGTAG = BackupUtils.class.getSimpleName();
 
 	public static final String HIKE_PACKAGE_NAME = "com.bsb.hike";
 
@@ -119,7 +119,7 @@ public class Utils
 	 * @param closeables
 	 * 		Set of the closeables to be closed.
 	 */
-	private static void closeChannelsAndStreams(Closeable... closeables)
+	public static void closeChannelsAndStreams(Closeable... closeables)
 	{
 		for (Closeable closeable : closeables)
 		{

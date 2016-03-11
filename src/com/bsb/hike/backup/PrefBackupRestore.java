@@ -28,9 +28,9 @@ public class PrefBackupRestore implements BackupableRestorable {
     public void backup() throws Exception {
         String prefBackupString = prefBackup.takeBackup().serialize();
         File prefFile = prefBackup.getPrefFile();
-        Utils.writeToFile(prefBackupString, prefFile);
-        File prefFileBackup = Utils.getBackupFile(prefFile.getName());
-        File prefFileBackupTemp = Utils.getTempFile(prefFileBackup);
+        BackupUtils.writeToFile(prefBackupString, prefFile);
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
+        File prefFileBackupTemp = BackupUtils.getTempFile(prefFileBackup);
         CBCEncryption.encryptFile(prefFile, prefFileBackupTemp , backupToken);
         prefFile.delete();
 
@@ -39,8 +39,8 @@ public class PrefBackupRestore implements BackupableRestorable {
     @Override
     public void postBackupSetup() throws Exception {
         File prefFile = Prefs.getPrefFile();
-        File prefFileBackup = Utils.getBackupFile(prefFile.getName());
-        File prefFileBackupTemp = Utils.getTempFile(prefFileBackup);
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
+        File prefFileBackupTemp = BackupUtils.getTempFile(prefFileBackup);
         prefFileBackupTemp.renameTo(prefFileBackup);
     }
 
@@ -48,7 +48,7 @@ public class PrefBackupRestore implements BackupableRestorable {
     public boolean preRestoreSetup() throws Exception {
         Prefs prefBackup = new Prefs();
         File prefFile = prefBackup.getPrefFile();
-        File prefFileBackup = Utils.getBackupFile(prefFile.getName());
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
         if (prefFileBackup == null || !prefFileBackup.exists())
             return false;
         return true;
@@ -57,9 +57,9 @@ public class PrefBackupRestore implements BackupableRestorable {
     @Override
     public void restore() throws Exception {
         File prefFile = prefBackup.getPrefFile();
-        File prefFileBackup = Utils.getBackupFile(prefFile.getName());
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
         CBCEncryption.decryptFile(prefFileBackup, prefFile, backupToken);
-        String prefBackupString = Utils.readStringFromFile(prefFile);
+        String prefBackupString = BackupUtils.readStringFromFile(prefFile);
         prefBackup.deserialize(prefBackupString);
         prefFile.delete();
 
@@ -78,8 +78,8 @@ public class PrefBackupRestore implements BackupableRestorable {
     private static void deleteTemporaryCopies()
     {
         File prefFile = Prefs.getPrefFile();
-        File prefFileBackup = Utils.getBackupFile(prefFile.getName());
-        File prefFileBackupTemp = Utils.getTempFile(prefFileBackup);
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
+        File prefFileBackupTemp = BackupUtils.getTempFile(prefFileBackup);
         prefFile.delete();
         prefFileBackupTemp.delete();
     }

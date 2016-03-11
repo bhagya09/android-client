@@ -4,8 +4,6 @@ import com.bsb.hike.utils.CBCEncryption;
 
 import java.io.File;
 
-import com.bsb.hike.backup.Utils;
-
 /**
  * Created by gauravmittal on 10/03/16.
  */
@@ -30,20 +28,20 @@ public class DB implements BackupableRestorable {
 
     @Override
     public boolean preBackupSetup() throws Exception {
-        if (Utils.isDBCorrupt(dbName))
+        if (BackupUtils.isDBCorrupt(dbName))
             return false;
         return true;
     }
 
     @Override
     public void backup() throws Exception {
-        File dbCopy = Utils.exportDatabse(dbName);
+        File dbCopy = BackupUtils.exportDatabse(dbName);
         if (dbCopy == null || !dbCopy.exists())
         {
             throw new Exception("Backup file " + dbCopy + " is missing");
         }
-        File backup = Utils.getBackupFile(dbName);
-        File backupTemp = Utils.getTempFile(backup);
+        File backup = BackupUtils.getBackupFile(dbName);
+        File backupTemp = BackupUtils.getTempFile(backup);
         CBCEncryption.encryptFile(dbCopy, backupTemp, backupToken);
         dbCopy.delete();
 
@@ -51,28 +49,33 @@ public class DB implements BackupableRestorable {
 
     @Override
     public void postBackupSetup() throws Exception {
-        File backup = Utils.getBackupFile(dbName);
-        File backupTemp = Utils.getTempFile(backup);
+        File backup = BackupUtils.getBackupFile(dbName);
+        File backupTemp = BackupUtils.getTempFile(backup);
         backupTemp.renameTo(backup);
     }
 
     @Override
     public boolean preRestoreSetup() throws Exception {
+        File currentDB = BackupUtils.getCurrentDBFile(dbName);
+        File dbCopy = BackupUtils.getDBCopyFile(currentDB.getName());
+        File backup = BackupUtils.getBackupFile(dbCopy.getName());
+        if (backup == null || !backup.exists())
+            return false;
         return true;
     }
 
     @Override
     public void restore() throws Exception {
-        File currentDB = Utils.getCurrentDBFile(dbName);
-        File dbCopy = Utils.getDBCopyFile(currentDB.getName());
-        File backup = Utils.getBackupFile(dbCopy.getName());
+        File currentDB = BackupUtils.getCurrentDBFile(dbName);
+        File dbCopy = BackupUtils.getDBCopyFile(currentDB.getName());
+        File backup = BackupUtils.getBackupFile(dbCopy.getName());
         CBCEncryption.decryptFile(backup, dbCopy, backupToken);
     }
 
     @Override
     public void postRestoreSetup() throws Exception {
-        File dbCopy = Utils.getDBCopyFile(dbName);
-        Utils.importDatabase(dbCopy);
+        File dbCopy = BackupUtils.getDBCopyFile(dbName);
+        BackupUtils.importDatabase(dbCopy);
     }
 
     @Override
@@ -81,12 +84,12 @@ public class DB implements BackupableRestorable {
     }
 
     private void deleteTemporaryCopies() {
-        File dbCopy = Utils.getDBCopyFile(dbName);
+        File dbCopy = BackupUtils.getDBCopyFile(dbName);
         if (dbCopy != null)
             dbCopy.delete();
 
-        File backup = Utils.getBackupFile(dbName);
-        File backupTemp = Utils.getTempFile(backup);
+        File backup = BackupUtils.getBackupFile(dbName);
+        File backupTemp = BackupUtils.getTempFile(backup);
         if (backupTemp != null)
             backupTemp.delete();
     }
