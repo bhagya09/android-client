@@ -165,6 +165,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	public static final int HIKE_DIRECT_MODE = 10;
 
     public static final int PICK_CONTACT_SINGLE_MODE = 11;
+    
+    public static final int PAYMENT_MODE = 12;
 
 	private View multiSelectActionBar, groupChatActionBar;
 
@@ -279,7 +281,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	// null incase of multiple msg objects
 	private String messageToShare;
 
-    private boolean isContactChooserFilter = false;
+    private boolean isContactChooserFilter;
+
+	private String titleText;
 
     @Override
 	public void onCreate(Bundle savedInstanceState)
@@ -341,6 +345,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
         {
             isContactChooserFilter = getIntent().getBooleanExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,false);
             composeMode = PICK_CONTACT_SINGLE_MODE;
+        }
+        if (getIntent().hasExtra(HikeConstants.Extras.TITLE))
+        {
+            titleText = getIntent().getStringExtra(HikeConstants.Extras.TITLE);
         }
 
         if (savedInstanceState != null)
@@ -1366,6 +1374,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.removeFilter();
 			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_chat_mode);
 			break;
+		case PAYMENT_MODE:
+			tagEditText.clear(false);
+			adapter.clearAllSelection(false);
+			adapter.removeFilter();
+			adapter.setStatusForEmptyContactInfo(R.string.compose_chat_empty_contact_status_payment_mode);
+			break;
 		}
 		if(!nuxIncentiveMode) 
 			setTitle();
@@ -1636,6 +1650,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
         else if (this.composeMode == PICK_CONTACT_SINGLE_MODE)
         {
             title.setText(R.string.contacts);
+        }else if (titleText!=null)
+        {
+            title.setText(titleText);
         }
 		else
 		{

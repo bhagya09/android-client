@@ -559,13 +559,11 @@ public abstract class JavascriptBridge
     @JavascriptInterface
     public void startContactChooserForMsisdnFilter(String id,String requestJson) {
         Activity activity = weakActivity.get();
-        String msisdns = "";
         String title = "";
 
         if(!TextUtils.isEmpty(requestJson)) {
             try {
                 JSONObject json = new JSONObject(requestJson);
-                msisdns = json.getString(HikeConstants.Extras.LIST);
                 title = json.getString(HikeConstants.Extras.TITLE);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -574,24 +572,16 @@ public abstract class JavascriptBridge
 
         if (activity != null) {
 
-            if (TextUtils.isEmpty(msisdns)) {
-                Intent intent = new Intent(activity, ComposeChatActivity.class);
-                intent.putExtra(HikeConstants.Extras.EDIT, true);
-                intent.putExtra(REQUEST_CODE, ComposeChatActivity.PICK_CONTACT_SINGLE_MODE);
-                intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
-                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
-                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
-            } else {
-                Intent intent = IntentFactory.getFavouritesIntent(activity);
-                intent.putExtra(tag, JavascriptBridge.this.hashCode());
-                intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-                intent.putExtra(HikeConstants.Extras.MSISDN, msisdns);
-                intent.putExtra(HikeConstants.Extras.TITLE, title);
-                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
-                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
-            }
+        	Intent intent = new Intent(activity, ComposeChatActivity.class);
+            intent.putExtra(HikeConstants.Extras.EDIT, true);
+            intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PAYMENT_MODE);
+            intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
+            intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
+            intent.putExtra(HikeConstants.Extras.TITLE, title);
+            activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
         }
     }
+   
 
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)

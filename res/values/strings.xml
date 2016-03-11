@@ -1570,5 +1570,5 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
->>>>>>> 3275be3e1906a7ceff7651f8418346da55e57c57
+    <string name="compose_chat_empty_contact_status_payment_mode">Tap to send money</string>
 </resources>
