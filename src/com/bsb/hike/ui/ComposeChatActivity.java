@@ -870,6 +870,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			adapter.getIconLoader().setExitTasksEarly(false);
 			adapter.notifyDataSetChanged();
 		}
+
+		Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "end=" + System.currentTimeMillis());
 	}
 	
 	@Override
