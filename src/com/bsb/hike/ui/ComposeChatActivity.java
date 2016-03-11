@@ -857,11 +857,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,(allImages || !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline());
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,(allImages || !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,isShowTimeline());
 			break;
 		}
 
@@ -914,6 +914,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 
+	private boolean isShowTimeline(){
+		//This method gives the value whether to show timeline option in compose chat list,
+		//if there is an explicit extra mentioned, then use that value.
+		boolean showTimeline;
+		if(getIntent()!= null && getIntent().hasExtra(HikeConstants.Extras.SHOW_TIMELINE)){
+			showTimeline = getIntent().getBooleanExtra(HikeConstants.Extras.SHOW_TIMELINE, false);
+		}else{
+			showTimeline = allImages || !TextUtils.isEmpty(messageToShare);
+		}
+		return showTimeline;
+	}
 	private void initTagEditText()
 	{
 		tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);

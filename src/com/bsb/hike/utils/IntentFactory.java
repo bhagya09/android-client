@@ -1137,6 +1137,7 @@ public class IntentFactory
 		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, false);
 		if (!TextUtils.isEmpty(analyticsExtra))
 		{
 			intent.putExtra(AnalyticsConstants.ANALYTICS_EXTRA, analyticsExtra);
