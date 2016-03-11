@@ -84,6 +84,15 @@ public class ChatThemeManager
 		return mAssetHelper.isAssetsAvailableForTheme(theme);
 	}
 
+	/**
+	 * Gives the list of missing assets for this theme
+	 *
+	 * @param themeID
+	 *            theme id
+	 * @return String[]
+	 * 			missing assets for given theme
+	 *
+	 */
 	public String[] getMissingAssetsForTheme(String themeId)
 	{
 		return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
@@ -94,13 +103,16 @@ public class ChatThemeManager
 	{
 		try
 		{
+			int len = data.length();
+
 			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
 			ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
+			//to avoid duplicate asset ids
 			HashSet<String> assetIds = new HashSet<>();
 
-			int len = data.length();
 			//looping of the n no themes sent in the packet
-			for (int i = 0; i < len; i++) {
+			for (int i = 0; i < len; i++)
+			{
 				HikeChatTheme theme = new HikeChatTheme();
 				JSONObject t = data.getJSONObject(i);
 
@@ -108,17 +120,25 @@ public class ChatThemeManager
 				theme.setThemeId(themeID);
 
 				// looping to the no of indexes for a theme
-				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
+				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++)
+				{
 					JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME[j]);
 					int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
 					String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
 					theme.setAsset(j, id);
-					if (!assetIds.contains(id)) {
-						assetsList.add(new HikeChatThemeAsset(id, type, null));
+					if (!assetIds.contains(id))
+					{
+						HikeChatThemeAsset hcta = new HikeChatThemeAsset(id, type, null);
+						assetsList.add(hcta);
+
+						mAssetHelper.addDownloadedAsset(id, hcta);
 					}
 				}
 				themeList.add(theme);
+
+				mChatThemesList.put(themeID, theme);
 			}
+
 			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
 		}
