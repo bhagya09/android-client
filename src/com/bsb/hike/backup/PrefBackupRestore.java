@@ -75,12 +75,28 @@ public class PrefBackupRestore implements BackupableRestorable {
         deleteTemporaryCopies();
     }
 
+    @Override
+    public void selfDestruct() {
+        deleteAllFiles();
+    }
+
     private static void deleteTemporaryCopies()
     {
         File prefFile = Prefs.getPrefFile();
         File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
         File prefFileBackupTemp = BackupUtils.getTempFile(prefFileBackup);
-        prefFile.delete();
-        prefFileBackupTemp.delete();
+        if (prefFile != null)
+            prefFile.delete();
+        if (prefFileBackupTemp != null)
+            prefFileBackupTemp.delete();
+    }
+
+    private void deleteAllFiles()
+    {
+        deleteTemporaryCopies();
+        File prefFile = Prefs.getPrefFile();
+        File prefFileBackup = BackupUtils.getBackupFile(prefFile.getName());
+        if (prefFileBackup != null)
+            prefFileBackup.delete();
     }
 }

@@ -29,7 +29,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -437,19 +436,24 @@ public class AccountBackupRestore
 	 */
 	public void deleteAllFiles()
 	{
-		for (String fileName : dbNames)
+		try
 		{
-			File currentDB = getCurrentDBFile(fileName);
-			File dbCopy = getDBCopyFile(currentDB.getName());
-			File backup = getBackupFile(dbCopy.getName());
-			dbCopy.delete();
-			backup.delete();
+			String backupToken = getBackupToken();
+			ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+			backupItems.add(new DBsBackupRestore(backupToken));
+			backupItems.add(new PrefBackupRestore(backupToken));
+
+			for (BackupableRestorable item : backupItems)
+			{
+				item.selfDestruct();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		getBackupStateFile().delete();
-		getPrefBackupFile().delete();
 		getMetadataFile().delete();
-		deleteTempDBFiles();
-		deleteTempPrefFile();
 	}
 
 	private File getBackupStateFile()
@@ -486,7 +490,7 @@ public class AccountBackupRestore
 		}
 		finally
 		{
-			BackupUtils.closeChannelsAndStreams(fileIn,in);
+			BackupUtils.closeChannelsAndStreams(fileIn, in);
 		}
 		return state;
 	}

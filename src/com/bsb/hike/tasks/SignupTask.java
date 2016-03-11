@@ -20,6 +20,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
@@ -729,10 +730,12 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					}
 					if (restoreStatus == STATE_RESTORE_SUCCESS)
 					{
+						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
 					}
 					else
 					{
+						BotUtils.initBots();
 						switch (restoreStatus)
 						{
 						case STATE_INCOMPATIBLE_APP_VERSION:

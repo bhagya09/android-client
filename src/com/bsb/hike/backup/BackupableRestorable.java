@@ -19,4 +19,6 @@ public interface BackupableRestorable
 	public void postRestoreSetup() throws Exception;
 
 	public void finish();
+
+	public void selfDestruct();
 }

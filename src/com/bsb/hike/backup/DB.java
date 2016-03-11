@@ -83,6 +83,11 @@ public class DB implements BackupableRestorable {
         deleteTemporaryCopies();
     }
 
+    @Override
+    public void selfDestruct() {
+        deleteAllFiles();
+    }
+
     private void deleteTemporaryCopies() {
         File dbCopy = BackupUtils.getDBCopyFile(dbName);
         if (dbCopy != null)
@@ -92,6 +97,14 @@ public class DB implements BackupableRestorable {
         File backupTemp = BackupUtils.getTempFile(backup);
         if (backupTemp != null)
             backupTemp.delete();
+    }
+
+    private void deleteAllFiles()
+    {
+        deleteTemporaryCopies();
+        File backup = BackupUtils.getBackupFile(dbName);
+        if (backup != null)
+            backup.delete();
     }
 
 }
