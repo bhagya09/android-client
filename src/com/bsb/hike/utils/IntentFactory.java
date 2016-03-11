@@ -30,7 +30,6 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
-import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -89,7 +88,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bsb.hike.db.AccountBackupRestore.*;
+import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {

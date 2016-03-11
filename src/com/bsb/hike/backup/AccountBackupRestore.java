@@ -1,4 +1,22 @@
-package com.bsb.hike.db;
+package com.bsb.hike.backup;
+
+import java.io.BufferedReader;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.nio.channels.FileChannel;
+import java.util.Calendar;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,34 +32,17 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.BackupState;
+import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
-
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.nio.channels.FileChannel;
-import java.util.Calendar;
 
 /**
  * AccountBackupRestore is a singleton class that performs are the backup/restore related
@@ -96,10 +97,10 @@ public class AccountBackupRestore
 					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))
 					.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION))
-					.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, false));				
-			
+					.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, false));
+
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
-			
+
 			prefJson.put(HikeConstants.STEALTH_NOTIFICATION_ENABLED, settingUtils.getBoolean(HikeConstants.STEALTH_NOTIFICATION_ENABLED, true))
 					.put(HikeConstants.STEALTH_INDICATOR_ENABLED, settingUtils.getBoolean(HikeConstants.STEALTH_INDICATOR_ENABLED, false))
 					.put(HikeConstants.CHANGE_STEALTH_TIMEOUT, settingUtils.getString(HikeConstants.CHANGE_STEALTH_TIMEOUT, StealthModeManager.DEFAULT_RESET_TOGGLE_TIME));
@@ -152,9 +153,9 @@ public class AccountBackupRestore
 				String key = HikePlatformConstants.CUSTOM_TABS;
 				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
-			
+
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
-			
+
 			if (prefJson.has(HikeConstants.STEALTH_INDICATOR_ENABLED))
 			{
 				String key = HikeConstants.STEALTH_INDICATOR_ENABLED;
@@ -178,9 +179,9 @@ public class AccountBackupRestore
 			return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, PREFS);
 		}
 	}
-	
 
-	
+
+
 	public static final String RESTORE_EVENT_KEY = "rstr";
 
 	public static final String BACKUP_EVENT_KEY = "bck";
@@ -283,7 +284,7 @@ public class AccountBackupRestore
 		recordLog(BACKUP_EVENT_KEY, result, time);
 		return result;
 	}
-	
+
 	private void backupDB(String backupToken) throws Exception {
 		Logger.d(LOGTAG, "encrypting with key: " + backupToken);
 		if (TextUtils.isEmpty(backupToken)) {
@@ -332,7 +333,7 @@ public class AccountBackupRestore
 		}
 		return isDbCorrupt;
 	}
-	
+
 	private void backupPrefs(String backupToken) throws Exception
 	{
 		PreferenceBackup prefBackup = new PreferenceBackup();
@@ -343,7 +344,7 @@ public class AccountBackupRestore
 		CBCEncryption.encryptFile(prefFile, prefFileBackup, backupToken);
 		prefFile.delete();
 	}
-	
+
 	private void backupUserData() throws Exception
 	{
 		BackupMetadata backupMetadata = new BackupMetadata(mContext);
@@ -351,7 +352,7 @@ public class AccountBackupRestore
 		File userDataFile = getMetadataFile();
 		writeToFile(dataString, userDataFile);
 	}
-	
+
 	private BackupMetadata getBackupMetadata() {
 		BackupMetadata userData;
 		try
@@ -381,7 +382,7 @@ public class AccountBackupRestore
 			closeChannelsAndStreams(fileWriter);
 		}
 	}
-	
+
 	private String readStringFromFile(File file) throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader(file));
@@ -517,12 +518,12 @@ public class AccountBackupRestore
 			}
 			postRestoreSetup(state, backupMetadata);
 		}
-		
+
 		else
 		{
 			BotUtils.initBots();
 		}
-		
+
 		time = System.currentTimeMillis() - time;
 		Logger.d(LOGTAG, "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY,result,time);
@@ -539,7 +540,7 @@ public class AccountBackupRestore
 	{
 		if (backupMetadata != null)
 			Logger.d(LOGTAG,"Backup Details: " + backupMetadata.toString());
-		
+
 		try
 		{
 			Logger.d(LOGTAG,"Current App Deatils: " + (new BackupMetadata(mContext)).toString());
@@ -567,7 +568,7 @@ public class AccountBackupRestore
 			dbCopy.delete();
 		}
 	}
-	
+
 	private void restorePrefs(String backupToken) throws Exception
 	{
 		PreferenceBackup prefBackup = new PreferenceBackup();
@@ -583,7 +584,7 @@ public class AccountBackupRestore
 	 * Replaces the current Application database file with the provided database file
 	 * @param dbCopy
 	 * 		The file to placed as the new database.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void importDatabase(File dbCopy) throws Exception
 	{
@@ -617,7 +618,7 @@ public class AccountBackupRestore
 		time = System.currentTimeMillis() - time;
 		Logger.d(LOGTAG, "DB import complete!! in " + time / 1000 + "." + time % 1000 + "s");
 	}
-	
+
 	private void recordLog(String eventKey, boolean result, long timeTaken)
 	{
 		JSONObject metadata = new JSONObject();
@@ -632,10 +633,10 @@ public class AccountBackupRestore
 				sizes.put(backup.length());
 			}
 			metadata
-			.put(HikeConstants.EVENT_KEY, eventKey)
-			.put(SIZE, sizes)
-			.put(STATUS, result)
-			.put(TIME_TAKEN, timeTaken);
+					.put(HikeConstants.EVENT_KEY, eventKey)
+					.put(SIZE, sizes)
+					.put(STATUS, result)
+					.put(TIME_TAKEN, timeTaken);
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_BACKUP, metadata);
 		}
 		catch(JSONException e)
@@ -643,7 +644,7 @@ public class AccountBackupRestore
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
-	
+
 	private String getBackupToken()
 	{
 		SharedPreferences settings = mContext.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -707,7 +708,7 @@ public class AccountBackupRestore
 		}
 		File prefBackupFile = getPrefBackupFile();
 		File backupStateFile = getBackupStateFile();
-		
+
 		if(!prefBackupFile.exists() && !backupStateFile.exists())
 		{
 			return false;
@@ -747,7 +748,7 @@ public class AccountBackupRestore
 			dbCopy.delete();
 		}
 	}
-	
+
 	private void deleteTempPrefFile()
 	{
 		getTempPrefFile().delete();
@@ -772,13 +773,13 @@ public class AccountBackupRestore
 		deleteTempDBFiles();
 		deleteTempPrefFile();
 	}
-	
+
 	private File getTempPrefFile()
 	{
 		PreferenceBackup prefBackup = new PreferenceBackup();
 		return prefBackup.getPrefFile();
 	}
-	
+
 	private File getPrefBackupFile()
 	{
 		return getBackupFile(getTempPrefFile().getName());
@@ -803,13 +804,13 @@ public class AccountBackupRestore
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, name);
 	}
-	
+
 	private File getBackupStateFile()
 	{
 		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
 		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, BACKUP);
 	}
-	
+
 	private BackupState getBackupState()
 	{
 		BackupState state = null;

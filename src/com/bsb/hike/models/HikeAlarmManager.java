@@ -8,7 +8,7 @@ import android.content.Intent;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;

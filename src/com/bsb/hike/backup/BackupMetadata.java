@@ -1,4 +1,4 @@
-package com.bsb.hike.db;
+package com.bsb.hike.backup;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -73,7 +73,7 @@ public class BackupMetadata {
                 mBackupTimeStamp = dataJson.getLong(TIMESTAMP);
             }
         } catch (JSONException e) {
-             Logger.e(LOGTAG, "Failed to construct BackupMetadata Object", e);
+            Logger.e(LOGTAG, "Failed to construct BackupMetadata Object", e);
         }
     }
 

@@ -18,8 +18,8 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.db.AccountBackupRestore;
-import com.bsb.hike.db.AccountBackupRestore.RestoreErrorStates;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
@@ -46,9 +46,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.bsb.hike.db.AccountBackupRestore.STATE_INCOMPATIBLE_APP_VERSION;
-import static com.bsb.hike.db.AccountBackupRestore.STATE_MSISDN_MISMATCH;
-import static com.bsb.hike.db.AccountBackupRestore.STATE_RESTORE_SUCCESS;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_INCOMPATIBLE_APP_VERSION;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_MSISDN_MISMATCH;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
