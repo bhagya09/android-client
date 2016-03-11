@@ -70,6 +70,7 @@ import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -971,6 +972,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
