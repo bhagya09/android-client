@@ -248,7 +248,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ("
 				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
 				+ DBConstants.ChatThemes.THEME_COL_BG_ID + " TEXT, " // Chat theme id
-				+ DBConstants.TIMESTAMP + " INTEGER" // Timestamp when this them was changed.
+				+ DBConstants.TIMESTAMP + " INTEGER" + COMMA_SEPARATOR  // Timestamp when this them was changed.
+				+ DBConstants.ChatThemes.PREV_THEME_ID_COL + COLUMN_TYPE_TEXT + " DEFAULT '0'" // Prev theme id set for the chat
 				+ ")";
 		db.execSQL(sql);
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.ChatThemes.CHAT_BG_INDEX + " ON " + DBConstants.ChatThemes.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
@@ -865,6 +866,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 			db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
+		}
+
+		if(oldVersion < 49)
+		{
+			//adding a prevThemeId column to the chat_bg_table
+			if(!Utils.isColumnExistsInTable(db, DBConstants.ChatThemes.CHAT_BG_TABLE, ChatThemes.PREV_THEME_ID_COL))
+			{
+				String addPrevThemeIdCol = "ALTER TABLE " + DBConstants.ChatThemes.CHAT_BG_TABLE + " ADD COLUMN "
+											+ ChatThemes.PREV_THEME_ID_COL + COLUMN_TYPE_TEXT + " DEFAULT '0'";
+				db.execSQL(addPrevThemeIdCol);
+			}
 		}
 
 	}
