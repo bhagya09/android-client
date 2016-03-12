@@ -13,17 +13,34 @@ public class DB implements BackupableRestorable {
 
     private String dbName;
 
+    private boolean restoreSkippable;
+
+    private boolean restoreSkipped;
+
     protected String[] tablesToReset;
 
     /*
     @param name: name of the db
     @param tableList: list of tables to skip restore.
+    @param backupToken
      */
     DB(String name, String[] tableList, String backupToken)
+    {
+        this(name, tableList, backupToken, false);
+    }
+
+    /*
+    @param name: name of the db
+    @param tableList: list of tables to skip restore.
+    @param backupToken
+    @param restoreSkippable:
+     */
+    DB(String name, String[] tableList, String backupToken, boolean restoreSkippable)
     {
         this.dbName = name;
         this.tablesToReset = tableList;
         this.backupToken = backupToken;
+        this.restoreSkippable = restoreSkippable;
     }
 
     @Override
@@ -60,12 +77,19 @@ public class DB implements BackupableRestorable {
         File dbCopy = BackupUtils.getDBCopyFile(currentDB.getName());
         File backup = BackupUtils.getBackupFile(dbCopy.getName());
         if (backup == null || !backup.exists())
-            return false;
+        {
+            if (restoreSkippable)
+                restoreSkipped = true;
+            else
+                return false;
+        }
         return true;
     }
 
     @Override
     public void restore() throws Exception {
+        if (restoreSkipped)
+            return;
         File currentDB = BackupUtils.getCurrentDBFile(dbName);
         File dbCopy = BackupUtils.getDBCopyFile(currentDB.getName());
         File backup = BackupUtils.getBackupFile(dbCopy.getName());
@@ -74,6 +98,8 @@ public class DB implements BackupableRestorable {
 
     @Override
     public void postRestoreSetup() throws Exception {
+        if (restoreSkipped)
+            return;
         File dbCopy = BackupUtils.getDBCopyFile(dbName);
         BackupUtils.importDatabase(dbCopy);
     }
