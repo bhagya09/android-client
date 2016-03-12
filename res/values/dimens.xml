@@ -145,4 +145,5 @@
 	<dimen name="mapp_download_dialog_icon_margin_land">26dp</dimen>
 
 	<dimen name="walkie_talkie_slider_font_size">18dp</dimen>
+	<dimen name="walkie_mic_size">50dp</dimen>
 </resources>

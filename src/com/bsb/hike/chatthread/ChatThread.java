@@ -160,9 +160,11 @@ import android.text.TextWatcher;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -3919,14 +3921,15 @@ import android.widget.Toast;
 			case R.id.send_message_audio:
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
-						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing());
-						walkieView.update(event);
+						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
+						walkieView.update(v,event);
 						break;
 					case MotionEvent.ACTION_MOVE:
-						walkieView.update(event);
+						walkieView.update(v, event);
 						break;
 					case MotionEvent.ACTION_UP:
-						walkieView.update(event);
+						walkieView.update(v, event);
 						break;
 				}
 
