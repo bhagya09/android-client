@@ -48,9 +48,10 @@ public class DBsBackupRestore implements BackupableRestorable
 		};
 
 		usersDB = new DB(DBConstants.USERS_DATABASE_NAME,
-				// will be skipped
+				// USERS_TABLE, BLOCK_TABLE and FAVORITES_TABLE will be skipped
 				new String[] { DBConstants.USERS_TABLE, DBConstants.BLOCK_TABLE, DBConstants.FAVORITES_TABLE },
-				backupToken)
+				backupToken,
+				true)
 		{
 			@Override
 			public void postRestoreSetup() throws Exception {
