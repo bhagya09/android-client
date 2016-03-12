@@ -16,6 +16,8 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private List<DB> DBs;
 
+	private DB chatsDB;
+
 	DBsBackupRestore(String backupToken)
 	{
 		this.backupToken = backupToken;
@@ -24,6 +26,24 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private void init()
 	{
+		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
+				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
+				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE },
+				backupToken)
+		{
+			@Override
+			public void postRestoreSetup() throws Exception
+			{
+				super.postRestoreSetup();
+				HikeConversationsDatabase.getInstance().reinitializeDB();
+				for (String table : tablesToReset)
+				{
+					HikeConversationsDatabase.getInstance().clearTable(table);
+				}
+				HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+			}
+		};
+
 		DBs = new ArrayList<DB>()
 		{
 			{
@@ -100,22 +120,4 @@ public class DBsBackupRestore implements BackupableRestorable
 		for (DB db : DBs)
 			db.selfDestruct();
 	}
-
-	private DB chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
-            // STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-            new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE },
-            backupToken)
-	{
-		@Override
-		public void postRestoreSetup() throws Exception
-		{
-			super.postRestoreSetup();
-			HikeConversationsDatabase.getInstance().reinitializeDB();
-            for (String table : tablesToReset)
-            {
-                HikeConversationsDatabase.getInstance().clearTable(table);
-            }
-			HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
-		}
-	};
 }
