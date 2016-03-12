@@ -134,12 +134,11 @@ public class AccountBackupRestore
 		long time = System.currentTimeMillis();
 		boolean result = true;
 		String backupToken = getBackupToken();
+		ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+		backupItems.add(new DBsBackupRestore(backupToken));
+		backupItems.add(new PrefBackupRestore(backupToken));
 		try
 		{
-			ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
-			backupItems.add(new DBsBackupRestore(backupToken));
-			backupItems.add(new PrefBackupRestore(backupToken));
-
 			for (BackupableRestorable item : backupItems)
 			{
 				item.preBackupSetup();
@@ -155,10 +154,6 @@ public class AccountBackupRestore
 				item.postBackupSetup();
 			}
 
-			for (BackupableRestorable item : backupItems)
-			{
-				item.finish();
-			}
 
 			backupUserData();
 		}
@@ -166,6 +161,10 @@ public class AccountBackupRestore
 		{
 			e.printStackTrace();
 			result = false;
+		}
+		for (BackupableRestorable item : backupItems)
+		{
+			item.finish();
 		}
 		if (result)
 		{
@@ -251,15 +250,14 @@ public class AccountBackupRestore
 
 		if (result)
 		{
+			ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+			backupItems.add(new DBsBackupRestore(backupToken));
+			if (state == null && backupMetadata != null)
+			{
+				backupItems.add(new PrefBackupRestore(backupToken));
+			}
 			try
 			{
-				ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
-				backupItems.add(new DBsBackupRestore(backupToken));
-				if (state == null && backupMetadata != null)
-				{
-					backupItems.add(new PrefBackupRestore(backupToken));
-				}
-
 				for (BackupableRestorable item : backupItems)
 				{
 					item.preRestoreSetup();
@@ -274,18 +272,17 @@ public class AccountBackupRestore
 				{
 					item.postRestoreSetup();
 				}
-
-				for (BackupableRestorable item : backupItems)
-				{
-					item.finish();
-				}
-
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 				result = false;
 				successState = STATE_RESTORE_ERROR;
+			}
+
+			for (BackupableRestorable item : backupItems)
+			{
+				item.finish();
 			}
 		}
 		if (result)
