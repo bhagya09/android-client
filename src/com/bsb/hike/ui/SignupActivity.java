@@ -1285,7 +1285,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
 
-			if (errorMessage.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
+			if (restoreStatus.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
 			{
 				retry.setOnClickListener(new OnClickListener()
 				{
@@ -1314,7 +1314,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				retry.setText(getString(R.string.retry));
 			}
 
-			else if (errorMessage.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
+			else if (restoreStatus.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
 			{
 				retry.setOnClickListener(new OnClickListener()
 				{
@@ -1329,7 +1329,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				retry.setText(getString(R.string.upgrade_hike));
 			}
 
-			else if (errorMessage.equals(getString(R.string.restore_msisdn_error)))
+			else if (restoreStatus.equals(getString(R.string.restore_msisdn_error)))
 			{
 				retry.setOnClickListener(new OnClickListener()
 				{
