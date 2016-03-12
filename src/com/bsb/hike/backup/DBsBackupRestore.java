@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 
 /**
  * Created by gauravmittal on 10/03/16.
@@ -17,6 +18,8 @@ public class DBsBackupRestore implements BackupableRestorable
 	private List<DB> DBs;
 
 	private DB chatsDB;
+
+	private DB usersDB;
 
 	DBsBackupRestore(String backupToken)
 	{
@@ -44,6 +47,22 @@ public class DBsBackupRestore implements BackupableRestorable
 			}
 		};
 
+		usersDB = new DB(DBConstants.USERS_DATABASE_NAME,
+				// will be skipped
+				new String[] { DBConstants.USERS_TABLE, DBConstants.BLOCK_TABLE, DBConstants.FAVORITES_TABLE },
+				backupToken)
+		{
+			@Override
+			public void postRestoreSetup() throws Exception {
+				super.postRestoreSetup();
+				ContactManager.getInstance().reinitializeUserDB();
+				for (String table : tablesToReset)
+				{
+					ContactManager.getInstance().clearUserDbTable(table);
+				}
+			}
+		};
+
 		DBs = new ArrayList<DB>()
 		{
 			{
@@ -52,7 +71,7 @@ public class DBsBackupRestore implements BackupableRestorable
 				add(chatsDB);
 
 				// Adding timeline DB
-				//
+				add(usersDB);
 			}
 		};
 	}
