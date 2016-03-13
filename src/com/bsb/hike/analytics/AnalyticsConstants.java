@@ -209,6 +209,8 @@ public class AnalyticsConstants
 
 	public static String MESSAGES_COUNT = "msg_count";
 
+    public static String CLICK_COUNT = "clk_count";
+
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
@@ -224,6 +226,7 @@ public class AnalyticsConstants
 
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
+	public static String BOT_CONTENT_SHARED = "bot_content_shared";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -477,7 +480,15 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
-	
+
+	public static final class AutoApkEvents
+	{
+		public static final String RECEIVED_INITIAL_PING = "atapk_chk1";
+
+		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
+
+		public static String SERVER_RESPONSE_HTTP = "atapk_cnf";
+	}
 	
 	public static final class StickyCallerEvents
 	{
@@ -664,6 +675,35 @@ public class AnalyticsConstants
 
 	public static final String DATABASE_ERROR = "db_error";
 
+	public static final class InterceptEvents
+	{
+		public static final String INTERCEPTS = "intrcpt";
+
+		public static final String INTERCPET_NOTIF_EVENT = "incNtf";
+
+		public static final String INTERCEPT_ACTION = "incActn";
+
+		public static final String INTERCEPT_SCREENSHOT = "incScrn";
+
+		public static final String INTERCEPT_IMAGE = "incImg";
+
+		public static final String INTERCEPT_VIDEO = "incVid";
+
+		public static final String INTERCEPT_NOTIF_CREATED = "incNtfCr";
+
+		public static final String INTERCEPT_SHARE_CLICKED = "incShrClk";
+
+		public static final String INTERCEPT_SET_DP_CLICKED = "incDPClk";
+
+		public static final String INTERCEPT_IMAGE_CLICKED = "incImgClk";
+
+		public static final String INTERCEPT_SETTING_TURNED_ON = "incStgOn";
+
+		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
+
+		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+	}
+
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
 
     public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
@@ -675,4 +715,6 @@ public class AnalyticsConstants
 	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
 
 	public static final String JUST_OPENED = "justOpened";
+	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
+	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
 }

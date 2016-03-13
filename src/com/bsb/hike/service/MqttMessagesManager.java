@@ -50,12 +50,12 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -86,11 +86,11 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
@@ -101,6 +101,7 @@ import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
@@ -1670,6 +1671,57 @@ public class MqttMessagesManager
 		}
 	}
 
+	public void saveAutoApkInstallConfig(JSONObject jsonObj) throws JSONException
+	{
+
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.RECEIVED_INITIAL_PING);
+
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, EventPriority.HIGH, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.w("AUTOAPK", "Invalid json");
+		}
+
+
+		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+		final Editor e = settings.edit();
+
+		String connectionType = data.optString(HikeConstants.CONNECTION_TYPE, "wifi");
+		e.putString(HikeConstants.CONNECTION_TYPE, connectionType);
+
+		final int downloadTime = data.optInt(HikeConstants.DOWNLOAD_TIME, 72);
+		e.putInt(HikeConstants.DOWNLOAD_TIME, downloadTime);
+
+		final int installPromptFreq = data.optInt(HikeConstants.INSTALL_PROMPT_FREQUENCY, 3);
+		e.putInt(HikeConstants.INSTALL_PROMPT_FREQUENCY, installPromptFreq);
+
+
+		final long installPromptInterval = data.optLong(HikeConstants.INSTALL_PROMPT_INTERVAL, 0l);
+		e.putLong(HikeConstants.INSTALL_PROMPT_INTERVAL, installPromptInterval);
+
+		final double apkSizeMultiplier = data.optDouble(HikeConstants.APK_SIZE_MULTIPLIER, 3.0);
+		e.putFloat(HikeConstants.APK_SIZE_MULTIPLIER, (float)apkSizeMultiplier);
+
+		JSONObject tipJson = data.optJSONObject(HikeConstants.INSTALL_PROMPT_METHOD);
+		if(tipJson != null)
+		{
+			e.putString(HikeConstants.AutoApkDownload.NEW_APK_TIP_JSON, tipJson.toString());
+		}
+		else
+		{
+			Logger.d("AUTOAPK","tip json not present");
+		}
+
+		FTApkManager.makeRequest(apkSizeMultiplier);
+
+		e.commit();
+	}
+	
 	private void saveAccountConfig(JSONObject jsonObj) throws JSONException
 	{
 		JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
@@ -2700,6 +2752,52 @@ public class MqttMessagesManager
 				HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_NEW_CHAT_RED_DOT, null);
 			}
 		}
+		if (data.has(HikeConstants.INTERCEPTS.SHOW_INTERCEPTS))
+		{
+			JSONObject showIntercepts = data.getJSONObject(HikeConstants.INTERCEPTS.SHOW_INTERCEPTS);
+
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.VIDEO))
+			{
+				boolean video = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, video);
+			}
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.IMAGE))
+			{
+				boolean image = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, image);
+			}
+			if (showIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS))
+			{
+				boolean screenshot = showIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, screenshot);
+                InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+		}
+		if (data.has(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS))
+		{
+			JSONObject enableIntercepts = data.getJSONObject(HikeConstants.INTERCEPTS.ENABLE_INTERCEPTS);
+
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.VIDEO) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT))
+			{
+				boolean video = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.VIDEO);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, video);
+			}
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.IMAGE) && !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT))
+			{
+				boolean image = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.IMAGE);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, image);
+			}
+			if (enableIntercepts.has(HikeConstants.INTERCEPTS.SCREENSHOTS)
+					&& !HikeSharedPreferenceUtil.getInstance().contains(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT))
+			{
+				boolean screenshot = enableIntercepts.getBoolean(HikeConstants.INTERCEPTS.SCREENSHOTS);
+				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
+                InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+		}
 		if (data.has(HikeConstants.BADGECOUNTER))
 		{
 			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
@@ -3084,7 +3182,7 @@ public class MqttMessagesManager
 			String categoryId = data.getString(StickerManager.CATEGORY_ID);
 			if (HikeConstants.REMOVE_CATEGORY.equals(subType))
 			{
-				StickerManager.getInstance().removeCategory(categoryId);
+				StickerManager.getInstance().removeCategory(categoryId, true);
 			}
 			else
 			{
@@ -3154,6 +3252,12 @@ public class MqttMessagesManager
 			
 			StickerManager.getInstance().addNewCategoryInPallete(stickerCategory);
 		}
+		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
+		{
+			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+		}
+
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
@@ -3516,29 +3620,7 @@ public class MqttMessagesManager
 				}
 				else
 				{
-					boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY, false);
-					String version = data.optString(HikeConstants.UPDATE_VERSION, "");
-					String updateURL = data.optString(HikeConstants.Extras.URL, "");
-					int update = Utils.isUpdateRequired(version, context) ? ((isCritical) ? HikeConstants.CRITICAL_UPDATE
-							: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
-					if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
-					{
-						Editor editor = settings.edit();
-						editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical);
-						editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical);
-						Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for update tip:"+version);
-						editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
-						editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
-						editor.putString(HikeConstants.UPDATE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
-						
-						if (!TextUtils.isEmpty(updateURL))
-							editor.putString(HikeConstants.Extras.URL, updateURL);
-						editor.commit();
-						
-					}
+					performUpdateTask(data, false);
 				}
 			}
 			
@@ -3603,6 +3685,40 @@ public class MqttMessagesManager
 		{
 			// updatePopUpData
 			updateAtomicPopUpData(jsonObj);
+		}
+	}
+
+	public void performUpdateTask(JSONObject data, boolean isApkDownloaded)
+	{
+		boolean isCritical = data.optBoolean(HikeConstants.CRITICAL_UPDATE_KEY, false);
+		String version = data.optString(HikeConstants.UPDATE_VERSION, isApkDownloaded ?
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "") : "");
+
+		int update = Utils.isUpdateRequired(version, context) ? ((isCritical || isApkDownloaded) ? HikeConstants.CRITICAL_UPDATE
+				: HikeConstants.NORMAL_UPDATE) : HikeConstants.NO_UPDATE;
+		if(update == HikeConstants.CRITICAL_UPDATE || update == HikeConstants.NORMAL_UPDATE)
+		{
+			Editor editor = settings.edit();
+			editor.putBoolean(HikeConstants.SHOW_CRITICAL_UPDATE_TIP, isCritical || isApkDownloaded);
+			editor.putBoolean(HikeConstants.SHOW_NORMAL_UPDATE_TIP, !isCritical && !isApkDownloaded);
+			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Target version for update tip:"+version);
+			editor.putString(HikeConstants.Extras.LATEST_VERSION, version);
+			editor.putString(HikeConstants.UPDATE_TIP_HEADER, data.optString(HikeConstants.HEADER, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_BODY, data.optString(HikeConstants.BODY, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_LABEL, data.optString(HikeConstants.LABEL, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_DISMISS, data.optString(HikeConstants.DISMISS, ""));
+			editor.putString(HikeConstants.UPDATE_TIP_BG_COLOR, data.optString(HikeConstants.BACKGROUND_COLOR, ""));
+			editor.putBoolean(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK, isApkDownloaded);
+
+			String updateURL = data.optString(HikeConstants.Extras.URL, "");
+			if (!TextUtils.isEmpty(updateURL) && !isApkDownloaded)
+				editor.putString(HikeConstants.Extras.URL, updateURL);
+			editor.commit();
+			if(isApkDownloaded)
+			{
+				this.pubSub.publish(HikePubSub.UPDATE_PUSH, update);
+			}
+
 		}
 	}
 	
@@ -4080,6 +4196,10 @@ public class MqttMessagesManager
 		else if (HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG.equals(type))
 		{
 			saveAccountConfig(jsonObj);
+		}
+		else if (HikeConstants.MqttMessageTypes.AUTO_APK.equals(type))
+		{
+			saveAutoApkInstallConfig(jsonObj);
 		}
 		else if (HikeConstants.MqttMessageTypes.REWARDS.equals(type))
 		{

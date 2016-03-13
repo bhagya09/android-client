@@ -10,6 +10,7 @@ import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformAlarmManager;
@@ -75,12 +76,13 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
-    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4578;
+    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4579;
 
 	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
 
 	public static final int REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER = 4577;
 
+	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -321,6 +323,9 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
+				FTApkManager.alarmForUpdate();
+				break;
 		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
 			ChatHeadUtils.syncFromClientToServer();
 			break;
@@ -402,6 +407,9 @@ public class HikeAlarmManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
 			HikeNotification.getInstance().checkAndShowUpdateNotif();
 			break;
+		case HikeAlarmManager.REQUESTCODE_UPDATE_AUTO_APK_TIP:
+				FTApkManager.alarmForUpdate();
+				break;
 		case HikeAlarmManager.REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER:
 			processTasks(intent, context);
 			break;

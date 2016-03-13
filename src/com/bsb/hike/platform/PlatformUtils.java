@@ -62,6 +62,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MultipleConvMessage;
@@ -2305,4 +2306,23 @@ public class PlatformUtils
             PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
     }
 
+    //{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
+	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)
+	{
+		String fileKey = hikeFile.getFileKey();
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_SHARED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, hikeFile.getHikeFileType());
+			json.putOpt(AnalyticsConstants.BOT_MSISDN, msisdn);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(TAG, "Exception in bot share utils");
+		}
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+	}
 }

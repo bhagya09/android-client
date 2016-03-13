@@ -1246,45 +1246,52 @@ public class Utils
 		editor.commit();
 	}
 
+	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
+	{
+		StringTokenizer updateVersion = new StringTokenizer(newVersion, ".");
+		StringTokenizer currentVersion = new StringTokenizer(oldVersion, ".");
+		while (currentVersion.hasMoreTokens())
+		{
+			if (!updateVersion.hasMoreTokens())
+			{
+				return false;
+			}
+			int currentVersionToken = Integer.parseInt(currentVersion.nextToken());
+			int updateVersionToken = Integer.parseInt(updateVersion.nextToken());
+			if (updateVersionToken > currentVersionToken) {
+				return true;
+			} else if (updateVersionToken < currentVersionToken) {
+				return false;
+			}
+
+		}
+		while (updateVersion.hasMoreTokens()) {
+			if (Integer.parseInt(updateVersion.nextToken()) > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static boolean isUpdateRequired(String version, Context context)
 	{
 		try
 		{
 			String appVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-
-			StringTokenizer updateVersion = new StringTokenizer(version, ".");
-			StringTokenizer currentVersion = new StringTokenizer(appVersion, ".");
-			while (currentVersion.hasMoreTokens())
-			{
-				if (!updateVersion.hasMoreTokens())
-				{
-					return false;
-				}
-				int currentVersionToken = Integer.parseInt(currentVersion.nextToken());
-				int updateVersionToken = Integer.parseInt(updateVersion.nextToken());
-				if (updateVersionToken > currentVersionToken)
-				{
-					return true;
-				}
-				else if (updateVersionToken < currentVersionToken)
-				{
-					return false;
-				}
-			}
-			while (updateVersion.hasMoreTokens())
-			{
-				if (Integer.parseInt(updateVersion.nextToken()) > 0)
-				{
-					return true;
-				}
-			}
+			Logger.d("AUTOAPK", "self version : " + appVersion);
+			return isVersionNameHigher(appVersion, version, context);
+		}
+		catch (NumberFormatException nfe)
+		{
+			Logger.e("AUTOAPK","version name contains strings possibly", nfe);
 			return false;
 		}
 		catch (NameNotFoundException e)
 		{
-			Logger.e("Utils", "Package not found...", e);
+			Logger.e("AUTOAPK", "Package not found...", e);
 			return false;
 		}
+
 	}
 
 	/*
@@ -3980,6 +3987,7 @@ public class Utils
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
+			shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
 
 		else
@@ -5191,13 +5199,17 @@ public class Utils
 	public static void emoticonClicked(Context context, int emoticonIndex, EditText composeBox)
 	{
 		HikeConversationsDatabase.getInstance().updateRecencyOfEmoticon(emoticonIndex, System.currentTimeMillis());
+
 		// We don't add an emoticon if the compose box is near its maximum
 		// length of characters
 		if (composeBox.length() >= context.getResources().getInteger(R.integer.max_length_message) - 20)
 		{
 			return;
 		}
-		SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        String emoji = SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        StickerManager.getInstance().logEmoticonUsageAnalytics(emoji);
 	}
 
 	public static Animation getNotificationIndicatorAnim()
@@ -5824,6 +5836,21 @@ public class Utils
 		throw new RuntimeException("Unable to find matching authenticator");
 	}
 
+
+	public static short getNetworkShort(String networkType)
+	{
+		switch(networkType)
+		{
+			case "wifi" : return 1;
+			case "2g" : return 4;
+			case "3g" : return 3;
+			case "4g" : return 2;
+			case "off" : return -1;
+			case "unknown" : return 0;
+			default : return 0;
+		}
+	}
+
 	/**
 	 * Fetches the network connection using connectivity manager
 	 * 
@@ -6009,6 +6036,14 @@ public class Utils
 		ComponentName mmComponentName = new ComponentName(context, ConnectionChangeReceiver.class);
 
 		context.getPackageManager().setComponentEnabledSetting(mmComponentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+	}
+
+	public static void enableNetworkListner(Context context)
+	{
+		ComponentName mmComponentName = new ComponentName(context, ConnectionChangeReceiver.class);
+
+		context.getPackageManager().setComponentEnabledSetting(mmComponentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
 	}
 
