@@ -2,6 +2,8 @@ package com.bsb.hike.platform.content;
 
 import android.os.Environment;
 
+import com.bsb.hike.HikeMessengerApp;
+
 import java.io.File;
 
 /**
@@ -10,6 +12,8 @@ import java.io.File;
 public class PlatformContentConstants
 {
 	public static final String CONTENT_DIR_NAME = "Content";
+
+    public static final String MICROAPPS_CONTENT_DIR_NAME = "MicroAppsContent";
 
 	public static final String TEMP_DIR_NAME = "Temp";
 
@@ -44,4 +48,13 @@ public class PlatformContentConstants
 	public static final String ASSETS_FONTS_DIR = "fonts/";
 	
 	public static final String MESSAGE_ID = "message_id";
+
+    public static final String MICRO_APPS_VERSIONING_PROD_CONTENT_DIR = HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + HIKE_DIR_NAME + File.separator + MICROAPPS_CONTENT_DIR_NAME + File.separator;
+
+    public static final String MICRO_APPS_VERSIONING_STAG_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + MICROAPPS_CONTENT_DIR_NAME + File.separator;
+
+    // Constant to be used after versioning release only for micro apps migration purpose
+    public static String PLATFORM_CONTENT_OLD_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;
+
+    public static final String GAME_ENGINE_DIR = "cocosEngine7";
 }

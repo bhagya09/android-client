@@ -4,7 +4,8 @@ package com.bsb.hike.platform.content;
 import android.os.Environment;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.platform.ContentModules.*;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.PlatformContentLoader;
 import com.bsb.hike.platform.PlatformContentRequest;
@@ -164,7 +165,7 @@ public class PlatformContent
 	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener, boolean clearRequestInQueue)
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
-		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData,HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 		if(model != null) {
 			model.setUniqueId(uniqueId); // GSON issue
 		}
@@ -230,8 +231,13 @@ public class PlatformContent
 
 	public static void init(boolean isProduction)
 	{
-		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
-				Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
+        // Toggle current micro apps file path
+		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR : PlatformContentConstants.MICRO_APPS_VERSIONING_STAG_CONTENT_DIR ;
+
+        // Toggle old micro apps file path
+        PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
+                Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
+
     }
 
 	public static String getForwardCardData(String contentData)
