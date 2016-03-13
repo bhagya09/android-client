@@ -107,7 +107,6 @@ public class PlatformContentLoader extends Handler
 		}
 	}
 
-	@SuppressLint("NewApi")
 	private void getTemplateFromRemote(PlatformContentRequest argContentRequest)
 	{
 		PlatformRequestManager.setWaitState(argContentRequest);
