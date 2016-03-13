@@ -134,10 +134,10 @@ public class PlatformContentModel
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
-                // Check if micro app is present in newer versioning path, else check for micro app in content directory
+                // Check if micro app is present in newer versioning path, else check for micro app in old content directory
                 if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).isDirectory())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
-                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microApp).isDirectory())
+                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp).isDirectory())
                     basePath = microApp + File.separator;
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
@@ -515,9 +515,6 @@ public class PlatformContentModel
 
 		@Expose
 		public Boolean lpd;
-
-		@Expose
-		public String appMarketVersion;
 
 		@Expose
 		public JsonArray lan_array;
