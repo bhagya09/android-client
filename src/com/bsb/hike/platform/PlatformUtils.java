@@ -1983,7 +1983,7 @@ public class PlatformUtils
     public static boolean isMicroAppExist(String microAppName, int microAppVersionCode, String msisdn, byte botType)
     {
         // Generate path and check the case for the old micro app directory
-        File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+        File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR, microAppName);
         if (oldMicroAppFolder.exists())
             return true;
 
@@ -1993,7 +1993,7 @@ public class PlatformUtils
 
         try
         {
-            String unzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+            String unzipPath = getMicroAppContentRootFolder();
             unzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType,unzipPath,microAppName);
 
             // Details for current micro app running on device
@@ -2021,10 +2021,10 @@ public class PlatformUtils
 	public static boolean isMicroAppExistForPopUps(String microAppName, byte botType)
 	{
 		// Generate path and check the case for the old micro app directory code
-		File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR, microAppName);
+		File oldMicroAppFolder = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR, microAppName);
 
 		// Generate path for versioning path and check the case for the new micro app directory code
-		String newMicroAppFolderUnzipPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+		String newMicroAppFolderUnzipPath = getMicroAppContentRootFolder();
 		newMicroAppFolderUnzipPath = PlatformUtils.generateMappUnZipPathForBotType(botType, newMicroAppFolderUnzipPath, microAppName);
 
         // First check in the older code path directory, then in the newer path else returns false
@@ -2042,7 +2042,7 @@ public class PlatformUtils
     public static boolean isMicroAppExistForMappPacket(String mAppName,int mAppVersionCode)
     {
         // Generate path for the old mapp directory
-        File unzipPath = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS, mAppName);
+        File unzipPath = new File(getMicroAppContentRootFolder() + PlatformContentConstants.HIKE_MAPPS, mAppName);
 
         int currentMappVersionCode = 0;
         if(HikeMessengerApp.hikeSdkMap.containsKey(mAppName))
