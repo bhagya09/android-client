@@ -339,4 +339,12 @@ public interface HikePlatformConstants
 
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
+
+    String MICRO_APP_NEWS_STORAGE_NAME = "hikenews";
+
+    String MICRO_APP_CRICKET_STORAGE_NAME = "hikecricketnew";
+
+    String MICRO_APP_NEWS_REGEX = "news";
+
+    String MICRO_APP_CRICKET_REGEX = "cricket";
 }

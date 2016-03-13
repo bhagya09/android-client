@@ -43,15 +43,12 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MovingList;
-
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.PlatformContentListener;
-
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.bridge.MessagingBridge_Alto;
@@ -60,6 +57,7 @@ import com.bsb.hike.platform.bridge.MessagingBridge_Nano.WebviewEventsListener;
 import com.bsb.hike.platform.content.HikeWebClient;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformRequestManager;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
@@ -68,6 +66,7 @@ import com.bsb.hike.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -299,8 +298,8 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		else
 		{
             final WebViewHolder holder = (WebViewHolder) view.getTag();
-            String appName = (String) holder.customWebView.getTag(R.id.appname_key);
-            ArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(appName);
+            ConvMessage viewHolderConvMessage = (ConvMessage) holder.customWebView.getTag(R.id.conv_message_key);
+            ArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(viewHolderConvMessage.webMetadata.getAppName());
             if(webViewHolders != null)
                 webViewHolders.remove(holder);
 		}
@@ -309,7 +308,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 		web.setTag(R.id.msg_id_key,((int)convMessage.getMsgID()));
         web.setTag(R.id.position_key,position);
-        web.setTag(R.id.appname_key,convMessage.webMetadata.getAppName());
         web.setTag(R.id.conv_message_key,convMessage);
 
 		orientationChangeHandling(web);
@@ -364,6 +362,33 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		int currentMappVersionCode = 0;
 
         String appName = convMessage.webMetadata.getAppName();
+
+        // Checks required here for handling forward card compatibility case for versioning changes for forward card for news and cricket apps
+        if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_NEWS_REGEX))
+        {
+            appName = HikePlatformConstants.MICRO_APP_NEWS_STORAGE_NAME;
+        }
+        else if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_CRICKET_REGEX))
+        {
+            appName = HikePlatformConstants.MICRO_APP_CRICKET_STORAGE_NAME;
+        }
+
+        if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, PlatformContentConstants.HIKE_MICRO_APPS, appName)).exists())
+        {
+            try {
+                cardObj.put(HikePlatformConstants.APP_NAME,appName);
+                convMessage.webMetadata.setCardobj(cardObj);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            // Call initiate cbot server api here and loading webview directly for required packet request and sending other params for showing error screen for request api failure case
+            initiateCBotDownload(appName, viewHolder, convMessage, position);
+            return;
+        }
+
         String msisdn = "+" + appName + "+";
         BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
