@@ -338,7 +338,8 @@ public class PlatformZipDownloader
 								{
 									mRequest.getListener().onComplete(mRequest.getContentData());
 									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
-								}
+                                    PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
+                                }
 								else
 								{
 									mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
@@ -349,6 +350,7 @@ public class PlatformZipDownloader
                                 {
                                     PlatformRequestManager.setReadyState(mRequest);
                                     PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
+                                    PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
                                 }
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}
