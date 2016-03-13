@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.ContentModules;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -19,6 +13,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Content model
@@ -67,7 +67,7 @@ public class PlatformContentModel
 	{
 		if (mHash == -1)
 		{
-			mHash = new String(cardObj.appName + cardObj.layoutId + cardObj.appVersion + cardObj.ld).hashCode();
+			mHash = new String(cardObj.appName + cardObj.layoutId + cardObj.mAppVersionCode + cardObj.ld).hashCode();
 		}
 		return mHash;
 	}
@@ -81,7 +81,7 @@ public class PlatformContentModel
 	{
 		if (mTemplateHash == -1)
 		{
-			mTemplateHash = new String(cardObj.layoutId + cardObj.appVersion + cardObj.appName).hashCode();
+			mTemplateHash = new String(cardObj.layoutId + cardObj.mAppVersionCode + cardObj.appName).hashCode();
 		}
 		return mTemplateHash;
 	}
@@ -95,14 +95,14 @@ public class PlatformContentModel
 	{
 		if (mAppHash == -1)
 		{
-			mAppHash = new String(cardObj.appName + cardObj.appVersion).hashCode();
+			mAppHash = new String(cardObj.appName + cardObj.mAppVersionCode).hashCode();
 		}
 		return mAppHash;
 	}
 
 	public static PlatformContentModel make(String contentData)
 	{
-		return make(0, contentData);
+		return make(0, contentData,HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 	}
 
 	public static PlatformContentModel make(String contentData, byte botType)
@@ -110,66 +110,10 @@ public class PlatformContentModel
 		return make(0, contentData, botType);
 	}
 
-	/**
-	 * Make.
-	 * 
-	 * @param card_data
-	 *            the content data
-	 * @return the platform content model
-	 */
-	public static PlatformContentModel make(int unique, String contentData)
-	{
-		Logger.d(TAG, "making PlatformContentModel");
-		JsonParser parser = new JsonParser();
-		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
-
-		try
-		{
-			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
-			if (object.cardObj.getLd() != null)
-			{
-				String microApp = object.cardObj.getAppName();
-				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
-                // Keeping default code path as newer hierarichal versioning path
-				String basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
-                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
-
-                // Check if micro app is present in newer versioning path, else check for micro app in content directory
-                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp)).isDirectory())
-                    basePath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, unzipPath, microApp);
-                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + microApp).isDirectory())
-                    basePath = microApp + File.separator;
-
-				object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
-				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
-				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
-                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK_PATH,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
-			}
-		}
-		catch (JsonParseException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-		catch (IllegalArgumentException iae)
-		{
-			iae.printStackTrace();
-			return null;
-		}
-		catch (Exception e)
-		{
-			// We dont want app to crash, instead safely provide control in onFailure
-			e.printStackTrace();
-			return null;
-		}
-
-		return object;
-	}
-
-	/**
+    /**
 	 * Make.
 	 *
-	 * @param card_data
+	 * @param contentData
 	 *            the content data
 	 * @return the platform content model
 	 */
@@ -302,16 +246,6 @@ public class PlatformContentModel
 	}
 
 	/**
-	 * Gets the version.
-	 * 
-	 * @return the version
-	 */
-	public String getVersion()
-	{
-		return cardObj.appVersion;
-	}
-
-	/**
 	 * Gets the content data.
 	 * 
 	 * @return the content data
@@ -355,7 +289,7 @@ public class PlatformContentModel
 	/**
 	 * Sets the appID.
 	 * 
-	 * @param appID
+	 * @param id`
 	 *            the new appID
 	 */
 	public void setId(String id)
@@ -438,16 +372,6 @@ public class PlatformContentModel
 		public void setAppName(String appName)
 		{
 			this.appName = appName;
-		}
-
-		public String getAppVersion()
-		{
-			return appVersion;
-		}
-
-		public void setAppVersion(String appVersion)
-		{
-			this.appVersion = appVersion;
 		}
 
 		public int getmAppVersionCode()
@@ -552,9 +476,6 @@ public class PlatformContentModel
 
 		@Expose
 		public String appName;
-
-		@Expose
-		public String appVersion;
 
 		@Expose
 		public int mAppVersionCode;
