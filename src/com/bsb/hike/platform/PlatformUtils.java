@@ -1747,19 +1747,19 @@ public class PlatformUtils
 	 * 
 	 * @param success
 	 * @param appName
-	 * @param appVersion
+	 * @param mAppVersionCode
 	 */
-	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion)
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode)
 	{
-		sendMicroAppServerAnalytics(success,appName,appVersion,-1);
+		sendMicroAppServerAnalytics(success,appName,mAppVersionCode,-1);
 	}
-	public static void sendMicroAppServerAnalytics(boolean success, String appName, String appVersion,int errorCode)
+	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode,int errorCode)
 	{
 		try
 		{
 			JSONObject body = new JSONObject();
 			body.put(HikePlatformConstants.APP_NAME, appName);
-			body.put(HikePlatformConstants.APP_VERSION, appVersion);
+			body.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
 			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
 
 			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), body, new IRequestListener()
@@ -2294,6 +2294,15 @@ public class PlatformUtils
         {
             e.printStackTrace();
         }
+    }
+
+    /*
+    * IMP :: WARNING Method to delete old micro app content code based on packet to remove legacy (This code not be used anywhere else)
+    */
+    public static void deleteOldContentMicroAppCode(boolean flushOldContent)
+    {
+        if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION,false) && flushOldContent)
+            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
     }
 
 }
