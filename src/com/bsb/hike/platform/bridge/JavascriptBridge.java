@@ -1444,11 +1444,12 @@ public abstract class JavascriptBridge
 	public void isMicroappExist(String id, String mapp)
 	{
         // Check for is Micro App exists in all of the directories path that are being used after the versioning release
-		File fileInMappsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + mapp);
-        File fileInGamesDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + mapp);
-        File fileInHikeWebMicroAppsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
-        File fileInHikeMicroAppsDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + mapp);
-        File fileInContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
+		String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + mapp);
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + mapp);
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + mapp);
 
         if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
@@ -1456,9 +1457,9 @@ public abstract class JavascriptBridge
             callbackToJS(id, "true");
         else if(fileInHikeWebMicroAppsDirectory.exists())
             callbackToJS(id, "true");
-        else if(fileInHikeMicroAppsDirectory.exists())
+        else if(fileInHikePopupsDirectory.exists())
             callbackToJS(id, "true");
-        else if(fileInContentDirectory.exists())
+        else if(fileInOldContentDirectory.exists())
             callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
