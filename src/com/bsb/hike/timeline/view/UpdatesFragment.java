@@ -432,6 +432,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			try
 			{
 				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
+				Logger.d("SendViewsAPI", "Payload"+viewsPayload.toString());
 				timelineCardsAdapter.getSUViewedSet().clear();
 				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
 				{

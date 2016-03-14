@@ -3918,6 +3918,8 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
+	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
+
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
