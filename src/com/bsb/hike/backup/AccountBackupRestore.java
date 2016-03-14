@@ -8,6 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -126,7 +127,7 @@ public class AccountBackupRestore
 		long time = System.currentTimeMillis();
 		boolean result = true;
 		String backupToken = getBackupToken();
-		ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+		List<BackupableRestorable> backupItems = new ArrayList<>();
 		backupItems.add(new DBsBackupRestore(backupToken));
 		backupItems.add(new PrefBackupRestore(backupToken));
 		try
@@ -242,7 +243,7 @@ public class AccountBackupRestore
 
 		if (result)
 		{
-			ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+			List<BackupableRestorable> backupItems = new ArrayList<>();
 			backupItems.add(new DBsBackupRestore(backupToken));
 			if (state == null && backupMetadata != null)
 			{
@@ -415,7 +416,7 @@ public class AccountBackupRestore
 		try
 		{
 			String backupToken = getBackupToken();
-			ArrayList<BackupableRestorable> backupItems = new ArrayList<>();
+			List<BackupableRestorable> backupItems = new ArrayList<>();
 			backupItems.add(new DBsBackupRestore(backupToken));
 			backupItems.add(new PrefBackupRestore(backupToken));
 
