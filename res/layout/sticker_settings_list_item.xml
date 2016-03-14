@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@id/drag_handle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,54 +14,92 @@
         android:layout_alignParentLeft="true"
         android:orientation="horizontal" 
         android:layout_centerVertical="true">
-        
-    <com.bsb.hike.ui.utils.RecyclingImageView
-        android:layout_width="34dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_grip" />
 
     <com.bsb.hike.ui.utils.RecyclingImageView
         android:id="@+id/category_icon"
         android:layout_width="58dp"
         android:layout_height="58dp"
         android:layout_marginRight="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_gravity="center"
         android:scaleType="centerInside"
         android:src="@drawable/sticker_069_hi" />
-    
+
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/category_checkbox_ll"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:orientation="vertical"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="18dp"
         android:gravity="center"
-        android:layout_centerVertical="true" >
+        android:layout_centerVertical="true">
 
-        <ImageButton
-            android:id="@+id/category_checkbox"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/sticker_settings_checkbox"
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        <com.bsb.hike.view.MaterialElements.Switch
+            android:id="@+id/hide_switch"
+            android:layout_width="42dp"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:clickable="false"
+            android:focusable="false"
+            app:sw_trackColor="@drawable/switch_track"
+            app:sw_thumbColor="@drawable/switch_thumb"
+            app:sw_trackSize="14dp"
+            app:sw_trackCap="round"
+            app:sw_thumbRadius="10dp"
+            app:sw_thumbElevation="2dp"
+            app:sw_animDuration="0"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"/>
+
+            <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_pack_delete"
             android:scaleType="centerInside"
-            android:background="@android:color/transparent" />
-        
-        <ProgressBar
+            android:clickable="true"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:visibility="gone" />
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/reorder_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:scaleType="centerInside"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pack_reorder"
+            android:visibility="gone"/>
+
+            <com.bsb.hike.ui.utils.RecyclingImageView
+            android:id="@+id/update_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:scaleType="centerInside"
+            android:layout_gravity="center"
+            android:src="@drawable/sticker_shop_download_drawable_selector"
+            android:visibility="gone"/>
+
+            <ProgressBar
             android:id="@+id/download_progress"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:contentDescription="Progress Bar"
+            android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
-            android:visibility="gone"
-            android:layout_gravity="center" />
-        
-</LinearLayout>
+            android:visibility="gone" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/category_description"
@@ -108,6 +147,14 @@
             android:visibility="gone" />
 
         <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/update_stickers_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/mid_gray"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/update_available"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -115,6 +162,7 @@
             android:visibility="gone"
             android:textColor="@color/sticker_settings_update_color"
             android:textSize="12sp" />
+
     </LinearLayout>
     
 

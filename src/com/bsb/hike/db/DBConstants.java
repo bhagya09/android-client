@@ -6,7 +6,7 @@ public interface DBConstants
 {
 	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
 
-	public static final int USERS_DATABASE_VERSION = 17;
+	public static final int USERS_DATABASE_VERSION = 18;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -272,6 +272,8 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
+	
+	public static final String FEED_INDEX = "feed_idx";
 
 	//StickerTable
 
@@ -391,6 +393,7 @@ public interface DBConstants
 		
 		public static final String BOT_DISCOVERY_TABLE = "bot_discovery";
 		// --- Bot Discovery Table ends here ---
+
 	}
 	
 	public static interface HIKE_PERSISTENCE
@@ -441,6 +444,30 @@ public interface DBConstants
 		public static final String OFFLINE_TIME_STAMP_INDEX = "offlineTimeStampIndex";
 	}
 
+	public static interface HIKE_USER
+	{
+		// hike caller detail table starts here
+		public static final String HIKE_CALLER_TABLE = "hike_caller";
+
+		public static final String LOCATION = "location";
+
+		public static final String IS_ON_HIKE = "is_on_hike";
+
+		public static final String IS_SPAM = "is_spam";
+
+		public static final String IS_BLOCK = "is_block";
+
+		public static final String CREATION_TIME = "creation_time";
+
+		public static final String ON_HIKE_TIME = "on_hike_time";
+
+		public static final String SPAM_COUNT = "spam_count";
+
+		public static final String IS_SYNCED = "is_synced";
+
+		// hike caller detail table ends here
+
+	}
 	public static final String CATEGORY_NAME = "categoryName";
 
 	public static final String IS_VISIBLE = "isVisible";

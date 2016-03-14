@@ -209,6 +209,8 @@ public class AnalyticsConstants
 
 	public static String MESSAGES_COUNT = "msg_count";
 
+    public static String CLICK_COUNT = "clk_count";
+
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
@@ -223,6 +225,9 @@ public class AnalyticsConstants
 	public static String EVENT_USER_GOOGLE_ACCOUNTS = "evUsrGoogleAccs";
 
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
+	public static String FORWARD = "forward";
+	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
@@ -475,7 +480,15 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
-	
+
+	public static final class AutoApkEvents
+	{
+		public static final String RECEIVED_INITIAL_PING = "atapk_chk1";
+
+		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
+
+		public static String SERVER_RESPONSE_HTTP = "atapk_cnf";
+	}
 	
 	public static final class StickyCallerEvents
 	{
@@ -535,6 +548,8 @@ public class AnalyticsConstants
 		
 		public static final String CLOSE_BUTTON = "close";
 
+		public static final String CLOSE_SWIPE = "cls_swp";
+
 		public static final String CARD = "crd";
 
 		public static final String SAVE_CONTACT = "svCntct";
@@ -548,7 +563,24 @@ public class AnalyticsConstants
 		public static final String WRONG_JSON = "wrngJsn";
 
 		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
-		
+
+		public static final String AFTER_INCOMING_UNKNOWN = "aftInc";
+
+		public static final String AFTER_OUTGOING_UNKNOWN = "aftOut";
+
+		public static final String BLOCK = "blk";
+
+		public static final String BLOCK_LIST = "blkLst";
+
+		public static final String POSITIVE_CLICKED = "pos";
+
+		public static final String NEGATIVE_CLICKED = "neg";
+
+		public static final String BLOCK_DIALOG = "blkDlg";
+
+		public static final String UNBLOCK_DIALOG = "unblkDlg";
+
+
 	}
 	
 	public static String EVENT_SOURCE = "sr";
@@ -597,6 +629,8 @@ public class AnalyticsConstants
 
 	public static final String LOG_FIELD_2 = "fld2";
 
+    public static final String LOG_FIELD_3 = "fld3";
+
 	public static final String LOG_FIELD_4 = "fld4";
 	
 	public static final String LOG_FIELD_5 = "fld5";
@@ -628,6 +662,48 @@ public class AnalyticsConstants
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
 	public static final String USER_LOCATION = "location";
-	
+
 	public static final String DATABASE_ERROR = "db_error";
+
+	public static final class InterceptEvents
+	{
+		public static final String INTERCEPTS = "intrcpt";
+
+		public static final String INTERCPET_NOTIF_EVENT = "incNtf";
+
+		public static final String INTERCEPT_ACTION = "incActn";
+
+		public static final String INTERCEPT_SCREENSHOT = "incScrn";
+
+		public static final String INTERCEPT_IMAGE = "incImg";
+
+		public static final String INTERCEPT_VIDEO = "incVid";
+
+		public static final String INTERCEPT_NOTIF_CREATED = "incNtfCr";
+
+		public static final String INTERCEPT_SHARE_CLICKED = "incShrClk";
+
+		public static final String INTERCEPT_SET_DP_CLICKED = "incDPClk";
+
+		public static final String INTERCEPT_IMAGE_CLICKED = "incImgClk";
+
+		public static final String INTERCEPT_SETTING_TURNED_ON = "incStgOn";
+
+		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
+
+		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+	}
+
+    public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
+
+    public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
+
+    public static final String APP_UPDATE_TRIGGER = "app_updated";
+
+	public static String ANALYTICS_EXTRA = "analyticsExtra";
+
+	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
+
+	public static final String JUST_OPENED = "justOpened";
+
 }
