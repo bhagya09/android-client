@@ -6,19 +6,19 @@ package com.bsb.hike.backup;
 public interface BackupableRestorable
 {
 
-	public boolean preBackupSetup() throws Exception;
+	boolean preBackupSetup() throws Exception;
 
-	public void backup() throws Exception;
+	void backup() throws Exception;
 
-	public void postBackupSetup() throws Exception;
+	void postBackupSetup() throws Exception;
 
-	public boolean preRestoreSetup() throws Exception;
+	boolean preRestoreSetup() throws Exception;
 
-	public void restore() throws Exception;
+	void restore() throws Exception;
 
-	public void postRestoreSetup() throws Exception;
+	void postRestoreSetup() throws Exception;
 
-	public void finish();
+	void finish();
 
-	public void selfDestruct();
+	void selfDestruct();
 }
