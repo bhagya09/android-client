@@ -1755,7 +1755,7 @@ public class PlatformUtils
 
         List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
         for (ContactInfo ci : allContacts) {
-            if(!ci.isBot()&&ci.isOnhike())  // add more check here ..ex:stealth,unknown etc...
+            if(!ci.isBot()&&ci.isOnhike()&&!ci.isBlocked())  // add more check here ..ex:stealth,unknown etc...
             {
                 finalContacts.add(ci);
             }
