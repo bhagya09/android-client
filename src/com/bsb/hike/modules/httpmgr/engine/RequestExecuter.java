@@ -344,7 +344,7 @@ public class RequestExecuter
 		{
 			BasicRetryPolicy retryPolicy = request.getRetryPolicy();
 			retryPolicy.retry(new RequestFacade(request), httpException);
-			if (retryPolicy.getRetryCount() >= 0)
+			if (retryPolicy.getRetryIndex() <= retryPolicy.getNumOfRetries())
 			{
 				LogFull.i("retring " + request.toString());
 				execute(false, retryPolicy.getRetryDelay());
