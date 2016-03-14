@@ -1,8 +1,14 @@
 package com.bsb.hike.BitmapModule;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Random;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
@@ -15,7 +21,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.media.ExifInterface;
 import android.os.Build;
 import android.text.TextUtils;
@@ -29,7 +34,12 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.photos.HikePhotosListener;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartcache.HikeLruCache;
@@ -37,10 +47,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import com.bsb.hike.view.TextDrawable;
 
 public class HikeBitmapFactory
 {
@@ -48,8 +55,6 @@ public class HikeBitmapFactory
 
 	public static final int DEFAULT_BITMAP_COMPRESSION = 80;
 
-	private static final int NUMBER_OF_CHARS_DEFAULT_DP = 1;
-	
 	private static final int MEMORY_MULTIPLIIER = 8;
 		
 	private static final int RGB_565_BYTE_SIZE = 16;
@@ -1315,29 +1320,138 @@ public class HikeBitmapFactory
 		
 		return calculateInSampleSize(options, reqWidth, reqHeight);
 	}
-	public static BitmapDrawable getDefaultAvatar(Resources res, String msisdn, boolean hiRes)
-	{
-	
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
 
-		int defaultAvatarResId = HikeConstants.DEFAULT_AVATARS[index]; 
-		
-		Drawable layers[] = new Drawable[2];
-		layers[0] = res.getDrawable(defaultAvatarResId);
-		layers[1] = res.getDrawable(getDefaultAvatarIconResId(msisdn, hiRes));
-		
-		LayerDrawable ld = new LayerDrawable(layers);
-		ld.setId(0, 0);
-		ld.setId(1, 1);
-		ld.setDrawableByLayerId(0, layers[0]);
-		ld.setDrawableByLayerId(1, layers[1]);
-		
-		Bitmap bmp = drawableToBitmap(ld);
-		
-		BitmapDrawable bd = getBitmapDrawable(res, bmp);
-		return bd;
+	public static Drawable getDefaultTextAvatar(String text)
+	{
+		return getDefaultTextAvatar(text, -1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize)
+	{
+		return getDefaultTextAvatar(text,fontSize,-1);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor)
+	{
+		return getDefaultTextAvatar(text, fontSize, argBgColor,false);
+	}
+
+	public static Drawable getDefaultTextAvatar(String text, int fontSize, int argBgColor, boolean isFirstName)
+	{
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = null;
+
+		if (isFirstName)
+		{
+			initials = Utils.getInitialsFromContactName(text);
+		}
+		else
+		{
+			initials = getNameInitialsForDefaultAv(text);
+		}
+
+		int bgColor = argBgColor;
+
+		if (bgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+			bgColor = bgColorArray.getColor(index, 0);
+		}
+
+		if (fontSize != -1)
+		{
+			return TextDrawable.builder().beginConfig().fontSize(fontSize).endConfig().buildRound(initials, bgColor);
+		}
+		else
+		{
+			return TextDrawable.builder().buildRound(initials, bgColor);
+		}
 	}
 	
+	public static TextDrawable getRandomHashTextDrawable()
+	{
+		return getRandomHashTextDrawable(-1);
+	}
+
+	public static TextDrawable getRandomHashTextDrawable(int argBgColor)
+	{
+		int bgColor = argBgColor;
+
+		if (argBgColor == -1)
+		{
+			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+			bgColor = bgColorArray.getColor(new Random().nextInt(bgColorArray.length()), 0);
+		}
+
+		return TextDrawable.builder().buildRound("#", bgColor);
+	}
+
+	public static Drawable getRectTextAvatar(String text)
+	{
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		if (TextUtils.isEmpty(text))
+		{
+			return getRandomHashTextDrawable();
+		}
+
+		String initials = getNameInitialsForDefaultAv(text);
+
+		int index = BitmapUtils.iconHash(text) % (bgColorArray.length());
+
+		int bgColor = bgColorArray.getColor(index, 0);
+
+		return TextDrawable.builder().buildRect(initials, bgColor);
+	}
+
+	public static String getNameInitialsForDefaultAv(String msisdn)
+	{
+		if (TextUtils.isEmpty(msisdn.trim()))
+		{
+			return "#";
+		}
+
+		String contactName = msisdn;
+
+		if (OneToNConversationUtils.isOneToNConversation(msisdn) && ContactManager.getInstance().getGroupDetails(msisdn) != null)
+		{
+			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(msisdn);
+
+			contactName = groupDetails.getGroupName();
+		}
+		else if(BotUtils.isBot(msisdn))
+		{
+			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			contactName = botInfo.getConversationName();
+		}
+		else
+		{
+			ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true, false);
+
+			contactName = contactInfo.getName();
+
+			if (ContactManager.getInstance().getSelfMsisdn().equals(msisdn))
+			{
+				contactName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, msisdn);
+			}
+
+			if (contactName == null)
+			{
+				contactName = msisdn;
+			}
+		}
+
+		return Utils.getInitialsFromContactName(contactName);
+	}
+
 	private static int getDefaultAvatarIconResId( String msisdn, boolean hiRes)
 	{
 		if (OneToNConversationUtils.isBroadcastConversation(msisdn))

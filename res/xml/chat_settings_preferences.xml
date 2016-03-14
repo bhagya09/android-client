@@ -2,20 +2,15 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/settings_chat">
- 
-      <PreferenceCategory
-          android:selectable="false"
-          android:layout="@layout/settings_section_header"
-          android:title="@string/pref_message_settings" >
-          
-	<com.bsb.hike.view.SwitchPreferenceCompat
+
+    <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="doubleTapPref"
         android:layout="@layout/icon_preference"
         android:summary="@string/nudge_setting_info"
         android:title="@string/nudge_setting_header"
         android:widgetLayout="@layout/switch_widget" />
-    
+
     <com.bsb.hike.view.SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="enterSendPref"
@@ -23,40 +18,5 @@
         android:summary="@string/enter_setting_info"
         android:title="@string/enter_setting_header"
         android:widgetLayout="@layout/switch_widget" />
-    
-    </PreferenceCategory>
-    
-    <PreferenceCategory
-        android:selectable="false"
-        android:key="stickerSettings"
-        android:layout="@layout/settings_section_header"
-        android:title="@string/pref_sticker_settings" >
-    
-	<com.bsb.hike.view.IconPreference
-        icon="@drawable/ic_sticker_pack_reorder"
-        android:key="stickerReOrderPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/sticker_reorder_setting_info"
-        android:title="@string/sticker_reorder_setting_header" />
-    
-    <com.bsb.hike.view.SwitchPreferenceCompat
-        icon="@drawable/ic_recommendation_setting"
-        android:defaultValue="true"
-        android:key="stickerRecommendPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/sticker_recommendation_setting_info"
-        android:title="@string/sticker_recommendation_setting_header"
-        android:widgetLayout="@layout/switch_widget" />
-    
-    <com.bsb.hike.view.SwitchPreferenceCompat
-        icon="@drawable/ic_instant_reco"
-        android:defaultValue="true"
-        android:key="stickerRecommendAutopopupPref"
-        android:layout="@layout/icon_preference"
-        android:summary="@string/sticker_recommendation_autopopup_setting_info"
-        android:title="@string/sticker_recommendation_autopopup_setting_header"
-        android:widgetLayout="@layout/switch_widget" />
-    
-    </PreferenceCategory>
-   
+
 </PreferenceScreen>
