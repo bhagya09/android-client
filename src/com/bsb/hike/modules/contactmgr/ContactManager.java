@@ -138,7 +138,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	
 	public SQLiteDatabase getWritableDatabase()
 	{
-		return hDb.getWritableDatabase();
+		return hDb.getWriteDatabase();
 	}
 
 	public SQLiteDatabase getReadableDatabase()
