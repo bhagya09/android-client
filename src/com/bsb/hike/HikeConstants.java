@@ -601,6 +601,12 @@ public class HikeConstants
 
 	public static final String HTTP_STATUS_ID = "?status_id=";
 
+	public static final String PACK_VISIBILITY = "packVisibility";
+
+	public static final String OLD_PACK_POSITION = "oldPackPosition";
+
+	public static final String NEW_PACK_POSITION = "newPackPosition";
+
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -2306,6 +2312,22 @@ public class HikeConstants
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
 
 		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
+		public static final String STICKER_REORDER_CLICKED = "stickerReorderClicked";
+
+		public static final String STICKER_DELETE_CLICKED = "stickerDeleteClicked";
+
+		public static final String STICKER_HIDE_CLICKED = "stickerHideClicked";
+
+		public static final String STICKER_UPDATE_CLICKED = "stickerUpdateClicked";
+
+		public static final String STICKER_PACK_DELETED = "stickerPackDeleted";
+
+		public static final String STICKER_PACK_UPDATED = "stickerPackUpdated";
+
+		public static final String STICKER_PACK_HIDE = "stickerPackHide";
+
+		public static final String STICKER_PACK_REORDERED = "stickerPackReordered";
 
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled

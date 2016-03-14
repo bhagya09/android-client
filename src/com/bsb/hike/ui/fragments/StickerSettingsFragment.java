@@ -337,18 +337,29 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		mDslv.addDropListener(new DropListener() {
 			@Override
 			public void drop(int from, int to) {
+				StickerCategory category = mAdapter.getDraggedCategory();
+
+				if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
+				{
+					return;
+				}
+
+				if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
+					return;
+				}
+
+				try {
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_REORDERED);
+					metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
+					metadata.put(HikeConstants.OLD_PACK_POSITION, from);
+					metadata.put(HikeConstants.NEW_PACK_POSITION, to);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				} catch (JSONException e) {
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+
 				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
-					StickerCategory category = mAdapter.getDraggedCategory();
-
-					if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
-					{
-						return;
-					}
-
-					if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
-						return;
-					}
-
 					// Setting the tip flag so that drag tip disappears after first reorder is done
 					prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true);
 

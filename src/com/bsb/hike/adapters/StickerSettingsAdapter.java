@@ -16,9 +16,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -28,9 +31,13 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.MaterialElements.Switch;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
 {
@@ -440,6 +447,16 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		hideSwitch.setChecked(visibility);
 		this.notifyDataSetChanged();
 		category.setVisible(visibility);
+		try {
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_HIDE);
+			metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
+			metadata.put(HikeConstants.PACK_VISIBILITY, visibility);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		} catch (JSONException e) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
 		updateLastVisibleIndex(categoryIdx, category);
@@ -462,6 +479,18 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								public void positiveClicked(HikeDialog hikeDialog)
 								{
 									Utils.executeAsyncTask(deletePackTask);
+									try
+									{
+										JSONObject metadata = new JSONObject();
+										metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_DELETED);
+										metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
+										HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+									}
+									catch (JSONException e)
+									{
+										Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+									}
+
 									//Displaying delete progress bar and deleting message in delete dialog box
 									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
 									View buttonPanel = deleteDialog.findViewById(R.id.button_panel);
@@ -489,6 +518,17 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					try
+					{
+						JSONObject metadata = new JSONObject();
+						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_UPDATED);
+						metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
+						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+					}
+					catch (JSONException e)
+					{
+						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+					}
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
 					break;
