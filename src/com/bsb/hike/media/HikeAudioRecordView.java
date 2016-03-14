@@ -338,16 +338,8 @@ public class HikeAudioRecordView {
         if (recorder == null) {
             recorder = new MediaRecorder();
             recorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-            recorder.setAudioSamplingRate(22050);
-            recorder.setAudioEncodingBitRate(12000);
-            recorder.setAudioChannels(1);
-
-            if (Utils.isJellybeanOrHigher())
-                recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-            else
-                recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             recorder.setMaxDuration(HikeConstants.MAX_DURATION_RECORDING_SEC * 1000);
             recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
         }
@@ -364,6 +356,7 @@ public class HikeAudioRecordView {
             public void onInfo(MediaRecorder mr, int what, int extra) {
                 stopRecorder();
                 if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED || what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+
                     recordedTime = (System.currentTimeMillis() - recordStartTime) / 1000;
                     setUpPreviewRecordingLayout(recordInfo, recordedTime);
                 } else {
