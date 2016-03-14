@@ -68,19 +68,11 @@ public class AccountBackupRestore
 
 	public static final String TIME_TAKEN = "tt";
 
-	private static volatile AccountBackupRestore _instance = null;
-
-	private static final String HIKE_PACKAGE_NAME = "com.bsb.hike";
-
-	public static final String DATABASE_EXT = ".db";
-
 	public static final String BACKUP = "backup";
 
 	public static final String DATA = "data";
 
-	private static final String[] dbNames = { DBConstants.CONVERSATIONS_DATABASE_NAME };
-
-	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE };
+	private static volatile AccountBackupRestore _instance = null;
 
 	private final Context mContext;
 
