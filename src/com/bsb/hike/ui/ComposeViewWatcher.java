@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -33,7 +34,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 
 	boolean mInitialized;
 
-	private ImageButton mButton;
+	private ImageButton mButton, audButton;
 
 	private EditText mComposeView;
 
@@ -41,13 +42,14 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 
 	private Context context;
 
-	public ComposeViewWatcher(Conversation conversation, EditText composeView, ImageButton sendButton, int initialCredits, Context context)
+	public ComposeViewWatcher(Conversation conversation, EditText composeView, ImageButton sendButton, ImageButton audioButton, int initialCredits, Context context)
 	{
 		this.mConversation = conversation;
 		this.mUIThreadHandler = new Handler();
 		this.mPubSub = HikeMessengerApp.getPubSub();
 		this.mComposeView = composeView;
 		this.mButton = sendButton;
+		this.audButton = audioButton;
 		this.mCredits = initialCredits;
 		this.context = context;
 		setBtnEnabled();
@@ -87,13 +89,13 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		}
 		if (!canSend)
 		{
-			mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
-			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+			audButton.setVisibility(View.VISIBLE);
+			mButton.setVisibility(View.GONE);
 		}
 		else
 		{
-			mButton.setImageResource(R.drawable.send_btn_selector);
-			mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
+			audButton.setVisibility(View.GONE);
+			mButton.setVisibility(View.VISIBLE);
 		}
 		if (mConversation instanceof OneToNConversation)
 		{

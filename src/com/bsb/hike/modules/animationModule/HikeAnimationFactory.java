@@ -37,6 +37,44 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
+	public static Animation getScaleRingAnimation(int initialOffset)
+	{
+		AnimationSet animSet = new AnimationSet(true);
+		float a = 1.50f;
+		float pivotX = 0.5f;
+		float pivotY = 0.5f;
+
+		Animation anim0 = new ScaleAnimation(1, a, 1, a, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+		anim0.setStartOffset(initialOffset);
+		anim0.setDuration(2500);
+		anim0.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(anim0);
+
+		return animSet;
+	}
+
+	public static Animation getScaleFadeRingAnimation(int initialOffset)
+	{
+		AnimationSet animSet = new AnimationSet(true);
+		float a = 1.50f;
+		float pivotX = 0.5f;
+		float pivotY = 0.5f;
+
+		Animation anim0 = new ScaleAnimation(1, a, 1, a, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+		anim0.setStartOffset(initialOffset);
+		anim0.setDuration(2500);
+		anim0.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(anim0);
+
+		Animation fade = new AlphaAnimation(1, 0);
+		fade.setInterpolator(new AccelerateInterpolator(2f));
+		fade.setStartOffset(1500);
+		fade.setDuration(1000);
+		fade.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(fade);
+		return animSet;
+	}
+
 	public static AnimationSet getHikeActionBarLogoAnimation(Context context)
 	{
 		anim_repeat_count = 2;

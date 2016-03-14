@@ -1510,4 +1510,6 @@
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
+
+    <string name="slide_to_cancel">Slide to Cancel</string>
 </resources>

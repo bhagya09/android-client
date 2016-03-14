@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:clipChildren="false">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp">
+
+        <TextView
+            android:id="@+id/record_info_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:text="00:00"
+            android:textColor="@color/chat_color"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/arrow_slide"
+            android:layout_width="49dp"
+            android:layout_height="49dp"
+            android:layout_toRightOf="@id/record_info_duration"
+            android:gravity="center"
+            android:scaleType="center"
+            android:src="@drawable/ic_arrow_grey" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/arrow_slide">
+
+            <TextView
+                android:id="@+id/slidetocancel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="@string/slide_to_cancel"
+                android:textSize="@dimen/walkie_talkie_slider_font_size" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <com.bsb.hike.media.RedDot
+        android:id="@+id/recording"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="20dp"
+        android:gravity="center" />
+
+    <ImageView
+        android:id="@+id/recording_cancel"
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/combine_cross_circle"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_white_cross"
+        android:visibility="invisible" />
+
+    <ViewStub
+        android:id="@+id/walkie_recorder"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center"
+        android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
+        android:gravity="center"
+        android:layout="@layout/mic_wave_layout" />
+
+</RelativeLayout>
