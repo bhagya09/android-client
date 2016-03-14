@@ -47,8 +47,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_INCOMPATIBLE_APP_VERSION;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_MSISDN_MISMATCH;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
 import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
@@ -738,10 +738,10 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						BotUtils.initBots();
 						switch (restoreStatus)
 						{
-						case STATE_INCOMPATIBLE_APP_VERSION:
+						case STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION:
 							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_version_error)));
 							break;
-						case STATE_MSISDN_MISMATCH:
+						case STATE_RESTORE_FAILURE_MSISDN_MISMATCH:
 							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_msisdn_error)));
 							break;
 						default:

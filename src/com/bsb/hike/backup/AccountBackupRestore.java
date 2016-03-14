@@ -48,14 +48,14 @@ public class AccountBackupRestore
 	 */
 	public static final int STATE_RESTORE_SUCCESS = 1;
 
-	public static final int STATE_MSISDN_MISMATCH = 2;
+	public static final int STATE_RESTORE_FAILURE_MSISDN_MISMATCH = 2;
 
-	public static final int STATE_INCOMPATIBLE_APP_VERSION = 3;
+	public static final int STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION = 3;
 
-	public static final int STATE_RESTORE_ERROR = 4;
+	public static final int STATE_RESTORE_FAILURE_GENERIC = 4;
 
 
-	@IntDef({STATE_RESTORE_SUCCESS, STATE_MSISDN_MISMATCH,STATE_INCOMPATIBLE_APP_VERSION,STATE_RESTORE_ERROR})
+	@IntDef({STATE_RESTORE_SUCCESS, STATE_RESTORE_FAILURE_MSISDN_MISMATCH, STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION, STATE_RESTORE_FAILURE_GENERIC})
 	@Retention(RetentionPolicy.SOURCE)
 	public @interface RestoreErrorStates {}
 
@@ -221,23 +221,23 @@ public class AccountBackupRestore
 
 		if (state == null && backupMetadata == null)
 		{
-			successState = STATE_RESTORE_ERROR;
+			successState = STATE_RESTORE_FAILURE_GENERIC;
 			result = false;
 		}
 
 		else if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
 		{
-			successState = STATE_MSISDN_MISMATCH;
+			successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
 			result = false;
 		}
 		else if (backupMetadata != null && !isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
 		{
-			successState = STATE_INCOMPATIBLE_APP_VERSION;
+			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
 			result = false;
 		}
 		else if (state != null && !isBackupDbVersionCompatible(state.getDBVersion()))
 		{
-			successState = STATE_INCOMPATIBLE_APP_VERSION;
+			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
 			result = false;
 		}
 
@@ -270,7 +270,7 @@ public class AccountBackupRestore
 			{
 				e.printStackTrace();
 				result = false;
-				successState = STATE_RESTORE_ERROR;
+				successState = STATE_RESTORE_FAILURE_GENERIC;
 			}
 
 			for (BackupableRestorable item : backupItems)
