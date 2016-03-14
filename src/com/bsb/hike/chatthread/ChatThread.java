@@ -30,6 +30,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
+import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -119,6 +120,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -153,12 +155,14 @@ import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -365,6 +369,8 @@ import android.widget.Toast;
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
+	
+	private KeyboardOffBoarding keyboardOffBoarding;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -635,6 +641,7 @@ import android.widget.Toast;
 		sharedPreference = HikeSharedPreferenceUtil.getInstance();
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
+		keyboardOffBoarding = new KeyboardOffBoarding();
 	}
 
 	
@@ -683,6 +690,8 @@ import android.widget.Toast;
 
 		initActionMode();
 
+		initKeyboardOffBoarding();
+		
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -690,7 +699,26 @@ import android.widget.Toast;
 		
 		setupStickerSearch();
 	}
+	
+	private void initKeyboardOffBoarding()
+	{
+		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI()) {
+			keyboardOffBoarding.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
+					(ViewGroup)activity.findViewById(R.id.keyboard_shutdown_container), keyboardShutdownListener);
+			showKeyboardOffboardingIfReady();
+		}
+	}
 
+	private KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
+		
+		@Override
+		public void onDestroyed() {
+			// TODO Auto-generated method stub
+			Utils.unblockOrientationChange(activity);
+			Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+		}
+	};
+	
 	private void defineEnterAction() {
 		
 		if (mComposeView != null) {
@@ -1557,7 +1585,7 @@ import android.widget.Toast;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
-
+		removeKeyboardShutdownIfShowing();
 		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return true;
 		}
@@ -1745,6 +1773,7 @@ import android.widget.Toast;
 	
 	protected void setupSearchMode(String text)
 	{
+		removeKeyboardShutdownIfShowing();
 		searchText = text;
 		if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false))
 		{
@@ -1765,6 +1794,23 @@ import android.widget.Toast;
 		{
 			mComposeView.setText(searchText);
 			mComposeView.setSelection(searchText.length());
+		}
+	}
+	
+	private void removeKeyboardShutdownIfShowing()
+	{
+		if(keyboardOffBoarding != null && keyboardOffBoarding.isShowing()) {
+			keyboardOffBoarding.destroy();
+		}
+	}
+	
+	private void showKeyboardOffboardingIfReady()
+	{
+		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn())
+		{
+			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			keyboardOffBoarding.showView();
+			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
 	}
 	
@@ -2360,7 +2406,8 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false)) || shouldShowKeyboardInActionMode());
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !keyboardOffBoarding.shouldShowKeyboardOffBoardingUI())
+				|| shouldShowKeyboardInActionMode());
 	}
 	
 	protected boolean shouldShowKeyboardInActionMode()
@@ -2393,6 +2440,14 @@ import android.widget.Toast;
 
 		mComposeView.setOnKeyListener(this);
 
+		mComposeView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				{
+					showKeyboardOffboardingIfReady();
+				}
+			}
+		});
 	}
 
 	/*
@@ -4012,6 +4067,9 @@ import android.widget.Toast;
 		
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 
+		if(keyboardOffBoarding != null)
+			keyboardOffBoarding.destroy();
+		
 		hideActionMode();
 
 		removePubSubListeners();
