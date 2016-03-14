@@ -15,6 +15,7 @@ import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.os.Environment;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -162,9 +163,7 @@ public class BackupUtils
 
 	public static File getCurrentDBFile(String dbName)
 	{
-		File data = Environment.getDataDirectory();
-		String currentDBPath = "//data//" + HIKE_PACKAGE_NAME + "//databases//" + dbName;
-		File currentDB = new File(data, currentDBPath);
+		File currentDB = HikeMessengerApp.getInstance().getDatabasePath(dbName);
 		return currentDB;
 	}
 
