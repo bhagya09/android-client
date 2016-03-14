@@ -531,7 +531,7 @@ public class Utils
 		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName) || !orgFileName.contains("."))
+		if (TextUtils.isEmpty(orgFileName))
 		{
 			orgFileName = getUniqueFilename(type);
 		}
