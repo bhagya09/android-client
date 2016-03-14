@@ -94,6 +94,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateL
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
@@ -1076,7 +1077,7 @@ public class HttpRequests
                 .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
-                .setPriority(PRIORITY_HIGH)
+				.setPriority(PRIORITY_LOW)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
         Logger.e("HikeHttpRequests", "Making http call to " + url);

@@ -3782,6 +3782,8 @@ public class HikeConstants
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 
+	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
+
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
