@@ -96,6 +96,7 @@ public interface HikePlatformConstants
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	public static final String CUSTOM_TABS="customTabs";
 	String PACKET_DATA = "packetData";
+	String PREF_NETWORK = "preferredNetwork";
 
     public static final class PlatformFetchType
 	{
@@ -350,4 +351,6 @@ public interface HikePlatformConstants
     String MICRO_APP_CRICKET_REGEX = "cricket";
 
 	String TTL = "timeToLive";
+
+	String DEFULT_NETWORK = "unknown";
 }

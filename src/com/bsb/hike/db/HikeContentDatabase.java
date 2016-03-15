@@ -29,6 +29,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
 {
@@ -965,10 +966,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				" ("
 				+ HikePlatformConstants.APP_NAME + " TEXT, "
 				+ HikePlatformConstants.PACKET_DATA + " TEXT, "
-				+ HikePlatformConstants.VERSION + " TEXT, "
+				+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
 				+ HikePlatformConstants.TYPE + " INTEGER, "
 				+ HikePlatformConstants.TTL + " INTEGER, "
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEAFULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
 				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.VERSION
 				+ ")"
@@ -979,7 +981,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	/**
 	 * Function to add data to Platform Download State Table
 	 */
-	public void addToPlatformDownloadStateTable(String name, int version, String data, int type, long ttl, int state)
+	public void addToPlatformDownloadStateTable(String name, int version, String data, int type, long ttl,int prefNetwork, int state)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(HikePlatformConstants.APP_NAME, name);
@@ -987,6 +989,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(HikePlatformConstants.PACKET_DATA, data);
 		cv.put(HikePlatformConstants.TYPE, type);
 		cv.put(HikePlatformConstants.TTL, ttl);
+		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, state);
 		try
 		{
