@@ -260,7 +260,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 			setCropViewVisibility(true);
 			break;
 		case R.id.rotateLeft:
-			mCropImageView.rotateImage(90);
+			mCropImageView.rotateImage(-90);
 			break;
 		case R.id.accept:
 			crop();
@@ -336,4 +336,16 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		containerCrop.animate().alpha(enableCrop ? 0f : 1f);
 		containerEdit.animate().setStartDelay(50).alpha(enableCrop?0f:1f);
 	}
+
+	public boolean onBackPressed()
+	{
+		if(cropCancel != null && cropCancel.getVisibility() == View.VISIBLE)
+		{
+			onClick(cropCancel);
+			return true;
+		}
+
+		return false;
+	}
+
 }

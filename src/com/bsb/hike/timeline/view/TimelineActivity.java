@@ -705,7 +705,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			if (HikeConversationsDatabase.getInstance().isAnyFeedEntryPresent())
 			{
-				return HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+				return HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount(true);
 			}
 			else
 			{
