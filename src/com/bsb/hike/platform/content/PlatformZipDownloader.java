@@ -360,6 +360,7 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
                                 PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
+								PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName,mRequest.getContentData().cardObj.getmAppVersionCode()); // Incase of unzip fail we will remove from state table.
                             }
 							zipFile.delete();
 						}
