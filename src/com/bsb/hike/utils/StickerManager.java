@@ -2085,11 +2085,9 @@ public class StickerManager
 	 */
 	public void sendStickerButtonClickAnalytics()
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-		{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
 				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
@@ -2097,8 +2095,7 @@ public class StickerManager
 
 				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
 				{
-					try
-					{
+					try {
 						JSONObject metadata = new JSONObject();
 						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
 						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
@@ -2107,9 +2104,7 @@ public class StickerManager
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
-					}
-					catch (JSONException e)
-					{
+					} catch (JSONException e) {
 						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
 					}
 				}
@@ -2520,6 +2515,107 @@ public class StickerManager
 		}
 
 		return false;
+	}
+
+	/**
+	 * Send sticker settings clicked analytics i.e. Delete, Hide, Reorder and Update selected
+	 */
+	public void sendStickerSettingsEventAnalytics(String event)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack hide/unhide analytics
+	 * @param catId
+	 * @param visibility
+	 */
+	public void sendPackHideAnalytics(String catId, boolean visibility)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_HIDE);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			metadata.put(HikeConstants.PACK_VISIBILITY, visibility);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack delete analytics
+	 * @param event
+	 * @param catId
+	 */
+	public void sendPackDeleteAnalytics(String event, String catId)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack update analytics
+	 * @param event
+	 * @param catId
+	 */
+	public void sendPackUpdateAnalytics(String event, String catId)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack reorder analytics
+	 * @param catId
+	 * @param oldPosition
+	 * @param newPosition
+	 */
+	public void sendPackReorderAnalytics(String catId, int oldPosition, int newPosition)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_REORDERED);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			metadata.put(HikeConstants.OLD_PACK_POSITION, oldPosition);
+			metadata.put(HikeConstants.NEW_PACK_POSITION, newPosition);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
 	}
 
 	/**

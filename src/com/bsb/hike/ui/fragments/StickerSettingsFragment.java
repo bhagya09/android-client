@@ -337,18 +337,20 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		mDslv.addDropListener(new DropListener() {
 			@Override
 			public void drop(int from, int to) {
+				StickerCategory category = mAdapter.getDraggedCategory();
+
+				if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
+				{
+					return;
+				}
+
+				if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
+					return;
+				}
+
+				StickerManager.getInstance().sendPackReorderAnalytics(category.getCategoryId(), from, to);
+
 				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
-					StickerCategory category = mAdapter.getDraggedCategory();
-
-					if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
-					{
-						return;
-					}
-
-					if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
-						return;
-					}
-
 					// Setting the tip flag so that drag tip disappears after first reorder is done
 					prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true);
 
