@@ -147,7 +147,8 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		mRecommendationScore = overallScore;
 	}
 
-	public int getAge() {
+	public int getAge()
+	{
 		return mAge;
 	}
 

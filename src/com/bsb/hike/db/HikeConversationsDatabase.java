@@ -1,22 +1,5 @@
 package com.bsb.hike.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -99,6 +82,23 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -9308,7 +9308,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			for (Sticker sticker : stickers)
 			{
 				contentValues.clear();
-				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_IN_ACTIVE_STATE);
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
 						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
 			}
@@ -9320,5 +9320,44 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public void deactivateStickersForCategories(List<StickerCategory> categories)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (StickerCategory category : categories)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void deleteStickersForCategories(List<StickerCategory> categories)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (StickerCategory category : categories)
+			{
+				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
 
 }

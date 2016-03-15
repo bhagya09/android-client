@@ -293,7 +293,7 @@ public interface DBConstants
 
 	public static final int DEFAULT_ACTIVE_STATE = 1;
 
-	public static final int DEFAULT_IN_ACTIVE_STATE = 0;
+	public static final int DEFAULT_INACTIVE_STATE = 0;
 
 	public static interface HIKE_CONV_DB
 	{
