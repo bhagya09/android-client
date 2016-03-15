@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
@@ -117,6 +116,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
@@ -418,7 +418,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if (selectedImages != null && !selectedImages.isEmpty())
 						{
-							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
+							messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
+
+							ParcelableSparseArray captionsSparse = new ParcelableSparseArray();
+
+							if (!TextUtils.isEmpty(messageToShare))
+							{
+								imageCaptions.add(messageToShare);
+								captionsSparse.put(0,messageToShare);
+							}
+
+							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true, false, captionsSparse);
 
 							// Got images to share
 							// Keep references to images (these will need to be shared via hike features (timeline,etc)
@@ -427,17 +437,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 								imagesToShare.add(item.getFilePath());
 							}
 
-							messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
-
-							if(!TextUtils.isEmpty(messageToShare))
-							{
-								imageCaptions.add(messageToShare);
-							}
-							else
-							{
-								allImages = true;
-								startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
-							}
+							allImages = true;
+							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
 					}
 				}
