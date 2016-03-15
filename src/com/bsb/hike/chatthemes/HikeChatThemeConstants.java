@@ -10,18 +10,18 @@ public class HikeChatThemeConstants
 
 	public static final int THEME_TYPE_ANIMATED = 1 << 1;
 
-	// Identify the type of Asset, if it is an color / Bitmap / Nine Patch / Bease64String (Thumbnail) / Shape
+	// Identify the type of Asset, if it is an color / Bitmap / Nine Patch / Bease64String (Thumbnail) / Shape. These constants should be in sync with the server packet
 	public static final byte ASSET_TYPE_UNKNOWN = -1;
 
 	public static final byte ASSET_TYPE_COLOR = 0;
 
-	public static final byte ASSET_TYPE_BITMAP = 1;
+	public static final byte ASSET_TYPE_PNG = 1;
 
-	public static final byte ASSET_TYPE_NINE_PATCH = 2;
+	public static final byte ASSET_TYPE_JPEG = 2;
 
-	public static final byte ASSET_TYPE_BASE64STRING = 3;
+	public static final byte ASSET_TYPE_NINE_PATCH = 3;
 
-	public static final byte ASSET_TYPE_SHAPE = 4;
+	public static final byte ASSET_TYPE_BASE64STRING = 4;
 
 	// asset indexes
 	public static final byte ASSET_INDEX_BG_PORTRAIT = 0;
@@ -89,9 +89,11 @@ public class HikeChatThemeConstants
 			| ASSET_STATUS_STATUS_BAR_BG | ASSET_STATUS_SMS_TOGGLE_BG | ASSET_STATUS_THUMBNAIL | ASSET_STATUS_BUBBLE_COLOR | ASSET_STATUS_STATUS_BAR_COLOR;
 
 	// Asset Download is a Success / Failure
-	public static final byte ASSET_DOWNLOAD_STATUS_SUCCESS = 0;
+	public static final byte ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED = 0;
 
-	public static final byte ASSET_DOWNLOAD_STATUS_FAILURE = 1;
+	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADING = 1;
+
+	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADED = 2;
 
 	// File Extension Types
 	public static final String FILEEXTN_9PATCH = "9.png";
@@ -103,6 +105,8 @@ public class HikeChatThemeConstants
 	public static final String FILEEXTN_JPEG = "jpeg";
 
 	// JSON Signal Constants
+	public static final String JSON_SIGNAL_THEME_DATA = "theme_data";
+
 	public static final String JSON_SIGNAL_NEW_THEME = "addCbg";
 
 	public static final String JSON_SIGNAL_DEL_THEME = "del_cbg";
@@ -113,23 +117,23 @@ public class HikeChatThemeConstants
 
 	public static final String JSON_SIGNAL_THEME_BG_LANDSCAPE = "bg_landscape";
 
-	public static final String JSON_SIGNAL_THEME_ACTION_BAR = "action_bar";
+	public static final String JSON_SIGNAL_THEME_ACTION_BAR = "header";
 
-	public static final String JSON_SIGNAL_THEME_CHAT_BUBBLE_BG = "chat_bubble_bg";
+	public static final String JSON_SIGNAL_THEME_CHAT_BUBBLE_BG = "chat_bubble";
 
-	public static final String JSON_SIGNAL_THEME_SENT_NUDGE = "sent_nudge";
+	public static final String JSON_SIGNAL_THEME_SENT_NUDGE = "send_nudge";
 
 	public static final String JSON_SIGNAL_THEME_RECEIVE_NUDGE = "receive_nudge";
 
-	public static final String JSON_SIGNAL_THEME_INLINE_STATUS_BG = "inline_status_bg";
+	public static final String JSON_SIGNAL_THEME_INLINE_STATUS_BG = "inline_update_bg";
 
-	public static final String JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE = "multiselect_chat_bubble";
+	public static final String JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE = "multi_select_bubble";
 
-	public static final String JSON_SIGNAL_THEME_OFFLINE_MSG_BG = "offline_msg_bg";
+	public static final String JSON_SIGNAL_THEME_OFFLINE_MSG_BG = "offline_message_color";
 
-	public static final String JSON_SIGNAL_THEME_STATUS_BAR_BG = "status_bar_bg";
+	public static final String JSON_SIGNAL_THEME_STATUS_BAR_BG = "status_bar";
 
-	public static final String JSON_SIGNAL_THEME_SMS_TOGGLE_BG = "sms_toggle_bg";
+	public static final String JSON_SIGNAL_THEME_SMS_TOGGLE_BG = "sms_bg";
 
 	public static final String JSON_SIGNAL_THEME_BUBBLE_COLOR = "bubble_color";
 

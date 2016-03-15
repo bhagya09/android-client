@@ -9078,7 +9078,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 			updatePrepStmt.bindNull(3);
 
-		updatePrepStmt.bindLong(4, saveAsset.isDownloaded() ? 1 : 0);
+		updatePrepStmt.bindLong(4, saveAsset.getAssetDownloadStatus());
 		updatePrepStmt.bindString(5, saveAsset.getAssetId());
 
 		long rowsAffected = updatePrepStmt.executeUpdateDelete();
@@ -9094,7 +9094,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else
 				insertPrepStmt.bindNull(3);
 
-			insertPrepStmt.bindLong(4, saveAsset.isDownloaded() ? 1 : 0);
+			insertPrepStmt.bindLong(4, saveAsset.getAssetDownloadStatus());
 
 			long rowInserted = insertPrepStmt.executeInsert();
 			insertPrepStmt.clearBindings();
@@ -9640,7 +9640,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
 
 		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal);
-		asset.setIsDownloaded(isDownloaded == 1 ? true : false);
+		asset.setIsDownloaded((byte)isDownloaded);
 
 		return asset;
 	}
