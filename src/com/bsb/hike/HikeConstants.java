@@ -2313,21 +2313,27 @@ public class HikeConstants
 
 		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
 
-		public static final String STICKER_REORDER_CLICKED = "stickerReorderClicked";
+		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
 
-		public static final String STICKER_DELETE_CLICKED = "stickerDeleteClicked";
+		public static final String STICKER_SETTINGS_DELETE_CLICKED = "ssDeleteClick";
 
-		public static final String STICKER_HIDE_CLICKED = "stickerHideClicked";
+		public static final String STICKER_SETTINGS_HIDE_CLICKED = "ssHideClick";
 
-		public static final String STICKER_UPDATE_CLICKED = "stickerUpdateClicked";
+		public static final String STICKER_SETTINGS_UPDATE_CLICKED = "ssUpdateClick";
 
-		public static final String STICKER_PACK_DELETED = "stickerPackDeleted";
+		public static final String STICKER_PACK_HIDE = "stPkHide";
 
-		public static final String STICKER_PACK_UPDATED = "stickerPackUpdated";
+		public static final String PACK_DELETE_CLICKED = "pkDelClick";
 
-		public static final String STICKER_PACK_HIDE = "stickerPackHide";
+		public static final String DELETE_POSITIVE_CLICKED = "delPosClick";
 
-		public static final String STICKER_PACK_REORDERED = "stickerPackReordered";
+		public static final String DELETE_NEGATIVE_CLICKED = "delNegClick";
+
+		public static final String PACK_DELETE_SUCCESS = "pkDelSuccess";
+
+		public static final String STICKER_PACK_UPDATE = "stPkUpdate";
+
+		public static final String STICKER_PACK_REORDERED = "stPkReorder";
 
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled

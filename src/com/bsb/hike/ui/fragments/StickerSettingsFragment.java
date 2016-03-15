@@ -348,16 +348,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 					return;
 				}
 
-				try {
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_REORDERED);
-					metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
-					metadata.put(HikeConstants.OLD_PACK_POSITION, from);
-					metadata.put(HikeConstants.NEW_PACK_POSITION, to);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-				} catch (JSONException e) {
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
+				StickerManager.getInstance().sendPackReorderAnalytics(category.getCategoryId(), from, to);
 
 				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
 					// Setting the tip flag so that drag tip disappears after first reorder is done

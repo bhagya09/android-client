@@ -437,6 +437,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		initialiseMapping(mListMapping, stickerCategories);				//reinitialising mapping
 		this.notifyDataSetChanged();
 		sendDeleteClicked(category);
+		StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_SUCCESS, category.getCategoryId());
 	}
 
 	public void onStickerPackHide(View listItem, StickerCategory category)
@@ -447,16 +448,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		hideSwitch.setChecked(visibility);
 		this.notifyDataSetChanged();
 		category.setVisible(visibility);
-		try {
-			JSONObject metadata = new JSONObject();
-			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_HIDE);
-			metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
-			metadata.put(HikeConstants.PACK_VISIBILITY, visibility);
-			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-		} catch (JSONException e) {
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-
+		StickerManager.getInstance().sendPackHideAnalytics(category.getCategoryId(), visibility);
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
 		updateLastVisibleIndex(categoryIdx, category);
@@ -471,6 +463,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			switch(v.getId())
 			{
 				case R.id.delete_button:
+					StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_CLICKED, category.getCategoryId());
 					final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(category);
 					deleteDialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,
 							new HikeDialogListener() {
@@ -479,18 +472,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								public void positiveClicked(HikeDialog hikeDialog)
 								{
 									Utils.executeAsyncTask(deletePackTask);
-									try
-									{
-										JSONObject metadata = new JSONObject();
-										metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_DELETED);
-										metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
-										HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-									}
-									catch (JSONException e)
-									{
-										Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-									}
-
+									StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.DELETE_POSITIVE_CLICKED, category.getCategoryId());
 									//Displaying delete progress bar and deleting message in delete dialog box
 									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
 									View buttonPanel = deleteDialog.findViewById(R.id.button_panel);
@@ -510,6 +492,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								public void negativeClicked(HikeDialog hikeDialog)
 								{
 									hikeDialog.dismiss();
+									StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.DELETE_NEGATIVE_CLICKED, category.getCategoryId());
 								}
 
 							}
@@ -518,17 +501,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_UPDATED);
-						metadata.put(HikeConstants.CATEGORY_ID, category.getCategoryId());
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					}
-					catch (JSONException e)
-					{
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
+					StickerManager.getInstance().sendPackUpdateAnalytics(HikeConstants.LogEvent.STICKER_PACK_UPDATE, category.getCategoryId());
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
 					break;
