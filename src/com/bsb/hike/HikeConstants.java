@@ -2278,6 +2278,8 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_FOLDER_ERROR = "stFEr";
+
 		public static final String STICKER_ERROR = "stEr";
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
