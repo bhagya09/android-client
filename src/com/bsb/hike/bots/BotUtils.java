@@ -259,6 +259,8 @@ public class BotUtils
 			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
 			for (int i = 0; i< appsToBeRemoved.length(); i++){
 				String appName =  appsToBeRemoved.get(i).toString();
+				if(TextUtils.isEmpty(appName))
+					return; // Safety for preventing content directory to be deleted.
 				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
 				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
 				if(PlatformUtils.deleteDirectory(makePath)){
