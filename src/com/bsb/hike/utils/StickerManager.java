@@ -382,12 +382,14 @@ public class StickerManager
 		stickerCategoriesMap.putAll(HikeConversationsDatabase.getInstance().getAllStickerCategoriesWithVisibility(true));
 	}
 
+
 	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
 		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
 		stickerCategoriesMap.remove(removedCategoryId);
-		StickerCategory cat = new StickerCategory(removedCategoryId); 	//creating new instance because of invisible category
+		StickerCategory cat = new StickerCategory(removedCategoryId); // creating new instance because of invisible category
 		Set<String> removedSet = new HashSet<String>();
+
 		if (!cat.isCustom())
 		{
 			String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);
@@ -395,7 +397,7 @@ public class StickerManager
 			{
 				File smallCatDir = new File(categoryDirPath + HikeConstants.SMALL_STICKER_ROOT);
 				String bigCatDirPath = categoryDirPath;
-				//Removing only large and small stickers folders in case of pack delete by user; otherwise removing entire category folder
+				// Removing only large and small stickers folders in case of pack delete by user; otherwise removing entire category folder
 				if (!forceRemoveCategory)
 				{
 					bigCatDirPath += HikeConstants.LARGE_STICKER_ROOT;
@@ -2031,7 +2033,6 @@ public class StickerManager
 		for (int i = 0; i < stickersToLoad; i++)
 		{
 			Sticker sticker = stickerList.get(i);
-			// // TODO: 01/03/16 remove duplicate code 
 			String cacheKey = getStickerCacheKey(sticker, StickerConstants.StickerType.SMALL);
 			Bitmap bitmap = HikeBitmapFactory.decodeFile(sticker.getSmallStickerPath());
 			if (bitmap != null)
