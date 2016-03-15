@@ -1122,7 +1122,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		if(isInCropMode)
 		{
-			setCropViewVisibility(false);
+			onClick(btnCropCancel);
 			return;
 		}
 
