@@ -419,15 +419,17 @@ public class StickerManager
         }
         HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 
-		// Remove tags being used for sticker search w.r.t. deleted sticker category here
-		if(forceRemoveCategory)
+		// Remove data being used for sticker search w.r.t. deleted sticker category here
+		if (forceRemoveCategory)
 		{
 			removedSet.add(removedCategoryId);
 			StickerSearchManager.getInstance().removeDeletedStickerTags(removedSet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
+            deleteStickerForCategory(cat);
 		}
 		else
 		{
 			removeTagForDeletedStickers(removedSet);
+            deactivateStickerForCategory(cat);
 		}
 	}
 
@@ -2826,6 +2828,30 @@ public class StickerManager
 	{
 		HikeConversationsDatabase.getInstance().deactivateStickerFromDB(stickers);
 	}
+
+    public void deactivateStickerForCategory(StickerCategory category)
+    {
+        List<StickerCategory> categories = new ArrayList<StickerCategory>(1);
+        categories.add(category);
+        deactivateStickerForCategory(categories);
+    }
+
+    public void deactivateStickerForCategory(List<StickerCategory> categories)
+    {
+        HikeConversationsDatabase.getInstance().deactivateStickersForCategories(categories);
+    }
+
+    public void deleteStickerForCategory(StickerCategory category)
+    {
+        List<StickerCategory> categories = new ArrayList<StickerCategory>(1);
+        categories.add(category);
+        deleteStickerForCategory(categories);
+    }
+
+    public void deleteStickerForCategory(List<StickerCategory> categories)
+    {
+        HikeConversationsDatabase.getInstance().deleteStickersForCategories(categories);
+    }
 
 	public boolean shouldDisplayMiniStickerOnChatThread()
 	{

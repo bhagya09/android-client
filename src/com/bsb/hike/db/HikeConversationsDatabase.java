@@ -9308,7 +9308,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			for (Sticker sticker : stickers)
 			{
 				contentValues.clear();
-				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_IN_ACTIVE_STATE);
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
 						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
 			}
@@ -9319,6 +9319,46 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			mDb.endTransaction();
 		}
 	}
+
+    public void deactivateStickersForCategories(List<StickerCategory> categories)
+    {
+        try
+        {
+            mDb.beginTransaction();
+
+            ContentValues contentValues = new ContentValues();
+            for (StickerCategory category : categories)
+            {
+                contentValues.clear();
+                contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
+                mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" ,new String[]{category.getCategoryId()});
+            }
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+    }
+
+    public void deleteStickersForCategories(List<StickerCategory> categories)
+    {
+        try
+        {
+            mDb.beginTransaction();
+
+            ContentValues contentValues = new ContentValues();
+            for (StickerCategory category : categories)
+            {
+                mDb.delete(DBConstants.STICKER_TABLE,DBConstants.CATEGORY_ID + "=?",new String[]{category.getCategoryId()});
+            }
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+    }
 
 
 }
