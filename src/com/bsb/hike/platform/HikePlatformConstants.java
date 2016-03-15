@@ -353,4 +353,6 @@ public interface HikePlatformConstants
 	String TTL = "timeToLive";
 
 	String DEFULT_NETWORK = "unknown";
+
+	String AUTO_RESUME = "autoResume";
 }
