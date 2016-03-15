@@ -1098,6 +1098,8 @@ public class HikeConstants
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
 
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
+
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
 	public static final String HIKE_BACKUP_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Backup";
