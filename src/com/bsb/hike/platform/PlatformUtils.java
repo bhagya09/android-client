@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
@@ -98,6 +99,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -2398,6 +2400,76 @@ public class PlatformUtils
 			public void run()
 			{
 				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, version, newState);
+			}
+		});
+	}
+
+	/*
+	 * Method to retry pending downloads and also pause any current downloads if network is downgraded. Also remove from table if ttl has expired.
+	 */
+	public static void retryPendingDownloadsIfAny(final int currentNetwork)
+	{
+		Logger.i(TAG, "Restarting pending bot downloads...");
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		final Long currentTime = System.currentTimeMillis();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Cursor c = HikeContentDatabase.getInstance().getAllPendingPlatformDownloads();
+				if (c == null)
+				{
+					Logger.e(TAG, "There are no platform downloads to retry. Returning");
+					return;
+				}
+				while (c.moveToNext())
+				{
+					try
+					{
+						JSONObject json = new JSONObject(c.getString(c.getColumnIndex(HikePlatformConstants.PACKET_DATA)));
+
+						int type = c.getInt(c.getColumnIndex(HikePlatformConstants.TYPE));
+
+						long ttl = c.getLong(c.getColumnIndex(HikePlatformConstants.TTL));
+
+						int prefNetwork =c.getInt(c.getColumnIndex(HikePlatformConstants.PREF_NETWORK));
+
+						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
+
+						if (currentTime > ttl)
+						{
+							int version = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
+							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, version);
+						}
+						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
+						{
+							PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(name);
+							if (null != tokenCountPair && null != tokenCountPair.getFirst())
+							{
+								tokenCountPair.getFirst().cancel();
+							}
+						}
+						if (prefNetwork >= currentNetwork) // Only retry on higher NetworkTypes
+						{
+							switch (type)
+							{
+								case HikePlatformConstants.PlatformTypes.CBOT:
+									BotUtils.createBot(json,currentNetwork);
+									break;
+								case HikePlatformConstants.PlatformTypes.MAPP:
+									downloadZipFromPacket(json,currentNetwork);
+									break;
+							}
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "Exception in retryPendingDownloadsIfAny : "+e.getMessage());
+						e.printStackTrace();
+					}
+				}
 			}
 		});
 	}

@@ -1011,7 +1011,18 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
-		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version,null);
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, null);
+	}
+
+	/**
+	 * Call this method to get the cursor of the PlatformDownloadStateTable.
+	 * @return
+	 */
+	public Cursor getAllPendingPlatformDownloads()
+	{
+		Cursor c = null;
+			c = mDB.query(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE,null, null, null, null, null, null);
+		return c;
 	}
 
 }
