@@ -814,8 +814,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
 					startActivity(intent);
-					String s=null;
-					Logger.d("Crashlytics", "Inducing error in welcome activity" + s.hashCode());
 				}
 			});
 
@@ -842,8 +840,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					newConversationIndicator.setVisibility(View.GONE);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
-					String s=null;
-					Logger.d("Crashlytics", "Inducing error in welcome activity" + s.hashCode());
 					startActivity(intent);
 				}
 			});
@@ -1207,7 +1203,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onResume()
 	{
-		Logger.d(TAG, "onResume");
+		Logger.d(TAG,"onResume");
 		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
@@ -1226,8 +1222,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			acceptGroupMembershipConfirmation(getIntent());
 		}
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
-
-
 	}
 
 	private void showKeyboard()
@@ -1391,8 +1385,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onStop()
 	{
 		super.onStop();
-		String s=null;
-		Logger.d("Crashlytics", "Inducing error in welcome activity" + s.hashCode());
 	}
 
 	@Override
@@ -2184,8 +2176,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.settings:
 					HAManager.logClickEvent(HikeConstants.LogEvent.SETTING_CLICKED);
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
-					String s=null;
-					Logger.d("Crashlytics","Inducing error in welcome activity"+s.hashCode());
 					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
@@ -2222,8 +2212,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					editor.putBoolean(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					editor.commit();
 					intent = new Intent(HomeActivity.this, TimelineActivity.class);
-					 s=null;
-					Logger.d("Crashlytics","Inducing error in welcome activity"+s.hashCode());
 					break;
 					
 				case R.string.status:

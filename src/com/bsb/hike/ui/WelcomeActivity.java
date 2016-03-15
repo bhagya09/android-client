@@ -124,9 +124,6 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 		if (AppConfig.ALLOW_STAGING_TOGGLE)
 		{
 			changeHost();
-			String s=null;
-			Logger.d("Crashlytics","Inducing error in welcome activity"+s.hashCode());
-
 		}
 	}
 	
