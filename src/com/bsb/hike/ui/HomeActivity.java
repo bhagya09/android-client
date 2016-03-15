@@ -311,11 +311,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 
 		moveToComposeChatScreen();
-
-		// reproing ANR
-
-		while(true) {}
-
+		
 	}
 	
 	@Override
