@@ -339,7 +339,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 
 	public boolean onBackPressed()
 	{
-		if(cropCancel != null && cropCancel.getVisibility() == View.VISIBLE)
+		if(cropPanel.getVisibility() == View.VISIBLE)
 		{
 			onClick(cropCancel);
 			return true;
