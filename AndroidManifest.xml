@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1602"
-    android:versionName="4.2.0.82.crashlytics" >
+    android:versionName="4.2.0.82" >
 
     <uses-sdk
         android:minSdkVersion="14"
