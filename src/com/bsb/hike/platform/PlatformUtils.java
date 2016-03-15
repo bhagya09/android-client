@@ -657,6 +657,12 @@ public class PlatformUtils
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
+		// Removing from download state table on success
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (metadata != null)
+		{
+			removeFromPlatformDownloadStateTable(metadata.getAppName(), metadata.getmAppVersionCode());
+		}
 	}
 
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
@@ -749,6 +755,8 @@ public class PlatformUtils
 				Logger.d(TAG, "microapp download packet success.");
                 // Store successful micro app creation in db
                 mAppCreationSuccessHandling(downloadData);
+				// Removing from state table in case of Download success
+				removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
 			}
 
 			@Override
