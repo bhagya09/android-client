@@ -2349,4 +2349,41 @@ public class PlatformUtils
 			}
 		});
 	}
+
+	//Method to remove from PlatformDownload table
+	public static void removeFromPlatformDownloadStateTable(final String name, final int version)
+	{
+		if (TextUtils.isEmpty(name) || version <-1)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, version);
+			}
+		});
+	}
+
+	// Method to update Platform Download table
+
+	public static void updatePlatformDownloadState(final String name, final int version, final int newState)
+	{
+		if (version <-1 || TextUtils.isEmpty(name))
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, version, newState);
+			}
+		});
+	}
 }

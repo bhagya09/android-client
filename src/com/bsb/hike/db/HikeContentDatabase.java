@@ -972,7 +972,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
 				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
-				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.VERSION
+				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
 				+ ")"
 				+ ")";
 
@@ -1000,6 +1000,18 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			Logger.d(getClass().getCanonicalName(), "Error while inserting to DB");
 
 		}
+	}
+
+	public void removeFromPlatformDownloadStateTable(String name, int version)
+	{
+		mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version,null);
+	}
+
+	public void updatePlatformDownloadState(String name, int version, int newState)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version,null);
 	}
 
 }
