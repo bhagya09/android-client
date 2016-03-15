@@ -92,7 +92,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[9];
+		String[] createAndIndexes = new String[10];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -160,6 +160,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		createAndIndexes[i++] = cacheDataTable;
 		
 		createAndIndexes[i++] = getCreateBotDiscoveryTableQuery();
+
+		createAndIndexes[i++] = getPlatformDownloadStateTableQuery();
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -229,6 +231,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         if (oldVersion < 7)
         {
             String createMappTableQuery = getCreateMAppDataTableQuery();
+			String botDownloadStateTableQuery = getPlatformDownloadStateTableQuery();
+			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
 		
@@ -949,5 +953,28 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
         return mAppTable;
     }
+
+	/**
+	 * This table maintains download state for cbot/mapp packets for Platform.
+	 * @return
+	 */
+	private String getPlatformDownloadStateTableQuery()
+	{
+
+		String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+				" ("
+				+ HikePlatformConstants.APP_NAME + " TEXT, "
+				+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+				+ HikePlatformConstants.VERSION + " TEXT, "
+				+ HikePlatformConstants.TYPE + " INTEGER, "
+				+ HikePlatformConstants.TTL + " INTEGER, "
+				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ "UNIQUE ("
+				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.VERSION
+				+ ")"
+				+ ")";
+
+		return botDownloadStateTableQuery;
+	}
 
 }

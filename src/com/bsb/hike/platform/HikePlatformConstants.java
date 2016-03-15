@@ -95,6 +95,7 @@ public interface HikePlatformConstants
     public static final String IS_SDK ="isSdk" ;
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	public static final String CUSTOM_TABS="customTabs";
+	String PACKET_DATA = "packetData";
 
     public static final class PlatformFetchType
 	{
@@ -347,4 +348,6 @@ public interface HikePlatformConstants
     String MICRO_APP_NEWS_REGEX = "news";
 
     String MICRO_APP_CRICKET_REGEX = "cricket";
+
+	String TTL = "timeToLive";
 }
