@@ -137,6 +137,9 @@ public class ChatThemeManager
 						HikeChatThemeAsset hcta = new HikeChatThemeAsset(id, type, null);
 						assetsList.add(hcta);
 
+						if(type == HikeChatThemeConstants.ASSET_TYPE_COLOR){
+							hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
+						}
 						mAssetHelper.addDownloadedAsset(id, hcta);
 					}
 				}
