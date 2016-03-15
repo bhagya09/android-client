@@ -2547,11 +2547,13 @@ public class StickerManager
 	 */
 	public void sendStickerFolderLockedError(String errorMsg)
 	{
-		JSONObject error = new JSONObject();
+
 		try
 		{
-			error.put(TAG, errorMsg);
-			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_FOLDER_ERROR);
+			metadata.put(TAG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
 		{
