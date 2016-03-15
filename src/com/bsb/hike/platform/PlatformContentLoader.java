@@ -132,6 +132,6 @@ public class PlatformContentLoader extends Handler
         boolean resumeSupported = false;
         String assocCbot = "";
 
-		PlatformUtils.downloadAndUnzip(argContentRequest, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
+		PlatformUtils.downloadAndUnzip(argContentRequest, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot,false);
 	}
 }

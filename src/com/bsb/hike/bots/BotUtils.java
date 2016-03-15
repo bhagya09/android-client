@@ -466,7 +466,7 @@ public class BotUtils
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
                 if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
-                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoresume());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -481,7 +481,7 @@ public class BotUtils
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
                 // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
-                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoresume());
 			}
 		}
 

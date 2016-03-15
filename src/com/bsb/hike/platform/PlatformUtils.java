@@ -425,7 +425,7 @@ public class PlatformUtils
      * Method to download assoc mapp (helper files) requested with cbot packet.
      */
 	public static void downloadAssocMappForNonMessagingBot(final JSONObject assocMappJson, final BotInfo botInfo, final boolean enableBot, final String botChatTheme,
-			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport)
+			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport, final boolean autoResume)
 	{
 
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(assocMappJson.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
@@ -439,7 +439,7 @@ public class PlatformUtils
 				Logger.d(TAG, "microapp download packet success.");
 				// Store successful micro app creation in db
 				mAppCreationSuccessHandling(assocMappJson);
-				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
 			}
 
 			@Override
@@ -459,7 +459,7 @@ public class PlatformUtils
 				{
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
 					Logger.d(TAG, "microapp already exists.");
-					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
 				}
 				else
 				{
@@ -499,10 +499,9 @@ public class PlatformUtils
 		boolean isTemplatingEnabled = false;
 		boolean doReplace = false;
 		String callbackId = null;
-		boolean resumeSupported = false;
 		String assocCbot = "";
 
-		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume);
 	}
 
     /**
@@ -512,7 +511,7 @@ public class PlatformUtils
      * @param enableBot
      */
     public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+			NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume)
 	{
         // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as no of mapps request to be completed
         if (botMetadata != null && botMetadata.getAsocmapp() != null)
@@ -549,12 +548,12 @@ public class PlatformUtils
 						{
                             assocMappRequestStatusMap.remove(botInfo.getMsisdn());
                             // Download micro app for non messaging bot
-							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
 						}
 
 						else if (!isMicroAppExistForMappPacket(appName, version))//Download Associated mapp
 						{
-							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
 						}
 					}
 				}
@@ -564,7 +563,7 @@ public class PlatformUtils
         else // No AssocMapp array found. Reverting to default behaviour.
         {
             // Download micro app for non messaging bot
-            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
         }
 	}
 
@@ -573,7 +572,7 @@ public class PlatformUtils
      * method to download the micro app zip as per cbot packet
      */
 	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			final NonMessagingBotMetadata botMetadata, boolean resumeSupport)
+			final NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
@@ -652,7 +651,7 @@ public class PlatformUtils
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn(), autoResume);
 	}
     
 
@@ -841,13 +840,14 @@ public class PlatformUtils
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
-		if(downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME,false))
+		boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME,false);
+		if(autoResume)
 		{
 			resumeSupported =true;
 			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
 					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -902,7 +902,7 @@ public class PlatformUtils
 		}
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume)
 	{
         // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
         String mAppName = request.getContentData().cardObj.getAppName();
@@ -1984,7 +1984,7 @@ public class PlatformUtils
      * This method would check if assoc mapps required for this cbot are downloaded, then trigger the download of micro app
      */
     private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport) {
+                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume) {
 
         if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
         {
@@ -1993,7 +1993,7 @@ public class PlatformUtils
             if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == 0)
             {
                 assocMappRequestStatusMap.remove(botInfo.getMsisdn());
-                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
             }
         }
     }
