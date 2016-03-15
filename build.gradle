@@ -131,7 +131,7 @@ android {
             shrinkResources true
             debuggable false
             proguardFile 'proguard.cfg'
-            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
+            manifestPlaceholders = [crashlyticsApiKey: "870a759c61924234e2425a9ac17d040daa2c05d4"]
             signingConfig signingConfigs.release
         }
         obfuscated {
