@@ -1088,7 +1088,7 @@
     <string name="status_hint">What are you upto?</string>
     <string name="status_hint_image">Something about this photo</string>
     <string name="add_mood">Add Mood</string>
-    <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
+    <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
     <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
     <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
