@@ -55,7 +55,6 @@ public class HikeAudioRecordView {
     private TextView slideToCancel, recordInfo;
     private ImageView rectBgrnd;
     private ViewStub waverMic;
-    //    View inflatedLayoutView;
     private float walkieSize;
     private PopupWindow popup_l;
     private final int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
@@ -144,7 +143,7 @@ public class HikeAudioRecordView {
     private float startedDraggingX = -1;
 
     public boolean update(View view, MotionEvent event) {
-        if (recorderState == RECORDED || recorderState == PLAYING) {
+        if (recorderState == PLAYING) {
             return false;
         }
         switch (event.getAction()) {
@@ -230,7 +229,7 @@ public class HikeAudioRecordView {
     }
 
     private boolean stopRecordingAudio() {
-        if (recorderState != RECORDING) {
+        if (recorderState == IDLE) {
             return false;
         }
 
@@ -242,8 +241,10 @@ public class HikeAudioRecordView {
             return false;
 
         } else {
-            recordedTime = mDuration / 1000;
-            setUpPreviewRecordingLayout(recordInfo, recordedTime);
+            if(mDuration <= HikeConstants.MAX_DURATION_RECORDING_SEC * 1000) {
+                recordedTime = mDuration / 1000;
+                setUpPreviewRecordingLayout(recordInfo, recordedTime);
+            }
         }
         return true;
     }
@@ -313,6 +314,12 @@ public class HikeAudioRecordView {
     private void stopRecorder() {
         mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Utils.unblockOrientationChange(mActivity);
+        stopUpdateTimeAndRecorder();
+        dismissAudioRecordView();
+        recorderState = IDLE;
+    }
+
+    private void stopUpdateTimeAndRecorder(){
         if (updateRecordingDuration != null) {
             recordingHandler.removeCallbacks(updateRecordingDuration);
             updateRecordingDuration.stopUpdating();
@@ -330,8 +337,6 @@ public class HikeAudioRecordView {
             recorder.release();
             recorder = null;
         }
-        dismissAudioRecordView();
-        recorderState = IDLE;
     }
 
     private void initialiseRecorder(final TextView recordInfo) {
@@ -354,14 +359,24 @@ public class HikeAudioRecordView {
         recorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
             @Override
             public void onInfo(MediaRecorder mr, int what, int extra) {
-                stopRecorder();
+                stopUpdateTimeAndRecorder();
                 if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED || what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-
+                    showMaxDurationToast();
                     recordedTime = (System.currentTimeMillis() - recordStartTime) / 1000;
                     setUpPreviewRecordingLayout(recordInfo, recordedTime);
                 } else {
                     recordingError(true);
                 }
+            }
+        });
+    }
+
+
+    private void showMaxDurationToast(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mActivity, R.string.max_duration_recorded, Toast.LENGTH_SHORT).show();
             }
         });
     }
