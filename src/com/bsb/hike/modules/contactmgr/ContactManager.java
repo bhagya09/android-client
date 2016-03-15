@@ -125,10 +125,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		// and persistence cache have not been initialized completely
 		_instance.persistenceCache.updateGroupNames();
 	}
+
+	public void reinitializeUserDB()
+	{
+		hDb.reinitializeDB();
+	}
+
+	public void clearUserDbTable(String tableName)
+	{
+		hDb.clearTable(tableName);
+	}
 	
 	public SQLiteDatabase getWritableDatabase()
 	{
-		return hDb.getWritableDatabase();
+		return hDb.getWriteDatabase();
 	}
 
 	public SQLiteDatabase getReadableDatabase()

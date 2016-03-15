@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 
 public class BackupAccountTask extends AsyncTask<Void, Void, Boolean> implements ActivityCallableTask
 {
