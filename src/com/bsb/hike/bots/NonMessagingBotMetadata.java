@@ -368,6 +368,10 @@ public class NonMessagingBotMetadata
 	public void setAutoResume(Boolean autoResume)
 	{
 		this.autoResume=autoResume;
+		if (autoResume)
+		{
+			resumeSupported = true;
+		} // for auto resume resume supported has to be true.
 	}
 
 	public Boolean getAutoresume()

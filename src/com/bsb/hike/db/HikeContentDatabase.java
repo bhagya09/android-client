@@ -970,7 +970,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ HikePlatformConstants.TYPE + " INTEGER, "
 				+ HikePlatformConstants.TTL + " INTEGER, "
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
-				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEAFULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
 				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.VERSION
 				+ ")"

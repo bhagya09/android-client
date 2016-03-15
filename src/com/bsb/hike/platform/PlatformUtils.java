@@ -826,6 +826,12 @@ public class PlatformUtils
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
+		if(downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME,false))
+		{
+			resumeSupported =true;
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+		}
 		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot);
 	}
 

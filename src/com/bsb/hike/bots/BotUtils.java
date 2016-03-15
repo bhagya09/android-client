@@ -458,7 +458,11 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
-                botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
+				if(botMetadata.getAutoresume())
+				{
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+				}
+				botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
                 if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
@@ -470,7 +474,11 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-                botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
+				if(botMetadata.getAutoresume())
+				{
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+				}
+				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
                 // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
                 PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());

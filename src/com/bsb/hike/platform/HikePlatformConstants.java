@@ -368,4 +368,6 @@ public interface HikePlatformConstants
 		public final static int CBOT = 0;
 		public final static int MAPP = 1;
 	}
+
+	long oneDayInMS = 86400000;
 }
