@@ -29,17 +29,14 @@
 
     <LinearLayout
         android:id="@+id/category_checkbox_ll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="18dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:gravity="center"
+        android:orientation="vertical"
         android:layout_centerVertical="true">
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
 
             <ImageButton
             android:id="@+id/category_checkbox"
@@ -87,8 +84,6 @@
             android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
             android:visibility="gone" />
-
-        </FrameLayout>
 
     </LinearLayout>
 
