@@ -8,6 +8,9 @@
         android:id="@+id/shop_banner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_marginTop="12dp"
         android:src="@drawable/art_banner"
         android:scaleType="centerInside"/>
 
