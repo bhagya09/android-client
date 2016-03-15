@@ -64,13 +64,13 @@
 
     <ImageView
         android:id="@+id/recording_cancel"
-        android:layout_width="49dp"
-        android:layout_height="49dp"
+        android:layout_width="@dimen/walkie_mic_size"
+        android:layout_height="@dimen/walkie_mic_size"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_gravity="center"
         android:layout_marginLeft="10dp"
-        android:background="@drawable/combine_cross_circle"
+        android:background="@drawable/circle_walkie_solid"
         android:gravity="center"
         android:scaleType="centerInside"
         android:src="@drawable/ic_white_cross"
