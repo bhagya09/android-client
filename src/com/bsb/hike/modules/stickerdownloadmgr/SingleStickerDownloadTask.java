@@ -16,7 +16,6 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
-import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestType;
@@ -239,7 +238,14 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 								StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
 								StickerSearchManager.getInstance().insertStickerTags(data, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT);
 							}
-							StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
+							if(imageOnly)
+							{
+								StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.SINGLE_STICKER_CDN);
+							}
+							else
+							{
+								StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.SINGLE_STICKER);
+							}
 						}
 					}
 					StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
@@ -306,6 +312,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void doOnFailure(HttpException e)
 	{
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
 		if (largeStickerPath == null)
 		{
 			return;

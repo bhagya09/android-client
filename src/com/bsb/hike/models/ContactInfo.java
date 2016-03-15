@@ -26,7 +26,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
+		return "ContactInfo [id = " + id + " , name=" + name + ", msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
 	}
 
 	private String name;
@@ -469,6 +469,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public ContactInfo(String id, String msisdn, String name, String phoneNum, boolean onhike, String platformId)
 	{
 		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
+	}
+
+	public ContactInfo()
+	{
+		// Does nothing
 	}
 
 	public ContactInfo(ContactInfo contactInfo)
