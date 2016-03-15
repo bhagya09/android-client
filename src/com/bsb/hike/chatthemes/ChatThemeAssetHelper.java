@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
 
@@ -142,7 +143,18 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type))
 		{
 			String[] downloadedAssets = (String[]) object;
-			//TODO Add method to write the assets associated to these assetIds into DB
+			ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
+
+			for(int i=0;i<downloadedAssets.length;i++)
+			{
+				HikeChatThemeAsset asset = mAssets.get(downloadedAssets[i]);
+				if(asset != null)
+				{
+					downloadedThemeAssets.add(asset);
+				}
+			}
+			//writing the downloaded assets into the tables in DB
+			HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
 		}
 	}
 

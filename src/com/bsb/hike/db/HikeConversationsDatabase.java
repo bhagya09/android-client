@@ -292,6 +292,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
+
+		//creating tables for OTA ChatThemes
+		String assetTableQuery = getAssetTableCreateQuery();
+		db.execSQL(assetTableQuery);
+
+		String themeTableQuery = getThemeTableCreateQuery();
+		db.execSQL(themeTableQuery);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -877,6 +884,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 											+ ChatThemes.PREV_THEME_ID_COL + COLUMN_TYPE_TEXT + " DEFAULT '0'";
 				db.execSQL(addPrevThemeIdCol);
 			}
+
+			//creating tables for OTA ChatThemes
+			String assetTableQuery = getAssetTableCreateQuery();
+			db.execSQL(assetTableQuery);
+
+			String themeTableQuery = getThemeTableCreateQuery();
+			db.execSQL(themeTableQuery);
 		}
 
 	}
