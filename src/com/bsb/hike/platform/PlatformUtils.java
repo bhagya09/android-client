@@ -2325,4 +2325,22 @@ public class PlatformUtils
 		}
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 	}
+/*
+ *Method to add data to the State table
+ */
+	public static void addToPlatformDownloadStateTable(final String name, final int mappVersion, final String data, final int type, final long ttl,final int prefNetwork,final int state)
+	{
+		if (mappVersion <-1 || TextUtils.isEmpty(name) || ttl < 0)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mappVersion, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+			}
+		});
+	}
 }

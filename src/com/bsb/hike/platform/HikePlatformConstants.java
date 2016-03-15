@@ -355,4 +355,17 @@ public interface HikePlatformConstants
 	String DEFULT_NETWORK = "unknown";
 
 	String AUTO_RESUME = "autoResume";
+
+	public static class PlatformDwnldState
+	{
+		public final static int IN_PROGRESS = 0;
+		public final static int FAILED = 1;
+		public final static int SUCCESS = 2;
+	}
+
+	public static class PlatformTypes
+	{
+		public final static int CBOT = 0;
+		public final static int MAPP = 1;
+	}
 }
