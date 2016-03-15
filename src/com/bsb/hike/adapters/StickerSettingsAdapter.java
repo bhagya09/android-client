@@ -20,8 +20,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -31,13 +29,8 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.MaterialElements.Switch;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
 {
@@ -177,8 +170,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.updateButton.setOnClickListener(this);
 			viewHolder.reorderIcon = (ImageView) convertView.findViewById(R.id.reorder_icon);
 			viewHolder.updateStickersCount = (TextView) convertView.findViewById(R.id.update_stickers_count);
-			viewHolder.hideSwitch = (Switch) convertView.findViewById(R.id.hide_switch);
-
+			viewHolder.checkBox = (ImageButton) convertView.findViewById(R.id.category_checkbox);
+			viewHolder.checkBox.setOnClickListener(this);
 			convertView.setTag(viewHolder);
 			
 		}
@@ -206,7 +199,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateStickersCount.setText(mContext.getString(R.string.n_more_stickers, category.getMoreStickerCount()));
 				break;
 			case STICKER_HIDE_TASK:
-				viewHolder.hideSwitch.setVisibility(View.VISIBLE);
+				viewHolder.checkBox.setVisibility(View.VISIBLE);
 				break;
 		}
 
@@ -262,11 +255,11 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 
 			
-		viewHolder.hideSwitch.setTag(category);
+		viewHolder.checkBox.setTag(category);
 		viewHolder.deleteButton.setTag(category);
 		viewHolder.updateButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
-		viewHolder.hideSwitch.setChecked(category.isVisible());
+		viewHolder.checkBox.setSelected(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 		return convertView;
@@ -421,7 +414,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 		TextView updateStickersCount;
 
-		Switch hideSwitch;
+		ImageButton checkBox;
 	}
 
 	public void onStickerPackDelete(StickerCategory category)
@@ -440,15 +433,14 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_SUCCESS, category.getCategoryId());
 	}
 
-	public void onStickerPackHide(View listItem, StickerCategory category)
+	public void onStickerPackHide(View v, StickerCategory category)
 	{
 		boolean visibility = !category.isVisible();
-		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
-		Switch hideSwitch = (Switch) listItem.findViewById(R.id.hide_switch);
-		hideSwitch.setChecked(visibility);
-		this.notifyDataSetChanged();
+		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();;
+		ImageButton checkBox = (ImageButton) v;
 		category.setVisible(visibility);
 		StickerManager.getInstance().sendPackHideAnalytics(category.getCategoryId(), visibility);
+		checkBox.setSelected(visibility);
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
 		updateLastVisibleIndex(categoryIdx, category);
@@ -504,6 +496,10 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 					StickerManager.getInstance().sendPackUpdateAnalytics(HikeConstants.LogEvent.STICKER_PACK_UPDATE, category.getCategoryId());
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
+					break;
+
+				case R.id.category_checkbox:
+					onStickerPackHide(v, category);
 					break;
 
 				default:
