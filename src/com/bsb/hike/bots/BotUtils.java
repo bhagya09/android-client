@@ -159,7 +159,7 @@ public class BotUtils
 			e.printStackTrace();
 		}
 
-		createBot(jsonObject);
+		createBot(jsonObject, Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context)));
 	}
 	
 	public static boolean isBot(String msisdn)
@@ -374,7 +374,7 @@ public class BotUtils
 	 * @param jsonObj
 	 *            The bot Json object containing the properties of the bot to be created
 	 */
-	public static void createBot(JSONObject jsonObj)
+	public static void createBot(JSONObject jsonObj , int currentNetwork)
 	{
 		long startTime = System.currentTimeMillis();
 		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
@@ -458,6 +458,8 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
 				if(botMetadata.getAutoresume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
@@ -474,6 +476,8 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
 				if(botMetadata.getAutoresume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);

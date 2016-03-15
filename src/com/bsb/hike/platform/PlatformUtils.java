@@ -742,7 +742,7 @@ public class PlatformUtils
 	 * @param downloadData
 	 *            : the data used to download microapp from ac packet to download the app.
 	 */
-	public static void downloadZipFromPacket(final JSONObject downloadData)
+	public static void downloadZipFromPacket(final JSONObject downloadData, int currentNetwork)
 	{
 		if (downloadData == null)
 		{
@@ -842,12 +842,17 @@ public class PlatformUtils
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
-		boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME,false);
+		boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
+		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
 		if(autoResume)
 		{
 			resumeSupported =true;
 			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
 					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+		}
+		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
+		{
+			return;    // Do not download if current network is below preferred network.
 		}
 		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
 	}

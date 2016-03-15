@@ -1968,7 +1968,7 @@ public class MqttMessagesManager
 		{
 			JSONArray botsTobeAdded = data.getJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
 			for (int i = 0; i< botsTobeAdded.length(); i++){
-				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
+				BotUtils.createBot((JSONObject) botsTobeAdded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
 			}
 		}
 		if (data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
@@ -2014,7 +2014,7 @@ public class MqttMessagesManager
 			JSONArray appsToBeDownloaded = data.getJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
 			for (int i = 0; i< appsToBeDownloaded.length(); i++)
 			{
-				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i));
+				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context)));
 			}
 		}
 		if(data.has(HikeConstants.GET_BULK_LAST_SEEN))
