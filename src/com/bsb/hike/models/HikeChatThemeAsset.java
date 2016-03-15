@@ -1,5 +1,7 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
+
 /**
  * Created by sriram on 22/02/16.
  */
@@ -11,7 +13,7 @@ public class HikeChatThemeAsset
 
 	private String value;
 
-	private boolean isDownloaded = false;
+	private byte isDownloaded = HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED;
 
 	public HikeChatThemeAsset(String assetId, int type, String value)
 	{
@@ -52,11 +54,26 @@ public class HikeChatThemeAsset
 
 	public boolean isDownloaded()
 	{
-		return isDownloaded;
+		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
 	}
 
-	public void setIsDownloaded(boolean isDownloaded)
+	public boolean isDownloadingInProgress()
 	{
-		this.isDownloaded = isDownloaded;
+		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADING);
+	}
+
+	public boolean isAssetMissing()
+	{
+		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+	}
+
+	public void setIsDownloaded(byte status)
+	{
+		this.isDownloaded = status;
+	}
+
+	public byte getAssetDownloadStatus()
+	{
+		return this.isDownloaded;
 	}
 }

@@ -69,7 +69,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		String[] assets = theme.getAssets();
 		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
-			if ((assets[i] != null) && (isAssetRecorded(assets[i])))
+			if ((assets[i] != null) && (isAssetRecorded(assets[i])) && mAssets.get(assets[i]).isDownloaded())
 			{
 				theme.setAssetDownloadStatus(1 << i);
 			}
@@ -93,12 +93,24 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		assetStatus &= ~(1 << assetIndex);
 		theme.overrideAssetDownloadStatus(assetStatus);
 
+		String assetId = theme.getAssetId(assetIndex);
+		mAssets.get(assetId).setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+
 		// TODO CHATTHEME Update asset missing in to DB here
 	}
 
-	public void getMissingAssets(HikeChatTheme theme)
+	public String[] getMissingAssets(String[] assets)
 	{
-		// TODO CHATTHEME To Pool Missing assets from DB
+		ArrayList<String> missingAssets = new ArrayList<String>();
+		int len = assets.length;
+		for(int i = 0 ; i < len; i++)
+		{
+			if(!isAssetRecorded(assets[i]) && mAssets.get(assets[i]).isAssetMissing())
+			{
+				missingAssets.add(assets[i]);
+			}
+		}
+		return missingAssets.toArray(new String[missingAssets.size()]);
 	}
 
 	/**
@@ -142,21 +154,9 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		if (HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS.equals(type))
 		{
 			String[] downloadedAssets = (String[]) object;
-			//TODO Add method to write the assets associated to these assetIds into DB
+			//TODO CHATTHEME Add method to write the assets associated to these assetIds into DB
 		}
 	}
 
-	public String[] getMissingAssets(String[] assets)
-	{
-		ArrayList<String> missingAssets = new ArrayList<String>();
-		int len = assets.length;
-		for(int i = 0 ; i < len; i++)
-		{
-			if(!(isAssetRecorded(assets[i]) && (mAssets.get(assets[i]).isDownloaded())))
-			{
-				missingAssets.add(assets[i]);
-			}
-		}
-		return missingAssets.toArray(new String[missingAssets.size()]);
-	}
+
 }

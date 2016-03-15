@@ -3342,10 +3342,11 @@ public class MqttMessagesManager
 		try
 		{
 			String type = jsonObj.getString(HikeConstants.SUB_TYPE);
-	        if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+			if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
 			{
-				JSONArray data = jsonObj.getJSONArray(HikeConstants.DATA);
-				ChatThemeManager.getInstance().processNewThemeSignal(data);
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+				ChatThemeManager.getInstance().processNewThemeSignal(themeData);
 				return true;
 			}
 			else if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet

@@ -57,6 +57,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 			{
 				return;
 			}
+			updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADING);
 			token.execute();
 		}
 	}
@@ -73,12 +74,14 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 	@Override
 	public void doOnSuccess(Object result)
 	{
+		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, result);
 	}
 
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
+		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
 	}
 
@@ -162,5 +165,17 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		}
 
 		return mAssetIds;
+	}
+
+	private void updateAssetDownloadStatus(byte status)
+	{
+		int len = mAssetIds.length;
+		for(int i = 0 ; i < len; i++){
+			HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(mAssetIds[i]);
+			if(asset != null)
+			{
+				asset.setIsDownloaded(status);
+			}
+		}
 	}
 }

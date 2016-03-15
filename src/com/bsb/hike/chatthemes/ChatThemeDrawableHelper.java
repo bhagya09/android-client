@@ -99,7 +99,7 @@ public class ChatThemeDrawableHelper
 				drawable = new ColorDrawable(Color.parseColor("#" + color));
 			}
 		}
-		else if ((asset.getType() == HikeChatThemeConstants.ASSET_TYPE_BITMAP) || (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH))
+		else
 		{
 			drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getValue());
 			if (drawable == null)
