@@ -2287,8 +2287,6 @@ public class HikeConstants
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
-		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
-
 		public static final String UPDATE_ALL_CONFIRM_CLICKED = "updateAllConfirmClicked";
 
 		public static final String UPDATE_ALL_CANCEL_CLICKED = "updateAllCancelClicked";
