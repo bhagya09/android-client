@@ -976,5 +976,27 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 		return botDownloadStateTableQuery;
 	}
+	/**
+	 * Function to add data to Platform Download State Table
+	 */
+	public void addToPlatformDownloadStateTable(String name, int version, String data, int type, long ttl, int state)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(HikePlatformConstants.APP_NAME, name);
+		cv.put(HikePlatformConstants.MAPP_VERSION_CODE, version);
+		cv.put(HikePlatformConstants.PACKET_DATA, data);
+		cv.put(HikePlatformConstants.TYPE, type);
+		cv.put(HikePlatformConstants.TTL, ttl);
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, state);
+		try
+		{
+			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+		}
+		catch (Exception e)
+		{
+			Logger.d(getClass().getCanonicalName(), "Error while inserting to DB");
+
+		}
+	}
 
 }
