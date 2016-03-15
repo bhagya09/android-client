@@ -617,6 +617,11 @@ public class PlatformUtils
 								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
 								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+								if(botMetadata.getAutoresume())
+								{
+									// In case of failure updating status
+									updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+								}
 							}
 							catch (JSONException e)
 							{
@@ -808,6 +813,8 @@ public class PlatformUtils
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+					//Updating state in case of failure
+					updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
 					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
 				}
 			}
