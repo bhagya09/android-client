@@ -1789,7 +1789,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/**
 	 * @return count of unreadActivity Feed
 	 */
-	public int getUnreadActivityFeedCount(boolean stealthMode)
+	public int getUnreadActivityFeedCount(boolean checkForStealth)
 	{
 		String where = DBConstants.READ + " = 0 ";
 		int count = 0;
@@ -1802,7 +1802,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			do
 			{
 				String msisdn = cursor.getString(columnIndex);
-				if (stealthMode && StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				if (checkForStealth && StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 				{
 					continue;
 				}
