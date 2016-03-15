@@ -260,7 +260,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 			setCropViewVisibility(true);
 			break;
 		case R.id.rotateLeft:
-			mCropImageView.rotateImage(90);
+			mCropImageView.rotateImage(-90);
 			break;
 		case R.id.accept:
 			crop();
