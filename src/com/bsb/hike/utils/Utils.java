@@ -210,7 +210,6 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
