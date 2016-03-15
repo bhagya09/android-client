@@ -92,8 +92,10 @@ public class KeyboardOffBoarding
 	{
 		mState = SHOWN;
 		updateState(mState);
-		container.removeAllViews();
-		container.invalidate();
+		if(container != null) {
+			container.removeAllViews();
+			container.invalidate();
+		}
 		if (keyboardShutdownListener != null)
 			keyboardShutdownListener.onDestroyed();
 	}
