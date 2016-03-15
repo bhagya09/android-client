@@ -1575,7 +1575,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type) || HikePubSub.STEALTH_MODE_TOGGLED.equals(type) || HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{
@@ -1896,17 +1896,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
-		}
-		else if (HikePubSub.STEALTH_MODE_TOGGLED.equals(type))
-		{
-			runOnUiThread( new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					showTimelineUpdatesDot(1000);
-				}
-			});
 		}
 	}
 
