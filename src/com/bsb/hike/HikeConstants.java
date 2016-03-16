@@ -826,7 +826,7 @@ public class HikeConstants
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
 	/* quiet period of no changes(in seconds) before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 0;
+	public static final long CONTACT_UPDATE_TIMEOUT = 60;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1836,6 +1836,7 @@ public class HikeConstants
 		public static final String CLEARED_OUT = "extrasClearedOut";
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
+		public static final String SHOW_TIMELINE = "showTimeline";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2282,6 +2283,8 @@ public class HikeConstants
 		public static final String STICKER_RECOMMENDATION_ACCURACY_INDEX_KEY = "srAI";
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
+
+		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
 		public static final String STICKER_ERROR = "stEr";
 
@@ -3944,6 +3947,8 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
+	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
+
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
@@ -3955,6 +3960,8 @@ public class HikeConstants
 	public static final String ENABLE_AB_SYNC_DEBUGING = "ab_sync_debug";
 
 	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
+
+	public static final String HIDE_DELETED_CONTACTS = "h_d_c";
 	
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
 
@@ -4002,5 +4009,7 @@ public class HikeConstants
 
 	public static final String STICKER_PACK = "spc";
 
-    public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 }

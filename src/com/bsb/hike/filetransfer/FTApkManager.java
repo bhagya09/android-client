@@ -37,7 +37,7 @@ import java.util.Calendar;
 public class FTApkManager
 {
 
-    private  static Context context;
+    private  static Context context = HikeMessengerApp.getInstance().getApplicationContext();
 
     public static void makeRequest(final double apkSizeMultiplier)
     {
@@ -66,7 +66,7 @@ public class FTApkManager
                     apkSize = apkJson.getLong(HikeConstants.AutoApkDownload.DOWNLOAD_APK_SIZE);
                     String[] parts = apkDownloadUrl.split("/");
                     String apkName = parts[3];
-                    apkName += ("_" + System.currentTimeMillis());
+                    apkName += ("_" + System.currentTimeMillis()) + ".apk";
 
                     long freeSdCardSpace = PhoneSpecUtils.getSDCardMem().get("free");
                     boolean spaceAvailable = freeSdCardSpace > (apkSizeMultiplier * apkSize);

@@ -706,7 +706,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_DELETE);
 				break;
 			case R.id.rotateLeft:
-				cropImageView.rotateImage(90);
+				cropImageView.rotateImage(-90);
 				sendAnalyticsUiClick(HikeConstants.LogEvent.TAP_ROTATE);
 				break;
 			case R.id.cancel:
@@ -1122,7 +1122,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 
 		if(isInCropMode)
 		{
-			setCropViewVisibility(false);
+			onClick(btnCropCancel);
 			return;
 		}
 

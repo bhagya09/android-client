@@ -226,6 +226,7 @@ public class AnalyticsConstants
 
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
+	public static String BOT_CONTENT_SHARED = "bot_content_shared";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -546,6 +547,8 @@ public class AnalyticsConstants
 		public static final String DEACTIVATE_BUTTON = "dActiv";
 		
 		public static final String CLOSE_BUTTON = "close";
+
+		public static final String CLOSE_SWIPE = "cls_swp";
 
 		public static final String CARD = "crd";
 

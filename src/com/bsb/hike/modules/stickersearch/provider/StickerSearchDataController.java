@@ -54,7 +54,6 @@ public enum StickerSearchDataController
 			synchronized (StickerSearchDataController.class)
 			{
 				HikeStickerSearchDatabase.getInstance().prepare();
-				StickerEventSearchManager.getInstance().loadNowCastEvents();
 			}
 		}
 		else
@@ -642,7 +641,6 @@ public enum StickerSearchDataController
 
 		if (Utils.isHoneycombOrHigher())
 		{
-
 			synchronized (StickerSearchDataController.class)
 			{
 				try
@@ -658,6 +656,24 @@ public enum StickerSearchDataController
 		else
 		{
 			Logger.d(TAG, "analyseMessageSent(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
+		}
+	}
+
+	public void loadStickerEvents()
+	{
+		Logger.i(TAG, "loadStickerEvents()");
+
+		if (Utils.isHoneycombOrHigher())
+		{
+			synchronized (StickerSearchDataController.class)
+			{
+				// Update events for the day, only if required to do so
+				StickerEventSearchManager.getInstance().loadNowCastEvents();
+			}
+		}
+		else
+		{
+			Logger.d(TAG, "loadEvents(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
 		}
 	}
 

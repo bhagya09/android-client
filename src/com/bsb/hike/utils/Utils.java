@@ -531,7 +531,7 @@ public class Utils
 		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName) || !orgFileName.contains("."))
+		if (TextUtils.isEmpty(orgFileName))
 		{
 			orgFileName = getUniqueFilename(type);
 		}
@@ -3987,6 +3987,7 @@ public class Utils
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
+			shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
 
 		else

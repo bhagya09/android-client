@@ -48,8 +48,6 @@ import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -296,7 +294,7 @@ public class StickerManager
 		context = HikeMessengerApp.getInstance();
 		String externalDir = getExternalFilesDirPath(null);
 		stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
-		checkAndSendStickerError();
+		logStickerFolderError();
 	}
 
 	public void doInitialSetup()
@@ -2080,77 +2078,71 @@ public class StickerManager
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
 	}
 
+	public void logStickerButtonPressAnalytics()
+	{
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+	}
+
 	/**
 	 * Send sticker button click analytics one time in day
 	 */
 	public void sendStickerButtonClickAnalytics()
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, 0L);
-				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-				long currentTime = System.currentTimeMillis();
-
-				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
-				{
-					try {
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
-						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-
-					} catch (JSONException e) {
-						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-					}
-				}
-			}
-		});
-
-    }
-
-	public void sendEmoticonAnalytics()
-	{
-
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		if (pressCount <= 0)
 		{
-			@Override
-			public void run()
-			{
-				long lastStickerButtonClickAnalticsTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, 0L);
-				int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
-				long currentTime = System.currentTimeMillis();
+			return;
+		}
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_BTN_CLICKED);
+			metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
-				if ((currentTime - lastStickerButtonClickAnalticsTime) >= HikeConstants.ONE_DAY_MILLS) // greater than one day
-				{
-					try
-					{
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
-						metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_BUTTON_CLICK_ANALYTICS_COUNT, 0);
 
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LAST_EMOTICON_BUTTON_CLICK_ANALYTICS_TIME, currentTime);
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
-
-						sendEmoticonUsageAnalytics();
-
-					}
-					catch (JSONException e)
-					{
-						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
-					}
-				}
-			}
-		});
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
 
 	}
 
+	public void sendEmoticonIconClickAnalytics()
+	{
+
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		if (pressCount <= 0)
+		{
+			return;
+		}
+
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_BTN_CLICKED);
+			metadata.put(AnalyticsConstants.CLICK_COUNT, pressCount);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+
+		}
+		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json", e);
+		}
+
+	}
+
+
+	public void logEmoticonButtonPressAnalytics()
+	{
+		int pressCount = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, 0);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT, ++pressCount);
+	}
 
 
     /**
@@ -2259,6 +2251,16 @@ public class StickerManager
 				}
 			}
 		});
+	}
+
+	public void sendStickerDailyAnalytics()
+	{
+		sendStickerError();
+		sendStickerButtonClickAnalytics();
+		sendEmoticonIconClickAnalytics();
+		sendEmoticonUsageAnalytics();
+		sendStickerPackAndOrderListForAnalytics();
+        StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 	}
 
 	/**
@@ -2646,11 +2648,13 @@ public class StickerManager
 	 */
 	public void sendStickerFolderLockedError(String errorMsg)
 	{
-		JSONObject error = new JSONObject();
+
 		try
 		{
-			error.put(TAG, errorMsg);
-			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_FOLDER_ERROR);
+			metadata.put(TAG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
 		{
@@ -2805,25 +2809,27 @@ public class StickerManager
 		return TextUtils.isEmpty(stickerExternalDir);
 	}
 
-	private void checkAndSendStickerError()
+	private void sendStickerError()
 	{
-		long lastStickerErrorLogTime = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, 0L);
-		long currentTime = System.currentTimeMillis();
+		sendStickerFolderError();
+		sendSingleStickerDownloadError();
+		sendStickerPackDownloadError();
+	}
 
-		if(currentTime - lastStickerErrorLogTime > HikeConstants.ONE_DAY_MILLS)
+	private void logStickerFolderError()
+	{
+		if(isStickerFolderError())
 		{
-			sendStickerFolderError();
-			sendSingleStickerDownloadError();
-			sendStickerPackDownloadError();
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_ERROR_LOG_TIME, currentTime);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, true);
 		}
 	}
 
 	private void sendStickerFolderError()
 	{
-		if(isStickerFolderError())
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, false))
 		{
 			sendStickerFolderLockedError("Unable to access android folder.");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_FOLDER_LOCKED_ERROR_OCCURED, false);
 		}
 	}
 

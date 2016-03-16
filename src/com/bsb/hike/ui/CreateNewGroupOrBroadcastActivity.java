@@ -138,13 +138,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					break;
 			}
 			setConversationId(conversationId);
-
-			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-
-			int index = BitmapUtils.iconHash(conversationId) % (bgColorArray.length());
-
-			defAvBgColor = bgColorArray.getColor(index, 0);
 		}
+
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(getConvId()) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
 
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))

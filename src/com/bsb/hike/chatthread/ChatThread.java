@@ -183,6 +183,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -234,6 +235,7 @@ import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.IOfflineCallbacks;
@@ -244,6 +246,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -1722,7 +1725,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().sendStickerButtonClickAnalytics();
+		StickerManager.getInstance().logStickerButtonPressAnalytics();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
@@ -1806,7 +1809,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 		}
 
-        StickerManager.getInstance().sendEmoticonAnalytics();
+        StickerManager.getInstance().logEmoticonButtonPressAnalytics();
 
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}
@@ -2155,11 +2158,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return;
 		}
 
-		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher) : (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(
-				R.color.sticker_recommend_highlight_text)));
+		stickerTagWatcher = (stickerTagWatcher != null) ? (stickerTagWatcher)
+				: (new StickerTagWatcher(activity, this, mComposeView, getResources().getColor(R.color.sticker_recommend_highlight_text)));
 
 		StickerSearchManager.getInstance().loadChatProfile(msisdn, !ChatThreadUtils.getChatThreadType(msisdn).equals(HikeConstants.Extras.ONE_TO_ONE_CHAT_THREAD),
 				activity.getLastMessageTimeStamp(), StickerSearchUtils.getCurrentLanguageISOCode());
+
+		StickerSearchManager.getInstance().loadStickerEvents();
 
 		mComposeView.addTextChangedListener(stickerTagWatcher);
 	}
@@ -4356,7 +4361,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			@Override
 			public void run()
 			{
-				if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
 				{
 					setupStickerSearch();
 				}
@@ -4364,6 +4369,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				{
 					dismissStickerRecommendationPopup();
 					releaseStickerSearchResources();
+					StickerEventSearchManager.getInstance().clearNowCastEvents();
 				}
 			}
 		});
@@ -4669,7 +4675,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	private void releaseStickerSearchResources()
 	{
-		if(stickerTagWatcher != null)
+		if (stickerTagWatcher != null)
 		{
 			stickerTagWatcher.releaseResources();
 			mComposeView.removeTextChangedListener(stickerTagWatcher);
@@ -4970,6 +4976,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		 */
 		initShareablePopup();
 		StickerManager.getInstance().showStickerRecommendTurnOnToast();
+		// Update events, if sticker recommendation is running.
+		if (stickerTagWatcher != null)
+		{
+			StickerSearchManager.getInstance().loadStickerEvents();
+		}
 	}
 
 	protected void hideView(int viewId)
@@ -6059,6 +6070,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			{
 				ConvMessage message = selectedMessagesMap.get(selectedMsgIds.get(0));
 				HikeFile hikeFile = message.getMetadata().getHikeFiles().get(0);
+				if (!TextUtils.isEmpty(msisdn) && BotUtils.isBot(msisdn))
+				{
+					PlatformUtils.sendBotFileShareAnalytics(hikeFile, msisdn);
+				}
 				hikeFile.shareFile(activity);
 				mActionMode.finish();
 			}
