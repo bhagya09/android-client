@@ -162,6 +162,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 				HikeChatThemeAsset asset = mAssets.get(downloadedAssets[i]);
 				if(asset != null)
 				{
+					asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
 					downloadedThemeAssets.add(asset);
 				}
 			}
