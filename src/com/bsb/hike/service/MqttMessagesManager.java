@@ -3249,6 +3249,11 @@ public class MqttMessagesManager
 			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
 		}
+        else if(HikeConstants.STICKER_SIZE.equals(subType))
+        {
+            int stickerSize = data.optInt(HikeConstants.STICKER_SIZE,-1);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SIZE, stickerSize);
+        }
 
 	}
 
