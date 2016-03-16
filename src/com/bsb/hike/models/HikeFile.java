@@ -372,7 +372,7 @@ public class HikeFile
 				fileJSON.putOpt(HikeConstants.DOWNLOAD_FILE_URL_KEY, downloadURL);
 			}
 
-			String attachmentSharedAs = getAudioSharedAs();
+			String attachmentSharedAs = getAttachmentSharedAs();
 			if (!TextUtils.isEmpty(attachmentSharedAs)) {
 				fileJSON.putOpt(HikeConstants.ATTACHEMENT_SHARED_FROM, attachmentSharedAs);
 			}
@@ -385,7 +385,7 @@ public class HikeFile
 		return null;
 	}
 
-	private String getAudioSharedAs() {
+	private String getAttachmentSharedAs() {
 		// Differentiate between a walkie-talkie msg and an audio attachment
 		String audioSrcType = "";
 		if (hikeFileType != null) {
