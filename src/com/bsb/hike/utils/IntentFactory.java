@@ -733,9 +733,8 @@ public class IntentFactory
 		}
 		else
 		{
-			Intent dpIntent = new Intent(context, ProfileActivity.class);
-			dpIntent.setAction(Intent.ACTION_ATTACH_DATA);
-			dpIntent.setData(interceptUri);
+			Intent dpIntent = new Intent(context, ProfilePicActivity.class);
+			dpIntent.putExtra(HikeMessengerApp.FILE_PATH, Utils.getAbsolutePathFromUri(interceptUri, context, false));
 			return dpIntent;
 		}
 
