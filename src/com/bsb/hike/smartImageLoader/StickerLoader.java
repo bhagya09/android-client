@@ -50,8 +50,8 @@ public class StickerLoader extends ImageWorker
 
 		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
-			checkAndDownloadMiniSticker(bitmap, sticker);
+			bitmap = loadStickerBitmap(sticker.getSmallStickerPath());
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
 		}
 		else
 		{
