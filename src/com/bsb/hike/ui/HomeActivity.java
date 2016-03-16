@@ -2596,7 +2596,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void positiveClicked(HikeDialog hikeDialog)
 	{
-
+		switch (hikeDialog.getId())
+		{
+		case HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG:
+			onCorruptDialogRestoreClicked(hikeDialog);
+		}
 	}
 
 	@Override
@@ -2620,5 +2624,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		invalidateOptionsMenu();
 		initialiseHomeScreen(null);
 	}
-	
+
+	private void onCorruptDialogRestoreClicked(HikeDialog hikeDialog)
+	{
+		// dismiss the previous dialog and show the infinite spinner dialog
+		hikeDialog.dismiss();
+		dbCorruptDialog = null;
+
+		startRestoreProcess();
+	}
+
+	private void startRestoreProcess()
+	{
+		// TODO : Start Restore process and show Restoring Dialog
+	}
+
 }
