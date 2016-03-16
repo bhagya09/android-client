@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1605"
-    android:versionName="4.2.0.9.walkie_talkie_enhancement" >
+    android:versionCode="1606"
+    android:versionName="4.2.0.10.walkie_talkie_enhancement" >
 
     <uses-sdk
         android:minSdkVersion="14"
