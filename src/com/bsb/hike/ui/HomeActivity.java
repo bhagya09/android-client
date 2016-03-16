@@ -2584,6 +2584,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void negativeClicked(HikeDialog hikeDialog)
 	{
+		switch (hikeDialog.getId())
+		{
+		case HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG:
+			onCorruptDialogSkipRestoreClicked(hikeDialog);
+			break;
+		}
 
 	}
 
@@ -2597,6 +2603,22 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void neutralClicked(HikeDialog hikeDialog)
 	{
 
+	}
+
+	private void onCorruptDialogSkipRestoreClicked(HikeDialog hikeDialog)
+	{
+		hikeDialog.dismiss();
+		dbCorruptDialog = null;
+		showingBlockingDialog = false;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+
+		// Connect to service again
+		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+		app.connectToService();
+
+		// Set up the home screen
+		invalidateOptionsMenu();
+		initialiseHomeScreen(null);
 	}
 	
 }
