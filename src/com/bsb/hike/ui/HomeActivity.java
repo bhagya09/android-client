@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.app.ProgressDialog;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
@@ -2646,7 +2647,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void preRestoreSetup()
 	{
-		// TODO Show the Infinite Dialog
+		showRestoreInProcessDialog();
 	}
 
 	@Override
@@ -2654,7 +2655,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
 
-		// TODO Dismiss the infinite dialog
+		if (dbCorruptDialog != null)
+		{
+			dbCorruptDialog.dismiss();
+			dbCorruptDialog = null;
+		}
+
 		showingBlockingDialog = false;
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
@@ -2663,6 +2669,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		// Set up the home screen
 		invalidateOptionsMenu();
 		initialiseHomeScreen(null);
+	}
+
+	private void showRestoreInProcessDialog()
+	{
+		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		showingBlockingDialog = true;
 	}
 
 }
