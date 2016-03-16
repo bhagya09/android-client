@@ -74,7 +74,10 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private void init()
 	{
-		stickerLoader = new StickerLoader(true, true, false);
+		stickerLoader = new StickerLoader.Builder()
+				.loadMiniStickerIfNotFound(true)
+				.downloadMiniStickerIfNotFound(true)
+				.build();
 		stickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
 		stickerLoader.setImageFadeIn(false);
 		stickerLoader.setSuccessfulImageLoadingListener(this);

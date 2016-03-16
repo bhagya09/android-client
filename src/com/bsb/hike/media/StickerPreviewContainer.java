@@ -94,7 +94,9 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		this.packPreviewFragment = packPreviewFragment;
 		calculateGridBounds();
 
-		stickerLoader = new StickerLoader(false, false, true);
+		stickerLoader = new StickerLoader.Builder()
+				.downloadLargeStickerIfNotFound(true)
+				.build();
 		stickerLoader.setImageFadeIn(false);
 		stickerLoader.setSuccessfulImageLoadingListener(this);
 
