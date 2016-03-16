@@ -601,6 +601,12 @@ public class HikeConstants
 
 	public static final String HTTP_STATUS_ID = "?status_id=";
 
+	public static final String PACK_VISIBILITY = "packVisibility";
+
+	public static final String OLD_PACK_POSITION = "oldPackPosition";
+
+	public static final String NEW_PACK_POSITION = "newPackPosition";
+
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -2284,8 +2290,6 @@ public class HikeConstants
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
-		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
-
 		public static final String UPDATE_ALL_CONFIRM_CLICKED = "updateAllConfirmClicked";
 
 		public static final String UPDATE_ALL_CANCEL_CLICKED = "updateAllCancelClicked";
@@ -2309,6 +2313,28 @@ public class HikeConstants
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
 
 		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
+		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
+
+		public static final String STICKER_SETTINGS_DELETE_CLICKED = "ssDeleteClick";
+
+		public static final String STICKER_SETTINGS_HIDE_CLICKED = "ssHideClick";
+
+		public static final String STICKER_SETTINGS_UPDATE_CLICKED = "ssUpdateClick";
+
+		public static final String STICKER_PACK_HIDE = "stPkHide";
+
+		public static final String PACK_DELETE_CLICKED = "pkDelClick";
+
+		public static final String DELETE_POSITIVE_CLICKED = "delPosClick";
+
+		public static final String DELETE_NEGATIVE_CLICKED = "delNegClick";
+
+		public static final String PACK_DELETE_SUCCESS = "pkDelSuccess";
+
+		public static final String STICKER_PACK_UPDATE = "stPkUpdate";
+
+		public static final String STICKER_PACK_REORDERED = "stPkReorder";
 
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled
