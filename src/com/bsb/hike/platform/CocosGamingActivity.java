@@ -177,8 +177,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
                     String appName = json.optString(HikeConstants.NAME);
                     cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
 				    File cocosEngineFile = new File(cocosEnginePath);
-                    if(!(cocosEngineFile.exists() && cocosEngineFile.isDirectory()))
-                        cocosEnginePath = platform_content_dir + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
+                    if(!(cocosEngineFile.exists()))
+                        cocosEnginePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
 
                 }
 			}

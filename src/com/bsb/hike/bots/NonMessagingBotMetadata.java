@@ -344,15 +344,13 @@ public class NonMessagingBotMetadata
 		case HikePlatformConstants.NATIVE_MODE:
             // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
             String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
-            File file = new File(microAppPath);
-
-            if(file.exists())
+            if(new File(microAppPath).exists())
             {
-                return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
+                return microAppPath;
             }
             else
             {
-                return PlatformContentConstants.PLATFORM_CONTENT_DIR + getAppName();
+                return PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + getAppName();
             }
 		default:
             return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
