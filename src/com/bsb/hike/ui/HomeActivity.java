@@ -156,7 +156,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private static int updateType;
 
-	private boolean showingProgress = false;
+	private boolean showingBlockingDialog = false; // This variable is used to prevent the normal setup of the HomeActivity. This is used when we need to show app upgrading dialog or db corrup dialog
 
 	private PopupWindow overFlowWindow;
 
@@ -305,11 +305,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false)))
 		{
 			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
-			showingProgress = true;
+			showingBlockingDialog = true;
 			
 		}
 
-		if (!showingProgress)
+		if (!showingBlockingDialog)
 		{
 			if (Utils.isVoipActivated(HomeActivity.this) && HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, false))
 			{
@@ -702,7 +702,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return false;
 		}
 		
-		if (showingProgress)
+		if (showingBlockingDialog)
 		{
 			return false;
 		}
@@ -1609,7 +1609,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						{
 							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
 
-							showingProgress = false;
+							showingBlockingDialog = false;
 							if (progDialog != null)
 							{
 								progDialog.dismiss();
@@ -2384,7 +2384,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			progDialog.dismiss();
 			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
-			showingProgress = true;
+			showingBlockingDialog = true;
 			
 		}
 		if (dialogShowing != null)
