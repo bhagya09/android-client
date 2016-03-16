@@ -94,6 +94,8 @@ public interface HikePlatformConstants
 	public static final String GAME_ACTIVE ="gameActive" ;
     public static final String IS_SDK ="isSdk" ;
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
+	String HIKE_AFFINITY="hike_affinity";
+	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
 	String PACKET_DATA = "packetData";
 	String PREF_NETWORK = "preferredNetwork";
@@ -370,4 +372,7 @@ public interface HikePlatformConstants
 	}
 
 	long oneDayInMS = 86400000;
+	String BIG_PICTURE = "big_picture";
+
+	String BITMAP_URL = "bitmap_url";
 }

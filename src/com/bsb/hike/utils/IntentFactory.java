@@ -1,20 +1,9 @@
 package com.bsb.hike.utils;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -41,12 +30,14 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
@@ -89,6 +80,16 @@ import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
 import com.bsb.hike.voip.view.CallRateActivity;
 import com.bsb.hike.voip.view.VoIPActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bsb.hike.db.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1553,4 +1554,29 @@ public class IntentFactory
 		return msg;
 	}
 
+    /**
+     *
+     * @return returns launch intent with persistant alarm flags
+     */
+    public static Intent getPersistantAlarmIntent()
+    {
+        Intent intent = new Intent();
+        intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
+        return intent;
+    }
+
+	public static void launchPlayStore(String packageName, Activity context)
+	{
+		Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+		marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+		try
+		{
+			context.startActivity(marketIntent);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
+			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+		}
+	}
 }
