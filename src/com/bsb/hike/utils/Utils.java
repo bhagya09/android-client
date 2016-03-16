@@ -3777,6 +3777,18 @@ public class Utils
 		}
 	}
 
+	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
+	{
+		if (isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
+
 	public static void executeFtResultAsyncTask(AsyncTask<Void, Void, FTResult> asyncTask)
 	{
 		if (isHoneycombOrHigher())

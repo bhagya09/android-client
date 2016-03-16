@@ -68,6 +68,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.db.DBRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -121,7 +123,8 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener,
+		DBRestoreAsyncTask.IRestoreCallback
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -2636,7 +2639,30 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void startRestoreProcess()
 	{
-		// TODO : Start Restore process and show Restoring Dialog
+		DBRestoreAsyncTask restoreAsyncTask = new DBRestoreAsyncTask(this);
+		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+	}
+
+	@Override
+	public void preRestoreSetup()
+	{
+		// TODO Show the Infinite Dialog
+	}
+
+	@Override
+	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+
+		// TODO Dismiss the infinite dialog
+		showingBlockingDialog = false;
+		// Connect to service again
+		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+		app.connectToService();
+
+		// Set up the home screen
+		invalidateOptionsMenu();
+		initialiseHomeScreen(null);
 	}
 
 }
