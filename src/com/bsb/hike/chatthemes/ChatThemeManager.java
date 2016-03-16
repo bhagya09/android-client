@@ -50,7 +50,7 @@ public class ChatThemeManager
 
 	private void initialize()
 	{
-		mChatThemesList = new HashMap<>();
+		mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
 		mDrawableHelper = new ChatThemeDrawableHelper();
 		mAssetHelper = new ChatThemeAssetHelper();
 	}
