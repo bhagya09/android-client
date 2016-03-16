@@ -108,6 +108,15 @@ public class KeyboardOffBoarding
 			keyboardShutdownListener.onDestroyed();
 	}
 
+	public void hide()
+	{
+		updatePadding(0);
+		if(container != null) {
+			container.removeAllViews();
+			container.invalidate();
+		}
+	}
+
 	private void updateState(int state)
     {
         mState = state;

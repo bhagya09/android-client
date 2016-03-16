@@ -1585,7 +1585,9 @@ import android.widget.Toast;
 	public boolean onBackPressed()
 	{
 		mShareablePopupLayout.onBackPressed();
-		removeKeyboardShutdownIfShowing();
+		if (removeKeyboardShutdownIfShowing()) {
+			return true;
+		}
 		if(removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG, true)){
 			return true;
 		}
@@ -1797,11 +1799,13 @@ import android.widget.Toast;
 		}
 	}
 	
-	private void removeKeyboardShutdownIfShowing()
+	private boolean removeKeyboardShutdownIfShowing()
 	{
 		if(keyboardOffBoarding != null && keyboardOffBoarding.isShowing()) {
-			keyboardOffBoarding.destroy();
+			keyboardOffBoarding.hide();
+			return true;
 		}
+		return false;
 	}
 	
 	private void showKeyboardOffboardingIfReady()
@@ -4068,7 +4072,7 @@ import android.widget.Toast;
 		setTipSeen(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, true);
 
 		if(keyboardOffBoarding != null)
-			keyboardOffBoarding.destroy();
+			removeKeyboardShutdownIfShowing();
 		
 		hideActionMode();
 
