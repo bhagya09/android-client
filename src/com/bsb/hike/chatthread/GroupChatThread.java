@@ -311,6 +311,7 @@ public class GroupChatThread extends OneToNChatThread
 			break;
 		case GROUP_END:
 			toggleGroupLife(false);
+			removeKeyboardShutdownIfShowing();
 			break;
 		default:
 			super.handleUIMessage(msg);

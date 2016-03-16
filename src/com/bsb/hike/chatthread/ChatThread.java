@@ -370,7 +370,7 @@ import android.widget.Toast;
 
 	private boolean shouldKeyboardPopupShow;
 	
-	private KeyboardOffBoarding keyboardOffBoarding;
+	protected KeyboardOffBoarding keyboardOffBoarding;
 	
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -709,7 +709,7 @@ import android.widget.Toast;
 		}
 	}
 
-	private KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
+	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
 		
 		@Override
 		public void onDestroyed() {
@@ -1799,7 +1799,7 @@ import android.widget.Toast;
 		}
 	}
 	
-	private boolean removeKeyboardShutdownIfShowing()
+	protected boolean removeKeyboardShutdownIfShowing()
 	{
 		if(keyboardOffBoarding != null && keyboardOffBoarding.isShowing()) {
 			keyboardOffBoarding.hide();
