@@ -139,6 +139,8 @@ public class HikeConstants
 
 	public static final String CONTENT_TYPE = "ct";
 
+	public static final String ATTACHEMENT_SHARED_FROM = "atsrc";
+
 	public static final String THUMBNAIL = "tn";
 
 	public static final String SOURCE_FILE_PATH = "srcPath";
