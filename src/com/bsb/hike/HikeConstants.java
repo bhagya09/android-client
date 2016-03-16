@@ -3980,4 +3980,6 @@ public class HikeConstants
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 
+	public static final String DB_CORRUPT = "db_corrupt";
+
 }

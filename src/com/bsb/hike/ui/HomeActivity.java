@@ -265,6 +265,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 
+		// Was database previously corrupt ?
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false))
+		{
+			Logger.wtf(TAG, "Spotted db of this user is corrupt!!");
+			// TODO Take some action here
+			// return;
+		}
+
 		if (HomeFtueActivity.isFtueToBeShown())
 		{
 			IntentFactory.freshLaunchHomeFtueActivity(HomeActivity.this);
