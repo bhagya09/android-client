@@ -103,6 +103,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
 		mDb = hikeUserDatabase.getWriteDatabase();
+		mReadDb = hikeUserDatabase.getReadableDatabase();
 		Logger.d(getClass().getSimpleName(), "User DB initialization is complete");
 	}
 
