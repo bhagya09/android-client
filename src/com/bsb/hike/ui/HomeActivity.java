@@ -120,7 +120,8 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
+
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -2576,8 +2577,26 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showCorruptDBRestoreDialog()
 	{
-		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, null);
+		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, this);
 		showingBlockingDialog = true;
+	}
+
+	@Override
+	public void negativeClicked(HikeDialog hikeDialog)
+	{
+
+	}
+
+	@Override
+	public void positiveClicked(HikeDialog hikeDialog)
+	{
+
+	}
+
+	@Override
+	public void neutralClicked(HikeDialog hikeDialog)
+	{
+
 	}
 	
 }
