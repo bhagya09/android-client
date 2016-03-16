@@ -2661,6 +2661,16 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			dbCorruptDialog = null;
 		}
 
+		if (restoreResult == AccountBackupRestore.STATE_RESTORE_SUCCESS)
+		{
+			Toast.makeText(HomeActivity.this, getString(R.string.restore_success), Toast.LENGTH_LONG).show();
+		}
+
+		else
+		{
+			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
+		}
+
 		showingBlockingDialog = false;
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();

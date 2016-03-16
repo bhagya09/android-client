@@ -1577,4 +1577,6 @@
     <string name="SKIP_RESTORE">SKIP RESTORE</string>
     <string name="RESTORE_CAP">RESTORE</string>
     <string name="restore_progress_body">Restoring your chat history from backup.</string>
+    <string name="restore_success">Chats restored successfully!</string>
+    <string name="restore_failure">Some error occured. Could not restore your chats</string>
 </resources>
