@@ -22,7 +22,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 
 	public ChatThemeAssetHelper()
 	{
-		mAssets = new HashMap<>();
+		mAssets = HikeConversationsDatabase.getInstance().getAllChatThemeAssets();
 		HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
 	}
 
