@@ -8002,4 +8002,22 @@ public class Utils
 		}
 	}
 
+	/**
+	 * This method checks whether we should connect to MQTT or not
+	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
+	 *
+	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
+	 *
+	 * @return
+	 */
+	public static boolean shouldConnectToMQTT()
+	{
+		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
+	}
+
+	private static boolean isDBCorrupt()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
+	}
+
 }

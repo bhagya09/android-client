@@ -335,12 +335,12 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	{
 		
 		// If user is not signed up. Do not initialize MQTT
-		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
-			Logger.wtf(TAG, "User not signed up. Not starting mqtt service");
+			Logger.wtf(TAG, "Not connecting to MQ because user is not signed up or db went kaput!");
 			return false;
 		}
-		
+
 		if(initialised.get())
 		{
 			Logger.d(TAG, "Already initialised , return now..");
