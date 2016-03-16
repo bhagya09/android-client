@@ -162,7 +162,7 @@ public class PlatformRequestManager
 
 				Logger.d(TAG, "remove request - " + argRequest.getContentData().getContentJSON());
 
-				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getLayout_url());
+				PlatformZipDownloader.removeDownloadingRequest(argRequest.getContentData().getId());
 
 				requestQueue.remove(argRequest);
 
