@@ -2,6 +2,7 @@ package com.bsb.hike.media;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -64,8 +65,12 @@ public class HikeAudioRecordView {
         this.mActivity = activity;
         this.listener = listener;
         this.mContext = activity;
-
-        int screenWidth = DrawUtils.displayMetrics.widthPixels;
+        int screenWidth;
+        if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            screenWidth = DrawUtils.displayMetrics.heightPixels;
+        } else {
+            screenWidth = DrawUtils.displayMetrics.widthPixels;
+        }
         LOWER_TRIGGER_DELTA = (int) (screenWidth * 0.80);//we change the recording img to delete
         walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
         HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);

@@ -6261,6 +6261,10 @@ import android.widget.Toast;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+
+		if(walkieView != null){
+			walkieView = new HikeAudioRecordView(activity,this);
+		}
 		
 	}
 	

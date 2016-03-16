@@ -3,9 +3,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
 
-    <solid android:color="@color/rec_progress" />
+    <solid android:color="@color/rec_progress_alpha" />
 
     <size
-        android:width="50dp"
-        android:height="50dp" />
+        android:width="@dimen/walkie_mic_size"
+        android:height="@dimen/walkie_mic_size" />
 </shape>
