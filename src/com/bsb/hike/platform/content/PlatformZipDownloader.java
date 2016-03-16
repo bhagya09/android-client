@@ -339,7 +339,7 @@ public class PlatformZipDownloader
 								return;
 							}
 							Boolean isSuccess = (Boolean) data;
-
+                            zipFile.delete();
                             if (isSuccess)
                             {
                                 if (!TextUtils.isEmpty(asocCbotMsisdn))
@@ -398,7 +398,6 @@ public class PlatformZipDownloader
 									PlatformUtils.deleteDirectory(unzipPath + appName); // Deleting incorrect unzipped file.
 								}
                             }
-							zipFile.delete();
 						}
 					});
 				}
