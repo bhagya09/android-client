@@ -704,7 +704,7 @@ import android.widget.Toast;
 	{
 		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI()) {
 			keyboardOffBoarding.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
-					(ViewGroup)activity.findViewById(R.id.keyboard_shutdown_container), keyboardShutdownListener);
+					(ViewGroup)activity.findViewById(R.id.keyboard_shutdown_container), keyboardShutdownListener, activity.findViewById(R.id.chatThreadParentLayout));
 			showKeyboardOffboardingIfReady();
 		}
 	}

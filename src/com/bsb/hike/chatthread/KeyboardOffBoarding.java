@@ -35,6 +35,8 @@ public class KeyboardOffBoarding
 
 	private View rootView;
 
+	private View mainView;
+
 	private KeyboardShutdownListener keyboardShutdownListener;
 
 	public KeyboardOffBoarding()
@@ -42,11 +44,12 @@ public class KeyboardOffBoarding
 		mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_SHUTDOWN_STATE, NOT_STARTED);
 	}
 
-	public void init(Activity activity, LayoutInflater inflater, ViewGroup container, KeyboardShutdownListener listener)
+	public void init(Activity activity, LayoutInflater inflater, ViewGroup container, KeyboardShutdownListener listener, View mainView)
 	{
 		this.mActivity = activity;
 		this.container = container;
 		this.keyboardShutdownListener = listener;
+		this.mainView = mainView;
 		rootView = inflater.inflate(R.layout.keyboard_off_boarding, container, false);
 		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		Utils.blockOrientationChange(mActivity);
@@ -56,7 +59,11 @@ public class KeyboardOffBoarding
 	{
 		mState = SHOWING;
 		updateState(mState);
-		container.addView(rootView);
+		if(container.getChildCount() == 0) {
+			container.addView(rootView);
+		}
+		int rootViewHeight = (int) (mActivity.getResources().getDimension(R.dimen.keyboard_exit_ui));
+		updatePadding(rootViewHeight);
 		rootView.findViewById(R.id.btn_phone_keyboard).setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -90,6 +97,7 @@ public class KeyboardOffBoarding
 
 	public void destroy()
 	{
+		updatePadding(0);
 		mState = SHOWN;
 		updateState(mState);
 		if(container != null) {
@@ -105,4 +113,12 @@ public class KeyboardOffBoarding
         mState = state;
         HikeSharedPreferenceUtil.getInstance().saveData(KEYBOARD_SHUTDOWN_STATE, state);
     }
+
+	private void updatePadding(int bottomPadding)
+	{
+		if (mainView != null && mainView.getPaddingBottom() != bottomPadding)
+		{
+			mainView.setPadding(0, 0, 0, bottomPadding);
+		}
+	}
 }
