@@ -2583,6 +2583,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, this);
 		showingBlockingDialog = true;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, true); // Block any possible notifs as well
 	}
 
 	@Override
@@ -2619,6 +2620,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		dbCorruptDialog = null;
 		showingBlockingDialog = false;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
 
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
@@ -2654,6 +2656,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
 
 		if (dbCorruptDialog != null)
 		{
