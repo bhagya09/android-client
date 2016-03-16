@@ -8015,7 +8015,7 @@ public class Utils
 		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
 	}
 
-	private static boolean isDBCorrupt()
+	public static boolean isDBCorrupt()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
 	}

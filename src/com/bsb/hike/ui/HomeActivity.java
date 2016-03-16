@@ -148,7 +148,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog;
+	private Dialog progDialog, dbCorruptDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -265,14 +265,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 		}
 
-		// Was database previously corrupt ?
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false))
-		{
-			Logger.wtf(TAG, "Spotted db of this user is corrupt!!");
-			// TODO Take some action here
-			// return;
-		}
-
 		if (HomeFtueActivity.isFtueToBeShown())
 		{
 			IntentFactory.freshLaunchHomeFtueActivity(HomeActivity.this);
@@ -306,7 +298,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
 			showingBlockingDialog = true;
-			
+		}
+
+		if (!showingBlockingDialog && Utils.isDBCorrupt()) //If we were not showing Upgrading Dialog before
+		{
+			showCorruptDBRestoreDialog();
 		}
 
 		if (!showingBlockingDialog)
@@ -500,6 +496,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void initialiseHomeScreen(Bundle savedInstanceState)
 	{
+		if (showingBlockingDialog) //If showing any blocking dialog, then return from here.
+		{
+			return;
+		}
 
 		setContentView(R.layout.home);
 
@@ -1615,6 +1615,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 								progDialog.dismiss();
 								progDialog = null;
 							}
+
+							if (Utils.isDBCorrupt())
+							{
+								showCorruptDBRestoreDialog();
+							}
+
 							invalidateOptionsMenu();
 							initialiseHomeScreen(null);
 						}
@@ -2566,6 +2572,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void showRemoveDialog(RemoveDialogData arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	private void showCorruptDBRestoreDialog()
+	{
+		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, null);
+		showingBlockingDialog = true;
 	}
 	
 }
