@@ -604,29 +604,29 @@ public class PlatformUtils
 						}
 						else
 						{
-                            Pair<BotInfo,Boolean> botInfoCreationFailedPair = new Pair(botInfo,false);
-                            HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
-                            Logger.wtf(TAG, "microapp download packet failed." + event.toString());
-							JSONObject json = new JSONObject();
-							try
+							if(botMetadata.getAutoresume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
 							{
-								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								if (zipFileSize > 0)
-								{
-									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
-								}
-								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
-								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
-								if(botMetadata.getAutoresume())
-								{
-									// In case of failure updating status
-									updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
-								}
+								// In case of failure updating status
+								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+								sendDownloadPausedAnalytics(botMetadata.getAppName());
 							}
-							catch (JSONException e)
-							{
-								e.printStackTrace();
+							else {
+								Pair<BotInfo, Boolean> botInfoCreationFailedPair = new Pair(botInfo, false);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
+								Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+								JSONObject json = new JSONObject();
+								try {
+									json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+									if (zipFileSize > 0) {
+										json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+									}
+									json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+									createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+									createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
 							}
 
 						}
@@ -748,6 +748,7 @@ public class PlatformUtils
 		{
 			return;
 		}
+		final boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
 
         final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
@@ -813,10 +814,19 @@ public class PlatformUtils
                         Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,false);
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
-					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
 					//Updating state in case of failure
-					updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
-					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+					{
+
+						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
+								HikePlatformConstants.PlatformDwnldState.FAILED);
+						sendDownloadPausedAnalytics(platformContentModel.getId());
+					}
+					else
+					{
+						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+						Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+					}
 				}
 			}
 
@@ -842,7 +852,6 @@ public class PlatformUtils
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
-		boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
 		if(autoResume)
 		{
@@ -2458,6 +2467,7 @@ public class PlatformUtils
 						}
 						if (prefNetwork >= currentNetwork) // Only retry on higher NetworkTypes
 						{
+							sendDownloadResumedAnalytics(name);
 							switch (type)
 							{
 								case HikePlatformConstants.PlatformTypes.CBOT:
@@ -2478,4 +2488,51 @@ public class PlatformUtils
 			}
 		});
 	}
+// analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"fld6”:567888,"fld1”:"hikenews","ek":"micro_app","event":"download_paused"},"cts":1458220184473,"tag":"plf"},"t":"le_android”}
+	private static void sendDownloadPausedAnalytics(String id) {
+		int downloadedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			if(!TextUtils.isEmpty(id)) {
+				String filePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + id + FileRequestPersistent.STATE_FILE_EXT;
+				String data[] = PlatformUtils.readPartialDownloadState(filePath);
+				if (data == null || data.length < 1 || TextUtils.isEmpty(data[1]))
+				{
+					return;
+				}
+				downloadedLength = Integer.parseInt(data[0]);
+			}
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_PAUSED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_6, downloadedLength);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+//analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"ek":"micro_app","fld1”:"hikenews","event":"download_resumed"},"cts":1458220217498,"tag":"plf"},"t":"le_android"}
+	private static void sendDownloadResumedAnalytics(String id) {
+		int downladedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_RESUMED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+
+
+
 }

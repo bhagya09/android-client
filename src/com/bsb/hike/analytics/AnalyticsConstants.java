@@ -227,6 +227,8 @@ public class AnalyticsConstants
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
 	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+	public static String DOWNLOAD_PAUSED = "download_paused";
+	public static String DOWNLOAD_RESUMED = "download_resumed";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
