@@ -196,6 +196,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -710,6 +711,16 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
+		editor.putString(HikeConstants.SERVER_NAME_SETTING,accountInfo.getServerName());
+		editor.putString(HikeConstants.SERVER_GENDER_SETTING,accountInfo.getServerGender());
+
+		Birthday serverDOB = accountInfo.getServerDOB();
+		if (serverDOB != null);
+		{
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_DAY, serverDOB.day);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_MONTH, serverDOB.month);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_YEAR, serverDOB.year);
+		}
 		editor.commit();
 
 		/*

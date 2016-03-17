@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -3979,6 +3991,16 @@ public class HikeConstants
 	public static final String STICKER_PACK = "spc";
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
