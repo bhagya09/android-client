@@ -1347,7 +1347,7 @@ public class HikeBitmapFactory
 
 		if (isFirstName)
 		{
-			initials = Utils.getInitialsFromContactName(text);
+			initials = Utils.getInitialsFromContactName(text.trim());
 		}
 		else
 		{

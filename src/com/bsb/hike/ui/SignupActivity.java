@@ -2214,7 +2214,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				return;
 			}
 
-			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor);
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor, true);
 			mIconView.setImageDrawable(drawable);
 		}
 	};
