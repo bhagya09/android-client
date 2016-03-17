@@ -3788,6 +3788,18 @@ public class Utils
 		}
 	}
 
+	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
+	{
+		if (isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
+
 	public static void executeFtResultAsyncTask(AsyncTask<Void, Void, FTResult> asyncTask)
 	{
 		if (isHoneycombOrHigher())
@@ -8011,6 +8023,38 @@ public class Utils
 		{
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * This method checks whether we should connect to MQTT or not
+	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
+	 *
+	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
+	 *
+	 * @return
+	 */
+	public static boolean shouldConnectToMQTT()
+	{
+		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
+	}
+
+	public static boolean isDBCorrupt()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
+	}
+
+	/**
+	 * WARNING : Do not ever call this method unless you have a valid reason to do so
+	 */
+	public static void disconnectFromMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("destroy", true));
+	}
+
+	public static void connectToMQTT()
+	{
+		HikeMqttManagerNew.getInstance().init(); // Init and then connect
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
 }

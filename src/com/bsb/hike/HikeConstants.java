@@ -4002,4 +4002,6 @@ public class HikeConstants
 
 	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
 
+	public static final String DB_CORRUPT = "db_corrupt";
+
 }

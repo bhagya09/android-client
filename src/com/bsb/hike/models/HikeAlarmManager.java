@@ -83,6 +83,8 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 
     public static final int REQUESTCODE_LOG_HIKE_ANALYTICS = 4579;
+
+	public static final int REQUESTCODE_SHOW_CORRUPT_DB_NOTIF = 4580;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -332,6 +334,9 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;
@@ -416,6 +421,9 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
 			PlatformAlarmManager.processTasks(intent, context);
 			break;

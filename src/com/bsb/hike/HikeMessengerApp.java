@@ -647,8 +647,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void connectToService()
 	{
-		if (!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
+			Logger.d("HikeMessengerApp", "Not Connecting to service yet");
 			return;
 		}
 
