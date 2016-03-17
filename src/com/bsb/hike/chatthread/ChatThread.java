@@ -1815,11 +1815,9 @@ import android.widget.Toast;
 		return false;
 	}
 	
-	private void showKeyboardOffboardingIfReady()
+	protected void showKeyboardOffboardingIfReady()
 	{
-		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn())
-		{
-			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
 			keyboardOffBoarding.showView();
 			Utils.hideSoftKeyboard(activity, mComposeView);
 		}

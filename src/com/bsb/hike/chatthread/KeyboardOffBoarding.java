@@ -59,11 +59,11 @@ public class KeyboardOffBoarding
 		this.mainView = mainView;
 		rootView = inflater.inflate(R.layout.keyboard_off_boarding, container, false);
 		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		Utils.blockOrientationChange(mActivity);
 	}
 
 	public void showView()
 	{
+		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		mState = SHOWING;
 		updateState(mState);
 		if(container.getChildCount() == 0) {
@@ -128,6 +128,7 @@ public class KeyboardOffBoarding
 	public void hide()
 	{
 		updatePadding(0);
+		Utils.unblockOrientationChange(mActivity);
 		if(container != null) {
 			container.removeAllViews();
 			container.invalidate();
