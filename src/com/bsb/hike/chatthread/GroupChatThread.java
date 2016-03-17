@@ -188,6 +188,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		updateUnreadPinCount();
+		activity.recordActivityEndTime();
 	}
 
 	@Override
