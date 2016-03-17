@@ -363,7 +363,7 @@ public class AccountBackupRestore
 		boolean dbBackupReady = true;
 		try
 		{
-			if (!dbBackup.preBackupSetup())
+			if (!dbBackup.preRestoreSetup())
 			{
 				dbBackupReady = false;
 			}
@@ -378,7 +378,7 @@ public class AccountBackupRestore
 		boolean prefbBackupReady = true;
 		try
 		{
-			if (!prefBackup.preBackupSetup())
+			if (!prefBackup.preRestoreSetup())
 			{
 				prefbBackupReady = false;
 			}
