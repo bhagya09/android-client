@@ -7975,6 +7975,8 @@ public class Utils
 			return "#";
 		}
 
+		contactName = contactName.trim();
+
 		char first = contactName.charAt(0);
 
 		if (Character.isLetter(first))
