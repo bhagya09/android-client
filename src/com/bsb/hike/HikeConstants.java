@@ -2559,6 +2559,10 @@ public class HikeConstants
 
 		public static final String NET_INFO = "none";
 
+		public static final String KEYBOARD_EXIT_UI_CLOSE_BUTTON = "kec";
+
+		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
+
 	}
 
 	public static final class Toast
