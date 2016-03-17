@@ -128,11 +128,6 @@ public class HikeDialogFragment extends DialogFragment implements HikePubSub.Lis
 		// TODO Auto-generated method stub
 		super.onDetach();
 		HikeMessengerApp.getPubSub().removeListeners(this, pubsub);
-		if (mmModel.getData() instanceof ProductContentModel)
-		{
-			ProductContentModel productContentModel = (ProductContentModel) mmModel.getData();
-			ProductInfoManager.getInstance().deletePopUpCodeFromDisk(productContentModel);
-		}
 	}
 	/**
 	 * 

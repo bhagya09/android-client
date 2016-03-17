@@ -124,6 +124,7 @@ public class ProductInfoManager
 		}
 
 		deletePopups(popUpToBeDeleted);
+        deletePopUpCodeFromDisk(popUpToBeDeleted);
 
 		if (mmModel != null)
 		{
@@ -473,15 +474,35 @@ public class ProductInfoManager
 		return countValidPopUps;
 	}
     
-    public void deletePopUpCodeFromDisk(ProductContentModel productContentModel)
-    {
-        // Here Deleting popups code her form disk storage as well
-		String popupName = productContentModel.getAppName();
-		if (!TextUtils.isEmpty(popupName))
-			PlatformUtils.deleteDirectory(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS,
-					PlatformUtils.getMicroAppContentRootFolder(), popupName));
+	/**
+	 * Delete pop up code from disk.
+	 *
+	 * @param mmArrayList
+	 *            the mm array list
+	 */
+	public void deletePopUpCodeFromDisk(final ArrayList<ProductContentModel> mmArrayList)
+	{
+		// Deleting from the disk on Backend thread;
+		handler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mmArrayList != null && !mmArrayList.isEmpty())
+				{
+					for (ProductContentModel productContentModel : mmArrayList)
+					{
+						// Here Deleting popups code her form disk storage as well
+						String popupName = productContentModel.getAppName();
+						if (!TextUtils.isEmpty(popupName))
+							PlatformUtils.deleteDirectory(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS,
+									PlatformUtils.getMicroAppContentRootFolder(), popupName));
+					}
 
-    }
-    
+				}
+			}
+		});
+
+	}
     
 }
