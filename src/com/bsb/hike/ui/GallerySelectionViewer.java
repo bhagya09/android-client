@@ -1039,11 +1039,15 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 	private void removeCaption(int position)
 	{
 		int captionsSize = captions.size();
+
+		boolean imagePosChanged = false;
 		for (int i = position; i < (captionsSize - 1); i++)
 		{
-			captions.put(i,captions.get(i + 1));
+			captions.put(i, captions.get(i + 1));
+			imagePosChanged = true;
 		}
-		captions.remove(captions.size() - 1);
+
+		captions.remove(imagePosChanged ? position + 1 : position);
 	}
 
 	@Override
