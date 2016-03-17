@@ -1579,4 +1579,5 @@
     <string name="restore_progress_body">Restoring your chat history from backup.</string>
     <string name="restore_success">Chats restored successfully!</string>
     <string name="restore_failure">Some error occured. Could not restore your chats</string>
+    <string name="db_corrupt_notif_msg">You have a new notification</string>
 </resources>

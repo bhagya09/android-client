@@ -83,6 +83,7 @@ import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -2585,6 +2586,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		showingBlockingDialog = true;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, true); // Block any possible notifs as well
 		Utils.disconnectFromMQTT();
+
+		//Cancel the notif alarm if any
+		HikeAlarmManager.cancelAlarm(getApplicationContext(),HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF);
 	}
 
 	@Override

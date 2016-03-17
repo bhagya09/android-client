@@ -48,6 +48,7 @@ import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.*;
 import com.bsb.hike.voip.VoIPService;
 import com.bsb.hike.voip.VoIPUtils;
@@ -82,6 +83,8 @@ public class HikeNotification
 	public static final int HIKE_TO_OFFLINE_PUSH_NOTIFICATION_ID = -89;
 
 	public static final int VOIP_MISSED_CALL_NOTIFICATION_ID = -89;
+
+	public static final int CRITICAL_DB_CORRUPT_NOTIF = -111;
 	
 	public static final String NOTIF_ALARM_INTENT = "com.bsb.hike.PERS_NOTIF_ALARM_INTENT";
 
@@ -1947,6 +1950,27 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = getNotificationBuilder(contentTitle,contentText,tickerText, null,smallIconId, false,false);
 		setNotificationIntentForBuilder(mBuilder, intent,HikeNotification.OFFLINE_REQUEST_ID);
 		notifyNotification(HikeNotification.OFFLINE_REQUEST_ID, mBuilder);
+	}
+
+	/**
+	 * Note : This method does not check for notifs being blocked or not becuase the notification must be shown!
+	 */
+	public void showCorruptDbNotification()
+	{
+		String message = context.getString(R.string.db_corrupt_notif_msg); // TODO Get Proper Strings
+		String title = context.getString(R.string.app_name); // TODO Get Proper Strings
+		final int smallIconId = returnSmallIcon();
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, message, null, smallIconId, false, false, false);
+		mBuilder.setOngoing(true);
+
+		Intent mNotificationIntent = new Intent(context, HomeActivity.class);
+		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		mBuilder.setContentIntent(contentIntent);
+
+		int notificationId = CRITICAL_DB_CORRUPT_NOTIF;
+		notifyNotification(notificationId, mBuilder);
 	}
 
 }
