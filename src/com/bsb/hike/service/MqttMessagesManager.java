@@ -2874,6 +2874,13 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
+		//{"t":"ac","d":{"screen":{"HomeActivity":{"mc":2},"ChatThreadActivity":{"mc":2}},"ttl":1458209573000}}
+		if(data.has(HikeConstants.SCREEN))
+		{
+			String str=data.toString();
+			if(!TextUtils.isEmpty(str))
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.RECORD_ACTIVITY_OPEN_TIME,str);
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
