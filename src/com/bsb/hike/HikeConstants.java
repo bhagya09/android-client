@@ -139,6 +139,8 @@ public class HikeConstants
 
 	public static final String CONTENT_TYPE = "ct";
 
+	public static final String ATTACHEMENT_SHARED_FROM = "atsrc";
+
 	public static final String THUMBNAIL = "tn";
 
 	public static final String SOURCE_FILE_PATH = "srcPath";
@@ -1097,6 +1099,8 @@ public class HikeConstants
 	public static final int MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME = 20;
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
+
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
 
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
