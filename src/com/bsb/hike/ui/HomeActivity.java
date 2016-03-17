@@ -225,6 +225,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AdaptxtEditText searchET;
 	
 	private long time;
+
+	private DBRestoreAsyncTask restoreAsyncTask;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -647,6 +649,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(null);
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
+
+		if (restoreAsyncTask != null)
+		{
+			restoreAsyncTask.setRestoreCallback(null); //Removing Activity's reference to avoid leak
+		}
+
 		super.onDestroy();
 	}
 
@@ -2656,7 +2664,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void startRestoreProcess()
 	{
-		DBRestoreAsyncTask restoreAsyncTask = new DBRestoreAsyncTask(this);
+		if (restoreAsyncTask != null)
+		{
+			restoreAsyncTask = new DBRestoreAsyncTask(this);
+		}
+
 		Utils.executeIntegerAsyncTask(restoreAsyncTask);
 	}
 
@@ -2669,9 +2681,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
-
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2692,8 +2701,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
-
-		Utils.connectToMQTT();
 
 		// Set up the home screen
 		invalidateOptionsMenu();

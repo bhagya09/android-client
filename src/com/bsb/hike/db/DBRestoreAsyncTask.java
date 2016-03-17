@@ -2,8 +2,11 @@ package com.bsb.hike.db;
 
 import android.os.AsyncTask;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 import static com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
 
@@ -39,6 +42,11 @@ public class DBRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 	@Override
 	protected void onPostExecute(@RestoreErrorStates Integer result)
 	{
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
+
+		Utils.connectToMQTT();
+
 		if (mCallback != null)
 		{
 			mCallback.postRestoreFinished(result);
