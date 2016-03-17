@@ -1365,14 +1365,20 @@ public class HikeBitmapFactory
 			bgColor = bgColorArray.getColor(index, 0);
 		}
 
+		TextDrawable drawable = null;
 		if (fontSize != -1)
 		{
-			return TextDrawable.builder().beginConfig().fontSize(fontSize).endConfig().buildRound(initials, bgColor);
+			drawable =  TextDrawable.builder().beginConfig().fontSize(fontSize).endConfig().buildRound(initials, bgColor);
 		}
 		else
 		{
-			return TextDrawable.builder().buildRound(initials, bgColor);
+			drawable = TextDrawable.builder().buildRound(initials, bgColor);
 		}
+
+		//https://github.com/facebook/fresco/issues/501
+		drawable.setPadding(new Rect());
+
+		return drawable;
 	}
 	
 	public static TextDrawable getRandomHashTextDrawable()
