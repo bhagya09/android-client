@@ -709,6 +709,13 @@ import android.widget.Toast;
 		}
 	}
 
+	public KeyboardUIListener keyboardUIListener = new KeyboardUIListener() {
+		@Override
+		public void removeKeyboardExitUI() {
+			removeKeyboardShutdownIfShowing();
+		}
+	};
+
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
 		
 		@Override
@@ -2541,7 +2548,7 @@ import android.widget.Toast;
 	{
 		mConversationsView = (ListView) activity.findViewById(R.id.conversations_list);
 		releaseMessageAdapterResources();
-		mAdapter = new MessagesAdapter(activity, messages, mConversation, this, mConversationsView, activity);
+		mAdapter = new MessagesAdapter(activity, messages, mConversation, this, mConversationsView, activity, keyboardUIListener);
 		mConversationsView.setAdapter(mAdapter);
 		if (mConversation.getUnreadCount() > 0 && !messages.isEmpty())
 		{
