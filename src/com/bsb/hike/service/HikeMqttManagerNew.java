@@ -1532,9 +1532,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			Logger.d(TAG, "Connection check happened from GCM, client already connected ? : " + isConnected());
 
 			// Using this to disconnect from MQ
-			if (intent.hasExtra("disconnect"))
+			if (intent.hasExtra("destroy"))
 			{
-				disconnectOnMqttThread(false);
+				destroyMqtt();
 				return;
 			}
 

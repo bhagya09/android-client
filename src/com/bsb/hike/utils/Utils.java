@@ -8037,11 +8037,12 @@ public class Utils
 	 */
 	public static void disconnectFromMQTT()
 	{
-		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("disconnect", true));
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("destroy", true));
 	}
 
 	public static void connectToMQTT()
 	{
+		HikeMqttManagerNew.getInstance().init(); // Init and then connect
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
