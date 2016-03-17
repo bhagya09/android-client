@@ -72,6 +72,13 @@ public class KeyboardOffBoarding
 				destroy();
 			}
 		});
+
+		rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				destroy();
+			}
+		});
 	}
 
 	public boolean isShowing()
