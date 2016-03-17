@@ -1,8 +1,16 @@
 package com.bsb.hike.adapters;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,13 +48,6 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
 import com.bsb.hike.view.PinnedSectionListView.PinnedSectionListAdapter;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionListAdapter
 {
@@ -275,10 +276,16 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			int paddingPx = HikePhotosUtils.dpToPx(10);
 
-			holder.userImage.setPadding(paddingPx,paddingPx,paddingPx,paddingPx);
+			holder.userImage.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
-			holder.userImage.setBackground(otherFeaturesDrawable);
-
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+			{
+				holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
+			}
+			else
+			{
+				holder.userImage.setBackground(otherFeaturesDrawable);
+			}
 
 			if (hikeFeatureInfo.isShowCheckBox())
 			{
