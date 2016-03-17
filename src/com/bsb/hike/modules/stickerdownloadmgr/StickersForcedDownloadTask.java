@@ -13,7 +13,6 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -137,7 +136,7 @@ public class StickersForcedDownloadTask implements IHikeHTTPTask, IHikeHttpTaskR
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				Logger.e(StickerTagWatcher.TAG, "Request failed.");
+				Logger.e(TAG, "Request failed.");
 				doOnFailure(httpException);
 			}
 		};

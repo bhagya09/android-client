@@ -379,7 +379,7 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		{
 
 			@Override
-			public void onSuccess(JSONObject response)
+			public void onImageWorkSuccess(JSONObject response)
 			{
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_POSTING_DIALOG, null);
 				parseResponse(response, facebook);

@@ -40,7 +40,11 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 
 		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
 		boolean loadMini = StickerManager.getInstance().isMiniStickersEnabled();
-		this.stickerLoader = new StickerLoader(loadMini, loadMini, !loadMini);
+		this.stickerLoader = new StickerLoader.Builder()
+                            .downloadLargeStickerIfNotFound(!loadMini)
+                            .loadMiniStickerIfNotFound(loadMini)
+                            .downloadMiniStickerIfNotFound(loadMini)
+                            .build();
         
         this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();

@@ -1,3 +1,6 @@
+repositories {
+    mavenCentral()
+}
 buildscript {
 
     repositories {
@@ -19,7 +22,7 @@ android {
         minSdkVersion 14
         renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
-        targetSdkVersion 22
+        targetSdkVersion 17
         multiDexEnabled = true
     }
     lintOptions {
@@ -62,6 +65,7 @@ android {
             exclude module: 'support-v4'
         }
         compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
+        compile 'com.facebook.stetho:stetho:1.2.0'
     }
 
     sourceSets {
