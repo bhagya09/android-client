@@ -1432,7 +1432,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 					}
 					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
 					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
 					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
 				}
