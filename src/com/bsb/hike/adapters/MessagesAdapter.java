@@ -107,6 +107,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -212,6 +213,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		ProgressBar loader;
 
 		ImageView image;
+
+		ProgressBar miniStickerLoader;
 	}
 
 	private static class NudgeViewHolder extends DetailViewHolder
@@ -241,6 +244,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private static class ImageViewHolder extends FTViewHolder
 	{
+
+		public TextView caption;
 	}
 
 	private static class FileViewHolder extends FTViewHolder
@@ -356,6 +361,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private StickerLoader stickerLoader;
 
     private boolean useMiniSticker;
+
+    private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -818,10 +825,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (v == null)
 				{
 					stickerHolder = new StickerViewHolder();
-					v = inflateView(R.layout.message_sent_sticker, parent, false);
 
+					v = inflateView(R.layout.message_sent_sticker, parent, false);
 					stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 					stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
+					stickerHolder.miniStickerLoader = (ProgressBar) v.findViewById(R.id.mini_loader);
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
 					stickerHolder.status = (ImageView) v.findViewById(R.id.status);
@@ -846,6 +854,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 					stickerHolder.placeHolder = v.findViewById(R.id.placeholder);
 					stickerHolder.loader = (ProgressBar) v.findViewById(R.id.loading_progress);
+					stickerHolder.miniStickerLoader = (ProgressBar) v.findViewById(R.id.mini_loader);
 					stickerHolder.image = (ImageView) v.findViewById(R.id.image);
 					stickerHolder.broadcastIndicator = (ImageView) v.findViewById(R.id.broadcastIndicator);
 					stickerHolder.time = (TextView) v.findViewById(R.id.time);
@@ -870,11 +879,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setSenderDetails(convMessage, position, stickerHolder, true);
 
 			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerHolder.image, isListFlinging, true);
-			if(sticker.isStickerAvailable())
+			if(sticker.isStickerAvailable() && sticker.isStickerFileAvailable())
 			{
 				stickerHolder.placeHolder.setBackgroundResource(0);
 				stickerHolder.loader.setVisibility(View.GONE);
 				stickerHolder.image.setVisibility(View.VISIBLE);
+				stickerHolder.miniStickerLoader.setVisibility(View.GONE);
+
 			}
             else if(useMiniSticker && sticker.isMiniStickerAvailable())
             {
@@ -882,7 +893,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                 stickerHolder.loader.setVisibility(View.GONE);
                 stickerHolder.image.setVisibility(View.VISIBLE);
                 //to add animation or other mini sticker enhancements
-            }
+				stickerHolder.miniStickerLoader.setVisibility(View.VISIBLE);
+			}
 			else
 			{
 				stickerHolder.loader.setVisibility(View.VISIBLE);
@@ -1378,6 +1390,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
 						imageHolder.messageInfoStub = (ViewStub) v.findViewById(R.id.message_info_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1416,6 +1429,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						imageHolder.avatarContainer = (ViewGroup) v.findViewById(R.id.avatar_container);
 						imageHolder.messageContainer = (ViewGroup) v.findViewById(R.id.message_container);
 						imageHolder.dayStub = (ViewStub) v.findViewById(R.id.day_stub);
+						imageHolder.caption = (TextView) v.findViewById(R.id.caption);
 						v.setTag(imageHolder);
 					}
 				}
@@ -1507,6 +1521,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				imageHolder.fileThumb.setTag(convMessage);
 				imageHolder.fileThumb.setOnClickListener(this);
 				imageHolder.fileThumb.setOnLongClickListener(this);
+
+				// Set caption
+				if (TextUtils.isEmpty(convMessage.getMetadata().getCaption()))
+				{
+					imageHolder.caption.setText(null);
+					imageHolder.caption.setVisibility(View.GONE);
+				}
+				else
+				{
+					imageHolder.caption.setVisibility(View.VISIBLE);
+					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
+					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
+				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
 			{
@@ -2691,6 +2719,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
+	
+	private void setAvatar(String msisdn, String name, ImageView imageView)
+	{
+		iconLoader.loadImage(msisdn, imageView, false, true, false, name);
+	}
 
 	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
 	{
@@ -2779,7 +2812,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 			}
 			detailHolder.avatarImage.setVisibility(View.VISIBLE);
-			setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+
+			String name = null;
+			if (conversation instanceof OneToNConversation)
+			{
+				name = ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(convMessage.getGroupParticipantMsisdn());
+			}
+
+			if (name != null)
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), name, detailHolder.avatarImage);
+			}
+			else
+			{
+				setAvatar(convMessage.getGroupParticipantMsisdn(), detailHolder.avatarImage);
+			}
+
 			detailHolder.avatarContainer.setVisibility(View.VISIBLE);
 		}
 		else if (detailHolder.avatarContainer != null)
@@ -3623,102 +3671,107 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		HikeConversationsDatabase.getInstance().updateMessageOriginType(convMessage.getMsgID(), originType.ordinal());
 	}
 
-	private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
-	{
-		Logger.d(getClass().getSimpleName(), "Opening file");
-		Intent openFile = new Intent(Intent.ACTION_VIEW);
-		switch (hikeFile.getHikeFileType())
-		{
-			case LOCATION:
-				String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
-				openFile.setData(Uri.parse(uri));
-				break;
-			case CONTACT:
-				saveContact(hikeFile);
-				return;
-			case AUDIO_RECORDING:
-				if (hikeFile.getFilePath() == null)
-				{
-					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
-					return;
-				}
-				String fileKey = hikeFile.getFileKey();
+    private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
+    {
+        Logger.d(getClass().getSimpleName(), "Opening file");
+        Intent openFile = new Intent(Intent.ACTION_VIEW);
+        switch (hikeFile.getHikeFileType())
+        {
+            case LOCATION:
+                String uri = String.format(Locale.US, "geo:%1$f,%2$f?z=%3$d&q=%1$f,%2$f", hikeFile.getLatitude(), hikeFile.getLongitude(), hikeFile.getZoomLevel());
+                openFile.setData(Uri.parse(uri));
+                break;
+            case CONTACT:
+                saveContact(hikeFile);
+                return;
+            case AUDIO_RECORDING:
+                if (hikeFile.getFilePath() == null)
+                {
+                    Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String fileKey = hikeFile.getFileKey();
 
-				ImageView recAction = (ImageView) parent.findViewById(R.id.action);
-				// TextView durationTxt = (TextView) parent.findViewById(convMessage.isSent() ? R.id.message_send : R.id.message_receive_ft);
-				TextView durationTxt = (TextView) parent.findViewById(R.id.duration);
-				View durationProgress = (View) parent.findViewById(R.id.play_progress);
-				durationTxt.setVisibility(View.VISIBLE);
-				durationProgress.setVisibility(View.VISIBLE);
+                ImageView recAction = (ImageView) parent.findViewById(R.id.action);
+                // TextView durationTxt = (TextView) parent.findViewById(convMessage.isSent() ? R.id.message_send : R.id.message_receive_ft);
+                TextView durationTxt = (TextView) parent.findViewById(R.id.duration);
+                View durationProgress = (View) parent.findViewById(R.id.play_progress);
+                durationTxt.setVisibility(View.VISIBLE);
+                durationProgress.setVisibility(View.VISIBLE);
 
-				if (fileKey.equals(voiceMessagePlayer.getFileKey()))
-				{
-					recAction.setTag(fileKey);
-					voiceMessagePlayer.setFileBtn(recAction);
-					durationTxt.setTag(fileKey);
-					voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
+                if (fileKey.equals(voiceMessagePlayer.getFileKey()))
+                {
+                    recAction.setTag(fileKey);
+                    voiceMessagePlayer.setFileBtn(recAction);
+                    durationTxt.setTag(fileKey);
+                    voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
 
-					if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING)
-					{
-						voiceMessagePlayer.pausePlayer();
-					}
-					else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
-					{
-						voiceMessagePlayer.resumePlayer();
-					}
-					else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.STOPPED)
-					{
-						voiceMessagePlayer.playMessage(hikeFile);
-					}
-				}
-				else
-				{
-					if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING || voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
-					{
-						voiceMessagePlayer.resetPlayer();
-					}
+                    if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING)
+                    {
+                        voiceMessagePlayer.pausePlayer();
+                    }
+                    else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+                    {
+                        voiceMessagePlayer.resumePlayer();
+                    }
+                    else if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.STOPPED)
+                    {
+                        voiceMessagePlayer.playMessage(hikeFile);
+                    }
+                }
+                else
+                {
+                    if (voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PLAYING || voiceMessagePlayer.getPlayerState() == VoiceMessagePlayerState.PAUSED)
+                    {
+                        voiceMessagePlayer.resetPlayer();
+                    }
 
-					recAction.setTag(fileKey);
-					voiceMessagePlayer.setFileBtn(recAction);
-					durationTxt.setTag(fileKey);
-					voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
+                    recAction.setTag(fileKey);
+                    voiceMessagePlayer.setFileBtn(recAction);
+                    durationTxt.setTag(fileKey);
+                    voiceMessagePlayer.setDurationTxt(durationTxt, durationProgress);
 
-					voiceMessagePlayer.playMessage(hikeFile);
-				}
-				return;
-			case IMAGE:
-			case VIDEO:
-				if (hikeFile.exactFilePathFileExists())
-				{
-					ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
-					hsf.add(new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
-							.getGroupParticipantMsisdn()));
-					if(mActivity!=null && mActivity instanceof ChatThreadActivity){
-						((ChatThreadActivity)mActivity).hideKeyboard();
-					}
-					PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
-				}
-				else
-				{
-					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
-				}
-				return;
+                    voiceMessagePlayer.playMessage(hikeFile);
+                }
+                return;
+            case IMAGE:
+            case VIDEO:
+                if (hikeFile.exactFilePathFileExists())
+                {
+                    ArrayList<HikeSharedFile> hsf = new ArrayList<HikeSharedFile>();
+                    HikeSharedFile sharedFile = new HikeSharedFile(hikeFile.serialize(), hikeFile.isSent(), convMessage.getMsgID(), convMessage.getMsisdn(), convMessage.getTimestamp(), convMessage
+                            .getGroupParticipantMsisdn());
+                    if(!TextUtils.isEmpty(hikeFile.getCaption()))
+                    {
+                        sharedFile.setCaption(hikeFile.getCaption());
+                    }
+                    hsf.add(sharedFile);
+                    if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+                        ((ChatThreadActivity)mActivity).hideKeyboard();
+                    }
+                    PhotoViewerFragment.openPhoto(R.id.ct_parent_rl, context, hsf, true, conversation);
+                }
+                else
+                {
+                    Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+                }
+                return;
 
-			default:
-				HikeFile.openFile(hikeFile, context);
-				return;
-		}
-		try
-		{
-			context.startActivity(openFile);
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Logger.w(getClass().getSimpleName(), "Trying to open an unknown format", e);
-			Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
-		}
+            default:
+                HikeFile.openFile(hikeFile, context);
+                return;
+        }
+        try
+        {
+            context.startActivity(openFile);
+        }
+        catch (ActivityNotFoundException e)
+        {
+            Logger.w(getClass().getSimpleName(), "Trying to open an unknown format", e);
+            Toast.makeText(context, R.string.unknown_msg, Toast.LENGTH_SHORT).show();
+        }
 
-	}
+    }
 
 	private void saveContact(HikeFile hikeFile)
 	{
@@ -4376,6 +4429,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int last = mListView.getLastVisiblePosition();
 		for (int i = start, j = last; i <= j; i++)
 		{
+			// adding a defensive check here ACRA crash IOB it suggests we are accessing i=convMessages.size()
+			if(i>=convMessages.size())
+			{
+				continue;
+			}
 			Object object = mListView.getItemAtPosition(i);
 			if (object instanceof ConvMessage)
 			{

@@ -1,5 +1,8 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,16 +32,13 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
-import com.bsb.hike.smartImageLoader.ImageWorker.SuccessfulImageLoadingListener;
+import com.bsb.hike.smartImageLoader.ImageWorker.ImageLoaderListener;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class StickerRecommendationFtueFragment extends Fragment implements Listener, SuccessfulImageLoadingListener
+public class StickerRecommendationFtueFragment extends Fragment implements Listener, ImageLoaderListener
 {
 	private IStickerRecommendFragmentListener listener;
 	
@@ -105,7 +105,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
                             .downloadMiniStickerIfNotFound(loadMini)
                             .build();
 
-		stickerLoader.setSuccessfulImageLoadingListener(this);
+		stickerLoader.setImageLoaderListener(this);
 	}
 	
 	@Override
@@ -315,7 +315,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 	}
 
 	@Override
-	public void onSuccessfulImageLoaded(ImageView imageView)
+	public void onImageWorkSuccess(ImageView imageView)
 	{
 		if(!isAdded())
 		{
@@ -331,5 +331,11 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 				ivSticker.setVisibility(View.VISIBLE);
 			}
 		});
+	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+		//Do nothing
 	}
 }

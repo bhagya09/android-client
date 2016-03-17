@@ -563,7 +563,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 			return ;
 		}
 		String categoryId = mAdapter.getItem(position - 1);
-		IntentFactory.startStickerPreviewIntent(getActivity(), categoryId);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId);
 	}
 	
 }

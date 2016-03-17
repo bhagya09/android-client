@@ -25,6 +25,7 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
@@ -52,6 +53,7 @@ import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -75,7 +77,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,7 +91,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 {
 	public static enum CurrentState
 	{
-		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG
+		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
@@ -233,6 +237,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	// public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
+
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+
+    public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
 	public static final String MSISDN_ENTERED = "msisdnEntered";
 
@@ -547,7 +555,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
+    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+
+    public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
@@ -572,6 +584,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String FORBIDDEN_LANGUAGES_SET = "forbiddenLanguagesSet";
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
+
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
+
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
+	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -745,6 +763,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
+		Utils.enableNetworkListner(this);
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -940,7 +959,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
 
-		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
+        setAnalyticsSendAlarm();
+
 		StickerManager.getInstance().refreshTagData();
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
@@ -960,7 +980,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
@@ -992,7 +1011,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
@@ -1008,20 +1026,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
-	}
-
-	public static InternalCache getDiskCache()
-	{
-		if(diskCache == null) {
-
-			File cacheDir = new File(getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT);
-			long diskCacheSize = Utils.calculateDiskCacheSize(cacheDir);
-			Logger.d("disk_cache", "disk cache size : " + diskCacheSize);
-
-			Cache cache = new Cache(cacheDir, diskCacheSize);
-			diskCache = cache.getCache();
-		}
-		return diskCache;
 	}
 
 	/**
@@ -1305,4 +1309,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		MultiDex.install(this);
 	}
 
+    private void setAnalyticsSendAlarm()
+    {
+        if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, false))
+        {
+            return;
+        }
+
+        long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),HikeMessengerApp.DEFAULT_SEND_ANALYTICS_TIME_HOUR, 0, 0, 0);
+
+        if (scheduleTime < System.currentTimeMillis())
+        {
+            scheduleTime += HikeConstants.ONE_DAY_MILLS; // Next day at given time
+        }
+
+        HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
+
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
 }

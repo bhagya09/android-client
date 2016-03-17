@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by anubhavgupta on 04/01/16.
  */
-public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.SuccessfulImageLoadingListener
+public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.ImageLoaderListener
 {
 
 	private static final String TAG = PackPreviewAdapter.class.getSimpleName();
@@ -80,7 +80,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 				.build();
 		stickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
 		stickerLoader.setImageFadeIn(false);
-		stickerLoader.setSuccessfulImageLoadingListener(this);
+		stickerLoader.setImageLoaderListener(this);
 		sizeEachImage = StickerSearchUtils.getStickerSize();
 		rowSize = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
@@ -119,12 +119,18 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	}
 
 	@Override
-	public void onSuccessfulImageLoaded(ImageView imageView)
+	public void onImageWorkSuccess(ImageView imageView)
 	{
-		if(imageView != null)
+		if (imageView != null)
 		{
 			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 		}
+	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+
 	}
 
 	private void applyPadding(View view, int position)

@@ -30,6 +30,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -40,6 +41,7 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -76,6 +78,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDev
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.preActivationBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerAccountBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.registerViewActionUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendDeviceDetailBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendUserLogsInfoBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProfileUrl;
@@ -260,6 +263,8 @@ public class HttpRequests
 
 		boolean isAnyHeaderPresent = false;
 
+		boolean isUploadingImage = false;
+		
 		RequestToken requestToken = null;
 
 		MultipartBuilder multipartBuilder = new MultipartBuilder()
@@ -285,10 +290,13 @@ public class HttpRequests
 				multipartBuilder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"" + imageFile.getName() + "\""),
 						RequestBody.create(MEDIA_TYPE_PNG, new File(imageFilePath)));
 				isAnyHeaderPresent = true;
+				isUploadingImage = true;
 			}
 		}
 
-		if(isAnyHeaderPresent)
+		//TODO isAnyHeaderPresent is useless. Remove this.
+
+			if(isAnyHeaderPresent)
 		{
 			final RequestBody requestBody = multipartBuilder.build();
 
@@ -296,7 +304,11 @@ public class HttpRequests
 
 			requestToken = new JSONObjectRequest.Builder().setUrl(getPostImageSUUrl()).setRequestListener(requestListener).post(body).build();
 
-			requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+			// GZIP only for text updates
+			if(!isUploadingImage)
+			{
+				requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+			}
 		}
 
 		return requestToken;
@@ -365,6 +377,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken getBlockedCallerList(String url, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.build();
+		return requestToken;
+	}
+
 	public static RequestToken postPlatformUserIdForPartialAddressBookFetchRequest(String url,JSONObject json, IRequestListener requestListener, List<Header> headers)
 	{
 		JsonBody body = new JsonBody(json);
@@ -380,16 +403,16 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken postNumberAndGetCallerDetails(String url,JSONObject json, IRequestListener requestListener, int delay, int multiplier)
-	{
+	public static RequestToken postCallerMsisdn(String url, JSONObject json, IRequestListener requestListener, int noOfRetry, int delay, float multiplier, boolean responseOnUiThread)
+	{		
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.post(body)
-				.setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, delay, multiplier))
+				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, delay, multiplier))
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
-				.setResponseOnUIThread(true)
+				.setResponseOnUIThread(responseOnUiThread)
 				.build();
 
 		return requestToken;
@@ -752,9 +775,9 @@ public class HttpRequests
 				.setUrl(editProfileAvatarBase())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(2,BasicRetryPolicy.DEFAULT_RETRY_DELAY,BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(body)
 				.build();
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 
@@ -815,6 +838,20 @@ public class HttpRequests
 				.setId(id)
 				.setRequestListener(requestListener)
 				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken sendViewsLink(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(registerViewActionUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(false)
+				.setRetryPolicy(new BasicRetryPolicy(2,BasicRetryPolicy.DEFAULT_RETRY_DELAY,BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER))
 				.post(body)
 				.build();
 		return requestToken;
@@ -948,6 +985,35 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
+	
+	public static RequestToken getLatestApkInfo(IRequestListener requestListener)
+	{
+		String url = HttpRequestConstants.latestApkInfoUrl();
+
+		JSONObject js = new JSONObject();
+		try {
+			js.put("version_name", Utils.getAppVersionName());
+			js.put("version_code", Utils.getAppVersionCode());
+			js.put("sim_mcc_mnc", PhoneSpecUtils
+					.getSimDetails(HikeMessengerApp.getInstance().getApplicationContext())
+					.get(PhoneSpecUtils.MCC_MNC));
+			js.put("nwk_mcc_mnc", PhoneSpecUtils
+					.getNetworkDetails(HikeMessengerApp.getInstance().getApplicationContext())
+					.get(PhoneSpecUtils.MCC_MNC));
+		}
+		catch (JSONException je )
+		{
+			Logger.d("AUTOAPK", "exception in handling json : " + je);
+		}
+		Logger.d("AUTOAPK", "json params in request : " + js.toString());
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+		.setUrl(url).setRequestType(Request.REQUEST_TYPE_SHORT)
+		.setRequestListener(requestListener)
+		.setResponseOnUIThread(true)
+		.post(new JsonBody(js))
+		.build();
+		return requestToken;
+	}
 
 	public static RequestToken getAvatarForBots(String msisdn, IRequestListener listener)
 	{
@@ -1051,27 +1117,32 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener,
-															  IRequestInterceptor requestInterceptor,
-															  int retryCount, int delayBeforeRetry) {
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(HttpRequestConstants.getAnalyticsUrl())
-				.setRequestType(Request.REQUEST_TYPE_LONG)
-				.setAsynchronous(true)
-				.setRequestListener(requestListener)
-				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
-				.post(null)
-				.build();
-		requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
-		return requestToken;
-	}
-
+	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener, IRequestInterceptor requestInterceptor, String requestId, int retryCount, int delayBeforeRetry)
+	{
+        RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setUrl(HttpRequestConstants.getAnalyticsUrl())
+                .setRequestType(Request.REQUEST_TYPE_LONG)
+                .setAsynchronous(true)
+                .setId(requestId)
+                .setRequestListener(requestListener)
+                .setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+                .post(null)
+                .build();
+        requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
+        return requestToken;
+    }
 	public static RequestToken getForcedDownloadListRequest(String requestId, IRequestListener requestListener, JSONObject json)
 	{
 		JsonBody body = new JsonBody(json);
 
-		RequestToken requestToken = new JSONObjectRequest.Builder().setId(requestId).setUrl(getForcedStickersUrl()).setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG).post(body).setPriority(PRIORITY_HIGH).build();
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+                .setId(requestId)
+                .setUrl(getForcedStickersUrl())
+                .setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+                .post(body)
+                .setPriority(PRIORITY_HIGH)
+                .build();
 
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;

@@ -17,27 +17,11 @@ import java.util.List;
 
 public class StickerCategory implements Serializable, Comparable<StickerCategory>
 {
-	public static final int NONE = 0;
-
-	public static final int UPDATE = 1;
-
-	public static final int DOWNLOADING = 2;
-
-	public static final int RETRY = 3;
-
-	public static final int DONE = 4;
-
-	public static final int DONE_SHOP_SETTINGS = 5;
-
 	private String categoryId;
 
 	private String categoryName;
 
-	private int categorySize;
-
 	private String categoryDesc;
-
-	private int totalStickers;
 
 	private boolean updateAvailable;
 
@@ -63,7 +47,25 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private int state = -1;
 
+	private int totalStickers;
+	
+	private int categorySize;
+	
+	public static final int NONE = 0;
+	
+	public static final int UPDATE = 1;
+	
+	public static final int DOWNLOADING = 2;
+	
+	public static final int RETRY = 3;
+	
+	public static final int DONE = 4;
+	
+	public static final int DONE_SHOP_SETTINGS = 5;
+
 	private int downloadedStickersCount = -1;
+
+	public static String[] defaultPacksCatIdList = {StickerManager.HUMANOID, StickerManager.EXPRESSIONS, StickerManager.LOVE};
 
 	protected StickerCategory (Init<?> builder)
 	{
@@ -260,6 +262,26 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public boolean isUpdateAvailable()
 	{
 		return updateAvailable;
+	}
+
+	public static List<StickerCategory> getDefaultPacksList()
+	{
+		List<StickerCategory> defaultPacksList = new ArrayList<>();
+		for (String catId : defaultPacksCatIdList)
+		{
+			defaultPacksList.add(new StickerCategory.Builder().setCategoryId(catId).build());
+		}
+
+		return defaultPacksList;
+	}
+
+	public boolean shouldShowUpdateAvailable() {
+		// Providing update for packs in Update state, Retry state or having zero stickers due to download failure
+		if ((state == UPDATE) || (state == DOWNLOADING) || (state == RETRY) || (state == NONE && getDownloadedStickersCount() <= 0))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void setUpdateAvailable(boolean updateAvailable)
@@ -596,7 +618,20 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		}
 		return null;
 	}
-	
+
+	public boolean shouldAddToUpdateAll()
+	{
+		switch(this.state)
+		{
+			case DONE:
+			case DONE_SHOP_SETTINGS:
+			case DOWNLOADING:
+				return false;
+			default:
+				return true;
+		}
+	}
+
 	public int getMoreStickerCount()
 	{
 		return this.totalStickers - getDownloadedStickersCount();

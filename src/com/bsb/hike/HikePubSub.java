@@ -510,6 +510,8 @@ public class HikePubSub implements Runnable
 	
 	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE = "stickerCategoryDetailsDownloadFailure";
 	
+	public static final String STICKER_PACK_DELETED = "stickerPackDeleted";
+
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
 	private final Thread mThread;

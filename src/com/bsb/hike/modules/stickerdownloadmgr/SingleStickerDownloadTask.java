@@ -1,5 +1,15 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
@@ -28,16 +38,6 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
 
 public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -249,7 +249,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.e(TAG, "Sticker download failed :", httpException);
-                doOnFailure(httpException);
+				doOnFailure(httpException);
 			}
 		};
 	}
@@ -290,11 +290,13 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void doOnFailure(HttpException e)
 	{
-		if (largeStickerPath == null)
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
+        Logger.e(TAG, categoryId + ":" + stickerId + " : failed");
+		if (largeStickerPath != null)
 		{
-			return;
+            (new File(largeStickerPath)).delete();
 		}
-		(new File(largeStickerPath)).delete();
+
         finish();
 	}
 
