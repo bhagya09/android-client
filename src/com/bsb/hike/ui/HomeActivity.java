@@ -125,6 +125,8 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 
+import java.lang.ref.WeakReference;
+
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener,
 		DBRestoreAsyncTask.IRestoreCallback
 {
@@ -649,11 +651,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(null);
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
-
-		if (restoreAsyncTask != null)
-		{
-			restoreAsyncTask.setRestoreCallback(null); //Removing Activity's reference to avoid leak
-		}
 
 		super.onDestroy();
 	}
@@ -2664,10 +2661,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void startRestoreProcess()
 	{
-		if (restoreAsyncTask != null)
-		{
-			restoreAsyncTask = new DBRestoreAsyncTask(this);
-		}
+		restoreAsyncTask = new DBRestoreAsyncTask(new WeakReference<DBRestoreAsyncTask.IRestoreCallback>(this));
 
 		Utils.executeIntegerAsyncTask(restoreAsyncTask);
 	}

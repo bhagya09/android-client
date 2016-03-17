@@ -8,6 +8,8 @@ import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
+import java.lang.ref.WeakReference;
+
 import static com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
 
 /**
@@ -16,9 +18,9 @@ import static com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
  */
 public class DBRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 {
-	private IRestoreCallback mCallback;
+	private WeakReference<IRestoreCallback> mCallback;
 
-	public DBRestoreAsyncTask(IRestoreCallback mCallback)
+	public DBRestoreAsyncTask(WeakReference<IRestoreCallback> mCallback)
 	{
 		this.mCallback = mCallback;
 	}
@@ -26,9 +28,9 @@ public class DBRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 	@Override
 	protected void onPreExecute()
 	{
-		if (mCallback != null)
+		if (mCallback.get() != null)
 		{
-			mCallback.preRestoreSetup();
+			mCallback.get().preRestoreSetup();
 		}
 	}
 
@@ -47,13 +49,13 @@ public class DBRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 
 		Utils.connectToMQTT();
 
-		if (mCallback != null)
+		if (mCallback.get() != null)
 		{
-			mCallback.postRestoreFinished(result);
+			mCallback.get().postRestoreFinished(result);
 		}
 	}
 
-	public void setRestoreCallback(IRestoreCallback mCallback)
+	public void setRestoreCallback(WeakReference<IRestoreCallback> mCallback)
 	{
 		this.mCallback = mCallback;
 	}
