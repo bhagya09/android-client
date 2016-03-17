@@ -1028,6 +1028,20 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 	}
 
+	public static InternalCache getDiskCache()
+	{
+		if(diskCache == null) {
+
+			File cacheDir = new File(getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT);
+			long diskCacheSize = Utils.calculateDiskCacheSize(cacheDir);
+			Logger.d("disk_cache", "disk cache size : " + diskCacheSize);
+
+			Cache cache = new Cache(cacheDir, diskCacheSize);
+			diskCache = cache.getCache();
+		}
+		return diskCache;
+	}
+
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on success of this call.
 	 */
