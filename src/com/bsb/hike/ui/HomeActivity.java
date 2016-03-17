@@ -229,6 +229,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private long time;
 
 	private DBRestoreAsyncTask restoreAsyncTask;
+
+	private boolean wasFragmentRemoved = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -614,6 +616,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			mainFragment = new ConversationFragment();
 			
 			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+
+			wasFragmentRemoved = false;
+		}
+
+		if (wasFragmentRemoved && (mainFragment != null))
+		{
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+			wasFragmentRemoved = false;
 		}
 	}
 
@@ -1255,6 +1265,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
+
+		checkAndShowCorruptDbDialog();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
 
@@ -2707,4 +2719,25 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		showingBlockingDialog = true;
 	}
 
+	private void checkAndShowCorruptDbDialog()
+	{
+		if (showingBlockingDialog)
+		{
+			return; //Already showing something so return
+		}
+
+		if (Utils.isDBCorrupt()) //Conversation fragment could have been added previously. Remove it and show the corrupt dialog
+		{
+
+			if (isFragmentAdded(MAIN_FRAGMENT_TAG))
+			{
+				removeFragment(MAIN_FRAGMENT_TAG);
+				wasFragmentRemoved = true;
+			}
+
+			Logger.d(TAG, "Removed ConvFragment and showing the restore chats dialog now");
+
+			showCorruptDBRestoreDialog();
+		}
+	}
 }
