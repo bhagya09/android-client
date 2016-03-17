@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
@@ -24,6 +25,8 @@ public class ConversationDatabaseErrorHandler extends CustomDatabaseErrorHandler
 		Long alarmTime = System.currentTimeMillis() + (1000 * 60 * 10); // (Current time + 10 minutes)
 		HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
 		// TODO Should this alarm be persistent in case phone gets switched off ?
+		//Fire PubSub
+		HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.DB_CORRUPT, null);
 		//Call super which will handle logging and deletion of the database
 		super.onDatabaseCorrupt(dbObj);
 	}
