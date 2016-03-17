@@ -244,7 +244,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});
@@ -298,7 +298,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});

@@ -424,7 +424,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 							if (!TextUtils.isEmpty(messageToShare))
 							{
-								imageCaptions.add(messageToShare);
 								captionsSparse.put(0,messageToShare);
 							}
 
