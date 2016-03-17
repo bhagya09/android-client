@@ -337,29 +337,22 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		mDslv.addDropListener(new DropListener() {
 			@Override
 			public void drop(int from, int to) {
+				StickerCategory category = mAdapter.getDraggedCategory();
+
+				if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
+				{
+					return;
+				}
+
+				if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
+					return;
+				}
+
+				StickerManager.getInstance().sendPackReorderAnalytics(category.getCategoryId(), from, to);
+
 				if (!prefs.getData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, false)) {
-					StickerCategory category = mAdapter.getDraggedCategory();
-
-					if ((from == to) || (category == null) || (!category.isVisible())) // Dropping at the same position. No need to perform Drop.
-					{
-						return;
-					}
-
-					if (from > mAdapter.getLastVisibleIndex() && to > mAdapter.getLastVisibleIndex() + 1) {
-						return;
-					}
-
 					// Setting the tip flag so that drag tip disappears after first reorder is done
 					prefs.saveData(HikeMessengerApp.IS_STICKER_CATEGORY_REORDERING_TIP_SHOWN, true);
-
-					try {
-						JSONObject metadata = new JSONObject();
-						metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEEN_REORDERING_TIP);
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-					} catch (JSONException e) {
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-					}
-
 					ImageView tickImage = (ImageView) parent.findViewById(R.id.reorder_indicator);
 					tickImage.setImageResource(R.drawable.art_tick);
 					View tapAndDragTip = parent.findViewById(R.id.tap_and_drag_tip);
@@ -593,12 +586,6 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 			return;
 		}
 		StickerCategory category = mAdapter.getItem(position);
-
-		if (stickerSettingsTask == StickerSettingsTask.STICKER_HIDE_TASK)
-		{
-			mAdapter.onStickerPackHide(view, category);
-			return;
-		}
 
 		if(category.getState() == StickerCategory.RETRY && category.isVisible())
 		{
