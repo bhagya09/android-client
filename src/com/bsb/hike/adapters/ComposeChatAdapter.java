@@ -278,13 +278,13 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			holder.userImage.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+			if (Utils.isJellybeanOrHigher())
 			{
-				holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
+				holder.userImage.setBackground(otherFeaturesDrawable);
 			}
 			else
 			{
-				holder.userImage.setBackground(otherFeaturesDrawable);
+				holder.userImage.setBackgroundDrawable(otherFeaturesDrawable);
 			}
 
 			if (hikeFeatureInfo.isShowCheckBox())
