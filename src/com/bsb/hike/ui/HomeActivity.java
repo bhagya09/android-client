@@ -2161,6 +2161,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
+		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
+
 		addEmailLogItem(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
@@ -2287,6 +2289,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					startActivity(galleryPickerIntent);
 
 					sendAnalyticsTakePicture();
+					break;
+
+				case -100: // Dummy commit for QA Testing.
+					// TODO : Revert this before build goes live.
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
+					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
+					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
 					break;
 					
 				}
