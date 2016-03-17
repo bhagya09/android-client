@@ -78,9 +78,11 @@ public class HikeService extends Service
 		@Override
 		public void run()
 		{
-			if (!Utils.isUserOnline(context))
+			if (!Utils.shouldConnectToMQTT())
 			{
-				Logger.d("CONTACT UTILS", "Airplane mode is on , skipping sync update tasks.");
+				// This check is needed, because if the user is undergoing a corrupt db recovery process, then we cannot have db operations going on.
+				// Contact Sync relies on an external broadcast and can be trigerred leading to a db operation, which could interfere with restore process.
+				Logger.d("CONTACT UTILS", " User not signed in or undergoing a corrupt db recovery. Skipping contact sync for now");
 			}
 			else
 			{
@@ -203,7 +205,7 @@ public class HikeService extends Service
 		// If user is not signed up. Do not initialize MQTT or serve any SDK requests. Instead, re-route to Welcome/Signup page.
 		// TODO : This is a fix to handle edge case when a request comes from SDK and user has not signed up yet. In future we must make a separate bound service for handling SDK
 		// related requests.
-		if (!Utils.isUserSignedUp(getApplicationContext(), true))
+		if (!Utils.shouldConnectToMQTT())
 		{
 			return;
 		}
