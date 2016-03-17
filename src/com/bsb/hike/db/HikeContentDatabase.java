@@ -1004,14 +1004,14 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	public void removeFromPlatformDownloadStateTable(String name, int version)
 	{
-		mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version,null);
+		long rows =mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, new String[]{name});
 	}
 
 	public void updatePlatformDownloadState(String name, int version, int newState)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
-		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " = " + name + " AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, null);
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, new String[]{name});
 	}
 
 	/**
