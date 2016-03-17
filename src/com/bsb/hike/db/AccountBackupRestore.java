@@ -29,6 +29,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.CBCEncryption;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -62,8 +63,9 @@ public class AccountBackupRestore
 					.put(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, prefUtil.getData(HikeMessengerApp.STEALTH_MODE_SETUP_DONE, false))
 					.put(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, prefUtil.getData(HikeMessengerApp.SHOWN_FIRST_UNMARK_STEALTH_TOAST, false))
 					.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
-					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))					
-					.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION));					
+					.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))
+					.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION))
+					.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, false));				
 			
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
 			
@@ -113,6 +115,11 @@ public class AccountBackupRestore
 			{
 				String key = HikeMessengerApp.CONV_DB_VERSION_PREF;
 				prefUtil.saveData(key, prefJson.getInt(key));
+			}
+			if (prefJson.has(HikePlatformConstants.CUSTOM_TABS))
+			{
+				String key = HikePlatformConstants.CUSTOM_TABS;
+				prefUtil.saveData(key, prefJson.getBoolean(key));
 			}
 			
 			SharedPreferences settingUtils =  PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
@@ -238,7 +245,7 @@ public class AccountBackupRestore
 
 	private static final String[] dbNames = { DBConstants.CONVERSATIONS_DATABASE_NAME };
 
-	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE };
+	private static final String[] resetTableNames = { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE ,DBConstants.STICKER_TABLE};
 
 	private final Context mContext;
 
@@ -661,6 +668,7 @@ public class AccountBackupRestore
 			HikeConversationsDatabase.getInstance().clearTable(table);
 		}
 		HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
+        HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 		BotUtils.postAccountRestoreSetup();
 	}
 

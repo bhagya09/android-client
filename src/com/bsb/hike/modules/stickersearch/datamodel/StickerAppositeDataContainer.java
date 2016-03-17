@@ -7,6 +7,7 @@
 package com.bsb.hike.modules.stickersearch.datamodel;
 
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 
 import java.util.ArrayList;
@@ -31,8 +32,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private int mMomentCode;
 
-	private String mFestivals;
-
 	private int mAge;
 
 	private String mStringsUsedWithSticker;
@@ -47,14 +46,19 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 
 	private ArrayList<Float> mOverallFrequencies;
 
-	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, int stickerAvailability)
+	private int mNowCastEventRank;
+
+	public StickerAppositeDataContainer(String stickerCode, String tag, String overallFrequencyFunction, int exactMatchOrder, int momentCode, String timeStampBasedEventsRanks,
+			int stickerAvailability)
 	{
 		mStickerCode = stickerCode;
 		mTag = tag;
 		mOverallFrequencyFunction = overallFrequencyFunction;
-		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT,
+				Float.class);
 		mExactMatchOrder = exactMatchOrder;
 		mMomentCode = momentCode;
+		mNowCastEventRank = StickerEventSearchManager.getInstance().getNowCastTimeStampRangeRank(timeStampBasedEventsRanks);
 		mStickerAvailability = stickerAvailability;
 		mMatchingScore = 0.0f;
 		mRecommendationScore = 0.0f;
@@ -117,14 +121,14 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		return mMomentCode;
 	}
 
-	public String getFestivalList()
+	public int getRankOfNowCastEvent()
 	{
-		return mFestivals;
+		return mNowCastEventRank;
 	}
 
 	public boolean getStickerAging()
 	{
-		return (mMomentCode == 0);
+		return (mAge > -1);
 	}
 
 	public String getStringsUsedWithSticker()
@@ -143,7 +147,8 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		mRecommendationScore = overallScore;
 	}
 
-	public int getAge() {
+	public int getAge()
+	{
 		return mAge;
 	}
 
@@ -234,10 +239,9 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		result = prime * result + mExactMatchOrder;
 		result = prime * result + mMomentCode;
 		result = prime * result + mStickerAvailability;
+		result = prime * result + mNowCastEventRank;
 		result = prime * result + ((mTag == null) ? 0 : mTag.hashCode());
 		result = prime * result + ((mStickerCode == null) ? 0 : mStickerCode.hashCode());
-		result = prime * result + ((mFestivals == null) ? 0 : mFestivals.hashCode());
-		result = prime * result + ((mOverallFrequencies == null) ? 0 : mOverallFrequencies.hashCode());
 		result = prime * result + ((mLanguageFunction == null) ? 0 : mLanguageFunction.hashCode());
 		result = prime * result + ((mOverallFrequencyFunction == null) ? 0 : mOverallFrequencyFunction.hashCode());
 		result = prime * result + ((mStateFunction == null) ? 0 : mStateFunction.hashCode());
@@ -291,6 +295,11 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			return false;
 		}
 
+		if (mNowCastEventRank != other.mNowCastEventRank)
+		{
+			return false;
+		}
+
 		if (mTag == null)
 		{
 			if (other.mTag != null)
@@ -311,30 +320,6 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 			}
 		}
 		else if (!mStickerCode.equals(other.mStickerCode))
-		{
-			return false;
-		}
-
-		if (mFestivals == null)
-		{
-			if (other.mFestivals != null)
-			{
-				return false;
-			}
-		}
-		else if (!mFestivals.equals(other.mFestivals))
-		{
-			return false;
-		}
-
-		if (mOverallFrequencies == null)
-		{
-			if (other.mOverallFrequencies != null)
-			{
-				return false;
-			}
-		}
-		else if (!mOverallFrequencies.equals(other.mOverallFrequencies))
 		{
 			return false;
 		}
@@ -430,8 +415,8 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	public String toString()
 	{
 		return "[sticker_info: " + mStickerCode + ", <tag=" + mTag + "><lan_fn=" + mLanguageFunction + "><st_fn=" + mStateFunction + "><tag_fr_fn=" + mTagRelatedFrequencyFunction
-				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><fest="
-				+ mFestivals + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
+				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><event_rk="
+				+ mNowCastEventRank + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
 				+ "><sr_scr=" + mRecommendationScore + ">]";
 	}
 

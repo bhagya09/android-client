@@ -22,7 +22,7 @@ import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.Utils;
 
-public class StickerPreviewContainer extends LinearLayout implements HikePubSub.Listener, ImageWorker.SuccessfulImageLoadingListener
+public class StickerPreviewContainer extends LinearLayout implements HikePubSub.Listener, ImageWorker.ImageLoaderListener
 {
 	private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED };
 
@@ -94,21 +94,27 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 		this.packPreviewFragment = packPreviewFragment;
 		calculateGridBounds();
 
-		stickerLoader = new StickerLoader(false, false, true);
+		stickerLoader = new StickerLoader.Builder().downloadLargeStickerIfNotFound(true).build();
 		stickerLoader.setImageFadeIn(false);
-		stickerLoader.setSuccessfulImageLoadingListener(this);
+		stickerLoader.setImageLoaderListener(this);
 
 		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 	}
 
 	@Override
-	public void onSuccessfulImageLoaded(ImageView imageView)
+	public void onImageWorkSuccess(ImageView imageView)
 	{
-		if(imageView != null)
+		if (imageView != null)
 		{
 			pbStickerPreview.setVisibility(GONE);
 			ivStickerPreview.setVisibility(VISIBLE);
 		}
+	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+
 	}
 
 	private void calculateGridBounds()

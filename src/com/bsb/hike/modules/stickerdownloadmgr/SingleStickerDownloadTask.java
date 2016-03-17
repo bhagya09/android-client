@@ -1,5 +1,15 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
@@ -28,16 +38,6 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerDownloadRequest;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.singleStickerImageDownloadRequest;
 
 public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -197,14 +197,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
-						if(!sticker.isStickerAvailable())
-                        {
-                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
-                        }
+
+                        StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 
 						saveMiniStickerImage(sticker, stickerImage);
 
-                        doOnSuccess(null);
+                        doOnSuccess(categoryId);
 					}
 					else
 					{
@@ -220,7 +218,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                            doOnSuccess(null);
+                            doOnSuccess(categoryId);
                         }
 
 					}
@@ -251,6 +249,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.e(TAG, "Sticker download failed :", httpException);
+				doOnFailure(httpException);
 			}
 		};
 	}
@@ -282,17 +281,23 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			}
 		}
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, new Sticker(categoryId, stickerId));
+        Sticker sticker = new Sticker(categoryId, stickerId);
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, sticker);
+        finish();
 	}
 
 	@Override
 	public void doOnFailure(HttpException e)
 	{
-		if (largeStickerPath == null)
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.SINGLE_STICKER);
+        Logger.e(TAG, categoryId + ":" + stickerId + " : failed");
+		if (largeStickerPath != null)
 		{
-			return;
+            (new File(largeStickerPath)).delete();
 		}
-		(new File(largeStickerPath)).delete();
+
+        finish();
 	}
 
 	private void saveMiniStickerImage(Sticker sticker, String stickerImage)
@@ -378,5 +383,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		return true;
 
 	}
+
+    private void finish()
+    {
+        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.LARGE));
+        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.SMALL));
+    }
 
 }
