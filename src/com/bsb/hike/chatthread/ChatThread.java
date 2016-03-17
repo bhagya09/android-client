@@ -717,11 +717,12 @@ import android.widget.Toast;
 	};
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
-		
+
 		@Override
 		public void onDestroyed() {
 			// TODO Auto-generated method stub
 			Utils.unblockOrientationChange(activity);
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
 		}
 	};
@@ -1805,10 +1806,11 @@ import android.widget.Toast;
 			mComposeView.setSelection(searchText.length());
 		}
 	}
-	
+
 	protected boolean removeKeyboardShutdownIfShowing()
 	{
 		if(keyboardOffBoarding != null && keyboardOffBoarding.isShowing()) {
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			keyboardOffBoarding.hide();
 			return true;
 		}
@@ -1820,6 +1822,7 @@ import android.widget.Toast;
 		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
 			keyboardOffBoarding.showView();
 			Utils.hideSoftKeyboard(activity, mComposeView);
+			activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
 		}
 	}
 	
