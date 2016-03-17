@@ -2584,6 +2584,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, this);
 		showingBlockingDialog = true;
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, true); // Block any possible notifs as well
+		Utils.disconnectFromMQTT();
 	}
 
 	@Override
@@ -2678,6 +2679,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
+
+		Utils.connectToMQTT();
 
 		// Set up the home screen
 		invalidateOptionsMenu();

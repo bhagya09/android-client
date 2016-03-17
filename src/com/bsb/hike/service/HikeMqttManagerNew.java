@@ -1530,6 +1530,14 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))
 		{
 			Logger.d(TAG, "Connection check happened from GCM, client already connected ? : " + isConnected());
+
+			// Using this to disconnect from MQ
+			if (intent.hasExtra("disconnect"))
+			{
+				disconnectOnMqttThread(false);
+				return;
+			}
+
 			boolean reconnect = intent.getBooleanExtra("reconnect", false);
 			if (reconnect)
 			{

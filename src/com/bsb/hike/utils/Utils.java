@@ -8032,4 +8032,17 @@ public class Utils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
 	}
 
+	/**
+	 * WARNING : Do not ever call this method unless you have a valid reason to do so
+	 */
+	public static void disconnectFromMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("disconnect", true));
+	}
+
+	public static void connectToMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
 }
