@@ -53,7 +53,13 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private int catIndex;
 
+	private String allStickerListString;
+
+	private String similarPacksString;
+
 	private List<Sticker> allStickers;
+
+	private List<StickerCategory> similarPacks;
 
 	private int state = -1;
 
@@ -74,6 +80,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.isDownloaded = builder.isDownloaded;
 		this.catIndex = builder.catIndex;
 		this.allStickers = builder.allStickers;
+		this.similarPacks = builder.similarPacks;
+		this.allStickerListString = builder.allStickerListString;
+		this.similarPacksString = builder.similarPacksString;
 		this.state = builder.state;
 		ensureSaneDefaults();
 	}
@@ -117,6 +126,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		private int catIndex;
 
 		private List<Sticker> allStickers;
+
+		private List<StickerCategory> similarPacks;
+
+		private String allStickerListString;
+
+		private String similarPacksString;
 
 		private int state;
 
@@ -194,6 +209,26 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		public S setState(int state) {
 			this.state = state;
+			return self();
+		}
+
+		public S setAllStickerListString(String allStickerListString)
+		{
+			this.allStickerListString = allStickerListString;
+			setAllStickers(StickerManager.getInstance().getStickerListFromString(categoryId, allStickerListString));
+			return self();
+		}
+
+		public S setSimilarPacksString(String similarPacksString)
+		{
+			this.similarPacksString = similarPacksString;
+			setSimilarPacks(StickerManager.getInstance().getSimilarPacksFromString(similarPacksString));
+			return self();
+		}
+
+		public S setSimilarPacks(List<StickerCategory> similarPacks)
+		{
+			this.similarPacks = similarPacks;
 			return self();
 		}
 	}
@@ -342,17 +377,46 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.categoryDesc = description;
 	}
 
-	public void setAllStickers(List<Sticker> allStickers) {
+	public void setAllStickers(List<Sticker> allStickers)
+	{
 		this.allStickers = allStickers;
+	}
+
+	public String getAllStickerListString()
+	{
+		return allStickerListString;
+	}
+
+	public void setAllStickerListString(String allStickerListString)
+	{
+		this.allStickerListString = allStickerListString;
+		setAllStickers(StickerManager.getInstance().getStickerListFromString(categoryId, allStickerListString));
+	}
+
+	public String getSimilarPacksString()
+	{
+		return similarPacksString;
+	}
+
+	public void setSimilarPacksString(String similarPacksString)
+	{
+		this.similarPacksString = similarPacksString;
+		setSimilarPacks(StickerManager.getInstance().getSimilarPacksFromString(similarPacksString));
 	}
 
 	public List<Sticker> getAllStickers()
 	{
-		if(allStickers == null)
-		{
-			allStickers = StickerManager.getInstance().getStickerListFromDb(categoryId);
-		}
-		return allStickers;
+		return allStickers != null ? allStickers : StickerManager.getInstance().getStickerListFromString(categoryId, getAllStickerListString());
+	}
+
+	public List<StickerCategory> getSimilarPacks()
+	{
+		return similarPacks != null ? similarPacks : StickerManager.getInstance().getSimilarPacksFromString(getSimilarPacksString());
+	}
+
+	public void setSimilarPacks(List<StickerCategory> similarPacks)
+	{
+		this.similarPacks = similarPacks;
 	}
 
 	public List<Sticker> getStickerList()
@@ -559,23 +623,5 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public void setDownloadedStickersCount(int count)
 	{
 		this.downloadedStickersCount = count;
-	}
-
-	public List<StickerCategory> getRecommendedPacks()
-	{
-		List<StickerCategory> stickerCategoryList = new ArrayList<>(10);
-
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("humanoid").setCategoryName("We are hikins").build());
-		stickerCategoryList.add(new StickerCategory.Builder().setCategoryId("rageface").setCategoryName("Rageface").build());
-
-		return stickerCategoryList;
 	}
 }

@@ -3022,8 +3022,7 @@ public class MqttMessagesManager
 			int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);
 			String description  = data.optString(HikeConstants.DESCRIPTION, null);
 			JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
-			List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
-			String stickerListString = StickerManager.getInstance().getStickerListString(stickerList);
+			String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 			StickerManager.getInstance().updateStickerCategoryData(categoryId, true, stickerCount, categorySize, description, stickerListString);
 		}
 		else if (HikeConstants.REMOVE_STICKER.equals(subType) || HikeConstants.REMOVE_CATEGORY.equals(subType))
@@ -3050,8 +3049,7 @@ public class MqttMessagesManager
 				/*
 				 * We should not update updateAvailable field in this case
 				 */
-				List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
-				String stickerListString = StickerManager.getInstance().getStickerListString(stickerList);
+				String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				StickerManager.getInstance().updateStickerCategoryData(categoryId, null, stickerCount, categorySize, null, stickerListString);
 				// Remove tags being used for sticker search w.r.t. deleted stickers here
 				StickerManager.getInstance().removeTagForDeletedStickers(removedStickerSet);
@@ -3089,7 +3087,7 @@ public class MqttMessagesManager
 			int position = data.optInt(HikeConstants.PALLETE_POSITION, -1);
 			String description = data.optString(HikeConstants.DESCRIPTION, null);
 			JSONArray stickerArray = data.optJSONArray(HikeConstants.STICKER_LIST);
-			List<Sticker> stickerList = StickerManager.getInstance().getStickerListFromJSONArray(stickerArray, categoryId);
+			String stickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 
 			/**
 			 * Creating the sticker object here
@@ -3108,7 +3106,7 @@ public class MqttMessagesManager
 					.setIsDownloaded(true)										// to be treated as downloaded
 					.setCatIndex(pos)											//Choosing it's index based on the above logic
 					.setState(StickerCategory.NONE)
-					.setAllStickers(stickerList)
+					.setAllStickerListString(stickerListString)
 					.build();
 			StickerManager.getInstance().addNewCategoryInPallete(stickerCategory);
 		}

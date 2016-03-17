@@ -281,7 +281,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), null);
 		footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
 
-		if(!Utils.isEmpty(stickerCategory.getRecommendedPacks()))
+		if(!Utils.isEmpty(stickerCategory.getSimilarPacks()))
 		{
 			BasePackPreviewAdapterItem recommendedPacksFooterItem = new RecommendedPacksFooterItem(getActivity(), getActivity(), stickerCategory);
 			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_RECOMMENDED_PACKS_FOOTER, recommendedPacksFooterItem));

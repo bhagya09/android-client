@@ -7114,6 +7114,11 @@ public class Utils
 		return (argument == null) || !argument.iterator().hasNext();
 	}
 
+	public static boolean isEmpty(JSONArray jsonArray)
+	{
+		return (jsonArray == null) || (jsonArray.length() == 0);
+	}
+
 	/**
 	 * Determine whether supplied module is being tested.
 	 *

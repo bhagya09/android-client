@@ -44,7 +44,7 @@ public class RecommendedPacksFooterItem extends BasePackPreviewAdapterItem imple
 		this.mContext = context;
 		this.activity = activity;
 		this.stickerCategory = stickerCategory;
-		this.recommendedPacks = stickerCategory.getRecommendedPacks();
+		this.recommendedPacks = stickerCategory.getSimilarPacks();
 		initView();
 		registerListener();
 	}
