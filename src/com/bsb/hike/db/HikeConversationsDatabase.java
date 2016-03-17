@@ -9137,6 +9137,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 	/**
+	 * method to save a single asset in the CHAT_THEME_ASSET_TABLE
+	 * @param saveAsset
+	 * @return true if the asset has been stored successfully, else false
+	 */
+	public boolean saveChatThemeAsset(HikeChatThemeAsset saveAsset)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeAssetInsert();
+		updatePrepStmt = prepStmtForChatThemeAssetUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		boolean isSaved = saveChatThemeAsset(saveAsset, insertPrepStmt, updatePrepStmt);
+
+		return isSaved;
+	}
+
+	/**
 	 * method to create a compiled sql query for inserting an asset object into the table
 	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
 	 */

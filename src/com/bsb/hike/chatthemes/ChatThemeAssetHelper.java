@@ -97,7 +97,8 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		String assetId = theme.getAssetId(assetIndex);
 		mAssets.get(assetId).setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
 
-		// TODO CHATTHEME Update asset missing in to DB here
+		//updating the database as well
+		HikeConversationsDatabase.getInstance().saveChatThemeAsset(mAssets.get(assetId));
 	}
 
 	public String[] getMissingAssets(String[] assets)
