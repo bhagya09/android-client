@@ -16,11 +16,11 @@ import static com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
  * This Async Task is used to performing restore operation when db goes kaput!
  * Created by piyush on 16/03/16.
  */
-public class DBRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
+public class AccountRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 {
 	private WeakReference<IRestoreCallback> mCallback;
 
-	public DBRestoreAsyncTask(WeakReference<IRestoreCallback> mCallback)
+	public AccountRestoreAsyncTask(WeakReference<IRestoreCallback> mCallback)
 	{
 		this.mCallback = mCallback;
 	}

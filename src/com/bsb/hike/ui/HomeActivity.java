@@ -70,7 +70,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.db.DBRestoreAsyncTask;
+import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -128,7 +128,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatus
 import java.lang.ref.WeakReference;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener,
-		DBRestoreAsyncTask.IRestoreCallback
+		AccountRestoreAsyncTask.IRestoreCallback
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -228,7 +228,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private long time;
 
-	private DBRestoreAsyncTask restoreAsyncTask;
+	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
 	
@@ -2673,7 +2673,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void startRestoreProcess()
 	{
-		restoreAsyncTask = new DBRestoreAsyncTask(new WeakReference<DBRestoreAsyncTask.IRestoreCallback>(this));
+		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
 
 		Utils.executeIntegerAsyncTask(restoreAsyncTask);
 	}
