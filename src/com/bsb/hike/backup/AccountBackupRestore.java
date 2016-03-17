@@ -132,21 +132,26 @@ public class AccountBackupRestore
 		backupItems.add(new PrefBackupRestore(backupToken));
 		try
 		{
-			for (BackupableRestorable item : backupItems)
-			{
-				item.preBackupSetup();
+			if (result) {
+				for (BackupableRestorable item : backupItems) {
+					if (!item.preBackupSetup()) {
+						result = false;
+						break;
+					}
+				}
 			}
 
-			for (BackupableRestorable item : backupItems)
-			{
-				item.backup();
+			if (result) {
+				for (BackupableRestorable item : backupItems) {
+					item.backup();
+				}
 			}
 
-			for (BackupableRestorable item : backupItems)
-			{
-				item.postBackupSetup();
+			if (result) {
+				for (BackupableRestorable item : backupItems) {
+					item.postBackupSetup();
+				}
 			}
-
 
 			backupUserData();
 		}
@@ -251,19 +256,26 @@ public class AccountBackupRestore
 			}
 			try
 			{
-				for (BackupableRestorable item : backupItems)
-				{
-					item.preRestoreSetup();
+				if (result) {
+					for (BackupableRestorable item : backupItems) {
+						if (!item.preRestoreSetup());
+						{
+							result = false;
+							break;
+						}
+					}
 				}
 
-				for (BackupableRestorable item : backupItems)
-				{
-					item.restore();
+				if (result) {
+					for (BackupableRestorable item : backupItems) {
+						item.restore();
+					}
 				}
 
-				for (BackupableRestorable item : backupItems)
-				{
-					item.postRestoreSetup();
+				if (result) {
+					for (BackupableRestorable item : backupItems) {
+						item.postRestoreSetup();
+					}
 				}
 			}
 			catch (Exception e)
