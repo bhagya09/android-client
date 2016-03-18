@@ -98,7 +98,7 @@ public class FTApkManager
                             Logger.d("AUTOAPK", "on receive of new apk, the version name was found to be higher, hence cancelling and downloading");
                             FileTransferManager.getInstance(context).cancelTask(-100, hfOld.getFile(), false, hfOld.getFileSize());
                             Logger.d("AUTOAPK", "also deleting the already downloaded file if it exists");
-                            if(hfOld.getFile() !=null && hfOld.getFile().exists()) {
+                            if (hfOld.getFile() != null && hfOld.getFile().exists()) {
                                 hfOld.getFile().delete();
                             }
 
@@ -266,11 +266,12 @@ public class FTApkManager
             JSONObject jo = new JSONObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_JSON, "{}"));
             HikeFile hikeApkFile = new HikeFile(jo, false);
             long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
-            boolean validSize = hikeApkFile.getFile().length() == apkSizeReceived && hikeApkFile.getFile().length() > 0;
+            File hFile = hikeApkFile.getFile();
+            boolean validSize = (hFile != null && hFile.exists()) ?  hFile.length() == apkSizeReceived && hFile.length() > 0 : false;
             boolean updateNeeded = Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""), context)
                     && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""));
 
-            if(hikeApkFile.getFile().equals(mFile))
+            if(hFile.equals(mFile) && hFile.exists())
             {
                 if(validSize && updateNeeded)
                 {
@@ -284,7 +285,7 @@ public class FTApkManager
                 else
                 {
                     Logger.d("AUTOAPK", "deleting the file now, since file is not valid for installation");
-                    hikeApkFile.getFile().delete();
+                    hFile.delete();
                     HikeSharedPreferenceUtil pref = HikeSharedPreferenceUtil.getInstance();
                     pref.removeData(HikeConstants.AutoApkDownload.NEW_APK_JSON);
                     pref.removeData(HikeConstants.AutoApkDownload.NEW_APK_TIP_JSON);
@@ -344,7 +345,9 @@ public class FTApkManager
 
 
                     Logger.d("AUTOAPK", "delete apk and vars after updation has been perfromed");
-                    hikefile.getFile().delete();
+                    if(hikefile.getFile() != null && hikefile.getFile().exists()) {
+                        hikefile.getFile().delete();
+                    }
 
                 }
             } catch (JSONException je)
