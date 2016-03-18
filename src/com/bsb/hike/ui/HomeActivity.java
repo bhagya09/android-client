@@ -190,7 +190,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -834,6 +834,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void onClick(View v)
 				{
+					Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
 					try
 					{
 						JSONObject metadata = new JSONObject();
@@ -1574,7 +1575,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type) || HikePubSub.STEALTH_MODE_TOGGLED.equals(type) || HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{

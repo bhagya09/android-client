@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -625,5 +626,10 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public boolean isBot()
 	{
 		return BotUtils.isBot(msisdn);
+	}
+
+	public boolean isBlocked()
+	{
+		return ContactManager.getInstance().isBlocked(msisdn);
 	}
 }
