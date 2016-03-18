@@ -8,12 +8,14 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.Logger;
 
 /**
  * Created by sriram on 22/02/16.
  */
 public class ChatThemeAssetHelper implements HikePubSub.Listener
 {
+	private String TAG = "ChatThemeAssetHelper";
 
 	// maintains the hashset of all recorded downloaded and non-downloaded assets
 	private HashMap<String, HikeChatThemeAsset> mAssets;
@@ -97,7 +99,12 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		String assetId = theme.getAssetId(assetIndex);
 		mAssets.get(assetId).setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
 
-		// TODO CHATTHEME Update asset missing in to DB here
+		//updating the database as well
+		boolean assetUpdated = HikeConversationsDatabase.getInstance().saveChatThemeAsset(mAssets.get(assetId));
+		if(!assetUpdated)
+		{
+			Logger.d(TAG, "Unable to update the asset in the DB. DB problem");
+		}
 	}
 
 	public String[] getMissingAssets(String[] assets)
