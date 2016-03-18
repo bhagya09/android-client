@@ -14,7 +14,6 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.CustomWebView;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.productpopup.ProductPopupsConstants.HIKESCREEN;
@@ -158,6 +157,7 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 			ArrayList<ProductContentModel> mmArrayList = new ArrayList<ProductContentModel>();
 			mmArrayList.add((ProductContentModel) productContentModel);
 			ProductInfoManager.getInstance().deletePopups(mmArrayList);
+            ProductInfoManager.getInstance().deletePopUpCodeFromDisk(mmArrayList);
 		}
 
 		if (mHikeDialogFragment != null && mHikeDialogFragment.get() != null)

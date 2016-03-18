@@ -1,5 +1,7 @@
 package com.bsb.hike.platform.ContentModules;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -129,16 +131,24 @@ public class PlatformContentModel
 			if (object.cardObj.getLd() != null)
 			{
 				String microApp = object.cardObj.getAppName();
+                // Precautionary check for is Micro App Name check
+                if(TextUtils.isEmpty(microApp))
+                    return null;
+
 				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
                 // Keeping default code path as newer hierarichal versioning path
 				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
                 String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
 
                 // Check if micro app is present in newer versioning path, else check for micro app in old content directory
-                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).isDirectory())
+                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).exists())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
-                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp).isDirectory())
-                    basePath = microApp + File.separator;
+                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp).exists())
+                {
+                    boolean isCopied = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp), new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)));
+                    if(isCopied)
+                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp);
+                }
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));

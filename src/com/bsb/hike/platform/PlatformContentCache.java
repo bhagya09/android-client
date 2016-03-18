@@ -117,7 +117,7 @@ public class PlatformContentCache
 		// If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
 		if (!file.exists())
 		{
-			file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + content.getContentData().getId(), content.getContentData().getTag());
+			file = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + content.getContentData().getId(), content.getContentData().getTag());
 		}
 
 		String templateString;

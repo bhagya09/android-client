@@ -306,7 +306,7 @@ public class BotUtils
                 String appName = msisdn.substring(1, msisdn.length() - 1);
                 microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
                 Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
-                String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + appName;
+                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
                 Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
                 if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath)) {
                     String sentData = AnalyticsConstants.REMOVE_SUCCESS;
@@ -346,7 +346,7 @@ public class BotUtils
             JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
             for (int i = 0; i< appsToBeRemoved.length(); i++){
                 String appName =  appsToBeRemoved.get(i).toString();
-                String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
+                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR +  appName;
                 Logger.d("FileSystemAccess", "To delete the path : " + makePath);
 
                 if(PlatformUtils.deleteDirectory(makePath)){
@@ -983,7 +983,7 @@ public class BotUtils
 	/**
 	 * Returns the root folder path for bot thumbnails <br>
 	 * eg : "/data/data/com.bsb.hike/files/Content/DP/"
-	 * 
+	 *
 	 * @return
 	 */
 	private static String getBotThumbnailRootFolder()
