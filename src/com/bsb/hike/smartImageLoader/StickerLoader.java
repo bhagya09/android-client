@@ -55,10 +55,10 @@ public class StickerLoader extends ImageWorker
 		}
 		else
 		{
-			bitmap = loadStickerBitmap(path);
-            checkAndDownloadLargeSticker(bitmap, sticker);
-			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
+			Bitmap large = loadStickerBitmap(path);
+			bitmap = checkAndLoadOfflineSticker(large, sticker);
 			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
+            checkAndDownloadLargeSticker(large, sticker);
 		}
 		return bitmap;
 	}
