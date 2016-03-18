@@ -34,7 +34,7 @@ public class RedDot extends View {
     }
 
     private void initialize(Context context) {
-        dotDrawable = context.getResources().getDrawable(R.drawable.reddot);
+        dotDrawable = context.getResources().getDrawable(R.drawable.ic_red_dot_walkie_talkie);
     }
 
     public void resetAlpha() {

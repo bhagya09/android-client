@@ -5,7 +5,7 @@
     android:background="@null"
     android:clipChildren="false">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
@@ -18,7 +18,6 @@
             android:id="@+id/record_info_duration"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
             android:gravity="center"
             android:paddingLeft="20dp"
             android:text="00:00"
@@ -26,31 +25,33 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/arrow_slide"
-            android:layout_width="49dp"
-            android:layout_height="49dp"
-            android:layout_toRightOf="@id/record_info_duration"
-            android:gravity="center"
-            android:scaleType="center"
-            android:src="@drawable/ic_arrow_grey" />
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_toRightOf="@id/arrow_slide">
+            android:layout_marginRight="20dp"
+            android:gravity="center"
+            android:id="@+id/slidelayout"
+            >
+
+            <ImageView
+                android:id="@+id/arrow_slide"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:scaleType="center"
+                android:src="@drawable/ic_arrow_grey" />
 
             <TextView
                 android:id="@+id/slidetocancel"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:maxLines="1"
                 android:text="@string/slide_to_cancel"
                 android:textSize="@dimen/walkie_talkie_slider_font_size" />
-        </RelativeLayout>
+        </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <com.bsb.hike.media.RedDot
         android:id="@+id/recording"
@@ -80,7 +81,6 @@
         android:id="@+id/walkie_recorder"
         android:layout_width="70dp"
         android:layout_height="70dp"
-
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_gravity="center"
