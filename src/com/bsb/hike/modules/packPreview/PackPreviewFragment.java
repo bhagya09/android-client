@@ -46,7 +46,7 @@ import java.util.List;
  * Created by anubhavgupta on 04/01/16.
  */
 public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
-		PackPreviewRecyclerView.TouchListener, View.OnClickListener
+		PackPreviewRecyclerView.TouchListener, View.OnClickListener, LoadMoreFooterItem.LoadMoreClickedListener
 {
 
 	private static final String TAG = PackPreviewFragment.class.getSimpleName();
@@ -78,6 +78,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private View headerContainer;
 
 	public static int NUM_COLUMNS;
+
+	private boolean loadMoreClicked;
 
 	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, downButtonMaxWidth, categoryDescriptionMaxHeight, topMarginForCenterVertical;
 
@@ -226,7 +228,10 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		downloadBtn.setOnClickListener(getDownloadButtonClickListener());
 
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
-		mAdapter = new PackPreviewAdapter(getActivity(), stickerCategory.getAllStickers(), getHeaderList(), getFooterList(), this);
+		List<Sticker> stickerList = stickerCategory.getAllStickers();
+		stickerList = Utils.isEmpty(stickerList) || stickerList.size() < StickerConstants.PACK_PREVIEW_LOAD_MORE_THRESHOLD_SIZE ? stickerList : stickerList.subList(0, StickerConstants.PACK_PREVIEW_LOAD_MORE_THRESHOLD_SIZE );
+		mAdapter = new PackPreviewAdapter(getActivity(), this);
+		mAdapter.setLists(stickerList, getHeaderList(), getFooterList());
 		rvGrid.setLayoutManager(layoutManager);
 		rvGrid.setAdapter(mAdapter);
 
@@ -281,7 +286,15 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	public List<Pair<Integer, BasePackPreviewAdapterItem>> getFooterList()
 	{
-		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(2);
+		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(3);
+
+		if(!loadMoreClicked && !Utils.isEmpty(stickerCategory.getAllStickers()) && stickerCategory.getAllStickers().size() > StickerConstants.PACK_PREVIEW_LOAD_MORE_THRESHOLD_SIZE)
+		{
+			BasePackPreviewAdapterItem loadMoreFooterItem = new LoadMoreFooterItem(getActivity());
+			((LoadMoreFooterItem) loadMoreFooterItem).setOnClickListener(this);
+			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_LOAD_MORE_FOOTER, loadMoreFooterItem));
+		}
+
 		BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), null);
 		footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
 
@@ -638,5 +651,13 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 				}
 			});
 		}
+	}
+
+	@Override
+	public void onLoadMoreClicked()
+	{
+		loadMoreClicked = true;
+		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
+		mAdapter.notifyDataSetChanged();
 	}
 }

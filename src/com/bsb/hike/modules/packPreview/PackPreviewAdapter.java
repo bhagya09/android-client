@@ -50,26 +50,18 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	public static final int VIEW_TYPE_STICKER = 2;
 
-	public static final int VIEW_TYPE_AUTHOR_FOOTER = 3;
+	public static final int VIEW_TYPE_LOAD_MORE_FOOTER = 3;
 
-	public static final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 4;
+	public static final int VIEW_TYPE_AUTHOR_FOOTER = 4;
+
+	public static final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 5;
 
 	private int rowSize;
 
-	public PackPreviewAdapter(Context context, List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList,
-			List<Pair<Integer, BasePackPreviewAdapterItem>> footerList, View.OnClickListener onClickListener)
+	public PackPreviewAdapter(Context context, View.OnClickListener onClickListener)
 	{
 		this.mContext = context;
 		this.onClickListener = onClickListener;
-
-		this.stickerList = stickerList;
-		this.headerList = headerList;
-		this.footerList = footerList;
-
-		stickerListSize = Utils.isEmpty(stickerList) ? 0 : stickerList.size();
-		headerListSize = Utils.isEmpty(headerList) ? 0 : headerList.size();
-		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
-
 		init();
 
 	}
@@ -304,6 +296,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		{
 			case VIEW_TYPE_GRID_TOP_MARGIN:
 			case VIEW_TYPE_TAP_TEXT_HEADER:
+			case VIEW_TYPE_LOAD_MORE_FOOTER:
 			case VIEW_TYPE_AUTHOR_FOOTER:
 			case VIEW_TYPE_RECOMMENDED_PACKS_FOOTER:
 				return PackPreviewFragment.NUM_COLUMNS;
@@ -313,4 +306,18 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 				return 1;
 		}
 	}
+
+	public void setLists(List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList,
+							 List<Pair<Integer, BasePackPreviewAdapterItem>> footerList)
+	{
+		this.stickerList = stickerList;
+		this.headerList = headerList;
+		this.footerList = footerList;
+
+		stickerListSize = Utils.isEmpty(stickerList) ? 0 : stickerList.size();
+		headerListSize = Utils.isEmpty(headerList) ? 0 : headerList.size();
+		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
+	}
+
+
 }
