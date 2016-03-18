@@ -88,6 +88,10 @@ public class HikeAudioRecordView {
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
         popup_l.setHeight(parent.getHeight() * 2);
+
+        //The below 2 lines can be used for disabling touch anywhere else, but this will eat the back as well. resulting in issues
+/*        popup_l.setOutsideTouchable(true);
+        popup_l.setFocusable(true);*/
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
         if (shareablePopupSharing) {
@@ -408,8 +412,22 @@ public class HikeAudioRecordView {
     }
 
     public void dismissAudioRecordView() {
+        if (popup_l.isShowing()) {
+            popup_l.dismiss();
+        }
+    }
+
+    public void cancelAndDismissAudio() {
+        if(recorderState != IDLE){
+            cancelAndDeleteAudio();
+        }
+
         if (popup_l.isShowing())
             popup_l.dismiss();
+    }
+
+    public boolean isShowing(){
+        return (popup_l!= null) ? popup_l.isShowing(): false;
     }
 
     private class UpdateRecordingDuration implements Runnable {

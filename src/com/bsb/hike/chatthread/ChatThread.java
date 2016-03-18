@@ -533,7 +533,7 @@ import android.widget.Toast;
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
 	private int intentDataHash;
-	
+
 	protected HikeDialog dialog;
 	
 	protected HikeCustomKeyboard mCustomKeyboard;
@@ -2035,13 +2035,18 @@ import android.widget.Toast;
 		{
 			return true;
 		}
-		
+
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
+			return true;
+		}
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-		
+
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
@@ -2082,6 +2087,11 @@ import android.widget.Toast;
 	
 	private void actionBarBackPressed()
 	{
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
+			return;
+		}
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -4145,6 +4155,8 @@ import android.widget.Toast;
 					case MotionEvent.ACTION_UP:
 						walkieView.update(v, event);
 						break;
+					default:
+						return false;
 				}
 
 				return true;
@@ -4968,6 +4980,9 @@ import android.widget.Toast;
 		if (audioRecordView != null)
 		{
 			audioRecordView.dismissAudioRecordView();
+		}
+		if(walkieView != null & walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
 		}
 	}
 
@@ -6262,7 +6277,7 @@ import android.widget.Toast;
 			}
 		}
 
-		if(walkieView != null){
+		if(walkieView != null && !walkieView.isShowing()){
 			walkieView = new HikeAudioRecordView(activity,this);
 		}
 		
@@ -6377,7 +6392,9 @@ import android.widget.Toast;
 		// on back press - if keyboard was open , now keyboard gone , try to hide emoticons
 		// if keyboard ws not open , onbackpress of activity will get call back, dismiss popup there
 		// if we dismiss here in second case as well, then onbackpress of acitivty will be called and it will finish activity
-		
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
+		}
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
