@@ -339,7 +339,7 @@ public class PlatformZipDownloader
 								return;
 							}
 							Boolean isSuccess = (Boolean) data;
-
+                            zipFile.delete();
                             if (isSuccess)
                             {
                                 if (!TextUtils.isEmpty(asocCbotMsisdn))
@@ -398,7 +398,6 @@ public class PlatformZipDownloader
 									PlatformUtils.deleteDirectory(unzipPath + appName); // Deleting incorrect unzipped file.
 								}
                             }
-							zipFile.delete();
 						}
 					});
 				}
@@ -573,7 +572,7 @@ public class PlatformZipDownloader
                     eventCode = EventCode.ZERO_BYTE_ZIP_DOWNLOAD;
 
 				callbackProgress.remove(callbackId);
-				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getLayout_url());
+				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getId());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.appVersion,httpException.getErrorCode());
 

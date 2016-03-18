@@ -4387,9 +4387,9 @@ public class MqttMessagesManager
 
 					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
 
-					// Saving count to file to display the counter at home screen
-					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
-					if (count != -1)
+					//Saving count to file to display the counter at home screen
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount(false);
+					if(count != -1)
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);
 

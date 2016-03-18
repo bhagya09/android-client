@@ -2559,6 +2559,107 @@ public class StickerManager
 	}
 
 	/**
+	 * Send sticker settings clicked analytics i.e. Delete, Hide, Reorder and Update selected
+	 */
+	public void sendStickerSettingsEventAnalytics(String event)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack hide/unhide analytics
+	 * @param catId
+	 * @param visibility
+	 */
+	public void sendPackHideAnalytics(String catId, boolean visibility)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_HIDE);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			metadata.put(HikeConstants.PACK_VISIBILITY, visibility);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack delete analytics
+	 * @param event
+	 * @param catId
+	 */
+	public void sendPackDeleteAnalytics(String event, String catId)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack update analytics
+	 * @param event
+	 * @param catId
+	 */
+	public void sendPackUpdateAnalytics(String event, String catId)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
+	 * Send sticker pack reorder analytics
+	 * @param catId
+	 * @param oldPosition
+	 * @param newPosition
+	 */
+	public void sendPackReorderAnalytics(String catId, int oldPosition, int newPosition)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_PACK_REORDERED);
+			metadata.put(HikeConstants.CATEGORY_ID, catId);
+			metadata.put(HikeConstants.OLD_PACK_POSITION, oldPosition);
+			metadata.put(HikeConstants.NEW_PACK_POSITION, newPosition);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	/**
 	 * Send sticker search data rebalancing analytics
 	 */
 	public void sendRebalancingAnalytics(String timeStamp, long initialDBSize, long availableMemory, int initialRowCount, int deletedRowCount)
@@ -2586,11 +2687,13 @@ public class StickerManager
 	 */
 	public void sendStickerFolderLockedError(String errorMsg)
 	{
-		JSONObject error = new JSONObject();
+
 		try
 		{
-			error.put(TAG, errorMsg);
-			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, error);
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_FOLDER_ERROR);
+			metadata.put(TAG, errorMsg);
+			HAManager.getInstance().record(AnalyticsConstants.DEV_EVENT, AnalyticsConstants.STICKER_SEARCH, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
 		{
