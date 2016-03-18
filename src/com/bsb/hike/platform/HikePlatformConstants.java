@@ -93,7 +93,8 @@ public interface HikePlatformConstants
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
     public static final String IS_SDK ="isSdk" ;
-    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
+	String HIKE_AFFINITY="hike_affinity";
+	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
 
     public static final class PlatformFetchType
@@ -347,4 +348,9 @@ public interface HikePlatformConstants
     String MICRO_APP_NEWS_REGEX = "news";
 
     String MICRO_APP_CRICKET_REGEX = "cricket";
+
+	String BIG_PICTURE = "big_picture";
+
+	String BITMAP_URL = "bitmap_url";
+
 }

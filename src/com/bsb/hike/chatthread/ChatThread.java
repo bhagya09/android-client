@@ -1725,7 +1725,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initStickerPicker();
 		
 		closeStickerTip();
-		StickerManager.getInstance().sendStickerButtonClickAnalytics();
+		StickerManager.getInstance().logStickerButtonPressAnalytics();
 		
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
@@ -1809,7 +1809,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 		}
 
-        StickerManager.getInstance().sendEmoticonAnalytics();
+        StickerManager.getInstance().logEmoticonButtonPressAnalytics();
 
 		Logger.v(TAG, "Time taken to open emoticon pallete : " + (System.currentTimeMillis() - time));
 	}

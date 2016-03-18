@@ -828,6 +828,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void onClick(View v)
 				{
+					Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
 					try
 					{
 						JSONObject metadata = new JSONObject();
