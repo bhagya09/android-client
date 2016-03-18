@@ -33,6 +33,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.FetchCategoryDetailsTask;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -76,7 +77,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private View headerContainer;
 
-	private int NUM_COLUMNS;
+	public static int NUM_COLUMNS;
 
 	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, downButtonMaxWidth, categoryDescriptionMaxHeight, topMarginForCenterVertical;
 
@@ -234,16 +235,13 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			@Override
 			public int getSpanSize(int position)
 			{
-				if(stickerCategory.getAllStickers() == null)
+				if(mAdapter != null)
 				{
-					return 1;
-				}
-				if (position == 0 || position > stickerCategory.getAllStickers().size())
-				{
-					return NUM_COLUMNS;
+					return mAdapter.getSpanSize(position);
 				}
 				else
 				{
+					Logger.wtf(TAG, "adapater is null and get span size is called . should not happen ");
 					return 1;
 				}
 			}
@@ -265,12 +263,18 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	public List<Pair<Integer, BasePackPreviewAdapterItem>> getHeaderList()
 	{
-		List<Pair<Integer, BasePackPreviewAdapterItem>> headerList = new ArrayList<>(1);
+		List<Pair<Integer, BasePackPreviewAdapterItem>> headerList = new ArrayList<>(2);
+
+		BasePackPreviewAdapterItem gridTopMarginHeaderItem = new GridTopMarginItem(getActivity());
+		headerContainer = ((GridTopMarginItem) gridTopMarginHeaderItem).getHeaderContainer();
+
+		headerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_GRID_TOP_MARGIN, gridTopMarginHeaderItem));
 
 		BasePackPreviewAdapterItem tapTextHeaderItem = new TapTextHeaderItem(getActivity());
-		headerContainer = ((TapTextHeaderItem) tapTextHeaderItem).getHeaderContainer();
-
-		headerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_TAP_TEXT_HEADER, tapTextHeaderItem));
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
+		{
+			headerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_TAP_TEXT_HEADER, tapTextHeaderItem));
+		}
 
 		return headerList;
 	}
@@ -301,14 +305,17 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	@Override
 	public void onClick(View v) {
-		int position = rvGrid.getChildAdapterPosition(v) - 1;
-		if (position < 0 || position >= stickerCategory.getAllStickers().size())
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
 		{
-			return;
-		}
+			int position = rvGrid.getChildAdapterPosition(v) - 1;
+			if (position < 0 || position >= stickerCategory.getAllStickers().size())
+			{
+				return;
+			}
 
-		Sticker sticker = stickerCategory.getAllStickers().get(position);
-		stickerPreviewContainer.show(v, sticker);
+			Sticker sticker = stickerCategory.getAllStickers().get(position);
+			stickerPreviewContainer.show(v, sticker);
+		}
 	}
 
 	@Override

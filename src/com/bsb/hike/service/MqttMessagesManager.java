@@ -2893,6 +2893,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if(data.has(HikeConstants.SHOW_STICKER_PREVIEW))
+		{
+			boolean showStickerPreview = data.getBoolean(HikeConstants.SHOW_STICKER_PREVIEW);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_PREVIEW, showStickerPreview);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
