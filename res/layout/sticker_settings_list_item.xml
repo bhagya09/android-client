@@ -29,34 +29,22 @@
 
     <LinearLayout
         android:id="@+id/category_checkbox_ll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="18dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:gravity="center"
+        android:orientation="vertical"
         android:layout_centerVertical="true">
 
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-        <com.bsb.hike.view.MaterialElements.Switch
-            android:id="@+id/hide_switch"
-            android:layout_width="42dp"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:clickable="false"
-            android:focusable="false"
-            app:sw_trackColor="@drawable/switch_track"
-            app:sw_thumbColor="@drawable/switch_thumb"
-            app:sw_trackSize="14dp"
-            app:sw_trackCap="round"
-            app:sw_thumbRadius="10dp"
-            app:sw_thumbElevation="2dp"
-            app:sw_animDuration="0"
-            android:gravity="center_vertical"
-            android:layout_gravity="center_vertical"
+            <ImageButton
+            android:id="@+id/category_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/sticker_settings_checkbox"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
             android:visibility="gone"/>
 
             <ImageButton
@@ -96,8 +84,6 @@
             android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
             android:visibility="gone" />
-
-        </FrameLayout>
 
     </LinearLayout>
 
