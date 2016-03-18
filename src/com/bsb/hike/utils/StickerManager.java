@@ -1628,13 +1628,13 @@ public class StickerManager
 
 			if (jsonObj.has(HikeConstants.STICKER_LIST)) {
 				JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
-				String allStickerListString = stickerArray == null ? null : stickerArray.toString();
+				String allStickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
 				category.setAllStickerListString(allStickerListString);
 			}
 
 			if(jsonObj.has(HikeConstants.SIMILAR_PACKS)) {
 				JSONArray similarPacksArray = jsonObj.optJSONArray(HikeConstants.SIMILAR_PACKS);
-				String similarPacksString = similarPacksArray == null ? null : similarPacksArray.toString();
+				String similarPacksString = Utils.isEmpty(similarPacksArray) ? null : similarPacksArray.toString();
 				category.setSimilarPacksString(similarPacksString);
 			}
 
