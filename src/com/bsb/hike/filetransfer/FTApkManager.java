@@ -98,7 +98,9 @@ public class FTApkManager
                             Logger.d("AUTOAPK", "on receive of new apk, the version name was found to be higher, hence cancelling and downloading");
                             FileTransferManager.getInstance(context).cancelTask(-100, hfOld.getFile(), false, hfOld.getFileSize());
                             Logger.d("AUTOAPK", "also deleting the already downloaded file if it exists");
-                            hfOld.getFile().delete();
+                            if(hfOld.getFile() !=null && hfOld.getFile().exists()) {
+                                hfOld.getFile().delete();
+                            }
 
                             Logger.d("AUTOAPK", " download will start after network check, saving vargs");
                             HikeFile hf = new HikeFile(apkName, HikeFile.HikeFileType.toString(HikeFile.HikeFileType.APK), apkVersion, apkSize, apkDownloadUrl);
@@ -222,18 +224,19 @@ public class FTApkManager
                 }
 
                 long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
-                boolean validSize = hikefile.getFile().length() == apkSizeReceived && hikefile.getFile().length() > 0;
-                Logger.d("AUTOAPK", hikefile.getFile().length() + " is the file size, saved size is " + apkSizeReceived);
+                File hFile = hikefile.getFile();
+                boolean validSize =  (hFile!=null && hFile.exists() ) ? hFile.length() == apkSizeReceived && hFile.length() > 0 : false;
+                Logger.d("AUTOAPK", hFile.length() + " is the file size, saved size is " + apkSizeReceived);
                 boolean updateNeeded = Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""), context)
                         && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""));
                 Logger.d("AUTOAPK", HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "") + " is the apk version new, old is is " + Utils.getAppVersionName());
 
-                if (hikefile.getFile().exists() && validSize && updateNeeded) {
+                if (hFile.exists() && validSize && updateNeeded) {
                     Logger.d("AUTOAPK", "hike APK downloaded exists");
                     if (HikeFile.HikeFileType.APK == hikefile.getHikeFileType()) {
                         Logger.d("AUTOAPK", "hike showing install prompt");
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(hikefile.getFile()), "application/vnd.android.package-archive");
+                        intent.setDataAndType(Uri.fromFile(hFile), "application/vnd.android.package-archive");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                         if(isNonPlayAppAllowed)
