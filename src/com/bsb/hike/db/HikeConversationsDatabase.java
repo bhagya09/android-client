@@ -310,7 +310,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
 				+ ")";
 		db.execSQL(sql);
-
 		sql = getActionsTableCreateQuery();
 		db.execSQL(sql);
 		
@@ -3085,7 +3084,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -7576,8 +7574,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,
-				SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	/*
@@ -8148,6 +8145,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
 
+    /**
+     * Utility method to Update the config data in BotTable
+     *
+     * @param msisdn
+     * @param metadata
+     */
+    public void updateBotMetaData(String botMsisdn, String metadata)
+    {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONVERSATION_METADATA, metadata);
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+    }
+
 	/**
 	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
 	 * multiple entries. It is having key as the timestamp and value as the notifData given at certain time.
@@ -8341,8 +8351,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8390,7 +8399,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
-				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
+
+                BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
 						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
@@ -8433,8 +8443,37 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String notifData = c.getString(notifDataIdx);
 		String helperData = c.getString(helperDataIdx);
 		int version = c.getInt(versionIdx);
+        int mAppVersionCode = 0;
+        // Keeping default bot type as web micro apps
+        byte nmBotType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+		// Get mAppVersionCode from the metadata to store in Bot Info Object
+		if (!TextUtils.isEmpty(metadata))
+		{
+			try
+			{
+				JSONObject mdJsonObject = new JSONObject(metadata);
+
+				if (mdJsonObject != null)
+				{
+                    String nonMessagingBotType = mdJsonObject.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE);
+
+                    if(!TextUtils.isEmpty(nonMessagingBotType) && nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE))
+                        nmBotType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					if (cardObjectJson != null)
+						mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+        
 		BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setMAppVersionCode(mAppVersionCode).setBotType(nmBotType).build();
 
 		botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		return botInfo;
@@ -8745,7 +8784,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-				DatabaseUtils.sqlEscapeString(objectType));
+                DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -8988,7 +9027,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
-
 
 	/**
 	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.

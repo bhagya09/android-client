@@ -3,6 +3,7 @@ package com.bsb.hike.bots;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.util.Pair;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -11,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -214,8 +216,29 @@ public class BotUtils
 		}
 
 		HikeConversationsDatabase.getInstance().getBotHashmap();
-		Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
-		Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
+        Logger.d("create bot", "Keys are " + HikeMessengerApp.hikeBotInfoMap.keySet() + "------");
+        Logger.d("create bot", "values are " + HikeMessengerApp.hikeBotInfoMap.values());
+        
+        /*
+        * Set up current platform sdk version by getting its value from the database
+        * Removing db query from ui thread and setting it up on Hike handler util thread..
+        */
+        HikeHandlerUtil mThread;
+        mThread = HikeHandlerUtil.getInstance();
+        mThread.startHandlerThread();
+
+		mThread.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().initSdkMap();
+
+			}
+		});
+                
+        Logger.d("hikeSdkMap", "Keys are " + HikeMessengerApp.hikeSdkMap.keySet() + "------");
+        Logger.d("hikeSdkMap", "values are " + HikeMessengerApp.hikeSdkMap.values());
 	}
 
 	/**
@@ -248,36 +271,102 @@ public class BotUtils
 		}
 		deleteBotConversation(msisdn , true);
 	}
-	/*
-	 * Uility method to delete the bot files from the file system
-	 * 
+
+    /*
+	 * Utility method to delete the bot files from the file system
+	 * Sample DMapp packet would be of this form :: {
+                                "t": "ac",
+                                "d": {
+                                    "dmapp": [
+                                        {
+                                          "msisdn":["+hikenews+" ,"+hikecoupons+"]
+                                        }
+                                    }
+                               }
+	 *
+	 *
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroApp(JSONObject jsonObj){
+	public static void removeMicroAppFromVersioningPath(JSONObject jsonObj)
+	{
 		try
 		{
-			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
-			for (int i = 0; i< appsToBeRemoved.length(); i++){
-				String appName =  appsToBeRemoved.get(i).toString();
-				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
-				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
-				if(PlatformUtils.deleteDirectory(makePath)){
-					String sentData = AnalyticsConstants.REMOVE_SUCCESS;
-					JSONObject json = new JSONObject();
-					json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
-					json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
-					json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
-					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
-				}
-			}
+			// Code path to be deleted that is being generated after platform versioning release
+            JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.MSISDN);
+            for (int i = 0; i< appsToBeRemoved.length(); i++) {
+                String msisdn = appsToBeRemoved.get(i).toString();
+                BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+                // If botInfo is null i.e bot is not present, ignore this request and continue with further requests
+                if(botInfo == null)
+                    continue;
+
+                byte botType = botInfo.getBotType();
+                String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+                String appName = msisdn.substring(1, msisdn.length() - 1);
+                microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
+                Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
+                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
+                Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
+                if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath)) {
+                    String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+                    JSONObject json = new JSONObject();
+                    json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
+                    json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+                    json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+                    HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+                }
+            }
+
 		}
 		catch (JSONException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 	}
+
+    /*
+	 * Utility method to delete the bot files from the file system
+	 * Sample DMapp packet would be of this form ::
+	 *                         {
+                                "t": "ac",
+                                "d": {
+                                    "dmapp": [
+                                        {"appName":["newsappv84" ,"newsappv85"]
+                                        }
+                                    }
+                               }
+
+	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
+	 */
+    public static void removeMicroApp(JSONObject jsonObj){
+        try
+        {
+            JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+            for (int i = 0; i< appsToBeRemoved.length(); i++){
+                String appName =  appsToBeRemoved.get(i).toString();
+                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR +  appName;
+                Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+
+                if(PlatformUtils.deleteDirectory(makePath)){
+                    String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+                    JSONObject json = new JSONObject();
+                    json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
+                    json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+                    json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+                    HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+                }
+            }
+        }
+        catch (JSONException e1)
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+    }
+
 
 	/**
 	 * Utility method to create an entry of Bot in bot_table, conversations_table. Also create a conversation on the conversation fragment.
@@ -324,12 +413,56 @@ public class BotUtils
 		}
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
-			botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+            botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+
+            // Check if botInfo generated is null, stop the flow and call cbot failed analytics
+            if(botInfo == null)
+            {
+                PlatformUtils.invalidDataBotAnalytics(botInfo);
+                return;
+            }
+
+            // Check for rejecting cbot lower version mAppVersionCode and botVersionCode and stop the flow if user already has an upper version of same msisdn bot running
+			if (jsonObj.has(HikePlatformConstants.METADATA))
+			{
+				int currentBotInfoMAppVersionCode = 0, mAppVersionCode = 0, botVersionCode = 0, currentBotVersionCode = 0;
+
+				// Get existing bot version details
+				BotInfo currentBotInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+				if (currentBotInfo != null)
+				{
+					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
+					currentBotVersionCode = currentBotInfo.getVersion();
+				}
+
+				// Get received cbot version details for comparison
+				if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
+				{
+					botVersionCode = jsonObj.optInt(HikePlatformConstants.BOT_VERSION);
+				}
+				JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+				JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+				if (cardObjectJson != null)
+					mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+
+				if (mAppVersionCode == -1 || mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
+						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
+				{
+                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    return;
+                }
+            }
+
 			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-			if (botMetadata.isMicroAppMode())
+
+            if (botMetadata.isMicroAppMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+                botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
+
+                // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
+                if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
+                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -337,9 +470,11 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				PlatformUtils.downloadZipForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
-			}
+                botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
+                // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
+                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
+			}
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
@@ -432,7 +567,22 @@ public class BotUtils
 
 		}
 
-		return botInfo;
+        if (jsonObj.has(HikePlatformConstants.METADATA))
+        {
+            int mAppVersionCode = 0;
+            JSONObject mdJsonObject = jsonObj.optJSONObject(HikePlatformConstants.METADATA);
+            JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+            if(cardObjectJson != null)
+                mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+
+            if (mAppVersionCode > 0)
+            {
+                botInfo.setMAppVersionCode(mAppVersionCode);
+            }
+        }
+
+
+        return botInfo;
 	}
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
@@ -508,8 +658,9 @@ public class BotUtils
 		contact.setFavoriteType(ContactInfo.FavoriteType.NOT_FRIEND);
 		ContactManager.getInstance().updateContacts(contact);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CONTACT_ADDED, contact);
-		
-		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfo);
+
+        Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
 		
 		/**
 		 * Notification will be played only if notifType is Silent/Loud
@@ -820,7 +971,7 @@ public class BotUtils
 	/**
 	 * Returns the root folder path for bot thumbnails <br>
 	 * eg : "/data/data/com.bsb.hike/files/Content/DP/"
-	 * 
+	 *
 	 * @return
 	 */
 	private static String getBotThumbnailRootFolder()
@@ -864,5 +1015,4 @@ public class BotUtils
 		return true;
 	}
 	
-
 }

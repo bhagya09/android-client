@@ -2,18 +2,16 @@ package com.bsb.hike.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,8 +32,13 @@ import android.util.Base64;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.*;
+import com.bsb.hike.AppConfig;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -47,26 +50,34 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.DownloadFileTask;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.*;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.GroupTypingNotification;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.MessagePrivateData;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -75,13 +86,14 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.*;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
@@ -91,9 +103,21 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.userlogs.UserLogInfo;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.ClearGroupTypingNotification;
+import com.bsb.hike.utils.ClearTypingNotification;
+import com.bsb.hike.utils.FestivePopup;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
@@ -137,8 +161,10 @@ public class MqttMessagesManager
 	private static int lastNotifPacket;
 	
 	private static final String DP_DOWNLOAD_TAG = "dp_download";
-	
-	private MqttMessagesManager(Context context)
+
+    private String TAG = "MqttMessagesManager";
+
+    private MqttMessagesManager(Context context)
 	{
 		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
 		this.convDb = HikeConversationsDatabase.getInstance();
@@ -635,17 +661,16 @@ public class MqttMessagesManager
 	private void saveMessage(JSONObject jsonObj) throws JSONException
 	{
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
-		
+
 		//Logs for Msg Reliability
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
-
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
 		{
 			//discard message since the conversation is blocked
 			return;
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+        if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
 		}
@@ -654,7 +679,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 
-	}
+ 	}
 
 	private void saveMessage(ConvMessage convMessage)
 	{
@@ -705,7 +730,7 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
+        PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
 		{
 
@@ -735,10 +760,20 @@ public class MqttMessagesManager
 			}
 		});
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
-		if (!downloader.isMicroAppExist())
+        // Stop the flow and return from here in case any exception occurred and contentData becomes null
+        if(rqst.getContentData() == null)
+            return;
+
+        //  Parameters to call if micro app already exists method for this case
+        String mAppName = rqst.getContentData().cardObj.getAppName();
+        int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
+        byte botType = rqst.getBotType();
+        String msisdn = rqst.getContentData().getMsisdn();
+
+        if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
 		{
-			downloader.downloadAndUnzip();
+            PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
+            downloader.downloadAndUnzip();
 		}
 		else
 		{
@@ -1900,7 +1935,6 @@ public class MqttMessagesManager
 
 		/*
 		 * WebView names and their respective urls for Rewards and Hike Extras will be controlled by server  
-		 * 		 
 		 */
 		// Hike Extras
 		if (data.has(HikeConstants.HIKE_EXTRAS_NAME))
@@ -1937,11 +1971,26 @@ public class MqttMessagesManager
 				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
 			}
 		}
-		if(data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
+		if (data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
 		{
 			JSONArray microAppsTobeRemoved = data.getJSONArray(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
-			for (int i = 0; i< microAppsTobeRemoved.length(); i++){
-				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+			for (int i = 0; i < microAppsTobeRemoved.length(); i++)
+			{
+				// First check dmapp packet json structure and based on the packet structure call respective method to delete from versioning directory or older micro app path
+                JSONObject jsonObject = (JSONObject) microAppsTobeRemoved.get(i);
+
+				if(jsonObject.has(HikePlatformConstants.APP_NAME))
+                {
+                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                {
+                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else
+                {
+                    Logger.e(TAG, "Stopping mapps delete flow as wrong packet structure is being sent for dmapp");
+                }
 			}
 		}
 		if(data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
@@ -2864,6 +2913,12 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
+
+        if(data.has(HikeConstants.Extras.FLUSH_OLD_CONTENT))
+        {
+            boolean flushOldContent = data.getBoolean(HikeConstants.Extras.FLUSH_OLD_CONTENT);
+            PlatformUtils.deleteOldContentMicroAppCode(flushOldContent);
+        }
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);

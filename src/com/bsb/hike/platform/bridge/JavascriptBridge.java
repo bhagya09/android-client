@@ -1,16 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -79,6 +68,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
 /**
@@ -425,8 +415,6 @@ public abstract class JavascriptBridge
 			}
 		}
 	}
-
-	;
 
 	public static void expand(final View v, final int targetHeight)
 	{
@@ -1445,7 +1433,8 @@ public abstract class JavascriptBridge
 		botInfo.setUnreadCount(0);
 
 	}
-	/**
+
+    /**
 	 * Platform Version 9
 	 * This function is made  to know whether a microapp exists.
 	 * @param id: the id of the function that native will call to call the js .
@@ -1454,9 +1443,24 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id, String mapp)
 	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+		String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + mapp);
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + mapp);
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + mapp);
+
+        if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
 	}

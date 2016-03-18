@@ -92,7 +92,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[8];
+		String[] createAndIndexes = new String[9];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -130,12 +130,21 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				  + TRIGGER_POINT + " INTEGER " + ")";
 		// URL_WHITELIST_TABLE
 		String urlWhitelistTable = CREATE_TABLE + URL_WHITELIST + "(" 
-				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+				+ _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ DOMAIN + " TEXT UNIQUE, "
 				+ IN_HIKE + " INTEGER" + ")";
 		createAndIndexes[i++]= urlWhitelistTable;
 		// URL WHITELIST ENDS
-		
+
+        //CREATE MAPP_TABLE
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + IS_SDK + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+        createAndIndexes[i++]= mAppTable;
+
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
 		
 		createAndIndexes[i++] = popupDB;
@@ -216,6 +225,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
 			queries.add(createBotDiscoveryQuery);
 		}
+
+        if (oldVersion < 7)
+        {
+            String createMappTableQuery = getCreateMAppDataTableQuery();
+            queries.add(createMappTableQuery);
+        }
 		
 		return queries.toArray(new String[]{});
 	}
@@ -700,8 +715,24 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 			int latestVersion = botJSON.optInt(HikePlatformConstants.BOT_LATEST_VERSION, 0); // TODO Add current version here
 
-			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).build();
-			
+            int mAppVersionCode = 0;
+
+            byte requestType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+            if (botJSON.has(HikePlatformConstants.METADATA))
+            {
+                JSONObject mdJsonObject = botJSON.optJSONObject(HikePlatformConstants.METADATA);
+                JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                String nonMessagingBotType = cardObjectJson.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE,HikePlatformConstants.MICROAPP_MODE);
+                if (nonMessagingBotType == HikePlatformConstants.NATIVE_MODE)
+                {
+                    requestType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+                }
+            }
+
+			BotInfo mBotInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).description(description).setType(botType).setUpdateVersion(latestVersion).setMAppVersionCode(mAppVersionCode).setBotType(requestType).build();
+
 			String thumbnailString = botJSON.optString(HikePlatformConstants.BOT_DP, "");
 			
 			if (!TextUtils.isEmpty(thumbnailString))
@@ -860,5 +891,63 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		
 		return array;
 	}
+
+    /*
+     * Method to insert entry to MApp Data table for each entry
+     */
+    public void insertIntoMAppDataTable(String mAppName,int version,String appPackageUrl,boolean isSdk)
+    {
+        // values to insert into Mapp Data table
+        ContentValues cv = new ContentValues();
+        cv.put(NAME,mAppName);
+        cv.put(VERSION,version);
+        cv.put(APP_PACKAGE,appPackageUrl);
+
+        // Converting isSdk boolean variable to isSdkInt before adding it into the db
+        int isSdkInt = (isSdk) ? 1 : 0;
+        cv.put(IS_SDK,isSdkInt);
+
+
+        long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
+        if(insertedRow > 0 && isSdk)
+            HikeMessengerApp.hikeSdkMap.put(mAppName,version);
+    }
+
+    /*
+     * Method to get mapp version by its app name
+     */
+    public void initSdkMap()
+    {
+        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[] { DBConstants.NAME,DBConstants.HIKE_CONTENT.VERSION }, IS_SDK + "=?", new String[]{"1"}, null, null, null);
+
+        while(c != null && c.moveToNext())
+        {
+            String appName = c.getString(c.getColumnIndex(DBConstants.NAME));
+            int version = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
+            Logger.v("BOT", "Putting sdk Info in hashmap " + appName + version);
+            HikeMessengerApp.hikeSdkMap.put(appName,version);
+        }
+
+        if (c != null)
+        {
+            c.close();
+        }
+    }
+
+    /*
+    * Method to get MApp table data create query
+    */
+    private String getCreateMAppDataTableQuery()
+    {
+        String mAppTable = CREATE_TABLE + MAPP_DATA + "("
+                + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT UNIQUE, "
+                + VERSION + " INTEGER, "
+                + IS_SDK + " INTEGER, "
+                + APP_PACKAGE + " TEXT" + ")";
+
+        return mAppTable;
+    }
 
 }

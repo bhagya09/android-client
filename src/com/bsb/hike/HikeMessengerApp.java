@@ -82,6 +82,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
 		ReportField.ANDROID_VERSION, ReportField.STACK_TRACE, ReportField.USER_APP_START_DATE, ReportField.USER_CRASH_DATE })
@@ -627,6 +628,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
+    public static ConcurrentHashMap<String,Integer> hikeSdkMap = new ConcurrentHashMap<>();
+
 	static
 	{
 		mPubSubInstance = new HikePubSub();
@@ -872,7 +875,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			editor.putBoolean(HikeConstants.SSL_PREF, !(isIndianUser || isSAUser));
 			editor.commit();
 		}
-		
+
 		//if ssl_allowed preference is not set then set it
 		// this will be usefull for upgrading users.
 		if(!HikeSharedPreferenceUtil.getInstance().contains(HikeMessengerApp.SSL_ALLOWED))
@@ -930,6 +933,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			replaceGBKeys();
 		}
+
+        // Set default path as internal storage on production host
+        PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
 
 		validateHikeRootDir();
 		makeNoMediaFiles();
@@ -999,7 +1005,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
-		
+
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
         // On a long run this should be deleted 
@@ -1014,6 +1020,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+
 	}
 
 	/**
@@ -1149,6 +1156,21 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS);
+        Utils.makeNoMediaFile(folder, true);
 
 	}
 
@@ -1321,6 +1343,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
+
 
     private void setAnalyticsSendAlarm()
     {

@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +24,11 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -41,6 +39,12 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -1294,12 +1298,28 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id)
 	{
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+        String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName());
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
+
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + nonMessagingBotMetadata.getAppName());
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName());
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + nonMessagingBotMetadata.getAppName());
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + nonMessagingBotMetadata.getAppName());
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + nonMessagingBotMetadata.getAppName());
+
+        if (fileInMappsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
+        else
+            callbackToJS(id, "false");
 	}
 
 	/**
@@ -1317,7 +1337,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
+
 		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
@@ -1357,19 +1379,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
 			return;
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-		JSONObject json = new JSONObject();
-		try
-		{
-			JSONArray array = new JSONArray();
-			array.put(nonMessagingBotMetadata.getAppName());
-			json.put(HikePlatformConstants.APP_NAME, array);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		BotUtils.removeMicroApp(json);
-		BotUtils.deleteBot(msisdn);
+
+        // Json to remove micro app code from old micro app content path and from new structured versioning path
+        JSONObject json = new JSONObject();
+        try
+        {
+            // Generating app Names json array
+            JSONArray appNameArray = new JSONArray();
+            appNameArray.put(nonMessagingBotMetadata.getAppName());
+
+            // Generating msisdn json array
+            JSONArray msisdnArray = new JSONArray();
+            msisdnArray.put(msisdn);
+
+            json.put(HikePlatformConstants.APP_NAME, appNameArray);
+            json.put(HikePlatformConstants.MSISDN, msisdnArray);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        BotUtils.removeMicroApp(json);
+        BotUtils.removeMicroAppFromVersioningPath(json);
+
+        // code to delete bot from conversations
+        BotUtils.deleteBot(msisdn);
 	}
 	/**
 	 * Platform Version 9
@@ -1387,7 +1421,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
+
 		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");

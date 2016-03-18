@@ -661,6 +661,18 @@ public class AnalyticsConstants
 
 	public static final String USER_LOCATION = "location";
 
+    public static final String PLATFORM_CONTENT_DIRECTORY = "platform_content_directory";
+
+    public static final String HIKE_MICRO_APPS_DIRECTORY = "hike_micro_apps_directory";
+
+    public static final String HIKE_WEB_MICRO_APPS_DIRECTORY = "hike_web_micro_apps_directory";
+
+    public static final String GAMES_DIRECTORY = "games_directory";
+
+    public static final String MAPPS_DIRECTORY = "mapps_directory";
+
+    public static final String POPUP_DIRECTORY = "popup_directory";
+
 	public static final String DATABASE_ERROR = "db_error";
 
 	public static final class InterceptEvents

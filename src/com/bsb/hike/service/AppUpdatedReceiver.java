@@ -45,7 +45,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
-
 			Intent intentKpt = new Intent();
 			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
 			context.sendBroadcast(intentKpt);
@@ -57,6 +56,9 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			{
 				return;
 			}
+
+            // schedule the alarm for migration of old running micro apps in the content directory to new path if code not already migrated
+            scheduleHikeMicroAppsMigrationAlarm(context);
 
 			HAManager.getInstance().logUserGoogleAccounts();
 			/*
@@ -111,4 +113,17 @@ public class AppUpdatedReceiver extends BroadcastReceiver
             PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.APP_UPDATE_TRIGGER);
 		}
 	}
+
+    /**
+     * Used to schedule the alarm for migration of old running micro apps in the content directory
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
+    {
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+        }
+    }
+
+
 }
