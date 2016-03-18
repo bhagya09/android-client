@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:paddingLeft="48dp"
+                    android:paddingLeft="11dp"
                     android:text="@string/drag_tip_text"
                     android:textColor="@color/white"
                     android:textSize="16sp"/>
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:textStyle="normal"
-                    android:paddingLeft="48dp"
+                    android:paddingLeft="11dp"
                     android:text="@string/drag_tip_subtext"
                     android:textColor="@color/white"
                     android:textSize="12sp"/>
