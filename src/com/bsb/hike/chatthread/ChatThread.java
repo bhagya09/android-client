@@ -404,29 +404,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	ObjectAnimator tipFadeInAnimation;
 
-	private AtomicBoolean isFetchConversationStarted=new AtomicBoolean(false);
-
 	Callable<Conversation> callable=new Callable<Conversation>() {
 		@Override
 		public Conversation call() throws Exception {
-			isFetchConversationStarted.set(true);
 			return fetchConversation();
 		}
 	};
 
 
-	private class MyFetchConversationAsyncTask extends AsyncTask<Void,Boolean,Boolean>
-	{
-
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			conversationFuture.run();
-			return true;
-		}
-	}
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
-
-
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
@@ -661,7 +647,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
 		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
-		fetchConversationAsyncTask=new MyFetchConversationAsyncTask();
+		fetchConversationAsyncTask=new MyFetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
 		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
 		StopWatch initTime=new StopWatch();
@@ -2569,6 +2555,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected final void fetchConversation(boolean async)
 	{
+		boolean isThreadException=false;
 		StopWatch watch=new StopWatch();
 		watch.start();
 		Logger.i(TAG, "fetch conversation called , isAsync " + async);
@@ -2581,19 +2568,30 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 			Conversation conv = null;
 			if (fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
-				Logger.d(TAG,"Conversation called due to aynstask not started");
 				fetchConversationAsyncTask.cancel(true);
+				Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
 				conv = fetchConversation();
 			} else {
 				Logger.d(TAG, "trying to get it from future object");
 				try {
 					conv = conversationFuture.get();
 				} catch (InterruptedException e) {
+					Logger.d(TAG,"Interrupted Exception called...>"+Thread.currentThread().getName());
+					isThreadException=true;
 					e.printStackTrace();
 				} catch (ExecutionException e) {
+					Logger.d(TAG,"Exceution Exception called...>"+Thread.currentThread().getName());
 					e.printStackTrace();
+					isThreadException=true;
 				}
 			}
+			if(isThreadException&&conv==null&&Thread.currentThread()==uiHandler.getLooper().getThread())
+			{
+				// Being aggressive here giving it one more try to load obj from DB
+				Logger.d(TAG,"trying to fetch the objects from DB one more time as their was thread exception in the previous state");
+				conv=fetchConversation();
+			}
+			Logger.d(TAG,"Current Thread Name"+Thread.currentThread().getName());
 			watch.stop();
 			Logger.d(TAG,"Time taken to execuet fetchConversation is -->" +watch.getElapsedTime());
 			setupConversation(conv);
@@ -6793,5 +6791,28 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onPostResume()
 	{
 
+	}
+
+	public  static class MyFetchConversationAsyncTask extends AsyncTask<Void,Boolean,Boolean>
+	{
+
+		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
+
+		MyFetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
+		{
+			this.conversationFuture=callableWeakReference;
+		}
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			StopWatch watch=new StopWatch();
+			watch.start();
+			Logger.d(TAG, "Starting callable");
+			if(conversationFuture.get()!=null) {
+				conversationFuture.get().run();
+			}
+			watch.stop();
+			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
+			return true;
+		}
 	}
 }
