@@ -262,7 +262,7 @@ public class FileTransferManager extends BroadcastReceiver
 				}
 				FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), task.msgId));
 				String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS);
+				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
 				if(task.userContext != null && BotUtils.isBot(((ConvMessage) task.userContext).getMsisdn())&& task instanceof DownloadFileTask)
 				{
 					FTAnalyticEvents.platformAnalytics(((ConvMessage) task.userContext).getMsisdn(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileKey(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
@@ -448,7 +448,11 @@ public class FileTransferManager extends BroadcastReceiver
 		_instance = null;
 	}
 
-	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize){
+		cancelTask(msgId, mFile, sent, fileSize, null);
+	}
+
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize, String attachmentShardeAs)
 	{
 		FileSavedState fss;
 		if (sent)
@@ -476,7 +480,7 @@ public class FileTransferManager extends BroadcastReceiver
 			}
 			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
 			deleteLogFile(msgId, mFile);
 		}
 	}
