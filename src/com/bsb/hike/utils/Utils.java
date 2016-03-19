@@ -579,7 +579,12 @@ public class Utils
 
 	public static File createNewFile(HikeFileType type, String prefix)
 	{
-		File selectedDir = new File(Utils.getFileParent(type, false));
+		return createNewFile(type, prefix, false);
+	}
+
+	public static File createNewFile(HikeFileType type, String prefix, boolean isSent)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, isSent));
 		if (!selectedDir.exists())
 		{
 			if (!selectedDir.mkdirs())
