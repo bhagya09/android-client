@@ -102,6 +102,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private Context context;
 
+	private SharedPreferences settings;
+
 	private String brokerHostName;
 
 	private String clientId;
@@ -346,10 +348,11 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		}
 		
 		context = HikeMessengerApp.getInstance();
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
-		password = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOKEN_SETTING, null);
-		topic = uid = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
-		clientId = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null) + ":" + HikeConstants.APP_API_VERSION + ":" + true;
+		password = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		topic = uid = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		clientId = settings.getString(HikeMessengerApp.MSISDN_SETTING, null) + ":" + HikeConstants.APP_API_VERSION + ":" + true;
 
 		persistence = HikeMqttPersistence.getInstance();
 		mqttMessageManager = MqttMessagesManager.getInstance(context);
@@ -636,7 +639,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
-				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
+				Logger.d("HikeMqttManagerNew"+hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
+				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort(), null,
 						MAX_INFLIGHT_MESSAGES_ALLOWED);
 				mqtt.setCallback(getMqttCallback());
 				Logger.d(TAG, "Number of max inflight msgs allowed : " + mqtt.getMaxflightMessages());
@@ -650,7 +654,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			{
 				acquireWakeLock(hostInfo.getConnectTimeOut());
 				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+hostInfo.getConnectTimeOut());
-				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
+				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
 				mqtt.setServerURI(hostInfo.getServerUri());
 				
 				//Setting some connection options which we need to reset on every connect
@@ -704,7 +708,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	private void setServerUris()
 	{
 
-		String ipString = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MQTT_IPS, "");
+		String ipString = settings.getString(HikeMessengerApp.MQTT_IPS, "");
 		JSONArray ipArray = null;
 
 		try
@@ -750,7 +754,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 	
 	private void setServerPorts()
 	{
-		String portString = HikeSharedPreferenceUtil.getInstance().getData(MqttConstants.MQTT_PORTS, "");
+		String portString = settings.getString(MqttConstants.MQTT_PORTS, "");
 		JSONArray portArray = null;
 
 		try
@@ -1516,9 +1520,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					connectOnMqttThread();
 				}
+				ChatHeadUtils.syncFromClientToServer();
+				ChatHeadUtils.syncAllCallerBlockedContacts();
 			}
 			Utils.setupUri(); // TODO : this should be moved out from here to some other place
 			HttpRequestConstants.toggleSSL();
+
+
 		}
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))
 		{
@@ -1618,7 +1626,9 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 
 	private void saveAndSet(String ipString)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MQTT_IPS, ipString);
+		Editor editor = settings.edit();
+		editor.putString(HikeMessengerApp.MQTT_IPS, ipString);
+		editor.commit();
 		setServerUris();
 	}
 	
@@ -1650,7 +1660,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		private void testUj()
 		{
 			int count = 0;
-			String myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+			String myMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
 			String msisdn = "+919999238132";
 			String msisdn1 = "+919868185209";
 			if (myMsisdn != null)
@@ -1707,7 +1717,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 		private void testMsg()
 		{
 			int count = 0;
-			String myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
+			String myMsisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
 			String msisdn = "+919582974797";
 
 			if (myMsisdn != null)

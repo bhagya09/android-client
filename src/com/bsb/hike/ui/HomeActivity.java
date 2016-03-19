@@ -1,12 +1,63 @@
 package com.bsb.hike.ui;
 
 
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Message;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.WindowManager.BadTokenException;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
@@ -21,11 +72,14 @@ import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeSharedFile;
+import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -65,53 +119,6 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
-import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBar;
-import android.text.TextUtils;
-import android.util.Pair;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.WindowManager.BadTokenException;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
 {
@@ -183,7 +190,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -272,6 +279,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return;
 
 		}
+
 		accountPrefs = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
@@ -309,10 +317,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
-
+		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
-		
-	}
+
+    }
 	
 	@Override
 	public void handleUIMessage(Message msg)
@@ -608,7 +616,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onDestroy()
 	{
 		Logger.d(TAG, "onDestroy");
-		
+
 		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
 		if (progDialog != null)
 		{
@@ -624,6 +632,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(null);
 		}
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
 		super.onDestroy();
 	}
 
@@ -825,6 +834,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				@Override
 				public void onClick(View v)
 				{
+					Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
 					try
 					{
 						JSONObject metadata = new JSONObject();
@@ -1201,8 +1211,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		Logger.d(TAG,"onResume");
 		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
@@ -1212,7 +1221,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		super.onResume();
 
 		checkNShowNetworkError();
-		
+
 		showSmsOrFreeInvitePopup();
 	
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CANCEL_ALL_NOTIFICATIONS, null);
@@ -1220,6 +1229,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if(getIntent() != null)
 		{
 			acceptGroupMembershipConfirmation(getIntent());
+		}
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET) == HikeConstants.STEALTH_INDICATOR_RESUME_ACTIVE)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
@@ -1455,6 +1470,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showUpdatePopup(final int updateType)
 	{
+		//TODO wrong check in place can cause other features to fail
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK,false))
+		{
+			return;
+		}
 		if (updateType == HikeConstants.NO_UPDATE)
 		{
 			return;
@@ -1555,7 +1575,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type) || HikePubSub.STEALTH_MODE_TOGGLED.equals(type) || HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{

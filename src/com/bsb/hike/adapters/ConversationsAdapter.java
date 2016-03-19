@@ -1,7 +1,9 @@
 package com.bsb.hike.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -21,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.NUXConstants;
@@ -45,7 +48,9 @@ import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -143,7 +148,29 @@ public class ConversationsAdapter extends BaseAdapter
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setImageFadeIn(false);
-		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
+		iconLoader.setDefaultAvatarIfNoCustomIcon(false);
+		iconLoader.setDefaultDrawableNull(false);
+		iconLoader.setImageLoaderListener(new ImageWorker.ImageLoaderListener() {
+			@Override
+			public void onImageWorkSuccess(ImageView imageView)
+			{
+				// Do nothing
+			}
+
+			@Override
+			public void onImageWorkFailed(ImageView imageView)
+			{
+				if(imageView!=null)
+				{
+					Object tag = imageView.getTag();
+					if(tag!=null && tag instanceof String)
+					{
+						String msisdn = (String)tag;
+						imageView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(msisdn, HikePhotosUtils.dpToPx(26)));
+					}
+				}
+			}
+		});
 		itemsToAnimat = new SparseBooleanArray();
 		contactFilter = new ContactFilter();
 		conversationList = new ArrayList<ConvInfo>();
@@ -750,7 +777,10 @@ public class ConversationsAdapter extends BaseAdapter
 
 		if (OneToNConversationUtils.isBroadcastConversation(convInfo.getMsisdn()))
 		{
-				contactView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			Drawable broadcastDrawable = ContextCompat.getDrawable(context, R.drawable.ic_broad_sm);
+			broadcastDrawable.setAlpha(230);
+			contactView.setCompoundDrawablesWithIntrinsicBounds(broadcastDrawable, null, null, null);
+			contactView.setCompoundDrawablePadding(context.getResources().getDimensionPixelOffset(R.dimen.home_list_header_drawable_padding));
 		}
 		else if (OneToNConversationUtils.isGroupConversation(convInfo.getMsisdn()))
 		{
@@ -778,7 +808,12 @@ public class ConversationsAdapter extends BaseAdapter
 		}
 
 		ImageView avatarView = viewHolder.avatar;
-		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, true);
+
+		avatarView.setTag(convInfo.getMsisdn());
+
+		avatarView.setImageDrawable(HikeBitmapFactory.getDefaultTextAvatar(convInfo.getMsisdn(), HikePhotosUtils.dpToPx(26)));
+
+		iconLoader.loadImage(convInfo.getMsisdn(), avatarView, isListFlinging, false, false,convInfo.getLabel());
 		if(convInfo.isStealth())
 		{
 			viewHolder.hiddenIndicator.setVisibility(View.VISIBLE);
@@ -1280,8 +1315,13 @@ public class ConversationsAdapter extends BaseAdapter
 				}
 				
 				ConvInfo conversationInfo = getItem(indexOfData);
+				
+				if (ContactManager.getInstance().hasIcon(conversationInfo.getMsisdn()))
+				{
+					updateViewsRelatedToAvatar(view,conversationInfo);
+				}
 
-				updateViewsRelatedToAvatar(view,conversationInfo);
+				
 			}
 		}
 		

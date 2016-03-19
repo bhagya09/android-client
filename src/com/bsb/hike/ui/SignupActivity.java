@@ -1,5 +1,13 @@
 package com.bsb.hike.ui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -9,9 +17,9 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
@@ -21,20 +29,20 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -48,16 +56,15 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -67,9 +74,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -86,14 +93,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 
 public class SignupActivity extends ChangeProfileImageBaseActivity implements SignupTask.OnSignupTaskProgressUpdate, OnEditorActionListener, OnClickListener,
 		OnCancelListener, Listener
@@ -217,6 +216,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	private ViewProperties sdCardProp;
 	
 	private boolean restoreInitialized = false;
+
+	private int defAvBgColor;
 
 	private class ActivityState
 	{
@@ -863,6 +864,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		{
 		case R.id.name_layout:
 			enterEditText = (CustomFontEditText) layout.findViewById(R.id.et_enter_name);
+			enterEditText.addTextChangedListener(nameWatcher);
 			birthdayText = (CustomFontEditText) layout.findViewById(R.id.birthday);
 			profilePicCamIcon = (ImageView) layout.findViewById(R.id.profile_cam);
 			
@@ -930,17 +932,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		initializeViews(numLayout);
 
-		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener()
-		{
+		countryPicker.setOnFocusChangeListener(new OnFocusChangeListener() {
 			@Override
-			public void onFocusChange(View arg0, boolean isFocus)
-			{
-				if (isFocus)
-				{
+			public void onFocusChange(View arg0, boolean isFocus) {
+				if (isFocus) {
 					findViewById(R.id.country_code_view_group).setBackgroundResource(R.drawable.bg_phone_num_selected);
-				}
-				else
-				{
+				} else {
 					findViewById(R.id.country_code_view_group).setBackgroundResource(R.drawable.bg_phone_num_unselected);
 				}
 
@@ -1051,10 +1048,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 
 		initializeViews(nameLayout);
-		
+
 		// Auto fill the name, if possible
 		String ownerName = Utils.getOwnerName(SignupActivity.this);
-		if (!TextUtils.isEmpty(ownerName) && enterEditText != null) {
+		if (!TextUtils.isEmpty(ownerName) && enterEditText != null)
+		{
 			enterEditText.setText(ownerName);
 			try
 			{
@@ -1066,13 +1064,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		}
 
-		
 		if (!addressBookScanningDone)
 		{
 			Utils.hideSoftKeyboard(this, enterEditText);
 		}
 
 		String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
+
 		if (TextUtils.isEmpty(msisdn))
 		{
 			Utils.logEvent(SignupActivity.this, HikeConstants.LogEvent.SIGNUP_ERROR);
@@ -1082,12 +1080,30 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			return;
 		}
 
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+
+		int index = BitmapUtils.iconHash(msisdn) % (bgColorArray.length());
+
+		defAvBgColor = bgColorArray.getColor(index, 0);
+
+		if(mActivityState.profileBitmap == null && savedInstanceState != null)
+		{
+			mActivityState.profileBitmap = savedInstanceState.getParcelable(HikeConstants.Extras.BITMAP);
+		}
+
 		if (mActivityState.profileBitmap == null)
 		{
-			BitmapDrawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			Drawable bd = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 			if (bd == null)
 			{
-				bd = HikeMessengerApp.getLruCache().getDefaultAvatar(msisdn, false);
+				if (TextUtils.isEmpty(ownerName))
+				{
+					bd = HikeBitmapFactory.getDefaultTextAvatar(msisdn, -1, defAvBgColor);
+				}
+				else
+				{
+					bd = HikeBitmapFactory.getDefaultTextAvatar(ownerName,-1,defAvBgColor);
+				}
 			}
 			mIconView.setImageDrawable(bd);
 		}
@@ -1488,37 +1504,34 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		profilePic.setVisibility(View.INVISIBLE);
 		restoreProgress.setVisibility(View.INVISIBLE);
 		
-		sdCard.post(new Runnable()
-		{
+		sdCard.post(new Runnable() {
 			@Override
-			public void run()
-			{
-				final int [] screenLocation = new int[2];
+			public void run() {
+				final int[] screenLocation = new int[2];
 				sdCard.getLocationOnScreen(screenLocation);
-				float widthScale = (float) sdCardProp.width/sdCard.getWidth();
-				float heightScale = (float) sdCardProp.height/sdCard.getHeight();
-				
-				TranslateAnimation sdCardTranslateAnimation = new TranslateAnimation(Animation.ABSOLUTE, (sdCardProp.left-screenLocation[0])/widthScale, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, (sdCardProp.top-screenLocation[1])/heightScale, Animation.RELATIVE_TO_SELF, 0);
+				float widthScale = (float) sdCardProp.width / sdCard.getWidth();
+				float heightScale = (float) sdCardProp.height / sdCard.getHeight();
+
+				TranslateAnimation sdCardTranslateAnimation = new TranslateAnimation(Animation.ABSOLUTE, (sdCardProp.left - screenLocation[0]) / widthScale, Animation.RELATIVE_TO_SELF, 0, Animation.ABSOLUTE, (sdCardProp.top - screenLocation[1]) / heightScale, Animation.RELATIVE_TO_SELF, 0);
 				ScaleAnimation sdCardScaleAnimation = new ScaleAnimation(widthScale, 1, heightScale, 1);
 				AnimationSet sdCardAnimationSet = new AnimationSet(true);
-				
-				sdCardAnimationSet.setAnimationListener(new AnimationListener()
-				{
+
+				sdCardAnimationSet.setAnimationListener(new AnimationListener() {
 					@Override
-					public void onAnimationStart(Animation animation)
-					{}
+					public void onAnimationStart(Animation animation) {
+					}
+
 					@Override
-					public void onAnimationRepeat(Animation animation)
-					{}
-					
+					public void onAnimationRepeat(Animation animation) {
+					}
+
 					@Override
-					public void onAnimationEnd(Animation animation)
-					{
+					public void onAnimationEnd(Animation animation) {
 						AlphaAnimation ppAnimation = new AlphaAnimation(0, 1);
 						ppAnimation.setDuration(200);
 						ppAnimation.setFillAfter(true);
 						profilePic.startAnimation(ppAnimation);
-						
+
 						restoreProgress.setVisibility(View.VISIBLE);
 						setupOnRestoreProgress();
 					}
@@ -1821,39 +1834,30 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		errorDialog.setContentView(R.layout.no_internet_pop_up);
 		errorDialog.setCancelable(true);
 		Button btnOk = (Button) errorDialog.findViewById(R.id.btn_ok);
-		btnOk.setOnClickListener(new OnClickListener()
-		{
+		btnOk.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public void onClick(View v)
-			{
-				if (errorDialog != null)
-				{
+			public void onClick(View v) {
+				if (errorDialog != null) {
 					errorDialog.dismiss();
 					v.setEnabled(false);
-					if (countryPicker != null)
-					{
+					if (countryPicker != null) {
 						countryPicker.setEnabled(true);
 					}
-					if (selectedCountryPicker != null)
-					{
+					if (selectedCountryPicker != null) {
 						selectedCountryPicker.setEnabled(true);
 					}
-					if (enterEditText != null)
-					{
+					if (enterEditText != null) {
 						enterEditText.setEnabled(true);
 					}
-					if (viewFlipper.getDisplayedChild() != SCANNING_CONTACTS)
-					{
+					if (viewFlipper.getDisplayedChild() != SCANNING_CONTACTS) {
 						/*
 						 * Delaying this by 100 ms to allow the signup task to setup to the last input point.
 						 */
-						SignupActivity.this.mHandler.postDelayed(new Runnable()
-						{
+						SignupActivity.this.mHandler.postDelayed(new Runnable() {
 
 							@Override
-							public void run()
-							{
+							public void run() {
 								Logger.d("tesst", "submit clicked");
 								submitClicked();
 							}
@@ -1865,12 +1869,10 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 		});
 
-		errorDialog.setOnCancelListener(new OnCancelListener()
-		{
+		errorDialog.setOnCancelListener(new OnCancelListener() {
 
 			@Override
-			public void onCancel(DialogInterface dialog)
-			{
+			public void onCancel(DialogInterface dialog) {
 				endLoading();
 
 			}
@@ -1925,6 +1927,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			outState.putBoolean(HikeConstants.Extras.GENDER, mActivityState.isFemale);
 		}
 		outState.putString(HikeConstants.Extras.RESTORE_STATUS, mActivityState.restoreStatus);
+		outState.putParcelable(HikeConstants.Extras.BITMAP,mActivityState.profileBitmap);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -2183,6 +2186,39 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	}
 
+	private TextWatcher nameWatcher = new TextWatcher()
+	{
+		public void beforeTextChanged(CharSequence s, int start, int count, int after)
+		{
+
+		}
+
+		public void onTextChanged(CharSequence s, int start, int before, int count)
+		{
+
+		}
+
+		public void afterTextChanged(Editable s)
+		{
+			if (s == null || mActivityState.profileBitmap != null)
+			{
+				return;
+			}
+
+			String newText = s.toString();
+
+			if (newText == null || TextUtils.isEmpty(newText.trim()))
+			{
+				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+				mIconView.setImageDrawable(drawable);
+				return;
+			}
+
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor, true);
+			mIconView.setImageDrawable(drawable);
+		}
+	};
+
 	@Override
 	public void onStart()
 	{
@@ -2240,17 +2276,17 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE:
 			mActivityState.destFilePath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
-			
 			if (mActivityState.destFilePath == null)
 			{
 				Toast.makeText(getApplicationContext(), R.string.error_setting_profile, Toast.LENGTH_SHORT).show();
 				return;
 			}
-			
+
 			setProfileImage();
 			break;
-		case HikeConstants.ResultCodes.SELECT_COUNTRY:	
-			if (resultCode == RESULT_OK) {
+		case HikeConstants.ResultCodes.SELECT_COUNTRY:
+			if (resultCode == RESULT_OK)
+			{
 				String countryName = data.getStringExtra(HikeConstants.Extras.SELECTED_COUNTRY);
 				selectCountry(countryName);
 			}

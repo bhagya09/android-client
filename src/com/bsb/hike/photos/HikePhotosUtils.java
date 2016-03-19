@@ -1,5 +1,6 @@
 package com.bsb.hike.photos;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,20 +8,30 @@ import java.util.List;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
+import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
@@ -162,20 +173,20 @@ public class HikePhotosUtils
 
 	/**
 	 * Funtcion to create Bitmap. Handles out of Memory Exception
-	 * 
+	 *
 	 * @author akhiltripathi
 	 */
 
 	public static Bitmap createBitmap(Bitmap source, int x, int y, int targetWidth, int targetHeight, boolean createMutableCopy, boolean scaledCopy, boolean crop, boolean retry,Config config)
 	{
 		Bitmap ret = null;
-		
+
 		try
 		{
 			if (source != null)
 			{
 				Config outConfig = (source.getConfig() == null) ? config : source.getConfig();
-				
+
 				if (scaledCopy && createMutableCopy)
 				{
 					ret = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
@@ -433,21 +444,62 @@ public class HikePhotosUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
 	
-	public static ColorMatrixColorFilter getGreenDownShiftFilter()
+	public static Bitmap scaleAdvanced(Bitmap argBmp, final float maxWidth, final float maxHeight, boolean applyGreenDownShiftFilter)
 	{
-		float[] colorTransform = {
-	            1, 0, 0, 0, 0,
-	            0, 1, 0, 0, -5f,
-	            0, 0, 1, 0, 0,
-	            0, 0, 0, 1, 0 
-	            };
+		Matrix scaleTransformation = null;
 
-	    ColorMatrix colorMatrix = new ColorMatrix();
-	    colorMatrix.setSaturation(0f); //Remove Colour 
-	    colorMatrix.set(colorTransform); //Apply the Red
+		float s1 = 1.0f;
 
-	    ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
-	    return colorFilter;
+		if (argBmp.getHeight() > maxHeight || argBmp.getWidth() > maxWidth)
+		{
+			float originalWidth = argBmp.getWidth(), originalHeight = argBmp.getHeight();
+			float s1x = maxWidth / originalWidth;
+			float s1y = maxHeight / originalHeight;
+			s1 = (s1x < s1y) ? s1x : s1y;
+			scaleTransformation = new Matrix();
+			scaleTransformation.setScale(s1, s1);
+		}
+
+		ColorMatrixColorFilter colorFilter = HikeEffectsFactory.getGreenDownShiftFilter();
+
+		argBmp.setHasAlpha(true);
+
+		Bitmap scaledBitmap = null;
+		try
+		{
+			scaledBitmap = Bitmap.createBitmap(((int) ((float) argBmp.getWidth() * s1)), ((int) ((float) argBmp.getHeight() * s1)), Bitmap.Config.RGB_565);
+			Canvas canvas = new Canvas(scaledBitmap);
+			if (scaleTransformation != null)
+			{
+				canvas.setMatrix(scaleTransformation);
+			}
+			Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
+			paint.setDither(true);
+			if (applyGreenDownShiftFilter)
+			{
+				paint.setColorFilter(colorFilter);
+			}
+			canvas.drawBitmap(argBmp, 0, 0, paint);
+		}
+		catch (OutOfMemoryError exception)
+		{
+			exception.printStackTrace();
+			return null;
+		}
+
+		return scaledBitmap;
 	}
 
+	public static BitmapFactory.Options getLoadingOptionsAdvanced()
+	{
+		BitmapFactory.Options options = new BitmapFactory.Options();
+
+		options.inScaled = false;
+
+		options.inDither = true;
+
+		options.inPreferQualityOverSpeed = true;
+
+		return options;
+	}
 }

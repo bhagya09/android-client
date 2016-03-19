@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -26,7 +27,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
+		return "ContactInfo [id = " + id + " , name=" + name + ", msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
 	}
 
 	private String name;
@@ -471,6 +472,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
 	}
 
+	public ContactInfo()
+	{
+		// Does nothing
+	}
+
 	public ContactInfo(ContactInfo contactInfo)
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
@@ -620,5 +626,10 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public boolean isBot()
 	{
 		return BotUtils.isBot(msisdn);
+	}
+
+	public boolean isBlocked()
+	{
+		return ContactManager.getInstance().isBlocked(msisdn);
 	}
 }
