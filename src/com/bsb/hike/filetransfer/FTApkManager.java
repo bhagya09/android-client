@@ -226,12 +226,12 @@ public class FTApkManager
                 long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
                 File hFile = hikefile.getFile();
                 boolean validSize =  (hFile!=null && hFile.exists() ) ? hFile.length() == apkSizeReceived && hFile.length() > 0 : false;
-                Logger.d("AUTOAPK", hFile.length() + " is the file size, saved size is " + apkSizeReceived);
+                Logger.d("AUTOAPK", "Is the apk size valid ? : "+validSize  + ", saved size is " + apkSizeReceived);
                 boolean updateNeeded = Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""), context)
                         && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""));
                 Logger.d("AUTOAPK", HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "") + " is the apk version new, old is is " + Utils.getAppVersionName());
 
-                if (hFile.exists() && validSize && updateNeeded) {
+                if (hFile != null && hFile.exists() && validSize && updateNeeded) {
                     Logger.d("AUTOAPK", "hike APK downloaded exists");
                     if (HikeFile.HikeFileType.APK == hikefile.getHikeFileType()) {
                         Logger.d("AUTOAPK", "hike showing install prompt");
