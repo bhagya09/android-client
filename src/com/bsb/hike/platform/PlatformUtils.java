@@ -2300,11 +2300,22 @@ public class PlatformUtils
     /*
     * IMP :: WARNING Method to delete old micro app content code based on packet to remove legacy (This code not be used anywhere else)
     */
-    public static void deleteOldContentMicroAppCode(boolean flushOldContent)
-    {
-        if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION,false) && flushOldContent)
-            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
-    }
+	public static void deleteOldContentMicroAppCode(final boolean flushOldContent)
+	{
+		// Deleting the directory code on Backend thread;
+        HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+        mThread.startHandlerThread();
+        mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) && flushOldContent)
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
+			}
+		});
+	}
 
     //{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
 	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)
