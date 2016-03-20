@@ -124,7 +124,6 @@ public class ProductInfoManager
 		}
 
 		deletePopups(popUpToBeDeleted);
-        deletePopUpCodeFromDisk(popUpToBeDeleted);
 
 		if (mmModel != null)
 		{
