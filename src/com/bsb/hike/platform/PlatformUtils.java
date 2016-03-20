@@ -604,7 +604,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							if(botMetadata.getAutoresume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
 							{
 								// In case of failure updating status
 								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
@@ -2365,7 +2365,7 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data, final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
 	{
 		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{

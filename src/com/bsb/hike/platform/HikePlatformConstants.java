@@ -375,11 +375,11 @@ public interface HikePlatformConstants
 	}
 
 	
-
-	public static class PlatformTypes
+   @IntDef({PlatformTypes.CBOT,PlatformTypes.MAPP})
+	@interface PlatformTypes
 	{
-		public final static int CBOT = 0;
-		public final static int MAPP = 1;
+		int CBOT = 0;
+		int MAPP = 1;
 	}
 
 	long oneDayInMS = 86400000;

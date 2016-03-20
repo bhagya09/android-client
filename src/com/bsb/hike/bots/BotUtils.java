@@ -460,7 +460,7 @@ public class BotUtils
 			{
 				if(botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
-				if(botMetadata.getAutoresume())
+				if(botMetadata.getAutoResume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 				}
@@ -468,7 +468,7 @@ public class BotUtils
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
                 if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
-                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoresume());
+                    PlatformUtils.processCbotPacketForNonMessagingBot(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoResume());
 			}
 			else if (botMetadata.isWebUrlMode())
 			{
@@ -478,14 +478,14 @@ public class BotUtils
 			{
 				if(botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
-				if(botMetadata.getAutoresume())
+				if(botMetadata.getAutoResume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 				}
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
                 // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
-                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoresume());
+                PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported(),botMetadata.getAutoResume());
 			}
 		}
 
