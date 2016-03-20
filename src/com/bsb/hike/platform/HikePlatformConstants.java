@@ -345,9 +345,13 @@ public interface HikePlatformConstants
 
     String MICRO_APP_CRICKET_STORAGE_NAME = "hikecricketnew";
 
+    String MICRO_APP_CAR_POOLING_STORAGE_NAME = "hikecarpooling";
+
     String MICRO_APP_NEWS_REGEX = "news";
 
     String MICRO_APP_CRICKET_REGEX = "cricket";
+
+    String MICRO_APP_CAR_POOLING_REGEX = "carpooling";
 
 	String BIG_PICTURE = "big_picture";
 
