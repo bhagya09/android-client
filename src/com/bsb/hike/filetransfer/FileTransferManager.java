@@ -355,6 +355,11 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType) {
 
+		if (isFileTaskExist(-100L)){
+			validateFilePauseState(-100L);
+			return;
+		}
+
 		if (taskOverflowLimitAchieved())
 			return;
 
