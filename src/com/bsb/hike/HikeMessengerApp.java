@@ -1005,7 +1005,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 
 
 
