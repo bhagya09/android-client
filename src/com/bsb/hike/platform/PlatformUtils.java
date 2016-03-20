@@ -2365,9 +2365,9 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mappVersion, final String data, final int type, final long ttl,final int prefNetwork,final int state)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data, final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
 	{
-		if (mappVersion <-1 || TextUtils.isEmpty(name) || ttl < 0)
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{
 			return;
 		}
@@ -2376,15 +2376,17 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mappVersion, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
 			}
 		});
 	}
 
-	//Method to remove from PlatformDownload table
-	public static void removeFromPlatformDownloadStateTable(final String name, final int version)
+	/*
+	Method to remove from PlatformDownload table
+	*/
+	public static void removeFromPlatformDownloadStateTable(final String name, final int mAppVersionCode)
 	{
-		if (TextUtils.isEmpty(name) || version <-1)
+		if (TextUtils.isEmpty(name) || mAppVersionCode <-1)
 		{
 			return;
 		}
@@ -2393,16 +2395,16 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, version);
+				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
 			}
 		});
 	}
 
 	// Method to update Platform Download table
 
-	public static void updatePlatformDownloadState(final String name, final int version, final int newState)
+	public static void updatePlatformDownloadState(final String name, final int mAppVersionCode, @HikePlatformConstants.PlatformDwnldState final int newState)
 	{
-		if (version <-1 || TextUtils.isEmpty(name))
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name))
 		{
 			return;
 		}
@@ -2413,7 +2415,7 @@ public class PlatformUtils
 			@Override
 			public void run()
 			{
-				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, version, newState);
+				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, mAppVersionCode, newState);
 			}
 		});
 	}
@@ -2425,13 +2427,13 @@ public class PlatformUtils
 	{
 		Logger.i(TAG, "Restarting pending bot downloads...");
 		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
-		final Long currentTime = System.currentTimeMillis();
 		handler.startHandlerThread();
 		handler.postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
+				long currentTime = System.currentTimeMillis();
 				Cursor c = HikeContentDatabase.getInstance().getAllPendingPlatformDownloads();
 				if (c == null)
 				{
@@ -2454,8 +2456,8 @@ public class PlatformUtils
 
 						if (currentTime > ttl)
 						{
-							int version = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
-							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, version);
+							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
+							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
 						{

@@ -981,16 +981,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	/**
 	 * Function to add data to Platform Download State Table
 	 */
-	public void addToPlatformDownloadStateTable(String name, int version, String data, int type, long ttl,int prefNetwork, int state)
+	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(HikePlatformConstants.APP_NAME, name);
-		cv.put(HikePlatformConstants.MAPP_VERSION_CODE, version);
+		cv.put(HikePlatformConstants.MAPP_VERSION_CODE, mAppVersionCode);
 		cv.put(HikePlatformConstants.PACKET_DATA, data);
 		cv.put(HikePlatformConstants.TYPE, type);
 		cv.put(HikePlatformConstants.TTL, ttl);
 		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
-		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, state);
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, dwnldState);
 		try
 		{
 			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
@@ -1002,16 +1002,16 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 	}
 
-	public void removeFromPlatformDownloadStateTable(String name, int version)
+	public void removeFromPlatformDownloadStateTable(String name, int mAppVersionCode)
 	{
-		long rows =mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, new String[]{name});
+		long rows =mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
 	}
 
-	public void updatePlatformDownloadState(String name, int version, int newState)
+	public void updatePlatformDownloadState(String name, int mAppVersionCode, int newState)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
-		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + version, new String[]{name});
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
 	}
 
 	/**

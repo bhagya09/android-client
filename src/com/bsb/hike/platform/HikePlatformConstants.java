@@ -1,5 +1,10 @@
 package com.bsb.hike.platform;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public interface HikePlatformConstants
 {
 	String DATA = "d";
@@ -358,12 +363,18 @@ public interface HikePlatformConstants
 
 	String AUTO_RESUME = "autoResume";
 
-	public static class PlatformDwnldState
+	
+	@IntDef({ PlatformDwnldState.IN_PROGRESS, PlatformDwnldState.FAILED, PlatformDwnldState.SUCCESS })
+	@interface PlatformDwnldState
 	{
-		public final static int IN_PROGRESS = 0;
-		public final static int FAILED = 1;
-		public final static int SUCCESS = 2;
+		int IN_PROGRESS = 0;
+
+		int FAILED = 1;
+
+		int SUCCESS = 2;
 	}
+
+	
 
 	public static class PlatformTypes
 	{

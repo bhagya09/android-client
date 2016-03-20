@@ -35,10 +35,10 @@ public class NonMessagingBotMetadata
 	private boolean replace;
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
-	private boolean resumeSupported=false;
+	private boolean resumeSupported;
 	private JSONArray assoc_mapp;
     private int mAppVersionCode;
-	private boolean autoResume=false;
+	private boolean autoResume;
 	private int prefNetwork;
 
 	public NonMessagingBotMetadata(String jsonString)
@@ -363,7 +363,7 @@ public class NonMessagingBotMetadata
 
 	}
 
-	public void setAutoResume(Boolean autoResume)
+	public void setAutoResume(boolean autoResume)
 	{
 		this.autoResume=autoResume;
 		if (autoResume)
@@ -372,7 +372,7 @@ public class NonMessagingBotMetadata
 		} // for auto resume resume supported has to be true.
 	}
 
-	public Boolean getAutoresume()
+	public boolean getAutoResume()
 	{
 		return autoResume;
 	}
