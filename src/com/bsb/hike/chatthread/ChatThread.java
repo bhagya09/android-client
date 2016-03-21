@@ -2036,10 +2036,7 @@ import android.widget.Toast;
 			return true;
 		}
 
-		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
-			return true;
-		}
+		if(dismissWalkieTalkie()) return true;
 
 		if (mShareablePopupLayout.isShowing())
 		{
@@ -2087,10 +2084,7 @@ import android.widget.Toast;
 	
 	private void actionBarBackPressed()
 	{
-		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
-			return;
-		}
+		if(dismissWalkieTalkie()) return;
 
 		if (mShareablePopupLayout.isShowing())
 		{
@@ -4981,9 +4975,16 @@ import android.widget.Toast;
 		{
 			audioRecordView.dismissAudioRecordView();
 		}
-		if(walkieView != null & walkieView.isShowing()){
+		dismissWalkieTalkie();
+	}
+
+	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
+	private boolean dismissWalkieTalkie(){
+		if(walkieView != null && walkieView.isShowing()){
 			walkieView.cancelAndDismissAudio();
+			return true;
 		}
+		return false;
 	}
 
 
@@ -6392,9 +6393,7 @@ import android.widget.Toast;
 		// on back press - if keyboard was open , now keyboard gone , try to hide emoticons
 		// if keyboard ws not open , onbackpress of activity will get call back, dismiss popup there
 		// if we dismiss here in second case as well, then onbackpress of acitivty will be called and it will finish activity
-		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
-		}
+		dismissWalkieTalkie();
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
