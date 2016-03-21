@@ -16,83 +16,6 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -221,7 +144,6 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
 import com.bsb.hike.models.PhonebookContact;
@@ -274,34 +196,13 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-import com.bsb.hike.voip.VoIPDataPacket;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -740,13 +641,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected Bundle savedState;
 
-	MyFetchConversationAsyncTask fetchConversationAsyncTask=null;
+	FetchConversationAsyncTask fetchConversationAsyncTask=null;
 
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
 		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
-		fetchConversationAsyncTask=new MyFetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
+		fetchConversationAsyncTask=new FetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
 		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
 		StopWatch initTime=new StopWatch();
@@ -2714,12 +2615,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			activity.getSupportLoaderManager().initLoader(FETCH_CONV, null, this);
 		}
 		else {
-
-
 			Conversation conv = null;
-			if (fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
-				fetchConversationAsyncTask.cancel(true);
-				Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
+			if (fetchConversationAsyncTask == null || fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
+
+				if(fetchConversationAsyncTask!=null) {
+					fetchConversationAsyncTask.cancel(true);
+					Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
+				}
+				Logger.d(TAG,"Now fetching on UI thread Only...");
 				conv = fetchConversation();
 			} else {
 				Logger.d(TAG, "trying to get it from future object");
@@ -4703,6 +4606,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(mComposeView!=null)
 		{
 			mComposeView.setOnTouchListener(null);
+		}
+
+		if(fetchConversationAsyncTask!=null)
+		{
+			fetchConversationAsyncTask.cancel(true);
 		}
 	}
 	
@@ -6960,12 +6868,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
-	public  static class MyFetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
+	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
 	{
 
 		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
 
-		MyFetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
+		FetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
 		{
 			this.conversationFuture=callableWeakReference;
 		}
