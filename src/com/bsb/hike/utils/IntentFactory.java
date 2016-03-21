@@ -43,6 +43,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
@@ -1577,5 +1578,19 @@ public class IntentFactory
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
 		}
+	}
+
+	public static void startUpgradeIntent(Context context)
+	{
+		// turn off future push notifications as soon as the app has
+		// started.
+		// this has to be turned on whenever the upgrade finishes.
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
+		SharedPreferences.Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+		editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, true);
+		editor.commit();
+
+		Intent msgIntent = new Intent(context, UpgradeIntentService.class);
+		context.startService(msgIntent);
 	}
 }
