@@ -202,7 +202,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 						saveMiniStickerImage(sticker, stickerImage);
 
-                        doOnSuccess(categoryId);
+                        doOnSuccess(sticker);
 					}
 					else
 					{
@@ -218,7 +218,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
-                            doOnSuccess(categoryId);
+                            doOnSuccess(sticker);
                         }
 
 					}
@@ -258,19 +258,19 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	public void doOnSuccess(Object result)
 	{
 
-		String newCategoryId = (String) result;
-		Logger.e(TAG, categoryId + ":" + stickerId + " : done");
-		if (convMessage != null && !(TextUtils.isEmpty(categoryId)))
+		Sticker sticker = (Sticker)result;
+		Logger.i(TAG, sticker.getStickerCode() + " : done");
+        if (convMessage != null && !(TextUtils.isEmpty(categoryId)))
 		{
 
-			StickerManager.getInstance().checkAndRemoveUpdateFlag(newCategoryId);
+			StickerManager.getInstance().checkAndRemoveUpdateFlag(sticker.getCategoryId());
 			String oldCategoryId = convMessage.getMetadata().getSticker().getStickerId();
-			if (!oldCategoryId.equals(newCategoryId))
+			if (!oldCategoryId.equals(sticker.getCategoryId()))
 			{
 				try
 				{
 					MessageMetadata newMetadata = convMessage.getMetadata();
-					newMetadata.updateSticker(newCategoryId);
+					newMetadata.updateSticker(sticker.getCategoryId());
 					HikeConversationsDatabase.getInstance().updateMessageMetadata(convMessage.getMsgID(), newMetadata);
 				}
 				catch (JSONException e)
@@ -280,8 +280,6 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 			}
 		}
-
-        Sticker sticker = new Sticker(categoryId, stickerId);
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_DOWNLOADED, sticker);
         finish();
