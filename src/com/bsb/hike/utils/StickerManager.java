@@ -1628,8 +1628,14 @@ public class StickerManager
 
 			if (jsonObj.has(HikeConstants.STICKER_LIST)) {
 				JSONArray stickerArray = jsonObj.optJSONArray(HikeConstants.STICKER_LIST);
-				List<Sticker> stickerList = getStickerListFromJSONArray(stickerArray, catId);
-				category.setAllStickers(stickerList);
+				String allStickerListString = Utils.isEmpty(stickerArray) ? null : stickerArray.toString();
+				category.setAllStickerListString(allStickerListString);
+			}
+
+			if(jsonObj.has(HikeConstants.SIMILAR_PACKS)) {
+				JSONArray similarPacksArray = jsonObj.optJSONArray(HikeConstants.SIMILAR_PACKS);
+				String similarPacksString = Utils.isEmpty(similarPacksArray) ? null : similarPacksArray.toString();
+				category.setSimilarPacksString(similarPacksString);
 			}
 
 			return category;
@@ -2858,62 +2864,61 @@ public class StickerManager
 		}
 	}
 
-	public List<Sticker> getStickerListFromJSONArray(JSONArray stickerArray, String catId)
-	{
-		List<Sticker> stickerList = null;
-		if (stickerArray != null && stickerArray.length() > 0)
-		{
-			int length = stickerArray.length();
-			stickerList = new ArrayList<>(length);
-			for (int i = 0; i < length; i++)
-			{
-				Sticker sticker = new Sticker(catId, stickerArray.optString(i));
-				stickerList.add(sticker);
-			}
-		}
-		return stickerList;
-	}
-
-	public String getStickerListString(List<Sticker> stickers)
-	{
-		if (Utils.isEmpty(stickers))
-		{
-			return null;
-		}
-		String stickerListString = "";
-		for (Sticker sticker : stickers)
-		{
-			stickerListString += sticker.getStickerId();
-			stickerListString += ",";
-		}
-		return stickerListString.substring(0, stickerListString.length() - 1);
-	}
-
 	public List<Sticker> getStickerListFromString(String categoryId, String stickerListString)
 	{
-		if (TextUtils.isEmpty(stickerListString) || TextUtils.isEmpty(categoryId))
-		{
-			return null;
-		}
-		String[] stickerIds = stickerListString.split(",");
 		List<Sticker> stickerList = null;
-
-		if (stickerIds != null && stickerIds.length > 0)
+		try
 		{
-			stickerList = new ArrayList<>(stickerIds.length);
-			for (int i = 0; i < stickerIds.length; i++)
+			if (!TextUtils.isEmpty(stickerListString))
 			{
-				Sticker sticker = new Sticker(categoryId, stickerIds[i]);
-				stickerList.add(sticker);
+				JSONArray stickerListJSON = new JSONArray(stickerListString);
+
+				int length = stickerListJSON.length();
+
+				stickerList = new ArrayList<>(length);
+				for (int i = 0; i < length; i++)
+				{
+					Sticker sticker = new Sticker(categoryId, stickerListJSON.getString(i));
+					stickerList.add(sticker);
+				}
 			}
 		}
+		catch (JSONException ex)
+		{
+			Logger.e(TAG, "exception while making sticker from sticker list json ", ex);
+		}
+
 		return stickerList;
 	}
 
-	public List<Sticker> getStickerListFromDb(String categoryId)
+	public List<StickerCategory> getSimilarPacksFromString(String similarPacksString)
 	{
-		String stickerListString = HikeConversationsDatabase.getInstance().getStickerList(categoryId);
-		return getStickerListFromString(categoryId, stickerListString);
+		List<StickerCategory> similarPacks = null;
+		try
+		{
+			if (!TextUtils.isEmpty(similarPacksString))
+			{
+				JSONArray similarPacksJson = new JSONArray(similarPacksString);
+
+				int length = similarPacksJson.length();
+
+				similarPacks = new ArrayList<>(length);
+				for (int i = 0; i < length; i++)
+				{
+					StickerCategory stickerCategory =  parseStickerCategoryMetadata(similarPacksJson.getJSONObject(i));
+					if(stickerCategory != null)
+					{
+						similarPacks.add(stickerCategory);
+					}
+				}
+			}
+		}
+		catch (JSONException ex)
+		{
+			Logger.e(TAG, "exception while making sticker from sticker list json ", ex);
+		}
+
+		return similarPacks;
 	}
 
 	public boolean isMiniStickersEnabled()

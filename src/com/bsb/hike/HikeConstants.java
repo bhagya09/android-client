@@ -3221,6 +3221,8 @@ public class HikeConstants
 
 	public static final String STICKER_LIST = "sticker_list";
 
+	public static final String SIMILAR_PACKS = "similar_packs";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
@@ -3995,7 +3997,7 @@ public class HikeConstants
 
 	public static final String STICKER_SIZE = "stkr_size";
 
-		public static final class INTERCEPTS
+	public static final class INTERCEPTS
 	{
 		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
 
@@ -4036,4 +4038,6 @@ public class HikeConstants
 	public static final String STICKER_PACK = "spc";
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final String SHOW_STICKER_PREVIEW = "show_sticker_preview";
 }

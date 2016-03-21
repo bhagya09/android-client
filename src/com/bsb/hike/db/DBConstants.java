@@ -486,6 +486,8 @@ public interface DBConstants
 
 	public static final String IS_DOWNLOADED = "isDownloaded";
 
+	public static final String SIMILAR_CATEGORIES = "similarCategories";
+
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
 	public static final String MESSAGE_TABLE_CONTENT_INDEX = "messageContentIndex";

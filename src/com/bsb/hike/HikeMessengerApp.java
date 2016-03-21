@@ -1026,8 +1026,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
-
 	}
+
 	public static InternalCache getDiskCache()
 	{
 		if(diskCache == null) {

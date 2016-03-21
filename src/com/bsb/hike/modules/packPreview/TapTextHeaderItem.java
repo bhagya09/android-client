@@ -17,8 +17,6 @@ public class TapTextHeaderItem extends BasePackPreviewAdapterItem
 
 	private View tapTextHeaderView;
 
-	private View headerContainer;
-
 	public TapTextHeaderItem(Context context)
 	{
 		this.mContext = context;
@@ -28,7 +26,6 @@ public class TapTextHeaderItem extends BasePackPreviewAdapterItem
 	private void init()
 	{
 		tapTextHeaderView = LayoutInflater.from(mContext).inflate(R.layout.tap_text_header, null);
-		headerContainer = tapTextHeaderView.findViewById(R.id.tap_text_header_container);
 	}
 
 	@Override
@@ -41,11 +38,6 @@ public class TapTextHeaderItem extends BasePackPreviewAdapterItem
 	public RecyclerView.ViewHolder getViewHolder()
 	{
 		return new TapTextHeaderItemViewHolder(getView());
-	}
-
-	public View getHeaderContainer()
-	{
-		return headerContainer;
 	}
 
 	private class TapTextHeaderItemViewHolder extends RecyclerView.ViewHolder

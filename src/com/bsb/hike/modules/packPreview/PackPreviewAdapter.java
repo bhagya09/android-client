@@ -44,30 +44,24 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private View.OnClickListener onClickListener;
 
-	public static final int VIEW_TYPE_TAP_TEXT_HEADER = 0;
+	public static final int VIEW_TYPE_GRID_TOP_MARGIN = 0;
 
-	public static final int VIEW_TYPE_STICKER = 1;
+	public static final int VIEW_TYPE_TAP_TEXT_HEADER = 1;
 
-	public static final int VIEW_TYPE_AUTHOR_FOOTER = 2;
+	public static final int VIEW_TYPE_STICKER = 2;
 
-	public static final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 3;
+	public static final int VIEW_TYPE_VIEW_ALL_FOOTER = 3;
+
+	public static final int VIEW_TYPE_AUTHOR_FOOTER = 4;
+
+	public static final int VIEW_TYPE_RECOMMENDED_PACKS_FOOTER = 5;
 
 	private int rowSize;
 
-	public PackPreviewAdapter(Context context, List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList,
-			List<Pair<Integer, BasePackPreviewAdapterItem>> footerList, View.OnClickListener onClickListener)
+	public PackPreviewAdapter(Context context, View.OnClickListener onClickListener)
 	{
 		this.mContext = context;
 		this.onClickListener = onClickListener;
-
-		this.stickerList = stickerList;
-		this.headerList = headerList;
-		this.footerList = footerList;
-
-		stickerListSize = Utils.isEmpty(stickerList) ? 0 : stickerList.size();
-		headerListSize = Utils.isEmpty(headerList) ? 0 : headerList.size();
-		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
-
 		init();
 
 	}
@@ -107,7 +101,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		switch (viewType)
 		{
 		case VIEW_TYPE_STICKER:
-			position = position - 1;
+			position = position - headerListSize;
 			Sticker sticker = stickerList.get(position);
 			StickerViewHolder stickerViewHolder = (StickerViewHolder) viewHolder;
 			ImageView stickerIv = stickerViewHolder.stickerIv;
@@ -209,7 +203,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		{
 			return headerList.get(position).first;
 		}
-		else if (position >= headerList.size() && position < (headerListSize + stickerListSize))
+		else if (position >= headerListSize && position < (headerListSize + stickerListSize))
 		{
 			return VIEW_TYPE_STICKER;
 		}
@@ -293,4 +287,37 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			}
 		}
 	}
+
+	public int getSpanSize(int position)
+	{
+		int viewType = getItemViewType(position);
+
+		switch(viewType)
+		{
+			case VIEW_TYPE_GRID_TOP_MARGIN:
+			case VIEW_TYPE_TAP_TEXT_HEADER:
+			case VIEW_TYPE_VIEW_ALL_FOOTER:
+			case VIEW_TYPE_AUTHOR_FOOTER:
+			case VIEW_TYPE_RECOMMENDED_PACKS_FOOTER:
+				return PackPreviewFragment.NUM_COLUMNS;
+			case VIEW_TYPE_STICKER:
+				return 1;
+			default:
+				return 1;
+		}
+	}
+
+	public void setLists(List<Sticker> stickerList, List<Pair<Integer, BasePackPreviewAdapterItem>> headerList,
+							 List<Pair<Integer, BasePackPreviewAdapterItem>> footerList)
+	{
+		this.stickerList = stickerList;
+		this.headerList = headerList;
+		this.footerList = footerList;
+
+		stickerListSize = Utils.isEmpty(stickerList) ? 0 : stickerList.size();
+		headerListSize = Utils.isEmpty(headerList) ? 0 : headerList.size();
+		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
+	}
+
+
 }
