@@ -1,9 +1,13 @@
 package com.bsb.hike.chatthread;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
@@ -11,6 +15,9 @@ import android.content.pm.ActivityInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Anu Bansal on 09/03/16.
@@ -35,6 +42,8 @@ public class KeyboardOffBoarding
 
 	private View rootView;
 
+	private View mainView;
+
 	private KeyboardShutdownListener keyboardShutdownListener;
 
 	public KeyboardOffBoarding()
@@ -42,27 +51,42 @@ public class KeyboardOffBoarding
 		mState = HikeSharedPreferenceUtil.getInstance().getData(KEYBOARD_SHUTDOWN_STATE, NOT_STARTED);
 	}
 
-	public void init(Activity activity, LayoutInflater inflater, ViewGroup container, KeyboardShutdownListener listener)
+	public void init(Activity activity, LayoutInflater inflater, ViewGroup container, KeyboardShutdownListener listener, View mainView)
 	{
 		this.mActivity = activity;
 		this.container = container;
 		this.keyboardShutdownListener = listener;
+		this.mainView = mainView;
 		rootView = inflater.inflate(R.layout.keyboard_off_boarding, container, false);
 		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		Utils.blockOrientationChange(mActivity);
 	}
 
 	public void showView()
 	{
+		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		mState = SHOWING;
 		updateState(mState);
-		container.addView(rootView);
+		if(container.getChildCount() == 0) {
+			container.addView(rootView);
+		}
+		int rootViewHeight = (int) (mActivity.getResources().getDimension(R.dimen.keyboard_exit_ui));
+		updatePadding(rootViewHeight);
+
 		rootView.findViewById(R.id.btn_phone_keyboard).setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				destroy();
+				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_OPEN_KEYBOARD);
+			}
+		});
+
+		rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				destroy();
+				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
 			}
 		});
 	}
@@ -90,12 +114,25 @@ public class KeyboardOffBoarding
 
 	public void destroy()
 	{
+		updatePadding(0);
 		mState = SHOWN;
 		updateState(mState);
-		container.removeAllViews();
-		container.invalidate();
+		if(container != null) {
+			container.removeAllViews();
+			container.invalidate();
+		}
 		if (keyboardShutdownListener != null)
 			keyboardShutdownListener.onDestroyed();
+	}
+
+	public void hide()
+	{
+		updatePadding(0);
+		Utils.unblockOrientationChange(mActivity);
+		if(container != null) {
+			container.removeAllViews();
+			container.invalidate();
+		}
 	}
 
 	private void updateState(int state)
@@ -103,4 +140,29 @@ public class KeyboardOffBoarding
         mState = state;
         HikeSharedPreferenceUtil.getInstance().saveData(KEYBOARD_SHUTDOWN_STATE, state);
     }
+
+	private void updatePadding(int bottomPadding)
+	{
+		if (mainView != null && mainView.getPaddingBottom() != bottomPadding)
+		{
+			mainView.setPadding(0, 0, 0, bottomPadding);
+		}
+	}
+
+	/*
+     * This method is to track the analytic events on various UI clicks
+     */
+	private void trackClickAnalyticEvents(String event)
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, event);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
+		}
+	}
 }

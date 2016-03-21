@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/keyboard_off_boarding"
-    android:background="@color/signup_white"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="320dp"
+    android:background="@color/signup_white">
+
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="image_close"
+        android:scaleType="center"
+        android:src="@drawable/ic_keyboard_popup_cross" />
+
+<LinearLayout
+    android:id="@+id/keyboard_off_boarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
     android:paddingTop="12dp" >
@@ -24,7 +38,7 @@
         android:textColor="#3d475b"
         android:textSize="20sp"
         android:maxLines="2"
-        android:maxWidth="180dp"
+        android:maxWidth="200dp"
         android:textStyle="bold|italic"/>
 
     <com.bsb.hike.view.CustomFontTextView
@@ -58,3 +72,4 @@
         android:text="@string/open_phone_keyboard" />
 
 </LinearLayout>
+</RelativeLayout>
