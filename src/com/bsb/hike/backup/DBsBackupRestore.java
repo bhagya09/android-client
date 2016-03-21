@@ -45,7 +45,6 @@ public class DBsBackupRestore implements BackupableRestorable
 				{
 					HikeConversationsDatabase.getInstance().clearTable(table);
 				}
-				HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1();
 			}
 		};
 
