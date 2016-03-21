@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.retry;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
@@ -162,6 +163,7 @@ public class BasicRetryPolicy
 	{
 		switch (ex.getErrorCode())
 		{
+		case HTTP_UNZIP_FAILED:
 		case HTTP_LENGTH_REQUIRED:
 			handle411Error(requestFacade);
 			break;

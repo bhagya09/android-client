@@ -293,8 +293,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 	@Override
 	public void onPause() 
 	{
-		if (VoIPService.getCallId() == 0)	// Bug #45154
-			releaseProximityWakelock();
+		releaseProximityWakelock();
 		Logger.d(tag, "VoIPCallFragment onPause()");
 
 		super.onPause();
@@ -322,7 +321,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		unbindVoipService();
 
 		partnerName = null;
-		releaseProximityWakelock();
 		Logger.d(tag, "VoipCallFragment onDestroy()");
 		super.onDestroy();
 	}
