@@ -3674,6 +3674,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
 	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_OPENED, hikeFile.getHikeFileType());
 
 		Logger.d(getClass().getSimpleName(), "Opening file");
 		Intent openFile = new Intent(Intent.ACTION_VIEW);

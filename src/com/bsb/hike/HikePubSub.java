@@ -504,6 +504,8 @@ public class HikePubSub implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String FILE_OPENED = "fileOpened";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
