@@ -28,9 +28,14 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -1431,9 +1436,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 					{
 						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+
+					File newSentFile = Utils.createNewFile(HikeFile.HikeFileType.IMAGE, "", true);
+					if (newSentFile != null)
+					{
+						galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE; // This also gives an option to edit/rotate
+					}
+
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, newSentFile == null ? null : newSentFile.getAbsolutePath());
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
+
+					((WebViewActivity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
 				}
 			}
 		});

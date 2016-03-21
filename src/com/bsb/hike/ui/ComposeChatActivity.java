@@ -400,6 +400,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) )
 			{
+				// If any app wants to share text descriptions (shopclues/youtube/etc) extract that message
+				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
+
+				// First check if an image is present in the intent, if yes, send to editor with any/all subtext as prefilled caption
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
 				{
 					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true, false);
@@ -418,8 +422,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 						if (selectedImages != null && !selectedImages.isEmpty())
 						{
-							messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
-
 							ParcelableSparseArray captionsSparse = new ParcelableSparseArray();
 
 							if (!TextUtils.isEmpty(messageToShare))
@@ -440,6 +442,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
 					}
+				}
+				// Image is not present. Is there a message to forward?
+				else if(!TextUtils.isEmpty(messageToShare))
+				{
+					// Do nothing, adapter will show "Timeline" based on this same check on messageToShare
 				}
 			}
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
