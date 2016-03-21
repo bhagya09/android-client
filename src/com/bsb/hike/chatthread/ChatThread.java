@@ -6960,7 +6960,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
-	public  static class MyFetchConversationAsyncTask extends AsyncTask<Void,Boolean,Boolean>
+	public  static class MyFetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
 	{
 
 		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
@@ -6970,7 +6970,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			this.conversationFuture=callableWeakReference;
 		}
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected Void doInBackground(Void... params) {
 			StopWatch watch=new StopWatch();
 			watch.start();
 			Logger.d(TAG, "Starting callable");
@@ -6979,7 +6979,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 			watch.stop();
 			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
-			return true;
+			return null;
 		}
 	}
 }
