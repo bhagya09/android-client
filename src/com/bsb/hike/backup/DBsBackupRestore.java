@@ -1,11 +1,13 @@
 package com.bsb.hike.backup;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.IntentFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by gauravmittal on 10/03/16.
@@ -125,7 +127,11 @@ public class DBsBackupRestore implements BackupableRestorable
 	public void postRestoreSetup() throws Exception
 	{
 		for (DB db : DBs)
+		{
 			db.postRestoreSetup();
+		}
+
+		IntentFactory.startUpgradeIntent(HikeMessengerApp.getInstance().getApplicationContext());
 	}
 
 	@Override
