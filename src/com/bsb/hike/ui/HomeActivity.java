@@ -2693,6 +2693,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			dbCorruptDialog = null;
 		}
 
+		showingBlockingDialog = false;
+
 		if (restoreResult == AccountBackupRestore.STATE_RESTORE_SUCCESS)
 		{
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_success), Toast.LENGTH_LONG).show();
@@ -2700,10 +2702,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
+			return;
 		}
 
-		showingBlockingDialog = false;
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
@@ -2728,7 +2731,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (Utils.isDBCorrupt()) //Conversation fragment could have been added previously. Remove it and show the corrupt dialog
 		{
-
 			if (isFragmentAdded(MAIN_FRAGMENT_TAG))
 			{
 				removeFragment(MAIN_FRAGMENT_TAG);
