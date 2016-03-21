@@ -277,7 +277,6 @@ public class AccountBackupRestore
 			{
 				e.printStackTrace();
 				successState = STATE_RESTORE_FAILURE_GENERIC;
-				successState = STATE_RESTORE_FAILURE_GENERIC;
 			}
 
 			for (BackupableRestorable item : backupItems)
