@@ -260,6 +260,7 @@ public class AccountBackupRestore
 					for (BackupableRestorable item : backupItems) {
 						if (!item.preRestoreSetup());
 						{
+							successState = STATE_RESTORE_FAILURE_GENERIC;
 							result = false;
 							break;
 						}
