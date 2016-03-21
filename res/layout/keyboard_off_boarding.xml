@@ -38,7 +38,7 @@
         android:textColor="#3d475b"
         android:textSize="20sp"
         android:maxLines="2"
-        android:maxWidth="180dp"
+        android:maxWidth="200dp"
         android:textStyle="bold|italic"/>
 
     <com.bsb.hike.view.CustomFontTextView
