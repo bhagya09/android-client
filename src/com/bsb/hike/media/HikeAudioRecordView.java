@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,7 +54,8 @@ public class HikeAudioRecordView {
     private Context mContext;
     private View recorderImg;
     private RedDot recordingState;
-    private TextView slideToCancel, recordInfo;
+    private TextView recordInfo;
+    private LinearLayout slideToCancel;
     private ImageView rectBgrnd;
     private ViewStub waverMic;
     private float walkieSize;
@@ -86,6 +88,10 @@ public class HikeAudioRecordView {
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
         popup_l.setHeight(parent.getHeight() * 2);
+
+        //The below 2 lines can be used for disabling touch anywhere else, but this will eat the back as well. resulting in issues
+/*        popup_l.setOutsideTouchable(true);
+        popup_l.setFocusable(true);*/
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
         if (shareablePopupSharing) {
@@ -100,7 +106,7 @@ public class HikeAudioRecordView {
 
         recordInfo = (TextView) inflatedLayoutView.findViewById(R.id.record_info_duration);
         recordingState = (RedDot) inflatedLayoutView.findViewById(R.id.recording);
-        slideToCancel = (TextView) inflatedLayoutView.findViewById(R.id.slidetocancel);
+        slideToCancel = (LinearLayout) inflatedLayoutView.findViewById(R.id.slidelayout);
         rectBgrnd = (ImageView) inflatedLayoutView.findViewById(R.id.recording_cancel);
         waverMic = (ViewStub) inflatedLayoutView.findViewById(R.id.walkie_recorder);
         setupRecorderPulsating(waverMic);
@@ -146,6 +152,7 @@ public class HikeAudioRecordView {
     }
 
     private float startedDraggingX = -1;
+    private float distCanMove = DrawUtils.dp(80);
 
     public boolean update(View view, MotionEvent event) {
         if (recorderState == PLAYING) {
@@ -168,10 +175,23 @@ public class HikeAudioRecordView {
                 x = x + view.getX();
                 if (startedDraggingX != -1) {
                     float dist = (x - startedDraggingX);
+                    float alpha = 1.0f + dist / distCanMove;
+                    if (alpha > 1) {
+                        alpha = 1;
+                    } else if (alpha < 0) {
+                        alpha = 0;
+                    }
+                    slideToCancel.setAlpha(alpha);
                     recorderImg.setTranslationX(dist);
-                    slideToCancel.setTranslationX(dist);
+//                    slideToCancel.setTranslationX(dist);
                 } else {
                     if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
+                    distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
+                    if (distCanMove <= 0) {
+                        distCanMove = DrawUtils.dp(80);
+                    } else if (distCanMove > DrawUtils.dp(80)) {
+                        distCanMove = DrawUtils.dp(80);
+                    }
                 }
                 float rawX = event.getRawX();
                 if (rawX <= LOWER_TRIGGER_DELTA) {
@@ -392,8 +412,22 @@ public class HikeAudioRecordView {
     }
 
     public void dismissAudioRecordView() {
+        if (popup_l.isShowing()) {
+            popup_l.dismiss();
+        }
+    }
+
+    public void cancelAndDismissAudio() {
+        if(recorderState != IDLE){
+            cancelAndDeleteAudio();
+        }
+
         if (popup_l.isShowing())
             popup_l.dismiss();
+    }
+
+    public boolean isShowing(){
+        return (popup_l!= null) ? popup_l.isShowing(): false;
     }
 
     private class UpdateRecordingDuration implements Runnable {
