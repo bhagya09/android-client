@@ -2050,15 +2050,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
 					{
 
-						if(!allImages && TextUtils.isEmpty(messageToShare))
-						{
-							Toast.makeText(ComposeChatActivity.this, R.string.timeline_post_multimsg, Toast.LENGTH_SHORT).show();
-						}
-
 						if (imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty() ? messageToShare
-									: TextUtils.isEmpty(imageCaptions.get(0)) ? messageToShare : imageCaptions.get(0), imagesToShare.get(0), true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0), imagesToShare.get(0), true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -2173,7 +2167,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			for (int i = 0; i < imagesToShare.size(); i++)
 			{
-				statusUpdateTasks.add(new StatusUpdateTask(!TextUtils.isEmpty(messageToShare) ? messageToShare : imageCaptions.get(i), -1, imagesToShare.get(i)));
+				statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
 			}
 		}
 		if (!statusUpdateTasks.isEmpty())
