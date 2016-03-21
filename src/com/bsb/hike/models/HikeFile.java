@@ -386,7 +386,7 @@ public class HikeFile
 		return null;
 	}
 
-	private String getAttachmentSharedAs() {
+	public String getAttachmentSharedAs() {
 		// Differentiate between a walkie-talkie msg and an audio attachment
 		String audioSrcType = "";
 		if (hikeFileType != null) {
