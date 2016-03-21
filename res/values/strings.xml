@@ -1489,7 +1489,6 @@
     <string name="sticker">Sticker</string>
     <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
     <string name="block_contact">Block Contact</string>
-    <string name="spam">&#160;(SPAM)</string>
     <string name="caller_manage_list">MANAGE LIST</string>
     <string name="caller_blocked_list_hinttext">Manage your blocked Caller contacts.</string>
     <string name="block_contact_sure">Are you sure you want to block %1$s? All calls will be automatically disconnected.</string>
@@ -1569,4 +1568,5 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
+    <string name="spam">REPORTED AS SPAM</string>
 </resources>

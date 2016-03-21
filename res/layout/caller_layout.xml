@@ -72,30 +72,24 @@
                         android:textSize="14sp"
                         android:visibility="gone" />
 
-                    <LinearLayout
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/caller_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:textColor="@color/conv_item_last_msg_color"
+                        android:textSize="14sp"
+                        android:visibility="visible" />
 
-                        <com.bsb.hike.view.CustomFontTextView
-                            android:id="@+id/caller_number"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/conv_item_last_msg_color"
-                            android:textSize="14sp"
-                            android:visibility="visible" />
-
-                        <com.bsb.hike.view.CustomFontTextView
-                            android:id="@+id/spam"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/spam"
-                            android:textColor="@color/block_contact"
-                            android:textSize="14sp"
-                            android:visibility="gone" />
-                    </LinearLayout>
+                    <com.bsb.hike.view.CustomFontTextView
+                        android:id="@+id/spam"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/spam"
+                        android:textColor="@color/block_contact"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 
