@@ -75,9 +75,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.MotionEvent;
 
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener,
-		AdaptxtKeyboordVisibilityStatusListner
+		AdaptxtKeyboordVisibilityStatusListner, View.OnTouchListener
 {
 
 	private BitmapFactory.Options options;
@@ -353,6 +354,8 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		});
 
 		statusTxt.addTextChangedListener(new EmoticonTextWatcher());
+
+		statusTxt.setOnTouchListener(this);
 		
 		if (mActivityTask.emojiShowing)
 		{
@@ -1219,6 +1222,21 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event)
+	{
+		if (v.getId() == R.id.status_txt)
+		{
+			if (mActivityTask.emojiShowing)
+			{
+				hideEmojiOrMoodLayout();
+				KptUtils.updatePadding(StatusUpdate.this, R.id.parent_layout, 0);
+			}
+		}
+
+		return false;
 	}
 	
 }
