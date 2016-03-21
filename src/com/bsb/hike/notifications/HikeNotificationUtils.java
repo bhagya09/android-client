@@ -28,6 +28,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 
+import java.util.List;
+
 public class HikeNotificationUtils
 {
 
@@ -223,5 +225,21 @@ public class HikeNotificationUtils
 			edit.putString(HikeConstants.VIBRATE_PREF_LIST, Utils.getOldVibratePref(context));
 			edit.commit();
 		}
+	}
+
+
+	public static String getNotificationStringFromList(List<SpannableString> list)
+	{
+		StringBuilder bigText = new StringBuilder();
+		for (int i = 0; i < list.size(); i++)
+		{
+			bigText.append(list.get(i));
+
+			if (i != list.size() - 1)
+			{
+				bigText.append("\n");
+			}
+		}
+		return bigText.toString();
 	}
 }

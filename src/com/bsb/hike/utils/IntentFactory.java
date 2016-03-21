@@ -3,10 +3,7 @@ package com.bsb.hike.utils;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -33,6 +30,7 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -89,6 +87,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bsb.hike.db.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1535,4 +1535,18 @@ public class IntentFactory
         return intent;
     }
 
+	public static void launchPlayStore(String packageName, Activity context)
+	{
+		Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+		marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+		try
+		{
+			context.startActivity(marketIntent);
+		}
+		catch (ActivityNotFoundException e)
+		{
+			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
+			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+		}
+	}
 }
