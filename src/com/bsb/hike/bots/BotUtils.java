@@ -458,12 +458,13 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
-				if(botMetadata.getPrefNetwork() < currentNetwork)
-					return; // Restricting download only to better network than pref.
+
 				if(botMetadata.getAutoResume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 				}
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
@@ -476,12 +477,13 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-				if(botMetadata.getPrefNetwork() < currentNetwork)
-					return; // Restricting download only to better network than pref.
+
 				if(botMetadata.getAutoResume())
 				{
 					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 				}
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
                 // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
