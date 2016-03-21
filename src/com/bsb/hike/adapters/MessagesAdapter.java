@@ -64,8 +64,6 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.chatthread.KeyboardUIListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -357,9 +355,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
-	private KeyboardUIListener keyboardUIListener;
-
-	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity, KeyboardUIListener keyboardUIListener)
+	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
 		// this.largeStickerLoader = new StickerLoader(context);
@@ -371,7 +367,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.mListView = mListView;
 		this.mActivity = activity;
 		this.mOnClickListener = listener;
-		this.keyboardUIListener = keyboardUIListener;
 		this.voiceMessagePlayer = new VoiceMessagePlayer();
 		this.preferences = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.isOneToNChat = OneToNConversationUtils.isOneToNConversation(conversation.getMsisdn());
@@ -3679,9 +3674,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void openFile(HikeFile hikeFile, ConvMessage convMessage, View parent)
 	{
-		if (mActivity != null && mActivity instanceof ChatThreadActivity) {
-			keyboardUIListener.removeKeyboardExitUI();
-		}
 
 		Logger.d(getClass().getSimpleName(), "Opening file");
 		Intent openFile = new Intent(Intent.ACTION_VIEW);
