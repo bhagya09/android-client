@@ -12,21 +12,21 @@ import com.bsb.hike.utils.Utils;
 /**
  * Created by anubhavgupta on 15/02/16.
  */
-public class LoadMoreFooterItem extends BasePackPreviewAdapterItem implements View.OnClickListener
+public class ViewAllFooterItem extends BasePackPreviewAdapterItem implements View.OnClickListener
 {
 
 	private Context mContext;
 
-	private View loadMoreFooterView;
+	private View viewAllFooterView;
 
-	private LoadMoreClickedListener loadMoreClickListener;
+	private ViewAllClickedListener viewAllClickListener;
 
-	interface LoadMoreClickedListener
+	interface ViewAllClickedListener
 	{
-		void onLoadMoreClicked();
+		void onViewAllClicked();
 	}
 
-	public LoadMoreFooterItem(Context context)
+	public ViewAllFooterItem(Context context)
 	{
 		this.mContext = context;
 		init();
@@ -34,8 +34,8 @@ public class LoadMoreFooterItem extends BasePackPreviewAdapterItem implements Vi
 
 	private void init()
 	{
-		loadMoreFooterView = LayoutInflater.from(mContext).inflate(R.layout.load_more_footer, null);
-		View loadMoreFooterContainer = loadMoreFooterView.findViewById(R.id.load_more_footer_container);
+		viewAllFooterView = LayoutInflater.from(mContext).inflate(R.layout.view_all_footer, null);
+		View loadMoreFooterContainer = viewAllFooterView.findViewById(R.id.view_all_footer_container);
 
 		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(50));
 		params.leftMargin = Utils.dpToPx(16);
@@ -48,18 +48,18 @@ public class LoadMoreFooterItem extends BasePackPreviewAdapterItem implements Vi
 	@Override
 	public View getView()
 	{
-		return loadMoreFooterView;
+		return viewAllFooterView;
 	}
 
 	@Override
 	public RecyclerView.ViewHolder getViewHolder()
 	{
-		return new LoadMoreFooterItemViewHolder(getView());
+		return new ViewAllFooterItemViewHolder(getView());
 	}
 
-	private class LoadMoreFooterItemViewHolder extends RecyclerView.ViewHolder
+	private class ViewAllFooterItemViewHolder extends RecyclerView.ViewHolder
 	{
-		public LoadMoreFooterItemViewHolder(View row)
+		public ViewAllFooterItemViewHolder(View row)
 		{
 			super(row);
 		}
@@ -74,14 +74,14 @@ public class LoadMoreFooterItem extends BasePackPreviewAdapterItem implements Vi
 	@Override
 	public void onClick(View v)
 	{
-		if (loadMoreClickListener != null)
+		if (viewAllClickListener != null)
 		{
-			loadMoreClickListener.onLoadMoreClicked();
+			viewAllClickListener.onViewAllClicked();
 		}
 	}
 
-	public void setOnClickListener(LoadMoreClickedListener loadMoreClickListener)
+	public void setOnClickListener(ViewAllClickedListener loadMoreClickListener)
 	{
-		this.loadMoreClickListener = loadMoreClickListener;
+		this.viewAllClickListener = loadMoreClickListener;
 	}
 }

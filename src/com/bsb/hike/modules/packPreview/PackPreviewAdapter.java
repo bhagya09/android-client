@@ -50,7 +50,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	public static final int VIEW_TYPE_STICKER = 2;
 
-	public static final int VIEW_TYPE_LOAD_MORE_FOOTER = 3;
+	public static final int VIEW_TYPE_VIEW_ALL_FOOTER = 3;
 
 	public static final int VIEW_TYPE_AUTHOR_FOOTER = 4;
 
@@ -296,7 +296,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		{
 			case VIEW_TYPE_GRID_TOP_MARGIN:
 			case VIEW_TYPE_TAP_TEXT_HEADER:
-			case VIEW_TYPE_LOAD_MORE_FOOTER:
+			case VIEW_TYPE_VIEW_ALL_FOOTER:
 			case VIEW_TYPE_AUTHOR_FOOTER:
 			case VIEW_TYPE_RECOMMENDED_PACKS_FOOTER:
 				return PackPreviewFragment.NUM_COLUMNS;
