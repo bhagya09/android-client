@@ -215,7 +215,6 @@ public class AccountBackupRestore
 	public int restore()
 	{
 		Long time = System.currentTimeMillis();
-		boolean result = true;
 
 		@RestoreErrorStates
 		int successState = STATE_RESTORE_SUCCESS;
@@ -227,26 +226,21 @@ public class AccountBackupRestore
 		if (state == null && backupMetadata == null)
 		{
 			successState = STATE_RESTORE_FAILURE_GENERIC;
-			result = false;
 		}
-
 		else if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
 		{
 			successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-			result = false;
 		}
 		else if (backupMetadata != null && !isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
 		{
 			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-			result = false;
 		}
 		else if (state != null && !isBackupDbVersionCompatible(state.getDBVersion()))
 		{
 			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-			result = false;
 		}
 
-		if (result)
+		if (successState == STATE_RESTORE_SUCCESS)
 		{
 			List<BackupableRestorable> backupItems = new ArrayList<>();
 			backupItems.add(new DBsBackupRestore(backupToken));
@@ -256,25 +250,24 @@ public class AccountBackupRestore
 			}
 			try
 			{
-				if (result) {
+				if (successState == STATE_RESTORE_SUCCESS) {
 					for (BackupableRestorable item : backupItems) {
 
 						if (!item.preRestoreSetup())
 						{
 							successState = STATE_RESTORE_FAILURE_GENERIC;
-							result = false;
 							break;
 						}
 					}
 				}
 
-				if (result) {
+				if (successState == STATE_RESTORE_SUCCESS) {
 					for (BackupableRestorable item : backupItems) {
 						item.restore();
 					}
 				}
 
-				if (result) {
+				if (successState == STATE_RESTORE_SUCCESS) {
 					for (BackupableRestorable item : backupItems) {
 						item.postRestoreSetup();
 					}
@@ -283,7 +276,6 @@ public class AccountBackupRestore
 			catch (Exception e)
 			{
 				e.printStackTrace();
-				result = false;
 				successState = STATE_RESTORE_FAILURE_GENERIC;
 			}
 
@@ -292,7 +284,7 @@ public class AccountBackupRestore
 				item.finish();
 			}
 		}
-		if (result)
+		if (successState == STATE_RESTORE_SUCCESS)
 		{
 			if (state != null)
 			{
@@ -301,8 +293,8 @@ public class AccountBackupRestore
 		}
 
 		time = System.currentTimeMillis() - time;
-		Logger.d(LOGTAG, "Restore " + result + " in " + time / 1000 + "." + time % 1000 + "s");
-		recordLog(RESTORE_EVENT_KEY,result,time);
+		Logger.d(LOGTAG, "Restore " + successState + " in " + time / 1000 + "." + time % 1000 + "s");
+		recordLog(RESTORE_EVENT_KEY, successState == STATE_RESTORE_SUCCESS, time);
 		logRestoreDetails(backupMetadata);
 		return successState;
 	}
