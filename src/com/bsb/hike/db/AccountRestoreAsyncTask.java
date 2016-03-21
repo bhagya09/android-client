@@ -6,6 +6,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.lang.ref.WeakReference;
@@ -46,6 +47,10 @@ public class AccountRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
+
+		//Fix for HS-83
+		// Resetting Sticker categories here
+		StickerManager.getInstance().postDbCorruptionSetup();
 
 		Utils.connectToMQTT();
 
