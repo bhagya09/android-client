@@ -1,6 +1,7 @@
 package com.bsb.hike.backup;
 
 import com.bsb.hike.utils.CBCEncryption;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 
@@ -44,8 +45,10 @@ public class DB implements BackupableRestorable {
     }
 
     @Override
-    public boolean preBackupSetup() throws Exception {
-        if (BackupUtils.isDBCorrupt(dbName))
+    public boolean preBackupSetup() throws Exception
+    {
+        // Checking whether db was previously corrupted, or is in a corrupt state at the present moment
+        if (Utils.isDBCorrupt() || BackupUtils.isDBCorrupt(dbName))
             return false;
         return true;
     }
