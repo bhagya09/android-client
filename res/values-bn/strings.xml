@@ -848,7 +848,6 @@
     <string name="photo_dp_saved_sub">দেখতে \' ভালো</string>
     <string name="photo_dp_save_error">প্রোফাইল ছবি সেট করা যায়নি</string>
     <string name="photo_dp_save_error_sub">পুনঃচেষ্টা করতে আলতো চাপুন।</string>
-    <string name="photo_gallery_choose_pic">ছবি চয়ন করুন</string>
     <string name="cropping_image">ছবি কাটা হচ্ছে..</string>
     <string name="home_search_empty_text">আপনি \'%1$s\' এর যে অনুসন্ধান করেছেন তা কোনো যোগাযোগর সঙ্গে মেলেনি।</string>
     <string name="voip_mic_error">মাইক শুরু করা যাচ্ছে না। এই কলটি কাজ নাও করতে পারে।</string>
@@ -1433,26 +1432,40 @@
      <string name="admin_error">এই ইউসার আর এই গ্রুপের অংশগ্রাহক নন</string>
 
     <string name="deleting">মুছে ফেলা হচ্ছে</string>
-    <string name="sticker_reorder_setting_info">প্যাকগুলো পুনরায় সজ্জিত করুন </string>
+    <string name="sticker_reorder_setting_info">প্যাকগুলো পুনরায় সজ্জিত করুন</string>
     <string name="sticker_reorder_setting_header">পুনঃসজ্জিত করুন</string>
     <string name="sticker_delete_setting_info">ফোন থেকে স্টিকার প্যাকগুলো মুছে ফেলুন</string>
     <string name="sticker_delete_setting_header">মুছে ফেলুন</string>
-    <string name="sticker_hide_setting_info">প্যালেট থেকে স্টিকারগুলো লুকিয়ে রাখুন/ সামনে আনুন </string>
+    <string name="sticker_hide_setting_info">প্যালেট থেকে স্টিকারগুলো লুকিয়ে রাখুন/ সামনে আনুন</string>
     <string name="sticker_hide_setting_header">লুকিয়ে রাখুন</string>
     <string name="sticker_update_setting_info">ডাউনলোড করা স্টিকার প্যাকগুলো আপডেট  করুন</string>
     <string name="sticker_update_setting_header">আপডেট  করুন</string>
     <string name="delete_pack_question">স্টিকার প্যাক মুছে ফেলার ব্যাপারে আপনি কি নিশ্চিত?</string>
     <string name="settings_sticker">স্টিকার সেটিংস</string>
     <string name="deleting_pack">প্যাক মুছে ফেলা হচ্ছে...</string>
-    <string name="pack_deleted">প্যাক মুছে ফেলা হয়েছে </string>
+    <string name="pack_deleted">প্যাক মুছে ফেলা হয়েছে</string>
     <string name="n_more_stickers">%1$d আরও স্টিকার</string>
     <string name="all_packs_updated_heading">সকল প্যাক আপডেট করা হয়েছে!</string>
     <string name="all_packs_updated_info">আপনার সকল প্যাক আপডেটেড  রয়েছে, আপনি যদি আরও স্টিকার চান, তাহলে স্টিকার শপে দেখুন</string>
     <string name="redirect_to_shop_text">আমাকে শপে নিয়ে যান</string>
     <string name="all_done">সব সম্পন্ন !!</string>
-    <string name="drag_tip_text">প্যাকগুলো পুনঃসজ্জিত করার জন্য টানুন</string>
-    <string name="drag_tip_subtext">আপনার স্টিকারের প্যাকগুলোকে পুনঃসজ্জিত করতে সেগুলো স্পর্শ করে টেনে আনুন</string>
+    <string name="drag_tip_text">পুনঃসজ্জিত করার জন্য স্পর্শ করে টেনে আনুন</string>
     <string name="all_packs_deleted_heading">আমাদের 10,000-এরও বেশি স্টিকার রয়েছে</string>
     <string name="all_packs_deleted_info">আমাদের স্টিকার শপটি দেখুন এবং শুধুমাত্র আপনার পছন্দসই স্টিকারটি ডাউনলোড করুন!</string>
 
+    <string name="timeline_short_desc">বন্ধুদের সাথে আপনার মুহূর্তগুলো শেয়ার করুন</string>
+    <string name="multiple_su_post_failed">এক বা একাধিক স্ট্যাটাস পোস্ট করা যায়নি।</string>
+    <string name="timeline_post_timeout">অল্প সময়ের মধ্যে আপনার ফোটোস পোস্ট করা হবে</string>
+    <string name="timeline_post_multimsg">অতিরিক্ত বার্তাগুলো বাদ দেওয়া হয়েছে</string>
+    <string name="crop">ক্রপ</string>
+    <string name="photo_gallery_choose_pic">ফোটোস</string>
+    <string name="remove">সরিয়ে ফেলুন</string>
+    <string name="filters">ফিল্টার</string>
+    <string name="rotate">রোটেট করুন</string>
+    <string name="forward_to_plural_timeline">%1$s টি বন্ধুকে ও টাইমলাইন-এ বার্তা পাঠাবেন?</string>
+    <string name="forward_to_single_timeline">1 টি বন্ধুকে ও টাইমলাইন-এ বার্তা পাঠাবেন?</string>
+    <string name="share_with_timeline">%1$s টি বন্ধুদের সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
+    <string name="share_with_contact_timeline">%1$s -এর সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
+    <string name="image_w_caption_sms">ক্যাপশন সহ আপনাকে একটি ছবি পাঠিয়েছে</string>
+    <string name="share_on_timeline">টাইমলাইন-এ শেয়ার করবেন?</string>
 </resources>

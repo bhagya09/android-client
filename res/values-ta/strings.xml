@@ -847,7 +847,6 @@
     <string name="photo_dp_saved_sub">நன்றாகத் தோன்றுகிறது</string>
     <string name="photo_dp_save_error">புரொஃபைல் ஃபோட்டோவை செட் செய்ய முடியவில்லை</string>
     <string name="photo_dp_save_error_sub">மறுபடியும் முயற்சிக்கத் தட்டும்</string>
-    <string name="photo_gallery_choose_pic">ஃபோட்டோ ஒன்றைத் தேர்ந்தெடும்</string>
     <string name="cropping_image">இமேஜை கிராப் செய்கிறது..</string>
 	<string name="home_search_empty_text">\'%1$s\'-க்கான உமது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
     <string name="voip_mic_error">மைக்-ஐ ஸ்டார்ட் செய்ய முடியவில்லை. இந்த அழைப்பு வேலை செய்யாது.</string>
@@ -1430,18 +1429,32 @@
     <string name="sticker_hide_setting_header">ஹைடு</string>
     <string name="sticker_update_setting_info">டவுன்லோடு செய்த ஸ்டிக்கர் பேக்குகளை அப்டேட் செய்க</string>
     <string name="sticker_update_setting_header">அப்டேட் செய்க</string>
-    <string name="delete_pack_question">நீர் நிச்சயமாகவே ஸ்டிக்கர் பேக்குகளை அழிக்க விரும்புகிறீர்களா?</string>
+    <string name="delete_pack_question">நீர் நிச்சயமாகவே ஸ்டிக்கர் பேக்கை அழிக்க விரும்புகிறீர்களா?</string>
     <string name="settings_sticker">ஸ்டிக்கர் செட்டிங்ஸ்</string>
     <string name="deleting_pack">பேக்கை அழிக்கிறது...</string>
     <string name="pack_deleted">பேக் அழிந்துவிட்டது</string>
     <string name="n_more_stickers">%1$d இன்னும் அதிக ஸ்டிக்கர்கள்</string>
-    <string name="all_packs_updated_heading">அனைத்து பேக்குக்களையும் அப்டேட் செய்தாயிற்று!</string>
-    <string name="all_packs_updated_info">உங்களது அனைத்து பேக்குகளும் அப்டேட் ஆக உள்ளன, உங்களுக்கு இன்னும் அதிக ஸ்டிக்கர்கள் வேண்டுமென்றால் ஸ்டிக்கர் ஷாப்பிற்கு வாருங்கள்</string>
+    <string name="all_packs_updated_heading">பேக்குகள் அப்டேட்டாக உள்ளது!</string>
+    <string name="all_packs_updated_info">பேக்குகள் அப்டேட்டாக உள்ளன, அதிக ஸ்டிக்கர்களுக்கு ஸ்டிக்கர் ஷாப் வாருங்கள்</string>
     <string name="redirect_to_shop_text">என்னை ஷாப்பிற்கு இட்டுச் செல்க</string>
     <string name="all_done">அனைத்தும் செய்தாயிற்று!!</string>
-    <string name="drag_tip_text">ரீஆர்டர் பேக்குகளுக்கு டிராக் செய்யவும்</string>
-    <string name="drag_tip_subtext">உங்களது ஸ்டிக்கர்களை ரீஆர்டர் செய்ய ட்டாப் செய்து, டிராக் செய்க</string>
-    <string name="all_packs_deleted_heading">எங்களிடம் 10,000 -க்கும் மேற்பட்ட ஸ்டிக்கர்கள் இருக்கின்றன</string>
-    <string name="all_packs_deleted_info">எங்களது ஸ்டிக்கர் ஷாப் சென்று பார்த்து, உங்களுக்குப் பிடித்ததை மட்டும் டவுன்லோடு செய்க!</string>
+    <string name="drag_tip_text">ரீஆர்டர் செய்ய ட்டாப் செய்து, டிராக் செய்க</string>
+    <string name="all_packs_deleted_heading">இங்கு 10,000 -க்கும் மேல் ஸ்டிக்கர்கள் உள்ளன</string>
+    <string name="all_packs_deleted_info">ஸ்டிக்கர் ஷாப் சென்று, உங்களுக்குப் பிடித்ததை  டவுன்லோடு செய்க!</string>
 
+    <string name="timeline_short_desc">உங்களது பொன்னான தருணங்களை நண்பர்களோடு பகிர்ந்து கொள்ளுங்கள்</string>
+    <string name="multiple_su_post_failed">ஒன்று அல்லது அதற்கு மேற்பட்ட ஸ்டேட்டஸ் அப்டேட்களை போஸ்ட் செய்ய முடியவில்லை.</string>
+    <string name="timeline_post_timeout">உங்களது படங்கள் விரைவில் போஸ்ட் செய்து விடுவோம்</string>
+    <string name="timeline_post_multimsg">எக்ஸ்ட்ரா மெஸ்சேஜ்களை டிஸ்கார்டு செய்து விட்டோம்</string>
+    <string name="crop">வெட்டு</string>
+    <string name="photo_gallery_choose_pic">படங்கள்</string>
+    <string name="remove">நீக்குக</string>
+    <string name="filters">வடிகட்டிகள்</string>
+    <string name="rotate">சுழற்று</string>
+    <string name="forward_to_plural_timeline">%1$s தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="forward_to_single_timeline">1 தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="share_with_timeline">%1$d தொடர்புகள் மற்றும் டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="share_with_contact_timeline">%1$s உடனும், டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="image_w_caption_sms">கேப்ஷன் உடன் உங்களுக்கு ஒரு படங்கள் அனுப்பியுள்ளார்</string>
+    <string name="share_on_timeline">டைம்லைன் -ல் ஷேர் செய்யவா?</string>
 </resources>
