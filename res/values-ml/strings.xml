@@ -847,7 +847,6 @@
     <string name="photo_dp_saved_sub">നന്നായി തോന്നുന്നു</string>
     <string name="photo_dp_save_error">പ്രൊഫൈൽ ഫോട്ടോ സജ്ജീകരിക്കാൻ കഴിഞ്ഞിട്ടില്ല</string>
     <string name="photo_dp_save_error_sub">വീണ്ടും ശ്രമിക്കാൻ ടാപ്പുചെയ്യുക.</string>
-    <string name="photo_gallery_choose_pic">ഒരു ഫോട്ടോ തിരഞ്ഞെടുക്കുക</string>
     <string name="cropping_image">ചിത്രം ക്രോപ്പ് ചെയ്യുന്നു..</string>
 	<string name="home_search_empty_text">\&apos;%1$s\&apos;എന്നതിനായുള്ള തിരയൽ യാതൊരു കോണ്ടാക്ട്റ്റായും പൊരുത്തപ്പെടുന്നില്ല.</string>
     <string name="voip_mic_error">മൈക്ക് ആരംഭിക്കാൻ കഴിയില്ല. ഈ കോൾ പ്രവർത്തിച്ചേക്കില്ല.</string>

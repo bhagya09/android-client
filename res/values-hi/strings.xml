@@ -845,7 +845,6 @@
     <string name="photo_dp_saved_sub">सही चल रहा है</string>
     <string name="photo_dp_save_error">प्रोफ़ाइल फ़ोटो सेट नहीं हो सका</string>
     <string name="photo_dp_save_error_sub">पुन: प्रयास करने के लिए टैप करें</string>
-    <string name="photo_gallery_choose_pic">एक फ़ोटो चुनें</string>
     <string name="cropping_image">फ़ोटो क्रॉप हो रहा है..</string>
     <string name="home_search_empty_text">\'%1$s\' तरह का कोई संपर्क नहीं है।</string>
     <string name="voip_mic_error">माइक चालू नहीं हो सका। शायद यह कॉल कारगर न हो।</string>
