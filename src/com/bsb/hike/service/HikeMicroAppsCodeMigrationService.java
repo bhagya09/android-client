@@ -196,14 +196,13 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 			e.printStackTrace();
 		}
 
-
 		/*
-		 * Check if migration is successful , save the flag is true in Shared Preferences , else set alarm for it
+		 * Check if migration is successful , save the flag as true in Shared Preferences and delete old directory content code  , else set alarm for making it happen in future
 		 */
 		if (isMicroAppsSuccessfullyMigrated && isDPDirectoryMigrated)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
-            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
 		}
 		else
 		{

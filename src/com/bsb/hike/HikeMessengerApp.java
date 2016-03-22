@@ -42,6 +42,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.service.HikeMicroAppsCodeMigrationService;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
@@ -1021,6 +1022,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
 
+        // schedule the alarm for migration of old running micro apps in the content directory to new path if code not already migrated
+        scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
 	}
 
 	/**
@@ -1362,5 +1365,17 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
+
+    /**
+     * Used to schedule the alarm for migration of old running micro apps in the content directory
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
+    {
+        // Do the migration tasks only if migration has not been done already and old directory content code exists on device
+        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) && new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR).exists()) {
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+        }
     }
 }
