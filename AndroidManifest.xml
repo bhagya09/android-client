@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1620"
-    android:versionName="4.2.0.18.6.hike_platform_internal" >
+    android:versionCode="1621"
+    android:versionName="4.2.0.18.7.resume_versioning" >
 
     <uses-sdk
         android:minSdkVersion="14"
