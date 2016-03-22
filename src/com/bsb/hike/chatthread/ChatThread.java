@@ -1,22 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -32,6 +15,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -200,9 +184,25 @@ import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -411,7 +411,7 @@ import java.util.concurrent.FutureTask;
 		}
 	};
 
-
+	private int currentOrientation;
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
@@ -705,6 +705,7 @@ import java.util.concurrent.FutureTask;
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		keyboardFtue = new KeyboardFtue();
+		currentOrientation=getCurrentOrientation();
 	}
 
 	
@@ -1850,8 +1851,17 @@ import java.util.concurrent.FutureTask;
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
-			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+
+			if(HikeMessengerApp.getLruCache().get(mAdapter.getChatTheme().bgId()+getOrientationPrefix())!=null)
+			{
+				Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+				removeChatThemeFromCache();
+			}
+
+			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT) {
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
+
+			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
 
@@ -1859,9 +1869,21 @@ import java.util.concurrent.FutureTask;
 			setStatusBarColor(theme.statusBarColor());
 		}
 	}
+
+	private void removeChatThemeFromCache()
+	{
+		HikeMessengerApp.getLruCache().remove(mAdapter.getChatTheme().bgId()+HikeConstants.ORIENTATION_LANDSCAPE);
+		HikeMessengerApp.getLruCache().remove(mAdapter.getChatTheme().bgId()+HikeConstants.ORIENTATION_PORTRAIT);
+	}
+
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
+	}
+
+	protected String getOrientationPrefix()
+	{
+		return currentOrientation == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -1875,7 +1897,22 @@ import java.util.concurrent.FutureTask;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
+			//Now we are first fetching from Cache
+			Drawable drawable=null;
+			drawable=HikeMessengerApp.getLruCache().get(theme.bgId()+getOrientationPrefix());
+			if(drawable==null)
+			{
+				Logger.d(TAG,"Did not found in cached Fetching from APK");
+				//Not found in cache load from apk
+				drawable = Utils.getChatTheme(theme, activity);
+
+				// insert into cached
+				HikeMessengerApp.getLruCache().put(theme.bgId()+getOrientationPrefix(),(BitmapDrawable)drawable);
+			}
+			else {
+				Logger.d(TAG,"Bitmap Chat Theme found in cache");
+			}
+
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
@@ -6094,6 +6131,7 @@ import java.util.concurrent.FutureTask;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
+		currentOrientation=newConfig.orientation;
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
@@ -6889,5 +6927,10 @@ import java.util.concurrent.FutureTask;
 			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
 			return null;
 		}
+	}
+
+	protected int getCurrentOrientation()
+	{
+		return activity.getResources().getConfiguration().orientation;
 	}
 }
