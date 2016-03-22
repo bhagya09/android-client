@@ -39,7 +39,6 @@
             android:id="@+id/category_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxLines="2"
             android:ellipsize="end"
             android:textColor="@color/standard_black"
             android:textSize="16sp" />
@@ -67,6 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/download_btn_round"
+            android:layout_alignParentRight="true"
             android:textColor="@color/white"
             android:textSize="13sp"
             android:visibility="visible"/>
