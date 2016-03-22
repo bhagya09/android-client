@@ -35,7 +35,7 @@
 
             <ImageView
                 android:id="@+id/arrow_slide"
-                android:layout_width="36dp"
+                android:layout_width="@dimen/slide_to_cancel_arrow_width"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:scaleType="center"

@@ -146,4 +146,5 @@
 
 	<dimen name="walkie_talkie_slider_font_size">18dp</dimen>
 	<dimen name="walkie_mic_size">50dp</dimen>
+	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
 </resources>
