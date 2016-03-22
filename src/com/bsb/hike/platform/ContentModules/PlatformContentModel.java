@@ -144,11 +144,7 @@ public class PlatformContentModel
                 if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).exists())
                     basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
                 else if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp).exists())
-                {
-                    boolean isCopied = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp), new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)));
-                    if(isCopied)
-                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp);
-                }
+                    basePath = microApp + File.separator;
 
                 object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
