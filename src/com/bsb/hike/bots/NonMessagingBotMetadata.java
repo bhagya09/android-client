@@ -382,7 +382,8 @@ public class NonMessagingBotMetadata
 		this.prefNetwork = prefNetwork;
 	}
 
-	public int getPrefNetwork() {
+	public int getPrefNetwork()
+	{
 		return prefNetwork;
 	}
 

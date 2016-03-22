@@ -513,8 +513,9 @@ public class PlatformUtils
      * @param enableBot
      */
     public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume)
+			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
+		boolean autoResume=botMetadata.getAutoResume();
         // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as no of mapps request to be completed
         if (botMetadata != null && botMetadata.getAsocmapp() != null)
 		{
@@ -550,7 +551,7 @@ public class PlatformUtils
 						{
                             assocMappRequestStatusMap.remove(botInfo.getMsisdn());
                             // Download micro app for non messaging bot
-							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
+							downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
 						}
 
 						else if (!isMicroAppExistForMappPacket(appName, version))//Download Associated mapp
@@ -565,7 +566,7 @@ public class PlatformUtils
         else // No AssocMapp array found. Reverting to default behaviour.
         {
             // Download micro app for non messaging bot
-            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
+            downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
         }
 	}
 
@@ -574,8 +575,9 @@ public class PlatformUtils
      * method to download the micro app zip as per cbot packet
      */
 	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-			final NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume)
+			final NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
+		boolean autoResume = botMetadata.getAutoResume();
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{
@@ -2009,7 +2011,7 @@ public class PlatformUtils
             if(assocMappRequestStatusMap.get(botInfo.getMsisdn()) == 0)
             {
                 assocMappRequestStatusMap.remove(botInfo.getMsisdn());
-                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
+                downloadMicroAppZipForNonMessagingCbotPacket(botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
             }
         }
     }
