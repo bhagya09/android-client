@@ -45,10 +45,9 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.db.DBUtils;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.DownloadFileTask;
+import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
@@ -2971,7 +2970,9 @@ public class MqttMessagesManager
 			String journalMode = HikeConversationsDatabase.getInstance().getJournalMode();
 			JSONObject json = new JSONObject();
 			json.put(HikeConstants.JOURNAL_MODE, journalMode);
-			json.put(HikeConstants.SQLITE_VERSION, DBUtils.getSqliteVersion());
+			GetSqliteVersionCommand getSqliteVersionCommand = new GetSqliteVersionCommand();
+			String sqliteVersion = (String) getSqliteVersionCommand.execute();
+			json.put(HikeConstants.SQLITE_VERSION, sqliteVersion);
 			HAManager.getInstance().logDevEvent(AnalyticsConstants.DATABASE_AREA, AnalyticsConstants.SQLITE_PROPERTY, json);
 		}
 	}

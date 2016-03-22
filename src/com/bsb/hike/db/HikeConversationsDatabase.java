@@ -46,6 +46,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
@@ -133,7 +134,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if (mDb == null || !mDb.isOpen())
 		{
 			mDb = super.getWritableDatabase();
-			DBUtils.setPragmaJournalMode(mDb);
+			SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDb);
+			setPragmaModeCommand.execute();
 		}
 		return mDb;
 	}

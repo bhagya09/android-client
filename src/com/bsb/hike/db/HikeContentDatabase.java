@@ -23,6 +23,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -41,7 +42,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION, new CustomDatabaseErrorHandler());
 		mDB = getWritableDatabase();
-		DBUtils.setPragmaJournalMode(mDB);
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDB);
+		setPragmaModeCommand.execute();
 	}
 
 	public static HikeContentDatabase getInstance()
