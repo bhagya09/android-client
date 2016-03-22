@@ -168,6 +168,12 @@ dependencies {
     compile fileTree(include: ['*.jar'], exclude: ['android-support-multidex.jar'], dir: 'libs')
     customDevCompile 'com.facebook.stetho:stetho:1.3.0'
     compile 'junit:junit:4.12'
+androidTestCompile 'com.android.support:support-annotations:23.0.1'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'com.android.support:multidex-instrumentation:1.0.1'
+    compile 'com.android.support.test:runner:0.5'
+
 }
 
 
@@ -202,13 +208,6 @@ def computeCustomDevVersionName()
     def manifestParser = new com.android.builder.core.DefaultManifestParser()
     def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
     return versionName + ".Custom_Dev_Flavor"
-}
-dependencies {
-    androidTestCompile 'com.android.support:support-annotations:23.0.1'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'com.android.support:multidex-instrumentation:1.0.1'
-    compile 'com.android.support.test:runner:0.5'
 }
 android.packagingOptions {
 	    exclude 'LICENSE.txt'
