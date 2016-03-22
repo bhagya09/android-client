@@ -63,6 +63,17 @@
         android:layout_marginLeft="20dp"
         android:gravity="center" />
 
+    <ViewStub
+        android:id="@+id/walkie_recorder"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center"
+        android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
+        android:gravity="center"
+        android:layout="@layout/mic_wave_layout" />
+
     <ImageView
         android:id="@+id/recording_cancel"
         android:layout_width="90dp"
@@ -76,16 +87,5 @@
         android:scaleType="centerCrop"
         android:src="@drawable/circle_walkie_solid"
         android:visibility="invisible" />
-
-    <ViewStub
-        android:id="@+id/walkie_recorder"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
-        android:gravity="center"
-        android:layout="@layout/mic_wave_layout" />
 
 </RelativeLayout>

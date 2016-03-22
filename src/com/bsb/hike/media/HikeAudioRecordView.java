@@ -41,6 +41,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private static final byte RECORDING = 2;
     private static final byte RECORDED = 3;
     private static final byte PLAYING = 4;
+    private static final byte CANCELLED = 5;
 
     private static final long MIN_DURATION = 1000;
     private Activity mActivity;
@@ -164,7 +165,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private float distCanMove = DrawUtils.dp(80);
 
     public boolean update(View view, MotionEvent event) {
-        if (recorderState == PLAYING) {
+        if (recorderState == PLAYING || recorderState == CANCELLED) {
             return false;
         }
         switch (event.getAction()) {
@@ -204,8 +205,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 float rawX = event.getRawX();
                 if (rawX <= LOWER_TRIGGER_DELTA) {
                     if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, "  move slided in left direction: will call cancel now" );
-                        cancelAndDeleteAudio();
+                        Log.d(TAG, "  move slided in left direction: will call cancel now");
+                        slideLeftComplete();
                         return true;
                     } else {
                         rectBgrnd.setVisibility(View.VISIBLE);
@@ -221,7 +222,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 startedDraggingX = -1;
                 if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
                     Log.d(TAG, "   slided in left direction: will call cancel now" );
-                    cancelAndDeleteAudio();
+                    slideLeftComplete();
                     return true;
                 }
 
@@ -238,6 +239,45 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 return true;
         }
         return true;
+    }
+
+    private void slideLeftComplete() {
+        recorderState = CANCELLED;
+        doVibration(50);
+        stopUpdateTimeAndRecorder();
+        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                postCancelTask();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+    }
+
+    private void postCancelTask() {
+        new Handler().postDelayed(cancelRunnableTask(), 500);
+    }
+
+    private Runnable cancelRunnableTask() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                cancelAndDeleteAudio();
+                recorderImg.clearAnimation();
+            }
+        };
     }
 
     private void recordingError(boolean showError) {
@@ -344,7 +384,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     private void cancelAndDeleteAudio() {
-        doVibration(50);
+        if(recorderState != CANCELLED) doVibration(50);
         stopRecorder();
         recordingError(false);
         listener.audioRecordCancelled();
