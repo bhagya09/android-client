@@ -703,5 +703,6 @@ public class AnalyticsConstants
 	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
 
 	public static final String JUST_OPENED = "justOpened";
-
+	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
+	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
 }

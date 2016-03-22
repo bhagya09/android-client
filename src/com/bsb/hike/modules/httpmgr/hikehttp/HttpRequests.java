@@ -11,6 +11,7 @@ import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
+import com.bsb.hike.modules.httpmgr.request.BitmapRequest;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
@@ -94,6 +95,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateL
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
@@ -753,7 +755,13 @@ public class HttpRequests
 		
 		return requestToken;		
 	}
-	
+
+	public static RequestToken downloadBitmapTaskRequest(String urlString, IRequestListener listener){
+		BitmapRequest.Builder builder= new BitmapRequest.Builder()
+				.setUrl(urlString).setRequestListener(listener).get();
+		RequestToken requestToken = builder.build();
+		return requestToken;
+	}
 	public static RequestToken editProfileAvatarRequest(String filePath, IRequestListener requestListener)
 	{
 		File file = new File(filePath);
@@ -1088,7 +1096,7 @@ public class HttpRequests
                 .setUrl(url)
                 .setRequestType(REQUEST_TYPE_SHORT)
                 .setAsynchronous(true)
-                .setPriority(PRIORITY_HIGH)
+				.setPriority(PRIORITY_LOW)
                 .setRetryPolicy(new BasicRetryPolicy(0, 1, 1))
                 .build();
         Logger.e("HikeHttpRequests", "Making http call to " + url);

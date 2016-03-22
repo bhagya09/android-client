@@ -1098,6 +1098,8 @@ public class HikeConstants
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
 
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
+
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
 	public static final String HIKE_BACKUP_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Backup";
@@ -3918,6 +3920,8 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
+	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
+
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
@@ -3977,4 +3981,5 @@ public class HikeConstants
 	public static final String STICKER_PACK = "spc";
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
 }
