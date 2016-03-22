@@ -242,11 +242,11 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         return true;
     }
 
-    private void slideLeftComplete() {
-        recorderState = CANCELLED;
-        doVibration(50);
-        stopUpdateTimeAndRecorder();
-        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(new Animator.AnimatorListener() {
+    private Animator.AnimatorListener mAnimationListener = null;
+
+    private Animator.AnimatorListener getAnimationListener() {
+        if (mAnimationListener != null) return mAnimationListener;
+        mAnimationListener = new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
             }
@@ -264,7 +264,15 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             public void onAnimationRepeat(Animator animator) {
 
             }
-        }).start();
+        };
+        return mAnimationListener;
+    }
+
+    private void slideLeftComplete() {
+        recorderState = CANCELLED;
+        doVibration(50);
+        stopUpdateTimeAndRecorder();
+        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
     }
 
     static final int CANCEL_RECORDING = 1;
