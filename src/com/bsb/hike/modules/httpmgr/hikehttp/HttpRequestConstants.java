@@ -422,20 +422,6 @@ public class HttpRequestConstants
 		// TODO Add complete url here
 		return BASE_PLATFORM_URL;
 	}
-	
-	public static String getBotDownloadUrl()
-	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
-		
-		if (isProduction)
-		{
-			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
-		}
-		else
-		{
-			return HTTPS + QA_CONTENT + suffix ;
-		}
-	}
 
 	public static String getLanguageDictionaryBaseUrl()
 	{
@@ -481,7 +467,7 @@ public class HttpRequestConstants
 
 	public static String getMicroAppLoggingUrl(boolean isSuccess)
 	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+		String suffix = "/mapps/api" + BASE_V2 + "/apps/ack/" + (isSuccess ? "success" : "failure");
 
 		if (isProduction)
 		{

@@ -1756,14 +1756,20 @@ public class PlatformUtils
 	}
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode,int errorCode)
 	{
-		try
-		{
-			JSONObject body = new JSONObject();
-			body.put(HikePlatformConstants.APP_NAME, appName);
-			body.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
-			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
+        // Json to be sent to server for analysing micro-apps acks analytics
+        JSONObject json = new JSONObject();
 
-			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), body, new IRequestListener()
+        try
+		{
+			JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put(HikePlatformConstants.APP_NAME, appName);
+            appsJsonObject.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
+            appsJsonObject.put(HikePlatformConstants.ERROR_CODE,errorCode);
+
+            // Put apps JsonObject in the final json
+            json.put(HikePlatformConstants.APPS, appsJsonObject);
+
+			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), json, new IRequestListener()
 			{
 				@Override
 				public void onRequestFailure(HttpException httpException)

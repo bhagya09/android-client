@@ -357,4 +357,6 @@ public interface HikePlatformConstants
 
 	String BITMAP_URL = "bitmap_url";
 
+    String SETTING_OFF = "off";
+
 }
