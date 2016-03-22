@@ -38,7 +38,7 @@ public class PlatformAuthenticationManager
 
 	private String _clientId;
 
-	private boolean _isLongTermTokenRequired;
+	private  boolean _isLongTermTokenRequired;
 
 	private String _mAppId;
 
@@ -83,13 +83,18 @@ public class PlatformAuthenticationManager
 		RequestToken requestToken = authSDKRequest(_pUID, _pToken, clientId, new AuthTokenRequestListener());
 		requestToken.execute();
 	}
-	private static String getAuthGetData(String clientId)
+	private String getAuthGetData(String clientId)
 	{
+		String expiry_type = HikePlatformConstants.AuthConstants.AUTH_SHORT_TYPE;
+		if(_isLongTermTokenRequired){
+			expiry_type = HikePlatformConstants.AuthConstants.AUTH_LONG_TYPE;
+		}
 		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
 		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_RESPONSE_TYPE,HikePlatformConstants.AuthConstants.AUTH_TEST_RESPONSE_TYPE));
 		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_CLIENT_ID, clientId));
 		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_SCOPE, HikePlatformConstants.AuthConstants.AUTH_TEST_PARAM_SCOPE));
 		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_PARAM_PACKAGE_NAME, HikePlatformConstants.AuthConstants.AUTH_TEST_CLIENT_PACKAGE_NAME));
+		params.add(new BasicNameValuePair(AccountUtils.SDK_AUTH_EXPIRY_TYPE, expiry_type));
 		String paramString = URLEncodedUtils.format(params, "UTF-8");
 		try
 		{
@@ -105,7 +110,7 @@ public class PlatformAuthenticationManager
 
 	
 	//////////////////Request Tokens/////////////////////
-	public static RequestToken authSDKRequest(String puid, String pToken,String clientId, IRequestListener requestListener)
+	public RequestToken authSDKRequest(String puid, String pToken,String clientId, IRequestListener requestListener)
 	{
 		List<Header> headerList = new ArrayList<Header>(1);
 		headerList.add(new Header(HikePlatformConstants.COOKIE, HikePlatformConstants.PLATFORM_USER_ID + "=" + puid + ";" + HikePlatformConstants.PLATFORM_TOKEN + "=" + pToken));

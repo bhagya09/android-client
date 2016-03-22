@@ -101,9 +101,15 @@ public interface HikePlatformConstants
 	
 	public static final class AuthConstants
 	{
-	public static final String AUTH_TEST_CLIENT_PACKAGE_NAME = "test_package_name";
-	public static final String AUTH_TEST_RESPONSE_TYPE = "token";
-	public static final String AUTH_TEST_PARAM_SCOPE = "publish_actions";
+		public static final String AUTH_TEST_CLIENT_PACKAGE_NAME = "test_package_name";
+
+		public static final String AUTH_TEST_RESPONSE_TYPE = "token";
+
+		public static final String AUTH_TEST_PARAM_SCOPE = "publish_actions";
+		
+		public static final String AUTH_LONG_TYPE = "long";
+		
+		public static final String AUTH_SHORT_TYPE = "short";
 	}
 	
 
