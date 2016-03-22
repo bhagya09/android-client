@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
@@ -98,6 +99,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -425,7 +427,7 @@ public class PlatformUtils
      * Method to download assoc mapp (helper files) requested with cbot packet.
      */
 	public static void downloadAssocMappForNonMessagingBot(final JSONObject assocMappJson, final BotInfo botInfo, final boolean enableBot, final String botChatTheme,
-			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport)
+			final String notifType, final NonMessagingBotMetadata botMetadata, final boolean resumeSupport, final boolean autoResume)
 	{
 
 		final PlatformContentModel platformContentModel = PlatformContentModel.make(assocMappJson.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
@@ -439,7 +441,7 @@ public class PlatformUtils
 				Logger.d(TAG, "microapp download packet success.");
 				// Store successful micro app creation in db
 				mAppCreationSuccessHandling(assocMappJson);
-				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+				assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
 			}
 
 			@Override
@@ -459,7 +461,7 @@ public class PlatformUtils
 				{
 					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOADED, platformContentModel, jsonObject);
 					Logger.d(TAG, "microapp already exists.");
-					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport);
+					assocMappDownloadHandling(botInfo, enableBot, botChatTheme, notifType, botMetadata, resumeSupport,autoResume);
 				}
 				else
 				{
@@ -499,10 +501,9 @@ public class PlatformUtils
 		boolean isTemplatingEnabled = false;
 		boolean doReplace = false;
 		String callbackId = null;
-		boolean resumeSupported = false;
 		String assocCbot = "";
 
-		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupported, assocCbot);
+		downloadAndUnzip(rqst, isTemplatingEnabled, doReplace, callbackId, resumeSupport, assocCbot,autoResume);
 	}
 
     /**
@@ -514,6 +515,7 @@ public class PlatformUtils
     public static void processCbotPacketForNonMessagingBot(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
 			NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
+		boolean autoResume=botMetadata.getAutoResume();
         // On receiving request to process cbot packet , add entry in assocMapp requests map with initial count as no of mapps request to be completed
         if (botMetadata != null && botMetadata.getAsocmapp() != null)
 		{
@@ -554,7 +556,7 @@ public class PlatformUtils
 
 						else if (!isMicroAppExistForMappPacket(appName, version))//Download Associated mapp
 						{
-							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport);
+							downloadAssocMappForNonMessagingBot(assocMappJson,botInfo,enableBot,botChatTheme,notifType,botMetadata,resumeSupport,autoResume);
 						}
 					}
 				}
@@ -575,6 +577,7 @@ public class PlatformUtils
 	public static void downloadMicroAppZipForNonMessagingCbotPacket(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
 			final NonMessagingBotMetadata botMetadata, boolean resumeSupport)
 	{
+		boolean autoResume = botMetadata.getAutoResume();
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(botInfo.getMetadata(), botInfo.getBotType()),
 				new PlatformContentListener<PlatformContentModel>()
 				{
@@ -603,24 +606,29 @@ public class PlatformUtils
 						}
 						else
 						{
-                            Pair<BotInfo,Boolean> botInfoCreationFailedPair = new Pair(botInfo,false);
-                            HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
-                            Logger.wtf(TAG, "microapp download packet failed." + event.toString());
-							JSONObject json = new JSONObject();
-							try
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
 							{
-								json.put(HikePlatformConstants.ERROR_CODE, event.toString());
-								if (zipFileSize > 0)
-								{
-									json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
-								}
-								json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-								createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
-								createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+								// In case of failure updating status
+								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
+								sendDownloadPausedAnalytics(botMetadata.getAppName());
 							}
-							catch (JSONException e)
-							{
-								e.printStackTrace();
+							else {
+								Pair<BotInfo, Boolean> botInfoCreationFailedPair = new Pair(botInfo, false);
+								HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreationFailedPair);
+								Logger.wtf(TAG, "microapp download packet failed." + event.toString());
+								JSONObject json = new JSONObject();
+								try {
+									json.put(HikePlatformConstants.ERROR_CODE, event.toString());
+									if (zipFileSize > 0) {
+										json.put(AnalyticsConstants.FILE_SIZE, String.valueOf(zipFileSize));
+									}
+									json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+									createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+									createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
 							}
 
 						}
@@ -647,7 +655,7 @@ public class PlatformUtils
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn());
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn(), autoResume);
 	}
     
 
@@ -657,6 +665,12 @@ public class PlatformUtils
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
+		// Removing from download state table on success
+		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		if (metadata != null)
+		{
+			removeFromPlatformDownloadStateTable(metadata.getAppName(), metadata.getmAppVersionCode());
+		}
 	}
 
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo)
@@ -730,12 +744,13 @@ public class PlatformUtils
 	 * @param downloadData
 	 *            : the data used to download microapp from ac packet to download the app.
 	 */
-	public static void downloadZipFromPacket(final JSONObject downloadData)
+	public static void downloadZipFromPacket(final JSONObject downloadData, int currentNetwork)
 	{
 		if (downloadData == null)
 		{
 			return;
 		}
+		final boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
 
         final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
@@ -749,6 +764,8 @@ public class PlatformUtils
 				Logger.d(TAG, "microapp download packet success.");
                 // Store successful micro app creation in db
                 mAppCreationSuccessHandling(downloadData);
+				// Removing from state table in case of Download success
+				removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
 			}
 
 			@Override
@@ -799,8 +816,19 @@ public class PlatformUtils
                         Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,false);
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
-					microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
-					Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+					//Updating state in case of failure
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+					{
+
+						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
+								HikePlatformConstants.PlatformDwnldState.FAILED);
+						sendDownloadPausedAnalytics(platformContentModel.getId());
+					}
+					else
+					{
+						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
+						Logger.wtf(TAG, "microapp download packet failed.Because it is" + event.toString());
+					}
 				}
 			}
 
@@ -826,7 +854,18 @@ public class PlatformUtils
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot);
+		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
+		if(autoResume)
+		{
+			resumeSupported =true;
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+		}
+		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
+		{
+			return;    // Do not download if current network is below preferred network.
+		}
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -881,7 +920,7 @@ public class PlatformUtils
 		}
 	}
 
-	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot)
+	public static void downloadAndUnzip(PlatformContentRequest request, boolean isTemplatingEnabled, boolean doReplace, String callbackId, boolean resumeSupported, String assocCbot,boolean autoResume)
 	{
         // Parameters to call if micro app already exists method and stop the micro app downloading flow in this case
         String mAppName = request.getContentData().cardObj.getAppName();
@@ -1963,7 +2002,7 @@ public class PlatformUtils
      * This method would check if assoc mapps required for this cbot are downloaded, then trigger the download of micro app
      */
     private static void assocMappDownloadHandling(final BotInfo botInfo, final boolean enableBot, final String botChatTheme, final String notifType,
-                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport) {
+                                                  final NonMessagingBotMetadata botMetadata, boolean resumeSupport, boolean autoResume) {
 
         if(assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
         {
@@ -2336,4 +2375,179 @@ public class PlatformUtils
 		}
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 	}
+/*
+ *Method to add data to the State table
+ */
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
+	{
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+			}
+		});
+	}
+
+	/*
+	Method to remove from PlatformDownload table
+	*/
+	public static void removeFromPlatformDownloadStateTable(final String name, final int mAppVersionCode)
+	{
+		if (TextUtils.isEmpty(name) || mAppVersionCode <-1)
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+			}
+		});
+	}
+
+	// Method to update Platform Download table
+
+	public static void updatePlatformDownloadState(final String name, final int mAppVersionCode, @HikePlatformConstants.PlatformDwnldState final int newState)
+	{
+		if (mAppVersionCode <-1 || TextUtils.isEmpty(name))
+		{
+			return;
+		}
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeContentDatabase.getInstance().updatePlatformDownloadState(name, mAppVersionCode, newState);
+			}
+		});
+	}
+
+	/*
+	 * Method to retry pending downloads and also pause any current downloads if network is downgraded. Also remove from table if ttl has expired.
+	 */
+	public static void retryPendingDownloadsIfAny(final int currentNetwork)
+	{
+		Logger.i(TAG, "Restarting pending bot downloads...");
+		HikeHandlerUtil handler = HikeHandlerUtil.getInstance();
+		handler.startHandlerThread();
+		handler.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				long currentTime = System.currentTimeMillis();
+				Cursor c = HikeContentDatabase.getInstance().getAllPendingPlatformDownloads();
+				if (c == null)
+				{
+					Logger.e(TAG, "There are no platform downloads to retry. Returning");
+					return;
+				}
+				while (c.moveToNext())
+				{
+					try
+					{
+						JSONObject json = new JSONObject(c.getString(c.getColumnIndex(HikePlatformConstants.PACKET_DATA)));
+
+						int type = c.getInt(c.getColumnIndex(HikePlatformConstants.TYPE));
+
+						long ttl = c.getLong(c.getColumnIndex(HikePlatformConstants.TTL));
+
+						int prefNetwork =c.getInt(c.getColumnIndex(HikePlatformConstants.PREF_NETWORK));
+
+						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
+
+						if (currentTime > ttl)
+						{
+							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
+							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+						}
+						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
+						{
+							PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(name);
+							if (null != tokenCountPair && null != tokenCountPair.getFirst())
+							{
+								tokenCountPair.getFirst().cancel();
+							}
+						}
+						if (prefNetwork >= currentNetwork) // Only retry on higher NetworkTypes
+						{
+							sendDownloadResumedAnalytics(name);
+							switch (type)
+							{
+								case HikePlatformConstants.PlatformTypes.CBOT:
+									BotUtils.createBot(json,currentNetwork);
+									break;
+								case HikePlatformConstants.PlatformTypes.MAPP:
+									downloadZipFromPacket(json,currentNetwork);
+									break;
+							}
+						}
+					}
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "Exception in retryPendingDownloadsIfAny : "+e.getMessage());
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+	}
+// analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"fld6”:567888,"fld1”:"hikenews","ek":"micro_app","event":"download_paused"},"cts":1458220184473,"tag":"plf"},"t":"le_android”}
+	private static void sendDownloadPausedAnalytics(String id) {
+		int downloadedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			if(!TextUtils.isEmpty(id)) {
+				String filePath = PlatformContentConstants.PLATFORM_CONTENT_DIR + id + FileRequestPersistent.STATE_FILE_EXT;
+				String data[] = PlatformUtils.readPartialDownloadState(filePath);
+				if (data == null || data.length < 1 || TextUtils.isEmpty(data[1]))
+				{
+					return;
+				}
+				downloadedLength = Integer.parseInt(data[0]);
+			}
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_PAUSED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_6, downloadedLength);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+//analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"ek":"micro_app","fld1”:"hikenews","event":"download_resumed"},"cts":1458220217498,"tag":"plf"},"t":"le_android"}
+	private static void sendDownloadResumedAnalytics(String id) {
+		int downladedLength=0;
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.DOWNLOAD_RESUMED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, id);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
+
+	}
+
+
+
 }

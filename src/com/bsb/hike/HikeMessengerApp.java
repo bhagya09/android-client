@@ -1006,6 +1006,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
 
+
+
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
         // On a long run this should be deleted 

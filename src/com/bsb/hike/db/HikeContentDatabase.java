@@ -29,6 +29,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
 {
@@ -92,7 +93,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private String[] getCreateQueries()
 	{
-		String[] createAndIndexes = new String[9];
+		String[] createAndIndexes = new String[10];
 		int i = 0;
 		// CREATE TABLE
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
@@ -160,6 +161,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		createAndIndexes[i++] = cacheDataTable;
 		
 		createAndIndexes[i++] = getCreateBotDiscoveryTableQuery();
+
+		createAndIndexes[i++] = getPlatformDownloadStateTableQuery();
 		// INDEX ENDS HERE
 
 		return createAndIndexes;
@@ -229,6 +232,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         if (oldVersion < 7)
         {
             String createMappTableQuery = getCreateMAppDataTableQuery();
+			String botDownloadStateTableQuery = getPlatformDownloadStateTableQuery();
+			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
 		
@@ -949,5 +954,75 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
         return mAppTable;
     }
+
+	/**
+	 * This table maintains download state for cbot/mapp packets for Platform.
+	 * @return
+	 */
+	private String getPlatformDownloadStateTableQuery()
+	{
+
+		String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+				" ("
+				+ HikePlatformConstants.APP_NAME + " TEXT, "
+				+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+				+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
+				+ HikePlatformConstants.TYPE + " INTEGER, "
+				+ HikePlatformConstants.TTL + " INTEGER, "
+				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+				+ "UNIQUE ("
+				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
+				+ ")"
+				+ ")";
+
+		return botDownloadStateTableQuery;
+	}
+	/**
+	 * Function to add data to Platform Download State Table
+	 */
+	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(HikePlatformConstants.APP_NAME, name);
+		cv.put(HikePlatformConstants.MAPP_VERSION_CODE, mAppVersionCode);
+		cv.put(HikePlatformConstants.PACKET_DATA, data);
+		cv.put(HikePlatformConstants.TYPE, type);
+		cv.put(HikePlatformConstants.TTL, ttl);
+		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, dwnldState);
+		try
+		{
+			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+		}
+		catch (Exception e)
+		{
+			Logger.d(getClass().getCanonicalName(), "Error while inserting to DB");
+
+		}
+	}
+
+	public void removeFromPlatformDownloadStateTable(String name, int mAppVersionCode)
+	{
+		long rows =mDB.delete(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
+	}
+
+	public void updatePlatformDownloadState(String name, int mAppVersionCode, int newState)
+	{
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, newState);
+		mDB.update(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, cv, HikePlatformConstants.APP_NAME + " =? AND " + HikePlatformConstants.MAPP_VERSION_CODE + " = " + mAppVersionCode, new String[]{name});
+	}
+
+	/**
+	 * Call this method to get the cursor of the PlatformDownloadStateTable.
+	 * @return
+	 */
+	public Cursor getAllPendingPlatformDownloads()
+	{
+		Cursor c = null;
+			c = mDB.query(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE,null, null, null, null, null, null);
+		return c;
+	}
 
 }

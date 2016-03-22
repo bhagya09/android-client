@@ -8002,4 +8002,20 @@ public class Utils
 		}
 	}
 
+	/*
+	Method to return network type as short in descending order
+	 */
+	public static short getNetworkShortinOrder(String networkType)
+	{
+		switch(networkType)
+		{
+			case "wifi" : return 1;
+			case "2g" : return 4;
+			case "3g" : return 3;
+			case "4g" : return 2;
+			case "off" : return -1;
+			case "unknown" : return 5;
+			default : return 0;
+		}
+	}
 }

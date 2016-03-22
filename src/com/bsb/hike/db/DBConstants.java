@@ -381,6 +381,11 @@ public interface DBConstants
         public static final String APP_PACKAGE = "app_package";
         public static final String IS_SDK = "is_sdk";
 
+		//Bot Download state table starts here
+		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
+
+		String DOWNLOAD_STATE = "downloadState";
+
 	}
 	
 	public static interface HIKE_PERSISTENCE

@@ -1,5 +1,10 @@
 package com.bsb.hike.platform;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public interface HikePlatformConstants
 {
 	String DATA = "d";
@@ -93,9 +98,12 @@ public interface HikePlatformConstants
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
     public static final String IS_SDK ="isSdk" ;
+    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	String HIKE_AFFINITY="hike_affinity";
 	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
+	String PACKET_DATA = "packetData";
+	String PREF_NETWORK = "preferredNetwork";
 
     public static final class PlatformFetchType
 	{
@@ -349,8 +357,35 @@ public interface HikePlatformConstants
 
     String MICRO_APP_CRICKET_REGEX = "cricket";
 
+	String TTL = "timeToLive";
+
+	String DEFULT_NETWORK = "unknown";
+
+	String AUTO_RESUME = "autoResume";
+
+	
+	@IntDef({ PlatformDwnldState.IN_PROGRESS, PlatformDwnldState.FAILED, PlatformDwnldState.SUCCESS })
+	@interface PlatformDwnldState
+	{
+		int IN_PROGRESS = 0;
+
+		int FAILED = 1;
+
+		int SUCCESS = 2;
+	}
+
+	
+   @IntDef({PlatformTypes.CBOT,PlatformTypes.MAPP})
+	@interface PlatformTypes
+	{
+		int CBOT = 0;
+		int MAPP = 1;
+	}
+
+	long oneDayInMS = 86400000;
 	String BIG_PICTURE = "big_picture";
 
 	String BITMAP_URL = "bitmap_url";
+
 
 }

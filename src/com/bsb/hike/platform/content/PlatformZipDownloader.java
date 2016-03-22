@@ -67,6 +67,8 @@ public class PlatformZipDownloader
 
     private  float progress_done=0;
 
+	private boolean autoResume = false;
+
     // static builder class used here for generating and returning object of Zip Downloading process
     public static class Builder {
         private PlatformContentRequest argRequest;
@@ -74,6 +76,7 @@ public class PlatformZipDownloader
         private String callbackId = "";
         private boolean resumeSupported = false;
         private String assocCbotMsisdn = "";
+		private boolean autoResume = false;
 
         public Builder setArgRequest(PlatformContentRequest argRequest) {
             this.argRequest = argRequest;
@@ -103,6 +106,11 @@ public class PlatformZipDownloader
         public PlatformZipDownloader createPlatformZipDownloader() {
             return new PlatformZipDownloader(this);
         }
+
+		public Builder setAutoResume(boolean autoResume) {
+			this.autoResume = autoResume;
+			return this;
+		}
     }
 
     /**
@@ -117,6 +125,7 @@ public class PlatformZipDownloader
         this.callbackId = builder.callbackId;
         this.resumeSupported = builder.resumeSupported;
         this.asocCbotMsisdn = builder.assocCbotMsisdn;
+		this.autoResume = builder.autoResume;
 
         if (resumeSupported)
         {
@@ -215,7 +224,7 @@ public class PlatformZipDownloader
 			token.execute();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "downloadStarted"));
 //			PlatformRequestManager.getCurrentDownloadingTemplates().add(mRequest.getContentData().appHashCode());
-			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getId(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)));
+			PlatformZipDownloader.putInCurrentDownloadingRequests(mRequest.getContentData().getId(), new PairModified<RequestToken, Integer>(token, HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MAX_RETRY_COUNT_MAPPS, HikePlatformConstants.MAPP_DEFAULT_RETRY_COUNT)),autoResume);
 		}
 	}
 
@@ -360,6 +369,11 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
                                 PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
+								if (autoResume)
+								{
+									PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName,
+											mRequest.getContentData().cardObj.getmAppVersionCode()); // Incase of unzip fail we will remove from state table.
+								}
                             }
 							zipFile.delete();
 						}
@@ -411,11 +425,11 @@ public class PlatformZipDownloader
 		return platformRequests;
 	}
 
-	public static void putInCurrentDownloadingRequests(String key, PairModified<RequestToken, Integer> requestTokenIntegerPair)
+	public static void putInCurrentDownloadingRequests(String key, PairModified<RequestToken, Integer> requestTokenIntegerPair, Boolean autoResume)
 	{
 		if (platformRequests != null)
 		{
-			if (platformRequests.containsKey(key))
+			if (platformRequests.containsKey(key) && !autoResume)
 			{
 				reduceRefCountInDownloadingRequests(key,requestTokenIntegerPair);
 			}
@@ -538,6 +552,7 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestProgressUpdate(float progress)
 			{
+				Logger.d("PlatformZipDownloader", ""+progress);
 				if (!TextUtils.isEmpty(callbackId))
 				{
 					if (updateProgress(progress))
