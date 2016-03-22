@@ -1452,4 +1452,19 @@
     <string name="all_packs_deleted_heading">ನಮ್ಮ ಬಳಿ 10,000 ಸ್ಟಿಕರ್‌ಗಳಿವೆ </string>
     <string name="all_packs_deleted_info">ಸ್ಟಿಕರ್ ಶಾಪ್ ಅನ್ನು ನೋಡಿ ಹಾಗೂ ನಿಮಗೆ ಇಷ್ಟವಾಗಿದ್ದನ್ನು ಮಾತ್ರ ಡೌನ್‍ಲೋಡ್ ಮಾಡಿ</string>
 
+    <string name="timeline_short_desc">ನಿಮ್ಮ ಸಂತಸದ ಸಮಯಗಳನ್ನು ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="multiple_su_post_failed">ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸ್ಟೇಟಸ್ ಅಪ್ಡೇಟುಗಳನ್ನು ಪೋಸ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
+    <string name="timeline_post_timeout">ನಿಮ್ಮ ಚಿತ್ರಗಳು ಕೆಲವು ಕ್ಷಣಗಳಲ್ಲಿ ಪೋಸ್ಟ್ ಮಾಡಲಾಗುವುದು .</string>
+    <string name="timeline_post_multimsg">ಅಧಿಕವಾದ ಮೆಸೇಜುಗಳನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.</string>
+    <string name="crop">ಕತ್ತರಿಸಿ ಹಾಕು</string>
+    <string name="photo_gallery_choose_pic">ಚಿತ್ರಗಳು</string>
+    <string name="remove">ತೆಗೆ</string>
+    <string name="filters">ಫಿಲ್ಟರ್ </string>
+    <string name="rotate">ತಿರುಗಿಸಿ</string>
+    <string name="forward_to_plural_timeline">ಮೆಸೇಜನ್ನು %1$ ಸಂಪರ್ಕಗಳಿಗೆ  ಮತ್ತು  ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ ಕಳುಹಿಸಿ</string>
+    <string name="forward_to_single_timeline">ಮೆಸೇಜ್ಅನ್ನು ೧ ಸಂಪರ್ಕಕ್ಕೆ ಹಾಗು ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ ಕಳಿಸಬೇಕೆ ?</string>
+    <string name="share_with_timeline">%1$d ಸಂಪರ್ಕಗಳಿಗೆ ಮತ್ತು  ಟೈಮೆಲೈನ್ ಮೂಲಕ ಹಂಚಿಕೊಳ್ಳಬೇಕೆ?</string>
+    <string name="share_with_contact_timeline">%1$s ಮತ್ತು  ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ  ಹಂಚಿಕೊಳ್ಳಬೇಕೆ? </string>
+    <string name="image_w_caption_sms">ಕ್ಯಾಪ್ಶನ್ನಿನೊಂದಿಗೆ ನಿಮಗೊಂದು ಚಿತ್ರಗಳು ಕಳುಹಿಸಲಾಗಿದೆ</string>
+    <string name="share_on_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಬೇಕೆ?</string>
 </resources>

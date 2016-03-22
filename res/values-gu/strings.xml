@@ -1449,4 +1449,19 @@
     <string name="all_packs_deleted_heading">અમારી પાસે 10,000 થી વધુ સ્ટીકર્સ છે</string>
     <string name="all_packs_deleted_info">અમારી સ્ટીકર શો તપાસો અને માત્ર તમારી પસંદગી ના પૅક્સ ડાઉનલોડ કરો!</string>
 
+    <string name="timeline_short_desc">તમારા મિત્રો સાથે તમારી ક્ષણો સહિયારી કરો.</string>
+    <string name="multiple_su_post_failed">એક અથવા વધુ સ્ટેટસ અપડેટ્સ પોસ્ટ થઇ શકશે નહીં.</string>
+    <string name="timeline_post_timeout">તમારો ફોટો ટૂંક સમયમાં પોસ્ટ થશે</string>
+    <string name="timeline_post_multimsg">વિશેષ સંદેશા અસ્વીકૃત કરો</string>
+    <string name="crop">ક્રોપ કરો</string>
+    <string name="photo_gallery_choose_pic">ફોટો</string>
+    <string name="remove">હટાવો</string>
+    <string name="filters">ફિલ્ટર્સ</string>
+    <string name="rotate">રોટેટ</string>
+    <string name="forward_to_plural_timeline">%1$s સંપર્ક પર અને ટાઇમલાઇન પર સંદેશ મોકલીએ?</string>
+    <string name="forward_to_single_timeline">1  સંપર્ક પર અને ટાઇમલાઇન પર સંદેશ મોકલીએ?</string>
+    <string name="share_with_timeline">%1$s સંપર્ક સાથે અને ટાઇમલાઇન પર શેયર કરીએ?</string>
+    <string name="share_with_contact_timeline">%1$s સંપર્ક સાથે અને ટાઇમલાઇન પર શેયર કરીએ?</string>
+    <string name="image_w_caption_sms">કેપ્શન સાથે તમને ફોટો મોકલી</string>
+    <string name="share_on_timeline">ટાઇમલાઇન પર શેયર કરીએ?</string>
 </resources>

@@ -1444,4 +1444,19 @@
     <string name="all_packs_deleted_heading">எங்களிடம் 10,000 -க்கும் மேற்பட்ட ஸ்டிக்கர்கள் இருக்கின்றன</string>
     <string name="all_packs_deleted_info">எங்களது ஸ்டிக்கர் ஷாப் சென்று பார்த்து, உங்களுக்குப் பிடித்ததை மட்டும் டவுன்லோடு செய்க!</string>
 
+    <string name="timeline_short_desc">உங்களது பொன்னான தருணங்களை நண்பர்களோடு பகிர்ந்து கொள்ளுங்கள்</string>
+    <string name="multiple_su_post_failed">ஒன்று அல்லது அதற்கு மேற்பட்ட ஸ்டேட்டஸ் அப்டேட்களை போஸ்ட் செய்ய முடியவில்லை.</string>
+    <string name="timeline_post_timeout">உங்களது படங்கள் விரைவில் போஸ்ட் செய்து விடுவோம்</string>
+    <string name="timeline_post_multimsg">எக்ஸ்ட்ரா மெஸ்சேஜ்களை டிஸ்கார்டு செய்து விட்டோம்</string>
+    <string name="crop">வெட்டு</string>
+    <string name="photo_gallery_choose_pic">படங்கள்</string>
+    <string name="remove">நீக்குக</string>
+    <string name="filters">வடிகட்டிகள்</string>
+    <string name="rotate">சுழற்று</string>
+    <string name="forward_to_plural_timeline">%1$s தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="forward_to_single_timeline">1 தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="share_with_timeline">%1$d தொடர்புகள் மற்றும் டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="share_with_contact_timeline">%1$s உடனும், டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="image_w_caption_sms">கேப்ஷன் உடன் உங்களுக்கு ஒரு படங்கள் அனுப்பியுள்ளார்</string>
+    <string name="share_on_timeline">டைம்லைன் -ல் ஷேர் செய்யவா?</string>
 </resources>
