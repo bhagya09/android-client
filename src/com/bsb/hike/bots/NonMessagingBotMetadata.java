@@ -4,6 +4,7 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,9 +35,11 @@ public class NonMessagingBotMetadata
 	private boolean replace;
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
-	private boolean resumeSupported=false;
+	private boolean resumeSupported;
 	private JSONArray assoc_mapp;
     private int mAppVersionCode;
+	private boolean autoResume;
+	private int prefNetwork;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -80,6 +83,8 @@ public class NonMessagingBotMetadata
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
 		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
+		setAutoResume(json.optBoolean(HikePlatformConstants.AUTO_RESUME,false));
+		setPrefNetwork(json.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -356,6 +361,30 @@ public class NonMessagingBotMetadata
             return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
 		}
 
+	}
+
+	public void setAutoResume(boolean autoResume)
+	{
+		this.autoResume=autoResume;
+		if (autoResume)
+		{
+			resumeSupported = true;
+		} // for auto resume resume supported has to be true.
+	}
+
+	public boolean getAutoResume()
+	{
+		return autoResume;
+	}
+
+	public void setPrefNetwork(int prefNetwork)
+	{
+		this.prefNetwork = prefNetwork;
+	}
+
+	public int getPrefNetwork()
+	{
+		return prefNetwork;
 	}
 
 }

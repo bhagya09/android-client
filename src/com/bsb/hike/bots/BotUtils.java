@@ -159,7 +159,7 @@ public class BotUtils
 			e.printStackTrace();
 		}
 
-		createBot(jsonObject);
+		createBot(jsonObject, Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context)));
 	}
 	
 	public static boolean isBot(String msisdn)
@@ -399,7 +399,7 @@ public class BotUtils
 	 * @param jsonObj
 	 *            The bot Json object containing the properties of the bot to be created
 	 */
-	public static void createBot(JSONObject jsonObj)
+	public static void createBot(JSONObject jsonObj , int currentNetwork)
 	{
 		long startTime = System.currentTimeMillis();
 		String type = jsonObj.optString(HikePlatformConstants.BOT_TYPE);
@@ -483,7 +483,14 @@ public class BotUtils
 
             if (botMetadata.isMicroAppMode())
 			{
-                botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
+
+				if(botMetadata.getAutoResume())
+				{
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+				}
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
+				botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 
                 // Check to ensure a cbot request for a msisdn does not start processing if one is already in process
                 if(!PlatformUtils.assocMappRequestStatusMap.containsKey(botInfo.getMsisdn()))
@@ -495,7 +502,14 @@ public class BotUtils
 			}
 			else if (botMetadata.isNativeMode())
 			{
-                botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
+
+				if(botMetadata.getAutoResume())
+				{
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+				}
+				if(botMetadata.getPrefNetwork() < currentNetwork)
+					return; // Restricting download only to better network than pref.
+				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
                 // In case of native micro app we don't need to process any assoc mapp in background, so download micro app packet directly
                 PlatformUtils.downloadMicroAppZipForNonMessagingCbotPacket(botInfo, enableBot, botChatTheme, notifType, botMetadata, botMetadata.isResumeSupported());
