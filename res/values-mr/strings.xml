@@ -1448,4 +1448,19 @@
     <string name="all_packs_deleted_heading">आमच्याकडे 10,000 हून अधिक स्टिकर्स आहेत</string>
     <string name="all_packs_deleted_info">आमच्या स्टिकरचे दुकान बघा आणि जे तुम्हाला पसंत पडतील फक्त तेच डाऊनलोड करा!</string>
 
+    <string name="timeline_short_desc">तुमचे क्षण मित्रांसह शेअर करा</string>
+    <string name="multiple_su_post_failed">एक किंवा दोन स्टेटस पोस्ट करता येनार नाहीत.</string>
+    <string name="timeline_post_timeout">तुमचे फोटो लवकरच पोस्ट केले जातील</string>
+    <string name="timeline_post_multimsg">अतिरिक्त संदेश फेकून द्या</string>
+    <string name="crop">क्रॉप करा</string>
+    <string name="photo_gallery_choose_pic">फोटो</string>
+    <string name="remove">काढा</string>
+    <string name="filters">फिल्टर्स</string>
+    <string name="rotate">फिरवा</string>
+    <string name="forward_to_plural_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
+    <string name="forward_to_single_timeline">1 संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
+    <string name="share_with_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
+    <string name="share_with_contact_timeline">%1$s सह आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
+    <string name="image_w_caption_sms">तुम्हाला मथळ्यासह एक फोटो पाठवली \"</string>
+    <string name="share_on_timeline">टाइमलाइन वर शेअर करायची?</string>
 </resources>
