@@ -847,7 +847,6 @@
     <string name="photo_dp_saved_sub">బాగున్నట్లుగా ఉంది</string>
     <string name="photo_dp_save_error">ప్రొఫైల్ ఫోటోని సేవ్ చేయలేకపోయింది</string>
     <string name="photo_dp_save_error_sub">తిరిగి ప్రయత్నించడానికి తట్టండి</string>
-    <string name="photo_gallery_choose_pic">ఫోటో ఎంచుకో</string>
     <string name="cropping_image">ఇమేజ్‌ల కత్తిరింపు...</string>
 	<string name="home_search_empty_text">\'%1$s\' కొరకు మీ వెతకడం పై కాంటాక్ట్‌లను జతచేయలేదు</string>
     <string name="voip_mic_error">మైక్ ప్రారంభించలేకపోయింది ఈ కాల్ పని చేయకపోవచ్చు</string>

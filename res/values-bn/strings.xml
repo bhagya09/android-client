@@ -848,7 +848,6 @@
     <string name="photo_dp_saved_sub">দেখতে \' ভালো</string>
     <string name="photo_dp_save_error">প্রোফাইল ছবি সেট করা যায়নি</string>
     <string name="photo_dp_save_error_sub">পুনঃচেষ্টা করতে আলতো চাপুন।</string>
-    <string name="photo_gallery_choose_pic">ছবি চয়ন করুন</string>
     <string name="cropping_image">ছবি কাটা হচ্ছে..</string>
     <string name="home_search_empty_text">আপনি \'%1$s\' এর যে অনুসন্ধান করেছেন তা কোনো যোগাযোগর সঙ্গে মেলেনি।</string>
     <string name="voip_mic_error">মাইক শুরু করা যাচ্ছে না। এই কলটি কাজ নাও করতে পারে।</string>
