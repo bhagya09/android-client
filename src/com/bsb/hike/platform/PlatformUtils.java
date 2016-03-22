@@ -1919,7 +1919,6 @@ public class PlatformUtils
 				json.put("filePath", filepath);
 				json.put("mimeType", mimeType);
 				json.put("filesize", (new File(filepath)).length());
-				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
 				return json.toString();
 			}
 			catch (JSONException e)
