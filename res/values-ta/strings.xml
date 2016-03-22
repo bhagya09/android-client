@@ -847,7 +847,6 @@
     <string name="photo_dp_saved_sub">நன்றாகத் தோன்றுகிறது</string>
     <string name="photo_dp_save_error">புரொஃபைல் ஃபோட்டோவை செட் செய்ய முடியவில்லை</string>
     <string name="photo_dp_save_error_sub">மறுபடியும் முயற்சிக்கத் தட்டும்</string>
-    <string name="photo_gallery_choose_pic">ஃபோட்டோ ஒன்றைத் தேர்ந்தெடும்</string>
     <string name="cropping_image">இமேஜை கிராப் செய்கிறது..</string>
 	<string name="home_search_empty_text">\'%1$s\'-க்கான உமது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
     <string name="voip_mic_error">மைக்-ஐ ஸ்டார்ட் செய்ய முடியவில்லை. இந்த அழைப்பு வேலை செய்யாது.</string>

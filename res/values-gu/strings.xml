@@ -847,7 +847,6 @@
     <string name="photo_dp_saved_sub">સારું દેખાઈ રહ્યું છે</string>
     <string name="photo_dp_save_error">પ્રોફાઇલ ફોટો સેટ થઈ શક્યો નથી</string>
     <string name="photo_dp_save_error_sub">ફરી થી પ્રયત્ન કરવા માટે ટૅપ કરો</string>
-    <string name="photo_gallery_choose_pic">એક ફોટો પસંદ કરો</string>
     <string name="cropping_image">છબી કપાઈ રહી છે..</string>
 	<string name="home_search_empty_text">\&apos;%1$s\&apos; માટે તમારી સર્ચ કોઈપણ સંપર્કો સાથે મેળ ખાતી નથી.</string>
     <string name="voip_mic_error">માઇક શરૂ કરવામાં અસક્ષમ છે. આ કૉલ કામ ન પણ કરે.</string>
