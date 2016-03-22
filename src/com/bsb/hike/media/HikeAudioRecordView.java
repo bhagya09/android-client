@@ -60,13 +60,22 @@ public class HikeAudioRecordView {
     private ViewStub waverMic;
     private float walkieSize;
     private PopupWindow popup_l;
-    private final int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
-    private final int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
+    private int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
+    private int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
         this.listener = listener;
         this.mContext = activity;
+        updateTriggerLevels();
+        initViews();
+    }
+
+    public void onConfigChanged() {
+        updateTriggerLevels();
+    }
+
+    private void updateTriggerLevels(){
         int screenWidth;
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             screenWidth = DrawUtils.displayMetrics.heightPixels;
@@ -78,20 +87,28 @@ public class HikeAudioRecordView {
         HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);
     }
 
-    public void initialize(View parent, boolean shareablePopupSharing) {
+    View inflatedLayoutView ;
+    private void initViews() {
         this.recorderState = this.IDLE;
         LayoutInflater layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View inflatedLayoutView = layoutInflater.inflate(R.layout.walkie_talkie_view, null);
+        inflatedLayoutView = layoutInflater.inflate(R.layout.walkie_talkie_view, null);
 
         HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(mContext);
 
+        recordInfo = (TextView) inflatedLayoutView.findViewById(R.id.record_info_duration);
+        recordingState = (RedDot) inflatedLayoutView.findViewById(R.id.recording);
+        slideToCancel = (LinearLayout) inflatedLayoutView.findViewById(R.id.slidelayout);
+        rectBgrnd = (ImageView) inflatedLayoutView.findViewById(R.id.recording_cancel);
+        waverMic = (ViewStub) inflatedLayoutView.findViewById(R.id.walkie_recorder);
+        setupRecorderPulsating(waverMic);
+    }
+
+    public void initialize(View parent, boolean shareablePopupSharing) {
+	    if(inflatedLayoutView == null) initViews();
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
         popup_l.setHeight(parent.getHeight() * 2);
 
-        //The below 2 lines can be used for disabling touch anywhere else, but this will eat the back as well. resulting in issues
-/*        popup_l.setOutsideTouchable(true);
-        popup_l.setFocusable(true);*/
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
         if (shareablePopupSharing) {
@@ -103,13 +120,6 @@ public class HikeAudioRecordView {
                 popup_l.showAtLocation(parent, Gravity.NO_GRAVITY, 0, loc[1]);
             }
         }
-
-        recordInfo = (TextView) inflatedLayoutView.findViewById(R.id.record_info_duration);
-        recordingState = (RedDot) inflatedLayoutView.findViewById(R.id.recording);
-        slideToCancel = (LinearLayout) inflatedLayoutView.findViewById(R.id.slidelayout);
-        rectBgrnd = (ImageView) inflatedLayoutView.findViewById(R.id.recording_cancel);
-        waverMic = (ViewStub) inflatedLayoutView.findViewById(R.id.walkie_recorder);
-        setupRecorderPulsating(waverMic);
     }
 
 
@@ -183,7 +193,6 @@ public class HikeAudioRecordView {
                     }
                     slideToCancel.setAlpha(alpha);
                     recorderImg.setTranslationX(dist);
-//                    slideToCancel.setTranslationX(dist);
                 } else {
                     if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
@@ -274,11 +283,22 @@ public class HikeAudioRecordView {
         return true;
     }
 
+    private void showUnmountError(){
+        recorderState = IDLE;
+        stopRecorder();
+        Toast.makeText(mActivity, R.string.card_unmount, Toast.LENGTH_SHORT).show();
+        listener.audioRecordCancelled();
+    }
+
     private boolean startRecordingAudio() {
         if (recorder == null) {
             initialiseRecorder(recordInfo);
-            if (selectedFile == null) {
+            if (recorder != null && selectedFile == null) {
                 selectedFile = Utils.getOutputMediaFile(HikeFile.HikeFileType.AUDIO_RECORDING, null, true);
+                if(selectedFile == null){
+                    showUnmountError();
+                    return false;
+                }
                 recorder.setOutputFile(selectedFile.getPath());
             }
         }
