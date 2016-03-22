@@ -1436,13 +1436,12 @@
     <string name="pack_deleted">ഇല്ലാതാക്കിയ പായ്ക്ക്</string>
     <string name="n_more_stickers">%1$d കൂടുതൽ സ്റ്റിക്കറുകൾ</string>
     <string name="all_packs_updated_heading">എല്ലാ പായ്ക്കുകളും അപ്ഡേറ്റ് ചെയ്തു!</string>
-    <string name="all_packs_updated_info">നിങ്ങളുടെ എല്ലാ പായ്ക്കുകളും കാലികമാണ്, നിങ്ങൾക്ക് കൂടുതൽ സ്റ്റിക്കറുകൾ വേണമെങ്കിൽ സ്റ്റിക്കര്‍ ഷോപ്പ് സന്ദര്‍ശിക്കുക.</string>
+    <string name="all_packs_updated_info">നിങ്ങളുടെ എല്ലാ പായ്ക്കുകളും നവീകരിച്ചിരിക്കുന്നു, നിങ്ങൾക്ക് കൂടുതൽ സ്റ്റിക്കറുകൾ വേണമെങ്കിൽ സ്റ്റിക്കര്‍ ഷോപ്പ് സന്ദര്‍ശിക്കുക.</string>
     <string name="redirect_to_shop_text">ഷോപ്പിലേക്ക് എന്നെ കൊണ്ടുപോകുക</string>
     <string name="all_done">എല്ലാം ചെയ്തു!!</string>
-    <string name="drag_tip_text">പായ്ക്കുകളെ പുനക്രമീകരിക്കാൻ ഡ്രാഗ് ചെയ്യുക</string>
-    <string name="drag_tip_subtext">നിങ്ങളുടെ സ്റ്റിക്കർ പാക്കുകള്‍ പുനക്രമീകരിക്കാൻ അമര്‍ത്തിപ്പിടിച്ച് ഡ്രാഗ് ചെയ്യുക</string>
+    <string name="drag_tip_text">പുനക്രമീകരിക്കാൻ അമര്‍ത്തിപ്പിടിച്ച് ഡ്രാഗ് ചെയ്യുക</string>
     <string name="all_packs_deleted_heading">10,000 ല്‍ അധികം സ്റ്റിക്കറുകൾ ഞങ്ങൾക്കുണ്ട്</string>
-    <string name="all_packs_deleted_info">ഞങ്ങളുടെ സ്റ്റിക്കർ ഷോപ്പ് പരിശോധിച്ച് നിങ്ങൾക്ക് ഇഷ്ടപ്പെടുന്നതുമാത്രം ഡൗൺലോഡ് ചെയ്യുക!</string>
+    <string name="all_packs_deleted_info">സ്റ്റിക്കർ ഷോപ്പ് സന്ദര്‍ശിച്ച് ഇഷ്ടമായവ ഡൗൺലോഡ് ചെയ്യുക</string>
 
     <string name="timeline_short_desc">സുഹൃത്തുക്കളുമായി നിങ്ങളുടെ നിമിഷങ്ങൾ പങ്കിടുക</string>
     <string name="multiple_su_post_failed">ഒന്നോ അതിലധികമോ സ്റ്റാറ്റസ് അപ്ഡേറ്റുകൾ പോസ്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</string>

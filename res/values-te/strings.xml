@@ -1422,11 +1422,11 @@
     <string name="switch_to_hike_key">"hike కీబోర్డ్ కి మారండి"</string>
     <string name="admin_error">ఈ వినియోగదారుడు ఇంక ఏ మాత్రము ఈ గ్రూప్  లో పాల్గొనుట  లేదు</string>
 
-    <string name="deleting">తొలగిస్తోంది</string>
-    <string name="sticker_reorder_setting_info">స్టిక్కర్ ప్యాలెట్ నుంచి ప్యాక్‌లను తిరిగి అమర్చు/దాచిపెట్టు</string>
+    <string name="deleting">తొలగిస్తోంది / తొలగించడంలో</string>
+    <string name="sticker_reorder_setting_info">ప్యాక్‌లను తిరిగి స్టిక్కర్ ప్యాలెట్ లో  అమర్చు/దాచిపెట్టు</string>
     <string name="sticker_reorder_setting_header">రీఆర్డర్</string>
     <string name="sticker_delete_setting_info">ఫోన్ నుంచి స్టిక్కర్ ప్యాక్‌లను తొలగించు.</string>
-    <string name="sticker_delete_setting_header">తొలగించు</string>
+    <string name="sticker_delete_setting_header">తొలగించండి</string>
     <string name="sticker_hide_setting_info">పాలెట్ నుంచి ప్యాక్‌లను తిరిగి అమర్చు/దాచిపెట్టు</string>
     <string name="sticker_hide_setting_header">దాచి పెట్టు</string>
     <string name="sticker_update_setting_info">డౌన్‌లోడ్ చేయబడ్డ స్టిక్కర్ ప్యాక్‌లను అప్‌డేట్ చేయి</string>
@@ -1437,12 +1437,11 @@
     <string name="pack_deleted">ప్యాక్ తొలగించబడింది</string>
     <string name="n_more_stickers">%1$d మరిన్ని స్టిక్కర్లు</string>
     <string name="all_packs_updated_heading">అన్ని ప్యాక్‌లు అప్‌డేట్ చేయబడ్డాయి</string>
-    <string name="all_packs_updated_info">మీ అన్ని ప్యాక్‌లు కూడా అప్‌టూ డేట్‌గా ఉన్నాయి, ఒకవేళ మీరు మరిన్ని స్టిక్కర్లను కోరుకుంటున్నట్లయితే స్టిక్కర్ షాప్‌ని సందర్శించండి.</string>
+    <string name="all_packs_updated_info">మీ అన్ని ప్యాక్‌లు అప్‌టూ డేట్‌గా ఉన్నాయి, ఒకవేళ మీరు మరిన్ని స్టిక్కర్లను కోరుకుంటున్నట్లయితే స్టిక్కర్ షాప్‌ని సందర్శించండి.</string>
     <string name="redirect_to_shop_text">నన్ను షాప్‌కు తీసుకెళ్లు</string>
     <string name="all_done">అన్ని చేయబడ్డాయి!!</string>
-    <string name="drag_tip_text">ప్యాక్స్ రీఆర్డర్ కొరకు డ్రాగ్ చెయ్యండి.</string>
-    <string name="drag_tip_subtext">మీ స్టిక్కర్ ప్యాక్‌లు తిరిగి ఆర్డర్ చేయడం కొరకు టాప్ మరియు  డ్రాగ్ చేయండి</string>
-    <string name="all_packs_deleted_heading">మా వద్ద 10,000లకు పైగా స్టిక్కర్లు ఉన్నాయి</string>
+    <string name="drag_tip_text">రీఆర్డర్ కు టాప్ అండ్ డ్రాగ్ చెయ్యండి</string>
+    <string name="all_packs_deleted_heading">మా వద్ద 10,000 లకు పైగా స్టిక్కర్లు ఉన్నాయి</string>
     <string name="all_packs_deleted_info">స్టిక్కర్ షాప్ చెక్ చేయండి మరియు మీరు ఇష్టపడే దానిని మాత్రమే డౌన్‌లోడ్ చేసుకోండి.</string>
     <string name="timeline_short_desc">మీ అనుభూతులను స్నేహితులతో పంచుకోండి</string>
     <string name="multiple_su_post_failed">ఒకటి లేదా అంతకంటే ఎక్కువ స్టేటస్ అప్‌డేట్‌లు పోస్ట్ చేయబడవు</string>
