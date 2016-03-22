@@ -128,6 +128,8 @@ public class KeyboardOffBoarding
 	public void hide()
 	{
 		updatePadding(0);
+		mState = NOT_STARTED;
+		updateState(mState);
 		Utils.unblockOrientationChange(mActivity);
 		if(container != null) {
 			container.removeAllViews();
