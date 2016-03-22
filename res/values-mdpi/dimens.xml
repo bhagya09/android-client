@@ -31,4 +31,5 @@
 
     <dimen name="gallery_selection_item_size">79dp</dimen>
     <dimen name="gallery_selected_grid_height">110dp</dimen>
+    <dimen name="slide_to_cancel_arrow_width">12dp</dimen>
 </resources>
