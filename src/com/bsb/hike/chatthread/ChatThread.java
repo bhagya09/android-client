@@ -2541,7 +2541,7 @@ import java.util.concurrent.FutureTask;
 
 	protected void setConversationTheme(ChatTheme theme)
 	{
-		System.gc();
+		//System.gc();
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
