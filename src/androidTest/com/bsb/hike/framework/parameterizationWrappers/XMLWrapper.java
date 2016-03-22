@@ -7,17 +7,11 @@ import org.xml.sax.SAXException;
 
 
 import javax.xml.XMLConstants;
-/*
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-*/
 import javax.xml.parsers.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import javax.xml.xpath.XPath;
-
 import java.io.*;
 import java.util.ArrayList;
 
@@ -80,35 +74,4 @@ public class XMLWrapper implements IParameterizationWrapper {
         }
         return toReturn;
     }
- /*
-
-
-    @Override
-    public ArrayList<Object[]> getParameters(File file) {
-        Method method = null;
-        try {
-            JAXBContext jc = JAXBContext.newInstance(Method.class);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-             method = (Method) unmarshaller.unmarshal(file);
-            System.out.println();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<Object[]> returnParameterList = new ArrayList<Object[]>();
-        Test[] tests = method.getTest();
-        for(int i=0;i<tests.length;i++)
-        {
-            Test currentTest = tests[i];
-            Object[] testParams = new Object[currentTest.getParameter().size() +1];
-            testParams[0] = currentTest.getName();
-            for(int j = 0;j<currentTest.getParameter().size();j++)
-            {
-                testParams[j+1] = ((Parameter)(currentTest.getParameter().toArray())[j]).getValue();
-            }
-            returnParameterList.add(testParams);
-        }
-        return returnParameterList;
-    }
-    */
 }
