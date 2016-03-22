@@ -1,5 +1,6 @@
 package com.bsb.hike.media;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -33,7 +34,7 @@ import java.io.IOException;
 /**
  * Created by nidhi on 01/02/16.
  */
-public class HikeAudioRecordView {
+public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private static final String TAG = "HikeAudioRecordView";
     // RECORDING STATES
     private static final byte IDLE = 1;
@@ -108,7 +109,7 @@ public class HikeAudioRecordView {
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
         popup_l.setHeight(parent.getHeight() * 2);
-
+        popup_l.setOnDismissListener(this);
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
         if (shareablePopupSharing) {
@@ -120,6 +121,8 @@ public class HikeAudioRecordView {
                 popup_l.showAtLocation(parent, Gravity.NO_GRAVITY, 0, loc[1]);
             }
         }
+        if(recorderImg != null)
+            startPulsatingDotAnimation(recorderImg);
     }
 
 
@@ -129,7 +132,6 @@ public class HikeAudioRecordView {
 
                 @Override
                 public void onInflate(ViewStub stub, View inflated) {
-                    startPulsatingDotAnimation(inflated);
                     recorderImg = inflated;
                 }
             });
@@ -144,8 +146,8 @@ public class HikeAudioRecordView {
      * @param view
      */
     private void startPulsatingDotAnimation(View view) {
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring1), 0);
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 100);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
@@ -153,10 +155,7 @@ public class HikeAudioRecordView {
             @Override
             public void run() {
                 ImageView ringView = (ImageView) view.findViewById(viewId);
-                if (viewId == R.id.ring1)
-                    ringView.startAnimation(HikeAnimationFactory.getScaleRingAnimation(0));
-                else
-                    ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
+                ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
             }
         };
     }
@@ -205,7 +204,7 @@ public class HikeAudioRecordView {
                 float rawX = event.getRawX();
                 if (rawX <= LOWER_TRIGGER_DELTA) {
                     if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, " slided in left direction: will call cancel now");
+                        Log.d(TAG, "  move slided in left direction: will call cancel now" );
                         cancelAndDeleteAudio();
                         return true;
                     } else {
@@ -221,7 +220,7 @@ public class HikeAudioRecordView {
                 if (recorderState == IDLE) return false;
                 startedDraggingX = -1;
                 if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
-                    Log.d(TAG, "   slided in left direction: will call cancel now");
+                    Log.d(TAG, "   slided in left direction: will call cancel now" );
                     cancelAndDeleteAudio();
                     return true;
                 }
@@ -417,7 +416,7 @@ public class HikeAudioRecordView {
     }
 
 
-    private void showMaxDurationToast(){
+    private void showMaxDurationToast() {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -448,6 +447,12 @@ public class HikeAudioRecordView {
 
     public boolean isShowing(){
         return (popup_l!= null) ? popup_l.isShowing(): false;
+    }
+
+    @Override
+    public void onDismiss() {
+        if (recorderState != IDLE) cancelAndDismissAudio();
+        recorderState = IDLE;
     }
 
     private class UpdateRecordingDuration implements Runnable {
