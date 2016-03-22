@@ -1027,17 +1027,30 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		initializeViews(nameLayout);
 
 		// Auto fill the name, if possible
-		String ownerName = Utils.getOwnerName(SignupActivity.this);
-		if (!TextUtils.isEmpty(ownerName) && enterEditText != null)
+		if (enterEditText != null)
 		{
-			enterEditText.setText(ownerName);
-			try
+			String possibleOwnerName = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_NAME_SETTING, Utils.getOwnerName(SignupActivity.this));
+			if (!TextUtils.isEmpty(possibleOwnerName))
 			{
-				enterEditText.setSelection(ownerName.length());
+				enterEditText.setText(possibleOwnerName);
+				try
+				{
+					enterEditText.setSelection(possibleOwnerName.length());
+				} catch (IndexOutOfBoundsException e) {
+					Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
+				}
 			}
-			catch (IndexOutOfBoundsException e)
+		}
+		// Autofill birth year if possible
+		if (birthdayText != null)
+		{
+			int serverBirthdayYear = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_BIRTHDAY_YEAR, 0);
+			if (serverBirthdayYear > 0)
 			{
-				Logger.w(getClass().getSimpleName(), "IOOB thrown while setting the name's textbox selection");
+				Calendar calendar = Calendar.getInstance();
+				int age = calendar.get(Calendar.YEAR) - serverBirthdayYear;
+				if (age > 0)
+					birthdayText.setText("" + age);
 			}
 		}
 
@@ -1192,6 +1205,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			mActivityState.isFemale = savedInstanceState.getBoolean(HikeConstants.Extras.GENDER);
 			selectGender(mActivityState.isFemale);
 		}
+		// Autofill using data received from server
+		else
+		{
+			String serverGender = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_GENDER_SETTING,"");
+			if (!TextUtils.isEmpty(serverGender))
+			{
+				if (serverGender.equals(HikeConstants.FEMALE))
+					selectGender(true);
+				else if (serverGender.equals(HikeConstants.MALE))
+					selectGender(false);
+			}
+
+		}
 		nextBtnContainer.setVisibility(View.VISIBLE);
 		setupActionBarTitle();
 	}
@@ -1285,7 +1311,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
 
-			if (restoreStatus.equals(Boolean.FALSE.toString())) // If Restore failed due to generic reasons
+			if (restoreStatus.equals(Boolean.FALSE.toString()) || restoreStatus.equals(getString(R.string.restore_msisdn_error)))
+			// If Restore failed due to generic reasons or if msisdn was different, show a retry button to give the user one more chance
 			{
 				retry.setOnClickListener(new OnClickListener()
 				{
@@ -1327,22 +1354,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				});
 
 				retry.setText(getString(R.string.upgrade_hike));
-			}
-
-			else if (restoreStatus.equals(getString(R.string.restore_msisdn_error)))
-			{
-				retry.setOnClickListener(new OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						viewFlipper.setDisplayedChild(POST_SIGNUP);
-						prepareLayoutForPostSignup(null);
-						mTask.addUserInput(null);
-					}
-				});
-
-				retry.setText(getString(R.string.continue_txt));
 			}
 
 			restoreProgress.setVisibility(View.INVISIBLE);
@@ -1879,28 +1890,19 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		if (v.getId() == R.id.female)
 		{
-			if (mActivityState.isFemale != null && mActivityState.isFemale)
-			{
-				return;
-			}
-			mActivityState.isFemale = true;
+			selectGender(true);
 		}
 		else
 		{
-			if (mActivityState.isFemale != null && !mActivityState.isFemale)
-			{
-				return;
-			}
-			mActivityState.isFemale = false;
+			selectGender(false);
 		}
-
-		selectGender(mActivityState.isFemale);
 	}
 
 	private void selectGender(Boolean isFemale)
 	{
-		femaleText.setSelected(mActivityState.isFemale);
-		maleText.setSelected(!mActivityState.isFemale);
+		femaleText.setSelected(isFemale);
+		maleText.setSelected(!isFemale);
+		mActivityState.isFemale = isFemale;
 	}
 
 	private void resetViewFlipper()
@@ -2038,7 +2040,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			outState.putBoolean(HikeConstants.Extras.GENDER, mActivityState.isFemale);
 		}
 		outState.putString(HikeConstants.Extras.RESTORE_STATUS, mActivityState.restoreStatus);
-		outState.putParcelable(HikeConstants.Extras.BITMAP,mActivityState.profileBitmap);
+		outState.putParcelable(HikeConstants.Extras.BITMAP, mActivityState.profileBitmap);
 		super.onSaveInstanceState(outState);
 	}
 
