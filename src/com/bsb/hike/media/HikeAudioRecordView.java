@@ -60,13 +60,22 @@ public class HikeAudioRecordView {
     private ViewStub waverMic;
     private float walkieSize;
     private PopupWindow popup_l;
-    private final int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
-    private final int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
+    private int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
+    private int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
         this.listener = listener;
         this.mContext = activity;
+        updateTriggerLevels();
+        initViews();
+    }
+
+    public void onConfigChanged() {
+        updateTriggerLevels();
+    }
+
+    private void updateTriggerLevels(){
         int screenWidth;
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             screenWidth = DrawUtils.displayMetrics.heightPixels;
@@ -76,8 +85,6 @@ public class HikeAudioRecordView {
         LOWER_TRIGGER_DELTA = (int) (screenWidth * 0.80);//we change the recording img to delete
         walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
         HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);
-
-        initViews();
     }
 
     View inflatedLayoutView ;

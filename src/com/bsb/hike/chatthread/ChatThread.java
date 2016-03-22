@@ -6279,7 +6279,7 @@ import android.widget.Toast;
 		}
 
 		if(walkieView != null && !walkieView.isShowing()){
-			walkieView = new HikeAudioRecordView(activity,this);
+			walkieView.onConfigChanged();
 		}
 		
 	}
