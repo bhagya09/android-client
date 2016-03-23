@@ -333,10 +333,10 @@
     <string name="valentine_nudge_button">शानदार</string>
     <string name="confirm_delete_msg_header">संदेश हटायें</string>
     <string name="confirm_delete_msgs_header">संदेश हटायें।</string>
-    <string name="selected_count">%1$s चुने गए</string>
+    <string name="selected_count">%1$s चयनित</string>
     <string name="clear_conversation">सारे संदेश हटायें</string>
-    <string name="gallery_num_selected">%1$d चुने गए</string>
-    <string name="broadcast_selected">%1$s/500 चुने गए</string>
+    <string name="gallery_num_selected">%1$d चयनित</string>
+    <string name="broadcast_selected">%1$s/500 चयनित</string>
     <string name="select_file">फ़ाइल चुनें</string>
     <string name="free_of_total">%2$s में से %1$s खाली है</string>
     <string name="unknown_error">अज्ञात एरर</string>
