@@ -461,11 +461,14 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		float scaleX = Math.max(1 - (-scrolly / minTranslation), 100 / downloadButtonMaxWidth);
 		params.width = Math.max(Utils.dpToPx(100), (int) (downloadButtonMaxWidth * scaleX));
 		params.height = Utils.dpToPx(30);
-		params.leftMargin = Utils.dpToPx(15) + Utils.dpToPx(128) + Utils.dpToPx(20) + Math.min(scrolly, Utils.getDeviceWidth() - Utils.dpToPx(180) - params.width);
 		params.rightMargin = Utils.dpToPx(16);
 		params.topMargin = Math.max(maxTopMargin, minTopMargin);
 
 		downloadBtn.setLayoutParams(params);
+
+		RelativeLayout.LayoutParams categoryNameParams = (RelativeLayout.LayoutParams) categoryName.getLayoutParams();
+		categoryNameParams.rightMargin = Math.min(Utils.dpToPx(16) +  (int) ((-scrolly / (minTranslation/1.4)) * Utils.dpToPx(100)) , Utils.dpToPx(16) + Utils.dpToPx(100));
+		categoryName.setLayoutParams(categoryNameParams);
 	}
 
 	private void layoutHeaderDivider(int scrolly)
