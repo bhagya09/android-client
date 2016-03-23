@@ -81,7 +81,9 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private boolean viewAllClicked;
 
-	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, downButtonMaxWidth, categoryDescriptionMaxHeight, topMarginForCenterVertical;
+	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, categoryDescriptionMaxHeight, topMarginForCenterVertical;
+
+	private int downloadButtonMaxWidth = Integer.MAX_VALUE;
 
 	public PackPreviewFragment()
 	{
@@ -404,13 +406,14 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
 
 		RelativeLayout.LayoutParams categoryNameParams = (RelativeLayout.LayoutParams) categoryName.getLayoutParams();
-		categoryNameParams.rightMargin = Utils.dpToPx(14);
+		categoryNameParams.rightMargin = Utils.dpToPx(16);
 		categoryNameParams.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
 		categoryName.setLayoutParams(categoryNameParams);
 
 		RelativeLayout.LayoutParams categoryDetailsParams = (RelativeLayout.LayoutParams) categoryDetails.getLayoutParams();
 		categoryDetailsParams.topMargin = categoryNameParams.topMargin + categoryName.getHeight() + Utils.dpToPx(0.4f);
 		categoryDetailsParams.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
+		categoryNameParams.rightMargin = Utils.dpToPx(16);
 		categoryDetails.setLayoutParams(categoryDetailsParams);
 	}
 
@@ -425,6 +428,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) categoryDescription.getLayoutParams();
 		params.leftMargin = Utils.dpToPx(15) + categoryIconParams.width + Utils.dpToPx(20);
 		params.topMargin = categoryDetailsParams.topMargin + categoryDetails.getHeight() + Math.max(Utils.dpToPx(9) - scrolly, 0);
+		params.rightMargin = Utils.dpToPx(16);
 
 		float minTranslation = -96 * Utils.densityMultiplier;
 		float scaleY = Math.max(0, 1 - (-scrolly / minTranslation));
@@ -433,7 +437,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 		if (scrollDirection == PackPreviewFragmentScrollListener.SCROLL_UP)
 		{
-			categoryDescription.setAlpha(Math.max(0, 0.5f - (-scrolly / minTranslation)));
+			categoryDescription.setAlpha(Math.max(0, 0.2f - (-scrolly / minTranslation)));
 		}
 		else
 		{
@@ -445,20 +449,26 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private void layoutDownloadButton(int scrolly)
 	{
 		float minTranslation = -96 * Utils.densityMultiplier;
-		downButtonMaxWidth = Utils.dpToPx(175);
 
+		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
 		RelativeLayout.LayoutParams categoryDescriptionLayoutParams = (RelativeLayout.LayoutParams) categoryDescription.getLayoutParams();
-		int topMargin = categoryDescriptionLayoutParams.topMargin + categoryDescriptionLayoutParams.height;
+		int maxTopMargin = categoryDescriptionLayoutParams.topMargin + categoryDescriptionLayoutParams.height +  Utils.dpToPx(10) - scrolly;
+		int minTopMargin = (categoryIconParams.height - Utils.dpToPx(30))/2;
+
+		downloadButtonMaxWidth = Math.min(downloadButtonMaxWidth, Utils.getDeviceWidth() - categoryIconParams.leftMargin - categoryIconParams.width - Utils.dpToPx(20) - Utils.dpToPx(16));
 
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) downloadBtn.getLayoutParams();
-		float scaleX = Math.max(1 - (-scrolly / minTranslation), 120 / 175f);
-		params.width = (int) (downButtonMaxWidth * scaleX);
+		float scaleX = Math.max(1 - (-scrolly / minTranslation), 100 / downloadButtonMaxWidth);
+		params.width = Math.max(Utils.dpToPx(100), (int) (downloadButtonMaxWidth * scaleX));
 		params.height = Utils.dpToPx(30);
-		params.leftMargin = Utils.dpToPx(15) + Utils.dpToPx(128) + Utils.dpToPx(20) + Math.min(scrolly, Utils.getDeviceWidth() - Utils.dpToPx(180) - params.width);
 		params.rightMargin = Utils.dpToPx(16);
-		params.topMargin = Math.max(topMargin + Utils.dpToPx(10) - scrolly, categoryName.getTop());
+		params.topMargin = Math.max(maxTopMargin, minTopMargin);
 
 		downloadBtn.setLayoutParams(params);
+
+		RelativeLayout.LayoutParams categoryNameParams = (RelativeLayout.LayoutParams) categoryName.getLayoutParams();
+		categoryNameParams.rightMargin = Math.min(Utils.dpToPx(16) +  (int) ((-scrolly / (minTranslation/1.4)) * Utils.dpToPx(100)) , Utils.dpToPx(16) + Utils.dpToPx(100));
+		categoryName.setLayoutParams(categoryNameParams);
 	}
 
 	private void layoutHeaderDivider(int scrolly)
@@ -466,7 +476,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		RelativeLayout.LayoutParams categoryIconParams = (RelativeLayout.LayoutParams) categoryIcon.getLayoutParams();
 
 		RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) headerDivider.getLayoutParams();
-		params.topMargin = categoryIconParams.height + Math.max(Utils.dpToPx(21) - scrolly, Utils.dpToPx(17));
+		params.topMargin = categoryIconParams.height + Math.max(Utils.dpToPx(21) - scrolly, Utils.dpToPx(10));
 		headerDivider.setLayoutParams(params);
 
 	}
