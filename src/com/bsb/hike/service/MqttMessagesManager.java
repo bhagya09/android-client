@@ -2796,6 +2796,11 @@ public class MqttMessagesManager
 			boolean enable=data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
 		}
+		if(data.has(HikePlatformConstants.NEW_AUTH_ENABLE))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.NEW_AUTH_ENABLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.NEW_AUTH_ENABLE, enable);
+		}
 		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
 		{
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
