@@ -1456,7 +1456,6 @@
     <string name="timeline_short_desc">বন্ধুদের সাথে আপনার মুহূর্তগুলো শেয়ার করুন</string>
     <string name="multiple_su_post_failed">এক বা একাধিক স্ট্যাটাস পোস্ট করা যায়নি।</string>
     <string name="timeline_post_timeout">অল্প সময়ের মধ্যে আপনার ফোটোস পোস্ট করা হবে</string>
-    <string name="timeline_post_multimsg">অতিরিক্ত বার্তাগুলো বাদ দেওয়া হয়েছে</string>
     <string name="crop">ক্রপ</string>
     <string name="photo_gallery_choose_pic">ফোটোস</string>
     <string name="remove">সরিয়ে ফেলুন</string>
@@ -1466,6 +1465,8 @@
     <string name="forward_to_single_timeline">1 টি বন্ধুকে ও টাইমলাইন-এ বার্তা পাঠাবেন?</string>
     <string name="share_with_timeline">%1$s টি বন্ধুদের সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
     <string name="share_with_contact_timeline">%1$s -এর সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
-    <string name="image_w_caption_sms">ক্যাপশন সহ আপনাকে একটি ছবি পাঠিয়েছে</string>
+    <string name="image_w_caption_sms"> %1$s ক্যাপশন সহ আপনাকে একটি ছবি পাঠিয়েছে</string>
     <string name="share_on_timeline">টাইমলাইন-এ শেয়ার করবেন?</string>
+    <string name="posting_photos_timeline">আপনার ফোটোস টাইমলাইনে পোস্ট করা হচ্ছে</string>
+    <string name="add_a_caption">ক্যাপশন যোগ করুন</string>
 </resources>
