@@ -969,6 +969,8 @@ public abstract class JavascriptBridge
 
 	}
 
+
+
 	/**
 	 * Platform Bridge Version 3
 	 * Call this function to enable zooming in webViews.

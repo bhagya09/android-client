@@ -49,7 +49,11 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private String botDescription;
 	
 	private int updatedVersion;
+	
 	private String clientId;
+	
+	private String clientHash;
+	
 	public static final class TriggerEntryPoint
 	{
 		public static final int ENTRY_AT_HOME_MENU = 1;
@@ -64,7 +68,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 
 		private String namespace;
 
-		private String metadata, configData, notifData, helperData, botDescription;
+		private String metadata, configData, notifData, helperData, botDescription, clientId, clientHash;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -80,6 +84,18 @@ public class BotInfo extends ConvInfo implements Cloneable
 		public P setTriggerPoint(int triggerPoint)
 		{
 			this.triggerPointForMenu = triggerPoint;
+			return getSelfObject();
+		}
+		
+		public P setClientid(String id)
+		{
+			this.clientId = id;
+			return getSelfObject();
+		}
+		
+		public P setClientHash(String hash)
+		{
+			this.clientHash = hash;
 			return getSelfObject();
 		}
 
@@ -260,6 +276,17 @@ public class BotInfo extends ConvInfo implements Cloneable
 	public void setClientId(String clientId){
 		this.clientId = clientId;
 	}
+	
+	public String getClientHash()
+	{
+		return clientHash;
+	}
+
+	public void setClientHash(String clientHash)
+	{
+		this.clientHash = clientHash;
+	}
+
 	public static class HikeBotBuilder extends BotInfo.InitBuilder<HikeBotBuilder>
 	{
 		public HikeBotBuilder(String msisdn)
@@ -290,6 +317,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.version = builder.version;
 		this.botDescription = builder.botDescription;
 		this.updatedVersion = builder.updatedVersion;
+		this.clientId = builder.clientId;
+		this.clientHash = builder.clientHash;
 	}
 
 	public boolean isMessagingBot()

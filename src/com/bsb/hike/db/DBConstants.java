@@ -367,6 +367,9 @@ public interface DBConstants
 		
 		public static final String BOT_TRIGGER_POINT = "trigger_point";
 		
+		public static final String CLIENT_ID = "client_id";
+		
+		public static final String CLIENT_HASH = "client_hash";
 		//Bot Discrovery Table starts here
 		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
 		

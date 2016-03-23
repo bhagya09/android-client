@@ -448,6 +448,9 @@ public class BotUtils
 		if(jsonObj.has(HikePlatformConstants.CLIENT_ID)){
 			botInfo.setClientId(jsonObj.optString(HikePlatformConstants.CLIENT_ID));
 		}
+		if(jsonObj.has(HikePlatformConstants.CLIENT_HASH)){
+			botInfo.setClientHash(jsonObj.optString(HikePlatformConstants.CLIENT_HASH));
+		}
 		return botInfo;
 	}
 
