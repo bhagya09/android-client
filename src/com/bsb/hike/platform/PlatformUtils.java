@@ -467,7 +467,10 @@ public class PlatformUtils
 	{
 		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
-		requestAuthToken(botInfo, null);
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false))
+		{
+			requestAuthToken(botInfo, null);
+		}
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
 	}

@@ -98,6 +98,7 @@ public interface HikePlatformConstants
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	public static final String GAME_ACTIVE ="gameActive" ;
 	public static final String CUSTOM_TABS="customTabs";
+	public static final String NEW_AUTH_ENABLE="neAuthEnable";
 	
 	public static final class AuthConstants
 	{
