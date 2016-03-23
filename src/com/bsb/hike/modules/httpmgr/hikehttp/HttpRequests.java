@@ -810,7 +810,6 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.post(body)
 				.build();
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 	
