@@ -667,7 +667,7 @@
     <string name="selected_contacts_count_plural">%1$s संपर्क</string>
     <string name="selected_contacts_count_singular">%1$s संपर्क</string>
     <string name="wish_now">अभिवादन करें</string>
-    <string name="messages_sent_succees">संदेश भेजा दिया</string>
+    <string name="messages_sent_succees">संदेश भेज दिया</string>
     <string name="content_card_tag">कार्ड</string>
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
