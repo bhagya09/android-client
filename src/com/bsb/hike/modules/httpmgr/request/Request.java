@@ -875,11 +875,6 @@ public abstract class Request<T> implements IRequestFacade
 	public String generateId()
 	{
 		String input = url + defaultId;
-		Collections.sort(headers);
-		for (Header header : headers)
-		{
-			input += header.getName() + header.getValue();
-		}
 		return HttpUtils.calculateMD5hash(input);
 	}
 	

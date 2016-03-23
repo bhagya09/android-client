@@ -1,14 +1,14 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class handles the duplicate check of the request and then submits the request to {@link RequestRunner}

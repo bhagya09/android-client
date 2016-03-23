@@ -79,7 +79,6 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	public void execute()
 	{
-		Logger.e(TAG, categoryId+":"+stickerId+" : started");
 		if (!StickerManager.getInstance().isMinimumMemoryAvailable())
 		{
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
@@ -104,10 +103,14 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 									StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 		}
 
+
 		if (token.isRequestRunning()) // return if request is running
 		{
+            Logger.e(TAG, categoryId+":"+stickerId+" : ignored");
 			return;
 		}
+
+        Logger.e(TAG, categoryId+":"+stickerId+" : started");
 		token.execute();
 	}
 
