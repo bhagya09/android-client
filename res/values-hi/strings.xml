@@ -1454,6 +1454,8 @@
     <string name="forward_to_single_timeline">1 संपर्क को और टाइमलाइन पर संदेश भेजें?</string>
     <string name="share_with_timeline">%1$d संपर्क से और टाइमलाइन पर साझा करें?</string>
     <string name="share_with_contact_timeline">%1$s से और टाइमलाइन पर साझा करें?</string>
-    <string name="image_w_caption_sms">ने आपको शीर्षक वाली फ़ोटो भेजी</string>
+    <string name="image_w_caption_sms">ने आपको %1$s कैप्शन वाली फ़ोटो भेजीी</string>
     <string name="share_on_timeline">टाइमलाइन पर साझा करें?</string>
+    <string name="posting_photos_timeline">आपके फ़ोटोस टाइमलाइन पर पोस्ट किए जा रहे हैं</string>
+    <string name="add_a_caption">कैप्शन डालें</string>
 </resources>

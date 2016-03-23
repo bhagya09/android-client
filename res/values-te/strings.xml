@@ -1454,6 +1454,8 @@
     <string name="forward_to_single_timeline">1 కాంటాక్ట్స్ మరియు టైమ్ లైన్కు సందేశం పంపబడిందా?</string>
     <string name="share_with_timeline">%1$d కాంటాక్ట్స్ మరియు టైమ్ లైన్ మీద పంచుకోవాలా?</string>
     <string name="share_with_contact_timeline">%1$s మరియు టైమ్ లైన్ మీద పంచుకోబడ్డాయా?</string>
-    <string name="image_w_caption_sms">క్యాప్షన్ తో ఉన్న  ఫోటో మీకు పంపబడింది /"</string>
+    <string name="image_w_caption_sms">క్యాప్షన్ తో ఉన్న  ఫోటో మీకు పంపబడింది %1$s</string>
     <string name="share_on_timeline">టైమ్ లైన్ మీద పంచుకోవాలా?</string>
+    <string name="posting_photos_timeline">ఫొటోస్ టైంలైన్ కి పోస్టింగ్ అవుతున్నాయి</string>
+    <string name="add_a_caption">ఒక క్యాప్షన్ ను జత చేయ్యండి.  </string>
 </resources>

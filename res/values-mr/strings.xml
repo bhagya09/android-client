@@ -1458,6 +1458,8 @@
     <string name="forward_to_single_timeline">1 संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
     <string name="share_with_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
     <string name="share_with_contact_timeline">%1$s सह आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
-    <string name="image_w_caption_sms">तुम्हाला मथळ्यासह एक फोटो पाठवली \"</string>
+    <string name="image_w_caption_sms">तुम्हाला कैप्शन सहित एक फोटो पाठवली %1$s</string>
     <string name="share_on_timeline">टाइमलाइन वर शेअर करायची?</string>
+    <string name="posting_photos_timeline">तुमचे फोटोज टाइमलईंवरपोस्ट केले जात आहेत</string>
+    <string name="add_a_caption">कैप्शन सामील</string>
 </resources>

@@ -1465,6 +1465,8 @@
     <string name="forward_to_single_timeline">1 টি বন্ধুকে ও টাইমলাইন-এ বার্তা পাঠাবেন?</string>
     <string name="share_with_timeline">%1$s টি বন্ধুদের সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
     <string name="share_with_contact_timeline">%1$s -এর সাথে ও টাইমলাইন-এ শেয়ার করবেন?</string>
-    <string name="image_w_caption_sms">ক্যাপশন সহ আপনাকে একটি ছবি পাঠিয়েছে</string>
+    <string name="image_w_caption_sms"> %1$s ক্যাপশন সহ আপনাকে একটি ছবি পাঠিয়েছে</string>
     <string name="share_on_timeline">টাইমলাইন-এ শেয়ার করবেন?</string>
+    <string name="posting_photos_timeline">আপনার ফোটোস টাইমলাইনে পোস্ট করা হচ্ছে</string>
+    <string name="add_a_caption">ক্যাপশন যোগ করুন</string>
 </resources>

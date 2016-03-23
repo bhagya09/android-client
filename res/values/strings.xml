@@ -1524,7 +1524,7 @@
     <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
-    <string name="image_w_caption_sms">sent you an image with caption \"</string>
+    <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
     <string name="share_on_timeline">Share on Timeline?</string>
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
@@ -1567,4 +1567,6 @@
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
     <string name="spam">REPORTED AS SPAM</string>
+    <string name="posting_photos_timeline">Posting photos to Timeline</string>
+    <string name="add_a_caption">Add a caption</string>
 </resources>
