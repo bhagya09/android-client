@@ -411,7 +411,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		}
 	};
 
-	private int currentOrientation;
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
 
 	private class ChatThreadBroadcasts extends BroadcastReceiver
@@ -705,7 +704,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		initMessageChannel();
 		shouldKeyboardPopupShow=HikeMessengerApp.keyboardApproach(activity);
 		keyboardFtue = new KeyboardFtue();
-		currentOrientation=getCurrentOrientation();
 	}
 
 	
@@ -1882,7 +1880,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	protected String getOrientationPrefix()
 	{
-		return currentOrientation == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
+		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -6142,7 +6140,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	protected void onConfigurationChanged(Configuration newConfig)
 	{
 		Logger.d(TAG, "newConfig : " + newConfig.toString());
-		currentOrientation=newConfig.orientation;
 		if (mCustomKeyboard != null)
 		{
 			mCustomKeyboard.onConfigurationChanged(newConfig);
