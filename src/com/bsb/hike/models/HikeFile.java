@@ -200,6 +200,7 @@ public class HikeFile
 
 	public HikeFile(String fileName, String fileTypeString, String fileKey, long fileSize, String downloadUrl)
 	{
+		this();
 		this.fileName = fileName;
 		this.fileTypeString = fileTypeString;
 		this.fileKey = fileKey;

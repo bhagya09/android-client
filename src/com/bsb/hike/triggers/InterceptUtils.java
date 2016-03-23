@@ -16,9 +16,12 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+
 import java.io.File;
 
 public class InterceptUtils
@@ -157,7 +160,15 @@ public class InterceptUtils
                 break;
 
             case HikeNotification.INTERCEPT_PHOTO_EDIT_INTENT:
-                actionIntent = IntentFactory.getPictureEditorActivityIntent(context, path, true, null, false);
+                try
+                {
+                    actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
+                }
+                catch(NullPointerException npe)
+                {
+                    npe.printStackTrace();
+                }
+
                 HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE_CLICKED, true);
                 break;
 
