@@ -429,7 +429,15 @@ public class FTApkManager
 
 
                     long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
-                    boolean downloadPending = (hf.getFile()!=null && hf.getFile().exists()) ? hf.getFile().length() < apkSizeReceived : false;
+                    boolean downloadPending;
+                    if(hf.getFile()!=null && hf.getFile().exists())
+                    {
+                        downloadPending =  hf.getFile().length() < apkSizeReceived;
+                    }
+                    else
+                    {
+                        downloadPending = true;
+                    }
                     // TODO a better logic still pending for checking if download is required again, other wise it might cause multiple downloads
                     //TODO possible solution is : on download complete one should switch off the network change receiver
                     if (networkType >= networkTypeAvailable && networkTypeAvailable > 0 && downloadPending) {
