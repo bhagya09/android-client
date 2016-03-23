@@ -695,8 +695,6 @@ import android.widget.Toast;
 
 		initActionMode();
 
-		initKeyboardOffBoarding();
-		
 		addOnClickListeners();
 
 		showNetworkError(ChatThreadUtils.checkNetworkError());
@@ -705,7 +703,7 @@ import android.widget.Toast;
 		setupStickerSearch();
 	}
 	
-	private void initKeyboardOffBoarding()
+	protected void initKeyboardOffBoarding()
 	{
 		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI()) {
 			keyboardOffBoarding.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
@@ -2370,6 +2368,8 @@ import android.widget.Toast;
 		updateUIAsPerTheme(currentTheme);// it has to be done after setting adapter
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
+
+		initKeyboardOffBoarding();
 
 		setEditTextListeners();
 		
