@@ -178,7 +178,10 @@ public class FTApkManager
                 if (!jo.toString().equals("{}")) {
                     Logger.d("AUTOAPK", "hike file : " + jo.toString());
                     HikeFile hikefile = new HikeFile(jo, false);
-                    hikefile.getFile().delete();
+                    if(hikefile.getFile() != null && hikefile.getFile().exists())
+                    {
+                        hikefile.getFile().delete();
+                    }
                 }
             } catch (JSONException je)
             {
@@ -214,8 +217,8 @@ public class FTApkManager
             if(!jo.toString().equals("{}")) {
                 Logger.d("AUTOAPK", "hike file : " + jo.toString());
                 HikeFile hikefile = new HikeFile(jo, false);
-                File apk = hikefile.getFileFromExactFilePath();
-                File apkExact = hikefile.getFile();
+                File apkExact = hikefile.getFileFromExactFilePath();
+                File apk = hikefile.getFile();
                 if (apk != null) {
                     Logger.d("AUTOAPK", "hike file paths  : " + apk.getAbsolutePath());
                 }
@@ -224,19 +227,18 @@ public class FTApkManager
                 }
 
                 long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
-                File hFile = hikefile.getFile();
-                boolean validSize =  (hFile!=null && hFile.exists() ) ? hFile.length() == apkSizeReceived && hFile.length() > 0 : false;
+                boolean validSize =  (apk!=null && apk.exists() ) ? apk.length() == apkSizeReceived && apk.length() > 0 : false;
                 Logger.d("AUTOAPK", "Is the apk size valid ? : "+validSize  + ", saved size is " + apkSizeReceived);
                 boolean updateNeeded = Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""), context)
                         && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""));
                 Logger.d("AUTOAPK", HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "") + " is the apk version new, old is is " + Utils.getAppVersionName());
 
-                if (hFile != null && hFile.exists() && validSize && updateNeeded) {
+                if (apk != null && apk.exists() && validSize && updateNeeded) {
                     Logger.d("AUTOAPK", "hike APK downloaded exists");
                     if (HikeFile.HikeFileType.APK == hikefile.getHikeFileType()) {
                         Logger.d("AUTOAPK", "hike showing install prompt");
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(hFile), "application/vnd.android.package-archive");
+                        intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                         if(isNonPlayAppAllowed)
@@ -299,6 +301,10 @@ public class FTApkManager
                     pref.removeData(HikeConstants.INSTALL_PROMPT_INTERVAL);
                     pref.removeData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK);
                 }
+            }
+            else
+            {
+                Logger.d("AUTOAPK", "size validity : " + validSize + ", update Needed : " + updateNeeded);
             }
         }
         catch (JSONException je)
@@ -400,7 +406,9 @@ public class FTApkManager
                     FileTransferManager.getInstance(context).cancelTask(-100, hf.getFile(), false, hf.getFileSize());
 
                     Logger.d("AUTOAPK", "delete apk and vars on connection retry");
-                    hf.getFile().delete();
+                    if(hf.getFile()!=null && hf.getFile().exists()) {
+                        hf.getFile().delete();
+                    }
                     mprefs.removeData(HikeConstants.AutoApkDownload.NEW_APK_JSON);
                     mprefs.removeData(HikeConstants.AutoApkDownload.UPDATE_FROM_DOWNLOADED_APK);
                     mprefs.removeData(HikeConstants.AutoApkDownload.NEW_APK_TIP_JSON);
@@ -421,7 +429,7 @@ public class FTApkManager
 
 
                     long apkSizeReceived = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
-                    boolean downloadPending = hf.getFile().length() < apkSizeReceived;
+                    boolean downloadPending = (hf.getFile()!=null && hf.getFile().exists()) ? hf.getFile().length() < apkSizeReceived? false;
                     // TODO a better logic still pending for checking if download is required again, other wise it might cause multiple downloads
                     //TODO possible solution is : on download complete one should switch off the network change receiver
                     if (networkType >= networkTypeAvailable && networkTypeAvailable > 0 && downloadPending) {
