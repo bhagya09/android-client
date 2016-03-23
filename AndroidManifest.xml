@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1618"
-    android:versionName="4.2.0.18.4.homescreen" >
+    android:versionCode="1632"
+    android:versionName="4.2.0.82.36" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -308,7 +308,7 @@
         </activity>
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
-            android:configChanges="keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"

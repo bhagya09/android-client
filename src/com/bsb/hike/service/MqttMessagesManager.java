@@ -53,7 +53,6 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -61,6 +60,7 @@ import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.*;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -2842,21 +2842,31 @@ public class MqttMessagesManager
 		{
 			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_CHANGE, enableABSyncChange);
+			if(enableABSyncChange)
+			{
+				long delayInSync = 5;
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, delayInSync);
+			}
+			else
+			{
+				long delayInSync = 60;
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONTACT_UPDATE_WAIT_TIME, delayInSync);
+			}
+			ContactUtils.triggerSyncContacts(context);
+		}
+
+		if (data.has(HikeConstants.HIDE_DELETED_CONTACTS))
+		{
+			boolean hideDelContacts = data.getBoolean(HikeConstants.HIDE_DELETED_CONTACTS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIDE_DELETED_CONTACTS, hideDelContacts);
+			ContactUtils.triggerSyncContacts(context);
 		}
 
 		if (data.has(HikeConstants.ENABLE_AB_SYNC_DEBUGING))
 		{
 			boolean enableABSyncDebug = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_DEBUGING);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_AB_SYNC_DEBUGING, enableABSyncDebug);
-			if(!HikeMessengerApp.syncingContacts)
-			{
-				if(Utils.isUserOnline(this.context))
-				{
-					Intent contactSyncIntent = new Intent(HikeService.MQTT_CONTACT_SYNC_ACTION);
-					contactSyncIntent.putExtra(HikeConstants.Extras.MANUAL_SYNC, true);
-					this.context.sendBroadcast(contactSyncIntent);
-				}
-			}
+			ContactUtils.triggerSyncContacts(context);
 		}
 
 		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
@@ -4343,7 +4353,7 @@ public class MqttMessagesManager
 					TimelineActionsManager.getInstance().getActionsData().updateByActivityFeed(feedData);
 					
 					//Saving count to file to display the counter at home screen
-					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount();
+					int count = HikeConversationsDatabase.getInstance().getUnreadActivityFeedCount(false);
 					if(count != -1)
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, count);

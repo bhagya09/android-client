@@ -148,7 +148,9 @@ public class HikeDialogFactory
 
 	public static final int DELETE_STICKER_PACK_DIALOG = 50;
 
-	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 45;
+	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 51;
+
+	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -245,6 +247,9 @@ public class HikeDialogFactory
 		case CALLER_BLOCK_CONTACT_DIALOG:
 		case CALLER_UNBLOCK_CONTACT_DIALOG:
 			return showBlockContactDialog(context, dialogId, listener, data);
+
+		case DB_CORRUPT_RESTORE_DIALOG:
+			return showDBCorruptDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1265,4 +1270,19 @@ public class HikeDialogFactory
 
 		return dialog;
 	}
+
+	private static HikeDialog showDBCorruptDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
+
+		dialog.setTitle(context.getString(R.string.restore_chat_title));
+		dialog.setMessage(context.getString(R.string.restore_chat_body));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
+		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
+
+		dialog.show();
+		return dialog;
+	}
+
 }

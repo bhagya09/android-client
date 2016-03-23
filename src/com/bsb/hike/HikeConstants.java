@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -603,6 +615,12 @@ public class HikeConstants
 
 	public static final String HTTP_STATUS_ID = "?status_id=";
 
+	public static final String PACK_VISIBILITY = "packVisibility";
+
+	public static final String OLD_PACK_POSITION = "oldPackPosition";
+
+	public static final String NEW_PACK_POSITION = "newPackPosition";
+
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
 	// "autoDownloadImagePref"
@@ -822,7 +840,7 @@ public class HikeConstants
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
 	/* quiet period of no changes(in seconds) before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 0;
+	public static final long CONTACT_UPDATE_TIMEOUT = 60;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1283,7 +1301,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 1 * 60 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
 
 	public static final String ENABLED = "enabled";
 
@@ -1834,6 +1852,7 @@ public class HikeConstants
 		public static final String CLEARED_OUT = "extrasClearedOut";
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
+		public static final String SHOW_TIMELINE = "showTimeline";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -2281,11 +2300,11 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
+		public static final String STICKER_FOLDER_ERROR = "stFEr";
+
 		public static final String STICKER_ERROR = "stEr";
 
 		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
-
-		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
 
 		public static final String UPDATE_ALL_CONFIRM_CLICKED = "updateAllConfirmClicked";
 
@@ -2310,6 +2329,28 @@ public class HikeConstants
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
 
 		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
+		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
+
+		public static final String STICKER_SETTINGS_DELETE_CLICKED = "ssDeleteClick";
+
+		public static final String STICKER_SETTINGS_HIDE_CLICKED = "ssHideClick";
+
+		public static final String STICKER_SETTINGS_UPDATE_CLICKED = "ssUpdateClick";
+
+		public static final String STICKER_PACK_HIDE = "stPkHide";
+
+		public static final String PACK_DELETE_CLICKED = "pkDelClick";
+
+		public static final String DELETE_POSITIVE_CLICKED = "delPosClick";
+
+		public static final String DELETE_NEGATIVE_CLICKED = "delNegClick";
+
+		public static final String PACK_DELETE_SUCCESS = "pkDelSuccess";
+
+		public static final String STICKER_PACK_UPDATE = "stPkUpdate";
+
+		public static final String STICKER_PACK_REORDERED = "stPkReorder";
 
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled
@@ -3935,6 +3976,8 @@ public class HikeConstants
 	public static final String ENABLE_AB_SYNC_DEBUGING = "ab_sync_debug";
 
 	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
+
+	public static final String HIDE_DELETED_CONTACTS = "h_d_c";
 	
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
 
@@ -3982,6 +4025,20 @@ public class HikeConstants
 
 	public static final String STICKER_PACK = "spc";
 
-    public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
 
 }
