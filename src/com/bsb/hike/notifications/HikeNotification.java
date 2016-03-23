@@ -1567,7 +1567,7 @@ public class HikeNotification
 			final Intent notifIntent = IntentFactory.getIntentForBots(context, msisdn)!=null?IntentFactory.getIntentForBots(context, msisdn):IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
 
 			// Adding the notif tracker to bot notifications
-			notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, true);
+			notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_NOTIFICATION);
             boolean isClubByMsisdn = jsonObject.optBoolean(HikePlatformConstants.CLUB_BY_MSISDN);
 			if (isClubByMsisdn)
 			{
@@ -1590,6 +1590,10 @@ public class HikeNotification
 				final Bitmap bigPicture = HikeBitmapFactory.stringToBitmap(bitmapString);
 				//we use msisdn hashcode as notif id if needs to be shown as single notification else (msisdn hashcode +1)
 				final int notificationId = isClubByMsisdn ? msisdn.hashCode() + 1 : msisdn.hashCode();
+				if(!TextUtils.isEmpty(bitmapString))
+				{
+					notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
+				}
 				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,false);
 				if(TextUtils.isEmpty(bitmapString)){
 					String url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
@@ -1605,6 +1609,7 @@ public class HikeNotification
 						@Override
 						public void onRequestSuccess(Response result) {
                             Bitmap bigPicture = (Bitmap)result.getBody().getContent();
+							notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
 							showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,true);
 						}
 
