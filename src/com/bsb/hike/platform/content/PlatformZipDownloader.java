@@ -552,7 +552,7 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestProgressUpdate(float progress)
 			{
-				Logger.d("PlatformZipDownloader", ""+progress);
+				Logger.d("PlatformZipDownloader", mRequest.getContentData().getId() + " Progress " + progress);
 				if (!TextUtils.isEmpty(callbackId))
 				{
 					if (updateProgress(progress))
