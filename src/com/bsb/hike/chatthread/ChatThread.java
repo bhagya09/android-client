@@ -1,5 +1,25 @@
 package com.bsb.hike.chatthread;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -183,26 +203,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -1898,19 +1898,20 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
 			//Now we are first fetching from Cache
-			Drawable drawable=null;
-			drawable=HikeMessengerApp.getLruCache().get(theme.bgId()+getOrientationPrefix());
-			if(drawable==null)
+			Drawable drawable = null;
+			drawable = HikeMessengerApp.getLruCache().get(theme.bgId() + getOrientationPrefix());
+			if (drawable == null)
 			{
-				Logger.d(TAG,"Did not found in cached Fetching from APK");
-				//Not found in cache load from apk
+				Logger.d(TAG, "Did not found in cached Fetching from APK");
+				// Not found in cache load from apk
 				drawable = Utils.getChatTheme(theme, activity);
 
 				// insert into cached
-				HikeMessengerApp.getLruCache().put(theme.bgId()+getOrientationPrefix(),(BitmapDrawable)drawable);
+				HikeMessengerApp.getLruCache().put(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
 			}
-			else {
-				Logger.d(TAG,"Bitmap Chat Theme found in cache");
+			else
+			{
+				Logger.d(TAG, "Bitmap Chat Theme found in cache");
 			}
 
 			if(!theme.isTiled())
