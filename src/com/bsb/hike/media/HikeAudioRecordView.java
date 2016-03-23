@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.media.MediaRecorder;
 import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,6 +42,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private static final byte RECORDING = 2;
     private static final byte RECORDED = 3;
     private static final byte PLAYING = 4;
+    private static final byte CANCELLED = 5;
 
     private static final long MIN_DURATION = 1000;
     private Activity mActivity;
@@ -106,6 +108,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     public void initialize(View parent, boolean shareablePopupSharing) {
 	    if(inflatedLayoutView == null) initViews();
+        selectedFile = Utils.getOutputMediaFile(HikeFile.HikeFileType.AUDIO_RECORDING, null, true);
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
         popup_l.setHeight(parent.getHeight() * 2);
@@ -164,7 +167,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private float distCanMove = DrawUtils.dp(80);
 
     public boolean update(View view, MotionEvent event) {
-        if (recorderState == PLAYING) {
+        if (recorderState == PLAYING || recorderState == CANCELLED) {
             return false;
         }
         switch (event.getAction()) {
@@ -204,8 +207,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 float rawX = event.getRawX();
                 if (rawX <= LOWER_TRIGGER_DELTA) {
                     if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, "  move slided in left direction: will call cancel now" );
-                        cancelAndDeleteAudio();
+                        Log.d(TAG, "  move slided in left direction: will call cancel now");
+                        slideLeftComplete();
                         return true;
                     } else {
                         rectBgrnd.setVisibility(View.VISIBLE);
@@ -221,7 +224,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 startedDraggingX = -1;
                 if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
                     Log.d(TAG, "   slided in left direction: will call cancel now" );
-                    cancelAndDeleteAudio();
+                    slideLeftComplete();
                     return true;
                 }
 
@@ -238,6 +241,66 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 return true;
         }
         return true;
+    }
+
+    private Animator.AnimatorListener mAnimationListener = null;
+
+    private Animator.AnimatorListener getAnimationListener() {
+        if (mAnimationListener != null) return mAnimationListener;
+        mAnimationListener = new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                postCancelTask();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        };
+        return mAnimationListener;
+    }
+
+    private void slideLeftComplete() {
+        recorderState = CANCELLED;
+        doVibration(50);
+        stopUpdateTimeAndRecorder();
+        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
+    }
+
+    static final int CANCEL_RECORDING = 1;
+    protected Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            if (msg == null) {
+                Logger.e(TAG, "Getting a null message in HikeAudioRecordView");
+                return;
+            }
+            handleUIMessage(msg);
+        }
+    };
+
+    void handleUIMessage(android.os.Message msg) {
+        switch (msg.what) {
+            case CANCEL_RECORDING:
+                cancelAndDeleteAudio();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void postCancelTask() {
+        Message message = Message.obtain();
+        message.what = CANCEL_RECORDING;
+        mHandler.sendMessageDelayed(message, 500);
     }
 
     private void recordingError(boolean showError) {
@@ -344,7 +407,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     private void cancelAndDeleteAudio() {
-        doVibration(50);
+        if(recorderState != CANCELLED) doVibration(50);
         stopRecorder();
         recordingError(false);
         listener.audioRecordCancelled();
@@ -432,12 +495,13 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     public void dismissAudioRecordView() {
         if (popup_l.isShowing()) {
+            recorderImg.clearAnimation();
             popup_l.dismiss();
         }
     }
 
     public void cancelAndDismissAudio() {
-        if(recorderState != IDLE){
+        if(recorderState != IDLE && recorderState != CANCELLED){
             cancelAndDeleteAudio();
         }
 

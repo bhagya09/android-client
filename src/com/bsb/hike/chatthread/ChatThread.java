@@ -4718,6 +4718,9 @@ import android.widget.Toast;
 		{
 			mComposeView.setOnTouchListener(null);
 		}
+
+		walkieView = null;
+
 	}
 	
 	private void releaseShareablePopUpResources()
