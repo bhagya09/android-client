@@ -1445,7 +1445,6 @@
     <string name="timeline_short_desc">സുഹൃത്തുക്കളുമായി നിങ്ങളുടെ നിമിഷങ്ങൾ പങ്കിടുക</string>
     <string name="multiple_su_post_failed">ഒന്നോ അതിലധികമോ സ്റ്റാറ്റസ് അപ്ഡേറ്റുകൾ പോസ്റ്റ് ചെയ്യാൻ കഴിഞ്ഞില്ല.</string>
     <string name="timeline_post_timeout">നിങ്ങളുടെ ഫോട്ടോസ്  ഉടൻ പോസ്റ്റ്‌ ചെയ്യുന്നതാണ്</string>
-    <string name="timeline_post_multimsg">നിരസിച്ച അധിക സന്ദേശങ്ങൾ</string>
     <string name="crop">ക്രോപ്പ് </string>
     <string name="photo_gallery_choose_pic">ഫോട്ടോസ് </string>
     <string name="remove">നീക്കം ചെയ്യുക</string>
@@ -1455,6 +1454,8 @@
     <string name="forward_to_single_timeline">1 കൊണ്ടാക്റ്റ്സ്സിലേക്കും ടൈംലൈനിലും സന്ദേശം അയയ്ക്കുണോ?</string>
     <string name="share_with_timeline">%1$d കൊണ്ടാക്റ്റ്സ് , ടൈംലൈൻ എന്നിവയുമായി ഷെയർ ചെയ്യണോ?</string>
     <string name="share_with_contact_timeline">%1$s ആയും,  ടൈംലൈനിലും ഷെയർ ചെയ്യണോ?</string>
-    <string name="image_w_caption_sms">കാപ്ഷനോടൊപ്പം നിങ്ങള്‍ക്ക് ഒരു ഫോട്ടോസ്  അയച്ചു \"</string>
+    <string name="image_w_caption_sms">കാപ്ഷനോടൊപ്പം നിങ്ങള്‍ക്ക് ഒരു ഫോട്ടോസ്  അയച്ചു %1$s</string>
     <string name="share_on_timeline">ടൈംലൈനിൽ ഷെയർ ചെയ്യണോ?</string>
+    <string name="posting_photos_timeline">ടൈംലൈനിൽ ഫോട്ടോ പോസ്റ്റ്‌ ചെയ്യുന്നു</string>
+    <string name="add_a_caption">കാപ്ഷൻ ചേർക്കുക`</string>
 </resources>

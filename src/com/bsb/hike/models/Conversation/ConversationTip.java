@@ -237,8 +237,19 @@ public class ConversationTip implements OnClickListener
 			}
 			if(!TextUtils.isEmpty(tipBgColor))
 			{
-				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(Color.parseColor(tipBgColor));
-				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(Color.parseColor(tipBgColor));
+				int color;
+				try
+				{
+					color = Color.parseColor(tipBgColor);
+				}
+
+				catch (IllegalArgumentException e)
+				{
+					color = context.getResources().getColor(R.color.default_update_tip_bg);
+					Logger.e("ConversationTip", "Seems like you sent a wrong color");
+				}
+				((LinearLayout) v.findViewById(R.id.tip_upper)).setBackgroundColor(color);
+				((LinearLayout) v.findViewById(R.id.tip_lower)).setBackgroundColor(color);
 			}			
 			v.findViewById(R.id.all_content).setOnClickListener(this);
             HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
