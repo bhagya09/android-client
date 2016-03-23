@@ -263,7 +263,7 @@ public class FileTransferManager extends BroadcastReceiver
 				FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), task.msgId));
 				String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
 				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
-				if(BotUtils.isBot(((ConvMessage) task.userContext).getMsisdn())&& task instanceof DownloadFileTask)
+				if(task.userContext != null && BotUtils.isBot(((ConvMessage) task.userContext).getMsisdn())&& task instanceof DownloadFileTask)
 				{
 					FTAnalyticEvents.platformAnalytics(((ConvMessage) task.userContext).getMsisdn(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileKey(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
 				}
@@ -354,6 +354,11 @@ public class FileTransferManager extends BroadcastReceiver
 	}
 
 	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType) {
+
+		if (isFileTaskExist(-100L)){
+			validateFilePauseState(-100L);
+			return;
+		}
 
 		if (taskOverflowLimitAchieved())
 			return;

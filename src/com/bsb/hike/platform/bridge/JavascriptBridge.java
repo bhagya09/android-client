@@ -40,6 +40,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -634,8 +635,8 @@ public abstract class JavascriptBridge
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{	
-		if(resultCode == Activity.RESULT_OK)
+	{
+		if (resultCode == Activity.RESULT_OK)
 		{
 			String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
 			callbackToJS(id,PlatformUtils.getFileUploadJson(data));

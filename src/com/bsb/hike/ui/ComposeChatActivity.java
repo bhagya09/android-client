@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
@@ -117,6 +116,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
@@ -400,13 +400,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) )
 			{
+				// If any app wants to share text descriptions (shopclues/youtube/etc) extract that message
 				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
 
-				if(!TextUtils.isEmpty(messageToShare))
-				{
-					imageCaptions.add(messageToShare);
-				}
-
+				// First check if an image is present in the intent, if yes, send to editor with any/all subtext as prefilled caption
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
 				{
 					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true, false);
@@ -423,23 +420,33 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							selectedImages.add(new GalleryItem(0, null, GalleryItem.CUSTOM_TILE_NAME, filePath, 0));
 						}
 
-						if ((selectedImages != null))
+						if (selectedImages != null && !selectedImages.isEmpty())
 						{
-							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
+							ParcelableSparseArray captionsSparse = new ParcelableSparseArray();
 
-							if (TextUtils.isEmpty(messageToShare))
+							if (!TextUtils.isEmpty(messageToShare))
 							{
-								allImages = true;
-								startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+								captionsSparse.put(0,messageToShare);
 							}
+
+							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true, false, captionsSparse);
+
 							// Got images to share
 							// Keep references to images (these will need to be shared via hike features (timeline,etc)
 							for (GalleryItem item : selectedImages)
 							{
 								imagesToShare.add(item.getFilePath());
 							}
+
+							allImages = true;
+							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
 					}
+				}
+				// Image is not present. Is there a message to forward?
+				else if(!TextUtils.isEmpty(messageToShare))
+				{
+					// Do nothing, adapter will show "Timeline" based on this same check on messageToShare
 				}
 			}
 			else if(savedInstanceState == null && Intent.ACTION_SEND_MULTIPLE.equals(getIntent().getAction()))
@@ -857,11 +864,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case PICK_CONTACT_AND_SEND_MODE:
 		case PICK_CONTACT_MODE:
 			//We do not show sms contacts in broadcast mode
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,(allImages || !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage && !isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, false, false,isContactChooserFilter,isShowTimeline());
 			break;
 		case CREATE_GROUP_MODE:
 		default:
-			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,(allImages || !TextUtils.isEmpty(messageToShare)));
+			adapter = new ComposeChatAdapter(this, listView, isForwardingMessage, (isForwardingMessage || isSharingFile), fetchRecentlyJoined, existingGroupOrBroadcastId, sendingMsisdn, friendsListFetchedCallback, true, (showMicroappShowcase && hasMicroappShowcaseIntent),isContactChooserFilter,isShowTimeline());
 			break;
 		}
 
@@ -914,6 +921,17 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 	}
 
+	private boolean isShowTimeline(){
+		//This method gives the value whether to show timeline option in compose chat list,
+		//if there is an explicit extra mentioned, then use that value.
+		boolean showTimeline;
+		if(getIntent()!= null && getIntent().hasExtra(HikeConstants.Extras.SHOW_TIMELINE)){
+			showTimeline = getIntent().getBooleanExtra(HikeConstants.Extras.SHOW_TIMELINE, false);
+		}else{
+			showTimeline = allImages || !TextUtils.isEmpty(messageToShare);
+		}
+		return showTimeline;
+	}
 	private void initTagEditText()
 	{
 		tagEditText = (TagEditText) findViewById(R.id.composeChatNewGroupTagET);
@@ -2032,15 +2050,9 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					if(hikeFeatureInfo.getPhoneNum() == ComposeChatAdapter.HIKE_FEATURES_TIMELINE_ID)
 					{
 
-						if(!allImages && TextUtils.isEmpty(messageToShare))
-						{
-							Toast.makeText(ComposeChatActivity.this, R.string.timeline_post_multimsg, Toast.LENGTH_SHORT).show();
-						}
-
 						if (imagesToShare.size() == 1)
 						{
-							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.isEmpty() ? messageToShare
-									: TextUtils.isEmpty(imageCaptions.get(0)) ? messageToShare : imageCaptions.get(0), imagesToShare.get(0), true);
+							intent = IntentFactory.getPostStatusUpdateIntent(this, imageCaptions.get(0), imagesToShare.get(0), true);
 							intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 							startActivity(intent);
 							finish();
@@ -2155,7 +2167,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			for (int i = 0; i < imagesToShare.size(); i++)
 			{
-				statusUpdateTasks.add(new StatusUpdateTask(!TextUtils.isEmpty(messageToShare) ? messageToShare : imageCaptions.get(i), -1, imagesToShare.get(i)));
+				statusUpdateTasks.add(new StatusUpdateTask(imageCaptions.get(i), -1, imagesToShare.get(i)));
 			}
 		}
 		if (!statusUpdateTasks.isEmpty())
