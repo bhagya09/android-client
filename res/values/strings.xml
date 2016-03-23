@@ -1515,7 +1515,6 @@
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
-    <string name="timeline_post_multimsg">Discarded extra messages</string>
     <string name="crop">Crop</string>
     <string name="photo_gallery_choose_pic">Photos</string>
     <string name="remove">Remove</string>

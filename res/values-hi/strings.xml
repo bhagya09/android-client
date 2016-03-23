@@ -1445,7 +1445,6 @@
     <string name="timeline_short_desc">आनंदपूर्ण क्षणों को मित्रों से साझा करें</string>
     <string name="multiple_su_post_failed">एक या उससे अधिक स्टेटस पोस्ट नहीं किए जा सकते।</string>
     <string name="timeline_post_timeout">आपके फ़ोटोस जल्दी हो पोस्ट किए जाएंगे</string>
-    <string name="timeline_post_multimsg">छोड़े गए अतिरिक्त संदेश</string>
     <string name="crop">क्रॉप</string>
     <string name="photo_gallery_choose_pic">फ़ोटोस</string>
     <string name="remove">निकालें</string>

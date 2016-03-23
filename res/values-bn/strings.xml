@@ -1456,7 +1456,6 @@
     <string name="timeline_short_desc">বন্ধুদের সাথে আপনার মুহূর্তগুলো শেয়ার করুন</string>
     <string name="multiple_su_post_failed">এক বা একাধিক স্ট্যাটাস পোস্ট করা যায়নি।</string>
     <string name="timeline_post_timeout">অল্প সময়ের মধ্যে আপনার ফোটোস পোস্ট করা হবে</string>
-    <string name="timeline_post_multimsg">অতিরিক্ত বার্তাগুলো বাদ দেওয়া হয়েছে</string>
     <string name="crop">ক্রপ</string>
     <string name="photo_gallery_choose_pic">ফোটোস</string>
     <string name="remove">সরিয়ে ফেলুন</string>
