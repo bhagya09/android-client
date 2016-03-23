@@ -1571,5 +1571,12 @@
     <string name="restore_version_error">Your backup was taken on a newer version of hike. To ensure everything works perfectly, please update your app to the latest version and try again.</string>
     <string name="restore_msisdn_error">Bummer! You seem to have a backup file of someone else! This backup cannot be restored to your account.</string>
     <string name="upgrade_hike">Update</string>
-
+    <string name="restore_chat_title">Restore chat history</string>
+    <string name="restore_chat_body">Something went wrong with your chat history. Don\'t worry, you can restore your chat history from the backup. If you don\'t restore now, you won\'t be able to restore later.</string>
+    <string name="SKIP_RESTORE">SKIP RESTORE</string>
+    <string name="RESTORE_CAP">RESTORE</string>
+    <string name="restore_progress_body">Restoring your chat history from backup.</string>
+    <string name="restore_success">Chats restored successfully!</string>
+    <string name="restore_failure">Some error occured. Could not restore your chats</string>
+    <string name="db_corrupt_notif_msg">You have a new notification</string>
 </resources>
