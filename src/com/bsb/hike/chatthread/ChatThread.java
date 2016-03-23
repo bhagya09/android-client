@@ -1295,7 +1295,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			{
 				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
 			}
-			recordKeyboardChangeEvent(item,isSystemKeyboard());
+			recordKeyboardChangeEvent(item, isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
 				Utils.hideSoftKeyboard(activity, mComposeView);
@@ -1852,15 +1852,11 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
 
-			if(HikeMessengerApp.getLruCache().get(mAdapter.getChatTheme().bgId()+getOrientationPrefix())!=null)
+			removeChatThemeFromCache();
+
+			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
 			{
-				Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
-				removeChatThemeFromCache();
-			}
-
-			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT) {
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
-
 			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
@@ -1872,8 +1868,11 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	private void removeChatThemeFromCache()
 	{
-		HikeMessengerApp.getLruCache().remove(mAdapter.getChatTheme().bgId()+HikeConstants.ORIENTATION_LANDSCAPE);
-		HikeMessengerApp.getLruCache().remove(mAdapter.getChatTheme().bgId()+HikeConstants.ORIENTATION_PORTRAIT);
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		{
+			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+		}
 	}
 
 	protected void setChatBackground(int colorResID){
@@ -1897,22 +1896,8 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			//Now we are first fetching from Cache
-			Drawable drawable = null;
-			drawable = HikeMessengerApp.getLruCache().get(theme.bgId() + getOrientationPrefix());
-			if (drawable == null)
-			{
-				Logger.d(TAG, "Did not found in cached Fetching from APK");
-				// Not found in cache load from apk
-				drawable = Utils.getChatTheme(theme, activity);
 
-				// insert into cached
-				HikeMessengerApp.getLruCache().put(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
-			}
-			else
-			{
-				Logger.d(TAG, "Bitmap Chat Theme found in cache");
-			}
+			Drawable drawable = loadChatTheme(theme);
 
 			if(!theme.isTiled())
 			{
@@ -1920,6 +1905,31 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
+	}
+
+	/**
+	 *
+	 * @param theme
+	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
+	 */
+	private Drawable loadChatTheme(ChatTheme theme)
+	{
+		// Now we are first fetching from Cache
+		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(theme.bgId() + getOrientationPrefix());
+		if (drawable == null)
+		{
+			Logger.d(TAG, "Did not found in cached Fetching from APK");
+			// Not found in cache load from apk
+			drawable = Utils.getChatTheme(theme, activity);
+
+			// insert into cached
+			HikeMessengerApp.getLruCache().saveChatTheme(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
+		}
+		else
+		{
+			Logger.d(TAG, "Bitmap Chat Theme found in cache");
+		}
+		return drawable;
 	}
 
 	@Override
