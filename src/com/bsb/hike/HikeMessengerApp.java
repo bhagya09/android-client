@@ -839,7 +839,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_LANG_ORDER,0)==0
+                || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -934,9 +935,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
-        // Set default path as internal storage on production host
-        PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
-
 		validateHikeRootDir();
 		makeNoMediaFiles();
 
@@ -999,6 +997,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+
+        // Set default path as internal storage on production host
+        PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
 
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 

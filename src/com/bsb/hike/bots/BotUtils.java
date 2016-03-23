@@ -280,7 +280,7 @@ public class BotUtils
                                     "dmapp": [
                                         {
                                           "msisdn":["+hikenews+" ,"+hikecoupons+"]
-                                        }
+                                        }]
                                     }
                                }
 	 *

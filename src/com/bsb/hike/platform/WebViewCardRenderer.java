@@ -363,7 +363,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
         String appName = convMessage.webMetadata.getAppName();
 
-        // Checks required here for handling forward card compatibility case for versioning changes for forward card for news and cricket apps
+        // Checks required here for handling forward card compatibility case for versioning changes for forward card for news,cricket and carpooling micro app
         if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_NEWS_REGEX))
         {
             appName = HikePlatformConstants.MICRO_APP_NEWS_STORAGE_NAME;
@@ -371,6 +371,10 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
         else if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_CRICKET_REGEX))
         {
             appName = HikePlatformConstants.MICRO_APP_CRICKET_STORAGE_NAME;
+        }
+        else if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_CAR_POOLING_REGEX))
+        {
+            appName = HikePlatformConstants.MICRO_APP_CAR_POOLING_STORAGE_NAME;
         }
 
         if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, PlatformContentConstants.HIKE_MICRO_APPS, appName)).exists())
