@@ -557,7 +557,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
-		if(position <= 0)
+		if(position <= 0 || position > mAdapter.getCount())
 		{
 			Logger.d(TAG, "position is less than 0. wrong item clicked");
 			return ;

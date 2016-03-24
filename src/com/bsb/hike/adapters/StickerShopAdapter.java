@@ -202,7 +202,12 @@ public class StickerShopAdapter extends CursorAdapter
 		}
 		return null;
 	}
-	
+
+	@Override
+	public int getCount()
+	{
+		return super.getCount();
+	}
 
 	public StickerOtherIconLoader getStickerPreviewLoader()
 	{
