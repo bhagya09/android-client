@@ -306,6 +306,16 @@ public class FTApkManager
             {
                 Logger.d("AUTOAPK", "size validity : " + validSize + ", update Needed : " + updateNeeded);
             }
+
+
+            JSONObject metadata = new JSONObject();
+            metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
+            metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.DOWNLOAD_COMPLETION);
+            metadata.put(AnalyticsConstants.AutoApkEvents.SIZE_VALIDITY, validSize);
+            metadata.put(AnalyticsConstants.AutoApkEvents.UPDATE_VALIDITY, updateNeeded);
+            metadata.put(AnalyticsConstants.AutoApkEvents.FILE_VALIDITY, hFile.equals(mFile) && hFile.exists())
+            HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
+
         }
         catch (JSONException je)
         {
@@ -442,6 +452,12 @@ public class FTApkManager
                     //TODO possible solution is : on download complete one should switch off the network change receiver
                     if (networkType >= networkTypeAvailable && networkTypeAvailable > 0 && downloadPending) {
                         Logger.d("AUTOAPK", "Starting download now, correct network detected");
+
+                        JSONObject metadata = new JSONObject();
+                        metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
+                        metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.RESUMING_DOWNLOAD);
+                        HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
+
                         FileTransferManager.getInstance(context).downloadApk(hf.getFile(), hf.getFileKey(), hf.getHikeFileType());
                     }
                 }}
@@ -449,7 +465,7 @@ public class FTApkManager
         }
         catch (JSONException je)
         {
-            Logger.d("AUTOAPK","json exception");
+            Logger.d("AUTOAPK","json exception" + je.getMessage());
         }
         catch (NumberFormatException nfe)
         {
