@@ -950,7 +950,7 @@ public class PlatformUtils
 		if (!isMicroAppExist)
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
-                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).createPlatformZipDownloader();
+                    .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).createPlatformZipDownloader();
             downloader.downloadAndUnzip();
 		}
 		else
