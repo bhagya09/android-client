@@ -120,6 +120,13 @@ public class FTApkManager
                             if (networkType >= networkTypeAvailable && networkTypeAvailable > 0) {
                                 Logger.d("AUTOAPK", "Starting download now, correct network detected");
                                 FileTransferManager.getInstance(context).downloadApk(hf.getFile(), hf.getFileKey(), hf.getHikeFileType());
+
+                                JSONObject metadata = new JSONObject();
+                                metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
+                                metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.INITIATING_DOWNLOAD);
+                                metadata.put(AnalyticsConstants.AutoApkEvents.NETWORK_VALIDITY, networkTypeAvailable);
+
+                                HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
                             }
                         } else {
                             Logger.d("AUTOAPK", "not downloading the new APK, the version check failed, might continue with older apk");
@@ -456,6 +463,7 @@ public class FTApkManager
                         JSONObject metadata = new JSONObject();
                         metadata.put(HikeConstants.EVENT_TYPE, HikeConstants.MqttMessageTypes.AUTO_APK);
                         metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.RESUMING_DOWNLOAD);
+                        metadata.put(AnalyticsConstants.AutoApkEvents.NETWORK_VALIDITY, networkTypeAvailable);
                         HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
 
                         FileTransferManager.getInstance(context).downloadApk(hf.getFile(), hf.getFileKey(), hf.getHikeFileType());

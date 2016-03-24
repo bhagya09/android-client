@@ -491,9 +491,13 @@ public class AnalyticsConstants
 
 		public static final String UPDATE_VALIDITY = "atapk_up_vld";
 
+		public static final String NETWORK_VALIDITY = "atapk_nw_vld";
+
 		public static final String SERVER_RESPONSE_HTTP = "atapk_cnf";
 
 		public static final String RESUMING_DOWNLOAD = "atapk_resm";
+
+		public static final String INITIATING_DOWNLOAD = "atapk_init";
 
 		public static final String DOWNLOAD_COMPLETION = "atapk_cplt";
 
