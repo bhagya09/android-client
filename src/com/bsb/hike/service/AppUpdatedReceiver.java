@@ -6,28 +6,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.util.KPTConstants;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * @author Rishabh This receiver is used to notify that the app has been updated.
@@ -56,9 +48,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			{
 				return;
 			}
-
-            // schedule the alarm for migration of old running micro apps in the content directory to new path if code not already migrated
-            scheduleHikeMicroAppsMigrationAlarm(context);
 
 			HAManager.getInstance().logUserGoogleAccounts();
 			/*
@@ -113,17 +102,5 @@ public class AppUpdatedReceiver extends BroadcastReceiver
             PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.APP_UPDATE_TRIGGER);
 		}
 	}
-
-    /**
-     * Used to schedule the alarm for migration of old running micro apps in the content directory
-     */
-    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
-    {
-        if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false)) {
-            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
-            context.startService(migrationIntent);
-        }
-    }
-
 
 }

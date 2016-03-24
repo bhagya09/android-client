@@ -353,9 +353,13 @@ public interface HikePlatformConstants
 
     String MICRO_APP_CRICKET_STORAGE_NAME = "hikecricketnew";
 
+    String MICRO_APP_CAR_POOLING_STORAGE_NAME = "hikecarpooling";
+
     String MICRO_APP_NEWS_REGEX = "news";
 
     String MICRO_APP_CRICKET_REGEX = "cricket";
+
+    String MICRO_APP_CAR_POOLING_REGEX = "carpooling";
 
 	String TTL = "timeToLive";
 
@@ -383,9 +387,11 @@ public interface HikePlatformConstants
 	}
 
 	long oneDayInMS = 86400000;
+
 	String BIG_PICTURE = "big_picture";
 
 	String BITMAP_URL = "bitmap_url";
 
+    String SETTING_OFF = "off";
 
 }

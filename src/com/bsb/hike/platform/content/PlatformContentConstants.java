@@ -51,7 +51,7 @@ public class PlatformContentConstants
 
     public static final String MICRO_APPS_VERSIONING_PROD_CONTENT_DIR = HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + MICROAPPS_CONTENT_DIR_NAME + File.separator;
 
-    public static final String MICRO_APPS_VERSIONING_STAG_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + MICROAPPS_CONTENT_DIR_NAME + File.separator;
+    public static final String MICRO_APPS_VERSIONING_STAG_CONTENT_DIR = Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + MICROAPPS_CONTENT_DIR_NAME + File.separator;
 
     // Constant to be used after versioning release only for micro apps migration purpose
     public static String PLATFORM_CONTENT_OLD_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;

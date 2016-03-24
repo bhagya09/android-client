@@ -280,49 +280,61 @@ public class BotUtils
                                     "dmapp": [
                                         {
                                           "msisdn":["+hikenews+" ,"+hikecoupons+"]
-                                        }
+                                        }]
                                     }
                                }
 	 *
 	 *
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-	public static void removeMicroAppFromVersioningPath(JSONObject jsonObj)
+	public static void removeMicroAppFromVersioningPath(final JSONObject jsonObj)
 	{
-		try
+		// Performing deletion operation on Backend thread;
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable()
 		{
-			// Code path to be deleted that is being generated after platform versioning release
-            JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.MSISDN);
-            for (int i = 0; i< appsToBeRemoved.length(); i++) {
-                String msisdn = appsToBeRemoved.get(i).toString();
-                BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+			@Override
+			public void run()
+			{
+				try
+				{
+					// Code path to be deleted that is being generated after platform versioning release
+					JSONArray appsToBeRemoved = jsonObj.optJSONArray(HikePlatformConstants.MSISDN);
+					for (int i = 0; i < appsToBeRemoved.length(); i++)
+					{
+						String msisdn = appsToBeRemoved.get(i).toString();
+						BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
-                // If botInfo is null i.e bot is not present, ignore this request and continue with further requests
-                if(botInfo == null)
-                    continue;
+						// If botInfo is null i.e bot is not present, ignore this request and continue with further requests
+						if (botInfo == null)
+							continue;
 
-                byte botType = botInfo.getBotType();
-                String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
-                String appName = msisdn.substring(1, msisdn.length() - 1);
-                microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
-                Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
-                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
-                Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
-                if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath)) {
-                    String sentData = AnalyticsConstants.REMOVE_SUCCESS;
-                    JSONObject json = new JSONObject();
-                    json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
-                    json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
-                    json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
-                    HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
-                }
-            }
+						byte botType = botInfo.getBotType();
+						String microAppVersioningPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS;
+						String appName = msisdn.substring(1, msisdn.length() - 1);
+						microAppVersioningPath = PlatformUtils.generateMappUnZipPathForBotType(botType, microAppVersioningPath, appName);
+						Logger.d("FileSystemAccess", "To delete the file path being used after versioning: " + microAppVersioningPath);
+						String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
+						Logger.d("FileSystemAccess", "To delete the old file path : " + makePath);
 
-		}
-		catch (JSONException e1)
-		{
-			e1.printStackTrace();
-		}
+						if (PlatformUtils.deleteDirectory(makePath) || PlatformUtils.deleteDirectory(microAppVersioningPath))
+						{
+							String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+							JSONObject json = new JSONObject();
+							json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
+							json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+							json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+						}
+					}
+				}
+				catch (JSONException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+		});
 
 	}
 
@@ -340,32 +352,45 @@ public class BotUtils
 
 	 * @param jsonObj	:	The bot Json object containing the properties of the bot files to be deleted
 	 */
-    public static void removeMicroApp(JSONObject jsonObj){
-        try
-        {
-            JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
-            for (int i = 0; i< appsToBeRemoved.length(); i++){
-                String appName =  appsToBeRemoved.get(i).toString();
-                String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR +  appName;
-                Logger.d("FileSystemAccess", "To delete the path : " + makePath);
+	public static void removeMicroApp(final JSONObject jsonObj)
+	{
+		// Performing deletion operation on Backend thread;
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
 
-                if(PlatformUtils.deleteDirectory(makePath)){
-                    String sentData = AnalyticsConstants.REMOVE_SUCCESS;
-                    JSONObject json = new JSONObject();
-                    json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.REMOVE_MICRO_APP);
-                    json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
-                    json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
-                    HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
-                }
-            }
-        }
-        catch (JSONException e1)
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+				try
+				{
+					JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
+					for (int i = 0; i < appsToBeRemoved.length(); i++)
+					{
+						String appName = appsToBeRemoved.get(i).toString();
+						String makePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName;
+						Logger.d("FileSystemAccess", "To delete the path : " + makePath);
 
-    }
+						if (PlatformUtils.deleteDirectory(makePath))
+						{
+							String sentData = AnalyticsConstants.REMOVE_SUCCESS;
+							JSONObject json = new JSONObject();
+							json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.REMOVE_MICRO_APP);
+							json.putOpt(AnalyticsConstants.REMOVE_MICRO_APP, sentData);
+							json.putOpt(AnalyticsConstants.MICRO_APP_ID, appName);
+							HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.REMOVE_MICRO_APP, json);
+						}
+					}
+				}
+				catch (JSONException e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+	}
 
 
 	/**

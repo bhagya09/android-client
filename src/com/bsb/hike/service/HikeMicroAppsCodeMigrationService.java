@@ -41,7 +41,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
-		boolean isMicroAppsSuccessfullyMigrated = true,isDPDirectoryMigrated = false,isGameEngineMigrated;
+		boolean isMicroAppsSuccessfullyMigrated = true,isDPDirectoryMigrated = false;
 		HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
         String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
@@ -86,16 +86,12 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 								String appName = json.optString(HikeConstants.NAME);
 								if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName).exists())
 								{
-									isGameEngineMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName), new File(
+									PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName), new File(
 											PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)));
 
-									// Delete the game engine file if its gets copied
-                                    if(isGameEngineMigrated)
-									    PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName);
 								}
 							}
 						}
-
 					}
 
                     String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, botName);
@@ -148,9 +144,6 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						HikeConversationsDatabase.getInstance().updateBotMetaData(entry.getKey(), botMetadataJson);
 						entry.getValue().setMetadata(botMetadataJson);
 						mapForMigratedApps.put(entry.getKey(), true);
-
-                        // Delete the files that have already been copied
-                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microAppName);
 					}
 				}
 				catch (FileNotFoundException fnfe)
@@ -196,14 +189,13 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 			e.printStackTrace();
 		}
 
-
 		/*
-		 * Check if migration is successful , save the flag is true in Shared Preferences , else set alarm for it
+		 * Check if migration is successful , save the flag as true in Shared Preferences and delete old directory content code  , else set alarm for making it happen in future
 		 */
 		if (isMicroAppsSuccessfullyMigrated && isDPDirectoryMigrated)
 		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
-            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
 		}
 		else
 		{

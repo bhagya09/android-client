@@ -1795,14 +1795,20 @@ public class PlatformUtils
 	}
 	public static void sendMicroAppServerAnalytics(boolean success, String appName, int mAppVersionCode,int errorCode)
 	{
-		try
-		{
-			JSONObject body = new JSONObject();
-			body.put(HikePlatformConstants.APP_NAME, appName);
-			body.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
-			body.put(HikePlatformConstants.ERROR_CODE,errorCode);
+        // Json to be sent to server for analysing micro-apps acks analytics
+        JSONObject json = new JSONObject();
 
-			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), body, new IRequestListener()
+        try
+		{
+			JSONObject appsJsonObject = new JSONObject();
+            appsJsonObject.put(HikePlatformConstants.APP_NAME, appName);
+            appsJsonObject.put(HikePlatformConstants.APP_VERSION, mAppVersionCode);
+            appsJsonObject.put(HikePlatformConstants.ERROR_CODE,errorCode);
+
+            // Put apps JsonObject in the final json
+            json.put(HikePlatformConstants.APPS, appsJsonObject);
+
+			RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getMicroAppLoggingUrl(success), json, new IRequestListener()
 			{
 				@Override
 				public void onRequestFailure(HttpException httpException)
@@ -2339,11 +2345,22 @@ public class PlatformUtils
     /*
     * IMP :: WARNING Method to delete old micro app content code based on packet to remove legacy (This code not be used anywhere else)
     */
-    public static void deleteOldContentMicroAppCode(boolean flushOldContent)
-    {
-        if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION,false) && flushOldContent)
-            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
-    }
+	public static void deleteOldContentMicroAppCode(final boolean flushOldContent)
+	{
+		// Deleting the directory code on Backend thread;
+        HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+        mThread.startHandlerThread();
+        mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) && flushOldContent)
+					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
+			}
+		});
+	}
 
     //{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
 	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)
