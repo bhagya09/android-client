@@ -2726,17 +2726,16 @@ import android.widget.Toast;
 	{
 		Logger.i(TAG, "Audio Recorded failed");
 		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
-			showRecordingErrorTip(R.string.error_recording);
+			showRecordingErrorTip(R.string.recording_help_text);
 		}
 	}
 
 	private HikeTipVisibilityAnimator tipVisibilityAnimator;
-	private void showRecordingErrorTip(final int stringResId)
-	{
+
+	private void showRecordingErrorTip(final int stringResId) {
 		if (tipVisibilityAnimator == null) {
-			tipVisibilityAnimator = new HikeTipVisibilityAnimator();
 			View chatlayout = activity.findViewById(R.id.chatContentlayout);
-			tipVisibilityAnimator.showInfoTip(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
 		}
 		tipVisibilityAnimator.startInfoTipAnim();
 	}

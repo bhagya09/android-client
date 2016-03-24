@@ -17,7 +17,15 @@ public class HikeTipVisibilityAnimator {
     public static final long TIP_ANIMATION_LENGTH_SHORT = 2000;
     public static final long TIP_ANIMATION_LENGTH_LONG = 3500;
 
-    public void showInfoTip(final int stringResId, View parentView, final Activity activity, int tipViewResID, long duration) {
+    public HikeTipVisibilityAnimator(final int stringResId, View parentView, final Activity activity, int tipViewResID){
+        initializeInfoTip(stringResId, parentView, activity, tipViewResID, TIP_ANIMATION_LENGTH_SHORT);
+    }
+
+    public HikeTipVisibilityAnimator(final int stringResId, View parentView, final Activity activity, int tipViewResID, long duration){
+        initializeInfoTip(stringResId, parentView, activity, tipViewResID, duration);
+    }
+
+    private void initializeInfoTip(final int stringResId, View parentView, final Activity activity, int tipViewResID, long duration) {
         inflatedView = parentView;
         mTipViewResID = tipViewResID;
         final TextView tip = (TextView) inflatedView.findViewById(tipViewResID);

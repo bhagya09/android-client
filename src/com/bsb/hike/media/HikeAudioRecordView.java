@@ -327,9 +327,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private HikeTipVisibilityAnimator tipVisibilityAnimator;
     private void showRecordingInfoTip(final int stringResId)
     {
-        if(tipVisibilityAnimator == null) {
-            tipVisibilityAnimator = new HikeTipVisibilityAnimator();
-            tipVisibilityAnimator.showInfoTip(stringResId, inflatedLayoutView, mActivity, R.id.overflow_tip_info, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+        if (tipVisibilityAnimator == null) {
+            tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, inflatedLayoutView, mActivity, R.id.overflow_tip_info, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
         }
         tipVisibilityAnimator.startInfoTipAnim();
     }
