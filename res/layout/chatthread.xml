@@ -260,19 +260,14 @@
                         android:contentDescription="sticker recommendation popup"
                         android:visibility="invisible"></FrameLayout>
 
-                    <com.bsb.hike.view.CustomFontTextView
-                        android:id="@+id/recording_error_tip"
+                    <ViewStub
+                        android:id="@+id/recording_info_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/overflow_tip"
-                        android:gravity="center_vertical"
-                        android:text="@string/error_recording"
-                        style="@style/CustomInfoTipDown"
-                        android:visibility="gone"
-                        />
+                        android:layout_alignParentRight="true"
+                        android:layout="@layout/wt_info_tip_layout">
+                    </ViewStub>
 
                 </RelativeLayout>
 

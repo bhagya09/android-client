@@ -71,7 +71,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         this.listener = listener;
         this.mContext = activity;
         updateTriggerLevels();
-        initViews();
     }
 
     public void onConfigChanged() {

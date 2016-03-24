@@ -72,6 +72,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -2731,8 +2732,12 @@ import android.widget.Toast;
 	}
 
 	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private View mWalkieInfoTip;
 
 	private void showRecordingErrorTip(final int stringResId) {
+		if (mWalkieInfoTip == null) {
+			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+		}
 		if (tipVisibilityAnimator == null) {
 			View chatlayout = activity.findViewById(R.id.chatContentlayout);
 			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
@@ -2740,6 +2745,18 @@ import android.widget.Toast;
 		tipVisibilityAnimator.startInfoTipAnim();
 	}
 
+	private void inflateInfoTipView(ViewStub recordingTipView) {
+		if (recordingTipView != null) {
+			recordingTipView.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					mWalkieInfoTip = inflated;
+				}
+			});
+			recordingTipView.inflate();
+		}
+	}
 	/**
 	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 * 
