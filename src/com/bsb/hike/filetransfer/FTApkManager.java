@@ -272,8 +272,8 @@ public class FTApkManager
             boolean validSize = (hFile != null && hFile.exists()) ?  hFile.length() == apkSizeReceived && hFile.length() > 0 : false;
             boolean updateNeeded = Utils.isUpdateRequired(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""), context)
                     && !TextUtils.isEmpty(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, ""));
-
-            if(hFile.equals(mFile) && hFile.exists())
+            boolean fileExists = hFile!=null && hFile.exists() && hFile.equals(mFile);
+            if(fileExists)
             {
                 if(validSize && updateNeeded)
                 {
@@ -313,7 +313,7 @@ public class FTApkManager
             metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.AutoApkEvents.DOWNLOAD_COMPLETION);
             metadata.put(AnalyticsConstants.AutoApkEvents.SIZE_VALIDITY, validSize);
             metadata.put(AnalyticsConstants.AutoApkEvents.UPDATE_VALIDITY, updateNeeded);
-            metadata.put(AnalyticsConstants.AutoApkEvents.FILE_VALIDITY, hFile.equals(mFile) && hFile.exists())
+            metadata.put(AnalyticsConstants.AutoApkEvents.FILE_VALIDITY, fileExists);
             HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
 
         }
