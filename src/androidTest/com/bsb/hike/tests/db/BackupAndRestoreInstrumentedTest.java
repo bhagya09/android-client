@@ -2,63 +2,44 @@ package androidTest.com.bsb.hike.tests.db;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.db.HikeConversationsDatabase;
-
+import com.bsb.hike.HikeConstants;import com.bsb.hike.db.HikeConversationsDatabase;
 import androidTest.com.bsb.hike.framework.parameterizationWrappers.*;
 import androidTest.com.bsb.hike.mocks.*;
-
 import com.bsb.hike.HikeMessengerApp;
-
-
 import junit.framework.Assert;
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.ArrayList;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.xml.sax.SAXException;
-
 import java.io.File;
 import android.database.sqlite.SQLiteDatabase;
 import com.bsb.hike.backup.AccountBackupRestore;
-
 import javax.xml.parsers.ParserConfigurationException;
-
 import androidTest.com.bsb.hike.utility.IO;
 import androidTest.com.bsb.hike.utility.SQLiteUtilityFunctions;
 
-
-
+//Tests the backup feature
 //@RunWith(AndroidJUnit4.class)
 @RunWith(Parameterized.class)
 public class BackupAndRestoreInstrumentedTest {
-
     String path;
     String tocompare;
     boolean expectedRestoreOutput = false;
     String testCaseName;
     static IParameterizationWrapper wrapper;
-
     @Before
     public void pushfiles()
     {
-
+        //stub push test adta to device
     }
     public BackupAndRestoreInstrumentedTest(String testCaseName,String path, String tocompare, String pexpectedRestoreOutput)
     {
         this.testCaseName = testCaseName;
         this.path = path;
-        this.tocompare = tocompare;
-        if (pexpectedRestoreOutput.equalsIgnoreCase("true"))
+        this.tocompare = tocompare;        if (pexpectedRestoreOutput.equalsIgnoreCase("true"))
             this.expectedRestoreOutput = true;
     }
     @Parameterized.Parameters(name = "{0},Expected Output{3}")
@@ -94,7 +75,7 @@ public class BackupAndRestoreInstrumentedTest {
         //Gets the restored DB
         SQLiteDatabase objDB = HikeConversationsDatabase.getInstance().getWritableDatabase();
 
-        //Compares the restored db to the db dump for all db's in filesTpCompare
+        //Compares the restored db to the db dump for all db's in filesToCompare
         Assert.assertTrue(SQLiteUtilityFunctions.compareCurrentDBandBackup(objDB, new File(testDataBackupFolder), filesToCompare));
 
     }

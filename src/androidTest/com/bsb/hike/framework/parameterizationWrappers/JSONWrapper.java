@@ -1,11 +1,11 @@
 package androidTest.com.bsb.hike.framework.parameterizationWrappers;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
  * Created by surbhisharma on 16/03/16.
+ * Stub - reads inputs from JSON and passes it to the current test
  */
 public class JSONWrapper implements IParameterizationWrapper {
 

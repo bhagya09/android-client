@@ -7,6 +7,7 @@ import com.bsb.hike.backup.AccountBackupRestore;
 
 /**
  * Created by surbhisharma on 09/03/16.
+ * Factory for all test
  */
 public class TestInstanceFactory {
     static AccountBackupRestore objAccountBackupRestore;

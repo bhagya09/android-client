@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 /**
  * Created by surbhisharma on 16/03/16.
- */
+ * Stub - Reads inputs from a flat file and passes it to the test */
 public class FlatWapper implements IParameterizationWrapper {
     @Override
     public File openFile(String path) {
@@ -16,7 +16,6 @@ public class FlatWapper implements IParameterizationWrapper {
     public boolean checkFileSanity(File file) {
         return false;
     }
-
     @Override
     public ArrayList<Object[]> getParameters(File file) {
         return null;

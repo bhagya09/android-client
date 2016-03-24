@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 /**
  * Created by surbhisharma on 16/03/16.
+ * STUB: Creates test data
  */
 public class DBCreate {
 

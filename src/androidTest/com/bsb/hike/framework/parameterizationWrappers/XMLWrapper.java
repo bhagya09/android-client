@@ -1,11 +1,8 @@
 package androidTest.com.bsb.hike.framework.parameterizationWrappers;
 
-
 import java.io.File;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
-
 import javax.xml.XMLConstants;
 import javax.xml.parsers.*;
 import javax.xml.transform.dom.DOMSource;
@@ -17,6 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Created by surbhisharma on 16/03/16.
+ * Reads Inputs from an XML and passes it to test
  */
 public class XMLWrapper implements IParameterizationWrapper {
 

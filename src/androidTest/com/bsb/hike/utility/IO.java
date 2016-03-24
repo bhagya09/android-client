@@ -9,6 +9,7 @@ import java.io.OutputStream;
 
 /**
  * Created by surbhisharma on 17/03/16.
+ * IO related utility functions
  */
 public class IO {
 
