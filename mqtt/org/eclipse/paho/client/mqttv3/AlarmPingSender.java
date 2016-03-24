@@ -133,6 +133,12 @@ class AlarmPingSender implements MqttPingSender {
 
 	@Override
 	public void schedule(long delayInMilliseconds) {
+// Defensinve check as we can get a security exception in start Method .
+		if(pendingIntent==null)
+		{
+			Logger.d(TAG,"Pending intent is null");
+			return;
+		}
 		long nextAlarmInMilliseconds = System.currentTimeMillis()
 				+ delayInMilliseconds;
 		Logger.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);

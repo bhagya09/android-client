@@ -278,4 +278,20 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		outState.putString(INTERIM_IMG_PATH , mInterimImagePath);
 		super.onSaveInstanceState(outState);
 	}
+
+	@Override
+	public void onBackPressed() {
+		boolean isEventConsumed = false;
+
+		if(mCropFragment != null && mCropFragment.isVisible())
+		{
+			//This means it: (1) has been added, (2) has its view attached to the window, and (3) is not hidden
+			isEventConsumed = mCropFragment.onBackPressed();
+		}
+
+		if(!isEventConsumed)
+		{
+			super.onBackPressed();
+		}
+	}
 }
