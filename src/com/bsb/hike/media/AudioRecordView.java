@@ -94,7 +94,7 @@ public class AudioRecordView
 		else
 		{
 			Toast.makeText(activity, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-			listener.audioRecordCancelled();
+			listener.audioRecordCancelled(HikeAudioRecordListener.AUDIO_CANCELLED_NOSPACE);
 		}
 	}
 
@@ -234,7 +234,7 @@ public class AudioRecordView
 				{
 					selectedFile.delete();
 				}
-				listener.audioRecordCancelled();
+				listener.audioRecordCancelled(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER);
 			}
 		});
 

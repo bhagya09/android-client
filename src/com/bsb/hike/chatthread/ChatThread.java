@@ -72,6 +72,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -200,6 +201,7 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.HikeAudioRecordListener;
 import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -2721,11 +2723,40 @@ import android.widget.Toast;
 	}
 
 	@Override
-	public void audioRecordCancelled()
+	public void audioRecordCancelled(int cause)
 	{
 		Logger.i(TAG, "Audio Recorded failed");
+		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
 	}
 
+	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private View mWalkieInfoTip;
+
+	private void showRecordingErrorTip(final int stringResId) {
+		if (mWalkieInfoTip == null) {
+			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+		}
+		if (tipVisibilityAnimator == null) {
+			View chatlayout = activity.findViewById(R.id.chatContentlayout);
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+		}
+		tipVisibilityAnimator.startInfoTipAnim();
+	}
+
+	private void inflateInfoTipView(ViewStub recordingTipView) {
+		if (recordingTipView != null) {
+			recordingTipView.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					mWalkieInfoTip = inflated;
+				}
+			});
+			recordingTipView.inflate();
+		}
+	}
 	/**
 	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 * 
@@ -4137,6 +4168,9 @@ import android.widget.Toast;
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 			case R.id.send_message_audio:
+				if(tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+					return true;
+				}
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -4720,6 +4754,10 @@ import android.widget.Toast;
 		}
 
 		walkieView = null;
+		if(tipVisibilityAnimator != null){
+			tipVisibilityAnimator.dismissInfoTipIfShowing();
+			tipVisibilityAnimator = null;
+		}
 
 	}
 	

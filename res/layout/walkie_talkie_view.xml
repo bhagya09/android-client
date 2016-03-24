@@ -88,4 +88,18 @@
         android:src="@drawable/circle_walkie_solid"
         android:visibility="invisible" />
 
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/overflow_tip_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/walkie_recorder"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/overflow_tip"
+        android:gravity="center_vertical"
+        android:text="@string/error_recording"
+        style="@style/CustomInfoTipDown"
+        android:visibility="gone"
+        />
+
 </RelativeLayout>
