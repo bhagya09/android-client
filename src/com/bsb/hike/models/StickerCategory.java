@@ -341,8 +341,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.isPreview = isPreview;
 	}
 
-	public boolean isDownloaded() {
-		return isDownloaded;
+	public boolean isDownloaded()
+	{
+		return isCustom()? true : isDownloaded; // return true if custom else based on is downloaded flag
 	}
 
 	public void setIsDownloaded(boolean isDownloaded) {
