@@ -200,6 +200,7 @@ import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.HikeAudioRecordListener;
 import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -2721,9 +2722,23 @@ import android.widget.Toast;
 	}
 
 	@Override
-	public void audioRecordCancelled()
+	public void audioRecordCancelled(int cause)
 	{
 		Logger.i(TAG, "Audio Recorded failed");
+		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
+			showRecordingErrorTip(R.string.error_recording);
+		}
+	}
+
+	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private void showRecordingErrorTip(final int stringResId)
+	{
+		if (tipVisibilityAnimator == null) {
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator();
+			View chatlayout = activity.findViewById(R.id.chatContentlayout);
+			tipVisibilityAnimator.showInfoTip(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+		}
+		tipVisibilityAnimator.startInfoTipAnim();
 	}
 
 	/**
@@ -4137,6 +4152,9 @@ import android.widget.Toast;
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 			case R.id.send_message_audio:
+				if(tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+					return true;
+				}
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -4720,6 +4738,10 @@ import android.widget.Toast;
 		}
 
 		walkieView = null;
+		if(tipVisibilityAnimator != null){
+			tipVisibilityAnimator.dismissInfoTipIfShowing();
+			tipVisibilityAnimator = null;
+		}
 
 	}
 	
