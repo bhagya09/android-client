@@ -17,6 +17,7 @@ import android.telephony.TelephonyManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -86,6 +87,11 @@ public class RegisterAccountTask
 				int all_invitee = response.optInt(HikeConstants.ALL_INVITEE_2);
 				int all_invitee_joined = response.optInt(HikeConstants.ALL_INVITEE_JOINED_2);
 				String country_code = response.optString("country_code");
+				String serverName = response.optString(HikeConstants.NAME, Utils.getOwnerName(context)); //Default name as google account name
+				String serverGender = response.optString(HikeConstants.GENDER);
+				JSONObject dob = response.optJSONObject(HikeConstants.DOB);
+				Birthday serverDOB = dob != null ? new Birthday(dob.optInt(HikeConstants.DAY), dob.optInt(HikeConstants.MONTH), dob.optInt(HikeConstants.YEAR)):
+						new Birthday(0,0,0);
 
 				if (response.has(HikeConstants.LOCALIZATION_ENABLED))
 				{
@@ -95,6 +101,7 @@ public class RegisterAccountTask
 				{
 					Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 				}
+
 
 				Logger.d("HTTP", "Successfully created account. response:" + response);
 
@@ -107,6 +114,9 @@ public class RegisterAccountTask
 						.setAllInvitee(all_invitee)
 						.setAllInviteJoined(all_invitee_joined)
 						.setCountryCode(country_code)
+						.setServerName(serverName)
+						.setServerGender(serverGender)
+						.setServerBirthday(serverDOB)
 						.build();
 
 			}
