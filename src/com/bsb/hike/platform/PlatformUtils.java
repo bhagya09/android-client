@@ -975,6 +975,14 @@ public class PlatformUtils
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
+
+        // Added check for solving bug for forward card scenario from platform sdk decoupling
+        JSONObject cardObj = convMessage.webMetadata.getCardobj();
+        JSONObject ldJson = cardObj.getJSONObject(HikePlatformConstants.LAYOUT_DATA);
+        ldJson.put(HikePlatformConstants.PLATFORM_SDK_PATH,"");
+        cardObj.put(HikePlatformConstants.LAYOUT_DATA,ldJson);
+        convMessage.webMetadata.setCardobj(cardObj);
+
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
