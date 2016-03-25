@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -196,6 +197,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		{
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
             PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
+            PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.MICROAPPS_MIGRATION_SUCCESS_TRIGGER);
 		}
 		else
 		{

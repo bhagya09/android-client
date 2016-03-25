@@ -2268,8 +2268,14 @@ public class PlatformUtils
 	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
 	{
         // Get list of all micro apps installed in content directory
-		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
-		for (int i = 0; i < mArray.length(); i++)
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
+        long contentFolderLength = 0,directorySize;
+
+        // Precautionary check to check if these files are indeed folders and preventing NPE
+        if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
+            contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+
+        for (int i = 0; i < mArray.length(); i++)
 		{
 			try
 			{
@@ -2280,14 +2286,15 @@ public class PlatformUtils
 
 				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
 				{
-                    long fileSize = Utils.folderSize(microAppFile);
+                    directorySize = Utils.folderSize(microAppFile);
                     JSONObject json = new JSONObject();
 					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
 					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
 					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
 					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
-					json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, directorySize); // Directory disk consumption
+                    json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 				}
 			}
