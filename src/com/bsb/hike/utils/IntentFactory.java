@@ -30,7 +30,6 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
-import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -44,6 +43,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
@@ -89,7 +89,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bsb.hike.db.AccountBackupRestore.*;
+import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -733,9 +733,8 @@ public class IntentFactory
 		}
 		else
 		{
-			Intent dpIntent = new Intent(context, ProfileActivity.class);
-			dpIntent.setAction(Intent.ACTION_ATTACH_DATA);
-			dpIntent.setData(interceptUri);
+			Intent dpIntent = new Intent(context, ProfilePicActivity.class);
+			dpIntent.putExtra(HikeMessengerApp.FILE_PATH, Utils.getAbsolutePathFromUri(interceptUri, context, false));
 			return dpIntent;
 		}
 
@@ -811,6 +810,9 @@ public class IntentFactory
 		return intent;
 	}
 
+	/*
+	TODO: Fix input params
+	 */
 	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery)
 	{
 		return getImageSelectionIntent(argContext,argSelectedImages,fromDeviceGallery,false);
@@ -821,10 +823,20 @@ public class IntentFactory
 	 */
 	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture)
 	{
+		return getImageSelectionIntent(argContext, argSelectedImages, fromDeviceGallery, fromCameraCapture,null);
+	}
+
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture, ParcelableSparseArray captions)
+	{
 		Intent multiIntent = new Intent(argContext,GallerySelectionViewer.class);
 		multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList(argSelectedImages));
 		multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, fromDeviceGallery);
 		multiIntent.putExtra(GallerySelectionViewer.FROM_CAMERA_CAPTURE, fromCameraCapture);
+		if(captions != null)
+		{
+			multiIntent.putExtra(HikeConstants.CAPTION,captions);
+		}
+
 		return multiIntent;
 	}
 
@@ -1137,6 +1149,7 @@ public class IntentFactory
 		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, false);
 		if (!TextUtils.isEmpty(analyticsExtra))
 		{
 			intent.putExtra(AnalyticsConstants.ANALYTICS_EXTRA, analyticsExtra);
@@ -1578,5 +1591,19 @@ public class IntentFactory
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
 		}
+	}
+
+	public static void startUpgradeIntent(Context context)
+	{
+		// turn off future push notifications as soon as the app has
+		// started.
+		// this has to be turned on whenever the upgrade finishes.
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
+		SharedPreferences.Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+		editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, true);
+		editor.commit();
+
+		Intent msgIntent = new Intent(context, UpgradeIntentService.class);
+		context.startService(msgIntent);
 	}
 }

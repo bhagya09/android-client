@@ -45,6 +45,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
+import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -124,7 +125,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	private HikeConversationsDatabase(Context context)
 	{
-		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new CustomDatabaseErrorHandler());
+		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new ConversationDatabaseErrorHandler());
 		mDb = getWritableDatabase();
 	}
 	
@@ -1779,7 +1780,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		if(count == TimelineActivity.FETCH_FEED_FROM_DB)
 		{
-			count = getUnreadActivityFeedCount();
+			count = getUnreadActivityFeedCount(true);
 			Logger.d(HikeConstants.TIMELINE_LOGS, "unread activity feeds from DB " + count);
 		}
 		Logger.d(HikeConstants.TIMELINE_LOGS, "firing ACTIVITY_FEED_COUNT_CHANGED " + count);
@@ -1789,7 +1790,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/**
 	 * @return count of unreadActivity Feed
 	 */
-	public int getUnreadActivityFeedCount()
+	public int getUnreadActivityFeedCount(boolean checkForStealth)
 	{
 		String where = DBConstants.READ + " = 0 ";
 		int count = 0;
@@ -1802,7 +1803,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			do
 			{
 				String msisdn = cursor.getString(columnIndex);
-				if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				if (checkForStealth && StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 				{
 					continue;
 				}
