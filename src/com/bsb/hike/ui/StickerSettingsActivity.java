@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -110,5 +111,21 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		super.onBackPressed();
 		
 	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+
+		if ((stickerSettingsFragment != null) && (stickerSettingsFragment.getStickerCategoriesList().size() == 0))
+		{
+			//Handling orientation change in case of all packs updated/deleted view
+			Bundle stickerSettingsTaskArg = new Bundle();
+			stickerSettingsTaskArg.putSerializable(StickerConstants.STICKER_SETTINGS_TASK_ARG, stickerSettingsTask);
+			stickerSettingsFragment = StickerSettingsFragment.newInstance();
+			stickerSettingsFragment.setArguments(stickerSettingsTaskArg);
+			getSupportFragmentManager().beginTransaction().replace(R.id.sticker_settings_parent, stickerSettingsFragment).commit();
+		}
+	}
+
 
 }

@@ -59,7 +59,7 @@ import com.bsb.hike.utils.Utils;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
-	private SQLiteDatabase mDb;
+	private static volatile SQLiteDatabase mDb;
 
 	private static volatile HikeUserDatabase hikeUserDatabase;
 	
@@ -89,7 +89,33 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 		return hikeUserDatabase;
 	}
-	
+
+	public void reinitializeDB()
+	{
+		Logger.d(getClass().getSimpleName(), "Reinitialising user DB");
+		close();
+		Logger.d(getClass().getSimpleName(), "User DB is closed now");
+
+		hikeUserDatabase = new HikeUserDatabase(HikeMessengerApp.getInstance().getApplicationContext());
+		/*
+		 * We can remove this line, if we can guarantee, NoOne keeps a local copy of HikeUserDatabase.
+		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener.
+		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
+		 */
+		mDb = hikeUserDatabase.getWriteDatabase();
+		mReadDb = hikeUserDatabase.getReadableDatabase();
+		Logger.d(getClass().getSimpleName(), "User DB initialization is complete");
+	}
+
+	public SQLiteDatabase getWriteDatabase()
+	{
+		if(mDb == null || !mDb.isOpen())
+		{
+			mDb = super.getWritableDatabase();
+		}
+		return mDb;
+	}
+
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
@@ -280,6 +306,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			db.execSQL(getHikeCallerTable());
 		}
 
+	}
+
+	public void clearTable(String tableName)
+	{
+		mDb.delete(tableName, null, null);
 	}
 
 	private String getHikeCallerTable()
