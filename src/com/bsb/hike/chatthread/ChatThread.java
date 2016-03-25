@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +35,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -199,10 +203,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 /**
  * @generated
@@ -410,7 +410,6 @@ import java.util.concurrent.FutureTask;
 			return fetchConversation();
 		}
 	};
-
 
 	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
 
@@ -1294,7 +1293,7 @@ import java.util.concurrent.FutureTask;
 			{
 				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
 			}
-			recordKeyboardChangeEvent(item,isSystemKeyboard());
+			recordKeyboardChangeEvent(item, isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
 				Utils.hideSoftKeyboard(activity, mComposeView);
@@ -1850,8 +1849,13 @@ import java.util.concurrent.FutureTask;
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+
+			removeChatThemeFromCache();
+
 			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+			{
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
 
@@ -1859,9 +1863,24 @@ import java.util.concurrent.FutureTask;
 			setStatusBarColor(theme.statusBarColor());
 		}
 	}
+
+	private void removeChatThemeFromCache()
+	{
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		{
+			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+		}
+	}
+
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
+	}
+
+	protected String getOrientationPrefix()
+	{
+		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -1875,13 +1894,40 @@ import java.util.concurrent.FutureTask;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
+
+			Drawable drawable = loadChatTheme(theme);
+
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
+	}
+
+	/**
+	 *
+	 * @param theme
+	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
+	 */
+	private Drawable loadChatTheme(ChatTheme theme)
+	{
+		// Now we are first fetching from Cache
+		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(theme.bgId() + getOrientationPrefix());
+		if (drawable == null)
+		{
+			Logger.d(TAG, "Did not found in cached Fetching from APK");
+			// Not found in cache load from apk
+			drawable = Utils.getChatTheme(theme, activity);
+
+			// insert into cached
+			HikeMessengerApp.getLruCache().saveChatTheme(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
+		}
+		else
+		{
+			Logger.d(TAG, "Bitmap Chat Theme found in cache");
+		}
+		return drawable;
 	}
 
 	@Override
@@ -6889,5 +6935,10 @@ import java.util.concurrent.FutureTask;
 			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
 			return null;
 		}
+	}
+
+	protected int getCurrentOrientation()
+	{
+		return activity.getResources().getConfiguration().orientation;
 	}
 }
