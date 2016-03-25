@@ -2914,12 +2914,6 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
-        if(data.has(HikeConstants.Extras.FLUSH_OLD_CONTENT))
-        {
-            boolean flushOldContent = data.getBoolean(HikeConstants.Extras.FLUSH_OLD_CONTENT);
-            PlatformUtils.deleteOldContentMicroAppCode(flushOldContent);
-        }
-
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
