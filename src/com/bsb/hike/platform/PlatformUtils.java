@@ -2272,8 +2272,9 @@ public class PlatformUtils
         long contentFolderLength = 0,directorySize;
 
         // Precautionary check to check if these files are indeed folders and preventing NPE
-        if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR).isDirectory())
-            contentFolderLength = Utils.folderSize(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR));
+        File platformContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+        if(platformContentDirectory.exists())
+            contentFolderLength = Utils.folderSize(platformContentDirectory);
 
         for (int i = 0; i < mArray.length(); i++)
 		{
