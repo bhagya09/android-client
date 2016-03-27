@@ -2563,6 +2563,7 @@ public class HikeConstants
 
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
+		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
 	}
 
 	public static final class Toast

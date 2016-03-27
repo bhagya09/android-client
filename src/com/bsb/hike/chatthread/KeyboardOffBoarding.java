@@ -11,7 +11,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +89,21 @@ public class KeyboardOffBoarding
 			public void onClick(View v) {
 				destroy();
 				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
+			}
+		});
+
+		rootView.findViewById(R.id.btn_google_keyboard).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				final String appPackageName = "com.google.android.apps.inputmethod.hindi&hl=en";
+				try {
+					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+				} catch (android.content.ActivityNotFoundException anfe) {
+					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+				}
+				destroy();
+				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON);
 			}
 		});
 	}

@@ -59,17 +59,37 @@
         android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"
         android:background="#14000000" />
-    
-    <com.bsb.hike.view.CustomFontButton
-        android:id="@+id/btn_phone_keyboard"
-        style="@style/ButtonCustomDialog"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="open_phone_keyboard"
-        android:gravity="center"
-        android:paddingBottom="20dp"
-        android:paddingTop="20dp"
-        android:text="@string/open_phone_keyboard" />
+        android:orientation="horizontal">
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_phone_keyboard"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="open_phone_keyboard"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            android:text="@string/open_phone_keyboard" />
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_google_keyboard"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="open_phone_keyboard"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            android:text="@string/open_google_keyboard" />
+
+    </LinearLayout>
 
 </LinearLayout>
 </RelativeLayout>
