@@ -3353,6 +3353,8 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
+	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";

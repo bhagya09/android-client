@@ -11,6 +11,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -184,4 +185,11 @@ public class KeyboardOffBoarding
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
 	}
+
+	public static boolean showKeyboardExitUI(Context context) {
+//		server-side switch
+		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
+		return show;
+	}
+
 }
