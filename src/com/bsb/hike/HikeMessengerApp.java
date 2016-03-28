@@ -26,6 +26,7 @@ import com.bsb.hike.db.DbConversationListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
@@ -38,6 +39,7 @@ import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductInfoManager;
@@ -47,9 +49,11 @@ import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
@@ -73,7 +77,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,7 +93,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 {
 	public static enum CurrentState
 	{
-		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG
+		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
@@ -233,6 +239,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	// public static final String TWITTER_TOKEN_SECRET = "twitterTokenSecret";
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
+
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+
+    public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
 	public static final String MSISDN_ENTERED = "msisdnEntered";
 
@@ -543,7 +553,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-	public static final String LAST_STICKER_BUTTON_CLICK_ANALYTICS_TIME = "lastStickerButtonClickAnalyticsTime";
+    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+
+    public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
 	public static final String LAST_STICKER_PACK_AND_ORDERING_SENT_TIME = "lastPackAndOrderingSentTime";
 
@@ -569,7 +583,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
+	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
 
+	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
+	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -634,8 +652,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void connectToService()
 	{
-		if (!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
+			Logger.d("HikeMessengerApp", "Not Connecting to service yet");
 			return;
 		}
 
@@ -736,8 +755,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void onCreate()
 	{
+		super.onCreate();
+		_instance = this;
+
 		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
+		Utils.enableNetworkListner(this);
 		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
@@ -752,10 +775,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
 
 
-		super.onCreate();
-
-
-		_instance = this;
 
 		// We need to set all AppConfig params on the start when _instance have been initialized
 		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
@@ -921,6 +940,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
+		validateHikeRootDir();
 		makeNoMediaFiles();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -934,14 +954,17 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HikeNotification.getInstance().cancelNotification(OfflineConstants.NOTIFICATION_IDENTIFIER);
 
 		HikeSharedPreferenceUtil.getInstance().removeData(OfflineConstants.DIRECT_REQUEST_DATA);
-	
-		StickerManager.getInstance().sendStickerPackAndOrderListForAnalytics();
+
+        setAnalyticsSendAlarm();
+
 		StickerManager.getInstance().refreshTagData();
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
+		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
 	private void initCrashReportingTool()
@@ -970,7 +993,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		HttpManager.init();
 
 		sm = StickerManager.getInstance();
-		sm.init(getApplicationContext());
 
 		HikeMqttPersistence.init(this);
 		SmileyParser.init(this);
@@ -1002,7 +1024,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ChatHeadUtils.startOrStopService(false);
 
 		StickerSearchManager.getInstance().initStickerSearchProviderSetupWizard();
-		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 		
 		// Moving the shared pref stored in account prefs to the default prefs.
 		// This is done because previously we were saving shared pref for caller in accountutils but now using default settings prefs
@@ -1062,16 +1083,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void startUpdgradeIntent()
 	{
-		// turn off future push notifications as soon as the app has
-		// started.
-		// this has to be turned on whenever the upgrade finishes.
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
-		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-		editor.putBoolean(BLOCK_NOTIFICATIONS, true);
-		editor.commit();
-
-		Intent msgIntent = new Intent(this, UpgradeIntentService.class);
-		startService(msgIntent);
+		IntentFactory.startUpgradeIntent(this);
 	}
 
 	private void replaceGBKeys()
@@ -1107,32 +1119,57 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ContactManager.getInstance();
 	}
 
+	/**
+	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
+	 */
+	private void validateHikeRootDir()
+	{
+		File rootDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT);
+		/*
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
+		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
+		 * Caused mainly by app like clean master, native memory optimization etc.
+		 */
+		if(rootDir != null && rootDir.exists())
+		{
+			if(!rootDir.isDirectory() && rootDir.isFile())
+			{
+				int count = 0;
+				File mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + count);
+				while (mFile.exists()) {
+					mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + ++count);
+				}
+				rootDir.renameTo(mFile);
+			}
+		}
+	}
+
 	private void makeNoMediaFiles()
 	{
-		String root = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
+		String mediaRoot = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
 
-		File folder = new File(root + HikeConstants.PROFILE_ROOT);
+		File folder = new File(mediaRoot + HikeConstants.PROFILE_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
 		/*
 		 * Fixed issue where sent media directory is getting visible in Gallery.
 		 */
 		Utils.makeNoMediaFile(folder, true);
 
-		folder = new File(root + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
@@ -1309,4 +1346,23 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
+
+    private void setAnalyticsSendAlarm()
+    {
+        if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, false))
+        {
+            return;
+        }
+
+        long scheduleTime = Utils.getTimeInMillis(Calendar.getInstance(Locale.ENGLISH),HikeMessengerApp.DEFAULT_SEND_ANALYTICS_TIME_HOUR, 0, 0, 0);
+
+        if (scheduleTime < System.currentTimeMillis())
+        {
+            scheduleTime += HikeConstants.ONE_DAY_MILLS; // Next day at given time
+        }
+
+        HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
+
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
 }

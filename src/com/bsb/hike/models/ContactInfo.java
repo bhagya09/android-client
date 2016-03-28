@@ -1,19 +1,21 @@
 package com.bsb.hike.models;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 {
@@ -25,7 +27,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
+		return "ContactInfo [id = " + id + " , name=" + name + ", msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
 	}
 
 	private String name;
@@ -470,6 +472,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
 	}
 
+	public ContactInfo()
+	{
+		// Does nothing
+	}
+
 	public ContactInfo(ContactInfo contactInfo)
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
@@ -564,7 +571,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		JSONObject json = new JSONObject();
 		json.put("name", getNameOrMsisdn());
 		json.put(HikePlatformConstants.PLATFORM_USER_ID,this.platformId);
-		return json;
+        json.put(HikePlatformConstants.MSISDN, getMsisdn());
+        return json;
 	}
 
 	public static LastSeenComparator lastSeenTimeComparator = new LastSeenComparator(true);
@@ -613,5 +621,15 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		GetHikeJoinTimeTask getHikeJoinTimeTask = new GetHikeJoinTimeTask(msisdn);
 		getHikeJoinTimeTask.execute();
+	}
+
+	public boolean isBot()
+	{
+		return BotUtils.isBot(msisdn);
+	}
+
+	public boolean isBlocked()
+	{
+		return ContactManager.getInstance().isBlocked(msisdn);
 	}
 }

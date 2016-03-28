@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -30,6 +31,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -40,6 +42,7 @@ import com.chukong.cocosplay.client.CocosPlayClient;
  * @author sk
  * 
  */
+@DoNotObfuscate
 public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
@@ -79,6 +82,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private final String GAME_ANALYTICS_ENGINE_FAILED = "engine_load_failed";
 	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
 	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
+	SharedPreferences settings;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -96,11 +100,17 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onCreateDuplicate(savedInstanceState);
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
-		SharedPreferences settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
-		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
+		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+		setIsGameRunning(true);
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		if(TextUtils.isEmpty(msisdn))
+		{
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -302,9 +312,21 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 					}
 				});
-
+				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}
@@ -316,6 +338,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
+		//nativeBridge.sendAppState(true);
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
 	@Override
@@ -325,11 +349,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
@@ -404,6 +432,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void setIsGameRunning(Boolean isGameRunning)
+	{
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,isGameRunning).commit();
 	}
 
 }

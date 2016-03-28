@@ -92,6 +92,10 @@ public interface HikePlatformConstants
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
+	public static final String GAME_ACTIVE ="gameActive" ;
+	String HIKE_AFFINITY="hike_affinity";
+	String CLUB_BY_MSISDN="clubbymsisdn";
+	public static final String CUSTOM_TABS="customTabs";
 
     public static final class PlatformFetchType
 	{
@@ -232,7 +236,7 @@ public interface HikePlatformConstants
 	
 	public static final int VERSION_ALTO = 1;
 
-	public static final int CURRENT_VERSION = 9;
+	public static final int CURRENT_VERSION = 10;
 
 	public static final String AB_COLOR = "color";
 	
@@ -280,8 +284,21 @@ public interface HikePlatformConstants
 
 	public static final String IS_SHORTCUT = "is_shortcut";
 
+	public static final String TYPE = "type";
+
+	public static class UrlInterceptTypes
+	{
+		public static final int INTERCEPT_AND_CLOSE_WEBVIEW = 1;
+	}
+
 	public static final String EXTRA_DATA = "extra_data";
-	
+
+	public static final String RECURRING_LOCATION = "rec_loc";
+
+	public static final String RECURRING_LOCATION_END_TIME = "loc_end_time";
+
+	public static final String TIME_INTERVAL = "interval";
+
 	public static final String TEAM_HIKE_MSISDN = "+hike+";
 	
 	public static final String EMMA_BOT_MSISDN = "+hike1+";
@@ -295,7 +312,10 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
-
 	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
+    int CHROME_TABS_PENDING_INTENT_SHARE = -299;
+	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
+	String BIG_PICTURE = "big_picture";
 
+	String BITMAP_URL = "bitmap_url";
 }

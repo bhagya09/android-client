@@ -240,6 +240,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
+		
 		switch (type)
 		{
 		case HikePubSub.ONETON_MESSAGE_DELIVERED_READ:
@@ -264,6 +265,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		case HikePubSub.ONETONCONV_NAME_CHANGED:
 			onConversationNameChanged((String) object);
 			break;
+		
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in Group ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -290,6 +292,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			break;
 		case CONVERSATION_NAME_CHANGED:
 			setLabel(oneToNConversation.getConversationName());
+			setAvatar();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in Group ChatThread. Calling super class' handleUIMessage");
@@ -343,7 +346,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		}
 
 		setLabel(mConversation.getLabel());
-
 		showActiveConversationMemberCount();
 	}
 

@@ -32,8 +32,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatus
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -45,6 +47,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -74,6 +77,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private TextView postText;
 
 	private Bitmap groupBitmap;
+
+	private int defAvBgColor;
+
+	private TextView groupNote;
 	
 	/**
 	 * @author anubansal
@@ -133,6 +140,10 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 			setConversationId(conversationId);
 		}
 
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(getConvId()) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
+
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))
 		{
@@ -143,11 +154,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		{
 			if (convType == ConvType.BROADCAST)
 			{
-				findViewById(R.id.broadcast_bg).setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				((ImageView) findViewById(R.id.broadcast_profile_image)).setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 			else if (convType == ConvType.GROUP)
 			{
-				convImage.setBackgroundResource(BitmapUtils.getDefaultAvatarResourceId(convId, true));
+				convImage.setImageDrawable(HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor));
 			}
 		}
 		
@@ -194,7 +205,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		if (convType == ConvType.BROADCAST)
 		{
 			setContentView(R.layout.create_new_broadcast);
-
 			convImage = (ImageView) findViewById(R.id.broadcast_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.broadcast_name);
 			myMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
@@ -216,9 +226,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
 					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, true);
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 		}
@@ -229,6 +256,9 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.group_name);
+			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			groupNote = (TextView) findViewById(R.id.group_info);		
+			groupNote.setText(Html.fromHtml(getString(R.string.group_participant_info)));
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
 			if((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIGURABLE_GROUP_SETTING,0))==1){
@@ -250,9 +280,26 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				}
 
 				@Override
-				public void afterTextChanged(Editable editable)
+				public void afterTextChanged(Editable s)
 				{
-					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(editable.toString().trim()));
+					Utils.toggleActionBarElementsEnable(doneBtn, arrow, postText, !TextUtils.isEmpty(s.toString().trim()));
+
+					if (s == null || groupBitmap != null)
+					{
+						return;
+					}
+
+					String newText = s.toString();
+
+					if (newText == null || TextUtils.isEmpty(newText.trim()))
+					{
+						Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+						convImage.setImageDrawable(drawable);
+						return;
+					}
+
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
+					convImage.setImageDrawable(drawable);
 				}
 			});
 			

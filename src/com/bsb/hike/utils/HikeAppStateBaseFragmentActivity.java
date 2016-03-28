@@ -32,6 +32,7 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.HikeBaseActivity;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
 import java.util.Locale;
@@ -48,6 +49,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected HikeUiHandler uiHandler = new HikeUiHandler (this);
 	
 	private boolean isActivityVisible = false;
+
 	/**
 	 * 
 	 * @param msg
@@ -78,6 +80,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		HikeAppStateUtils.onCreate(this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.DB_CORRUPT, this);
 		super.onCreate(savedInstanceState);
 	}
 
@@ -153,21 +156,8 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityFromFragment(Fragment fragment, Intent intent, int requestCode)
 	{
-		/**
-		 * Begin Changeset for AND-4071.
-		 * Logic is : When we were starting intent for a separate PROCESS, i.e. : CocosProcess, we want hike's process to send BG Packet and not treat it as a new activity.
-		 * Technically, it's a new activity but not attached to hike's process. A flag was added in the intent for the CocosProcess to deal with it.
-		 */
-		if (intent != null && intent.getBooleanExtra(HikeConstants.FORCE_BG, false) &&
-				(HikeMessengerApp.currentState == CurrentState.RESUMED || HikeMessengerApp.currentState == CurrentState.OPENED))
-		{
-			// Don't change the current state
-		}
-		else
-		{
-			HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
-		}
 
+		HikeMessengerApp.currentState = CurrentState.NEW_ACTIVITY;
 		try
 		{
 			super.startActivityFromFragment(fragment, intent, requestCode);
@@ -182,7 +172,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode)
 	{
-		HikeAppStateUtils.startActivityForResult(intent, this);
+		HikeAppStateUtils.startActivityForResult(this);
 		try
 		{
 			super.startActivityForResult(intent, requestCode);
@@ -232,8 +222,23 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 				}
 			});
 		}
+
+		else if (HikePubSub.DB_CORRUPT.equals(type))
+		{
+			if (amIHomeActivity())
+			{
+				return;
+			}
+
+			else
+			{
+				Intent intent = IntentFactory.getHomeActivityIntent(HikeAppStateBaseFragmentActivity.this);
+				startActivity(intent);
+				this.finish();
+			}
+		}
 	}
-	
+
 	protected void openImageViewer(Object object)
 	{
 		return;
@@ -328,6 +333,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onDestroy()
 	{
 		onHandlerDestroy();
+		HikeMessengerApp.getInstance().getPubSub().removeListener(HikePubSub.DB_CORRUPT, this);
 		super.onDestroy();
 	}
 
@@ -368,6 +374,11 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected boolean isActivityVisible()
 	{
 		return isActivityVisible;
+	}
+
+	private boolean amIHomeActivity()
+	{
+		return (HikeAppStateBaseFragmentActivity.this instanceof HomeActivity);
 	}
 
 }
