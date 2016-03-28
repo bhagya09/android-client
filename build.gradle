@@ -53,10 +53,16 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
+            java {
+            exclude 'androidTest/com/bsb/hike'
+            }
         }
 
         black {
             res.srcDirs = ['res-black']
+            java {
+            exclude 'androidTest/com/bsb/hike'
+            }
         }
 
         // http://www.littlerobots.nl/blog/stetho-for-android-debug-builds-only/
@@ -67,6 +73,9 @@ android {
 
         arm {
             java.srcDirs = ['arm']
+	    java {
+            exclude 'androidTest/com/bsb/hike'
+            }
         }
 
     }
