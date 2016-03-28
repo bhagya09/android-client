@@ -94,6 +94,8 @@ public class TouchImageView extends RecyclingImageView
 	    private OnTouchListener userTouchListener = null;
 	    private OnTouchImageViewListener touchImageViewListener = null;
 
+		private final String TAG = TouchImageView.class.getSimpleName();
+
 	    public TouchImageView(Context context) {
 	        super(context);
 	        sharedConstructing(context);
@@ -194,6 +196,7 @@ public class TouchImageView extends RecyclingImageView
 
 	        } else {
 	            mScaleType = type;
+				Logger.d(TAG, "setScaleType " + mScaleType);
 	            if (onDrawReady) {
 	                //
 	                // If the image is already rendered, scaleType has been called programmatically
