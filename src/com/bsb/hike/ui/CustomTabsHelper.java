@@ -15,6 +15,8 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +76,15 @@ public class CustomTabsHelper
 		}
 
 		// Get all apps that can handle VIEW intents.
-		List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+		List<ResolveInfo> resolvedActivityList;
+		//AND-4994
+		//In marshmellow, news full story opens in webview instead of chrome custom tabs when default browser set as firefox.
+		if(Utils.isMarshmallowOrHigher()){
+			resolvedActivityList = pm.queryIntentActivities(activityIntent, HikeConstants.PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL);
+		}else{
+			resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+		}
+
 		List<String> packagesSupportingCustomTabs = new ArrayList<>();
 		for (ResolveInfo info : resolvedActivityList)
 		{

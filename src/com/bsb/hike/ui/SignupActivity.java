@@ -2311,12 +2311,22 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		public void afterTextChanged(Editable s)
 		{
-			String msisdn = accountPrefs.getString(HikeMessengerApp.MSISDN_SETTING, null);
-			if (s == null || mActivityState.profileBitmap != null || getCachedProfilePic() != null)
+			if (s == null || mActivityState.profileBitmap != null)
 			{
 				return;
 			}
-			setDefaultProfileImage(msisdn);
+
+			String newText = s.toString();
+
+			if (newText == null || TextUtils.isEmpty(newText.trim()))
+			{
+				Drawable drawable = HikeBitmapFactory.getRandomHashTextDrawable(defAvBgColor);
+				mIconView.setImageDrawable(drawable);
+				return;
+			}
+
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor, true);
+			mIconView.setImageDrawable(drawable);
 		}
 	};
 

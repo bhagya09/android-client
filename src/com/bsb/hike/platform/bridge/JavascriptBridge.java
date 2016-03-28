@@ -40,6 +40,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -634,38 +635,45 @@ public abstract class JavascriptBridge
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{	
-		if(resultCode == Activity.RESULT_OK)
+	{
+		if (resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();	
-			
-			if(TextUtils.isEmpty(filepath))
-				{
-				Logger.e("FileUpload","Invalid file Path");
+			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
+
+			if (TextUtils.isEmpty(filepath))
+			{
+				//Could be from crop activity
+				filepath = 	data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+			}
+
+			if (TextUtils.isEmpty(filepath))
+			{
+				Logger.e("FileUpload", "Invalid file Path");
 				return;
-				}
+			}
 			else
 			{
-			Logger.d("FileUpload", "Path of selected file :" + filepath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
-			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
-			JSONObject json = new JSONObject();
-			try
-			{
-				json.put("filePath", filepath);
-				json.put("mimeType", mimeType);
-				json.put("filesize",  (new File(filepath)).length());
-				String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
-				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
-				callbackToJS(id, json.toString());
+				filepath = filepath.toLowerCase();
+				Logger.d("FileUpload", "Path of selected file :" + filepath);
+				String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+				Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
+				JSONObject json = new JSONObject();
+				try
+				{
+					json.put("filePath", filepath);
+					json.put("mimeType", mimeType);
+					json.put("filesize", (new File(filepath)).length());
+					String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
+					Logger.d("FileUpload", " Choose File >>calling callbacktoJS " + id);
+					callbackToJS(id, json.toString());
+				}
+				catch (JSONException e)
+				{
+					Logger.e("FileUpload", "Unable to send in Json");
+				}
+
 			}
-			catch (JSONException e)
-			{
-				Logger.e("FileUpload", "Unable to send in Json");
-			}
-			
-		}
 		}
 	}
 

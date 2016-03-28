@@ -244,6 +244,11 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 				Intent resultIntent = new Intent();
 				resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
 				resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null)
+				{
+					resultIntent.putExtras(extras);
+				}
 				setResult(RESULT_OK, resultIntent);
 				finish();
 			}
@@ -277,5 +282,21 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putString(INTERIM_IMG_PATH , mInterimImagePath);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onBackPressed() {
+		boolean isEventConsumed = false;
+
+		if(mCropFragment != null && mCropFragment.isVisible())
+		{
+			//This means it: (1) has been added, (2) has its view attached to the window, and (3) is not hidden
+			isEventConsumed = mCropFragment.onBackPressed();
+		}
+
+		if(!isEventConsumed)
+		{
+			super.onBackPressed();
+		}
 	}
 }

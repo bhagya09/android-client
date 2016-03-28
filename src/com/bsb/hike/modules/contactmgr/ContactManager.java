@@ -1500,7 +1500,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		List<ContactInfo> newContacts = null;
 		byte result = SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 		{
 			newContacts = getContacts(ctx);
 		}
@@ -1513,7 +1513,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}
@@ -1531,6 +1531,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public byte syncUpdatesOld(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
 	{
+		Logger.d("ContactUtils", "Old way to sync conctacts.");
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(deviceContacts);
 		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeContacts);
 
@@ -2107,6 +2108,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public List<ContactInfo> getContactsOld(Context ctx)
 	{
+		Logger.d("ContactUtils", "Old way to read conctacts from device");
 		HashSet<String> contactsToStore = new HashSet<String>();
 		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
 
