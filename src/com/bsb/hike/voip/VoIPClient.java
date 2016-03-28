@@ -619,12 +619,6 @@ public class VoIPClient  {
 					
 					sendPacketsWaitingForAck();
 					
-					// Drop packets if getting left behind
-					while (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
-						Logger.d(tag, "Dropping to_encode packet.");
-						samplesToEncodeQueue.poll();
-					}
-					
 					while (samplesToDecodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
 						Logger.d(tag, "Dropping to_decode packet.");
 						samplesToDecodeQueue.poll();
@@ -2305,6 +2299,12 @@ public class VoIPClient  {
 		// If the call isn't active yet, discard recorded audio
 		if (!isCallActive())
 			return;
+
+		// Drop packets if getting left behind
+		if (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
+			Logger.d(tag, "Dropping to_encode packet.");
+			return;
+		}
 
 		samplesToEncodeQueue.add(dp);
 	}
