@@ -406,10 +406,18 @@ public class TouchImageView extends RecyclingImageView
 	    }
 
 
-	    public void setZoom(TouchImageView img) {
-	        PointF center = img.getScrollPosition();
-	        setZoom(img.getCurrentZoom(), center.x, center.y, img.getScaleType());
-	    }
+	public void setZoom(TouchImageView img)
+	{
+		PointF center = img.getScrollPosition();
+		if (center == null)
+		{
+			resetZoom();
+		}
+		else
+		{
+			setZoom(img.getCurrentZoom(), center.x, center.y, img.getScaleType());
+		}
+	}
 
 	    /**
 	     * Return the point at the center of the zoomed image. The PointF coordinates range
