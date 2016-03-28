@@ -4047,4 +4047,11 @@ public class HikeConstants
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String JOURNAL_MODE = "journal_mode";
+
+	public static final String SQLITE_VERSION = "sqlite_ver";
+
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
+
+	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 }

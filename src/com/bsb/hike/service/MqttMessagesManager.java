@@ -50,6 +50,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
@@ -2905,6 +2906,11 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
+		{
+			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2998,6 +3004,17 @@ public class MqttMessagesManager
 		{
 			byte contactSyncResult = ContactManager.getInstance().syncUpdates(context);
 			Logger.d(getClass().getSimpleName(), "contacts sync result : " + contactSyncResult);
+		}
+
+		if (data.optBoolean(HikeConstants.LOG_SQLITE_PROPERTIES))
+		{
+			String journalMode = HikeConversationsDatabase.getInstance().getJournalMode();
+			JSONObject json = new JSONObject();
+			json.put(HikeConstants.JOURNAL_MODE, journalMode);
+			GetSqliteVersionCommand getSqliteVersionCommand = new GetSqliteVersionCommand();
+			String sqliteVersion = (String) getSqliteVersionCommand.execute();
+			json.put(HikeConstants.SQLITE_VERSION, sqliteVersion);
+			HAManager.getInstance().logDevEvent(AnalyticsConstants.DATABASE_AREA, AnalyticsConstants.SQLITE_PROPERTY, json);
 		}
 	}
 
@@ -3888,7 +3905,7 @@ public class MqttMessagesManager
 				try
 				{
 					ContactManager.getInstance().getWritableDatabase().beginTransaction();
-					convDb.getWriteDatabase().beginTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -3900,7 +3917,7 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convDb.getWriteDatabase().setTransactionSuccessful();
+					convDb.initializeIfRequiredAndGetWriteDatabase().setTransactionSuccessful();
 					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
@@ -3914,7 +3931,7 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convDb.getWriteDatabase().endTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().endTransaction();
 					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");
