@@ -577,11 +577,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
-	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
-
 	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
 
 	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
+	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
 	// =========================================================================================Constants for sticker search]]
 

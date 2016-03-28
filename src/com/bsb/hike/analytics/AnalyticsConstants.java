@@ -487,7 +487,22 @@ public class AnalyticsConstants
 
 		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
 
-		public static String SERVER_RESPONSE_HTTP = "atapk_cnf";
+		public static final String SIZE_VALIDITY = "atapk_sz_vld";
+
+		public static final String UPDATE_VALIDITY = "atapk_up_vld";
+
+		public static final String NETWORK_VALIDITY = "atapk_nw_vld";
+
+		public static final String SERVER_RESPONSE_HTTP = "atapk_cnf";
+
+		public static final String RESUMING_DOWNLOAD = "atapk_resm";
+
+		public static final String INITIATING_DOWNLOAD = "atapk_init";
+
+		public static final String DOWNLOAD_COMPLETION = "atapk_cplt";
+
+		public static final String FILE_VALIDITY = "atapk_fl_vld";
+
 	}
 	
 	public static final class StickyCallerEvents
@@ -547,6 +562,8 @@ public class AnalyticsConstants
 		public static final String DEACTIVATE_BUTTON = "dActiv";
 		
 		public static final String CLOSE_BUTTON = "close";
+
+		public static final String CLOSE_SWIPE = "cls_swp";
 
 		public static final String CARD = "crd";
 

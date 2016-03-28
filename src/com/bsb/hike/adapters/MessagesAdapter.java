@@ -355,8 +355,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private HashMap<Long, CharSequence> messageTextMap;
 
-	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
-
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
 		mIconImageSize = context.getResources().getDimensionPixelSize(R.dimen.icon_picture_size);
@@ -1533,10 +1531,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
+					CharSequence caption = SmileyParser.getInstance().addSmileySpans(convMessage.getMetadata().getCaption(),false);
 					imageHolder.caption.setVisibility(View.VISIBLE);
-					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					imageHolder.caption.setText(caption);
 					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
-					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
 				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)

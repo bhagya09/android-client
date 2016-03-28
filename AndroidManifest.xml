@@ -306,7 +306,7 @@
         </activity>
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
-            android:configChanges="keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"

@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,7 @@ import android.content.Context;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * @author rajesh
@@ -176,10 +178,10 @@ public class AnalyticsStore
 				StringBuilder high = new StringBuilder();
 
 				try {
-					JSONObject event = eventJson.getJSONObject(HikeConstants.DATA);
+					JSONObject eventData = eventJson.getJSONObject(HikeConstants.DATA);
 
-					if (event.has(AnalyticsConstants.EVENT_PRIORITY)) {
-						EventPriority priority = (EventPriority) event.get(AnalyticsConstants.EVENT_PRIORITY);
+					if (eventData.has(AnalyticsConstants.EVENT_PRIORITY)) {
+						EventPriority priority = (EventPriority) eventData.get(AnalyticsConstants.EVENT_PRIORITY);
 
 						if (priority == EventPriority.NORMAL) {
 							normal.append(eventJson);
@@ -228,7 +230,11 @@ public class AnalyticsStore
 							" file");
 				} catch (JSONException e) {
 					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "json error");
-				} finally {
+				} catch (ConcurrentModificationException e) {
+						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Concurrent modification exception " +
+								"while writing the event: " + e.getMessage());
+				}
+				finally {
 					if (normalFileWriter != null) {
 						closeCurrentFile(normalFileWriter);
 					}

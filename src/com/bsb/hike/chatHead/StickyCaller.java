@@ -24,6 +24,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -268,6 +269,17 @@ public class StickyCaller {
 		}
 	};
 
+	private static String getNumberFromCard()
+	{
+		if (stickyCallerView != null)
+		{
+			CharSequence text = ((TextView) stickyCallerView.findViewById(R.id.caller_number)).getText();
+			if (!TextUtils.isEmpty(text))
+				return text.toString();
+		}
+		return null;
+	}
+
 	private static void actionOnMotionUpEvent(final int movedOnXaxis) {
 		TimeInterpolator accelerateDecelerateInterpolator;
 		float alpha = 0.0f;
@@ -299,6 +311,8 @@ public class StickyCaller {
 				if (movedOnXaxis != 0) {
 					Logger.d(TAG, "making caller gone");
 					stickyCallerFrameHolder.setVisibility(View.GONE);
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_SWIPE, getNumberFromCard(),
+							AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				}
 			}
 
