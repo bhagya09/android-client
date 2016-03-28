@@ -683,6 +683,15 @@ public class ChatHeadUtils
 	}
 
 
+	private static boolean isNameValid(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel!= null && !TextUtils.isEmpty(callerContentModel.getMsisdn()) && !TextUtils.isEmpty(callerContentModel.getFullName()))
+		{
+			return !(callerContentModel.getMsisdn().replaceAll("\\s+","").equalsIgnoreCase(callerContentModel.getFullName().replaceAll("\\s+","")));
+		}
+		return false;
+	}
+
 	private static void callerServerCall(String number, boolean isUpdate, CallerContentModel callerContentModel)
 	{
 		JSONObject json = new JSONObject();
@@ -698,7 +707,7 @@ public class ChatHeadUtils
 					return;
 				}
 
-				if ((System.currentTimeMillis() - callerContentModel.getCreationTime() < ONE_MONTH)
+				if (((System.currentTimeMillis() - callerContentModel.getCreationTime() < ONE_MONTH) && isNameValid(callerContentModel))
 						|| (ChatHeadUtils.getNameFromNumber(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn()) != null))
 				{
 					try

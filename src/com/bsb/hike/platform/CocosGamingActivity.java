@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -100,7 +101,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
-		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
+		setIsGameRunning(true);
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
@@ -311,9 +312,21 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 					}
 				});
-
+				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}
@@ -325,7 +338,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
-		nativeBridge.sendAppState(true);
+		//nativeBridge.sendAppState(true);
 		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
@@ -336,15 +349,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
@@ -419,6 +432,11 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public void setIsGameRunning(Boolean isGameRunning)
+	{
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,isGameRunning).commit();
 	}
 
 }
