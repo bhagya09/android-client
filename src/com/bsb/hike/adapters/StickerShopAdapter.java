@@ -157,7 +157,8 @@ public class StickerShopAdapter extends CursorAdapter
 				else
 				{
 					viewholder.downloadState.setImageLevel(FULLY_DOWNLOADED);
-					viewholder.categoryPrice.setVisibility(View.GONE);
+					viewholder.categoryPrice.setText(context.getResources().getString(R.string.downloaded).toUpperCase());
+					viewholder.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
 				}
 				break;
 			case StickerCategory.UPDATE:
