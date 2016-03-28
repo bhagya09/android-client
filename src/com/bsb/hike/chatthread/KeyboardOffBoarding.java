@@ -121,6 +121,10 @@ public class KeyboardOffBoarding
 
 	public boolean shouldShowKeyboardOffBoardingUI()
 	{
+		if (!(showKptExitUI() && kptExitServerSwitch(mActivity))) {
+			return false;
+		}
+
 		/*
 		 *Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
          */
@@ -186,10 +190,16 @@ public class KeyboardOffBoarding
 		}
 	}
 
-	public static boolean showKeyboardExitUI(Context context) {
+	public static boolean kptExitServerSwitch(Context context) {
 //		server-side switch
 		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
 		return show;
+	}
+
+	public static boolean showKptExitUI() {
+		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 1) > 0);
+		boolean kptKeyboardSet = !(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.SYSTEM_KEYBOARD_SELECTED, true));
+		return keyboardFtueShown || kptKeyboardSet;
 	}
 
 }
