@@ -39,7 +39,7 @@ public class RequestProcessor
 	 * @param options
 	 *            {@link ClientOptions} options to be used for executing this request
 	 */
-	public void addRequest(final Request<?> request, ClientOptions options)
+	public synchronized void addRequest(final Request<?> request, ClientOptions options)
 	{
 		if(request.isWrongRequest())
 		{
@@ -142,6 +142,7 @@ public class RequestProcessor
 	{
 		if (request.getId() != null)
 		{
+            LogFull.i(request.toString() + " removing key in map");
 			requestMap.remove(request.getId());
 		}
 	}
