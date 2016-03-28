@@ -2133,12 +2133,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				convInfo.setSortingTimeStamp(ts);
 			}
 
-			Collections.sort(displayedConversations, mConversationsComparator);
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
+					Collections.sort(displayedConversations, mConversationsComparator); //AND-5145
 					notifyDataSetChanged();
 				}
 			});
