@@ -106,11 +106,11 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		if (token.isRequestRunning()) // return if request is running
 		{
-            Logger.e(TAG, categoryId+":"+stickerId+" : ignored");
+            Logger.i(TAG, categoryId+":"+stickerId+" : ignored");
 			return;
 		}
 
-        Logger.e(TAG, categoryId+":"+stickerId+" : started");
+        Logger.i(TAG, categoryId+":"+stickerId+" : started");
 		token.execute();
 	}
 
