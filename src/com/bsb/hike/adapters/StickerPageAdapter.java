@@ -161,7 +161,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 				convertView = new RecyclingImageView(mContext);
 				int padding = (int) (5 * Utils.scaledDensityMultiplier);
 				convertView.setLayoutParams(ll);
-				((ImageView) convertView).setScaleType(ScaleType.FIT_CENTER);
+				((ImageView) convertView).setScaleType(ScaleType.CENTER_INSIDE);
 				((ImageView) convertView).setPadding(padding, padding, padding, padding);
 				
 				break;

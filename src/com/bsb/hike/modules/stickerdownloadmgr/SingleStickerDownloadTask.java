@@ -385,10 +385,17 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	}
 
-    private void finish()
-    {
-        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.LARGE));
-        HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId,stickerId), StickerConstants.StickerType.SMALL));
-    }
+	private void finish()
+	{
+		if (downloadMini)
+		{
+			HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId, stickerId), StickerConstants.StickerType.MINI));
+		}
+		else
+		{
+			HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId, stickerId), StickerConstants.StickerType.LARGE));
+			HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getStickerCacheKey(new Sticker(categoryId, stickerId), StickerConstants.StickerType.SMALL));
+		}
+	}
 
 }

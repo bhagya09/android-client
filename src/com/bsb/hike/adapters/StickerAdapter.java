@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -102,9 +103,8 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		//only loading full stickers or downloading the full version if not yet downloaded
 		worker = new StickerLoader.Builder()
                 .downloadLargeStickerIfNotFound(true)
+                .setDefaultBitmap(HikeBitmapFactory.drawableToBitmap(mContext.getDrawable(R.drawable.shop_placeholder)))
                 .build();
-        worker.setDefaultDrawableNull(false);
-        worker.setDefaultDrawable(mContext.getDrawable(R.drawable.shop_placeholder));
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
 		registerListener();
