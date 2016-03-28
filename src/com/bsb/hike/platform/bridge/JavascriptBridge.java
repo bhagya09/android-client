@@ -1447,6 +1447,7 @@ public abstract class JavascriptBridge
 		String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
         File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + mapp);
         File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileNameInGamesAfterMigrationCheck = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + PlatformContentConstants.HIKE_DIR_NAME.toLowerCase() + mapp);
         File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
         File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + mapp);
         File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + mapp);
@@ -1454,6 +1455,8 @@ public abstract class JavascriptBridge
         if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
         else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileNameInGamesAfterMigrationCheck.exists())
             callbackToJS(id, "true");
         else if(fileInHikeWebMicroAppsDirectory.exists())
             callbackToJS(id, "true");

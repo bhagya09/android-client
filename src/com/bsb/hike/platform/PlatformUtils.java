@@ -975,6 +975,14 @@ public class PlatformUtils
 		convMessage.setMessage(text);
 		convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT);
 		convMessage.webMetadata = new WebMetadata(PlatformContent.getForwardCardData(metadata.toString()));
+
+        // Added check for solving bug for forward card scenario from platform sdk decoupling
+        JSONObject cardObj = convMessage.webMetadata.getCardobj();
+        JSONObject ldJson = cardObj.getJSONObject(HikePlatformConstants.LAYOUT_DATA);
+        ldJson.put(HikePlatformConstants.PLATFORM_SDK_PATH,"");
+        cardObj.put(HikePlatformConstants.LAYOUT_DATA,ldJson);
+        convMessage.webMetadata.setCardobj(cardObj);
+
 		convMessage.setMsisdn(msisdn);
 		return convMessage;
 
@@ -2260,8 +2268,15 @@ public class PlatformUtils
 	public static void platformDiskConsumptionAnalytics(String analyticsTriggerPoint)
 	{
         // Get list of all micro apps installed in content directory
-		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR, false);
-		for (int i = 0; i < mArray.length(); i++)
+		JSONArray mArray = PlatformUtils.readFileList(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS, false);
+        long contentFolderLength = 0,directorySize;
+
+        // Precautionary check to check if these files are indeed folders and preventing NPE
+        File platformContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
+        if(platformContentDirectory.exists())
+            contentFolderLength = Utils.folderSize(platformContentDirectory);
+
+        for (int i = 0; i < mArray.length(); i++)
 		{
 			try
 			{
@@ -2272,14 +2287,15 @@ public class PlatformUtils
 
 				if (microAppFile.isDirectory() && Utils.folderSize(microAppFile) > 0)
 				{
-                    long fileSize = Utils.folderSize(microAppFile);
+                    directorySize = Utils.folderSize(microAppFile);
                     JSONObject json = new JSONObject();
 					json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 					json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.NOTIFY_MICRO_APP_STATUS);
 					json.putOpt(AnalyticsConstants.LOG_FIELD_1, AnalyticsConstants.DISK_CONSUMPTION_ANALYTICS);
 					json.putOpt(AnalyticsConstants.LOG_FIELD_2, path); // App Name
 					json.putOpt(AnalyticsConstants.LOG_FIELD_3, analyticsTriggerPoint); // Analytics Trigger Point
-					json.putOpt(AnalyticsConstants.LOG_FIELD_5, fileSize); // App disk consumption
+					json.putOpt(AnalyticsConstants.LOG_FIELD_5, directorySize); // Directory disk consumption
+                    json.putOpt(AnalyticsConstants.LOG_FIELD_6, contentFolderLength); // Total content directory size
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_INFO, json);
 				}
 			}
@@ -2341,26 +2357,6 @@ public class PlatformUtils
             e.printStackTrace();
         }
     }
-
-    /*
-    * IMP :: WARNING Method to delete old micro app content code based on packet to remove legacy (This code not be used anywhere else)
-    */
-	public static void deleteOldContentMicroAppCode(final boolean flushOldContent)
-	{
-		// Deleting the directory code on Backend thread;
-        HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-        mThread.startHandlerThread();
-        mThread.postRunnable(new Runnable()
-		{
-
-			@Override
-			public void run()
-			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) && flushOldContent)
-					PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
-			}
-		});
-	}
 
     //{"t":"le_android","d":{"et":"uiEvent","st":"click","ep":"HIGH","cts":1457198967791,"tag":"plf","md":{"ek":"micro_app","event":"botContentShared","fld4":"aGlrZS1jb250bnQtc3RvcmU=ZmM0M2QyNzUtMzQ0Zi00ZDMwLTk3N2UtMGM5YzJjMzEzYjFjLlZsZ1hONFJYcnp0M1hZc3I","fld1":"IMAGE","bot_msisdn":"+hikeviral+","sid":1457198959796}}}
 	public static void sendBotFileShareAnalytics(HikeFile hikeFile, String msisdn)

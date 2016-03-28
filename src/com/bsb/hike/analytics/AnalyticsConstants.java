@@ -712,6 +712,8 @@ public class AnalyticsConstants
 
     public static final String APP_UPDATE_TRIGGER = "app_updated";
 
+    public static final String MICROAPPS_MIGRATION_SUCCESS_TRIGGER = "microapps_migration_success";
+
 	public static String ANALYTICS_EXTRA = "analyticsExtra";
 
 	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";

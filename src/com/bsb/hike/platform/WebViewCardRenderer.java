@@ -358,9 +358,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	{
 		JSONObject cardObj = convMessage.webMetadata.getCardobj();
 
-		int requestedMappVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
-		int currentMappVersionCode = 0;
-
         String appName = convMessage.webMetadata.getAppName();
 
         // Checks required here for handling forward card compatibility case for versioning changes for forward card for news,cricket and carpooling micro app
@@ -377,50 +374,38 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             appName = HikePlatformConstants.MICRO_APP_CAR_POOLING_STORAGE_NAME;
         }
 
-        if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, PlatformContentConstants.HIKE_MICRO_APPS, appName)).exists())
-        {
-            try {
-                cardObj.put(HikePlatformConstants.APP_NAME,appName);
-                convMessage.webMetadata.setCardobj(cardObj);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+		// Check if the micro app already exists on device, load the content else call the installer service
+		if (new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, PlatformContentConstants.HIKE_MICRO_APPS, appName)).exists())
+		{
+			try
+			{
+				cardObj.put(HikePlatformConstants.APP_NAME, appName);
+				convMessage.webMetadata.setCardobj(cardObj);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
+            // Added hard code addition here as msisdn string can always be made from app name in this way
+            String msisdn = "+" + appName + "+";
+            BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+            int requestedMappVersionCode = cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+            int currentMappVersionCode = 0;
+            if (botInfo != null)
+                currentMappVersionCode = botInfo.getMAppVersionCode();
+
+            // Compare requested forwarded card mapp version code with the current mapp version code and initiate cbot request based on it
+            if(requestedMappVersionCode <= currentMappVersionCode)
+                loadContent(position, convMessage, viewHolder, isFromErrorPress);
+		}
         else
         {
             // Call initiate cbot server api here and loading webview directly for required packet request and sending other params for showing error screen for request api failure case
             initiateCBotDownload(appName, viewHolder, convMessage, position);
             return;
         }
-
-        String msisdn = "+" + appName + "+";
-        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-
-		if (botInfo != null)
-			currentMappVersionCode = botInfo.getMAppVersionCode();
-
-        // Compare requested forwarded card mapp version code with the current mapp version code and initiate cbot request based on it
-		if (requestedMappVersionCode > currentMappVersionCode)
-		{
-			if (webViewHolderMap.get(appName) == null)
-			{
-                ArrayList<WebViewHolder> viewHolders = new ArrayList<WebViewHolder>();
-                viewHolders.add(viewHolder);
-				webViewHolderMap.put(appName, viewHolders);
-			}
-			else
-			{
-                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
-				viewHolders.add(viewHolder);
-				webViewHolderMap.put(appName, viewHolders);
-			}
-            // Call initiate cbot server api for required packet request and sending other params for showing error screen for request api failure case
-			initiateCBotDownload(appName, viewHolder, convMessage, position);
-		}
-		else
-		{
-			loadContent(position, convMessage, viewHolder, isFromErrorPress);
-		}
 	}
 
     /*
@@ -937,6 +922,15 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
     private void initiateCBotDownload(final String appName,final WebViewHolder webViewHolder,final ConvMessage convMessage,final int position)
     {
+        ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+        // In case view holders array list is null , initialize it with an empty array list
+        if(viewHolders == null)
+            viewHolders = new ArrayList<>();
+
+        viewHolders.add(webViewHolder);
+        webViewHolderMap.put(appName, viewHolders);
+
         // Json to send to install.json on server requesting for micro app download
         JSONObject json = new JSONObject();
 
@@ -953,6 +947,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
             // Put apps JsonObject in the final json
             json.put(HikePlatformConstants.APPS, appsJsonObject);
+            json.put(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
         }
         catch (JSONException e)
         {

@@ -1952,8 +1952,6 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
-        public static final String FLUSH_OLD_CONTENT = "dcon";
-
     }
 
 	public static final class LogEvent
