@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@id/drag_handle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -31,23 +32,19 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:gravity="center"
+        android:orientation="vertical"
         android:layout_centerVertical="true">
 
-        <FrameLayout
+            <ImageButton
+            android:id="@+id/category_checkbox"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_width="match_parent" >
-
-            <android.support.v7.widget.SwitchCompat
-            android:id="@+id/hide_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/hide_pack_switch"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:focusable="false"
+            android:src="@drawable/sticker_settings_checkbox"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
             android:visibility="gone"/>
 
             <ImageButton
@@ -87,8 +84,6 @@
             android:layout_gravity="center"
             android:indeterminateDrawable="@drawable/rotating_green_sticker_settings"
             android:visibility="gone" />
-
-        </FrameLayout>
 
     </LinearLayout>
 

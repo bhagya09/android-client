@@ -2320,6 +2320,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			setDefaultProfileImage(msisdn);
 		}
+
 	};
 
 	@Override

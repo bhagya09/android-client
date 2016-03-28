@@ -702,7 +702,6 @@
     <string name="update_all">UPDATE ALL</string>
     <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
-    <string name="drag_tip_text">Drag to Reorder Packs</string>
     <string name="CANCEL">CANCEL</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1088,8 +1087,6 @@
     <string name="status_hint">What are you upto?</string>
     <string name="status_hint_image">Something about this photo</string>
     <string name="add_mood">Add Mood</string>
-    <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
     <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
     <string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
@@ -1492,7 +1489,6 @@
     <string name="sticker">Sticker</string>
     <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
     <string name="block_contact">Block Contact</string>
-    <string name="spam">&#160;(SPAM)</string>
     <string name="caller_manage_list">MANAGE LIST</string>
     <string name="caller_blocked_list_hinttext">Manage your blocked Caller contacts.</string>
     <string name="block_contact_sure">Are you sure you want to block %1$s? All calls will be automatically disconnected.</string>
@@ -1535,6 +1531,8 @@
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
     <string name="deleting">DELETING</string>
+    <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
+    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
     <string name="sticker_delete_setting_header">Delete</string>
     <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
@@ -1549,8 +1547,8 @@
     <string name="all_packs_updated_heading">All packs are updated!</string>
     <string name="all_packs_updated_info">All your packs are up to date, if you want more stickers visit sticker shop</string>
     <string name="redirect_to_shop_text">TAKE ME TO THE SHOP</string>
-    <string name="all_done">"ALL DONE!!"</string>
-    <string name="drag_tip_subtext">Tap and Drag to reorder your sticker packs</string>
+    <string name="all_done">ALL DONE!!</string>
+    <string name="drag_tip_text">Tap and Drag to reorder</string>
     <string name="all_packs_deleted_heading">We have over 10,000 stickers</string>
     <string name="all_packs_deleted_info">Check out our sticker shop and download only what you like!</string>
     <string name="intercept_title_screen_shot">Screenshot captured!</string>
@@ -1569,6 +1567,7 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
+    <string name="spam">REPORTED AS SPAM</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. To ensure everything works perfectly, please update your app to the latest version and try again.</string>
     <string name="restore_msisdn_error">Bummer! You seem to have a backup file of someone else! This backup cannot be restored to your account.</string>
     <string name="upgrade_hike">Update</string>

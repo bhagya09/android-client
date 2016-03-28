@@ -276,6 +276,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				Logger.e(TAG, "Sticker download failed :", httpException);
+				doOnFailure(httpException);
 			}
 		};
 	}

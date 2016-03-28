@@ -143,7 +143,7 @@ public class HikeAppStateUtils
 			{
 				HikeMessengerApp.currentState = CurrentState.BACKGROUNDED;
 				Logger.d(TAG,"New Activity is an external activity so sending BG packet, but not closing hidden mode");
-				Utils.appStateChanged(activity.getApplicationContext(), false, Utils.isHoneycombOrHigher());
+				Utils.appStateChanged(activity.getApplicationContext(), false, false);
 			}
 
 			else if (HikeMessengerApp.currentState != CurrentState.BACKGROUNDED && HikeMessengerApp.currentState != CurrentState.CLOSED

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import android.content.Context;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,8 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
@@ -172,8 +170,8 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			viewHolder.updateButton.setOnClickListener(this);
 			viewHolder.reorderIcon = (ImageView) convertView.findViewById(R.id.reorder_icon);
 			viewHolder.updateStickersCount = (TextView) convertView.findViewById(R.id.update_stickers_count);
-			viewHolder.hideSwitch = (SwitchCompat) convertView.findViewById(R.id.hide_switch);
-
+			viewHolder.checkBox = (ImageButton) convertView.findViewById(R.id.category_checkbox);
+			viewHolder.checkBox.setOnClickListener(this);
 			convertView.setTag(viewHolder);
 			
 		}
@@ -201,7 +199,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 				viewHolder.updateStickersCount.setText(mContext.getString(R.string.n_more_stickers, category.getMoreStickerCount()));
 				break;
 			case STICKER_HIDE_TASK:
-				viewHolder.hideSwitch.setVisibility(View.VISIBLE);
+				viewHolder.checkBox.setVisibility(View.VISIBLE);
 				break;
 		}
 
@@ -257,11 +255,11 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 
 			
-		viewHolder.hideSwitch.setTag(category);
+		viewHolder.checkBox.setTag(category);
 		viewHolder.deleteButton.setTag(category);
 		viewHolder.updateButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
-		viewHolder.hideSwitch.setChecked(category.isVisible());
+		viewHolder.checkBox.setSelected(category.isVisible());
 		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 		return convertView;
@@ -416,7 +414,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 		TextView updateStickersCount;
 
-		SwitchCompat hideSwitch;
+		ImageButton checkBox;
 	}
 
 	public void onStickerPackDelete(StickerCategory category)
@@ -432,15 +430,17 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		initialiseMapping(mListMapping, stickerCategories);				//reinitialising mapping
 		this.notifyDataSetChanged();
 		sendDeleteClicked(category);
+		StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_SUCCESS, category.getCategoryId());
 	}
 
-	public void onStickerPackHide(View listItem, StickerCategory category)
+	public void onStickerPackHide(View v, StickerCategory category)
 	{
 		boolean visibility = !category.isVisible();
-		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();
-		SwitchCompat hideSwitch = (SwitchCompat) listItem.findViewById(R.id.hide_switch);
-		hideSwitch.setChecked(visibility);
+		Toast.makeText(mContext, visibility ? mContext.getResources().getString(R.string.pack_visible) : mContext.getResources().getString(R.string.pack_hidden), Toast.LENGTH_SHORT).show();;
+		ImageButton checkBox = (ImageButton) v;
 		category.setVisible(visibility);
+		StickerManager.getInstance().sendPackHideAnalytics(category.getCategoryId(), visibility);
+		checkBox.setSelected(visibility);
 		stickerSet.add(category);
 		int categoryIdx = stickerCategories.indexOf(category);
 		updateLastVisibleIndex(categoryIdx, category);
@@ -455,6 +455,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 			switch(v.getId())
 			{
 				case R.id.delete_button:
+					StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.PACK_DELETE_CLICKED, category.getCategoryId());
 					final DeleteStickerPackAsyncTask deletePackTask = new DeleteStickerPackAsyncTask(category);
 					deleteDialog = HikeDialogFactory.showDialog(mContext, HikeDialogFactory.DELETE_STICKER_PACK_DIALOG,
 							new HikeDialogListener() {
@@ -463,6 +464,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								public void positiveClicked(HikeDialog hikeDialog)
 								{
 									Utils.executeAsyncTask(deletePackTask);
+									StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.DELETE_POSITIVE_CLICKED, category.getCategoryId());
 									//Displaying delete progress bar and deleting message in delete dialog box
 									CustomAlertDialog deleteDialog = (CustomAlertDialog)hikeDialog;
 									View buttonPanel = deleteDialog.findViewById(R.id.button_panel);
@@ -482,6 +484,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 								public void negativeClicked(HikeDialog hikeDialog)
 								{
 									hikeDialog.dismiss();
+									StickerManager.getInstance().sendPackDeleteAnalytics(HikeConstants.LogEvent.DELETE_NEGATIVE_CLICKED, category.getCategoryId());
 								}
 
 							}
@@ -490,8 +493,13 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 
 				case R.id.update_button:
 					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					StickerManager.getInstance().sendPackUpdateAnalytics(HikeConstants.LogEvent.STICKER_PACK_UPDATE, category.getCategoryId());
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();
+					break;
+
+				case R.id.category_checkbox:
+					onStickerPackHide(v, category);
 					break;
 
 				default:
