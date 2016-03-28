@@ -1522,7 +1522,7 @@
     <string name="recommended_packs">recommended packs</string>
     <string name="pack_preview_activity_actionbar_text">Sticker Details</string>
     <string name="downloaded">Downloaded</string>
-    <string name="downloading_sticker">Downloading</string>
+    <string name="downloading_sticker">Downloading...</string>
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
