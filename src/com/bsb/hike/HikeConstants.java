@@ -3985,6 +3985,12 @@ public class HikeConstants
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
 
+	public static final String CRASH_REPORTING_TOOL="cpt";
+
+	public static final String ACRA="a";
+
+	public static final String CRASHLYTICS="c";
+
 	public static final class INTERCEPTS
 	{
 		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
