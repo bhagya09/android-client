@@ -8,10 +8,10 @@ import com.bsb.hike.utils.Logger;
 /**
  * Created by sidharth on 22/03/16.
  */
-public class GetSqliteVersionCommand implements ICommand
+public class GetSqliteVersionCommand implements ICommand<String>
 {
     @Override
-    public Object execute()
+    public String execute()
     {
         String sqliteVersion = "";
         try

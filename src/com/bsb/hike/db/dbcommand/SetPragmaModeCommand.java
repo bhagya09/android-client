@@ -11,7 +11,7 @@ import com.bsb.hike.utils.Logger;
 /**
  * Created by sidharth on 22/03/16.
  */
-public class SetPragmaModeCommand implements ICommand
+public class SetPragmaModeCommand implements ICommand<Void>
 {
 	private SQLiteDatabase mDb;
 
@@ -21,7 +21,7 @@ public class SetPragmaModeCommand implements ICommand
 	}
 
 	@Override
-	public Object execute()
+	public Void execute()
 	{
 		String journalMode = null;
 		Cursor c = null;
