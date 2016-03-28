@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -42,7 +44,11 @@ import java.util.Map;
 
 public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter,HikePubSub.Listener
 {
-	private List<StickerCategory> stickerCategoryList;
+    private static final int REFRESH_ADAPTER = 1;
+
+    private final String TAG = StickerAdapter.class.getSimpleName();
+
+    private List<StickerCategory> stickerCategoryList;
 
 	private LayoutInflater inflater;
 
@@ -97,7 +103,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		worker = new StickerLoader.Builder()
                 .downloadLargeStickerIfNotFound(true)
                 .build();
-
+        worker.setDefaultDrawableNull(false);
         worker.setDefaultDrawable(mContext.getDrawable(R.drawable.shop_placeholder));
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);
@@ -452,6 +458,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	public void unregisterListeners()
 	{
 		LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiver);
+        HikeMessengerApp.getPubSub().removeListeners(this,pubSubListeners );
 	}
 	
 	public StickerLoader getStickerLoader()
@@ -488,16 +495,49 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         switch (type)
         {
             case HikePubSub.STICKER_DOWNLOADED:
-                final Sticker sticker = (Sticker) object;
-                Handler handler = new Handler(mContext.getMainLooper());
-                handler.post(new Runnable () {
-                    @Override
-                    public void run() {
-                        initStickers(sticker.getCategory());
-                    }
-                });
+                sendUIMessage(REFRESH_ADAPTER, object);
                 break;
         }
 	}
-	
+
+    protected Handler uiHandler = new Handler(Looper.getMainLooper())
+    {
+        public void handleMessage(android.os.Message msg)
+        {
+            /**
+             * Defensive check
+             */
+            if (msg == null)
+            {
+                Logger.e(TAG, "Getting a null message in Sticker Adapter");
+                return;
+            }
+            handleUIMessage(msg);
+        }
+
+    };
+
+    protected void handleUIMessage(android.os.Message msg)
+    {
+        switch (msg.what)
+        {
+            case REFRESH_ADAPTER:
+                Sticker sticker = (Sticker) msg.obj;
+                initStickers(sticker.getCategory());
+                break;
+            default:
+                Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
+                break;
+        }
+    }
+
+    protected void sendUIMessage(int what, Object data)
+    {
+        Message message = Message.obtain();
+        message.what = what;
+        message.obj = data;
+        uiHandler.sendMessage(message);
+    }
+
+
 }
