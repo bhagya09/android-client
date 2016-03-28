@@ -2923,6 +2923,8 @@ public class HikeConstants
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 		
 		public static final String HIKE_DIRECT_ANALYTICS = "hdle";
+		
+		public static final String PLATFORM_INFRA_CONFIG = "infc";
 	}
 
 	public static final class GeneralEventMessagesTypes
@@ -3137,6 +3139,8 @@ public class HikeConstants
 	public static final int MAX_PIN_CONTENT_LINES_IN_HISTORY = 10;
 
 	public static final String URL = "url";
+	
+	public static final String URLS = "urls";
 
 	public static final String MEDIA_POSITION = "position";
 
@@ -3490,6 +3494,8 @@ public class HikeConstants
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 
 	public static final String KEY = "key";
+	
+	public static final String LIFE = "life";
 
 	public static final String VALUE = "val";
 

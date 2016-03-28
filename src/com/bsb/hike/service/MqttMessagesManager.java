@@ -53,7 +53,6 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -4311,12 +4310,49 @@ public class MqttMessagesManager
 		{
 			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.PLATFORM_INFRA_CONFIG.equals(type))
+		{
+			saveInfraConfig(jsonObj);
+		}
 		else if(HikeConstants.TOAST.equals(type))
 		{
 			showToast(jsonObj);
 		}
 	}
 	
+	private void saveInfraConfig(JSONObject jsonObj)
+	{
+		if (jsonObj.has(HikeConstants.DATA))
+		{
+			try
+			{
+				JSONObject dJson = jsonObj.getJSONObject(HikeConstants.DATA);
+				
+				JSONArray configArray = dJson.getJSONArray(HikeConstants.URLS);
+				for (int i = 0; i < configArray.length(); i++)
+				{
+					JSONObject chatBgJson = configArray.optJSONObject(i);
+
+					if (chatBgJson == null)
+					{
+						continue;
+					}
+
+					String url = chatBgJson.optString(HikeConstants.URL);
+					String key = chatBgJson.optString(HikeConstants.KEY);
+					int life = chatBgJson.optInt(HikeConstants.LIFE);
+					convDb.insertURL(key, url, life);
+
+				}
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private void showToast(final JSONObject jsonObj) throws JSONException
 	{
 		if(jsonObj.has(HikeConstants.DATA))
