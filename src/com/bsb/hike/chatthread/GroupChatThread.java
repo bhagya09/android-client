@@ -101,7 +101,6 @@ public class GroupChatThread extends OneToNChatThread
 	public void onCreate(Bundle savedState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedState);
-		shouldShowMultiAdminPopup();
 	}
 
 	private void shouldShowMultiAdminPopup() {
@@ -271,6 +270,8 @@ public class GroupChatThread extends OneToNChatThread
 		showTips();
 		oneToNConversation = (GroupConversation) conversation;
 		super.fetchConversationFinished(conversation);
+
+		shouldShowMultiAdminPopup();
 
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings

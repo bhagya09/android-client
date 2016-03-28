@@ -4761,7 +4761,7 @@ import android.widget.Toast;
 				hikeFile.delete(activity.getApplicationContext());
 			}
             HikeConversationsDatabase.getInstance().reduceRefCount(key);
-			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize());
+			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
 			mAdapter.notifyDataSetChanged();
 
 		}

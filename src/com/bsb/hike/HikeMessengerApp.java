@@ -52,6 +52,7 @@ import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -926,6 +927,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
+		validateHikeRootDir();
 		makeNoMediaFiles();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -948,6 +950,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
 	private void initImportantAppComponents(SharedPreferences prefs)
@@ -1086,32 +1089,57 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ContactManager.getInstance();
 	}
 
+	/**
+	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
+	 */
+	private void validateHikeRootDir()
+	{
+		File rootDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT);
+		/*
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
+		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
+		 * Caused mainly by app like clean master, native memory optimization etc.
+		 */
+		if(rootDir != null && rootDir.exists())
+		{
+			if(!rootDir.isDirectory() && rootDir.isFile())
+			{
+				int count = 0;
+				File mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + count);
+				while (mFile.exists()) {
+					mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + ++count);
+				}
+				rootDir.renameTo(mFile);
+			}
+		}
+	}
+
 	private void makeNoMediaFiles()
 	{
-		String root = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
+		String mediaRoot = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
 
-		File folder = new File(root + HikeConstants.PROFILE_ROOT);
+		File folder = new File(mediaRoot + HikeConstants.PROFILE_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
 		/*
 		 * Fixed issue where sent media directory is getting visible in Gallery.
 		 */
 		Utils.makeNoMediaFile(folder, true);
 
-		folder = new File(root + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
