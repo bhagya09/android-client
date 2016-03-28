@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter,HikePubSub.Listener
+public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdapter, HikePubSub.Listener
 {
     private static final int REFRESH_ADAPTER = 1;
 
@@ -62,7 +62,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 	
 	private StickerPickerListener mStickerPickerListener;
 
-    private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED};
+	private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED };
 
     private class StickerPageObjects
 	{
