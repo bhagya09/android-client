@@ -2,7 +2,8 @@ package androidTest.com.bsb.hike.tests.db;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.bsb.hike.HikeConstants;import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import androidTest.com.bsb.hike.framework.parameterizationWrappers.*;
 import androidTest.com.bsb.hike.mocks.*;
 import com.bsb.hike.HikeMessengerApp;

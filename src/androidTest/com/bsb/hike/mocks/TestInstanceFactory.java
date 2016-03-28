@@ -13,10 +13,13 @@ public class TestInstanceFactory {
     static AccountBackupRestore objAccountBackupRestore;
 
 
-    public synchronized static AccountBackupRestore getAccountBackupRestoreInstance(Context context)
+    public static AccountBackupRestore getAccountBackupRestoreInstance(Context context)
     {
         if (objAccountBackupRestore == null)
-            objAccountBackupRestore = AccountBackupRestore.getInstance(context.getApplicationContext());
+            synchronized (AccountBackupRestore.class){
+                if (objAccountBackupRestore == null)
+                    objAccountBackupRestore = AccountBackupRestore.getInstance(context.getApplicationContext());
+    }
 
         return objAccountBackupRestore;
     }

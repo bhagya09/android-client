@@ -37,6 +37,9 @@ public class XMLWrapper implements IParameterizationWrapper {
         return new File(path);
     }
 
+    /*
+    STUB - To be implemented
+     */
     @Override
     public boolean checkFileSanity(File file) throws IOException, SAXException {
         Schema schema = null;
