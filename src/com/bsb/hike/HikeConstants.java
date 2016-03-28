@@ -3223,6 +3223,10 @@ public class HikeConstants
 
 	public static final String SIMILAR_PACKS = "similar_packs";
 
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT = "copyright";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 

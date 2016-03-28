@@ -1638,6 +1638,16 @@ public class StickerManager
 				category.setSimilarPacksString(similarPacksString);
 			}
 
+			if(jsonObj.has(HikeConstants.AUTHOR)) {
+				String author = jsonObj.optString(HikeConstants.AUTHOR);
+				category.setAuthor(author);
+			}
+
+			if(jsonObj.has(HikeConstants.COPYRIGHT)) {
+				String copyright = jsonObj.optString(HikeConstants.COPYRIGHT);
+				category.setCopyRightString(copyright);
+			}
+
 			return category;
 		}
 		catch(JSONException ex)
