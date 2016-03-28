@@ -1,8 +1,23 @@
 package com.bsb.hike.tasks;
 
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -40,17 +55,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -440,7 +444,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
-			Crashlytics.setUserIdentifier(accountInfo.getMsisdn());
+			//Check for crash reporting tool
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			{
+				Crashlytics.setUserIdentifier(accountInfo.getMsisdn());
+			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
