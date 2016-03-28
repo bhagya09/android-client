@@ -1579,4 +1579,5 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="restore_msisdn_error">You seem to have a backup file of someone else!</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
+    <string name="bummer">Bummer</string>
 </resources>
