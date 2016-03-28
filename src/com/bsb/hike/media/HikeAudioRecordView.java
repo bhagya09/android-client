@@ -114,6 +114,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         popup_l.setOnDismissListener(this);
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
+        popup_l.setAnimationStyle(R.style.WalkietalkieAnim);
         if (shareablePopupSharing) {
             popup_l.showAtLocation(parent, Gravity.NO_GRAVITY, 0, loc[1] - parent.getHeight());
         } else {
