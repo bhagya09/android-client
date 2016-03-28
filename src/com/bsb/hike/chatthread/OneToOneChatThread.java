@@ -3613,4 +3613,10 @@ import java.util.Map;
 			startFreeHikeConversation(true);
 		}
 	}
+
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!mConversation.isBlocked())
+			super.initKeyboardOffBoarding();
+	}
 }

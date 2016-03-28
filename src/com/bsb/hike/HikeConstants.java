@@ -2567,6 +2567,7 @@ public class HikeConstants
 
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
+		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
 	}
 
 	public static final class Toast
@@ -3356,6 +3357,8 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
+	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";
@@ -3848,4 +3851,11 @@ public class HikeConstants
 
     public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 
+	public static final class KPTConstants {
+
+		public static final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
+
+		public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
+
+	}
 }

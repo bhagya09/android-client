@@ -1161,4 +1161,10 @@ public class GroupChatThread extends OneToNChatThread
 	protected boolean shouldShowKeyboardInActionMode() {
 	    return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
 	}
+
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!checkForDeadOrBlocked())
+			super.initKeyboardOffBoarding();
+	}
 }

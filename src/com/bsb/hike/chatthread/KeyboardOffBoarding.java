@@ -11,7 +11,10 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -89,6 +92,21 @@ public class KeyboardOffBoarding
 				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
 			}
 		});
+
+		rootView.findViewById(R.id.btn_google_keyboard).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				final String appPackageName = "com.google.android.apps.inputmethod.hindi&hl=en";
+				try {
+					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+				} catch (android.content.ActivityNotFoundException anfe) {
+					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+				}
+				destroy();
+				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON);
+			}
+		});
 	}
 
 	public boolean isShowing()
@@ -103,6 +121,10 @@ public class KeyboardOffBoarding
 
 	public boolean shouldShowKeyboardOffBoardingUI()
 	{
+		if (!(showKptExitUI() && kptExitServerSwitch(mActivity))) {
+			return false;
+		}
+
 		/*
 		 *Localized keyboard is for india users only. Other users still have setting but do not see the FTUE
          */
@@ -128,6 +150,8 @@ public class KeyboardOffBoarding
 	public void hide()
 	{
 		updatePadding(0);
+		mState = NOT_STARTED;
+		updateState(mState);
 		Utils.unblockOrientationChange(mActivity);
 		if(container != null) {
 			container.removeAllViews();
@@ -165,4 +189,17 @@ public class KeyboardOffBoarding
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
 	}
+
+	public static boolean kptExitServerSwitch(Context context) {
+//		server-side switch
+		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
+		return show;
+	}
+
+	public static boolean showKptExitUI() {
+		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 1) > 0);
+		boolean kptKeyboardSet = !(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.SYSTEM_KEYBOARD_SELECTED, true));
+		return keyboardFtueShown || kptKeyboardSet;
+	}
+
 }

@@ -2272,6 +2272,12 @@ public class MqttMessagesManager
 			}
 		}
 
+		if (data.has(HikeConstants.KPT_EXIT_SERVER_SWITCH))
+		{
+			boolean showExitUI = data.getBoolean(HikeConstants.KPT_EXIT_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
+		}
+
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
 		{
 			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
