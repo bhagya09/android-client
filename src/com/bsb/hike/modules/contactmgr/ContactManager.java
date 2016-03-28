@@ -90,7 +90,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
-		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
+		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
@@ -125,10 +125,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		// and persistence cache have not been initialized completely
 		_instance.persistenceCache.updateGroupNames();
 	}
+
+	public void reinitializeUserDB()
+	{
+		hDb.reinitializeDB();
+	}
+
+	public void clearUserDbTable(String tableName)
+	{
+		hDb.clearTable(tableName);
+	}
 	
 	public SQLiteDatabase getWritableDatabase()
 	{
-		return hDb.getWritableDatabase();
+		return hDb.getWriteDatabase();
 	}
 
 	public SQLiteDatabase getReadableDatabase()
@@ -1500,7 +1510,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		List<ContactInfo> newContacts = null;
 		byte result = SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 		{
 			newContacts = getContacts(ctx);
 		}
@@ -1513,7 +1523,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}
@@ -1531,6 +1541,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public byte syncUpdatesOld(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
 	{
+		Logger.d("ContactUtils", "Old way to sync conctacts.");
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(deviceContacts);
 		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeContacts);
 
@@ -2107,6 +2118,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public List<ContactInfo> getContactsOld(Context ctx)
 	{
+		Logger.d("ContactUtils", "Old way to read conctacts from device");
 		HashSet<String> contactsToStore = new HashSet<String>();
 		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
 
@@ -3072,5 +3084,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().insertAllBlockedContactsIntoCallerTable(callerContent);
 	}
 
+	public boolean isMyMsisdn(String outsideMsisdn)
+	{
+		return selfMsisdn.equals(outsideMsisdn);
+	}
 }
 

@@ -82,7 +82,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	private List<StatusMessage> statusMessages;
 
 	private String[] pubSubListeners = { HikePubSub.TIMELINE_UPDATE_RECIEVED, HikePubSub.LARGER_UPDATE_IMAGE_DOWNLOADED, HikePubSub.PROTIP_ADDED, HikePubSub.ICON_CHANGED,
-			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT };
+			HikePubSub.ACTIVITY_UPDATE, HikePubSub.TIMELINE_WIPE, HikePubSub.TIMELINE_FTUE_LIST_UPDATE,HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.PROFILE_UPDATE_FINISH };
 	
 	private String[] friendMsisdns = new String[]{};
 
@@ -432,6 +432,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			try
 			{
 				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
+				Logger.d("SendViewsAPI", "Payload"+viewsPayload.toString());
 				timelineCardsAdapter.getSUViewedSet().clear();
 				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
 				{
@@ -536,13 +537,11 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				}
 			});
 		}
-		else if (HikePubSub.ICON_CHANGED.equals(type))
+		else if (HikePubSub.ICON_CHANGED.equals(type) || HikePubSub.PROFILE_UPDATE_FINISH.equals(type))
 		{
-			getActivity().runOnUiThread(new Runnable()
-			{
+			getActivity().runOnUiThread(new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					timelineCardsAdapter.notifyDataSetChanged();
 				}
 			});

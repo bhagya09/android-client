@@ -196,6 +196,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -210,7 +211,6 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -532,7 +532,7 @@ public class Utils
 		}
 		// File name should only be blank in case of profile images or while
 		// capturing new media.
-		if (TextUtils.isEmpty(orgFileName) || !orgFileName.contains("."))
+		if (TextUtils.isEmpty(orgFileName))
 		{
 			orgFileName = getUniqueFilename(type);
 		}
@@ -580,7 +580,12 @@ public class Utils
 
 	public static File createNewFile(HikeFileType type, String prefix)
 	{
-		File selectedDir = new File(Utils.getFileParent(type, false));
+		return createNewFile(type, prefix, false);
+	}
+
+	public static File createNewFile(HikeFileType type, String prefix, boolean isSent)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, isSent));
 		if (!selectedDir.exists())
 		{
 			if (!selectedDir.mkdirs())
@@ -710,6 +715,16 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
+		editor.putString(HikeConstants.SERVER_NAME_SETTING,accountInfo.getServerName());
+		editor.putString(HikeConstants.SERVER_GENDER_SETTING,accountInfo.getServerGender());
+
+		Birthday serverDOB = accountInfo.getServerDOB();
+		if (serverDOB != null);
+		{
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_DAY, serverDOB.day);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_MONTH, serverDOB.month);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_YEAR, serverDOB.year);
+		}
 		editor.commit();
 
 		/*
@@ -3241,6 +3256,7 @@ public class Utils
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
 				HikeNotification.getInstance().cancelPersistNotif();
+				HikeNotification.getInstance().cancelNotification(HikeNotification.NOTIF_INTERCEPT_NON_DOWNLOAD);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3766,6 +3782,18 @@ public class Utils
 	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
+	{
+		if (isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
+
+	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
 	{
 		if (isHoneycombOrHigher())
 		{
@@ -6316,20 +6344,6 @@ public class Utils
 				.equals(appContext.getString(R.string.privacy_favorites));
 	}
 
-	public static void launchPlayStore(String packageName, Context context)
-	{
-		Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
-		marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-		try
-		{
-			context.startActivity(marketIntent);
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
-		}
-	}
-
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);
@@ -7454,6 +7468,7 @@ public class Utils
 		catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
+			appVersionCode = BuildConfig.VERSION_CODE;
 		}
 
 		return appVersionCode;
@@ -7976,6 +7991,8 @@ public class Utils
 			return "#";
 		}
 
+		contactName = contactName.trim();
+
 		char first = contactName.charAt(0);
 
 		if (Character.isLetter(first))
@@ -8014,4 +8031,37 @@ public class Utils
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * This method checks whether we should connect to MQTT or not
+	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
+	 *
+	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
+	 *
+	 * @return
+	 */
+	public static boolean shouldConnectToMQTT()
+	{
+		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
+	}
+
+	public static boolean isDBCorrupt()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
+	}
+
+	/**
+	 * WARNING : Do not ever call this method unless you have a valid reason to do so
+	 */
+	public static void disconnectFromMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("destroy", true));
+	}
+
+	public static void connectToMQTT()
+	{
+		HikeMqttManagerNew.getInstance().init(); // Init and then connect
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
 }
