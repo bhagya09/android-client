@@ -523,7 +523,10 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         {
             case REFRESH_ADAPTER:
                 Sticker sticker = (Sticker) msg.obj;
-                initStickers(sticker.getCategory());
+                if (sticker.getCategory() != null)
+                {
+                    initStickers(sticker.getCategory());
+                }
                 break;
             default:
                 Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
