@@ -667,6 +667,10 @@ public class AnalyticsConstants
 
 	public static final String DATABASE_ERROR = "db_error";
 
+	public static final String DATABASE_AREA = "db";
+
+	public static final String SQLITE_PROPERTY = "sqlite_prop";
+
 	public static final class InterceptEvents
 	{
 		public static final String INTERCEPTS = "intrcpt";
