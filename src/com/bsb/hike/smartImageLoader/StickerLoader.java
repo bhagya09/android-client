@@ -152,7 +152,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if (loadMiniStickerIfNotFound && bitmap == null)
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), new Size(sticker.getWidth(), sticker.getHeight()));
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return bitmap;
