@@ -541,6 +541,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			stickerCategory = category;
 		}
 
+		downloadBtn.setBackground(getContext().getDrawable(R.drawable.rounded_rectangle_blue));
+
 		switch (stickerCategory.getState())
 		{
 		case StickerCategory.NONE:
@@ -557,7 +559,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			}
 			break;
 		case StickerCategory.UPDATE:
-			downloadBtn.setText(getResources().getString(R.string.update_sticker));
+			downloadBtn.setText(getResources().getString(R.string.update));
+			downloadBtn.setBackground(getContext().getDrawable(R.drawable.rounded_rectangle_green));
 			break;
 		case StickerCategory.RETRY:
 			downloadBtn.setText(getResources().getString(R.string.retry));
