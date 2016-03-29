@@ -107,6 +107,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     public void initialize(View parent, boolean shareablePopupSharing) {
 	    if(inflatedLayoutView == null) initViews();
+        if(popup_l != null && popup_l.isShowing()) return;
         selectedFile = Utils.getOutputMediaFile(HikeFile.HikeFileType.AUDIO_RECORDING, null, true);
         popup_l = new PopupWindow(inflatedLayoutView);
         popup_l.setWidth(parent.getWidth());
