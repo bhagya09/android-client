@@ -28,6 +28,7 @@
             android:id="@+id/txt_restore_hint"
             style="@style/SignupHeader"
             android:layout_width="wrap_content"
+            android:maxWidth="576dp"
             android:layout_height="wrap_content"
             android:text="@string/restoring..._hint"
             android:textColor="@color/black_45"
