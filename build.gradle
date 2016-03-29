@@ -1,23 +1,29 @@
 repositories {
+    maven { url 'https://maven.fabric.io/public' }
     mavenCentral()
 }
+
 buildscript {
 
     repositories {
         mavenCentral()
-maven
-{
-url 'https://oss.sonatype.org/content/repositories/snapshots/'
-}
+        maven
+                {
+                    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+                }
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-    	// updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
+        // updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
         //classpath 'com.android.tools.build:gradle:1.5.0'
         classpath 'com.android.tools.build:gradle:1.1.2+'
         classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.1-SNAPSHOT'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
 android {
     compileSdkVersion "Google Inc.:Google APIs:22"
     buildToolsVersion "22.0.1"
@@ -41,27 +47,27 @@ android {
     dexOptions {
         javaMaxHeapSize "2048M"
         incremental = true;
-        preDexLibraries = false 
+        preDexLibraries = false
         jumboMode = true
     }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['okhttp-urlconnection','okhttp','mqtt', 'src']
+            java.srcDirs = ['okhttp-urlconnection', 'okhttp', 'mqtt', 'src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs']
             java {
-            exclude 'androidTest/com/bsb/hike'
+                exclude 'androidTest/com/bsb/hike'
             }
         }
 
         black {
             res.srcDirs = ['res-black']
             java {
-            exclude 'androidTest/com/bsb/hike'
+                exclude 'androidTest/com/bsb/hike'
             }
         }
 
@@ -73,8 +79,8 @@ android {
 
         arm {
             java.srcDirs = ['arm']
-	    java {
-            exclude 'androidTest/com/bsb/hike'
+            java {
+                exclude 'androidTest/com/bsb/hike'
             }
         }
 
@@ -89,60 +95,67 @@ android {
             storeFile rootProject.file('debug.keystore')
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-             storePassword 'android'
-         }
+            storePassword 'android'
+
+        }
         release {
             storeFile rootProject.file('hike-android-release-key.keystore')
             storePassword "Tequ1laFr1day5"
             keyAlias "hhikedroid"
             keyPassword "Tequ1laFr1day5"
+
         }
     }
-    if( project.hasProperty('isBuildSystemProjectProp') && project.property('isBuildSystemProjectProp').toBoolean() ) {
-    applicationVariants.all { variant -> 
-        variant.outputs.each { output -> 
-            def file = output.outputFile
-            output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
+    if (project.hasProperty('isBuildSystemProjectProp') && project.property('isBuildSystemProjectProp').toBoolean()) {
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                def file = output.outputFile
+                output.outputFile = new File(file.parent, file.name.replace(".apk", "-" + getVersionName() + "-" + getBranchAndCommitID() + "-" + getDateTime() + ".apk"))
+            }
         }
-    }
     }
     buildTypes {
         black {
             applicationIdSuffix ".black"
             debuggable true
             signingConfig signingConfigs.release
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         release {
-        	minifyEnabled true
+            minifyEnabled true
             shrinkResources true
             debuggable false
             proguardFile 'proguard.cfg'
+            manifestPlaceholders = [crashlyticsApiKey: "870a759c61924234e2425a9ac17d040daa2c05d4"]
             signingConfig signingConfigs.release
         }
         obfuscated {
-        	minifyEnabled true
+            minifyEnabled true
             debuggable true
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         debug {
             debuggable true
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
     }
     productFlavors {
-    arm {
-        ndk {
-            abiFilters "armeabi", "armeabi-v7a"
-        	}
-    	}
+        arm {
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
 
-        customDev {  //This flavor will contain all those dependencies which are useful for debugging purposes but are not meant to be shipped
+        customDev {
+            //This flavor will contain all those dependencies which are useful for debugging purposes but are not meant to be shipped
             ndk {
                 abiFilters "armeabi", "armeabi-v7a"
             }
             versionName computeCustomDevVersionName()
         }
-	}
+    }
 }
 
 dependencies {
@@ -182,26 +195,30 @@ dependencies {
     androidTestCompile 'com.android.support:multidex-instrumentation:1.0.1'
     customDevCompile 'com.android.support.test:runner:0.5'
 
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }
 }
 
 
 def getBranchAndCommitID() {
-    ext.revision = getGitRevParseInfo ( "--short" )
-    ext.branch = getGitRevParseInfo ( "--abbrev-ref" )
-    
-    return ext.revision 
+    ext.revision = getGitRevParseInfo("--short")
+    ext.branch = getGitRevParseInfo("--abbrev-ref")
+
+    return ext.revision
 }
 
-def getGitRevParseInfo (what) {
-   def cmd = "git rev-parse " + what + " HEAD"
-   def proc = cmd.execute ()
-   proc.text.trim ()
+def getGitRevParseInfo(what) {
+    def cmd = "git rev-parse " + what + " HEAD"
+    def proc = cmd.execute()
+    proc.text.trim()
 }
 
 def getVersionName() {
     def manifestParser = new com.android.builder.core.DefaultManifestParser()
     def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
-    return versionName.replaceAll('\\.','_')
+    return versionName.replaceAll('\\.', '_')
 }
 
 def getDateTime() {
@@ -210,17 +227,22 @@ def getDateTime() {
     return formattedDate
 }
 
+crashlytics {
+    enableNdk true
+    androidNdkOut 'src/main/obj'
+    androidNdkLibsOut 'src/main/libs'
+}
+
 // This function appends "Custom_Dev_Flavor" to the versionName present in AndroidManifest file
-def computeCustomDevVersionName()
-{
+def computeCustomDevVersionName() {
     def manifestParser = new com.android.builder.core.DefaultManifestParser()
     def versionName = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
     return versionName + ".Custom_Dev_Flavor"
 }
 
-android.packagingOptions 
-{
-exclude 'LICENSE.txt'
-exclude 'META-INF/NOTICE'
-exclude 'META-INF/LICENSE'
-}
+android.packagingOptions
+        {
+            exclude 'LICENSE.txt'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/LICENSE'
+        }
