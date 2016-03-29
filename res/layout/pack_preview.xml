@@ -66,7 +66,7 @@
             android:id="@+id/download_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/download_btn_round"
+            android:background="@drawable/rounded_rectangle_blue"
             android:layout_alignParentRight="true"
             android:textColor="@color/white"
             android:textSize="13sp"

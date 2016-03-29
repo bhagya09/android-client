@@ -8044,4 +8044,9 @@ public class Utils
 	{
 		return (int) (sp * Utils.scaledDensityMultiplier);
 	}
+
+	public static void deleteDiskCache()
+	{
+		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+	}
 }

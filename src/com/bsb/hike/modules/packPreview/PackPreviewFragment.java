@@ -322,7 +322,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	public void onClick(View v) {
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
 		{
-			int position = rvGrid.getChildAdapterPosition(v) - 1;
+			int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
 			if (position < 0 || position >= stickerCategory.getAllStickers().size())
 			{
 				return;
@@ -541,6 +541,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			stickerCategory = category;
 		}
 
+		downloadBtn.setBackground(getContext().getDrawable(R.drawable.rounded_rectangle_blue));
+
 		switch (stickerCategory.getState())
 		{
 		case StickerCategory.NONE:
@@ -553,10 +555,12 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			else
 			{
 				downloadBtn.setText(getResources().getString(R.string.downloaded));
+				downloadBtn.setAlpha(0.4f);
 			}
 			break;
 		case StickerCategory.UPDATE:
-			downloadBtn.setText(getResources().getString(R.string.update_sticker));
+			downloadBtn.setText(getResources().getString(R.string.update));
+			downloadBtn.setBackground(getContext().getDrawable(R.drawable.rounded_rectangle_green));
 			break;
 		case StickerCategory.RETRY:
 			downloadBtn.setText(getResources().getString(R.string.retry));

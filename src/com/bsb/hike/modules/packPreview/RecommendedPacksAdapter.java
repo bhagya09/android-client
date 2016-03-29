@@ -105,7 +105,7 @@ public class RecommendedPacksAdapter extends RecyclerView.Adapter<RecyclerView.V
             LinearLayout.LayoutParams ll = new LinearLayout.LayoutParams(sizeEachImage, sizeEachImage);
 			int padding = Utils.dpToPx(5);
 			categoryIcon.setLayoutParams(ll);
-			categoryIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+			categoryIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 			categoryIcon.setPadding(padding, padding, padding, padding);
 			row.setOnClickListener(this);
 		}
