@@ -90,7 +90,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
-		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
+		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
@@ -125,10 +125,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		// and persistence cache have not been initialized completely
 		_instance.persistenceCache.updateGroupNames();
 	}
+
+	public void reinitializeUserDB()
+	{
+		hDb.reinitializeDB();
+	}
+
+	public void clearUserDbTable(String tableName)
+	{
+		hDb.clearTable(tableName);
+	}
 	
 	public SQLiteDatabase getWritableDatabase()
 	{
-		return hDb.getWritableDatabase();
+		return hDb.getWriteDatabase();
 	}
 
 	public SQLiteDatabase getReadableDatabase()
@@ -3074,5 +3084,9 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().insertAllBlockedContactsIntoCallerTable(callerContent);
 	}
 
+	public boolean isMyMsisdn(String outsideMsisdn)
+	{
+		return selfMsisdn.equals(outsideMsisdn);
+	}
 }
 

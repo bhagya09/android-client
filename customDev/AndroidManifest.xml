@@ -1,0 +1,10 @@
+<manifest
+    package="com.bsb.hike"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:name=".HikeMessengerAppCustomDev"
+        tools:replace="android:name"/>
+
+</manifest>

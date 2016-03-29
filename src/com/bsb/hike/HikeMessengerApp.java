@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -57,6 +59,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.crashlytics.android.Crashlytics;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 import org.acra.ACRA;
@@ -80,6 +83,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.fabric.sdk.android.Fabric;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -647,8 +652,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void connectToService()
 	{
-		if (!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
+			Logger.d("HikeMessengerApp", "Not Connecting to service yet");
 			return;
 		}
 
@@ -767,9 +773,13 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+
+
+
+		// We need to set all AppConfig params on the start when _instance have been initialized
+		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
+		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
+		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -930,6 +940,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
+		validateHikeRootDir();
 		makeNoMediaFiles();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -953,8 +964,25 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
+	private void initCrashReportingTool()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		{
+			Logger.d("HikeMessangerApp","Initializing Crashlytics");
+			Fabric.with(this, new Crashlytics());
+			logUser();
+		}
+		else
+		{
+			Logger.d("HikeMessangerApp","Initializing ACRA");
+			ACRA.init(this);
+			CustomReportSender customReportSender = new CustomReportSender();
+			ErrorReporter.getInstance().setReportSender(customReportSender);
+		}
+	}
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1011,6 +1039,15 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+		initCrashReportingTool();
+	}
+
+	private void logUser() {
+		// TODO: Use the current user's information
+		// You can call any combination of these three methods
+		if (!TextUtils.isEmpty(msisdn)) {
+			Crashlytics.setUserIdentifier(msisdn);
+		}
 	}
 
 	/**
@@ -1046,16 +1083,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void startUpdgradeIntent()
 	{
-		// turn off future push notifications as soon as the app has
-		// started.
-		// this has to be turned on whenever the upgrade finishes.
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
-		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-		editor.putBoolean(BLOCK_NOTIFICATIONS, true);
-		editor.commit();
-
-		Intent msgIntent = new Intent(this, UpgradeIntentService.class);
-		startService(msgIntent);
+		IntentFactory.startUpgradeIntent(this);
 	}
 
 	private void replaceGBKeys()
@@ -1091,32 +1119,57 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ContactManager.getInstance();
 	}
 
+	/**
+	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
+	 */
+	private void validateHikeRootDir()
+	{
+		File rootDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT);
+		/*
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
+		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
+		 * Caused mainly by app like clean master, native memory optimization etc.
+		 */
+		if(rootDir != null && rootDir.exists())
+		{
+			if(!rootDir.isDirectory() && rootDir.isFile())
+			{
+				int count = 0;
+				File mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + count);
+				while (mFile.exists()) {
+					mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + ++count);
+				}
+				rootDir.renameTo(mFile);
+			}
+		}
+	}
+
 	private void makeNoMediaFiles()
 	{
-		String root = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
+		String mediaRoot = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT;
 
-		File folder = new File(root + HikeConstants.PROFILE_ROOT);
+		File folder = new File(mediaRoot + HikeConstants.PROFILE_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
 		/*
 		 * Fixed issue where sent media directory is getting visible in Gallery.
 		 */
 		Utils.makeNoMediaFile(folder, true);
 
-		folder = new File(root + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
-		folder = new File(root + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
+		folder = new File(mediaRoot + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
 		Utils.makeNoMediaFile(folder);
 
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
