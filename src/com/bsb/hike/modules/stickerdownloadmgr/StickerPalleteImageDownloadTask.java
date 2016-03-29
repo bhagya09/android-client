@@ -137,9 +137,7 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 
 					String enableImg = data.getString(HikeConstants.ENABLE_IMAGE);
 					String disableImg = data.getString(HikeConstants.DISABLE_IMAGE);
-
-					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE));
-					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
+					finish();
 					Utils.saveBase64StringToFile(new File(enableImagePath), enableImg);
 					Utils.saveBase64StringToFile(new File(disableImagePath), disableImg);
 				}
@@ -163,6 +161,8 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		};
 	}
 
+
+
 	@Override
 	public void doOnSuccess(Object result)
 	{
@@ -172,6 +172,13 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 	@Override
 	public void doOnFailure(HttpException e)
 	{
+		finish();
 		Logger.e(TAG, "exception :", e);
+	}
+
+	private void finish()
+	{
+		HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_SELECTED_TYPE));
+		HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PALLATE_ICON_TYPE));
 	}
 }
