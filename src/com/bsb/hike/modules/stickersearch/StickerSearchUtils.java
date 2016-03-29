@@ -138,7 +138,7 @@ public class StickerSearchUtils
                 }
                 else
                 {
-                    undownloadedList.add(count,sticker);
+                    undownloadedList.add(sticker);
                 }
 				count++;
 			}
