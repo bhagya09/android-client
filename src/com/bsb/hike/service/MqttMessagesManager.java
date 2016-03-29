@@ -3752,7 +3752,7 @@ public class MqttMessagesManager
 						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
 
-							if(!data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
+							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
 							{
 								HikeNotification.getInstance().showPlatformNotification(data, jsonObj.optString(HikeConstants.FROM));
 							}
