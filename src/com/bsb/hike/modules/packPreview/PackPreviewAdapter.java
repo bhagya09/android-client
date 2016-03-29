@@ -319,5 +319,8 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 		footerListSize = Utils.isEmpty(footerList) ? 0 : footerList.size();
 	}
 
-
+	public int getHeaderListSize()
+	{
+		return headerListSize;
+	}
 }

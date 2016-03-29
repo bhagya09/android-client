@@ -322,7 +322,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	public void onClick(View v) {
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
 		{
-			int position = rvGrid.getChildAdapterPosition(v) - 1;
+			int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
 			if (position < 0 || position >= stickerCategory.getAllStickers().size())
 			{
 				return;
