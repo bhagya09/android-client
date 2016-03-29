@@ -828,6 +828,8 @@ public class VoIPClient  {
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.END_CALL);
 						sendPacket(dp, true);
+
+						stop();
 					}
 				} catch (InterruptedException e) {
 					// Do nothing, all is good
