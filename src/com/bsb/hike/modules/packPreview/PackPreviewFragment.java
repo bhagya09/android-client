@@ -553,6 +553,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			else
 			{
 				downloadBtn.setText(getResources().getString(R.string.downloaded));
+				downloadBtn.setAlpha(0.4f);
 			}
 			break;
 		case StickerCategory.UPDATE:
