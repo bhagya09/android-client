@@ -21,7 +21,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.Logger;
 
-public class PlatformAlarmManager implements HikePlatformConstants
+public class MessagingBotAlarmManager implements HikePlatformConstants
 {
 	private static final String tag = "platformAlarmManager";
 
