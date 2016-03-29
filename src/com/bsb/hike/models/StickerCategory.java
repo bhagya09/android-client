@@ -45,6 +45,10 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private List<StickerCategory> similarPacks;
 
+	private String author;
+
+	private String copyRightString;
+
 	private int state = -1;
 
 	private int totalStickers;
@@ -86,6 +90,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.allStickerListString = builder.allStickerListString;
 		this.similarPacksString = builder.similarPacksString;
 		this.state = builder.state;
+		this.author = builder.author;
+		this.copyRightString = builder.copyRightString;
 		ensureSaneDefaults();
 	}
 
@@ -134,6 +140,10 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		private String allStickerListString;
 
 		private String similarPacksString;
+
+		private String author;
+
+		private String copyRightString;
 
 		private int state;
 
@@ -231,6 +241,18 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		public S setSimilarPacks(List<StickerCategory> similarPacks)
 		{
 			this.similarPacks = similarPacks;
+			return self();
+		}
+
+		public S setAuthor(String author)
+		{
+			this.author = author;
+			return self();
+		}
+
+		public S setCopyRightString(String copyRightString)
+		{
+			this.copyRightString = copyRightString;
 			return self();
 		}
 	}
@@ -440,6 +462,26 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public void setSimilarPacks(List<StickerCategory> similarPacks)
 	{
 		this.similarPacks = similarPacks;
+	}
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setAuthor(String author)
+	{
+		this.author = author;
+	}
+
+	public String getCopyRightString()
+	{
+		return copyRightString;
+	}
+
+	public void setCopyRightString(String copyRightString)
+	{
+		this.copyRightString = copyRightString;
 	}
 
 	public List<Sticker> getStickerList()
