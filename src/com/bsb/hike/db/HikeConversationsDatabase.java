@@ -9249,16 +9249,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				return null;
 			}
 
-			return c;
-
 		}
-		finally
+		catch (Exception e)
 		{
-			if (c != null)
-			{
-				c.close();
-			}
+			e.printStackTrace();
+			Logger.e(getClass().getSimpleName(), "Exception in getURL", e);
 		}
+	
+		return c;
+
 
 	}
 

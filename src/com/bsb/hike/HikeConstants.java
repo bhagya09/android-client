@@ -3613,7 +3613,7 @@ public class HikeConstants
 	
 	public static class MicroApp_Msisdn
 	{
-		public static final String HIKE_WALLET = "+hikepay+";
+		public static final String HIKE_RECHARGE = "+hikerecharge+";
 
 	}
 	
