@@ -333,10 +333,10 @@
     <string name="valentine_nudge_button">शानदार</string>
     <string name="confirm_delete_msg_header">संदेश हटायें</string>
     <string name="confirm_delete_msgs_header">संदेश हटायें।</string>
-    <string name="selected_count">%1$s चुने गए</string>
+    <string name="selected_count">%1$s चयनित</string>
     <string name="clear_conversation">सारे संदेश हटायें</string>
-    <string name="gallery_num_selected">%1$d चुने गए</string>
-    <string name="broadcast_selected">%1$s/500 चुने गए</string>
+    <string name="gallery_num_selected">%1$d चयनित</string>
+    <string name="broadcast_selected">%1$s/500 चयनित</string>
     <string name="select_file">फ़ाइल चुनें</string>
     <string name="free_of_total">%2$s में से %1$s खाली है</string>
     <string name="unknown_error">अज्ञात एरर</string>
@@ -667,7 +667,7 @@
     <string name="selected_contacts_count_plural">%1$s संपर्क</string>
     <string name="selected_contacts_count_singular">%1$s संपर्क</string>
     <string name="wish_now">अभिवादन करें</string>
-    <string name="messages_sent_succees">संदेश भेजा दिया</string>
+    <string name="messages_sent_succees">संदेश भेज दिया</string>
     <string name="content_card_tag">कार्ड</string>
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
@@ -1445,7 +1445,6 @@
     <string name="timeline_short_desc">आनंदपूर्ण क्षणों को मित्रों से साझा करें</string>
     <string name="multiple_su_post_failed">एक या उससे अधिक स्टेटस पोस्ट नहीं किए जा सकते।</string>
     <string name="timeline_post_timeout">आपके फ़ोटोस जल्दी हो पोस्ट किए जाएंगे</string>
-    <string name="timeline_post_multimsg">छोड़े गए अतिरिक्त संदेश</string>
     <string name="crop">क्रॉप</string>
     <string name="photo_gallery_choose_pic">फ़ोटोस</string>
     <string name="remove">निकालें</string>
@@ -1455,6 +1454,8 @@
     <string name="forward_to_single_timeline">1 संपर्क को और टाइमलाइन पर संदेश भेजें?</string>
     <string name="share_with_timeline">%1$d संपर्क से और टाइमलाइन पर साझा करें?</string>
     <string name="share_with_contact_timeline">%1$s से और टाइमलाइन पर साझा करें?</string>
-    <string name="image_w_caption_sms">ने आपको शीर्षक वाली फ़ोटो भेजी</string>
+    <string name="image_w_caption_sms">ने आपको %1$s कैप्शन वाली फ़ोटो भेजीी</string>
     <string name="share_on_timeline">टाइमलाइन पर साझा करें?</string>
+    <string name="posting_photos_timeline">आपके फ़ोटोस टाइमलाइन पर पोस्ट किए जा रहे हैं</string>
+    <string name="add_a_caption">कैप्शन डालें</string>
 </resources>
