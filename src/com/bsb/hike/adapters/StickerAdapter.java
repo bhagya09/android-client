@@ -180,21 +180,9 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		{
 			if (intent.getAction().equals(StickerManager.RECENTS_UPDATED))
 			{
-				StickerPageObjects spo = stickerObjMap.get(StickerManager.RECENT);
-				if (spo != null)
-				{
-					final StickerPageAdapter stickerPageAdapter = spo.getStickerPageAdapter();
-					if (stickerPageAdapter != null)
-					{
-						Sticker st = (Sticker) intent.getSerializableExtra(StickerManager.RECENT_STICKER_SENT);
-						if (st != null)
-						{
-							stickerPageAdapter.updateRecentsList(st);
-							stickerPageAdapter.notifyDataSetChanged();
-						}
-					}
-				}
-			}
+                Sticker st = (Sticker) intent.getSerializableExtra(StickerManager.RECENT_STICKER_SENT);
+                refreshRecents(st);
+            }
 			/**
 			 * More stickers downloaded case
 			 */
@@ -523,7 +511,12 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         {
             case REFRESH_ADAPTER:
                 Sticker sticker = (Sticker) msg.obj;
-                initStickers(sticker.getCategory());
+                if (sticker.getCategory() != null)
+                {
+                    initStickers(sticker.getCategory());
+                }
+
+                refreshRecents(null);
                 break;
             default:
                 Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -539,5 +532,22 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
         uiHandler.sendMessage(message);
     }
 
+
+    private void refreshRecents(Sticker sticker)
+    {
+        StickerPageObjects spo = stickerObjMap.get(StickerManager.RECENT);
+        if (spo != null)
+        {
+            final StickerPageAdapter stickerPageAdapter = spo.getStickerPageAdapter();
+            if (stickerPageAdapter != null)
+            {
+                if (sticker != null)
+                {
+                    stickerPageAdapter.updateRecentsList(sticker);
+                }
+                stickerPageAdapter.notifyDataSetChanged();
+            }
+        }
+    }
 
 }
