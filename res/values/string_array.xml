@@ -34,14 +34,10 @@
         <item>@string/led_color_purple</item>
     </string-array>
     <string-array name="privacyPrefKeys">
-        <item>@string/privacy_everyone_key</item>
-        <item>@string/privacy_my_contacts_key</item>
         <item>@string/privacy_favorites_key</item>
         <item>@string/privacy_nobody_key</item>
     </string-array>
     <string-array name="privacyPrefValues">
-        <item>@string/privacy_everyone</item>
-        <item>@string/privacy_my_contacts</item>
         <item>@string/privacy_favorites</item>
         <item>@string/privacy_nobody</item>
     </string-array>

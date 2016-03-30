@@ -1724,7 +1724,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private String getLSSummaryText()
 	{
-		String defValue = getApplicationContext().getString(R.string.privacy_my_contacts);
+		String defValue = getApplicationContext().getString(R.string.privacy_favorites);
 		String selectedValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(HikeConstants.LAST_SEEN_PREF_LIST, defValue);
 		String summaryTxt = null;
 		int selIndex = Integer.parseInt(selectedValue);
