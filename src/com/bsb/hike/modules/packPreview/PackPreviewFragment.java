@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -541,7 +542,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			stickerCategory = category;
 		}
 
-		downloadBtn.setBackground(getContext().getDrawable(R.drawable.rounded_rectangle_blue));
+		downloadBtn.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.rounded_rectangle_blue));
 
 		switch (stickerCategory.getState())
 		{
