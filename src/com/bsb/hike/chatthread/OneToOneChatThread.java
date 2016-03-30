@@ -3363,6 +3363,7 @@ import java.util.Map;
 		if (isBlocked)
 		{
 			hideLastSeenText();
+			removeKeyboardShutdownIfShowing();	// AND-5155
 		}
 
 		else
