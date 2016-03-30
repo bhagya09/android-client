@@ -173,7 +173,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
 	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
 	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
-    public boolean isWebViewInForeground = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -512,7 +511,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			mCustomTabActivityHelper.unbindCustomTabsService(this);
 		}
         HAManager.getInstance().recordIndividualChatSession(msisdn);
-        isWebViewInForeground = false;
 		if(webView!=null)
 		{
 			webView.stopLoading();
@@ -1131,7 +1129,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onPause()
 	{
 		super.onPause();
-        isWebViewInForeground = false;
 
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
@@ -1149,7 +1146,6 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onResume()
 	{
 		super.onResume();
-        isWebViewInForeground = true;
 		//Logging MicroApp Screen opening for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
 		{
