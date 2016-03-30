@@ -30,8 +30,8 @@ import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
+import com.bsb.hike.modules.httpmgr.request.requestbody.StringBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.bsb.hike.utils.Utils;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP request.
@@ -635,7 +635,7 @@ public abstract class Request<T> implements IRequestFacade
 		public S post(IRequestBody body)
 		{
 			this.method = RequestConstants.POST;
-			this.body = body;
+			this.body = body != null ? body : new StringBody("");
 			return self();
 		}
 
