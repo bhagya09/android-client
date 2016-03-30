@@ -334,5 +334,5 @@
     <color name="crop_actionbar_bg">#0f0f0f</color>
     <color name="block_contact">#C70000</color>
 
-    <color name="rec_progress_alpha">#aaef554e</color>
+    <color name="rec_progress_alpha">#c4ef554e</color>
 </resources>
