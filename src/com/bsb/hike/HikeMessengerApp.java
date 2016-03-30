@@ -987,6 +987,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		initContactManager();
 		BotUtils.initBots();
+		//Check if any pending platform packet is waiting for download.
+		PlatformUtils.retryPendingDownloadsIfAny(Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(getApplicationContext())));
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
