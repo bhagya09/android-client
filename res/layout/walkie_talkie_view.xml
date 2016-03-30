@@ -21,8 +21,8 @@
             android:gravity="center"
             android:paddingLeft="20dp"
             android:text="00:00"
-            android:textColor="@color/chat_color"
-            android:textSize="21sp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -48,7 +48,8 @@
                 android:gravity="center"
                 android:maxLines="1"
                 android:text="@string/slide_to_cancel"
-                android:textSize="@dimen/walkie_talkie_slider_font_size" />
+                android:textColor="@color/standard_light_grey2"
+                android:textSize="16sp" />
         </LinearLayout>
 
     </LinearLayout>
