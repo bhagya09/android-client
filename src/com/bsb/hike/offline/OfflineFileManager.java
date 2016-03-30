@@ -234,33 +234,38 @@ public class OfflineFileManager
 	public void onFileCompleted(ConvMessage message, File file)
 	{
 		JSONObject messageJSON = message.serialize();
+		File tempSticker = file;
+		String filePath = null;
 		if (OfflineUtils.isStickerMessage(messageJSON)) 
 		{
 			String stpath = OfflineUtils.getStickerPath(messageJSON);
-			File stickerImage = new File(stpath);
-			File tempSticker = file;
-			String filePath=null;
-			if (!stickerImage.exists()) 
+			//stPath can be null AND-5028
+			if (!android.text.TextUtils.isEmpty(stpath))
 			{
-				try 
-				{
-					filePath = OfflineUtils.createStkDirectory(messageJSON);
-					if (filePath != null)
-					{
-						stickerImage = new File(filePath);
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				if (filePath != null)
-					tempSticker.renameTo(stickerImage);
 
+				File stickerImage = new File(stpath);
+				if (!stickerImage.exists())
+				{
+					try
+					{
+						filePath = OfflineUtils.createStkDirectory(messageJSON);
+						if (filePath != null)
+						{
+							stickerImage = new File(filePath);
+						}
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+					if (filePath != null)
+						tempSticker.renameTo(stickerImage);
+
+				}
 			}
 			else 
 			{
