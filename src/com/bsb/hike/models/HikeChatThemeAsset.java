@@ -15,11 +15,14 @@ public class HikeChatThemeAsset
 
 	private byte isDownloaded = HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED;
 
-	public HikeChatThemeAsset(String assetId, int type, String value)
+	private int size;
+
+	public HikeChatThemeAsset(String assetId, int type, String value, int size)
 	{
 		this.assetId = assetId;
 		this.type = type;
 		this.value = value;
+		this.size = size;
 	}
 
 	public int getType()
@@ -40,6 +43,16 @@ public class HikeChatThemeAsset
 	public void setValue(String value)
 	{
 		this.value = value;
+	}
+
+	public int getSize()
+	{
+		return size;
+	}
+
+	public void setSize(int newSize)
+	{
+		size = newSize;
 	}
 
 	public String getAssetId()
