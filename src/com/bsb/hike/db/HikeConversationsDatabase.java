@@ -47,6 +47,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
@@ -126,16 +127,37 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private HikeConversationsDatabase(Context context)
 	{
 		super(context, DBConstants.CONVERSATIONS_DATABASE_NAME, null, DBConstants.CONVERSATIONS_DATABASE_VERSION, new ConversationDatabaseErrorHandler());
-		mDb = getWritableDatabase();
+		initializeIfRequiredAndGetWriteDatabase();
 	}
 	
-	public SQLiteDatabase getWriteDatabase()
+	public SQLiteDatabase initializeIfRequiredAndGetWriteDatabase()
 	{
-		if(mDb == null || !mDb.isOpen())
+		if (mDb == null || !mDb.isOpen())
 		{
 			mDb = super.getWritableDatabase();
+			SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDb);
+			setPragmaModeCommand.execute();
 		}
 		return mDb;
+	}
+
+	public String getJournalMode()
+	{
+		String journalMode = null;
+		try
+		{
+			Cursor cursor = mDb.rawQuery("PRAGMA journal_mode;", null);
+			if (cursor.moveToFirst())
+			{
+				journalMode = cursor.getString(0);
+				Logger.d(getClass().getSimpleName(), "Journal mode = " + journalMode);
+			}
+		}
+		catch (Throwable th)
+		{
+			Logger.d(getClass().getSimpleName(), "exception in getting journal mode", th);
+		}
+		return journalMode;
 	}
 
 	@Override
@@ -943,7 +965,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		 * right now we store convDb reference in some classes and use that refenence to query db. ex. DbConversationListener. 
 		 * i.e. on restore we have two objects of HikeConversationsDatabase in memory.
 		 */
-		mDb = hikeConversationsDatabase.getWriteDatabase(); 
+		hikeConversationsDatabase.initializeIfRequiredAndGetWriteDatabase();
 		Logger.d(getClass().getSimpleName(), "Conversation DB initialization is complete");
 	}
 
@@ -1780,7 +1802,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		if(count == TimelineActivity.FETCH_FEED_FROM_DB)
 		{
-			count = getUnreadActivityFeedCount();
+			count = getUnreadActivityFeedCount(true);
 			Logger.d(HikeConstants.TIMELINE_LOGS, "unread activity feeds from DB " + count);
 		}
 		Logger.d(HikeConstants.TIMELINE_LOGS, "firing ACTIVITY_FEED_COUNT_CHANGED " + count);
@@ -1790,7 +1812,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	/**
 	 * @return count of unreadActivity Feed
 	 */
-	public int getUnreadActivityFeedCount()
+	public int getUnreadActivityFeedCount(boolean checkForStealth)
 	{
 		String where = DBConstants.READ + " = 0 ";
 		int count = 0;
@@ -1803,7 +1825,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			do
 			{
 				String msisdn = cursor.getString(columnIndex);
-				if (StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
+				if (checkForStealth && StealthModeManager.getInstance().isStealthMsisdn(msisdn) && !StealthModeManager.getInstance().isActive())
 				{
 					continue;
 				}

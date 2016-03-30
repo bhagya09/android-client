@@ -1510,7 +1510,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		List<ContactInfo> newContacts = null;
 		byte result = SYNC_CONTACTS_NO_CONTACTS_FOUND_IN_ANDROID_ADDRESSBOOK;
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 		{
 			newContacts = getContacts(ctx);
 		}
@@ -1523,7 +1523,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}
@@ -1541,6 +1541,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public byte syncUpdatesOld(List<ContactInfo> deviceContacts, List<ContactInfo> hikeContacts)
 	{
+		Logger.d("ContactUtils", "Old way to sync conctacts.");
 		Map<String, List<ContactInfo>> new_contacts_by_id = convertToMap(deviceContacts);
 		Map<String, List<ContactInfo>> hike_contacts_by_id = convertToMap(hikeContacts);
 
@@ -2117,6 +2118,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 */
 	public List<ContactInfo> getContactsOld(Context ctx)
 	{
+		Logger.d("ContactUtils", "Old way to read conctacts from device");
 		HashSet<String> contactsToStore = new HashSet<String>();
 		String[] projection = new String[] { ContactsContract.Contacts._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER, ContactsContract.Contacts.DISPLAY_NAME };
 
@@ -3085,6 +3087,30 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public boolean isMyMsisdn(String outsideMsisdn)
 	{
 		return selfMsisdn.equals(outsideMsisdn);
+	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isOneWayFriend(String msidn)
+	{
+		FavoriteType favoriteType = getFriendshipStatus(msidn);
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isTwoWayFriend(msidn));
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isTwoWayFriend(String msisdn)
+	{
+		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
 }
 

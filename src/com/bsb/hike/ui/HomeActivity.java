@@ -198,7 +198,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -326,7 +326,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
-		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+
+		if (!Utils.isDBCorrupt()) //Avoid making a call to show popup if Db is corrupt
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		}
 		
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, false)
 				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, false))
@@ -1305,9 +1309,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//linkurl is http://hike.in/refid:gc:code
 			String codeArray[] = linkUrl.split("/");
-			if(codeArray.length < 4)
+			if(codeArray.length < 4 || !linkUrl.contains(":gc:"))
 			{
-				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				Logger.d("link_share_error", "The linkurl is wrong, either no :gc: present or split in '/' is < 4 " + linkUrl);
 				return;
 			}
 			
@@ -1606,7 +1610,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type) || HikePubSub.STEALTH_MODE_TOGGLED.equals(type) || HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{
@@ -2178,8 +2182,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
-		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
-
 		addEmailLogItem(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
@@ -2306,13 +2308,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					startActivity(galleryPickerIntent);
 
 					sendAnalyticsTakePicture();
-					break;
-
-				case -100: // Dummy commit for QA Testing.
-					// TODO : Revert this before build goes live.
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
-					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
-					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
 					break;
 					
 				}
@@ -2693,6 +2688,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			dbCorruptDialog = null;
 		}
 
+		showingBlockingDialog = false;
+
 		if (restoreResult == AccountBackupRestore.STATE_RESTORE_SUCCESS)
 		{
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_success), Toast.LENGTH_LONG).show();
@@ -2700,10 +2697,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
+			return;
 		}
 
-		showingBlockingDialog = false;
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
@@ -2728,7 +2726,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		if (Utils.isDBCorrupt()) //Conversation fragment could have been added previously. Remove it and show the corrupt dialog
 		{
-
 			if (isFragmentAdded(MAIN_FRAGMENT_TAG))
 			{
 				removeFragment(MAIN_FRAGMENT_TAG);

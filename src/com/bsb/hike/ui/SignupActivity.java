@@ -1311,6 +1311,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final ImageView restoreFail = (ImageView) restoringBackupLayout.findViewById(R.id.restore_fail);
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
 
+			TextView restoreTitleTv = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_title);
+			restoreTitleTv.setText(getString(R.string.restoring___));
+
 			if (restoreStatus.equals(Boolean.FALSE.toString()) || restoreStatus.equals(getString(R.string.restore_msisdn_error)))
 			// If Restore failed due to generic reasons or if msisdn was different, show a retry button to give the user one more chance
 			{
@@ -1339,6 +1342,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				});
 
 				retry.setText(getString(R.string.retry));
+
+				if (restoreStatus.equals(R.string.restore_msisdn_error)) //If msisdn mismatch, set the title as Bummer!
+				{
+					restoreTitleTv.setText(getString(R.string.bummer));
+				}
 			}
 
 			else if (restoreStatus.equals(getString(R.string.restore_version_error))) // If Restore failed due to version reasons
@@ -2320,6 +2328,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			}
 			setDefaultProfileImage(msisdn);
 		}
+
 	};
 
 	@Override

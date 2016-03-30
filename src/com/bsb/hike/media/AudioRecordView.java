@@ -359,12 +359,23 @@ public class AudioRecordView
 	{
 		if (recorder == null)
 		{
-			recorder = new MediaRecorder();
-			recorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-			recorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
-			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-			recorder.setMaxDuration(HikeConstants.MAX_DURATION_RECORDING_SEC * 1000);
-			recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
+			/* CE-62: Handling MediaRecorder.setAudioSource crash, observed when the sound
+			   or audio recording permission is disabled/forbidden from settings */
+			try {
+				recorder = new MediaRecorder();
+				recorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+				recorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
+				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+				recorder.setMaxDuration(HikeConstants.MAX_DURATION_RECORDING_SEC * 1000);
+				recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
+			} catch (Exception e) {
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(activity, R.string.error_recording, Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
 		}
 		
 		recorder.setOnErrorListener(new OnErrorListener()

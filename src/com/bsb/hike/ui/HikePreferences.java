@@ -1206,24 +1206,28 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		
 		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
 		{
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_REORDER_CLICKED);
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_REORDER_TASK);
 			startActivity(i);
 		}
 		else if(HikeConstants.STICKER_DELETE_PREF.equals(preference.getKey()))
 		{
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_DELETE_CLICKED);
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_DELETE_TASK);
 			startActivity(i);
 		}
 		else if(HikeConstants.STICKER_HIDE_PREF.equals(preference.getKey()))
 		{
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_HIDE_CLICKED);
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_HIDE_TASK);
 			startActivity(i);
 		}
 		else if(HikeConstants.STICKER_UPDATE_PREF.equals(preference.getKey()))
 		{
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_UPDATE_CLICKED);
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
 			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
 			startActivity(i);

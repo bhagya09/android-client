@@ -6,6 +6,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.lang.ref.WeakReference;
@@ -44,10 +45,19 @@ public class AccountRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 	@Override
 	protected void onPostExecute(@RestoreErrorStates Integer result)
 	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
+		// If we were not successful in restoring, we will again show the restore screen, hence not letting the user connect to MQ or perform other tasks.
+		if (result == AccountBackupRestore.STATE_RESTORE_SUCCESS)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS,
+					false); // UnBlock any possible notifs as well
 
-		Utils.connectToMQTT();
+			//Fix for HS-83
+			// Resetting Sticker categories here
+			StickerManager.getInstance().postDbCorruptionSetup();
+
+			Utils.connectToMQTT();
+		}
 
 		if (mCallback.get() != null)
 		{

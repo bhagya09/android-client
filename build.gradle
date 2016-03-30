@@ -1,17 +1,23 @@
 repositories {
+    maven { url 'https://maven.fabric.io/public' }
     mavenCentral()
 }
+
 buildscript {
 
     repositories {
         mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-    	// updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
+        // updating class path due to http://stackoverflow.com/questions/29962735/android-studio-gradle-error
         classpath 'com.android.tools.build:gradle:1.1.2+'
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
 android {
     compileSdkVersion "Google Inc.:Google APIs:22"
     buildToolsVersion "22.0.1"
@@ -32,7 +38,7 @@ android {
     dexOptions {
         javaMaxHeapSize "2048M"
         incremental = true;
-        preDexLibraries = false 
+        preDexLibraries = false
         jumboMode = true
     }
 
@@ -71,52 +77,58 @@ android {
             storeFile rootProject.file('debug.keystore')
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-             storePassword 'android'
-         }
+            storePassword 'android'
+
+        }
         release {
             storeFile rootProject.file('hike-android-release-key.keystore')
             storePassword "Tequ1laFr1day5"
             keyAlias "hhikedroid"
             keyPassword "Tequ1laFr1day5"
+
         }
     }
     if( project.hasProperty('isBuildSystemProjectProp') && project.property('isBuildSystemProjectProp').toBoolean() ) {
-    applicationVariants.all { variant -> 
-        variant.outputs.each { output -> 
-            def file = output.outputFile
-            output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
+        applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                def file = output.outputFile
+                output.outputFile = new File(file.parent, file.name.replace(".apk","-" + getVersionName() + "-" + getBranchAndCommitID() + "-"+ getDateTime() + ".apk"))
+            }
         }
-    }
     }
     buildTypes {
         black {
             applicationIdSuffix ".black"
             debuggable true
             signingConfig signingConfigs.release
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         release {
-        	minifyEnabled true
+            minifyEnabled true
             shrinkResources true
             debuggable false
             proguardFile 'proguard.cfg'
+            manifestPlaceholders = [crashlyticsApiKey: "870a759c61924234e2425a9ac17d040daa2c05d4"]
             signingConfig signingConfigs.release
         }
         obfuscated {
-        	minifyEnabled true
+            minifyEnabled true
             debuggable true
             proguardFile 'proguard.cfg'
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
         debug {
             debuggable true
+            manifestPlaceholders = [crashlyticsApiKey: "3f21e4564cb83ed2fe5c288241980e563cfe1db0"]
         }
     }
     productFlavors {
-    arm {
-        ndk {
-            abiFilters "armeabi", "armeabi-v7a"
-        	}
-    	}
+        arm {
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
 
         customDev {  //This flavor will contain all those dependencies which are useful for debugging purposes but are not meant to be shipped
             ndk {
@@ -124,7 +136,7 @@ android {
             }
             versionName computeCustomDevVersionName()
         }
-	}
+    }
 }
 
 dependencies {
@@ -163,20 +175,28 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['android-support-multidex.jar'])
 
     customDevCompile 'com.facebook.stetho:stetho:1.3.0'
+
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }
+
+//        compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.2@aar') {
+//            transitive = true;
+//        }
 }
 
 
 def getBranchAndCommitID() {
     ext.revision = getGitRevParseInfo ( "--short" )
     ext.branch = getGitRevParseInfo ( "--abbrev-ref" )
-    
-    return ext.revision 
+
+    return ext.revision
 }
 
 def getGitRevParseInfo (what) {
-   def cmd = "git rev-parse " + what + " HEAD"
-   def proc = cmd.execute ()
-   proc.text.trim ()
+    def cmd = "git rev-parse " + what + " HEAD"
+    def proc = cmd.execute ()
+    proc.text.trim ()
 }
 
 def getVersionName() {
@@ -189,6 +209,12 @@ def getDateTime() {
     def date = new Date()
     def formattedDate = date.format('yyyy_MM_dd-HH_mm_ss')
     return formattedDate
+}
+
+crashlytics {
+    enableNdk true
+    androidNdkOut 'src/main/obj'
+    androidNdkLibsOut 'src/main/libs'
 }
 
 // This function appends "Custom_Dev_Flavor" to the versionName present in AndroidManifest file

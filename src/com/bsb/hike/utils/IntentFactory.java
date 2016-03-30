@@ -733,9 +733,8 @@ public class IntentFactory
 		}
 		else
 		{
-			Intent dpIntent = new Intent(context, ProfileActivity.class);
-			dpIntent.setAction(Intent.ACTION_ATTACH_DATA);
-			dpIntent.setData(interceptUri);
+			Intent dpIntent = new Intent(context, ProfilePicActivity.class);
+			dpIntent.putExtra(HikeMessengerApp.FILE_PATH, Utils.getAbsolutePathFromUri(interceptUri, context, false));
 			return dpIntent;
 		}
 
@@ -811,6 +810,9 @@ public class IntentFactory
 		return intent;
 	}
 
+	/*
+	TODO: Fix input params
+	 */
 	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery)
 	{
 		return getImageSelectionIntent(argContext,argSelectedImages,fromDeviceGallery,false);
@@ -821,10 +823,20 @@ public class IntentFactory
 	 */
 	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture)
 	{
+		return getImageSelectionIntent(argContext, argSelectedImages, fromDeviceGallery, fromCameraCapture,null);
+	}
+
+	public static Intent getImageSelectionIntent(Context argContext, List<GalleryItem> argSelectedImages,boolean fromDeviceGallery, boolean fromCameraCapture, ParcelableSparseArray captions)
+	{
 		Intent multiIntent = new Intent(argContext,GallerySelectionViewer.class);
 		multiIntent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, new ArrayList(argSelectedImages));
 		multiIntent.putExtra(GallerySelectionViewer.FROM_DEVICE_GALLERY_SHARE, fromDeviceGallery);
 		multiIntent.putExtra(GallerySelectionViewer.FROM_CAMERA_CAPTURE, fromCameraCapture);
+		if(captions != null)
+		{
+			multiIntent.putExtra(HikeConstants.CAPTION,captions);
+		}
+
 		return multiIntent;
 	}
 
@@ -1137,6 +1149,7 @@ public class IntentFactory
 		ConvMessage convMessage = Utils.makeConvMessage(myMsisdn, text, true);
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, false);
 		if (!TextUtils.isEmpty(analyticsExtra))
 		{
 			intent.putExtra(AnalyticsConstants.ANALYTICS_EXTRA, analyticsExtra);

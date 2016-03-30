@@ -87,7 +87,7 @@ public class RegisterAccountTask
 				int all_invitee = response.optInt(HikeConstants.ALL_INVITEE_2);
 				int all_invitee_joined = response.optInt(HikeConstants.ALL_INVITEE_JOINED_2);
 				String country_code = response.optString("country_code");
-				String serverName = response.optString(HikeConstants.NAME);
+				String serverName = response.optString(HikeConstants.NAME, Utils.getOwnerName(context)); //Default name as google account name
 				String serverGender = response.optString(HikeConstants.GENDER);
 				JSONObject dob = response.optJSONObject(HikeConstants.DOB);
 				Birthday serverDOB = dob != null ? new Birthday(dob.optInt(HikeConstants.DAY), dob.optInt(HikeConstants.MONTH), dob.optInt(HikeConstants.YEAR)):

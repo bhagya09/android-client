@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -626,4 +627,34 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		return BotUtils.isBot(msisdn);
 	}
+
+	public boolean isBlocked()
+	{
+		return ContactManager.getInstance().isBlocked(msisdn);
+	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isMyOneWayFriend()
+	{
+		FavoriteType favoriteType = this.getFavoriteType();
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isMyTwoWayFriend());
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isMyTwoWayFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.FRIEND;
+	}
+
 }
