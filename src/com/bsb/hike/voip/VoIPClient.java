@@ -1185,29 +1185,26 @@ public class VoIPClient  {
 			
 			@Override
 			public void run() {
-//				Logger.w(logTag, "Receiving thread starting and listening on: " + socket.getLocalPort());
 				byte[] buffer = new byte[50000];
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
 				while (keepRunning) {
 
 					if (Thread.currentThread().isInterrupted()) {
 						break;
 					}
 					
-					DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 					try {
 						socket.setSoTimeout(0);
 						socket.receive(packet);
 						totalBytesReceived += packet.getLength();
 						totalPacketsReceived++;
-//						Logger.d(tag, "Received " + packet.getLength() + " bytes.");
-						
+
 					} catch (IOException e) {
 						break;
 					}
 					
-					byte[] realData = new byte[packet.getLength()];
-					System.arraycopy(packet.getData(), 0, realData, 0, packet.getLength());
-					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(realData);
+					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(packet.getData(), packet.getLength());
 					
 					if (dataPacket == null)
 						continue;
