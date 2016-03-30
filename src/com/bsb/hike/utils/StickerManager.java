@@ -2933,7 +2933,7 @@ public class StickerManager
 
 	public boolean isMiniStickersEnabled()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, false);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, true);
 	}
 
 	public void saveSticker(Sticker sticker)
