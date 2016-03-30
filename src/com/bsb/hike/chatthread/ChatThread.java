@@ -1543,13 +1543,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			if (mShareablePopupLayout.isBusyInOperations())
-			{//  previous task is running don't accept this event
-				return;
-			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			setEmoticonButtonSelected(false);
-			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
@@ -1720,6 +1713,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void stickerClicked()
 	{
+		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
+			return;
+		}
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
+		setEmoticonButtonSelected(false);
+		setStickerButtonSelected(true);
+
 		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
