@@ -378,7 +378,7 @@ public class FTApkManager
             if(!jo.toString().equals("{}")) {
                 HikeFile hf = new HikeFile(jo, false);
 
-                String stamp = hf.getFileName().substring(hf.getFileName().length() - 13, hf.getFileName().length());
+                String stamp = hf.getFileName().substring(hf.getFileName().length() - 17, hf.getFileName().length() - 4);
                 Logger.d("AUTOAPK", stamp);
                 Long timeStamp = Long.parseLong(stamp);
                 Logger.d("AUTOAPK", timeStamp + "");
@@ -428,6 +428,10 @@ public class FTApkManager
         catch (JSONException je)
         {
             Logger.d("AUTOAPK","json exception");
+        }
+        catch (NumberFormatException nfe)
+        {
+            Logger.d("AUTOAPK","number format exception on parsing long");
         }
     }
 

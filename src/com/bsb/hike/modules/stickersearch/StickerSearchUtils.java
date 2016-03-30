@@ -132,7 +132,14 @@ public class StickerSearchUtils
 			}
 			else if (count < allowedUndownloadedLimit)
 			{
-				undownloadedList.add(count,sticker);
+                if(sticker.isMiniStickerAvailable())
+                {
+                    resultList.add(sticker);
+                }
+                else
+                {
+                    undownloadedList.add(sticker);
+                }
 				count++;
 			}
 			else

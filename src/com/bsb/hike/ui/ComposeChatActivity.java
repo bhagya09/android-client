@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Data;
 import android.support.v4.app.FragmentManager;
@@ -117,6 +116,7 @@ import com.bsb.hike.utils.LastSeenScheduler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
@@ -400,13 +400,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			if (savedInstanceState == null && Intent.ACTION_SEND.equals(getIntent().getAction()) )
 			{
-				messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
-
-				if(!TextUtils.isEmpty(messageToShare))
-				{
-					imageCaptions.add(messageToShare);
-				}
-
 				if(getIntent().getParcelableExtra(Intent.EXTRA_STREAM) != null)
 				{
 					String filePath = Utils.getAbsolutePathFromUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM), getApplicationContext(), true, false);
@@ -423,21 +416,28 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							selectedImages.add(new GalleryItem(0, null, GalleryItem.CUSTOM_TILE_NAME, filePath, 0));
 						}
 
-						if ((selectedImages != null))
+						if (selectedImages != null && !selectedImages.isEmpty())
 						{
-							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true);
+							messageToShare = IntentFactory.getTextFromActionSendIntent(getIntent());
 
-							if (TextUtils.isEmpty(messageToShare))
+							ParcelableSparseArray captionsSparse = new ParcelableSparseArray();
+
+							if (!TextUtils.isEmpty(messageToShare))
 							{
-								allImages = true;
-								startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
+								captionsSparse.put(0,messageToShare);
 							}
+
+							Intent multiIntent = IntentFactory.getImageSelectionIntent(getApplicationContext(), selectedImages, true, false, captionsSparse);
+
 							// Got images to share
 							// Keep references to images (these will need to be shared via hike features (timeline,etc)
 							for (GalleryItem item : selectedImages)
 							{
 								imagesToShare.add(item.getFilePath());
 							}
+
+							allImages = true;
+							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
 					}
 				}

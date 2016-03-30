@@ -505,7 +505,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			case StickerManager.STICKERS_DOWNLOADED:
 				if (mStickerPicker != null)
 				{
-					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
 				break;
