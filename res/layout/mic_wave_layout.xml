@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:background="@null"
         android:gravity="center"
-        android:paddingTop="20dp"
+        android:paddingTop="26dp"
         android:scaleType="centerCrop"
         android:src="@drawable/circle_walkie_ring_outer" />
 

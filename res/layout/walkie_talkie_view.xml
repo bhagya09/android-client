@@ -14,21 +14,21 @@
         android:paddingLeft="50dp"
         android:paddingRight="50dp">
 
-        <TextView
+        <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/record_info_duration"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:paddingLeft="20dp"
+            android:paddingLeft="15dp"
             android:text="00:00"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold|italic" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="51dp"
             android:gravity="center"
             android:id="@+id/slidelayout"
             >
@@ -41,7 +41,7 @@
                 android:scaleType="center"
                 android:src="@drawable/ic_arrow_grey" />
 
-            <TextView
+            <com.bsb.hike.view.CustomFontTextView
                 android:id="@+id/slidetocancel"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
