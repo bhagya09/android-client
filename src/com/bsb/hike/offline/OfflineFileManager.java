@@ -12,12 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Environment;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -106,6 +102,11 @@ public class OfflineFileManager
 	
 	public FileSavedState getUploadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -144,6 +145,11 @@ public class OfflineFileManager
 	 */
 	public FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
