@@ -1132,6 +1132,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onPause();
         isWebViewInForeground = false;
+
 		//Logging MicroApp Screen closing for bot case
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
 		{

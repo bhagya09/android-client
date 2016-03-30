@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -138,6 +150,8 @@ public class HikeConstants
 	public static final String FILES = "files";
 
 	public static final String CONTENT_TYPE = "ct";
+
+	public static final String ATTACHEMENT_SHARED_FROM = "atsrc";
 
 	public static final String THUMBNAIL = "tn";
 
@@ -1104,6 +1118,8 @@ public class HikeConstants
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
 
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
+
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
 	public static final String HIKE_BACKUP_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Backup";
@@ -1285,7 +1301,7 @@ public class HikeConstants
 
 	public static final int STEALTH_ON = 2;
 
-	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 1 * 60 * 1000;
+	public static final long RESET_COMPLETE_STEALTH_TIME_MS = 30 * 60 * 1000;
 
 	public static final String ENABLED = "enabled";
 
@@ -4012,4 +4028,17 @@ public class HikeConstants
 	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
+
 }

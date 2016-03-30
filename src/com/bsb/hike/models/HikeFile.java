@@ -373,6 +373,10 @@ public class HikeFile
 				fileJSON.putOpt(HikeConstants.DOWNLOAD_FILE_URL_KEY, downloadURL);
 			}
 
+			String attachmentSharedAs = getAttachmentSharedAs();
+			if (!TextUtils.isEmpty(attachmentSharedAs)) {
+				fileJSON.putOpt(HikeConstants.ATTACHEMENT_SHARED_FROM, attachmentSharedAs);
+			}
 			return fileJSON;
 		}
 		catch (JSONException e)
@@ -381,7 +385,20 @@ public class HikeFile
 		}
 		return null;
 	}
-	
+
+	public String getAttachmentSharedAs() {
+		// Differentiate between a walkie-talkie msg and an audio attachment
+		String audioSrcType = "";
+		if (hikeFileType != null) {
+			if (HikeFileType.AUDIO_RECORDING == hikeFileType) {
+				audioSrcType = "wktk";
+			} else if (HikeFileType.AUDIO == hikeFileType) {
+				audioSrcType = "audmsg";
+			}
+		}
+		return audioSrcType;
+	}
+
 	public String getExactFilePath()
 	{
 		if(hikeFileType == HikeFileType.IMAGE || !TextUtils.isEmpty(fileKey))
