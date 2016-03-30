@@ -46,17 +46,17 @@ public class RedDot extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        dotDrawable.setBounds(0, 0, DrawUtils.dp(20), DrawUtils.dp(20));
+        dotDrawable.setBounds(0, 0, DrawUtils.dp(12), DrawUtils.dp(12));
         dotDrawable.setAlpha((int) (255 * alpha));
         long dt = (System.currentTimeMillis() - lastUpdateTime);
         if (!isIncr) {
-            alpha -= dt / 400.0f;
+            alpha -= dt / 600.0f;
             if (alpha <= 0) {
                 alpha = 0;
                 isIncr = true;
             }
         } else {
-            alpha += dt / 400.0f;
+            alpha += dt / 600.0f;
             if (alpha >= 1) {
                 alpha = 1;
                 isIncr = false;
