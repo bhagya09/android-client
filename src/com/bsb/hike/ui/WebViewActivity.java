@@ -1130,7 +1130,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	{
 		super.onPause();
 
-		//Logging MicroApp Screen closing for bot case
+        /*
+		Logging MicroApp Screen closing for bot case
+		Added SERVER_CONTROLLED_WEB_URL_MODE and callingMsisdn case here for counting user full story session time under the same micro app
+		*/
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
 		{
             if(!TextUtils.isEmpty(msisdn))
@@ -1146,8 +1149,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onResume()
 	{
 		super.onResume();
-		//Logging MicroApp Screen opening for bot case
-		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
+
+        /*
+		Logging MicroApp Screen opening for bot case
+		Added SERVER_CONTROLLED_WEB_URL_MODE and callingMsisdn case here for counting user full story session time under the same micro app
+		*/
+        if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE)
 		{
 			if(!TextUtils.isEmpty(msisdn))
                 HAManager.getInstance().startChatSession(msisdn);
