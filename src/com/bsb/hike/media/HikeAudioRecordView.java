@@ -522,7 +522,20 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     @Override
     public void onDismiss() {
         if (recorderState != IDLE) cancelAndDismissAudio();
+        resetAndClearAnim();
         recorderState = IDLE;
+    }
+
+    // Fixing issues: (1)Translated x position gets retained (2)Visibility of X & dot doesn't reset
+    private void resetAndClearAnim() {
+        if (popup_l != null) {
+            recorderImg.clearAnimation();
+            float amtOfXTranslated = (recorderImg.getX() - recorderImg.getTranslationX());
+            recorderImg.setX(amtOfXTranslated);
+            slideToCancel.setAlpha(1);
+            rectBgrnd.setVisibility(View.INVISIBLE);
+            recordingState.setVisibility(View.VISIBLE);
+        }
     }
 
     private class UpdateRecordingDuration implements Runnable {
