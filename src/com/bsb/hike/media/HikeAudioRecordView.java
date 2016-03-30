@@ -195,7 +195,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         alpha = 0;
                     }
                     slideToCancel.setAlpha(alpha);
-                    recorderImg.setTranslationX(dist);
+                    if(dist <= 0.0f) recorderImg.setTranslationX(dist);
                 } else {
                     if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
