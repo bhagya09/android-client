@@ -8064,4 +8064,14 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
+	public static boolean isFavToFriendsMigrationAllowed()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, false);
+	}
+
+	public static boolean isNewUser()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.IS_NEW_USER, false);
+	}
+
 }
