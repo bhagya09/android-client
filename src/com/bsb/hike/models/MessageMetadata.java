@@ -7,19 +7,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public class MessageMetadata
 {
+
+	private boolean isSync;
 
 	public static enum NudgeAnimationType
 	{
@@ -170,11 +169,12 @@ public class MessageMetadata
 			this.gcjParticipantInfo = metadata.getJSONArray(HikeConstants.DATA);
 			if(metadata.has(HikeConstants.METADATA))
 			{
-			JSONObject mdata = metadata.getJSONObject(HikeConstants.METADATA);
-			if (mdata.has(HikeConstants.FROM))
-			{
-				this.groupAdder = mdata.getString(HikeConstants.FROM);
-			}
+				JSONObject mdata = metadata.getJSONObject(HikeConstants.METADATA);
+				if (mdata.has(HikeConstants.FROM))
+				{
+					this.groupAdder = mdata.getString(HikeConstants.FROM);
+				}
+				this.isSync = mdata.optInt(HikeConstants.MqttMessageTypes.SYNC, 0) == 1 ? true : false;
 			}
 			this.newGroup = metadata.optBoolean(HikeConstants.NEW_GROUP);
 			this.newBroadcast = metadata.optBoolean(HikeConstants.NEW_BROADCAST);
@@ -381,5 +381,10 @@ public class MessageMetadata
 	public void setCaption(String caption)
 	{
 		this.caption = caption;
+	}
+
+	public boolean isSync()
+	{
+		return isSync;
 	}
 }
