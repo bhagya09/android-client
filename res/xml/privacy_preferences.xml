@@ -31,7 +31,7 @@
             android:widgetLayout="@layout/switch_widget" />
 
         <com.bsb.hike.view.IconListPreference
-            android:defaultValue="@string/privacy_favorites"
+            android:defaultValue="@string/privacy_my_contacts"
             android:entries="@array/privacyPrefKeys"
             android:entryValues="@array/privacyPrefValues"
             android:key="lastSeenPrefList"
