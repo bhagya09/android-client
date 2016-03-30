@@ -1,6 +1,7 @@
 package com.bsb.hike.smartImageLoader;
 
 import android.graphics.Bitmap;
+import android.util.Size;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -26,6 +27,10 @@ public class StickerLoader extends ImageWorker
 	private boolean downloadLargeStickerIfNotFound;
 
 	private boolean stretchMini;
+    
+	private Bitmap defaultBitmap;
+
+    private Size stickerSize;
 
 	private StickerLoader(Builder builder)
     {
@@ -36,7 +41,8 @@ public class StickerLoader extends ImageWorker
         this.loadMiniStickerIfNotFound = builder.loadMiniStickerIfNotFound;
         this.stretchMini = builder.stretchMini;
         this.downloadMiniStickerIfNotFound = builder.downloadMiniStickerIfNotFound;
-
+        this.defaultBitmap = builder.defaultBitmap;
+        this.stickerSize = builder.stickerSize;
         mResources = HikeMessengerApp.getInstance().getResources();
     }
 
@@ -50,16 +56,20 @@ public class StickerLoader extends ImageWorker
 
 		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
+			Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), loadSize);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		else
 		{
-			bitmap = loadStickerBitmap(path);
-            checkAndDownloadLargeSticker(bitmap, sticker);
-			bitmap = checkAndLoadOfflineSticker(bitmap, sticker);
+			Bitmap large = loadStickerBitmap(path);
+			bitmap = checkAndLoadOfflineSticker(large, sticker);
 			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
+            checkAndDownloadLargeSticker(large, sticker);
 		}
+
+        bitmap = checkAndLoadDefaultBitmap(bitmap);
+
 		return bitmap;
 	}
 
@@ -91,7 +101,17 @@ public class StickerLoader extends ImageWorker
 		return HikeBitmapFactory.decodeFile(path);
 	}
 
-	private Bitmap loadMiniStickerBitmap(String path, int width, int height)
+	public Bitmap checkAndLoadDefaultBitmap(Bitmap bitmap)
+	{
+		if (bitmap == null && defaultBitmap != null)
+		{
+			return defaultBitmap;
+		}
+
+		return bitmap;
+	}
+
+    private Bitmap loadMiniStickerBitmap(String path,Size size)
 	{
 		CacheResponse cacheResponse = HikeMessengerApp.getDiskCache().get(path);
 
@@ -104,16 +124,16 @@ public class StickerLoader extends ImageWorker
 
 		}
 
-        bitmap = loadStretchMiniBitmap(bitmap, width, height);
+        bitmap = loadStretchMiniBitmap(bitmap,size);
 
 		return bitmap;
 	}
 
-	private Bitmap loadStretchMiniBitmap(Bitmap bitmap, int width, int height)
+	private Bitmap loadStretchMiniBitmap(Bitmap bitmap,Size size)
 	{
 		if (stretchMini && bitmap != null)
 		{
-			bitmap = HikePhotosUtils.compressBitamp(bitmap, width, height, true, Bitmap.Config.ARGB_8888);
+			bitmap = HikePhotosUtils.compressBitamp(bitmap, size.getWidth(),size.getHeight(), true, Bitmap.Config.ARGB_8888);
 		}
 
 		return bitmap;
@@ -132,7 +152,7 @@ public class StickerLoader extends ImageWorker
 	{
 		if (loadMiniStickerIfNotFound && bitmap == null)
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), sticker.getWidth(), sticker.getHeight());
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), new Size(sticker.getWidth(), sticker.getHeight()));
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return bitmap;
@@ -166,6 +186,10 @@ public class StickerLoader extends ImageWorker
 
         private boolean stretchMini = false;
 
+		private Bitmap defaultBitmap = null;
+
+        private Size stickerSize = null;
+
         public Builder downloadLargeStickerIfNotFound(boolean state)
         {
             this.downloadLargeStickerIfNotFound = state;
@@ -190,9 +214,21 @@ public class StickerLoader extends ImageWorker
             return this;
         }
 
+        public Builder setDefaultBitmap(Bitmap defaultBitmap)
+        {
+            this.defaultBitmap = defaultBitmap;
+            return this;
+        }
+
         public Builder stretchMini(boolean state)
         {
             this.stretchMini = state;
+            return this;
+        }
+
+        public Builder setStickerDimension(Size stickerSize)
+        {
+            this.stickerSize = stickerSize;
             return this;
         }
 
