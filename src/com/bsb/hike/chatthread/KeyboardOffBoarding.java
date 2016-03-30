@@ -197,7 +197,7 @@ public class KeyboardOffBoarding
 	}
 
 	public static boolean showKptExitUI() {
-		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 1) > 0);
+		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 0) > 0);
 		boolean kptKeyboardSet = !(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.SYSTEM_KEYBOARD_SELECTED, true));
 		return keyboardFtueShown || kptKeyboardSet;
 	}
