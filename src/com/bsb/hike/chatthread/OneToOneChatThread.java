@@ -3760,4 +3760,24 @@ import java.util.Map;
 		sendUIMessage(UPDATE_LAST_SEEN, lastSeenString);
 	}
 
+	@Override
+	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
+	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return; // Do not send MR if not a 1-way friend atleast
+		}
+		super.publishReadByForMessage(message, msisdn, channelSelector);
+	}
+
+	@Override
+	protected void setMessagesRead()
+	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return; // Do not send MR if not a 1-way friend atleast
+		}
+
+		super.setMessagesRead();
+	}
 }

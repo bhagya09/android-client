@@ -4443,7 +4443,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			if (isActivityVisible)
 			{
-				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn,channelSelector);
+				publishReadByForMessage(message, msisdn, channelSelector);
 
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
@@ -4469,7 +4469,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		}
 	}
-	
+
 	protected boolean onMessageDelivered(Object object)
 	{
 		Pair<String, Long> pair = (Pair<String, Long>) object;
@@ -5616,7 +5616,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 * if true then we pass {@link ConvMessage} list and mark msgs read in db for only these convMessages
 	 * if no read msg is found then we don't know how many msgs should be marked as read , in this case we have to fetch messages from db and then update the same
 	 */
-	private void setMessagesRead()
+	protected void setMessagesRead()
 	{
 		List<ConvMessage> unreadConvMessages = new ArrayList<>();
 		boolean readMessageExists = false;
@@ -6899,4 +6899,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 
 	}
+
+	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
+	{
+		ChatThreadUtils.publishReadByForMessage(message, HikeConversationsDatabase.getInstance(), msisdn,channelSelector);
+	}
+
 }
