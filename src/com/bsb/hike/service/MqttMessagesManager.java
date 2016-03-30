@@ -2918,6 +2918,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
 		}
 
+		if (data.has(HikeConstants.IS_NEW_USER))
+		{
+			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_NEW_USER, isNewUser);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
