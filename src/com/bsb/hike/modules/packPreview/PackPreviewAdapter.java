@@ -3,6 +3,7 @@ package com.bsb.hike.modules.packPreview;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.Size;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,7 +14,6 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Created by anubhavgupta on 04/01/16.
  */
-public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.ImageLoaderListener
+public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
 
 	private static final String TAG = PackPreviewAdapter.class.getSimpleName();
@@ -68,14 +68,13 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 	private void init()
 	{
+		sizeEachImage = StickerSearchUtils.getStickerSize();
 		stickerLoader = new StickerLoader.Builder()
 				.loadMiniStickerIfNotFound(true)
+				.setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
+				.setStickerDimension(new Size(sizeEachImage, sizeEachImage))
 				.downloadMiniStickerIfNotFound(true)
 				.build();
-		stickerLoader.setLoadingImage(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder));
-		stickerLoader.setImageFadeIn(false);
-		stickerLoader.setImageLoaderListener(this);
-		sizeEachImage = StickerSearchUtils.getStickerSize();
 		rowSize = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
 
@@ -110,21 +109,6 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.MINI, stickerIv);
 			break;
 		}
-	}
-
-	@Override
-	public void onImageWorkSuccess(ImageView imageView)
-	{
-		if (imageView != null)
-		{
-			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-		}
-	}
-
-	@Override
-	public void onImageWorkFailed(ImageView imageView)
-	{
-
 	}
 
 	private void applyPadding(View view, int position)
