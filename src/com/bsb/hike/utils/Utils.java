@@ -6339,7 +6339,7 @@ public class Utils
 	public static boolean isLastSeenSetToFavorite()
 	{
 		Context appContext = HikeMessengerApp.getInstance().getApplicationContext();
-		String defValue = appContext.getString(R.string.privacy_favorites);
+		String defValue = appContext.getString(R.string.privacy_my_contacts);
 		return PreferenceManager.getDefaultSharedPreferences(appContext).getString(HikeConstants.LAST_SEEN_PREF_LIST, defValue)
 				.equals(appContext.getString(R.string.privacy_favorites));
 	}
@@ -8064,9 +8064,21 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
+	public static void makeFavFriendsTransition()
+	{
+		if (isFavToFriendsMigrationAllowed())
+		{
+			changeFavToFriends();
+		}
+		else
+		{
+			revertFavToFriendsChange();
+		}
+	}
+
 	public static void changeFavToFriends()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 0) == 0)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 0) != 1)
 		{
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
@@ -8081,6 +8093,30 @@ public class Utils
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 1);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static void revertFavToFriendsChange()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 0) != 2)
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			// Change last seen pref to friends if its is not already set to friends or noone.
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
+					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				Editor settingEditor = settings.edit();
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_my_contacts));
+				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_my_contacts));
+				try {
+					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+					settingEditor.commit();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 2);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
