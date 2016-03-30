@@ -116,6 +116,18 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         int[] loc = new int[2];
         parent.getLocationOnScreen(loc);
         popup_l.setAnimationStyle(R.style.WalkietalkieAnim);
+        //CE-93:recording continues even if user has released the finger from the WT icon
+        popup_l.setFocusable(false);
+        popup_l.setOutsideTouchable(false);
+
+        popup_l.setTouchInterceptor(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                popup_l.dismiss();
+                return true;
+            }
+        });
+
         if (shareablePopupSharing) {
             popup_l.showAtLocation(parent, Gravity.NO_GRAVITY, 0, loc[1] - parent.getHeight());
         } else {
