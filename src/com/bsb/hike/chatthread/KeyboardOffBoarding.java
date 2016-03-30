@@ -121,7 +121,7 @@ public class KeyboardOffBoarding
 
 	public boolean shouldShowKeyboardOffBoardingUI()
 	{
-		if (!(showKptExitUI() && kptExitServerSwitch(mActivity))) {
+		if (!(showKptExitUI() && kptExitServerSwitch())) {
 			return false;
 		}
 
@@ -190,7 +190,7 @@ public class KeyboardOffBoarding
 		}
 	}
 
-	public static boolean kptExitServerSwitch(Context context) {
+	public static boolean kptExitServerSwitch() {
 //		server-side switch
 		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
 		return show;
