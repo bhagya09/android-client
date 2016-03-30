@@ -172,6 +172,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 * Deleting residual sticker data
 		 */
 		StickerManager.getInstance().deleteStickers();
+		Utils.deleteDiskCache();
 		
 		/**
 		 * Setting token and uid in memory to null
