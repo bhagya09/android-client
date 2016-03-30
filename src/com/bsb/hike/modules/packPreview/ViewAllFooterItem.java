@@ -37,10 +37,10 @@ public class ViewAllFooterItem extends BasePackPreviewAdapterItem implements Vie
 		viewAllFooterView = LayoutInflater.from(mContext).inflate(R.layout.view_all_footer, null);
 		View loadMoreFooterContainer = viewAllFooterView.findViewById(R.id.view_all_footer_container);
 
-		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(50));
-		params.leftMargin = Utils.dpToPx(16);
-		params.topMargin = Utils.dpToPx(10);
-		params.rightMargin = Utils.dpToPx(16);
+		RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Utils.dpToPx(72));
+		params.leftMargin = Utils.dpToPx(12);
+		params.topMargin = Utils.dpToPx(55);
+		params.rightMargin = Utils.dpToPx(12);
 		loadMoreFooterContainer.setLayoutParams(params);
 		loadMoreFooterContainer.setOnClickListener(this);
 	}
