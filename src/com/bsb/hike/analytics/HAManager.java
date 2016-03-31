@@ -541,8 +541,6 @@ public class HAManager
 
 	public JSONObject recordAndReturnSessionEnd()
 	{
-		fgSessionInstance.endChatSessions();
-
 		JSONObject metadata = getMetaDataForSession(fgSessionInstance, false);
 		
 		/*
@@ -844,7 +842,7 @@ public class HAManager
 	}
 
     /**
-     * It records Events For All Bots For this App session
+     * It records Events For Bot for this individual session
      */
 	public void recordIndividualChatSession(String msisdn)
 	{
@@ -858,7 +856,7 @@ public class HAManager
 				// 1)to_user:- "+hikecricket+" for cricket bot
 				metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
 
-				// 2)duration:-Total time of Chat Session in this particular session
+				// 2)duration:-Total time of Chat Session in this particular session got this msisdn
 				metadata.put(AnalyticsConstants.SESSION_TIME, chatSession.getChatSessionTime());
 
 				// 3)putting event key (ek) as bot_open
