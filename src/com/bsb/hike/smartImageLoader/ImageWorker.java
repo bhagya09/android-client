@@ -199,6 +199,10 @@ public abstract class ImageWorker
                 setDefaultAvatar(imageView, key,refObj);
                 sendImageCallback(imageView,true);
             }
+            else
+            {
+                sendImageCallback(imageView,false);
+            }
 
         }
         else if (cancelPotentialWork(key, imageView) && !isFlinging)
