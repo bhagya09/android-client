@@ -58,6 +58,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
+import com.twinprime.TwinPrimeSDK.TwinPrimeSDK;
 
 import org.acra.ACRA;
 import org.acra.ErrorReporter;
@@ -905,6 +906,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			editor.commit();
 		}
 
+		initTwinPrime();
 		if (token != null)
 		{
 			AccountUtils.setToken(token);
@@ -1013,6 +1015,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 	}
 
+	private void initTwinPrime()
+	{
+		new TwinPrimeSDK(getApplicationContext(), HikeConstants.TP_API_KEY);
+	}
 	/**
 	 * fetching the platform user id from the server. Will not fetch if the platform user id is already present. Will fetch the address book's platform uid on success of this call.
 	 */
