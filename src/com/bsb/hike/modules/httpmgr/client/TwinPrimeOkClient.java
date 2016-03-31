@@ -8,6 +8,10 @@ import com.twinprime.TwinPrimeSDK.TPOkHttpClient;
  */
 public class TwinPrimeOkClient extends OkClient {
 
+    public TwinPrimeOkClient(ClientOptions options) {
+        super(options);
+    }
+
     protected OkHttpClient generateClient(ClientOptions clientOptions)
     {
         clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
@@ -15,4 +19,6 @@ public class TwinPrimeOkClient extends OkClient {
         addLogging(client);
         return setClientParameters(client, clientOptions);
     }
+
+
 }
