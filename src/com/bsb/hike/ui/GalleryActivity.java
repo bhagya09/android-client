@@ -536,6 +536,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
 				// Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null)
+				{
+					bundle.putAll(extras);
+				}
 				intent.putExtras(bundle);
 
 				if (hasDelegateActivities())
