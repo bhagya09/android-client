@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1627"
-    android:versionName="4.2.0.82.32.Sticker_DB" >
+    android:versionCode="1629"
+    android:versionName="4.2.0.82.34.pack_preview" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -309,6 +309,10 @@
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"

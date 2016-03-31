@@ -54,17 +54,18 @@ public class StickerLoader extends ImageWorker
 		String path = args[2];
 		Bitmap bitmap;
 
+		Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
+
 		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), loadSize);
-			checkAndDownloadMiniSticker(bitmap, sticker);
+			bitmap = loadStickerBitmap(sticker.getSmallStickerPath());
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
 		}
 		else
 		{
 			Bitmap large = loadStickerBitmap(path);
 			bitmap = checkAndLoadOfflineSticker(large, sticker);
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
             checkAndDownloadLargeSticker(large, sticker);
 		}
 
@@ -148,11 +149,11 @@ public class StickerLoader extends ImageWorker
 		return bitmap;
 	}
 
-	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker)
+	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker, Size loadSize)
 	{
 		if (loadMiniStickerIfNotFound && bitmap == null)
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), new Size(sticker.getWidth(), sticker.getHeight()));
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), loadSize);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return bitmap;

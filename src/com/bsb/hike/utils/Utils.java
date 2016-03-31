@@ -7242,6 +7242,11 @@ public class Utils
 		return (argument == null) || !argument.iterator().hasNext();
 	}
 
+	public static boolean isEmpty(JSONArray jsonArray)
+	{
+		return (jsonArray == null) || (jsonArray.length() == 0);
+	}
+
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
@@ -8030,5 +8035,20 @@ public class Utils
 
 		// Bound inside min/max size for disk cache.
 		return Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+	}
+
+	public static int dpToPx(float dp)
+	{
+		return (int) (dp * Utils.densityMultiplier);
+	}
+
+	public static int spToPx(float sp)
+	{
+		return (int) (sp * Utils.scaledDensityMultiplier);
+	}
+
+	public static void deleteDiskCache()
+	{
+		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
 	}
 }
