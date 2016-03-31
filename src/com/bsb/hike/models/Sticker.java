@@ -1,6 +1,5 @@
 package com.bsb.hike.models;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -95,9 +94,9 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
 	 * @param sticker
 	 * @return
 	 */
-	public boolean isDisabled(Sticker sticker, Context ctx)
+	public boolean isDisabled()
 	{
-		File f = new File(sticker.getSmallStickerPath());
+		File f = new File(this.getSmallStickerPath());
 		return !f.exists();
 	}
 

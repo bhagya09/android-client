@@ -1762,6 +1762,12 @@ public class PlatformUtils
         }
 
         Sticker sticker = new Sticker(categoryId, stickerId);
+
+        if(!sticker.isDisabled())
+        {
+            StickerManager.getInstance().addRecentStickerToPallete(sticker);
+        }
+
         ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
 
         if (cm != null) {

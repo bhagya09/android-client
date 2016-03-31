@@ -3235,12 +3235,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						sendSticker(sticker, StickerManager.FROM_FORWARD);
-						boolean isDis = sticker.isDisabled(sticker, activity.getApplicationContext());
-						// add this sticker to recents if this sticker is not disabled
-						if (!isDis)
-						{
-							StickerManager.getInstance().addRecentSticker(sticker);
-						}
+
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */

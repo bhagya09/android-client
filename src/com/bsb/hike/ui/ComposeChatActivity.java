@@ -2509,10 +2509,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						multipleMessageList.add(sendSticker(sticker, categoryId, arrayList, StickerManager.FROM_FORWARD));
-						boolean isDis = sticker.isDisabled(sticker, this.getApplicationContext());
+						boolean isDis = sticker.isDisabled();
 						// add this sticker to recents if this sticker is not disabled
 						if (!isDis)
-							StickerManager.getInstance().addRecentSticker(sticker);
+							StickerManager.getInstance().addRecentStickerToPallete(sticker);
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
