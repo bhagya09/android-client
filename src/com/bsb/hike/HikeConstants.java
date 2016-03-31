@@ -4015,5 +4015,5 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 	
-	public static final String TP_API_KEY = "api_key";
+	public static final String TP_API_KEY = "60b937a7-3df3-408e-8191-c0bf227fd5e2-5514c71-1015";
 }
