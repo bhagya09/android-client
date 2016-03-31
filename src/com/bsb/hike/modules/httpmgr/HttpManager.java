@@ -1,11 +1,6 @@
 package com.bsb.hike.modules.httpmgr;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
+import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.engine.HttpEngine;
@@ -17,6 +12,12 @@ import com.bsb.hike.modules.httpmgr.log.LogHttp;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class will be used for initialization by and outside world and for adding or canceling a request by {@link RequestToken}
@@ -38,18 +39,10 @@ public class HttpManager
 
 	private HttpManager(ClientOptions options)
 	{
-		if (HttpLogger.DEBUG)
+		if (AppConfig.DEBUG_LOGS_ENABLED)
 		{
-			boolean t = true;
-			if (t)
-			{
-				HttpLogger.plant(new LogFull("Http"));
-				HttpLogger.plant(new LogHttp("Http"));
-			}
-			else
-			{
-				HttpLogger.plant(new LogHttp("Http"));
-			}
+			HttpLogger.plant(new LogFull("Http"));
+			HttpLogger.plant(new LogHttp("Http"));
 		}
 		setHostUris();
 		HttpEngine engine = new HttpEngine();
