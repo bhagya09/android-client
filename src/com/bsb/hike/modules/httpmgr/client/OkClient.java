@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class OkClient implements IClient
 {
-	private OkHttpClient client;
+	protected OkHttpClient client;
 
 	/**
 	 * These constants are used internally by okHttp for connection pooling
@@ -50,7 +50,7 @@ public class OkClient implements IClient
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient generateClient(ClientOptions clientOptions)
+	protected OkHttpClient generateClient(ClientOptions clientOptions)
 	{
 		clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
 		OkHttpClient client = new OkHttpClient();
@@ -58,7 +58,7 @@ public class OkClient implements IClient
 		return setClientParameters(client, clientOptions);
 	}
 
-	static void addLogging(OkHttpClient client)
+	protected void addLogging(OkHttpClient client)
 	{
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger()
 		{
@@ -79,7 +79,7 @@ public class OkClient implements IClient
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient setClientParameters(OkHttpClient client, ClientOptions clientOptions)
+	protected OkHttpClient setClientParameters(OkHttpClient client, ClientOptions clientOptions)
 	{
 		client.setConnectTimeout(clientOptions.getConnectTimeout(), TimeUnit.MILLISECONDS);
 		client.setReadTimeout(clientOptions.getReadTimeout(), TimeUnit.MILLISECONDS);
