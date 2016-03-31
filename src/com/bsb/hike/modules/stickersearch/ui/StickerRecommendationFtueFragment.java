@@ -122,8 +122,8 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 		ivShop = parent.findViewById(R.id.shop_icon);
 		close = parent.findViewById(R.id.sticker_recommend_popup_close);
 		settings = parent.findViewById(R.id.sticker_recommend_popup_settings);
-		
-		stickerImageContainer.setOnClickListener(stickerImageClickListener);
+
+        ivSticker.setOnClickListener(stickerImageClickListener);
 		ivShop.setOnClickListener(stickerShopImageClickListener);
 		settings.setOnClickListener(settingsListener);
 		close.setOnClickListener(closeListener);
@@ -321,21 +321,20 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 		{
 			return ;
 		}
-		getActivity().runOnUiThread(new Runnable()
-		{
-			
-			@Override
-			public void run()
-			{
-				pbSticker.setVisibility(View.GONE);
-				ivSticker.setVisibility(View.VISIBLE);
-			}
-		});
+
+        pbSticker.setVisibility(View.GONE);
+        ivSticker.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void onImageWorkFailed(ImageView imageView)
 	{
-		//Do nothing
+        if(!isAdded())
+        {
+            return ;
+        }
+
+        pbSticker.setVisibility(View.VISIBLE);
+        ivSticker.setVisibility(View.GONE);
 	}
 }
