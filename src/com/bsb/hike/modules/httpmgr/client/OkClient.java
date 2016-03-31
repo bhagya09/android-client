@@ -1,10 +1,7 @@
 package com.bsb.hike.modules.httpmgr.client;
 
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
 import com.bsb.hike.modules.httpmgr.Header;
-import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -12,6 +9,10 @@ import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -53,9 +54,24 @@ public class OkClient implements IClient
 	{
 		clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
 		OkHttpClient client = new OkHttpClient();
+		addLogging(client);
 		return setClientParameters(client, clientOptions);
 	}
 
+	static void addLogging(OkHttpClient client)
+	{
+		HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger()
+		{
+			@Override
+			public void log(String message)
+			{
+				LogFull.d(message);
+			}
+		});
+		logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+		client.networkInterceptors().add(logging);
+	}
+	
 	/**
 	 * Sets Client option parameters to given OkHttpClient
 	 * 
