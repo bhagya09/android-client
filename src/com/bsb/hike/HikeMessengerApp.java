@@ -532,7 +532,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
 
-	public static final String FAVORITES_TO_FRIENDS_TRANSITION = "favToFriendsTrans";
+	public static final String FAVORITES_TO_FRIENDS_TRANSITION_STATE = "favToFriendsTransState";
 
 	public static CurrentState currentState = CurrentState.CLOSED;
 

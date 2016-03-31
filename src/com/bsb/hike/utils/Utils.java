@@ -64,7 +64,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -8078,7 +8077,7 @@ public class Utils
 
 	public static void changeFavToFriends()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 0) != 1)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
 		{
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
@@ -8092,7 +8091,7 @@ public class Utils
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 1);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -8102,7 +8101,7 @@ public class Utils
 
 	public static void revertFavToFriendsChange()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 0) != 2)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 2)
 		{
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
@@ -8116,7 +8115,7 @@ public class Utils
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION, 2);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 2);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
