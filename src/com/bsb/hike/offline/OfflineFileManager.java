@@ -12,12 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Environment;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -28,6 +24,7 @@ import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.hike.transporter.utils.Logger;
@@ -230,11 +227,11 @@ public class OfflineFileManager
 		JSONObject messageJSON = message.serialize();
 		if (OfflineUtils.isStickerMessage(messageJSON)) 
 		{
-			String stpath = OfflineUtils.getStickerPath(messageJSON);
-			File stickerImage = new File(stpath);
+			Sticker sticker = OfflineUtils.getSticker(messageJSON);
 			File tempSticker = file;
 			String filePath=null;
-			if (!stickerImage.exists()) 
+            File stickerImage = null;
+			if (sticker != null && !sticker.isStickerAvailable())
 			{
 				try 
 				{
@@ -252,8 +249,11 @@ public class OfflineFileManager
 				{
 					e.printStackTrace();
 				}
-				if (filePath != null)
-					tempSticker.renameTo(stickerImage);
+                
+				if (filePath != null && stickerImage != null)
+                {
+                    tempSticker.renameTo(stickerImage);
+                }
 
 			}
 			else 
