@@ -482,7 +482,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
                 recorder.setMaxDuration(HikeConstants.MAX_DURATION_RECORDING_SEC * 1000);
                 recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
-                recorder.setMaxFileSize(HikeConstants.MAX_FILE_SIZE);
             } catch (Exception e) {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
