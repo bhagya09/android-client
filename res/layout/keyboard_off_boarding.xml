@@ -29,6 +29,7 @@
         android:background="@drawable/art_keyboard"/>
 
     <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/kpt_exit_heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
@@ -42,6 +43,7 @@
         android:textStyle="bold|italic"/>
 
     <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/kpt_exit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
