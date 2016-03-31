@@ -1820,7 +1820,8 @@ import android.widget.Toast;
 	
 	protected void showKeyboardOffboardingIfReady()
 	{
-		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
+//		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
+		if (keyboardOffBoarding != null && keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
 			keyboardOffBoarding.showView();
 			Utils.hideSoftKeyboard(activity, mComposeView);
 			activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
