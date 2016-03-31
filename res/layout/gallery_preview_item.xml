@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/cropimageview"
         android:background="@drawable/image_viewer_fg"
-        android:hint="Add a caption"
+        android:hint="@string/add_a_caption"
         android:inputType="text|textAutoCorrect|textCapSentences"
         android:paddingTop="4dp"
         android:paddingLeft="8dp"

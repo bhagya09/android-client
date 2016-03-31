@@ -1109,8 +1109,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 		super.onPrepareOverflowOptionsMenu(overflowItems);
-		toastForGroupEnd();
-		
+
 		for (OverFlowMenuItem overFlowMenuItem : overflowItems)
 		{
 
