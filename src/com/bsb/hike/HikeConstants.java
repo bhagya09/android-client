@@ -3388,6 +3388,14 @@ public class HikeConstants
 
 	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
 
+	public static final String KPT_EXIT_SERVER_TEXT = "kest";
+
+	public static final String KPT_EXIT_HEADING = "keh";
+
+	public static final String KPT_EXIT_PHONE_BUTTON = "kepb";
+
+	public static final String KPT_EXIT_GOOGLE_BUTTON = "kegb";
+
 	public static final String GET = "get";
 
 	public static final String HIKE_FILE_TYPE = "hft";

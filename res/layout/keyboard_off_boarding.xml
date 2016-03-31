@@ -29,6 +29,7 @@
         android:background="@drawable/art_keyboard"/>
 
     <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/kpt_exit_heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
@@ -42,6 +43,7 @@
         android:textStyle="bold|italic"/>
 
     <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/kpt_exit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
@@ -76,6 +78,12 @@
             android:paddingBottom="20dp"
             android:paddingTop="20dp"
             android:text="@string/open_phone_keyboard" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center|center_vertical"
+            android:background="#14000000" />
 
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/btn_google_keyboard"

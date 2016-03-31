@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +62,32 @@ public class KeyboardOffBoarding
 		this.keyboardShutdownListener = listener;
 		this.mainView = mainView;
 		rootView = inflater.inflate(R.layout.keyboard_off_boarding, container, false);
+		setUIText(rootView);
 		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	}
+
+	private void setUIText(View rootView) {
+
+		String bodyText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_TEXT, null);
+		if (bodyText != null) {
+			TextView textView = (TextView)(rootView.findViewById(R.id.kpt_exit_text));
+			textView.setText(bodyText);
+		}
+
+		String heading = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_HEADING, null);
+		if (heading != null) {
+			((TextView)(rootView.findViewById(R.id.kpt_exit_heading))).setText(heading);
+		}
+
+		String phoneBtnText = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_PHONE_BUTTON, null);
+		if (phoneBtnText != null) {
+			((TextView)(rootView.findViewById(R.id.btn_phone_keyboard))).setText(phoneBtnText);
+		}
+
+		String googleBtnTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_GOOGLE_BUTTON, null);
+		if (googleBtnTxt != null) {
+			((TextView)(rootView.findViewById(R.id.btn_google_keyboard))).setText(googleBtnTxt);
+		}
 	}
 
 	public void showView()
@@ -121,7 +147,7 @@ public class KeyboardOffBoarding
 
 	public boolean shouldShowKeyboardOffBoardingUI()
 	{
-		if (!(showKptExitUI() && kptExitServerSwitch(mActivity))) {
+		if (!(showKptExitUI() && kptExitServerSwitch())) {
 			return false;
 		}
 
@@ -190,14 +216,14 @@ public class KeyboardOffBoarding
 		}
 	}
 
-	public static boolean kptExitServerSwitch(Context context) {
+	public static boolean kptExitServerSwitch() {
 //		server-side switch
 		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
 		return show;
 	}
 
 	public static boolean showKptExitUI() {
-		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 1) > 0);
+		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 0) > 0);
 		boolean kptKeyboardSet = !(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.SYSTEM_KEYBOARD_SELECTED, true));
 		return keyboardFtueShown || kptKeyboardSet;
 	}

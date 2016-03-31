@@ -2279,6 +2279,30 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
 		}
 
+		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_SERVER_TEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_TEXT, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_HEADING))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_HEADING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_HEADING, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_PHONE_BUTTON))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_PHONE_BUTTON);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_PHONE_BUTTON, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_GOOGLE_BUTTON))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_GOOGLE_BUTTON);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_GOOGLE_BUTTON, text);
+		}
+
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
 		{
 			int superCompressedImgSize = data.getInt(HikeConstants.SUPER_COMPRESSED_IMG_SIZE);
