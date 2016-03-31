@@ -721,5 +721,15 @@ public class NativeBridge
 			}
 		});
 	}
+	/**
+	 * Call this method to open the gallery view to select a file.
+	 * @param id
+	 * @param displayCameraItem : Whether or not to display the camera item in the gallery view.
+	 */
+
+	public void chooseFile(String id,String displayCameraItem)
+	{
+		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
+	}
 
 }

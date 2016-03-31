@@ -12,12 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Environment;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -106,6 +102,11 @@ public class OfflineFileManager
 	
 	public FileSavedState getUploadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -144,6 +145,11 @@ public class OfflineFileManager
 	 */
 	public FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -228,33 +234,38 @@ public class OfflineFileManager
 	public void onFileCompleted(ConvMessage message, File file)
 	{
 		JSONObject messageJSON = message.serialize();
+		File tempSticker = file;
+		String filePath = null;
 		if (OfflineUtils.isStickerMessage(messageJSON)) 
 		{
 			String stpath = OfflineUtils.getStickerPath(messageJSON);
-			File stickerImage = new File(stpath);
-			File tempSticker = file;
-			String filePath=null;
-			if (!stickerImage.exists()) 
+			//stPath can be null AND-5028
+			if (!android.text.TextUtils.isEmpty(stpath))
 			{
-				try 
-				{
-					filePath = OfflineUtils.createStkDirectory(messageJSON);
-					if (filePath != null)
-					{
-						stickerImage = new File(filePath);
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				if (filePath != null)
-					tempSticker.renameTo(stickerImage);
 
+				File stickerImage = new File(stpath);
+				if (!stickerImage.exists())
+				{
+					try
+					{
+						filePath = OfflineUtils.createStkDirectory(messageJSON);
+						if (filePath != null)
+						{
+							stickerImage = new File(filePath);
+						}
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+					if (filePath != null)
+						tempSticker.renameTo(stickerImage);
+
+				}
 			}
 			else 
 			{
