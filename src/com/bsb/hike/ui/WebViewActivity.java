@@ -510,8 +510,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if(mCustomTabActivityHelper != null && Utils.isJellybeanOrHigher()) {
 			mCustomTabActivityHelper.unbindCustomTabsService(this);
 		}
-        HAManager.getInstance().recordIndividualChatSession(msisdn);
-		if(webView!=null)
+
+        if(!TextUtils.isEmpty(msisdn))
+            HAManager.getInstance().recordIndividualChatSession(msisdn);
+
+        if(webView!=null)
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
