@@ -157,7 +157,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     /**
-     * Used to start pulsating dot animation for stickers
+     * Used to start mic wave animation
      *
      * @param view
      */
@@ -290,6 +290,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     static final int CANCEL_RECORDING = 1;
+    static final int DO_CANCEL_ANIMATION = 2;
     protected Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             if (msg == null) {
@@ -305,6 +306,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             case CANCEL_RECORDING:
                 cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER);
                 break;
+            case DO_CANCEL_ANIMATION:
+                recorderImg.setVisibility(View.INVISIBLE);
+                rectBgrnd.startAnimation(HikeAnimationFactory.getScaleInAnimation(0));
+                break;
             default:
                 break;
         }
@@ -312,8 +317,12 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     private void postCancelTask() {
         Message message = Message.obtain();
-        message.what = CANCEL_RECORDING;
+        message.what = DO_CANCEL_ANIMATION;
         mHandler.sendMessageDelayed(message, 500);
+
+        Message message1 = Message.obtain();
+        message1.what = CANCEL_RECORDING;
+        mHandler.sendMessageDelayed(message1,1000);
     }
 
     private void recordingError(boolean showError) {
@@ -554,6 +563,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             float amtOfXTranslated = (recorderImg.getX() - recorderImg.getTranslationX());
             recorderImg.setX(amtOfXTranslated);
             slideToCancel.setAlpha(1);
+            rectBgrnd.clearAnimation();
+            recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
         }
