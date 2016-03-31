@@ -1,17 +1,10 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
-
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,12 +19,12 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -548,9 +541,6 @@ public class HAManager
 
 	public JSONObject recordAndReturnSessionEnd()
 	{
-		fgSessionInstance.endChatSessions();
-		recordChatSessions();
-		
 		JSONObject metadata = getMetaDataForSession(fgSessionInstance, false);
 		
 		/*
@@ -850,47 +840,43 @@ public class HAManager
 		return AnalyticsConstants.MessageType.TEXT;
 
 	}
-	
-	/**
-	 * It records Events For All Bots For this App session
-	 */
-	public void recordChatSessions()
+
+    /**
+     * It records Events For Bot for this individual session
+     */
+	public void recordIndividualChatSession(String msisdn)
 	{
-		JSONObject metadata = null;
-		
+		JSONObject metadata;
+        ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
 		try
 		{
-			ArrayList<ChatSession> chatSessionList = fgSessionInstance.getChatSesions();
-			
-			if(chatSessionList != null && !chatSessionList.isEmpty())
+			if (chatSession != null)
 			{
-				for(ChatSession chatSession : chatSessionList)
-				{
-					metadata = new JSONObject();
-					//1)to_user:- "+hikecricket+" for cricket bot
-					metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
-					
-					//2)duration:-Total time of Chat Session in whole session
-					metadata.put(AnalyticsConstants.SESSION_TIME, chatSession.getChatSessionTotalTime());
-					
-					//3)putting event key (ek) as bot_open
-					metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
+				metadata = new JSONObject();
+				// 1)to_user:- "+hikecricket+" for cricket bot
+				metadata.put(AnalyticsConstants.TO_USER, chatSession.getMsisdn());
 
-					metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
-					metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+				// 2)duration:-Total time of Chat Session in this particular session got this msisdn
+				metadata.put(AnalyticsConstants.SESSION_TIME, chatSession.getChatSessionTime());
 
-					record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
-					botOpenMqttAnalytics(metadata);
+				// 3)putting event key (ek) as bot_open
+				metadata.put(AnalyticsConstants.EVENT_KEY, HikePlatformConstants.BOT_OPEN);
 
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :" + chatSession.getChatSessionTotalTime());
-				}
+				metadata.put(AnalyticsConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
+				metadata.put(AnalyticsConstants.APP_VERSION, AccountUtils.getAppVersion());
+
+				record(AnalyticsConstants.CHAT_ANALYTICS, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_BOTS);
+				botOpenMqttAnalytics(metadata);
+
+				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "--session-id :" + fgSessionInstance.getSessionId() + "--to_user :" + chatSession.getMsisdn() + "--session-time :"
+						+ chatSession.getChatSessionTime());
 			}
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-		
+
 	}
 
 	private void botOpenMqttAnalytics(JSONObject metadata)

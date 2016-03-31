@@ -580,11 +580,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
     public static final String DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF = "defaultTagDownloadLanguagePref";
 
-	public static final String STICKER_ERROR_LOG_TIME = "stickerErrorLogTime";
-
 	public static final String SINGLE_STICKER_DOWNLOAD_ERROR_COUNT = "singleStickerDownloadErrorCount";
 
 	public static final String STICKER_PACK_DOWNLOAD_ERROR_COUNT = "stickerPackDownloadErrorCount";
+
+	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -651,8 +651,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void connectToService()
 	{
-		if (!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
+			Logger.d("HikeMessengerApp", "Not Connecting to service yet");
 			return;
 		}
 
@@ -1059,16 +1060,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void startUpdgradeIntent()
 	{
-		// turn off future push notifications as soon as the app has
-		// started.
-		// this has to be turned on whenever the upgrade finishes.
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
-		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-		editor.putBoolean(BLOCK_NOTIFICATIONS, true);
-		editor.commit();
-
-		Intent msgIntent = new Intent(this, UpgradeIntentService.class);
-		startService(msgIntent);
+		IntentFactory.startUpgradeIntent(this);
 	}
 
 	private void replaceGBKeys()

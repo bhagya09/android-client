@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.app.ProgressDialog;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
@@ -64,6 +65,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -74,6 +77,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -114,7 +118,11 @@ import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner
+
+import java.lang.ref.WeakReference;
+
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener,
+		AccountRestoreAsyncTask.IRestoreCallback
 {
 
 	public static FtueContactsData ftueContactsData = new FtueContactsData();
@@ -142,7 +150,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog;
+	private Dialog progDialog, dbCorruptDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -150,7 +158,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private static int updateType;
 
-	private boolean showingProgress = false;
+	private boolean showingBlockingDialog = false; // This variable is used to prevent the normal setup of the HomeActivity. This is used when we need to show app upgrading dialog or db corrup dialog
 
 	private PopupWindow overFlowWindow;
 
@@ -184,7 +192,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN  };
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -213,6 +221,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AdaptxtEditText searchET;
 	
 	private long time;
+
+	private AccountRestoreAsyncTask restoreAsyncTask;
+
+	private boolean wasFragmentRemoved = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -291,11 +303,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false)))
 		{
 			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
-			showingProgress = true;
-			
+			showingBlockingDialog = true;
 		}
 
-		if (!showingProgress)
+		if (!showingBlockingDialog && Utils.isDBCorrupt()) //If we were not showing Upgrading Dialog before
+		{
+			showCorruptDBRestoreDialog();
+		}
+
+		if (!showingBlockingDialog)
 		{
 			if (Utils.isVoipActivated(HomeActivity.this) && HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOW_VOIP_FTUE_POPUP, false))
 			{
@@ -304,7 +320,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			initialiseHomeScreen(savedInstanceState);
 		}
 		Logger.d(getClass().getSimpleName(),"onCreate "+this.getClass().getSimpleName());
-		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+
+		if (!Utils.isDBCorrupt()) //Avoid making a call to show popup if Db is corrupt
+		{
+			showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+		}
 		
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_REPEATED, false)
 				|| HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, false))
@@ -486,6 +506,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void initialiseHomeScreen(Bundle savedInstanceState)
 	{
+		if (showingBlockingDialog) //If showing any blocking dialog, then return from here.
+		{
+			return;
+		}
 
 		setContentView(R.layout.home);
 
@@ -590,6 +614,14 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			mainFragment = new ConversationFragment();
 			
 			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+
+			wasFragmentRemoved = false;
+		}
+
+		if (wasFragmentRemoved && (mainFragment != null))
+		{
+			getSupportFragmentManager().beginTransaction().add(R.id.home_screen, mainFragment, MAIN_FRAGMENT_TAG).commitAllowingStateLoss();
+			wasFragmentRemoved = false;
 		}
 	}
 
@@ -627,6 +659,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(null);
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
+
 		super.onDestroy();
 	}
 
@@ -688,7 +721,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			return false;
 		}
 		
-		if (showingProgress)
+		if (showingBlockingDialog)
 		{
 			return false;
 		}
@@ -1230,6 +1263,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.STEALTH_INDICATOR, null);
 		}
+
+		checkAndShowCorruptDbDialog();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
 	}
 
@@ -1268,9 +1303,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//linkurl is http://hike.in/refid:gc:code
 			String codeArray[] = linkUrl.split("/");
-			if(codeArray.length < 4)
+			if(codeArray.length < 4 || !linkUrl.contains(":gc:"))
 			{
-				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				Logger.d("link_share_error", "The linkurl is wrong, either no :gc: present or split in '/' is < 4 " + linkUrl);
 				return;
 			}
 			
@@ -1569,7 +1604,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	public void onEventReceived(String type, Object object)
 	{
 		super.onEventReceived(type, object);
-		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type))
+		if (HikePubSub.UNSEEN_STATUS_COUNT_CHANGED.equals(type) || HikePubSub.STEALTH_MODE_TOGGLED.equals(type) || HikePubSub.FAVORITE_COUNT_CHANGED.equals(type))
 		{
 			runOnUiThread( new Runnable()
 			{
@@ -1595,12 +1630,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						{
 							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
 
-							showingProgress = false;
+							showingBlockingDialog = false;
 							if (progDialog != null)
 							{
 								progDialog.dismiss();
 								progDialog = null;
 							}
+
+							if (Utils.isDBCorrupt())
+							{
+								showCorruptDBRestoreDialog();
+							}
+
 							invalidateOptionsMenu();
 							initialiseHomeScreen(null);
 						}
@@ -2135,6 +2176,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
+		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
+
 		addEmailLogItem(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
@@ -2262,6 +2305,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					sendAnalyticsTakePicture();
 					break;
+
+				case -100: // Dummy commit for QA Testing.
+					// TODO : Revert this before build goes live.
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
+					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
+					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
+					break;
 					
 				}
 
@@ -2370,7 +2420,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			progDialog.dismiss();
 			progDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.HIKE_UPGRADE_DIALOG, null);
-			showingProgress = true;
+			showingBlockingDialog = true;
 			
 		}
 		if (dialogShowing != null)
@@ -2553,5 +2603,141 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	private void showCorruptDBRestoreDialog()
+	{
+		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, this);
+		showingBlockingDialog = true;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, true); // Block any possible notifs as well
+		Utils.disconnectFromMQTT();
+
+		//Cancel the notif alarm if any
+		HikeAlarmManager.cancelAlarm(getApplicationContext(),HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF);
+	}
+
+	@Override
+	public void negativeClicked(HikeDialog hikeDialog)
+	{
+		switch (hikeDialog.getId())
+		{
+		case HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG:
+			onCorruptDialogSkipRestoreClicked(hikeDialog);
+			break;
+		}
+
+	}
+
+	@Override
+	public void positiveClicked(HikeDialog hikeDialog)
+	{
+		switch (hikeDialog.getId())
+		{
+		case HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG:
+			onCorruptDialogRestoreClicked(hikeDialog);
+		}
+	}
+
+	@Override
+	public void neutralClicked(HikeDialog hikeDialog)
+	{
+
+	}
+
+	private void onCorruptDialogSkipRestoreClicked(HikeDialog hikeDialog)
+	{
+		hikeDialog.dismiss();
+		dbCorruptDialog = null;
+		showingBlockingDialog = false;
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, false);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS, false); // UnBlock any possible notifs as well
+
+		// Connect to service again
+		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+		app.connectToService();
+
+		// Set up the home screen
+		invalidateOptionsMenu();
+		initialiseHomeScreen(null);
+	}
+
+	private void onCorruptDialogRestoreClicked(HikeDialog hikeDialog)
+	{
+		// dismiss the previous dialog and show the infinite spinner dialog
+		hikeDialog.dismiss();
+		dbCorruptDialog = null;
+
+		startRestoreProcess();
+	}
+
+	private void startRestoreProcess()
+	{
+		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
+
+		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+	}
+
+	@Override
+	public void preRestoreSetup()
+	{
+		showRestoreInProcessDialog();
+	}
+
+	@Override
+	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
+	{
+		if (dbCorruptDialog != null)
+		{
+			dbCorruptDialog.dismiss();
+			dbCorruptDialog = null;
+		}
+
+		showingBlockingDialog = false;
+
+		if (restoreResult == AccountBackupRestore.STATE_RESTORE_SUCCESS)
+		{
+			Toast.makeText(HomeActivity.this, getString(R.string.restore_success), Toast.LENGTH_LONG).show();
+		}
+
+		else
+		{
+			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
+			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		// Connect to service again
+		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+		app.connectToService();
+
+		// Set up the home screen
+		invalidateOptionsMenu();
+		initialiseHomeScreen(null);
+	}
+
+	private void showRestoreInProcessDialog()
+	{
+		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		showingBlockingDialog = true;
+	}
+
+	private void checkAndShowCorruptDbDialog()
+	{
+		if (showingBlockingDialog)
+		{
+			return; //Already showing something so return
+		}
+
+		if (Utils.isDBCorrupt()) //Conversation fragment could have been added previously. Remove it and show the corrupt dialog
+		{
+			if (isFragmentAdded(MAIN_FRAGMENT_TAG))
+			{
+				removeFragment(MAIN_FRAGMENT_TAG);
+				wasFragmentRemoved = true;
+			}
+
+			Logger.d(TAG, "Removed ConvFragment and showing the restore chats dialog now");
+
+			showCorruptDBRestoreDialog();
+		}
+	}
 }

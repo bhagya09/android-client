@@ -6,6 +6,7 @@
     android:versionCode="1625"
     android:versionName="4.2.0.18.11.resume_versioning" >
 
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
@@ -308,7 +309,7 @@
         </activity>
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
-            android:configChanges="keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"

@@ -138,13 +138,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					break;
 			}
 			setConversationId(conversationId);
-
-			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-
-			int index = BitmapUtils.iconHash(conversationId) % (bgColorArray.length());
-
-			defAvBgColor = bgColorArray.getColor(index, 0);
 		}
+
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(getConvId()) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
 
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))
@@ -246,7 +244,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});
@@ -300,7 +298,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});

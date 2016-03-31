@@ -227,8 +227,12 @@ public class AnalyticsConstants
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
 	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+
 	public static String DOWNLOAD_PAUSED = "download_paused";
 	public static String DOWNLOAD_RESUMED = "download_resumed";
+
+	public static String PLATFORM_NOTIFICATION = "platform_notification";
+	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -549,6 +553,8 @@ public class AnalyticsConstants
 		public static final String DEACTIVATE_BUTTON = "dActiv";
 		
 		public static final String CLOSE_BUTTON = "close";
+
+		public static final String CLOSE_SWIPE = "cls_swp";
 
 		public static final String CARD = "crd";
 
