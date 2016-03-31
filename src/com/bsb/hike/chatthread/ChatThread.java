@@ -2456,14 +2456,6 @@ import android.widget.Toast;
 
 		mComposeView.setOnKeyListener(this);
 
-		mComposeView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				{
-					showKeyboardOffboardingIfReady();
-				}
-			}
-		});
 	}
 
 	/*
@@ -3558,7 +3550,16 @@ import android.widget.Toast;
 			{
 				mComposeView.requestFocusFromTouch();
 			}
-			return mShareablePopupLayout.onEditTextTouch(v, event);
+
+			if (shouldShowKeyboardOffBoardingUI()) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					showKeyboardOffboardingIfReady();
+				}
+				return true;
+			}
+			else {
+				return mShareablePopupLayout.onEditTextTouch(v, event);
+			}
 
 		default:
 			return mGestureDetector.onTouchEvent(event);
