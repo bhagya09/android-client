@@ -6,7 +6,6 @@ import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.NotificationType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
@@ -24,7 +23,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.ToastListener;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
@@ -82,7 +80,7 @@ public class BotUtils
 
 		BotInfo gamesOnHike = new BotInfo.HikeBotBuilder(HikePlatformConstants.GAMES_HIKE_MSISDN).setConvName(context.getString(R.string.games_bot)).setConfig(21487).build();
 
-		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(2069487).build();
+		BotInfo hikeDaily = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_DAILY_MSISDN).setConvName(context.getString(R.string.hike_daily_bot)).setConfig(22511).build();
 
 		BotInfo hikeSupport = new BotInfo.HikeBotBuilder(HikePlatformConstants.HIKE_SUPPORT_MSISDN).setConvName(context.getString(R.string.hike_support_bot)).setConfig(2069487).build();
 
@@ -113,7 +111,7 @@ public class BotUtils
 
 		defaultBotEntry(HikePlatformConstants.GAMES_HIKE_MSISDN, context.getString(R.string.games_bot), null, null, 21487, false, context);
 
-		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 21487, false, context);
+		defaultBotEntry(HikePlatformConstants.HIKE_DAILY_MSISDN, context.getString(R.string.hike_daily_bot), null, HikeBitmapFactory.getBase64ForDrawable(R.drawable.hikedaily, context.getApplicationContext()), 22511, false, context);
 
 		defaultBotEntry(HikePlatformConstants.HIKE_SUPPORT_MSISDN, context.getString(R.string.hike_support_bot), null, null, 2069487, true, context);
 
@@ -261,6 +259,8 @@ public class BotUtils
 			JSONArray appsToBeRemoved = jsonObj.getJSONArray(HikePlatformConstants.APP_NAME);
 			for (int i = 0; i< appsToBeRemoved.length(); i++){
 				String appName =  appsToBeRemoved.get(i).toString();
+				if(TextUtils.isEmpty(appName))
+					continue; // Safety for preventing content directory to be deleted.
 				String makePath = PlatformContentConstants.PLATFORM_CONTENT_DIR +  appName;
 				Logger.d("FileSystemAccess", "To delete the path : " + makePath);
 				if(PlatformUtils.deleteDirectory(makePath)){

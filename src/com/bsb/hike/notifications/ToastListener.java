@@ -32,6 +32,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -166,7 +167,17 @@ public class ToastListener implements Listener
 				notificationType = NotificationType.DPUPDATE;
 			}
 			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
-			toaster.notifyStatusMessage(statusMessage, notificationType);
+
+			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
+				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,statusMessage.getMsisdn());
+			}
+			else
+			{
+				toaster.notifyStatusMessage(statusMessage, notificationType);
+			}
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
 		{
@@ -175,7 +186,19 @@ public class ToastListener implements Listener
 			if (!(activity instanceof TimelineActivity))
 			{
 				FeedDataModel activityFeed = (FeedDataModel) object;
-				toaster.notifyActivityMessage(activityFeed, notificationType);
+				if (StealthModeManager.getInstance().isStealthMsisdn(activityFeed.getActor()) && !StealthModeManager.getInstance().isActive())
+				{
+					if (activityFeed.getActionType() == ActionsDataModel.ActionTypes.LIKE)
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
+						this.toaster.notifyStealthMessage(NotificationType.HIDDEN, activityFeed.getActor());
+					}
+				}
+				else
+				{
+					toaster.notifyActivityMessage(activityFeed, notificationType);
+				}
 			}
 		}
 		else if (HikePubSub.BATCH_STATUS_UPDATE_PUSH_RECEIVED.equals(type))
@@ -211,6 +234,11 @@ public class ToastListener implements Listener
 				StatusMessage statusMessage = HikeConversationsDatabase.getInstance().getStatusMessageFromMappedId(statusId);
 				
 				if(statusMessage == null)
+				{
+					return;
+				}
+
+				if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
 				{
 					return;
 				}
@@ -740,6 +768,24 @@ public class ToastListener implements Listener
 			{
 				Logger.e("ToastListener", "Either the parent bot was open or the msisdn passed is null or botinfo is null");
 				return;
+			}
+		}
+		else //Suppressing game notifs if already playing a game as game switch is not possible
+		{
+			BotInfo botInfo=BotUtils.getBotInfoForBotMsisdn(msisdn);
+			if(botInfo==null)
+				return;
+			NonMessagingBotMetadata nmData=new NonMessagingBotMetadata(botInfo.getMetadata());
+			if(nmData==null)
+				return;
+			if(nmData.isNativeMode())
+			{
+				SharedPreferences settings = context.getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
+				boolean gameActive = settings.getBoolean(HikePlatformConstants.GAME_ACTIVE, false);
+				if(gameActive)
+				{
+					return;
+				}
 			}
 		}
 

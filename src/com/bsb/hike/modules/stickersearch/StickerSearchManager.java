@@ -1,14 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -31,15 +22,26 @@ import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
+import com.bsb.hike.modules.stickersearch.tasks.StickerEventsLoadTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -361,7 +363,7 @@ public class StickerSearchManager
 
 	public void onClickToShowRecommendedStickers(int clickPosition, boolean onTappedInsideComposeBox)
 	{
-		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + "," + onTappedInsideComposeBox + ")");
+		Logger.i(StickerTagWatcher.TAG, "onClickToShowRecommendedStickers(" + clickPosition + ", " + onTappedInsideComposeBox + ")");
 
 		// Do nothing, if it is not because of touch on highlighted word and auto pop-up setting is turned-off
 		if (!onTappedInsideComposeBox && !showAutoPopupSettingOn)
@@ -399,7 +401,22 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet);
+		downloadStickerTags(firstTime, state, null, languagesSet);
+	}
+
+	/**
+	 * This will trigger events loading. This will run loading task on background thread. All caller should call this method instead of directly calling
+	 * StickerSearchDataController:loadStickerEvents() to avoid loading on UI thread.
+	 */
+	public void loadStickerEvents()
+	{
+		StickerEventsLoadTask stickerEventsLoadTask = new StickerEventsLoadTask();
+		searchEngine.runOnQueryThread(stickerEventsLoadTask);
+	}
+
+	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
+	{
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
@@ -413,11 +430,18 @@ public class StickerSearchManager
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
+
+		// Load events, if sticker recommendation is running.
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		{
+			loadStickerEvents();
+		}
 	}
 
-	public void removeDeletedStickerTags()
+	public void removeDeletedStickerTags(Set<String> infoSet, int removalType)
 	{
-		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask();
+		RemoveDeletedStickerTagsTask removeDeletedStickerTagsTask = new RemoveDeletedStickerTagsTask(infoSet, removalType);
 		searchEngine.runOnQueryThread(removeDeletedStickerTagsTask);
 	}
 
@@ -494,15 +518,8 @@ public class StickerSearchManager
 			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
 
-		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
-				getRebalancingAlarmIntent(), true);
-	}
-
-	private Intent getRebalancingAlarmIntent()
-	{
-		Intent intent = new Intent();
-		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
-		return intent;
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION, true,
+                IntentFactory.getPersistantAlarmIntent(), true);
 	}
 
 	public void startRebalancing(Intent intent)
@@ -699,7 +716,7 @@ public class StickerSearchManager
 		}
 	}
 
-	public void increaseRecommendationTotalMatrixForCurrentLanguage()
+	private void increaseRecommendationTotalMatrixForCurrentLanguage()
 	{
 		PairModified<Integer, Integer> accuracyMetrices = null;
 		if (isFromAutoRecommendation())

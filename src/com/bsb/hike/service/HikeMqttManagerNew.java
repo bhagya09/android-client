@@ -639,7 +639,8 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			if (mqtt == null)
 			{
 				// Here I am using my modified MQTT PAHO library
-				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context), null,
+				Logger.d("HikeMqttManagerNew"+hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
+				mqtt = new MqttAsyncClient(hostInfo.getServerUri(), clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort(), null,
 						MAX_INFLIGHT_MESSAGES_ALLOWED);
 				mqtt.setCallback(getMqttCallback());
 				Logger.d(TAG, "Number of max inflight msgs allowed : " + mqtt.getMaxflightMessages());
@@ -653,7 +654,7 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 			{
 				acquireWakeLock(hostInfo.getConnectTimeOut());
 				Logger.d(TAG, "Connect using pushconnect : " + pushConnect + "  fast reconnect : " + fastReconnect + " connection time out = "+hostInfo.getConnectTimeOut());
-				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect);
+				mqtt.setClientId(clientId + ":" + pushConnect + ":" + fastReconnect + ":" + Utils.getNetworkType(context)+":"+hostInfo.getPort());
 				mqtt.setServerURI(hostInfo.getServerUri());
 				
 				//Setting some connection options which we need to reset on every connect
@@ -1519,9 +1520,13 @@ public class HikeMqttManagerNew extends BroadcastReceiver
 				{
 					connectOnMqttThread();
 				}
+				ChatHeadUtils.syncFromClientToServer();
+				ChatHeadUtils.syncAllCallerBlockedContacts();
 			}
 			Utils.setupUri(); // TODO : this should be moved out from here to some other place
 			HttpRequestConstants.toggleSSL();
+
+
 		}
 		else if (intent.getAction().equals(MQTT_CONNECTION_CHECK_ACTION))
 		{

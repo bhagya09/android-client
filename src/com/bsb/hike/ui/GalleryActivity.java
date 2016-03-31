@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -43,9 +45,11 @@ import com.bsb.hike.gallery.GalleryRecyclerAdapter;
 import com.bsb.hike.gallery.MarginDecoration;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
@@ -58,8 +62,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String ENABLE_CAMERA_PICK = "cam_pk";
 
 	public static final int GALLERY_ACTIVITY_RESULT_CODE = 97;
+
+	public static final int GALLERY_CROP_IMAGE = 128;
 	
-	public static final int GALLERY_CROP_IMAGE = 64;
+	public static final int GALLERY_CROP_FOR_DP_IMAGE = 64;
 	
 	public static final int GALLERY_ALLOW_MULTISELECT = 32;
 	
@@ -98,7 +104,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private boolean disableMultiSelect;
 
-	public static final String ALL_IMAGES_BUCKET_NAME = "All images";
+	public static final String ALL_IMAGES_BUCKET_NAME = "All photos";
 
 	public static final String CAMERA_TILE = "gallery_tile_camera";
 
@@ -117,7 +123,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	private View progressLoading;
 
 	private GalleryRecyclerAdapter recyclerAdapter;
-	
+
+	private ParcelableSparseArray captions;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -154,6 +162,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		if(editEnabled && data.containsKey(GallerySelectionViewer.EDIT_IMAGES_LIST) && data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST)!=null)
 		{
 			editedImages = new ArrayList<String>(data.getStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST));
+		}
+
+		if(data.containsKey(HikeConstants.CAPTION) && data.get(HikeConstants.CAPTION) != null)
+		{
+			captions  = (ParcelableSparseArray) data.get(HikeConstants.CAPTION);
 		}
 
 		if (data.containsKey(FOLDERS_REQUIRED_KEY))
@@ -252,6 +265,8 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		recyclerView.setAdapter(recyclerAdapter);
 		recyclerView.setVisibility(View.VISIBLE);
 
+		StatusBarColorChanger.setStatusBarColor(getWindow(), Color.BLACK);
+
 		if (!multiSelectMode)
 		{
 			setupActionBar(albumTitle);
@@ -278,7 +293,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
 		if (recyclerAdapter != null)
 		{
@@ -289,7 +303,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	@Override
 	protected void onResume()
 	{
-		// TODO Auto-generated method stub
 		super.onResume();
 		if (recyclerAdapter != null)
 		{
@@ -302,12 +315,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState)
 	{
 		outState.putAll(getIntent().getExtras());
-		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>)selectedGalleryItems);
-		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>)galleryItemList);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_SELECTIONS, (ArrayList<GalleryItem>) selectedGalleryItems);
+		outState.putParcelableArrayList(HikeConstants.Extras.GALLERY_ITEMS, (ArrayList<GalleryItem>) galleryItemList);
 		if(editEnabled && getIntent().hasExtra(GallerySelectionViewer.EDIT_IMAGES_LIST))
 		{
 			outState.putStringArrayList(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 		}
+		outState.putParcelable(HikeConstants.CAPTION,captions);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -370,18 +384,25 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 		actionBarView = LayoutInflater.from(this).inflate(R.layout.photos_action_bar, null);
 		actionBarView.setBackgroundResource(android.R.color.transparent);
-	
+
 		TextView titleView = (TextView) actionBarView.findViewById(R.id.title);
 
-		titleView.setText(getString(R.string.photo_gallery_choose_pic));
+		if (isInsideAlbum && !TextUtils.isEmpty(albumTitle))
+		{
+			titleView.setText(albumTitle);
+		}
+		else
+		{
+			titleView.setText(getString(R.string.photo_gallery_choose_pic));
+		}
 
 		titleView.setVisibility(View.VISIBLE);
 
 		actionBar.setCustomView(actionBarView);
 		actionBar.setDisplayHomeAsUpEnabled(true);
-		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
-		
+		Toolbar parent = (Toolbar) actionBarView.getParent();
+		parent.setContentInsetsAbsolute(0, 0);
+
 	}
 
 	private void setupMultiSelectActionBar()
@@ -401,44 +422,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		multiSelectTitle = (TextView) actionBarView.findViewById(R.id.title);
 		multiSelectTitle.setText(getString(R.string.gallery_num_selected, 1));
 
-		sendBtn.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				deleteJunkTempFiles();
-				
-				Intent intent = getIntent();
-				
-				Bundle bundle = new Bundle();
-				
-				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
-				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
-				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
-				 */
-				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
-				intent.putExtras(bundle);
-								
-				if(selectedGalleryItems.size() == 1 && hasDelegateActivities())
-				{
-					launchNextDelegateActivity(bundle);
-				}
-				else if(!sendResult && isStartedForResult())
-				{
-					//since sendResult is active when we need to send result to selection viewer
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					setGalleryResult(RESULT_OK, intent);
-					finish();
-				}
-				else
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
-					sendGalleryIntent(intent);
-				}
-			}
-		});
+		sendBtn.setOnClickListener(sendButtonClickListener);
 
 		closeContainer.setOnClickListener(new OnClickListener()
 		{
@@ -461,6 +445,38 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		sendBtn.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_in));
 	}
 
+    OnClickListener sendButtonClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            deleteJunkTempFiles();
+
+            Intent intent = getIntent();
+
+            Bundle bundle = new Bundle();
+
+            /**
+             * Setting class loader due class not found exception on GalleryItem whie parcing
+             * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
+             * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
+             */
+            bundle.setClassLoader(GalleryItem.class.getClassLoader());
+            bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
+            intent.putExtras(bundle);
+
+            if (hasDelegateActivities()) {
+                launchNextDelegateActivity(bundle);
+            } else if (!sendResult && isStartedForResult()) {
+                //since sendResult is active when we need to send result to selection viewer
+                intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
+                setGalleryResult(RESULT_OK, intent);
+                finish();
+            } else {
+                intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, selectedGalleryItems);
+                sendGalleryIntent(intent);
+            }
+        }
+    };
+
 	private void sendGalleryIntent(Intent intent)
 	{
 		intent.setClass(this, GallerySelectionViewer.class);
@@ -477,6 +493,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				intent.putStringArrayListExtra(GallerySelectionViewer.EDIT_IMAGES_LIST, editedImages);
 				editedImages=null;
 			}
+
+			if(captions != null)
+			{
+				intent.putExtra(HikeConstants.CAPTION,captions);
+			}
 		}
 		
 		startActivity(intent);
@@ -488,7 +509,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK)
 		{
-			switch(requestCode)
+			switch (requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
 				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
@@ -503,25 +524,30 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				Bundle bundle = new Bundle();
 				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
 				item.add(new GalleryItem(GalleryItem.CAMERA_TILE_ID, CAMERA_TILE, NEW_PHOTO, cameraFilename, 0));
-				
+
 				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
+				 * Setting class loader due class not found exception on GalleryItem while parsing
+				 * 
 				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
 				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
 				 */
 				bundle.setClassLoader(GalleryItem.class.getClassLoader());
-				
-				
+
 				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
-				//Added to ensure delegate activity passes destination path to editer
-				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename); 
+				// Added to ensure delegate activity passes destination path to editer
+				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null)
+				{
+					bundle.putAll(extras);
+				}
 				intent.putExtras(bundle);
-				
-				if(hasDelegateActivities())
+
+				if (hasDelegateActivities())
 				{
 					launchNextDelegateActivity(bundle);
 				}
-				else if(isStartedForResult())
+				else if (isStartedForResult())
 				{
 					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
 					setGalleryResult(RESULT_OK, intent);
@@ -544,7 +570,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			data.setAction(GALLERY_RESULT_ACTION);
 		}
-		setResult(resultCode,data);
+		setResult(resultCode, data);
 	}
 
 
@@ -570,15 +596,10 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			e.printStackTrace();
 		}
 	}
-	@Override
-	protected void setStatusBarColor(Window window, String color) {
-		// TODO Auto-generated method stub
-		return;
-	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// TODO Auto-generated method stub
 		return true ;
 	}
 	
@@ -669,13 +690,13 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 		else
 		{
-
 			if (multiSelectMode)
 			{
 				int index = selectedGalleryItems.indexOf(galleryItem);
 				if (index >=0)
 				{
 					selectedGalleryItems.remove(index);
+//					captions.remove(index);
 					if(editedImages !=null)
 					{
 						editedImages.remove(index);
@@ -709,44 +730,9 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 			else
 			{
-				deleteJunkTempFiles();
-				intent = new Intent();
-				Bundle bundle = new Bundle();
-				
-				ArrayList<GalleryItem> item = new ArrayList<GalleryItem>(1);
-				item.add(galleryItem);
-				
-				File file = new File(item.get(0).getFilePath());
-				if (!file.exists())
-				{
-					Toast.makeText(GalleryActivity.this, getResources().getString(R.string.file_expire), Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				/**
-				 * Setting class loader due class not found exception on GalleryItem whie parcing
-				 * @link : http://stackoverflow.com/questions/28589509/android-e-parcel-class-not-found-when-unmarshalling-only-on-samsung-tab3
-				 * @see : http://stackoverflow.com/questions/13421582/parcelable-inside-bundle-which-is-added-to-parcel
-				 */
-				
-				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, galleryItem.getFilePath());
-				intent.putExtras(bundle);
-				
-				if(hasDelegateActivities())
-				{
-					launchNextDelegateActivity(bundle);
-				}
-				else if (isStartedForResult())
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					setGalleryResult(RESULT_OK, intent);
-					finish();
-				}
-				else
-				{
-					intent.putParcelableArrayListExtra(HikeConstants.Extras.GALLERY_SELECTIONS, item);
-					sendGalleryIntent(intent);
-				}
+                selectedGalleryItems.add(galleryItem);
+				sendButtonClickListener.onClick(null);
+                selectedGalleryItems.clear();
 			}
 		}
 	}

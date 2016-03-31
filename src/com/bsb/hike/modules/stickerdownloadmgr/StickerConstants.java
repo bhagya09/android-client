@@ -2,7 +2,15 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 
 public class StickerConstants
 {
-	
+	public static final String STICKER_SETTINGS_TASK_ARG = "stickerSettingsTaskArg";
+
+	public enum StickerSettingsTask
+	{
+		STICKER_REORDER_TASK, STICKER_DELETE_TASK, STICKER_HIDE_TASK, STICKER_UPDATE_TASK, STICKER_INVALID_TASK;
+
+		private int task;
+	}
+
 	public enum STState
 	{
 		NOT_STARTED, INITIALIZED, IN_PROGRESS, PAUSED, CANCELLED, COMPLETED, ERROR
@@ -45,12 +53,13 @@ public class StickerConstants
 		SIZE(4, "ssz"),
 		SIGNUP_UPGRADE(5, "ssu"),
 		SHOP(6, "ssp"),
-		TAGS(7, "st");
+		TAGS(7, "st"),
+		SINGLE_TAG(8, "sit");
 		
 		private final int type;
 		private final String label;
 		
-		private StickerRequestType(int type, String label)
+		StickerRequestType(int type, String label)
 		{
 			this.type = type;
 			this.label = label;
@@ -65,4 +74,6 @@ public class StickerConstants
 			return this.label;
 		}
 	};
+
+	public static final int DEFAULT_STICKER_THRESHOLD_FOR_CDN = 5;
 }

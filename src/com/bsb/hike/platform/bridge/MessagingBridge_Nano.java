@@ -1,8 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -18,11 +15,11 @@ import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -31,7 +28,7 @@ import com.bsb.hike.utils.Utils;
  * Platform Bridge Version Start = 0
  * Platform Bridge Version End = 0
  */
-
+@DoNotObfuscate
 public class MessagingBridge_Nano extends JavascriptBridge
 {
 

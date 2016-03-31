@@ -11,12 +11,12 @@ public class AnalyticsConstants
 	
 	/** one day in seconds */
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
-	public static final Object PARTIAL_FILE_DOWNLOADED ="partialFileDownloaded" ;
-
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
 	public static final Object MICRO_APP_LOADED ="microAppLoaded";
 	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
+	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -172,8 +172,6 @@ public class AnalyticsConstants
 
 	public static final String HIKE_SDK_INSTALL_DECLINE = "hikeSDKInstallDecline";
 
-	public static final String ANALYTICS_THREAD_WRITER = "THREAD-WRITER";
-
 	// Added For Session
 	public static final String SESSION_ID = "sid";
 
@@ -211,11 +209,24 @@ public class AnalyticsConstants
 
 	public static String MESSAGES_COUNT = "msg_count";
 
+    public static String CLICK_COUNT = "clk_count";
+
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
 	public static Object BOT_CONTENT_FORWARDED = "bot_content_forwarded";
 	public static Object BOT_CONTENT_DOWNLAODED = "bot_content_downloaded";
+	public static String EVENT_DELETE_ACCOUNT = "evAccDel";
+
+	public static String DELETE_ACCOUNT = "delAcc";
+
+	public static String RESET_ACCOUNT = "resAcc";
+
+	public static String EVENT_USER_GOOGLE_ACCOUNTS = "evUsrGoogleAccs";
+
+	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
+	public static String FORWARD = "forward";
+	public static String BOT_CONTENT_SHARED = "bot_content_shared";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -469,7 +480,30 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
-	
+
+	public static final class AutoApkEvents
+	{
+		public static final String RECEIVED_INITIAL_PING = "atapk_chk1";
+
+		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
+
+		public static final String SIZE_VALIDITY = "atapk_sz_vld";
+
+		public static final String UPDATE_VALIDITY = "atapk_up_vld";
+
+		public static final String NETWORK_VALIDITY = "atapk_nw_vld";
+
+		public static final String SERVER_RESPONSE_HTTP = "atapk_cnf";
+
+		public static final String RESUMING_DOWNLOAD = "atapk_resm";
+
+		public static final String INITIATING_DOWNLOAD = "atapk_init";
+
+		public static final String DOWNLOAD_COMPLETION = "atapk_cplt";
+
+		public static final String FILE_VALIDITY = "atapk_fl_vld";
+
+	}
 	
 	public static final class StickyCallerEvents
 	{
@@ -529,6 +563,8 @@ public class AnalyticsConstants
 		
 		public static final String CLOSE_BUTTON = "close";
 
+		public static final String CLOSE_SWIPE = "cls_swp";
+
 		public static final String CARD = "crd";
 
 		public static final String SAVE_CONTACT = "svCntct";
@@ -542,7 +578,24 @@ public class AnalyticsConstants
 		public static final String WRONG_JSON = "wrngJsn";
 
 		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
-		
+
+		public static final String AFTER_INCOMING_UNKNOWN = "aftInc";
+
+		public static final String AFTER_OUTGOING_UNKNOWN = "aftOut";
+
+		public static final String BLOCK = "blk";
+
+		public static final String BLOCK_LIST = "blkLst";
+
+		public static final String POSITIVE_CLICKED = "pos";
+
+		public static final String NEGATIVE_CLICKED = "neg";
+
+		public static final String BLOCK_DIALOG = "blkDlg";
+
+		public static final String UNBLOCK_DIALOG = "unblkDlg";
+
+
 	}
 	
 	public static String EVENT_SOURCE = "sr";
@@ -591,6 +644,8 @@ public class AnalyticsConstants
 
 	public static final String LOG_FIELD_2 = "fld2";
 
+    public static final String LOG_FIELD_3 = "fld3";
+
 	public static final String LOG_FIELD_4 = "fld4";
 	
 	public static final String LOG_FIELD_5 = "fld5";
@@ -621,5 +676,49 @@ public class AnalyticsConstants
 
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
+	public static final String USER_LOCATION = "location";
+
 	public static final String DATABASE_ERROR = "db_error";
+
+	public static final class InterceptEvents
+	{
+		public static final String INTERCEPTS = "intrcpt";
+
+		public static final String INTERCPET_NOTIF_EVENT = "incNtf";
+
+		public static final String INTERCEPT_ACTION = "incActn";
+
+		public static final String INTERCEPT_SCREENSHOT = "incScrn";
+
+		public static final String INTERCEPT_IMAGE = "incImg";
+
+		public static final String INTERCEPT_VIDEO = "incVid";
+
+		public static final String INTERCEPT_NOTIF_CREATED = "incNtfCr";
+
+		public static final String INTERCEPT_SHARE_CLICKED = "incShrClk";
+
+		public static final String INTERCEPT_SET_DP_CLICKED = "incDPClk";
+
+		public static final String INTERCEPT_IMAGE_CLICKED = "incImgClk";
+
+		public static final String INTERCEPT_SETTING_TURNED_ON = "incStgOn";
+
+		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
+
+		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+	}
+
+    public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
+
+    public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
+
+    public static final String APP_UPDATE_TRIGGER = "app_updated";
+
+	public static String ANALYTICS_EXTRA = "analyticsExtra";
+
+	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
+
+	public static final String JUST_OPENED = "justOpened";
+
 }
