@@ -8,13 +8,17 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -33,6 +37,10 @@ public class StickerShopAdapter extends CursorAdapter
 	private int totalStickersCountColoumn;
 
 	private int categorySizeColoumn;
+
+	private Animation packPreviewFtueAnimation;
+
+	private boolean shownPackPreviewFtue;
 
 	private Map<String, StickerCategory> stickerCategoriesMap;
 	
@@ -69,6 +77,8 @@ public class StickerShopAdapter extends CursorAdapter
 		this.totalStickersCountColoumn = cursor.getColumnIndex(DBConstants.TOTAL_NUMBER);
 		this.categorySizeColoumn = cursor.getColumnIndex(DBConstants.CATEGORY_SIZE);
 		this.stickerCategoriesMap = stickerCategoriesMap;
+		shownPackPreviewFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, false);
+		this.packPreviewFtueAnimation = shownPackPreviewFtue ? null : HikeAnimationFactory.getStickerPreviewFtueAnimation(mContext);
 	}
 
 	@Override
@@ -129,6 +139,7 @@ public class StickerShopAdapter extends CursorAdapter
 			stickerCategoriesMap.put(categoryId, category);
 		}
 		viewholder.downloadState.setVisibility(View.VISIBLE);
+		showPackPreviewFtue(cursor.getPosition(), viewholder);
 		
 		if(category.isVisible())
 		{
@@ -145,7 +156,6 @@ public class StickerShopAdapter extends CursorAdapter
 				}
 				else
 				{
-					viewholder.downloadState.setImageLevel(FULLY_DOWNLOADED);
 					viewholder.categoryPrice.setText(context.getResources().getString(R.string.downloaded).toUpperCase());
 					viewholder.categoryPrice.setTextColor(context.getResources().getColor(R.color.blue_hike));
 				}
@@ -206,6 +216,36 @@ public class StickerShopAdapter extends CursorAdapter
 		if (notify && !isListFlinging)
 		{
 			notifyDataSetChanged();
+		}
+	}
+
+	private void showPackPreviewFtue(int position, ViewHolder viewholder)
+	{
+		if(!shownPackPreviewFtue)
+		{
+			Animation animation = viewholder.downloadState.getAnimation();
+			if(animation != null)
+			{
+				animation.cancel();
+			}
+
+			if(position == 0)
+			{
+				viewholder.downloadState.startAnimation(packPreviewFtueAnimation);
+			}
+			else
+			{
+				viewholder.downloadState.setAnimation(null);
+			}
+		}
+	}
+
+	public void setShownPackPreviewFtue()
+	{
+		if(!shownPackPreviewFtue)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, true);
+			shownPackPreviewFtue = true;
 		}
 	}
 }
