@@ -182,7 +182,7 @@ public abstract class ImageWorker
             if (b != null && mImageCache != null)
             {
                 BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(mResources, b);
-                if (bd != null)
+                if (bd != null && cachingEnabled)
                 {
                     mImageCache.putInCache(key, bd);
                 }
