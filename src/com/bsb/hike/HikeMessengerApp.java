@@ -387,8 +387,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
 
-	public static final String SHOWN_MULTI_ADMIN_TIP = "shownMultiAdminTip";
-
 	public static final String MQTT_IPS = "mqttIps";
 
 	public static final String STEALTH_ENCRYPTED_PATTERN = "stealthEncryptedPattern";
