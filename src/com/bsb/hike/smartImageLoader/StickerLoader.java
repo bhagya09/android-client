@@ -1,7 +1,6 @@
 package com.bsb.hike.smartImageLoader;
 
 import android.graphics.Bitmap;
-import android.util.Size;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -13,6 +12,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.models.utils.Size;
 
 public class StickerLoader extends ImageWorker
 {
@@ -54,17 +54,18 @@ public class StickerLoader extends ImageWorker
 		String path = args[2];
 		Bitmap bitmap;
 
+		Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
+
 		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
 		{
-			Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), loadSize);
-			checkAndDownloadMiniSticker(bitmap, sticker);
+			bitmap = loadStickerBitmap(sticker.getSmallStickerPath());
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
 		}
 		else
 		{
 			Bitmap large = loadStickerBitmap(path);
 			bitmap = checkAndLoadOfflineSticker(large, sticker);
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker);
+			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
             checkAndDownloadLargeSticker(large, sticker);
 		}
 
@@ -159,11 +160,11 @@ public class StickerLoader extends ImageWorker
 		return bitmap;
 	}
 
-	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker)
+	private Bitmap checkAndLoadMiniSticker(Bitmap bitmap, Sticker sticker, Size loadSize)
 	{
 		if (loadMiniStickerIfNotFound && bitmap == null)
 		{
-			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), new Size(sticker.getWidth(), sticker.getHeight()));
+			bitmap = loadMiniStickerBitmap(sticker.getMiniStickerPath(), loadSize);
 			checkAndDownloadMiniSticker(bitmap, sticker);
 		}
 		return bitmap;

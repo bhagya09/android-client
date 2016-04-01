@@ -20,14 +20,39 @@ public class CustomStickerCategory extends StickerCategory
 {
 	private Set<Sticker> stickerSet;
 
-	private String TAG = "CustomStickerCategory";
-
-	public CustomStickerCategory(String categoryId)
+	private CustomStickerCategory(Init<?> builder)
 	{
-		super(categoryId);
-		this.setCustom(true);
+		super(builder);
+		this.stickerSet = builder.stickerSet;
 		loadStickers();
 	}
+
+	protected static abstract class Init<S extends Init<S>> extends StickerCategory.Init<S>
+	{
+		private Set<Sticker> stickerSet;
+
+		public S setStickerSet(Set<Sticker> stickerSet)
+		{
+			this.stickerSet = stickerSet;
+			return self();
+		}
+
+		public CustomStickerCategory build()
+		{
+			return new CustomStickerCategory(this);
+		}
+	}
+
+	public static class Builder extends Init<Builder>
+	{
+		@Override
+		protected Builder self()
+		{
+			return this;
+		}
+	}
+
+	private String TAG = "CustomStickerCategory";
 
 	@Override
 	public int getState()
@@ -41,12 +66,6 @@ public class CustomStickerCategory extends StickerCategory
 	{
 	}
 	
-	public CustomStickerCategory(String categoryId, String categoryName, boolean updateAvailable, boolean isVisible, boolean isCustom, boolean isAdded, int catIndex,
-			int totalStickers, int categorySize)
-	{
-		super(categoryId, categoryName, updateAvailable, isVisible, isCustom, isAdded, catIndex, totalStickers, categorySize);
-		loadStickers();
-	}
 
 	public List<Sticker> getStickerList()
 	{

@@ -316,6 +316,8 @@ public class HikeConstants
 	public static final String STICKER_IDS = "stIds";
 
 	public static final String STICKER = "stk";
+	
+	public static final String STICKER_CATEGORY_ID = "stickerCategoryId";
 
 	public static final String RESOLUTION_ID = "resId";
 
@@ -3244,6 +3246,16 @@ public class HikeConstants
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
+	
+	public static final String DESCRIPTION = "desc";
+
+	public static final String STICKER_LIST = "sticker_list";
+
+	public static final String SIMILAR_PACKS = "similar_packs";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT = "copyright";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -3967,6 +3979,10 @@ public class HikeConstants
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
 
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+
 	public static final String MINI_STICKER_ENABLED = "m_stk_st";
 
 	public static final String UNDOWNLOADED_DATA = "ud_d";
@@ -3984,10 +4000,6 @@ public class HikeConstants
 	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
-
-	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
-
-	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 
 	public static final String DISPLAY_MINI_IN_CT = "d_m_ct";
 
@@ -4019,7 +4031,7 @@ public class HikeConstants
 
 	public static final String STICKER_SIZE = "stkr_size";
 
-		public static final class INTERCEPTS
+	public static final class INTERCEPTS
 	{
 		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
 
@@ -4060,6 +4072,8 @@ public class HikeConstants
 	public static final String STICKER_PACK = "spc";
 
 	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final String SHOW_STICKER_PREVIEW = "show_sticker_preview";
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 }

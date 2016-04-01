@@ -1099,7 +1099,12 @@ public class PlatformUtils
 
 			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
 			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				StickerCategory category = new StickerCategory.Builder()
+						.setCategoryId(categoryId)
+						.setCategoryName(categoryName)
+						.setTotalStickers(totalStickers)
+						.setCategorySize(categorySize)
+						.build();
 				downloadStkPk(category);
 			}
 		}

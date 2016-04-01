@@ -479,6 +479,18 @@ public interface DBConstants
 	public static final String CATEGORY_INDEX = "catIndex";
 
 	public static final String CATEGORY_SIZE = "categorySize";
+	
+	public static final String CATEGORY_DESCRIPTION = "categoryDescription";
+
+	public static final String STICKER_LIST = "stickerList";
+
+	public static final String IS_DOWNLOADED = "isDownloaded";
+
+	public static final String SIMILAR_CATEGORIES = "similarCategories";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT_STRING = "copyRightString";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
