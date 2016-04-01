@@ -612,6 +612,7 @@ public class GroupChatThread extends OneToNChatThread
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
+				if(isWalkieTalkieShowing()) return true;
 				// Make a group voip call after confirmation
 				new AlertDialog.Builder(activity).
 				setTitle(R.string.voip_conference_label).
