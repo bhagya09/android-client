@@ -3662,12 +3662,7 @@ import java.util.Map;
 
 		else if (mContactInfo.isMyOneWayFriend())
 		{
-			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
-		}
-
-		else if (!mContactInfo.isFriendRequestReceivedForMe())
-		{
-			return; //Neither have I received any friend request from this person! Fo Shizzle!
+			return; //If I am 1-way or 2-way friends, do not inflate these views
 		}
 
 		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
