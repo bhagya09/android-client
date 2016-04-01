@@ -1176,7 +1176,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
-				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
+				overFlowMenuItem.enabled = shouldEnableSearch();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_overflow_item_indicator_search;
@@ -1188,8 +1188,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				break;
 
 			case R.string.clear_chat:
+				overFlowMenuItem.enabled = shouldEnableClearChat();
+				break;
 			case R.string.email_chat:
-				overFlowMenuItem.enabled = !isMessageListEmpty;
+				overFlowMenuItem.enabled = shouldEnableEmailChat();
 				break;
 			case R.string.hike_keyboard:
 				if (!sharedPreference.getData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, false)
@@ -1201,7 +1203,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				{
 					overFlowMenuItem.drawableId = 0;
 				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				overFlowMenuItem.enabled = shouldEnableHikeKeyboard();
 				overFlowMenuItem.text=getString(isSystemKeyboard() ? R.string.hike_keyboard : R.string.system_keyboard);
 				break;
 			case R.string.hide_chat:
@@ -6903,6 +6905,26 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
 	{
 		ChatThreadUtils.publishReadByForMessage(message, HikeConversationsDatabase.getInstance(), msisdn,channelSelector);
+	}
+
+	protected boolean shouldEnableSearch()
+	{
+		return (!isMessageListEmpty() && !mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableHikeKeyboard()
+	{
+		return (!mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableClearChat()
+	{
+		return (!isMessageListEmpty());
+	}
+
+	protected boolean shouldEnableEmailChat()
+	{
+		return (!isMessageListEmpty());
 	}
 
 }

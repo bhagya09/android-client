@@ -3345,14 +3345,22 @@ import java.util.Map;
 				
 				
 			case R.string.view_profile:
-			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
+			case R.string.chat_theme:
+				overFlowMenuItem.enabled = !mConversation.isBlocked();
+
+				boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotFriend);
+				break;
+
 			case R.string.block_title:
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
 			case R.string.scan_free_hike:
-				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()) && 
+				overFlowMenuItem.enabled = shouldEnableHikeDirect();
+
+				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()) &&
 						!OfflineUtils.isConnectingToSameMsisdn(mConversation.getMsisdn()))
 				{
 					overFlowMenuItem.text = getString(R.string.scan_free_hike);
@@ -3378,7 +3386,7 @@ import java.util.Map;
 			}
 		}
 	}
-	
+
 	@Override
 	protected String getBlockedUserLabel()
 	{
@@ -3798,5 +3806,47 @@ import java.util.Map;
 		activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 
 		activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+	}
+
+	@Override
+	protected boolean shouldEnableSearch()
+	{
+		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+
+		return ((!isNotFriend) && super.shouldEnableSearch());
+	}
+
+	@Override
+	protected boolean shouldEnableHikeKeyboard()
+	{
+		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+
+		return ((!isNotFriend) && super.shouldEnableHikeKeyboard());
+	}
+
+	@Override
+	protected boolean shouldEnableClearChat()
+	{
+		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+
+		return ((!isNotFriend) && super.shouldEnableClearChat());
+	}
+
+	@Override
+	protected boolean shouldEnableEmailChat()
+	{
+		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+
+		return ((!isNotFriend) && super.shouldEnableEmailChat());
+	}
+
+	private boolean shouldEnableHikeDirect()
+	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
