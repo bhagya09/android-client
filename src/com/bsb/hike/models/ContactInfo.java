@@ -662,4 +662,9 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED;
 	}
 
+	public boolean isNotMyFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
+	}
+
 }

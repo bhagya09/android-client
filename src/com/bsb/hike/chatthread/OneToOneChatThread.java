@@ -791,7 +791,7 @@ import java.util.Map;
 		
 		this.mContactInfo.setFavoriteType(favoriteType);
 
-		if (favoriteType == FavoriteType.REQUEST_RECEIVED)
+		if (mContactInfo.isFriendRequestReceivedForMe() || mContactInfo.isNotMyFriend())
 		{
 			// Just received a request. Change the UI to show request accept button instead.
 			sendUIMessage(SHOW_ADD_FRIEND_VIEWS, null);
