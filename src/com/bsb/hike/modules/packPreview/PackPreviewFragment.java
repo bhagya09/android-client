@@ -507,6 +507,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 				case StickerCategory.DONE:
 					if (stickerCategory.getDownloadedStickersCount() == 0 || !stickerCategory.isDownloaded())
 					{
+						StickerManager.getInstance().setShowLastCategory(true);
 						StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
 						stickerPalleteImageDownloadTask.execute();
 						StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW,

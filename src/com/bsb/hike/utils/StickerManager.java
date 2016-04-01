@@ -283,6 +283,8 @@ public class StickerManager
 
 	private Context context;
 
+	private boolean showLastCategory = false;
+
 	private static volatile StickerManager instance;
 
 	public static StickerManager getInstance()
@@ -3288,5 +3290,15 @@ public class StickerManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, count);
 				break;
 		}
+	}
+
+	public void setShowLastCategory(boolean showLastCategory)
+	{
+		this.showLastCategory = showLastCategory;
+	}
+
+	public boolean getShowLastCategory()
+	{
+		return showLastCategory;
 	}
 }
