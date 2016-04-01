@@ -702,7 +702,6 @@
     <string name="update_all">UPDATE ALL</string>
     <string name="RETRY">RETRY</string>
     <string name="see_them">DONE</string>
-    <string name="drag_tip_text">Drag to Reorder Packs</string>
     <string name="CANCEL">CANCEL</string>
     <string name="n_more">%1$d MORE</string>
     <string name="n_stickers">%1$d Stickers</string>
@@ -1024,17 +1023,18 @@
     <string name="sticker_widget_show">Show the Stickey in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
     <string name="more_stickers">More stickers</string>
-    <string name="add_members">Add Members</string>
-    <string name="add_members_to_conference">Add To Conference</string>
-    <string name="created_group_text">You created the group chat</string>
-    <string name="group_member_added">%1$s added %2$s</string>
-    <string name="you_group_member_added">You added %1$s</string>
-    <string name="num_members">%1$d members</string>
-    <string name="num_member">%1$d member</string>
-    <string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
-    <string name="show_degraded_image_quality">Going to load a low quality Image</string>
-    <string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
-    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+	<string name="add_members">Add Members</string>
+	<string name="add_members_to_conference">Add To Conference</string>
+	<string name="created_group_text">You created the group chat</string>
+	<string name="you_added_as_group_member">%1$s added you</string>
+	<string name="group_member_added">%1$s added %2$s</string>
+	<string name="you_group_member_added">You added %1$s</string>
+	<string name="num_members">%1$d members</string>
+	<string name="num_member">%1$d member</string>
+	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
+	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
+	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
+	<string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
     <string name="now">Now</string>
     <string name="sticker_recommend_tip">Tap on blue words</string>
@@ -1088,8 +1088,6 @@
     <string name="status_hint">What are you upto?</string>
     <string name="status_hint_image">Something about this photo</string>
     <string name="add_mood">Add Mood</string>
-    <string name="sticker_reorder_setting_info">Rearrange/Hide packs from the sticker pallete</string>
-    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_recommendation_autopopup_setting_info">Display sticker automatically as I type</string>
     <string name="sticker_recommendation_autopopup_setting_header">Auto Suggest Stickers</string>
     <string name="sticker_recommend_ftue_heading">Sticker Suggestions</string>
@@ -1492,7 +1490,6 @@
     <string name="sticker">Sticker</string>
     <string name="language_ftue_complete_message">You can change the keyboard language from \nSettings->Language &amp; Input anytime</string>
     <string name="block_contact">Block Contact</string>
-    <string name="spam">&#160;(SPAM)</string>
     <string name="caller_manage_list">MANAGE LIST</string>
     <string name="caller_blocked_list_hinttext">Manage your blocked Caller contacts.</string>
     <string name="block_contact_sure">Are you sure you want to block %1$s? All calls will be automatically disconnected.</string>
@@ -1519,7 +1516,6 @@
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
-    <string name="timeline_post_multimsg">Discarded extra messages</string>
     <string name="crop">Crop</string>
     <string name="photo_gallery_choose_pic">Photos</string>
     <string name="remove">Remove</string>
@@ -1529,12 +1525,14 @@
     <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
-    <string name="image_w_caption_sms">sent you an image with caption \"</string>
+    <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
     <string name="share_on_timeline">Share on Timeline?</string>
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
     <string name="deleting">DELETING</string>
+    <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
+    <string name="sticker_reorder_setting_header">Reorder</string>
     <string name="sticker_delete_setting_info">Delete Sticker Packs from phone</string>
     <string name="sticker_delete_setting_header">Delete</string>
     <string name="sticker_hide_setting_info">Hide/Unhide sticker packs from palette</string>
@@ -1549,8 +1547,8 @@
     <string name="all_packs_updated_heading">All packs are updated!</string>
     <string name="all_packs_updated_info">All your packs are up to date, if you want more stickers visit sticker shop</string>
     <string name="redirect_to_shop_text">TAKE ME TO THE SHOP</string>
-    <string name="all_done">"ALL DONE!!"</string>
-    <string name="drag_tip_subtext">Tap and Drag to reorder your sticker packs</string>
+    <string name="all_done">ALL DONE!!</string>
+    <string name="drag_tip_text">Tap and Drag to reorder</string>
     <string name="all_packs_deleted_heading">We have over 10,000 stickers</string>
     <string name="all_packs_deleted_info">Check out our sticker shop and download only what you like!</string>
     <string name="intercept_title_screen_shot">Screenshot captured!</string>
@@ -1569,4 +1567,7 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
+    <string name="spam">REPORTED AS SPAM</string>
+    <string name="posting_photos_timeline">Posting photos to Timeline</string>
+    <string name="add_a_caption">Add a caption</string>
 </resources>

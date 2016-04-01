@@ -211,7 +211,7 @@ public class MultipleStatusUpdateTask implements IHikeHTTPTask, HikePubSub.Liste
 	{
 		if (mWeakActivity != null & mWeakActivity.get() != null)
 		{
-			progressDialog = ProgressDialog.show(mWeakActivity.get(), "", "Posting photos to timeline", true, false);
+			progressDialog = ProgressDialog.show(mWeakActivity.get(), "", mWeakActivity.get().getString(R.string.posting_photos_timeline), true, false);
 		}
 	}
 

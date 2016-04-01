@@ -38,6 +38,8 @@ public class FTAnalyticEvents
 
 	public static final String FT_ATTACHEMENT_TYPE = "at";
 
+	public static final String FT_ATTACHEMENT_SHARED_AS = "atsrc";
+
 	public static final String FT_STATUS = "s";
 
 	private static final String VIDEO_INPUT_RESOLUTION = "inputRes";
@@ -290,7 +292,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs)
 	{
 		try
 		{
@@ -301,6 +303,9 @@ public class FTAnalyticEvents
 			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
+			if(!TextUtils.isEmpty(attachmentShardeAs)) {
+				metadata.put(FT_ATTACHEMENT_SHARED_AS, attachmentShardeAs);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);			
 		}
 		catch (JSONException e)
