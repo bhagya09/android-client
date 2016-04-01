@@ -489,7 +489,7 @@ import java.util.Map;
 		}
 
 		//Hide all Possible Buttons for interaction here if user is not a friend.
-		inflateAddFriendButtonIfNeeded();
+		doSetupForAddFriend();
 	}
 
 	private void showTips()
@@ -3649,12 +3649,12 @@ import java.util.Map;
 			return; // Do nothing here!
 		}
 
-		if (mContactInfo.isMyOneWayFriend())
+		else if (mContactInfo.isMyOneWayFriend())
 		{
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
 
-		if (!mContactInfo.isFriendRequestReceivedForMe())
+		else if (!mContactInfo.isFriendRequestReceivedForMe())
 		{
 			return; //Neither have I received any friend request from this person! Fo Shizzle!
 		}
@@ -3732,4 +3732,32 @@ import java.util.Map;
 		}
 		super.showAttchmentPicker();
 	}
+
+	private void doSetupForAddFriend()
+	{
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
+		{
+			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
+		}
+
+		if (mContactInfo.isFriendRequestReceivedForMe())
+		{
+			showFriendReqPendingAsLastSeen();
+		}
+
+		inflateAddFriendButtonIfNeeded();
+	}
+
+	private void showFriendReqPendingAsLastSeen()
+	{
+		String lastSeenString = activity.getString(R.string.friend_req_pending);
+
+		sendUIMessage(UPDATE_LAST_SEEN, lastSeenString);
+	}
+
 }

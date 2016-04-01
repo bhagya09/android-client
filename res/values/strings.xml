@@ -1586,4 +1586,5 @@
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
     <string name="voip_friend_error">Please add %1$s as friend to initiate call. </string>
     <string name="attachment_friend_error">Please add %1$s as friend to send attachment. </string>
+    <string name="friend_req_pending">Friend request pending</string>
 </resources>
