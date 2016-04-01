@@ -4168,12 +4168,15 @@ import android.widget.Toast;
 			}
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 			case R.id.send_message_audio:
-				if(tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+						if (tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+							tipVisibilityAnimator.dismissInfoTipIfShowing();
+						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
 						break;
