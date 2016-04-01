@@ -103,7 +103,7 @@ public class StickerAdapter extends PagerAdapter implements StickerIconPagerAdap
 		//only loading full stickers or downloading the full version if not yet downloaded
 		worker = new StickerLoader.Builder()
                 .downloadLargeStickerIfNotFound(true)
-                .setDefaultBitmap(HikeBitmapFactory.drawableToBitmap(mContext.getDrawable(R.drawable.shop_placeholder)))
+                .setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
                 .build();
 
 		stickerOtherIconLoader = new StickerOtherIconLoader(mContext, true);

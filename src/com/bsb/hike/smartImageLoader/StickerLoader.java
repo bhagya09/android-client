@@ -56,18 +56,10 @@ public class StickerLoader extends ImageWorker
 
 		Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
 
-		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
-		{
-			bitmap = loadStickerBitmap(sticker.getSmallStickerPath());
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
-		}
-		else
-		{
-			Bitmap large = loadStickerBitmap(path);
-			bitmap = checkAndLoadOfflineSticker(large, sticker);
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
-            checkAndDownloadLargeSticker(large, sticker);
-		}
+		Bitmap large = loadStickerBitmap(path);
+		bitmap = checkAndLoadOfflineSticker(large, sticker);
+		bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
+		checkAndDownloadLargeSticker(large, sticker);
 
         bitmap = checkAndLoadDefaultBitmap(bitmap);
 
@@ -125,14 +117,24 @@ public class StickerLoader extends ImageWorker
 
 		}
 
-        bitmap = loadStretchMiniBitmap(bitmap,size);
+        bitmap = loadStretchedMiniStickerBitmap(bitmap,size);
 
 		return bitmap;
 	}
 
-	private Bitmap loadStretchMiniBitmap(Bitmap bitmap,Size size)
+    private Bitmap loadStretchedMiniStickerBitmap(Bitmap bitmap, Size size)
+    {
+        if (stretchMini)
+        {
+            bitmap = stretchStickerBitmap(bitmap, size);
+        }
+
+        return bitmap;
+    }
+
+	private Bitmap stretchStickerBitmap(Bitmap bitmap, Size size)
 	{
-		if (stretchMini && bitmap != null)
+		if (bitmap != null)
 		{
 			bitmap = HikePhotosUtils.compressBitamp(bitmap, size.getWidth(),size.getHeight(), true, Bitmap.Config.ARGB_8888);
 		}
@@ -144,7 +146,8 @@ public class StickerLoader extends ImageWorker
 	{
 		if (lookForOfflineSticker && bitmap == null)
 		{
-			return loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getStickerId(), sticker.getCategoryId()));
+			bitmap = loadStickerBitmap(OfflineUtils.getOfflineStkPath(sticker.getCategoryId(), sticker.getStickerId()));
+			bitmap = stretchStickerBitmap(bitmap, new Size(sticker.getWidth(), sticker.getHeight()));
 		}
 		return bitmap;
 	}

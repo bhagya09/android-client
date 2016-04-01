@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
 
 import java.io.File;
@@ -86,6 +87,19 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
     {
         File f = new File(getLargeStickerPath());
         return f.exists();
+    }
+
+    public boolean isStickerOfflineFileAvailable()
+    {
+		String path = OfflineUtils.getOfflineStkPath(categoryId, stickerId);
+
+		if (TextUtils.isEmpty(path))
+		{
+			return false;
+		}
+
+		File f = new File(path);
+		return f.exists();
     }
 
 	/**

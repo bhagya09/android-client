@@ -295,22 +295,29 @@ public class OfflineUtils
 
 	public static String getStickerPath(JSONObject sticker)
 	{
-		String path = "";
-		try
-		{
-			String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
-			String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+		Sticker stickerObject = getSticker(sticker);
 
-			Sticker tempStk = new Sticker(ctgId, stkId);
-			path = tempStk.getLargeStickerPath();
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "JSONException in getLargeStickerPath. Check whether JSONObject is a sticker.");
-			e.printStackTrace();
-		}
-		return path;
+		return (stickerObject == null) ? "" : stickerObject.getLargeStickerPath();
 	}
+
+    public static Sticker getSticker(JSONObject sticker)
+    {
+        Sticker tempStk = null;
+        try
+        {
+            String ctgId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.CATEGORY_ID);
+            String stkId = sticker.getJSONObject(HikeConstants.DATA).getJSONObject(HikeConstants.METADATA).getString(StickerManager.STICKER_ID);
+
+            tempStk = new Sticker(ctgId, stkId);
+
+        }
+        catch (JSONException e)
+        {
+            Logger.e(TAG, "JSONException in getLargeStickerPath. Check whether JSONObject is a sticker.");
+            e.printStackTrace();
+        }
+        return tempStk;
+    }
 
 	public static boolean isConnectedToSameMsisdn(JSONObject message, String connectedMsisdn)
 	{
@@ -422,7 +429,7 @@ public class OfflineUtils
 
 	public static String getOfflineStkPath(String ctgId, String stkId)
 	{
-		String rootPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(ctgId);
+		String rootPath = StickerManager.getInstance().getStickerCategoryDirPath(ctgId);
 		if (TextUtils.isEmpty(rootPath))
 		{
 			return null;
