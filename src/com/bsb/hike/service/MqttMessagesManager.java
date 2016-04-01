@@ -3,6 +3,7 @@ package com.bsb.hike.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2911,6 +2912,17 @@ public class MqttMessagesManager
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
+
+		if (data.has(HikeConstants.CALLER_QUICK_REPLY_SET))
+		{
+			String quickReplyString = data.getString(HikeConstants.CALLER_QUICK_REPLY_SET);
+			if(!TextUtils.isEmpty(quickReplyString))
+			{
+				Set<String> replySet = new HashSet<String>(Arrays.asList(quickReplyString.split(",")));
+				HikeSharedPreferenceUtil.getInstance().saveDataSet(HikeConstants.CALLER_QUICK_REPLY_SET, replySet);
+			}
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
