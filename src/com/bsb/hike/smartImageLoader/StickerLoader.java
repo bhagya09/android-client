@@ -1,7 +1,6 @@
 package com.bsb.hike.smartImageLoader;
 
 import android.graphics.Bitmap;
-import android.util.Size;
 import android.widget.ImageView;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -13,6 +12,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.models.utils.Size;
 
 public class StickerLoader extends ImageWorker
 {
