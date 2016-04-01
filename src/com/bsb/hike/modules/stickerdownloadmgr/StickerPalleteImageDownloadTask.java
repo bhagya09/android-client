@@ -137,9 +137,9 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 
 					String enableImg = data.getString(HikeConstants.ENABLE_IMAGE);
 					String disableImg = data.getString(HikeConstants.DISABLE_IMAGE);
-					finish();
 					Utils.saveBase64StringToFile(new File(enableImagePath), enableImg);
 					Utils.saveBase64StringToFile(new File(disableImagePath), disableImg);
+					doOnSuccess(null);
 				}
 				catch (Exception e)
 				{
@@ -166,7 +166,7 @@ public class StickerPalleteImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 	@Override
 	public void doOnSuccess(Object result)
 	{
-		
+		finish();
 	}
 
 	@Override

@@ -654,8 +654,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
 		case OPEN_PICKER:
-			mStickerPicker.setShowLastCategory(StickerManager.getInstance().showLastCategory);
-			StickerManager.getInstance().showLastCategory = false;
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);

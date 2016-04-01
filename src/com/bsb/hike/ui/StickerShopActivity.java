@@ -44,10 +44,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		setupShopFragment(savedInstanceState);
 		setupActionBar();
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-		if (getCallingActivity() != null)
-		{
-			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
-		}
+
 	}
 
 	@Override
@@ -123,6 +120,10 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
+		if (getCallingActivity() != null)
+		{
+			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
+		}
 		// TODO Auto-generated method stub
 		finish();
 	}
