@@ -3648,6 +3648,11 @@ import java.util.Map;
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
 
+		if (!mContactInfo.isFriendRequestReceivedForMe())
+		{
+			return; //Neither have I received any friend request from this person! Fo Shizzle!
+		}
+
 		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
 
 		/**
@@ -3676,6 +3681,15 @@ import java.util.Map;
 		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
 
 		addFriendBtn.setOnClickListener(this);
+
+		String btnText = activity.getString(R.string.ADD_FRIEND);
+
+		if (mContactInfo.isFriendRequestReceivedForMe())
+		{
+			btnText = activity.getString(R.string.ACCEPT_REQUEST);
+		}
+
+		addFriendBtn.setText(btnText);
 	}
 
 	private void handleAddFavoriteButtonClick()

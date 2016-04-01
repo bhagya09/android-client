@@ -657,4 +657,9 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		return this.getFavoriteType() == FavoriteType.FRIEND;
 	}
 
+	public boolean isFriendRequestReceivedForMe()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED;
+	}
+
 }
