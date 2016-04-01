@@ -881,7 +881,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setSenderDetails(convMessage, position, stickerHolder, true);
 
 			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerHolder.image, isListFlinging, true);
-			if(sticker.isStickerAvailable() && sticker.isStickerFileAvailable())
+
+            if((sticker.isStickerAvailable() && sticker.isStickerFileAvailable()) || (convMessage.isOfflineMessage() && sticker.isStickerOfflineFileAvailable()))
 			{
 				stickerHolder.placeHolder.setBackgroundResource(0);
 				stickerHolder.loader.setVisibility(View.GONE);

@@ -14,12 +14,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.StickerManager;
 
 import java.util.List;
 
-public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.ImageLoaderListener
 {
 
 	private List<Sticker> stickerList;
@@ -45,7 +46,9 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
                             .loadMiniStickerIfNotFound(loadMini)
                             .downloadMiniStickerIfNotFound(loadMini)
                             .build();
-        
+
+        this.stickerLoader.setImageLoaderListener(this);
+
         this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;
@@ -71,6 +74,7 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		ImageView imageView = stickerViewHolder.imageView;
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
+        imageView.setEnabled(false);
 		imageView.setPadding(padding, padding, padding, padding);
 		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, imageView);
 	}
@@ -84,15 +88,33 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		return new StickerViewHolder(convertView);
 	}
 
-	public class StickerViewHolder extends RecyclerView.ViewHolder implements OnClickListener
+	@Override
+	public void onImageWorkSuccess(ImageView imageView)
+	{
+		if (listener.isAdded())
+		{
+			imageView.setEnabled(true);
+		}
+	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+		if (listener.isAdded())
+		{
+			imageView.setEnabled(false);
+		}
+	}
+
+    public class StickerViewHolder extends RecyclerView.ViewHolder implements OnClickListener
 	{
 		private ImageView imageView;
 
 		public StickerViewHolder(View row)
 		{
 			super(row);
-			row.setOnClickListener(this);
 			this.imageView = (ImageView) row;
+            this.imageView.setOnClickListener(this);
 		}
 
 		@Override
