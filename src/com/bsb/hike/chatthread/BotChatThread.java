@@ -125,6 +125,11 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
+	protected boolean shouldShowKeyboardOffBoardingUI() {
+		return configuration.isKptExitUIEnabled();
+	}
+
+	@Override
 	protected String[] getPubSubListeners()
 	{
 		String[] oneToOnePubSub = super.getPubSubListeners();

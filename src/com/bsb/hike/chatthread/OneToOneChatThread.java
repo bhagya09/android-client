@@ -3372,6 +3372,7 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+			initKeyboardOffBoarding();	//AND-5154
 		}
 	}
 

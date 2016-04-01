@@ -705,11 +705,16 @@ import android.widget.Toast;
 	
 	protected void initKeyboardOffBoarding()
 	{
-		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI()) {
+		if (shouldShowKeyboardOffBoardingUI()) {
 			keyboardOffBoarding.init(activity, (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE),
 					(ViewGroup)activity.findViewById(R.id.keyboard_shutdown_container), keyboardShutdownListener, activity.findViewById(R.id.chatThreadParentLayout));
 			showKeyboardOffboardingIfReady();
 		}
+	}
+
+	protected boolean shouldShowKeyboardOffBoardingUI() {
+
+		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI();
 	}
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
@@ -1815,7 +1820,8 @@ import android.widget.Toast;
 	
 	protected void showKeyboardOffboardingIfReady()
 	{
-		if (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
+//		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
+		if (keyboardOffBoarding != null && keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
 			keyboardOffBoarding.showView();
 			Utils.hideSoftKeyboard(activity, mComposeView);
 			activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
@@ -2450,14 +2456,6 @@ import android.widget.Toast;
 
 		mComposeView.setOnKeyListener(this);
 
-		mComposeView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				{
-					showKeyboardOffboardingIfReady();
-				}
-			}
-		});
 	}
 
 	/*
@@ -3552,7 +3550,16 @@ import android.widget.Toast;
 			{
 				mComposeView.requestFocusFromTouch();
 			}
-			return mShareablePopupLayout.onEditTextTouch(v, event);
+
+			if (shouldShowKeyboardOffBoardingUI()) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					showKeyboardOffboardingIfReady();
+				}
+				return true;
+			}
+			else {
+				return mShareablePopupLayout.onEditTextTouch(v, event);
+			}
 
 		default:
 			return mGestureDetector.onTouchEvent(event);
