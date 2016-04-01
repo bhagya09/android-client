@@ -591,6 +591,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
+	public static final String SHOWN_PACK_PREVIEW_FTUE = "shownPackPreviewFtue";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -1026,8 +1028,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
-
 	}
+
 	public static InternalCache getDiskCache()
 	{
 		if(diskCache == null) {
