@@ -671,12 +671,13 @@ public class BotUtils
 		for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
 		{
 
-			if(mBotInfo.getTriggerPointFormenu()==triggerPoint){
+			if(!mBotInfo.isConvPresent()&&mBotInfo.getTriggerPointFormenu()==triggerPoint){
 				if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
 				{
 					overFlowMenuItems.add(new OverFlowMenuItem(context.getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
-				}else{
-				 overFlowMenuItems.add(new OverFlowMenuItem(mBotInfo.getNamespace(), 0, 0,Integer.valueOf(mBotInfo.getMsisdn())));
+				}else if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+				{
+					overFlowMenuItems.add(new OverFlowMenuItem(context.getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
 				}
 			}
 		}

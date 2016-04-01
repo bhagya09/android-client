@@ -34,7 +34,6 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
@@ -73,6 +72,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.utils.Telephony;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Headers;
 
@@ -883,6 +883,10 @@ public abstract class JavascriptBridge
 				jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
 			}
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			if(msisdn.equalsIgnoreCase("+hikerecharge+")){
+				Telephony telephonyInfo = Telephony.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+			    jsonObj.put(HikePlatformConstants.SIM_OPERATORS,telephonyInfo.getOperators());
+			}
 		}
 		catch (JSONException e)
 		{

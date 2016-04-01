@@ -1901,7 +1901,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}else if (HikePubSub.BOT_CREATED.equals(type))
 		{
 			 final BotInfo info = ((BotInfo) object);
-			 if(info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
+			 if(!info.isConvPresent()&&info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
 			 {
 				 runOnUiThread(new Runnable()
 					{
@@ -2223,6 +2223,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE,getApplicationContext());
 					break;
+                case R.string.wallet_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
+					break;
 					
 				case R.string.timeline:
 					try
@@ -2347,9 +2351,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
 		}
-		else
+		else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 		{
-			overFlowMenuItems.add(new OverFlowMenuItem(info.getNamespace(), 0, 0, Integer.valueOf(info.getMsisdn())));
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
 		}
 
 	}

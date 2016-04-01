@@ -45,6 +45,7 @@ public interface HikePlatformConstants
 	String HIKE_MSISDN = "hikemsisdn";
 	String PLATFORM_USER_ID = "platformUid";
 	String PLATFORM_TOKEN = "platformToken";
+	String SIM_OPERATORS = "simOperators";
 	String PLATFORM_AUTH_TOKEN = "access_token";
 	String PLATFORM_AUTH_TOKEN_EXPIRY = "access_token_expiry";
 	String PLATFORM_CLIENTID = "clientId";
