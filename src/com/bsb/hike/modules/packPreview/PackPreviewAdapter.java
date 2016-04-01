@@ -3,7 +3,6 @@ package com.bsb.hike.modules.packPreview;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
-import android.util.Size;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,6 +16,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.models.utils.Size;
 
 import java.util.List;
 
