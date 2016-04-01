@@ -385,6 +385,7 @@ import java.util.Map;
 		switch (item.getItemId())
 		{
 			case R.id.voip_call:
+				if(isWalkieTalkieShowing()) return true;
 				onCallClicked();
 				return true;
 		}

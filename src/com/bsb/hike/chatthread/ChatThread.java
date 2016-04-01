@@ -1216,6 +1216,7 @@ import android.widget.Toast;
 		switch (item.getItemId())
 		{
 		case R.id.attachment:
+			if(isWalkieTalkieShowing()) return true;
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
@@ -1604,6 +1605,8 @@ import android.widget.Toast;
 	@Override
 	public void onClick(View v)
 	{
+		// Eat/Discard the click event when the WT recording is in progress
+		if(isWalkieTalkieShowing()) return;
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
@@ -3870,6 +3873,7 @@ import android.widget.Toast;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
+		if(isWalkieTalkieShowing()) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
@@ -5028,6 +5032,12 @@ import android.widget.Toast;
 			walkieView.cancelAndDismissAudio();
 			return true;
 		}
+		return false;
+	}
+
+	public boolean isWalkieTalkieShowing(){
+		if(walkieView != null)
+			return walkieView.isShowing();
 		return false;
 	}
 

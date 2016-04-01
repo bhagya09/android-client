@@ -3523,6 +3523,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		/**
 		 * Other click cases
 		 */
+
+		// Eating the click event when the WT recording is in progress
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+			boolean isWTShowing = ((ChatThreadActivity)mActivity).isWalkieTalkieShowing();
+			if(isWTShowing) return;
+		}
 		ConvMessage convMessage = (ConvMessage) v.getTag();
 		if (convMessage == null)
 		{
