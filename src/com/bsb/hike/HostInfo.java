@@ -80,7 +80,7 @@ public class HostInfo
 
 	private void setProtocol(int portNum)
 	{
-		if(portNum == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL)
+		if(portNum == MqttConstants.PRODUCTION_BROKER_PORT_NUMBER_SSL || portNum == MqttConstants.STAGING_BROKER_PORT_NUMBER_SSL)
 		{
 			this.protocol = SSL_PROTOCOL;
 		}

@@ -103,6 +103,11 @@ public class OfflineFileManager
 	
 	public FileSavedState getUploadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -141,6 +146,11 @@ public class OfflineFileManager
 	 */
 	public FileSavedState getDownloadFileState(ConvMessage convMessage, File file)
 	{
+		// AND-5089
+		if (file == null)
+		{
+			return new FileSavedState();
+		}
 		long msgId = convMessage.getMsgID();
 		FileSavedState fss = null;
 		HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
@@ -221,19 +231,19 @@ public class OfflineFileManager
 		currentReceivingFiles.clear();
 		currentSendingFiles.clear();
 	}
-	
+
 	public void onFileCompleted(ConvMessage message, File file)
 	{
 		JSONObject messageJSON = message.serialize();
-		if (OfflineUtils.isStickerMessage(messageJSON)) 
+		if (OfflineUtils.isStickerMessage(messageJSON))
 		{
 			Sticker sticker = OfflineUtils.getSticker(messageJSON);
 			File tempSticker = file;
 			String filePath=null;
-            File stickerImage = null;
+			File stickerImage = null;
 			if (sticker != null && !sticker.isStickerAvailable())
 			{
-				try 
+				try
 				{
 					filePath = OfflineUtils.createStkDirectory(messageJSON);
 					if (filePath != null)
@@ -249,23 +259,23 @@ public class OfflineFileManager
 				{
 					e.printStackTrace();
 				}
-                
+
 				if (filePath != null && stickerImage != null)
-                {
-                    tempSticker.renameTo(stickerImage);
-                }
+				{
+					tempSticker.renameTo(stickerImage);
+				}
 
 			}
-			else 
+			else
 			{
 				// delete file
 				if (tempSticker != null && tempSticker.exists())
 					tempSticker.delete();
 			}
-			
+
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		} 
-		else 
+		}
+		else
 		{
 			File tempFile = file;
 			File hikePath=new File(OfflineUtils.getFilePathFromJSON(messageJSON));

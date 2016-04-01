@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1631"
-    android:versionName="4.2.0.82.36.Sticker_DB" >
+    android:versionCode="1638"
+    android:versionName="4.2.5" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -582,6 +582,10 @@
             </intent-filter>
         </receiver>
 
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
         <receiver
             android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
             <intent-filter >

@@ -369,7 +369,8 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 			intent.putStringArrayListExtra(EDIT_IMAGES_LIST, editedImages);
 		}
 
-		intent.putExtra(HikeConstants.CAPTION,captions);
+		// TODO Disabling for now. Need to fix this soon.
+		// intent.putExtra(HikeConstants.CAPTION,captions);
 
 		startActivity(intent);
 	}
