@@ -32,6 +32,7 @@ import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.chatthread.IShopIconClickedCallback;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -78,6 +79,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private ProgressBar chatHeadProgressBar;
 
 	private boolean showLastCategory;
+
+	private IShopIconClickedCallback shopIconClickedCallback;
 	
 	/**
 	 * Constructor
@@ -90,6 +93,20 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		this.mContext = context;
 		this.listener = listener;
 		this.currentConfig = context.getResources().getConfiguration().orientation;
+	}
+
+	/**
+	 * Constructor
+	 *
+	 * @param activity
+	 * @param listener
+	 */
+	public StickerPicker(Context context, StickerPickerListener listener, IShopIconClickedCallback shopIconClickedCallback)
+	{
+		this.mContext = context;
+		this.listener = listener;
+		this.currentConfig = context.getResources().getConfiguration().orientation;
+		this.shopIconClickedCallback = shopIconClickedCallback;
 	}
 
 	/**
@@ -315,7 +332,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 		case R.id.shop_icon:
 			// shop icon clicked
-			shopIconClicked();
+			setStickerIntroPrefs();
+			shopIconClickedCallback.shopClicked();
 			break;
 		case R.id.info_icon:
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.INFOICON_CLICK, ChatHeadViewManager.foregroundAppName);
@@ -364,15 +382,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			ChatHeadViewManager.getInstance(mContext).resetPosition(ChatHeadConstants.OPEN_SETTINGS_ANIMATION, null);
 			break;
 		}
-	}
-
-	private void shopIconClicked()
-	{
-		setStickerIntroPrefs();
-		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH);
-		Intent i = IntentFactory.getStickerShopIntent(mContext);
-		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		mContext.getApplicationContext().startActivity(i);
 	}
 
 	public void updateDimension(int width, int height)
