@@ -164,6 +164,8 @@ import java.util.Map;
 	private static final int START_OFFLINE_CONNECTION = 118;
 	
 	private static final int SHOW_OVERFLOW_MENU = 119;
+
+	private static final int SHOW_ADD_FRIEND_VIEWS = 120;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -787,7 +789,13 @@ import java.util.Map;
 			return;
 		}
 		
-		this.mContactInfo.setFavoriteType(favoriteType);		
+		this.mContactInfo.setFavoriteType(favoriteType);
+
+		if (favoriteType == FavoriteType.REQUEST_RECEIVED)
+		{
+			// Just received a request. Change the UI to show request accept button instead.
+			sendUIMessage(SHOW_ADD_FRIEND_VIEWS, null);
+		}
 	}
 
 	@Override
@@ -916,6 +924,9 @@ import java.util.Map;
 			break;
 		case SHOW_OVERFLOW_MENU:
 			showOverflowMenu();
+			break;
+		case SHOW_ADD_FRIEND_VIEWS:
+			updateAddFriendViews();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -3782,5 +3793,11 @@ import java.util.Map;
 		}
 
 		super.setMessagesRead();
+	}
+
+	private void updateAddFriendViews()
+	{
+		// This will automatically handle all the states for button.
+		inflateAddFriendButtonIfNeeded();
 	}
 }
