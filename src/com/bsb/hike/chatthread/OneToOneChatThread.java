@@ -3704,11 +3704,11 @@ import java.util.Map;
 
 		addFriendBtn.setOnClickListener(this);
 
-		String btnText = activity.getString(R.string.ADD_FRIEND);
+		String btnText = getString(R.string.ADD_FRIEND);
 
 		if (mContactInfo.isFriendRequestReceivedForMe())
 		{
-			btnText = activity.getString(R.string.ACCEPT_REQUEST);
+			btnText = getString(R.string.ACCEPT_REQUEST);
 		}
 
 		addFriendBtn.setText(btnText);
