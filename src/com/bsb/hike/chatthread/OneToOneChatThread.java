@@ -255,7 +255,25 @@ import java.util.Map;
 			}
 		}
 	}
-	
+
+	private void addQuickReplyMessage(Intent intent)
+	{
+		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
+		{
+			String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
+			String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
+			ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
+
+			if(mContactInfo != null && mContactInfo.isUnknownContact())
+			{
+				convMessage.setBlockAddHeader(true);
+			}
+
+			sendMessage(convMessage);
+			intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
+		}
+	}
+
 	private void handleOfflineIntent(Intent intent)
 	{
 		
@@ -2175,10 +2193,10 @@ import java.util.Map;
 	protected void takeActionBasedOnIntent()
 	{
 		handleOfflineIntent(activity.getIntent());
+		addQuickReplyMessage(activity.getIntent());
 		super.takeActionBasedOnIntent();
 	}
 
-	@Override
 	public void onInflate(ViewStub stub, View inflated)
 	{
 		switch (stub.getId())

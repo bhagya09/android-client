@@ -7611,10 +7611,18 @@ public class Utils
 		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
-	public static void sendFreeSms(String number)
+	public static void openChatThreadViaFreeSmsButton(String number, String msg)
 	{
 		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		if(!TextUtils.isEmpty(msg))
+		{
+			intent.putExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, true);
+			intent.putExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM, number);
+			intent.putExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG, msg);
+		}
+
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}
 
