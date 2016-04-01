@@ -2874,6 +2874,11 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
+	//1-->TWIN PRIME CLIENT,0-->OKCLIENT
+		if(data.has(HikeConstants.TP_ENABLE))
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.TP_ENABLE,data.optInt(HikeConstants.TP_ENABLE,1));
+		}
 
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
