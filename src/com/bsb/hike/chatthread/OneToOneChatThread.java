@@ -41,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -486,7 +487,9 @@ import java.util.Map;
 		{
 			addAllUndeliverdMessages(messages);
 		}
-	
+
+		//Hide all Possible Buttons for interaction here if user is not a friend.
+		inflateAddFriendButtonIfNeeded();
 	}
 
 	private void showTips()
@@ -2186,6 +2189,9 @@ import java.util.Map;
 		case R.id.sms_toggle_view_stub:
 			setUpSMSViews();
 			break;
+
+		case R.id.addFriendViewStub:
+			setUpAddFriendViews();
 		default:
 			break;
 		}
@@ -2701,6 +2707,9 @@ import java.util.Map;
 			break;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
+			break;
+		case R.id.add_friend_button:
+			handleAddFavoriteButtonClick();
 			break;
 		default:
 			super.onClick(v);
@@ -3274,6 +3283,10 @@ import java.util.Map;
 	private void addFavorite()
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
+		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
+		{
+			favoriteType = FavoriteType.FRIEND;
+		}
 		mContactInfo.setFavoriteType(favoriteType);
 		Utils.addFavorite(activity, mContactInfo, false);
 	}
@@ -3613,11 +3626,68 @@ import java.util.Map;
 	}
 
 	@Override
-	public void onPostResume() {
+	public void onPostResume()
+	{
 		super.onPostResume();
-		if (shouldinitialteConnectionFragment && Utils.isLocationEnabled(activity.getApplicationContext())) {
+		if (shouldinitialteConnectionFragment && Utils.isLocationEnabled(activity.getApplicationContext()))
+		{
 			shouldinitialteConnectionFragment = false;
 			startFreeHikeConversation(true);
 		}
 	}
+
+	private void inflateAddFriendButtonIfNeeded()
+	{
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		if (mContactInfo.isMyOneWayFriend())
+		{
+			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
+		}
+
+		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
+
+		/**
+		 * Inflating it only once when needed on demand.
+		 */
+		if (viewStub != null)
+		{
+			viewStub.setOnInflateListener(this);
+			viewStub.inflate();
+		}
+
+		/**
+		 * Duh! The view is already inflated
+		 */
+		else
+		{
+			setUpAddFriendViews();
+		}
+
+	}
+
+	private void setUpAddFriendViews()
+	{
+		View addFriendView = activity.findViewById(R.id.add_friend_view);
+
+		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
+
+		addFriendBtn.setOnClickListener(this);
+	}
+
+	private void handleAddFavoriteButtonClick()
+	{
+		addFavorite();
+
+		//If now we can show the last seen, we should
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			checkAndStartLastSeenTask();
+		}
+	}
+
+
 }
