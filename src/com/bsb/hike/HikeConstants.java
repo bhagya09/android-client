@@ -808,6 +808,10 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
+	public static final String CALLER_QUICK_REPLY_SET = "c_q_r_s";
+
+	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
