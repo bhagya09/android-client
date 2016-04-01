@@ -3734,7 +3734,7 @@ import java.util.Map;
 		{
 			String messageToDisplay = activity.getString(R.string.attachment_friend_error, mContactInfo.getFirstNameAndSurname());
 			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
-			return; //If not atleast 1-way friend, do not even make a voip call!
+			return; //If not atleast 1-way friend, do not even allow attachments to open!
 		}
 		super.showAttchmentPicker();
 	}
