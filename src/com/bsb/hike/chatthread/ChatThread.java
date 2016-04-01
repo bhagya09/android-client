@@ -4855,6 +4855,7 @@ import android.widget.Toast;
 		
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
+		dismissWalkieTalkie();
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);

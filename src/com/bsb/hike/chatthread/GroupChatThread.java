@@ -609,10 +609,13 @@ public class GroupChatThread extends OneToNChatThread
 			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
+			if(item.getItemId() != android.R.id.home) {
+				if(isWalkieTalkieShowing()) return true;
+			}
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
-				if(isWalkieTalkieShowing()) return true;
+
 				// Make a group voip call after confirmation
 				new AlertDialog.Builder(activity).
 				setTitle(R.string.voip_conference_label).
