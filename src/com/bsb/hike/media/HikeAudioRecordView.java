@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -162,8 +163,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      * @param view
      */
     private void startPulsatingDotAnimation(View view) {
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
+        View micImage = recorderImg.findViewById(R.id.mic_image);
+        micImage.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid_bounce));
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 600);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 1350);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
