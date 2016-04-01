@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1610"
-    android:versionName="4.2.0.14.walkie_talkie_enhancement" >
+    android:versionCode="1612"
+    android:versionName="4.2.0.16.walkie_talkie_enhancement" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -578,6 +578,10 @@
             </intent-filter>
         </receiver>
 
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
         <receiver
             android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
             <intent-filter >

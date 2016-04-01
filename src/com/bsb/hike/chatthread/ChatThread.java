@@ -951,11 +951,11 @@ import android.widget.Toast;
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.msg_compose, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.msg_compose, R.id.sticker_recommendation_parent };
 			}
 			else
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.sticker_recommendation_parent };
 			}
 
 			initStickerPicker();

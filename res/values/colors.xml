@@ -335,4 +335,5 @@
     <color name="block_contact">#C70000</color>
 
     <color name="rec_progress_alpha">#c4ef554e</color>
+    <color name="default_update_tip_bg">#04c687</color>
 </resources>
