@@ -16,6 +16,20 @@
             android:text="@string/block_title" />
 
         <View
+            android:id="@+id/spam_unknown_contact_divider"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="17dp"
+            android:layout_marginTop="17dp"
+            android:background="#3DFFFFFF" />
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/spam_unknown_contact"
+            style="@style/BlockAddUnknownContact"
+            android:tag="@string/caller_spam"
+            android:text="@string/caller_spam" />
+
+        <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:layout_marginBottom="17dp"
