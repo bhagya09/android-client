@@ -2551,6 +2551,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					addButton.setTag(R.string.mute);
 					addButton.setText(conversation.isMuted() ? R.string.unmute : R.string.mute);
 					convertView.setTag(R.string.mute);
+					convertView.findViewById(R.id.spam_unknown_contact).setVisibility(View.GONE);
+					convertView.findViewById(R.id.spam_unknown_contact_divider).setVisibility(View.GONE);
 				}
 				else
 				{

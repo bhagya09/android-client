@@ -1064,4 +1064,45 @@ public class ChatHeadUtils
 		});
 	}
 
+	public static void makeHttpCallToMarkUserAsSpam(String msisdn)
+	{
+		JSONObject spamUserJSONObject = new JSONObject();
+		try
+		{
+			spamUserJSONObject.put(HikeConstants.MSISDN, msisdn);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		IRequestListener spamUserRequestListener = new IRequestListener() {
+
+			@Override
+			public void onRequestFailure(HttpException httpException) {
+
+			}
+
+			@Override
+			public void onRequestSuccess(Response result) {
+
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress) {
+
+			}
+		};
+
+		RequestToken token = HttpRequests.setUserAsSpam(spamUserJSONObject, spamUserRequestListener, StickyCaller.ONE_RETRY,
+				HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
+		if(token != null && !token.isRequestRunning())
+		{
+			token.execute();
+		}
+		else
+		{
+			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+		}
+	}
 }

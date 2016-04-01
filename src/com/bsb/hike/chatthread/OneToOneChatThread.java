@@ -50,6 +50,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.dialog.H20Dialog;
@@ -2719,6 +2721,9 @@ import java.util.Map;
 			break;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
+			break;
+		case R.id.spam_unknown_contact:
+			ChatHeadUtils.makeHttpCallToMarkUserAsSpam((String)v.getTag());
 			break;
 		default:
 			super.onClick(v);

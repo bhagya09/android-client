@@ -93,6 +93,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
+	private static final String SPAM_USER = "/spam";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -505,5 +507,17 @@ public class HttpRequestConstants
     }
 	public static String getAnalyticsUrl() {
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
+	public static String getUrlForMarkingUserAsSpam()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ SPAM_USER;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + SPAM_USER;
+		}
 	}
 }
