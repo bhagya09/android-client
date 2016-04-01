@@ -3703,5 +3703,15 @@ import java.util.Map;
 		}
 	}
 
+	@Override
+	public boolean onDoubleTapEvent(MotionEvent e)
+	{
+		Logger.d(TAG, "On DoubleTap motion detected");
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return false; //If not atleast 1-way friend, do not even send a nudge!
+		}
 
+		return super.onDoubleTapEvent(e);
+	}
 }
