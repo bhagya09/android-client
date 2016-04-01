@@ -1586,5 +1586,5 @@
     <string name="restore_failure">Some error occured. Could not restore your chats</string>
     <string name="db_corrupt_notif_msg">You have a new notification</string>
 
-    <string name="recording_help_text">Tap and hold to record, Release to send</string>
+    <string name="recording_help_text">Tap and hold to record, release to send</string>
 </resources>
