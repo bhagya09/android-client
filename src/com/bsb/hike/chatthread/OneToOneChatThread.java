@@ -3682,6 +3682,9 @@ import java.util.Map;
 
 	private void setUpAddFriendViews()
 	{
+		// Hide the compose panel below
+		activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
+
 		View addFriendView = activity.findViewById(R.id.add_friend_view);
 
 		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
