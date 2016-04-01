@@ -18,6 +18,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -42,8 +44,10 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		setupShopFragment(savedInstanceState);
 		setupActionBar();
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-
-	
+		if (getCallingActivity() != null)
+		{
+			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
+		}
 	}
 
 	@Override

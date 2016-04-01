@@ -31,6 +31,7 @@ import com.bsb.hike.chatHead.ChatHeadLayout;
 import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -75,6 +76,8 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	private ImageView chatHeadInfoIconButton;
 
 	private ProgressBar chatHeadProgressBar;
+
+	private boolean showLastCategory;
 	
 	/**
 	 * Constructor
@@ -152,6 +155,11 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 	public void showStickerPicker(int screenOrietentation)
 	{
 		showStickerPicker(0, 0, screenOrietentation);
+	}
+
+	public void setShowLastCategory(boolean showLastCategory)
+	{
+		this.showLastCategory = showLastCategory;
 	}
 
 	public void showStickerPicker(int xoffset, int yoffset, int screenOritentation)
@@ -278,7 +286,16 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		mIconPageIndicator.setOnPageChangeListener(onPageChangeListener);
 
 		mIconPageIndicator.setCurrentItem(0);
-		
+
+		if(showLastCategory)
+		{
+			mIconPageIndicator.setCurrentItem(stickerAdapter.getCount());
+			setShowLastCategory(false);
+		}
+		else
+		{
+			mIconPageIndicator.setCurrentItem(0);
+		}
 		if (refreshStickers)
 		{
 			mIconPageIndicator.notifyDataSetChanged();

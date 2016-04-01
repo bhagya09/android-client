@@ -382,7 +382,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int MESSAGE_SENT = 39;
-	
+
+	protected static final int OPEN_PICKER = 40;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -490,6 +492,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean changeKbdClicked = false;
 
 	protected boolean keyboardSelectedLanguageChanged;
+
+	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
 	ObjectAnimator tipFadeInAnimation;
 	
@@ -649,6 +653,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+		case OPEN_PICKER:
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().showLastCategory);
+			StickerManager.getInstance().showLastCategory = false;
+			stickerClicked();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -1346,7 +1354,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				}
 			}
 			break;
-		case HikeConstants.PLATFORM_REQUEST:
+			case RESULT_CODE_STICKER_SHOP_ACTIVITY:
+				uiHandler.sendEmptyMessage(OPEN_PICKER);
+				break;
+			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 

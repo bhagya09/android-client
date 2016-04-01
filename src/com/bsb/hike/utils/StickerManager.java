@@ -283,6 +283,8 @@ public class StickerManager
 
 	private Context context;
 
+	public static boolean showLastCategory = false;
+
 	private static volatile StickerManager instance;
 
 	public static StickerManager getInstance()
