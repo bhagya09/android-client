@@ -1,27 +1,27 @@
 package com.bsb.hike.modules.httpmgr.client;
 
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
+
+import com.bsb.hike.StethoInterceptor;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
-import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
 
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
 
 /**
- * 
+ *
  * Represents the OkHttpClient wrapper
- * 
+ *
  * @author anubhavgupta & sidharth
- * 
+ *
  */
-public class OkClient implements IClient
+public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 {
 	private OkHttpClient client;
 
@@ -46,13 +46,15 @@ public class OkClient implements IClient
 
 	/**
 	 * Generates a new OkHttpClient with given clientOption parameters
-	 * 
+	 *
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient generateClient(ClientOptions clientOptions)
+	static OkHttpClient generateClient(
+			com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
-		clientOptions = clientOptions != null ? clientOptions : ClientOptions.getDefaultClientOptions();
+		clientOptions = clientOptions != null ? clientOptions : com.bsb.hike.modules.httpmgr.client.ClientOptions
+				.getDefaultClientOptions();
 		OkHttpClient client = new OkHttpClient();
 		client.networkInterceptors().add(new StethoInterceptor());
 		return setClientParameters(client, clientOptions);
@@ -60,12 +62,12 @@ public class OkClient implements IClient
 
 	/**
 	 * Sets Client option parameters to given OkHttpClient
-	 * 
+	 *
 	 * @param client
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient setClientParameters(OkHttpClient client, ClientOptions clientOptions)
+	static OkHttpClient setClientParameters(OkHttpClient client, com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
 		client.setConnectTimeout(clientOptions.getConnectTimeout(), TimeUnit.MILLISECONDS);
 		client.setReadTimeout(clientOptions.getReadTimeout(), TimeUnit.MILLISECONDS);
@@ -148,10 +150,10 @@ public class OkClient implements IClient
 
 	public OkClient()
 	{
-		client = generateClient(ClientOptions.getDefaultClientOptions());
+		client = generateClient(com.bsb.hike.modules.httpmgr.client.ClientOptions.getDefaultClientOptions());
 	}
 
-	public OkClient(ClientOptions clientOptions)
+	public OkClient(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
 		client = generateClient(clientOptions);
 	}
@@ -173,7 +175,7 @@ public class OkClient implements IClient
 
 	/**
 	 * Parse hike http request to OkHttpRequest
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
@@ -194,7 +196,7 @@ public class OkClient implements IClient
 
 	/**
 	 * Parse OkhttpResponse to hike http response
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @return
@@ -227,12 +229,12 @@ public class OkClient implements IClient
 
 	/**
 	 * Clones okClient with given client option parameters
-	 * 
+	 *
 	 * @param clientOptions
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public OkClient clone(ClientOptions clientOptions)
+	public OkClient clone(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
 		return new OkClient(setClientParameters(client.clone(), clientOptions));
 	}

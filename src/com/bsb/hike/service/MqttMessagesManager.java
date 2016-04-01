@@ -50,6 +50,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
@@ -742,21 +743,29 @@ public class MqttMessagesManager
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
 		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(convMessage.webMetadata.JSONtoString()),
-				new PlatformContentListener<PlatformContentModel>() {
+				new PlatformContentListener<PlatformContentModel>()
+				{
 
 					@Override
-					public void onComplete(PlatformContentModel content) {
+					public void onComplete(PlatformContentModel content)
+					{
 						saveMessage(convMessage);
 					}
 
 					@Override
-					public void onEventOccured(int uniqueId, PlatformContent.EventCode event) {
-						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED) {
+					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+					{
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+						{
 							// do nothing
 							return;
-						} else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED) {
+						}
+						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+						{
 							Logger.d(HikePlatformConstants.TAG, "microapp already exists");
-						} else {
+						}
+						else
+						{
 							saveMessage(convMessage);
 							HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
 						}
@@ -2838,7 +2847,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
 		}
 
-		if (data.has(HikeConstants.SINGLE_STICKER_CDN))
+		if(data.has(HikeConstants.CRASH_REPORTING_TOOL))
+		{
+			String crashRepT=data.optString(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CRASH_REPORTING_TOOL,crashRepT);
+		}
+		if(data.has(HikeConstants.SINGLE_STICKER_CDN))
 		{
 			boolean singleStickerCdnEnabled = data.getBoolean(HikeConstants.SINGLE_STICKER_CDN);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SINGLE_STICKER_CDN, singleStickerCdnEnabled);
@@ -2897,6 +2911,12 @@ public class MqttMessagesManager
 		{
 			boolean showStickerPreview = data.getBoolean(HikeConstants.SHOW_STICKER_PREVIEW);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_PREVIEW, showStickerPreview);
+		}
+
+		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
+		{
+			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
 
 		editor.commit();
@@ -2992,6 +3012,17 @@ public class MqttMessagesManager
 		{
 			byte contactSyncResult = ContactManager.getInstance().syncUpdates(context);
 			Logger.d(getClass().getSimpleName(), "contacts sync result : " + contactSyncResult);
+		}
+
+		if (data.optBoolean(HikeConstants.LOG_SQLITE_PROPERTIES))
+		{
+			String journalMode = HikeConversationsDatabase.getInstance().getJournalMode();
+			JSONObject json = new JSONObject();
+			json.put(HikeConstants.JOURNAL_MODE, journalMode);
+			GetSqliteVersionCommand getSqliteVersionCommand = new GetSqliteVersionCommand();
+			String sqliteVersion = (String) getSqliteVersionCommand.execute();
+			json.put(HikeConstants.SQLITE_VERSION, sqliteVersion);
+			HAManager.getInstance().logDevEvent(AnalyticsConstants.DATABASE_AREA, AnalyticsConstants.SQLITE_PROPERTY, json);
 		}
 	}
 
@@ -3785,7 +3816,15 @@ public class MqttMessagesManager
 
 						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
-							generateNotification(body, destination, silent);
+
+							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
+							{
+								HikeNotification.getInstance().showPlatformNotification(data, jsonObj.optString(HikeConstants.FROM));
+							}
+							else
+							{
+								generateNotification(body, destination, silent);
+							}
 						}
 
 						// to update the badge counter
@@ -3913,7 +3952,7 @@ public class MqttMessagesManager
 				try
 				{
 					ContactManager.getInstance().getWritableDatabase().beginTransaction();
-					convDb.getWriteDatabase().beginTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -3925,7 +3964,7 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convDb.getWriteDatabase().setTransactionSuccessful();
+					convDb.initializeIfRequiredAndGetWriteDatabase().setTransactionSuccessful();
 					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
@@ -3939,7 +3978,7 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convDb.getWriteDatabase().endTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().endTransaction();
 					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");

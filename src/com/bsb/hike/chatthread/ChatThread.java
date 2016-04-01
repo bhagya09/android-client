@@ -300,7 +300,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -382,7 +382,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int MESSAGE_SENT = 39;
-	
+
+	protected static final int OPEN_PICKER = 40;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -490,6 +492,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean changeKbdClicked = false;
 
 	protected boolean keyboardSelectedLanguageChanged;
+
+	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
 	ObjectAnimator tipFadeInAnimation;
 	
@@ -649,6 +653,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+		case OPEN_PICKER:
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+			StickerManager.getInstance().setShowLastCategory(false);
+			stickerClicked();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -1011,7 +1019,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private void initStickerPicker()
 	{
 		
-		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this, this));
 	}
 
 	private void initEmoticonPicker()
@@ -1346,7 +1354,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				}
 			}
 			break;
-		case HikeConstants.PLATFORM_REQUEST:
+			case RESULT_CODE_STICKER_SHOP_ACTIVITY:
+				uiHandler.sendEmptyMessage(OPEN_PICKER);
+				break;
+			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
@@ -1543,13 +1554,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			if (mShareablePopupLayout.isBusyInOperations())
-			{//  previous task is running don't accept this event
-				return;
-			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			setEmoticonButtonSelected(false);
-			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
@@ -1720,6 +1724,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void stickerClicked()
 	{
+		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
+			return;
+		}
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
+		setEmoticonButtonSelected(false);
+		setStickerButtonSelected(true);
+
 		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
@@ -5335,7 +5346,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				hikeFile.delete(activity.getApplicationContext());
 			}
             HikeConversationsDatabase.getInstance().reduceRefCount(key);
-			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize());
+			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
 			mAdapter.notifyDataSetChanged();
 
 		}
@@ -6892,5 +6903,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onPostResume()
 	{
 
+	}
+
+	@Override
+	public void shopClicked()
+	{
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH);
+		Intent i = IntentFactory.getStickerShopIntent(activity);
+		activity.startActivityForResult(i, RESULT_CODE_STICKER_SHOP_ACTIVITY);
 	}
 }

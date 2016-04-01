@@ -7,23 +7,17 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Pair;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.offline.HikeConverter;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.Logger;
@@ -32,6 +26,7 @@ import com.bsb.hike.utils.Utils;
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 {
 	private Context context;
+
 
 	private ArrayList<FileTransferData> ftDataList;
 
@@ -77,7 +72,11 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 
 	private void initiateFileTransferFromIntentData(FileTransferData fileTransferData)
 	{
-		HikeFileType hikeFileType = HikeFileType.fromString(fileTransferData.fileType.toLowerCase(), false);
+		String typeOfFileToTransfer = fileTransferData.fileType;
+		if(!TextUtils.isEmpty(typeOfFileToTransfer)) {
+			typeOfFileToTransfer = typeOfFileToTransfer.toLowerCase();
+		}
+		HikeFileType hikeFileType = HikeFileType.fromString(typeOfFileToTransfer, false);
 
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{

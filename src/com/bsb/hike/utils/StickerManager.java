@@ -283,6 +283,8 @@ public class StickerManager
 
 	private Context context;
 
+	private boolean showLastCategory = false;
+
 	private static volatile StickerManager instance;
 
 	public static StickerManager getInstance()
@@ -330,7 +332,7 @@ public class StickerManager
 			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
 		}
 
-		setupStickerCategoryList(settings);
+		setupStickerCategoryList();
 
 		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_STICKERS, false))
 		{
@@ -390,7 +392,7 @@ public class StickerManager
 		return stickerCategoriesMap;
 	}
 
-	public void setupStickerCategoryList(SharedPreferences preferences)
+	public void setupStickerCategoryList()
 	{
 		/*
 		 * TODO : This will throw an exception in case of remove category as, this function will be called from mqtt thread and stickerCategories will be called from UI thread
@@ -3288,5 +3290,34 @@ public class StickerManager
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.STICKER_PACK_DOWNLOAD_ERROR_COUNT, count);
 				break;
 		}
+	}
+
+	public void setShowLastCategory(boolean showLastCategory)
+	{
+		this.showLastCategory = showLastCategory;
+	}
+	
+	public void postDbCorruptionSetup()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1(); // This prepopulates the Categories Table
+				moveStickerPreviewAssetsToSdcard(); // This is a heavy operation and hence needs to be done on the BG Thread.
+				setupStickerCategoryList();			// Set up the in-memory list so that the pallete can function
+				resetSignupUpgradeCallPreference(); // This is needed to make a call to the server to fetch categories in order of user's region/location
+			}
+		}, 0);
+
+	}
+
+	public boolean getShowLastCategory()
+	{
+		return showLastCategory;
 	}
 }

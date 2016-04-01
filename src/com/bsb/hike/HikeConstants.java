@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -1107,6 +1119,8 @@ public class HikeConstants
 	public static final int MAX_OLDER_STATUSES_TO_LOAD_EACH_TIME = 20;
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
+
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
 
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
@@ -4031,6 +4045,12 @@ public class HikeConstants
 
 	public static final String STICKER_SIZE = "stkr_size";
 
+	public static final String CRASH_REPORTING_TOOL="cpt";
+
+	public static final String ACRA="a";
+
+	public static final String CRASHLYTICS="c";
+
 	public static final class INTERCEPTS
 	{
 		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
@@ -4076,4 +4096,24 @@ public class HikeConstants
 	public static final String SHOW_STICKER_PREVIEW = "show_sticker_preview";
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String JOURNAL_MODE = "journal_mode";
+
+	public static final String SQLITE_VERSION = "sqlite_ver";
+
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
+
+	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 }
