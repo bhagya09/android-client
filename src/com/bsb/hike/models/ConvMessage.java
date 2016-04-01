@@ -473,9 +473,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		}
 		
 		this.mTimestamp = data.getLong(HikeConstants.TIMESTAMP);
-		/* prevent us from receiving a message from the future */
-		long now = System.currentTimeMillis() / 1000;
-		this.mTimestamp = (this.mTimestamp > now) ? now : this.mTimestamp;
 		/* if we're deserialized an object from json, it's always unread */
 		setState(State.RECEIVED_UNREAD);
 		msgID = -1;
@@ -645,8 +642,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		case CHANGED_GROUP_IMAGE:
 			String msisdn = metadata.getMsisdn();
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-
-			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+			isSelfGenerated=userMsisdn.equals(msisdn);
+			String participantName = isSelfGenerated? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
@@ -701,7 +698,16 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			this.mMessage = context.getString(R.string.voip_missed_call_notif);
 			break;
 		}
-		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
+
+		if(isSelfGenerated || (metadata != null && metadata.isSync()))
+		{
+			setState(State.RECEIVED_READ);
+		}
+		else
+		{
+			setState(State.RECEIVED_UNREAD);
+		}
+
 	}
 
 	public void setMetadata(MessageMetadata messageMetadata)
@@ -728,7 +734,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			participantInfoState = this.metadata.getParticipantInfoState();
 
 			isStickerMessage = this.metadata.getSticker() != null;
-			
 			
 		}
 	}

@@ -68,7 +68,13 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 	}
 
 	public void buildFileConsignment(final String filePath, String fileKey, final HikeFileType hikeFileType, String fileType, final boolean isRecording,
-			final long recordingDuration, int attachmentType, String msisdn, final String apkLabel)
+									 final long recordingDuration, int attachmentType, String msisdn, final String apkLabel)
+	{
+				buildFileConsignment(filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, attachmentType, msisdn, apkLabel,null);
+	}
+
+	public void buildFileConsignment(final String filePath, String fileKey, final HikeFileType hikeFileType, String fileType, final boolean isRecording,
+			final long recordingDuration, int attachmentType, String msisdn, final String apkLabel, String caption)
 	{
 		if (filePath == null)
 		{
@@ -84,7 +90,7 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 		}
 
 		FTMessageBuilder.Builder mBuilder = new FTMessageBuilder.Builder().setSourceFile(sourceFile).setFileKey(fileKey).setHikeFileType(hikeFileType).setFileType(fileType)
-				.setRec(isRecording).setRecordingDuration(recordingDuration).setAttachement(attachmentType).setMsisdn(msisdn).setIsOffline(true)
+				.setRec(isRecording).setRecordingDuration(recordingDuration).setAttachement(attachmentType).setMsisdn(msisdn).setIsOffline(true).setCaption(caption)
 				.setListener(new FTConvMsgCreationListener()
 				{
 
@@ -402,6 +408,8 @@ public class HikeConverter implements IMessageReceived, IMessageSent {
 				Logger.d(TAG, "Info Packet received ...>>" + messageJSON.toString() +"and "+messageJSON.opt(OfflineConstants.CONNECTION_ID));
 				OfflineSessionTracking.getInstance().updateConnectionId(messageJSON.optLong(OfflineConstants.CONNECTION_ID));
 				OfflineController.getInstance().setConnectedClientInfo(messageJSON);
+				OfflineController.getInstance().setConnectingDeviceAsConnected();
+				OfflineController.getInstance().setOfflineState(OfflineConstants.OFFLINE_STATE.CONNECTED);
 				OfflineController.getInstance().sendConnectedCallback();
 			}
 			else if(OfflineUtils.isVoipPacket(messageJSON))

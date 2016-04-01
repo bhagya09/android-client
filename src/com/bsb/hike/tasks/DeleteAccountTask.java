@@ -12,8 +12,10 @@ import android.preference.PreferenceManager;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.localisation.LocalLanguage;
@@ -37,7 +39,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gcm.GCMRegistrar;
-import com.hike.transporter.TException;
 
 public class DeleteAccountTask implements ActivityCallableTask
 {
@@ -192,6 +193,9 @@ public class DeleteAccountTask implements ActivityCallableTask
 
 	private void doOnSuccess()
 	{
+		HAManager.getInstance().record(AnalyticsConstants.EVENT_DELETE_ACCOUNT, AnalyticsConstants.NON_UI_EVENT,
+                delete ? AnalyticsConstants.DELETE_ACCOUNT : AnalyticsConstants.RESET_ACCOUNT,
+                HAManager.EventPriority.HIGH);
 		if (delete)
 		{
 			AccountBackupRestore.getInstance(ctx).deleteAllFiles();
@@ -205,7 +209,7 @@ public class DeleteAccountTask implements ActivityCallableTask
 			OfflineController.getInstance().shutdownProcess(new OfflineException(OfflineException.USER_DISCONNECTED));
 		}
 		//Resetting to use Phone Language as default
-		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()));
+		LocalLanguageUtils.setApplicationLocalLanguage(new LocalLanguage("Phone Language",LocalLanguage.PhoneLangauge.getLocale()), HikeConstants.APP_LANG_CHANGED_DEL_ACC);
 		clearAppData();
 		Logger.d("DeleteAccountTask", "account deleted");
 
@@ -219,7 +223,6 @@ public class DeleteAccountTask implements ActivityCallableTask
 		finished = true;
 
 		/* clear any toast notifications */
-
 		try
 		{
 			NotificationManager mgr = (NotificationManager) ctx.getSystemService(android.content.Context.NOTIFICATION_SERVICE);

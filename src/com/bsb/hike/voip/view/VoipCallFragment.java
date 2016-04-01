@@ -133,7 +133,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 				shutdown(msg.getData());
 				break;
 			case VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME:
-				if (!voipService.isAudioRunning()) {
+				if (!voipService.inActiveCall()) {
 					VoIPClient clientPartner = voipService.getPartnerClient();
 					if (clientPartner == null)
 						break;
@@ -239,9 +239,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 					setupForceMuteLayout();
 				}
 				break;
-			case VoIPConstants.MSG_ACCEPT_CALL:
-				onAcceptCall();
-				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -279,9 +276,15 @@ public class VoipCallFragment extends Fragment implements CallActions
 	{
 		Logger.d(tag, "VoipCallFragment onResume, Binding to service..");
 		// Calling start service as well so an activity unbind doesn't cause the service to stop
-		getActivity().startService(new Intent(getActivity(), VoIPService.class));
-		Intent intent = new Intent(getActivity(), VoIPService.class);
-		getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+
+		if (isBound) {
+			connectMessenger();
+		} else {
+			getActivity().startService(new Intent(getActivity(), VoIPService.class));
+			Intent intent = new Intent(getActivity(), VoIPService.class);
+			getActivity().bindService(intent, myConnection, Context.BIND_AUTO_CREATE);
+		}
+
 		initProximityWakelock();
 		updateCallStatus();
 		super.onResume();
@@ -290,9 +293,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 	@Override
 	public void onPause() 
 	{
-		if (VoIPService.getCallId() == 0)	// Bug #45154
-			releaseProximityWakelock();
+		releaseProximityWakelock();
 		Logger.d(tag, "VoIPCallFragment onPause()");
+
 		super.onPause();
 	}
 
@@ -309,28 +312,33 @@ public class VoipCallFragment extends Fragment implements CallActions
 			callDuration.stop();
 		}
 
-		try 
-		{
-			if (isBound) 
-			{
-				getActivity().unbindService(myConnection);
-			}
-		}
-		catch (IllegalArgumentException e) 
-		{
-//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
-		}
-		
 		if(callActionsView!=null)
 		{
 			callActionsView.stopPing();
 			callActionsView = null;
 		}
 
+		unbindVoipService();
+
 		partnerName = null;
-		releaseProximityWakelock();
 		Logger.d(tag, "VoipCallFragment onDestroy()");
 		super.onDestroy();
+	}
+
+	private void unbindVoipService() {
+		// Disconnect from service
+		try
+		{
+			if (isBound)
+			{
+				isBound = false;
+				getActivity().unbindService(myConnection);
+			}
+		}
+		catch (IllegalArgumentException e)
+		{
+//			Logger.d(tag, "unbindService IllegalArgumentException: " + e.toString());
+		}
 	}
 
 	public interface CallFragmentListener
@@ -362,7 +370,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			return;
 		}
 		
-		if(voipService.isAudioRunning())
+		if(voipService.inActiveCall())
 		{
 			// Active Call
 			isCallActive = true;
@@ -391,24 +399,15 @@ public class VoipCallFragment extends Fragment implements CallActions
 			voipService.setCallStatus(VoIPConstants.CallStatus.UNINITIALIZED);
 		}
 
-		try
-		{
-			if (isBound) 
-			{
-				getActivity().unbindService(myConnection);
-			}
-		}
-		catch (IllegalArgumentException e) {
-			// Expected. Can happen. 
-		}
+		unbindVoipService();
+
+		playHangUpTone();
 
 		if(activity.isShowingCallFailedFragment())
 		{
 			Logger.d(tag, "Not shutting down because call failed fragment is being displayed.");
 			return;
 		}
-		
-		playHangUpTone();
 		
 		new Handler().postDelayed(new Runnable()
 		{
@@ -428,7 +427,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (voipService == null)
 			return false;
 		
-		if (!voipService.isAudioRunning() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
+		if (!voipService.inActiveCall() && (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
 			&& voipService.getPartnerClient() != null && voipService.getPartnerClient().isInitiator())
 		{
 			voipService.stopRingtone();
@@ -510,6 +509,9 @@ public class VoipCallFragment extends Fragment implements CallActions
 		setContactDetails();
 		showActiveCallButtons();
 
+		if (callActionsView != null)
+			callActionsView.setVisibility(View.GONE);
+
 		// Get hold status from service if activity was destroyed
 		updateCallStatus();
 
@@ -522,8 +524,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		Logger.d(tag, "Accepted call, starting audio...");
 		if (voipService != null) {
 			voipService.acceptIncomingCall();
-			callActionsView.setVisibility(View.GONE);
-			showActiveCallButtons();
+			setupActiveCallLayout();
 		}
 	}
 
@@ -906,7 +907,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 			// When a call is initiated or received, 
 			// show the participants list only to the host
 			// and to the participants after they accept the call
-			if (voipService.recordingAndPlaybackRunning || voipService.hostingConference())
+			if (voipService.inActiveCall() || voipService.hostingConference())
 				updateConferenceList();
 		} else {
 			if(nameOrMsisdn != null && nameOrMsisdn.length() > 16)

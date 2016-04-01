@@ -26,4 +26,6 @@
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
 	<dimen name="photos_selector_top_padding">4dp</dimen>
 	<dimen name="preview_brush_width">38dp</dimen>
+    <dimen name="gallery_selection_item_size">79dp</dimen>
+    <dimen name="gallery_selected_grid_height">110dp</dimen>
 </resources>

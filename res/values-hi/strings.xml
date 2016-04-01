@@ -333,10 +333,10 @@
     <string name="valentine_nudge_button">शानदार</string>
     <string name="confirm_delete_msg_header">संदेश हटायें</string>
     <string name="confirm_delete_msgs_header">संदेश हटायें।</string>
-    <string name="selected_count">%1$s चुने गए</string>
+    <string name="selected_count">%1$s चयनित</string>
     <string name="clear_conversation">सारे संदेश हटायें</string>
-    <string name="gallery_num_selected">%1$d चुने गए</string>
-    <string name="broadcast_selected">%1$s/500 चुने गए</string>
+    <string name="gallery_num_selected">%1$d चयनित</string>
+    <string name="broadcast_selected">%1$s/500 चयनित</string>
     <string name="select_file">फ़ाइल चुनें</string>
     <string name="free_of_total">%2$s में से %1$s खाली है</string>
     <string name="unknown_error">अज्ञात एरर</string>
@@ -667,7 +667,7 @@
     <string name="selected_contacts_count_plural">%1$s संपर्क</string>
     <string name="selected_contacts_count_singular">%1$s संपर्क</string>
     <string name="wish_now">अभिवादन करें</string>
-    <string name="messages_sent_succees">संदेश भेजा दिया</string>
+    <string name="messages_sent_succees">संदेश भेज दिया</string>
     <string name="content_card_tag">कार्ड</string>
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
@@ -689,7 +689,6 @@
     <string name="update_all">सभी अपडेट करें</string>
     <string name="RETRY">पुन: प्रयास करें</string>
     <string name="see_them">हो गया</string>
-    <string name="drag_tip_text">अपने स्टिकर पैक्स अरेंज करने के लिए किसी पैक पर टैप करके रखें</string>
     <string name="CANCEL">रद्द करें</string>
     <string name="n_more">%1$d और</string>
     <string name="n_stickers">%1$d स्टिकर्स</string>
@@ -846,7 +845,6 @@
     <string name="photo_dp_saved_sub">सही चल रहा है</string>
     <string name="photo_dp_save_error">प्रोफ़ाइल फ़ोटो सेट नहीं हो सका</string>
     <string name="photo_dp_save_error_sub">पुन: प्रयास करने के लिए टैप करें</string>
-    <string name="photo_gallery_choose_pic">एक फ़ोटो चुनें</string>
     <string name="cropping_image">फ़ोटो क्रॉप हो रहा है..</string>
     <string name="home_search_empty_text">\'%1$s\' तरह का कोई संपर्क नहीं है।</string>
     <string name="voip_mic_error">माइक चालू नहीं हो सका। शायद यह कॉल कारगर न हो।</string>
@@ -1067,8 +1065,6 @@
 	<string name="status_hint">आप क्या कर रहे हैं?</string>
 	<string name="status_hint_image">इस फ़ोटो के बारे में बताऐं</string>
 	<string name="add_mood">मूड</string>
-    <string name="sticker_reorder_setting_info">स्टिकर पैलेट के पैक्स व्यवस्थित करें/छुपाएं </string>
-    <string name="sticker_reorder_setting_header">स्टिकर पैक क्रम बदलें</string>
     <string name="sticker_recommendation_autopopup_setting_info">मेरे लिखने के साथ स्टिकर स्वत: दिखाएँ</string>
 	<string name="sticker_recommendation_autopopup_setting_header">स्टिकर्स स्वत: सुझाएँ</string>
 	<string name="sticker_recommend_ftue_heading">स्टिकर सुझाव</string>
@@ -1092,7 +1088,7 @@
     <string name="photo_actions_header">बेहतरीन फोटो! इस को,</string>
     <string name="profile_header_subtext">प्रोफ़ाइल फ़ोटो सभी को दिखेगी</string>
     <string name="sms_with_settings">SMS सेटिंग्स</string>
-    <string name="sms_credits_with_settings">मुफ़्त SMS: %1$d</string>
+    <string name="sms_credits_with_settings">मुफ़्त SMS: %1$s</string>
     <string name="free_hike_2_sms_india">केवल भारत में मुफ़्त</string>
     <string name="invite_friends_earn_rewards">मित्रों को hike पर आमंत्रित करें और ईनाम पाएं</string>
     <string name="your_referral_code">आपका <b>रेफ़रल</b> कोड</string>
@@ -1201,7 +1197,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">नई फ़ोटो</string>
     <string name = "upgrade_for_larger_files">यह फ़ाइल प्राप्त करने के लिए %1$s को अपग्रेड करना आवश्यक है। Hike डायरेक्ट द्वारा Hike का नवीनतम संस्करण शेयर करें</string>
-    <string name="group_participant_info">आप किसी ग्रुप में 500 सदस्य तक जोड़ सकते हैं</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">अब आप </font><font color=\"#1090e0\"><b>१०००</b> </font><font color=\"#000000\"> सदस्यों तक को जोड़ सकते हैं। </font>]]></string>
     <string name="maxContactInGroupErr">अधिकतम %1$s सदस्य जोड़े जा सकते हैं</string>
     <string name="added_in_group">यह संपर्क पहले से एक सदस्य है</string>
     <string name="watsapp">WhatsApp द्वारा जोड़ें</string>
@@ -1419,5 +1415,47 @@
     <string name="language_ftue_complete_message">कीबोर्ड की भाषा बदलने के लिए \nसेटिंग्स -> भाषा &amp; इनपुट में जाऐं</string>
     <string name="error_message_upgrade_peer">क्षमा करें। यह संपर्क Hike के पुराने वर्शन पर है जिसमें Hike डायरेक्ट नहीं है।</string>
     <string name="error_message_unsupported_peer">क्षमा करें। Hike डायरेक्ट के माध्यम से आप सिर्फ एंड्राइड फ़ोन के साथ कनेक्ट कर सकते हैं।</string>
-    
+    <string name="delete_conversation">चैट हटायें</string>
+    <string name="switch_to_old_key">पुराने कीबोर्ड का प्रयोग करें </string>
+    <string name="switch_to_hike_key">hike कीबोर्ड का प्रयोग करें </string>
+    <string name="admin_error">यह सदस्य अब इस ग्रुप चैट का हिस्सा नहीं है</string>
+
+    <string name="deleting">हटाया जा रहा है</string>
+    <string name="sticker_reorder_setting_info">स्टिकर पैक्स का क्रम बदले</string>
+    <string name="sticker_reorder_setting_header">क्रम बदलें</string>
+    <string name="sticker_delete_setting_info">फोन से स्टिकर पैक्स को हटाएँ</string>
+    <string name="sticker_delete_setting_header">हटाएँ</string>
+    <string name="sticker_hide_setting_info">पट्टी से स्टिकर पैक्स को छिपाएँ/सामने लाएँ</string>
+    <string name="sticker_hide_setting_header">छिपाएँ</string>
+    <string name="sticker_update_setting_info">डाउनलोड किए गए स्टिकर पैक्स को अपडेट करें</string>
+    <string name="sticker_update_setting_header">अपडेट करें</string>
+    <string name="delete_pack_question">क्या आप वास्तव में स्टिकर पैक हटाना चाहते हैं?</string>
+    <string name="settings_sticker">स्टिकर सेटिंग्स</string>
+    <string name="deleting_pack">पैक हटाया जा रहा है...</string>
+    <string name="pack_deleted">पैक हटाया गया</string>
+    <string name="n_more_stickers">%1$d और अधिक स्टिकर्स</string>
+    <string name="all_packs_updated_heading">सभी पैक्स अपडेटेड हैं</string>
+    <string name="all_packs_updated_info">आपके सभी पैक्स अपडेटेड हैं, यदि आपको और स्टिकर्स चाहिए तो स्टिकर-दुकान पर जाएँ</string>
+    <string name="redirect_to_shop_text">मुझे दुकान में ले चलें</string>
+    <string name="all_done">पूरा हो गया!!</string>
+    <string name="drag_tip_text">क्रम बदलने के लिए पकड़ कर खींचें</string>
+    <string name="all_packs_deleted_heading">हमारे पास 10,000 से भी अधिक स्टिकर्स हैं</string>
+    <string name="all_packs_deleted_info">हमारी स्टिकर-दुकान को परखें और अपने पसंदीदा स्टिकर्स ही डाउनलोड करें!</string>
+
+    <string name="timeline_short_desc">आनंदपूर्ण क्षणों को मित्रों से साझा करें</string>
+    <string name="multiple_su_post_failed">एक या उससे अधिक स्टेटस पोस्ट नहीं किए जा सकते।</string>
+    <string name="timeline_post_timeout">आपके फ़ोटोस जल्दी हो पोस्ट किए जाएंगे</string>
+    <string name="crop">क्रॉप</string>
+    <string name="photo_gallery_choose_pic">फ़ोटोस</string>
+    <string name="remove">निकालें</string>
+    <string name="filters">फिल्टर</string>
+    <string name="rotate">रोटेट</string>
+    <string name="forward_to_plural_timeline">%1$s संपर्क को और टाइमलाइन पर संदेश भेजें?</string>
+    <string name="forward_to_single_timeline">1 संपर्क को और टाइमलाइन पर संदेश भेजें?</string>
+    <string name="share_with_timeline">%1$d संपर्क से और टाइमलाइन पर साझा करें?</string>
+    <string name="share_with_contact_timeline">%1$s से और टाइमलाइन पर साझा करें?</string>
+    <string name="image_w_caption_sms">ने आपको %1$s कैप्शन वाली फ़ोटो भेजीी</string>
+    <string name="share_on_timeline">टाइमलाइन पर साझा करें?</string>
+    <string name="posting_photos_timeline">आपके फ़ोटोस टाइमलाइन पर पोस्ट किए जा रहे हैं</string>
+    <string name="add_a_caption">कैप्शन डालें</string>
 </resources>

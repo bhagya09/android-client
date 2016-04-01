@@ -18,6 +18,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.platform.content.HikeUnzipFile;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -76,7 +77,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	KptLanguageInstallListener mInstallListener;
 
 	private volatile Byte mState = WAITING;
-
+	
 	public enum LanguageDictionarySatus
 	{
 		INSTALLED_LOADED, INSTALLED_UNLOADED, UNINSTALLED, UNSUPPORTED, PROCESSING, IN_QUEUE
@@ -227,27 +228,17 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		HikeMessengerApp.getPubSub().publish(HikePubSub.KPT_LANGUAGES_UPDATED, null);
 	}
 
-	public void downloadAndInstallLanguage(String locale)
+	public void downloadAndInstallLanguage(String locale, String source)
 	{
-		if (TextUtils.isEmpty(locale))
-		{
-			return;
-		}
-		for(KPTAddonItem item : getSupportedLanguagesList())
-		{
-			if (item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
-			{
-				downloadAndInstallLanguage(item);
-				return;
-			}
-		}
-
+		KPTAddonItem addOnItem = getSupportedKptAddOnItemFromLocale(locale);
+		if (addOnItem != null)
+			downloadAndInstallLanguage(addOnItem, source);
 	}
 
-	public void downloadAndInstallLanguage(KPTAddonItem addOnItem)
+	public void downloadAndInstallLanguage(KPTAddonItem addOnItem, String source)
 	{
-		StickerLanguagesManager.getInstance().downloadTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
-		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(new Locale(addOnItem.getlocaleName()).getISO3Language());
+		StickerLanguagesManager.getInstance().downloadTagsForLanguage(StickerSearchUtils.getISOCodeFromLocale(new Locale(addOnItem.getlocaleName())));
+		StickerLanguagesManager.getInstance().downloadDefaultTagsForLanguage(StickerSearchUtils.getISOCodeFromLocale(new Locale(addOnItem.getlocaleName())));
 
 		if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.UNINSTALLED)
 		{
@@ -258,6 +249,8 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			languageStatusMap.put(addOnItem.getDisplayName(), LanguageDictionarySatus.IN_QUEUE);
 			if (mState == WAITING)
 				startProcessing();
+			
+			sendEventForLanguageDownload(addOnItem, source);
 		}
 		else if (languageStatusMap.get(addOnItem.getDisplayName()) == LanguageDictionarySatus.INSTALLED_UNLOADED)
 		{
@@ -265,6 +258,36 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		}
 
 		notifyAllOfLanguageUpdate();
+	}
+
+	private void sendEventForLanguageDownload(KPTAddonItem addOnItem, String source)
+	{
+//		tracking keyboard language download event
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_EVENT);
+			metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOADING, addOnItem.getlocaleName());
+			metadata.put(HikeConstants.LogEvent.LANGUAGE_DOWNLOAD_SOURCE, source);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + addOnItem.getDisplayName() + "\n" + e);
+		}
+	}
+
+	public void topPriorityForLanguage(String locale)
+	{
+		KPTAddonItem addOnItem = getSupportedKptAddOnItemFromLocale(locale);
+		if (addOnItem != null)
+			topPriorityForLanguage(addOnItem);
+	}
+
+	public void topPriorityForLanguage(KPTAddonItem addOnItem)
+	{
+		kptSettings.loadDictionary(addOnItem);
+		kptSettings.topPriorityForLanguage(addOnItem);
 	}
 
 	public void loadInstalledLanguage(KPTAddonItem addOnItem)
@@ -330,6 +353,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 			     			JSONObject metadata = new JSONObject();
 			     			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.KEYBOARD_LANGUAGE_DOWNLOAD_ERROR);
 			     			metadata.put(HikeConstants.KEYBOARD_LANGUAGE_CHANGE, addOnItem.getlocaleName());
+			     			metadata.put(HikeConstants.LANGUAGE_DOWNLOAD_ERROR_CODE, httpException.getErrorCode());
 			     			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 				     	}
 			     		catch(JSONException e)
@@ -431,7 +455,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void onInitializationError(int errorCode)
 	{
-		Logger.d("KptDebug","init error. time: "  + System.currentTimeMillis());
+		Logger.d("KptDebug", "init error. time: " + System.currentTimeMillis());
 		Utils.setCustomKeyboardSupported(false);
 		logKeyboardInitializationError();
 	}
@@ -439,7 +463,7 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 	@Override
 	public void coreEngineService()
 	{
-		Logger.d(TAG,"coreEngineService callback");
+		Logger.d(TAG, "coreEngineService callback");
 	}
 
 	public KPTAdaptxtAddonSettings getKptSettings()
@@ -463,5 +487,22 @@ public class KptKeyboardManager implements AdaptxtSettingsRegisterListener
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json : " + e);
 		}
+	}
+
+	public KPTAddonItem getSupportedKptAddOnItemFromLocale(String locale)
+	{
+		if (TextUtils.isEmpty(locale))
+		{
+			return null;
+		}
+		for(KPTAddonItem item : getSupportedLanguagesList())
+		{
+			if (item.getlocaleName().equals(locale)
+					|| item.getlocaleName().substring(0,item.getlocaleName().indexOf("-")).equals(locale))
+			{
+				return item;
+			}
+		}
+		return null;
 	}
 }

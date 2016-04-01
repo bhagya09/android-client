@@ -21,8 +21,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+
+import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,6 +43,8 @@ import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -50,6 +55,7 @@ import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -239,10 +245,28 @@ public class FileTransferManager extends BroadcastReceiver
 
 			if(task._state == FTState.COMPLETED)
 			{
-				HikeFile hikefile = ((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0);
+				HikeFile hikefile;
+				if(task.userContext == null)
+				{
+					try {
+						JSONObject jo = new JSONObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_JSON, "{}"));
+						hikefile = new HikeFile(jo, false);
+					} catch (JSONException je)
+					{
+						hikefile = null;
+						Logger.d("DownloadUrl","JSONExcpetion after file Completion");
+					}
+				}
+				else {
+					hikefile = ((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0);
+				}
 				FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), task.msgId));
 				String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS);
+				analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
+				if(task.userContext != null && BotUtils.isBot(((ConvMessage) task.userContext).getMsisdn())&& task instanceof DownloadFileTask)
+				{
+					FTAnalyticEvents.platformAnalytics(((ConvMessage) task.userContext).getMsisdn(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileKey(),((ConvMessage) task.userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
+				}
 				deleteLogFile(task.msgId, hikefile.getFile());
 			}
 			if (task instanceof DownloadFileTask)
@@ -305,7 +329,7 @@ public class FileTransferManager extends BroadcastReceiver
 
 	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
 	{
-		if (isFileTaskExist(msgId)){
+		if (msgId != 0 && isFileTaskExist(msgId)){
 			validateFilePauseState(msgId);
 			return;
 		}
@@ -324,6 +348,30 @@ public class FileTransferManager extends BroadcastReceiver
 		}
 		catch (RejectedExecutionException rjEx)
 		{
+			// handle this properly
+		}
+
+	}
+
+	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType) {
+
+		if (isFileTaskExist(-100L)){
+			validateFilePauseState(-100L);
+			return;
+		}
+
+		if (taskOverflowLimitAchieved())
+			return;
+
+		settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
+		String uId = settings.getString(HikeMessengerApp.UID_SETTING, null);
+		DownloadFileTask task = new DownloadFileTask(handler, fileTaskMap, context, destinationFile, fileKey, hikeFileType, token, uId);
+		try {
+			MyFutureTask ft = new MyFutureTask(task);
+			fileTaskMap.put(-100L, ft);
+			pool.execute(ft); // this future is used to cancel pause the task
+		} catch (RejectedExecutionException rjEx) {
 			// handle this properly
 		}
 
@@ -400,7 +448,11 @@ public class FileTransferManager extends BroadcastReceiver
 		_instance = null;
 	}
 
-	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize)
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize){
+		cancelTask(msgId, mFile, sent, fileSize, null);
+	}
+
+	public void cancelTask(long msgId, File mFile, boolean sent, long fileSize, String attachmentShardeAs)
 	{
 		FileSavedState fss;
 		if (sent)
@@ -408,7 +460,8 @@ public class FileTransferManager extends BroadcastReceiver
 		else
 			fss = getDownloadFileState(msgId, mFile);
 
-		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED)
+		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED
+				|| fss.getFTState() == FTState.ERROR)
 		{
 			FutureTask<FTResult> obj = fileTaskMap.get(msgId);
 			if (obj != null)
@@ -427,7 +480,7 @@ public class FileTransferManager extends BroadcastReceiver
 			}
 			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
 			deleteLogFile(msgId, mFile);
 		}
 	}
@@ -940,4 +993,7 @@ public class FileTransferManager extends BroadcastReceiver
 	{
 		return this.ftHostURIs;
 	}
+
+
+
 }

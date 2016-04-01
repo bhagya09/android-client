@@ -1,5 +1,60 @@
 package com.bsb.hike.utils;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorDescription;
@@ -7,7 +62,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -30,6 +84,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -141,6 +196,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -185,61 +241,6 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.net.URL;
-import java.nio.CharBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
 
 public class Utils
 {
@@ -480,22 +481,6 @@ public class Utils
 		return c.getTimeInMillis();
 	}
 
-	public static boolean isMyServiceRunning(Class<?> serviceClass, Context ctx)
-	{
-		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-		for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-		{
-			{
-				if (serviceClass.getName().equals(service.service.getClassName()))
-				{
-
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	public static Animation inFromLeftAnimation(Context ctx)
 	{
 		if (mInFromLeft == null)
@@ -595,7 +580,12 @@ public class Utils
 
 	public static File createNewFile(HikeFileType type, String prefix)
 	{
-		File selectedDir = new File(Utils.getFileParent(type, false));
+		return createNewFile(type, prefix, false);
+	}
+
+	public static File createNewFile(HikeFileType type, String prefix, boolean isSent)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, isSent));
 		if (!selectedDir.exists())
 		{
 			if (!selectedDir.mkdirs())
@@ -725,6 +715,16 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
+		editor.putString(HikeConstants.SERVER_NAME_SETTING,accountInfo.getServerName());
+		editor.putString(HikeConstants.SERVER_GENDER_SETTING,accountInfo.getServerGender());
+
+		Birthday serverDOB = accountInfo.getServerDOB();
+		if (serverDOB != null);
+		{
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_DAY, serverDOB.day);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_MONTH, serverDOB.month);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_YEAR, serverDOB.year);
+		}
 		editor.commit();
 
 		/*
@@ -1262,45 +1262,52 @@ public class Utils
 		editor.commit();
 	}
 
+	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
+	{
+		StringTokenizer updateVersion = new StringTokenizer(newVersion, ".");
+		StringTokenizer currentVersion = new StringTokenizer(oldVersion, ".");
+		while (currentVersion.hasMoreTokens())
+		{
+			if (!updateVersion.hasMoreTokens())
+			{
+				return false;
+			}
+			int currentVersionToken = Integer.parseInt(currentVersion.nextToken());
+			int updateVersionToken = Integer.parseInt(updateVersion.nextToken());
+			if (updateVersionToken > currentVersionToken) {
+				return true;
+			} else if (updateVersionToken < currentVersionToken) {
+				return false;
+			}
+
+		}
+		while (updateVersion.hasMoreTokens()) {
+			if (Integer.parseInt(updateVersion.nextToken()) > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static boolean isUpdateRequired(String version, Context context)
 	{
 		try
 		{
 			String appVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-
-			StringTokenizer updateVersion = new StringTokenizer(version, ".");
-			StringTokenizer currentVersion = new StringTokenizer(appVersion, ".");
-			while (currentVersion.hasMoreTokens())
-			{
-				if (!updateVersion.hasMoreTokens())
-				{
-					return false;
-				}
-				int currentVersionToken = Integer.parseInt(currentVersion.nextToken());
-				int updateVersionToken = Integer.parseInt(updateVersion.nextToken());
-				if (updateVersionToken > currentVersionToken)
-				{
-					return true;
-				}
-				else if (updateVersionToken < currentVersionToken)
-				{
-					return false;
-				}
-			}
-			while (updateVersion.hasMoreTokens())
-			{
-				if (Integer.parseInt(updateVersion.nextToken()) > 0)
-				{
-					return true;
-				}
-			}
+			Logger.d("AUTOAPK", "self version : " + appVersion);
+			return isVersionNameHigher(appVersion, version, context);
+		}
+		catch (NumberFormatException nfe)
+		{
+			Logger.e("AUTOAPK","version name contains strings possibly", nfe);
 			return false;
 		}
 		catch (NameNotFoundException e)
 		{
-			Logger.e("Utils", "Package not found...", e);
+			Logger.e("AUTOAPK", "Package not found...", e);
 			return false;
 		}
+
 	}
 
 	/*
@@ -1496,6 +1503,8 @@ public class Utils
 				case ExifInterface.ORIENTATION_ROTATE_180:
 					m.preRotate(180);
 					break;
+				default:
+					return bitmap;
 				}
 				// Rotates the image according to the orientation
 				rotatedBitmap = HikeBitmapFactory.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
@@ -1616,8 +1625,15 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri)
 	{
+		return getAbsolutePathFromUri(uri, mContext, checkForPicassaUri, true);
+
+	}
+
+	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri, boolean showToasts)
+	{
 		if(uri == null)
 		{
+			if(showToasts)
 			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 			return null;
 		}
@@ -1660,17 +1676,17 @@ public class Utils
 			}
 			else
 			{
+				if(showToasts)
 				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
 				return null;
 			}
 		}
 
-		if(returnFilePath == null)
+		if(returnFilePath == null && showToasts)
 			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
 	}
-
 	public static enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
@@ -2911,6 +2927,20 @@ public class Utils
 	}
 	
 	/**
+	 * Get unseen status, user-status and friend request count,includes activity count as well
+	 * 
+	 * @param accountPrefs
+	 *            Account settings shared preference
+	 * @param countUsersStatus
+	 *            Whether to include user status count in the total
+	 * @return
+	 */
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
+	{
+		return getNotificationCount(accountPrefs, countUsersStatus, true,true,true);
+	}
+	
+	/**
 	 * Get unseen status, user-status and friend request count,
 	 * 
 	 * @param accountPrefs
@@ -2943,20 +2973,7 @@ public class Utils
 		}
 		return notificationCount;
 	}
-
-	/**
-	 * Get unseen status, user-status and friend request count,includes activity count as well
-	 * 
-	 * @param accountPrefs
-	 *            Account settings shared preference
-	 * @param countUsersStatus
-	 *            Whether to include user status count in the total
-	 * @return
-	 */
-	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
-	{
-		return getNotificationCount(accountPrefs, countUsersStatus, true,true,true);
-	}
+	
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
 	 */
@@ -2973,6 +2990,21 @@ public class Utils
 		}
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+	}
+
+	// http://stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard
+	public static void hideSoftKeyboard(Activity activity)
+	{
+		InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+		// Find the currently focused view, so we can grab the correct window token from it.
+		View view = activity.getCurrentFocus();
+		// If no view currently has focus, create a new one, just so we can grab a window token from it
+		if (view == null)
+		{
+			view = new View(activity);
+			return;
+		}
+		inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
 	public static void showSoftKeyboard(Context context, View v)
@@ -3215,7 +3247,7 @@ public class Utils
 				object.put(HikeConstants.SUB_TYPE, HikeConstants.FOREGROUND);
 
 				JSONObject data = new JSONObject();
-				data.put(HikeConstants.JUST_OPENED, HikeMessengerApp.currentState == CurrentState.OPENED);
+				data.put(AnalyticsConstants.JUST_OPENED, HikeMessengerApp.currentState == CurrentState.OPENED);
 				/*
 				 * We don't need to request for the bulk last seen from here anymore. We have the HTTP call for this.
 				 */
@@ -3224,6 +3256,7 @@ public class Utils
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
 				HikeNotification.getInstance().cancelPersistNotif();
+				HikeNotification.getInstance().cancelNotification(HikeNotification.NOTIF_INTERCEPT_NON_DOWNLOAD);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3502,7 +3535,15 @@ public class Utils
 			switch (hikeFile.getHikeFileType())
 			{
 			case IMAGE:
-				return context.getString(R.string.send_sms_img_msg);
+				String caption = convMessage.getMetadata().getCaption();
+				if(TextUtils.isEmpty(caption))
+				{
+					return context.getString(R.string.send_sms_img_msg);
+				}
+				else
+				{
+					return String.format(context.getString(R.string.image_w_caption_sms),"\""+caption+"\"");
+				}
 			case VIDEO:
 				return context.getString(R.string.send_sms_video_msg);
 			case AUDIO:
@@ -3752,6 +3793,18 @@ public class Utils
 		}
 	}
 
+	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
+	{
+		if (isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
+
 	public static void executeFtResultAsyncTask(AsyncTask<Void, Void, FTResult> asyncTask)
 	{
 		if (isHoneycombOrHigher())
@@ -3963,6 +4016,7 @@ public class Utils
 		{
 			shortcutIntent = IntentFactory.getNonMessagingBotIntent(conv.getMsisdn(), activity);
 			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
+			shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
 
 		else
@@ -3970,10 +4024,15 @@ public class Utils
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
 		}
 
+		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		{
+			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
+		}
+
 		intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 		intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, conv.getLabel());
 
-		Drawable avatarDrawable = Utils.getAvatarDrawableForShortcut(activity, conv.getMsisdn(), false);
+		Drawable avatarDrawable = Utils.getAvatarDrawableForShortcut(activity, conv.getMsisdn());
 
 		Bitmap bitmap = HikeBitmapFactory.drawableToBitmap(avatarDrawable, Bitmap.Config.RGB_565);
 
@@ -4536,26 +4595,22 @@ public class Utils
 
 		if (isPin || drawable == null)
 		{
-			Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
-
-			Drawable iconDrawable = null;
-
 			if (isPin)
 			{
-				iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
+				Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
+				Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
+				drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
 			}
 			else
 			{
-				iconDrawable = context.getResources().getDrawable(
-						OneToNConversationUtils.isBroadcastConversation(msisdn) ? R.drawable.ic_default_avatar_broadcast
-								: (OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
+				drawable = HikeBitmapFactory.getDefaultTextAvatar(msisdn);
 			}
-			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
+
 		}
 		return drawable;
 	}
 
-	public static Drawable getAvatarDrawableForShortcut(Context context, String msisdn, boolean isPin)
+	public static Drawable getAvatarDrawableForShortcut(Context context, String msisdn)
 	{
 		if (msisdn.equals(context.getString(R.string.app_name)) || msisdn.equals(HikeNotification.HIKE_STEALTH_MESSAGE_KEY))
 		{
@@ -4564,23 +4619,9 @@ public class Utils
 
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
 
-		if (isPin || drawable == null)
+		if (drawable == null)
 		{
-			Drawable background = context.getResources().getDrawable(BitmapUtils.getDefaultAvatarResourceId(msisdn, false));
-
-			Drawable iconDrawable = null;
-
-			if (isPin)
-			{
-				iconDrawable = context.getResources().getDrawable(R.drawable.ic_pin_notification);
-			}
-			else
-			{
-				iconDrawable = context.getResources().getDrawable(
-						OneToNConversationUtils.isBroadcastConversation(msisdn) ? R.drawable.ic_default_avatar_broadcast
-								: (OneToNConversationUtils.isGroupConversation(msisdn) ? R.drawable.ic_default_avatar_group : R.drawable.ic_default_avatar));
-			}
-			drawable = new LayerDrawable(new Drawable[] { background, iconDrawable });
+			drawable = HikeBitmapFactory.getRectTextAvatar(msisdn);
 		}
 		return drawable;
 	}
@@ -5187,13 +5228,17 @@ public class Utils
 	public static void emoticonClicked(Context context, int emoticonIndex, EditText composeBox)
 	{
 		HikeConversationsDatabase.getInstance().updateRecencyOfEmoticon(emoticonIndex, System.currentTimeMillis());
+
 		// We don't add an emoticon if the compose box is near its maximum
 		// length of characters
 		if (composeBox.length() >= context.getResources().getInteger(R.integer.max_length_message) - 20)
 		{
 			return;
 		}
-		SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        String emoji = SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+
+        StickerManager.getInstance().logEmoticonUsageAnalytics(emoji);
 	}
 
 	public static Animation getNotificationIndicatorAnim()
@@ -5694,6 +5739,23 @@ public class Utils
 		}
 	}
 
+	public static String getClipboardText(Context context)
+	{
+		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+		try
+		{
+			ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+			String text = item.getText().toString();
+			return text;
+		}
+		catch (NullPointerException | IndexOutOfBoundsException ex)
+		{
+			ex.printStackTrace();
+
+		}
+		return null;
+	}
+
 	/**
 	 * This method is used to remove a contact as a favorite based on existing favorite type. It returns either FavoriteType.REQUEST_RECEIVED_REJECTED or FavoriteType.NOT_FRIEND
 	 * 
@@ -5801,6 +5863,21 @@ public class Utils
 		}
 		// No match found
 		throw new RuntimeException("Unable to find matching authenticator");
+	}
+
+
+	public static short getNetworkShort(String networkType)
+	{
+		switch(networkType)
+		{
+			case "wifi" : return 1;
+			case "2g" : return 4;
+			case "3g" : return 3;
+			case "4g" : return 2;
+			case "off" : return -1;
+			case "unknown" : return 0;
+			default : return 0;
+		}
 	}
 
 	/**
@@ -5988,6 +6065,14 @@ public class Utils
 		ComponentName mmComponentName = new ComponentName(context, ConnectionChangeReceiver.class);
 
 		context.getPackageManager().setComponentEnabledSetting(mmComponentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+	}
+
+	public static void enableNetworkListner(Context context)
+	{
+		ComponentName mmComponentName = new ComponentName(context, ConnectionChangeReceiver.class);
+
+		context.getPackageManager().setComponentEnabledSetting(mmComponentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
 	}
 
@@ -6259,20 +6344,6 @@ public class Utils
 				.equals(appContext.getString(R.string.privacy_favorites));
 	}
 
-	public static void launchPlayStore(String packageName, Context context)
-	{
-		Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + context.getPackageName()));
-		marketIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-		try
-		{
-			context.startActivity(marketIntent);
-		}
-		catch (ActivityNotFoundException e)
-		{
-			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
-		}
-	}
-
 	public static boolean isOkHttp()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.TOGGLE_OK_HTTP, true);
@@ -6305,8 +6376,13 @@ public class Utils
 	{
 		try
 		{
+			JSONObject blockedStateData = new JSONObject();
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
+			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			{
+				blockedStateData.put(HikeConstants.LogEvent.NET_INFO, netInfo.getDetailedState());
+			}
 
 			if (netInfo != null && netInfo.isConnected())
 			{
@@ -6315,6 +6391,10 @@ public class Utils
 			}
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			{
+				blockedStateData.put(HikeConstants.LogEvent.NET_INFO_MOBILE, netInfo.getDetailedState());
+			}
 
 			if (netInfo != null && netInfo.isConnected())
 			{
@@ -6324,12 +6404,17 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+				if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+				{
+					blockedStateData.put(HikeConstants.LogEvent.NET_INFO_WIFI, netInfo.getDetailedState());
+				}
 				if (netInfo != null && netInfo.isConnected())
 				{
 					Logger.d("getNetInfoFromConnectivityManager", "Trying to connect using TYPE_WIFI NetworkInfo");
 					return new Pair<NetworkInfo, Boolean>(netInfo, true);
 				}
 			}
+			recordBlockedNetworkState(blockedStateData);
 		}
 		catch (Exception e)
 		{
@@ -6356,6 +6441,23 @@ public class Utils
 			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.LogEvent.GET_ACTIVE_NETWORK_INFO, metadata);
 		}
 		catch (JSONException e)
+		{
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	private static void recordBlockedNetworkState(JSONObject data)
+	{
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		{
+			return;
+		}
+		try
+		{
+			Logger.w("Utils", "Recording network blocked state = " + data);
+			HAManager.getInstance().record(HikeConstants.EXCEPTION, HikeConstants.NET_BLOCKED_STATE_ANALYTICS, data);
+		}
+		catch (Exception e)
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
@@ -6938,8 +7040,15 @@ public class Utils
 		}
 		try
 		{
+			File destFile = new File(destFilePath);
 			InputStream src = new FileInputStream(new File(srcFilePath));
-			FileOutputStream dest = new FileOutputStream(new File(destFilePath));
+			FileOutputStream dest = new FileOutputStream(destFile);
+
+			File parentFolder = destFile.getParentFile();
+			if(parentFolder!=null && !parentFolder.exists())
+			{
+				parentFolder.mkdirs();
+			}
 
 			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
 			int len;
@@ -6969,6 +7078,26 @@ public class Utils
 		catch (Exception ex)
 		{
 			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
+			return false;
+		}
+	}
+
+	public static boolean isFileInSameDirectory(String filePath1, String filePath2)
+	{
+		File file1 = new File(filePath1);
+		File file2 = new File(filePath2);
+
+		if(!file1.exists() || !file2.exists())
+		{
+			return false;
+		}
+
+		if(file1.getParent().equals(file2.getParent()))
+		{
+			return true;
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -7012,8 +7141,10 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
-	public static String getStackTrace(Throwable ex)
-	{
+	public static String getStackTrace(Throwable ex) {
+		if (ex == null) {
+			return "";
+		}
 		StringWriter errorTrace = new StringWriter();
 		ex.printStackTrace(new PrintWriter(errorTrace));
 		return errorTrace.toString();
@@ -7337,6 +7468,7 @@ public class Utils
 		catch (NameNotFoundException e)
 		{
 			e.printStackTrace();
+			appVersionCode = BuildConfig.VERSION_CODE;
 		}
 
 		return appVersionCode;
@@ -7416,22 +7548,14 @@ public class Utils
 	 */
 	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
 	{
-		if(TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath) )
+		if (TextUtils.isEmpty(status) && moodId < 0 && TextUtils.isEmpty(imageFilePath))
 		{
 			Logger.e("Utils", "postStatusUpdate : status = null/empty, moodId < 0 & imageFilePath = null conditions hold together. Returning.");
 			return;
 		}
 
-		try
-		{
-			StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
-			task.execute();
-		}
-		catch (IOException e)
-		{
-			Logger.e("Utils", "IOException thrown in postStatusUpdate");
-			return;
-		}
+		StatusUpdateTask task = new StatusUpdateTask(status, moodId, imageFilePath);
+		task.execute();
 	}
 
 	public static float currentBatteryLevel()
@@ -7626,6 +7750,27 @@ public class Utils
 		return timeLogBuilder.toString();
 	}
 
+	public static byte[] readBytes(InputStream inputStream) throws IOException
+	{
+		byte[] buffer = new byte[1024];
+		int bytesRead;
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		while ((bytesRead = inputStream.read(buffer)) != -1)
+		{
+			output.write(buffer, 0, bytesRead);
+		}
+		return output.toByteArray();
+	}
+
+
+	public static TypedArray getDefaultAvatarBG()
+	{
+		if (HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY == null)
+		{
+			HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY = HikeMessengerApp.getInstance().getApplicationContext().getResources().obtainTypedArray(R.array.dp_bg);
+		}
+		return HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY;
+	}
 	/**
 	 * Call this method to find the total size of a folder
 	 * @param folder
@@ -7817,7 +7962,7 @@ public class Utils
 		}
 		catch(JSONException e)
 		{
-			Logger.e("productpopup","JSON Exception in JSON Array language");
+			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
 		return null;
 	}
@@ -7825,7 +7970,7 @@ public class Utils
 	public static void setLocalizationEnable(boolean enable)
 	{
 		if (!enable)
-			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge);
+			LocalLanguageUtils.setApplicationLocalLanguage(LocalLanguage.PhoneLangauge, HikeConstants.APP_LANG_CHANGED_SERVER_SWITCH);
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
 	}
 
@@ -7838,4 +7983,85 @@ public class Utils
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
 	}
+
+	public static String getInitialsFromContactName(String contactName)
+	{
+		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
+		{
+			return "#";
+		}
+
+		contactName = contactName.trim();
+
+		char first = contactName.charAt(0);
+
+		if (Character.isLetter(first))
+		{
+			return Character.toString(first);
+		}
+		else
+		{
+			return "#";
+		}
+	}
+
+	/**
+	 * Sample logging JSON :
+	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
+	 * @param dbObj
+	 */
+	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
+	{
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.put(AnalyticsConstants.EVENT, "db_corrupt");
+			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
+			json.put(AnalyticsConstants.LOG_FIELD_4, "db_corrupt");
+			json.put(AnalyticsConstants.LOG_FIELD_5, (new File(dbObj.getPath())).length());
+
+			Logger.d("db", json.toString());
+
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * This method checks whether we should connect to MQTT or not
+	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
+	 *
+	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
+	 *
+	 * @return
+	 */
+	public static boolean shouldConnectToMQTT()
+	{
+		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
+	}
+
+	public static boolean isDBCorrupt()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
+	}
+
+	/**
+	 * WARNING : Do not ever call this method unless you have a valid reason to do so
+	 */
+	public static void disconnectFromMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("destroy", true));
+	}
+
+	public static void connectToMQTT()
+	{
+		HikeMqttManagerNew.getInstance().init(); // Init and then connect
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
 }

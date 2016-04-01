@@ -16,6 +16,8 @@ import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -51,9 +53,7 @@ public class HAManager
 	private static HAManager instance;
 	
 	private Context context;
-	
-	private ArrayList<JSONObject> eventsList;
-		
+
 	public static final String ANALYTICS_SETTINGS = "analyticssettings";
 
 	private boolean isAnalyticsEnabled = true;
@@ -73,7 +73,7 @@ public class HAManager
 	private NetworkListener listner;
 	
 	private Session fgSessionInstance;
-	
+
 	private ArrayList<JSONObject> imageConfigEventsList;
 	
 	private	File imageLogsEventFile;
@@ -88,8 +88,6 @@ public class HAManager
 		analyticsDirectory = context.getFilesDir().toString() + AnalyticsConstants.EVENT_FILE_DIR;
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Storage dir :" + analyticsDirectory);
 
-		eventsList = new ArrayList<JSONObject>();
-						
 		isAnalyticsEnabled = getPrefs().getBoolean(AnalyticsConstants.ANALYTICS, AnalyticsConstants.IS_ANALYTICS_ENABLED);
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Analytics service status :"+ isAnalyticsEnabled);
@@ -256,32 +254,17 @@ public class HAManager
 		{
 			throw new NullPointerException("Type and Context of event cannot be null.");
 		}
-		eventsList.add(generateAnalticsJson(type, eventContext, priority, metadata, tag));
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, metadata.toString());
-		
-		if (eventsList.size() >= maxInMemorySize) 
-		{			
-			// clone a local copy and send for writing
-			ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
-			
-			eventsList.clear();
-			
-			AnalyticsStore.getInstance(this.context).dumpEvents(jsons, false, false);
 
-			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "writer thread started!");
-		}
+		AnalyticsStore.getInstance(this.context).storeEvent(generateAnalticsJson(type, eventContext,
+				priority, metadata, tag));
 	}
 
 	private synchronized void dumpInMemoryEventsAndTryToUpload(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		ArrayList<JSONObject> jsons = (ArrayList<JSONObject>) eventsList.clone();
-		
-		eventsList.clear();
-		
-		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Dumping in-memory events :" + jsons.size());
-		AnalyticsStore.getInstance(this.context).dumpEvents(jsons, sendNow, isOnDemandFromServer);
+		AnalyticsStore.getInstance(this.context).sendEvents();
 	}
-	
+
 	/**
 	 * Returns current max log file size 
 	 * @return log file size in bytes
@@ -489,7 +472,14 @@ public class HAManager
 			{
 				metadata = new JSONObject();
 			}
-			
+			else
+			{
+				//Some metadata creators, modify metadata after calling the recordEvent()
+				//Due to this, there was a ConcurrentModificationException while persisting the JSON
+				//Cloning metadata will help us in this.
+				metadata = Utils.cloneJsonObject(metadata);
+			}
+
 			metadata.put(AnalyticsConstants.SESSION_ID, fgSessionInstance.getSessionId());
 
 			data.put(AnalyticsConstants.METADATA, metadata);
@@ -578,8 +568,6 @@ public class HAManager
 		 */
 		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 
-		dumpInMemoryEventsAndTryToUpload(false, false);
-		
 		fgSessionInstance.reset();
 		
 		return metadata; 
@@ -726,7 +714,29 @@ public class HAManager
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "update tip/notif analytics json exception");
 		}
 	}
-	
+
+	public void interceptAnalyticsEvent(String eventKey, String action, boolean isUIEvent)
+	{
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.InterceptEvents.INTERCEPTS);
+			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(AnalyticsConstants.InterceptEvents.INTERCEPT_ACTION, action);
+			if(isUIEvent)
+			{
+				record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+			}
+			else
+			{
+				record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.InterceptEvents.INTERCPET_NOTIF_EVENT, EventPriority.HIGH, metadata);
+			}
+		}
+		catch (JSONException e)
+		{
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" +e.toString());
+		}
+	}
 	
 	public void serviceEventAnalytics(String eventType, String serviceName)
 	{		
@@ -1090,4 +1100,43 @@ public class HAManager
 		}
 	}
 
+	/**
+	 * Used for logging user's google accounts at the time of signup OR upgrade.
+	 */
+	public void logUserGoogleAccounts() {
+	    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "logUserGoogleAccounts");
+
+		if(getPrefs().getBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, false)) return;
+
+		final AccountManager am = AccountManager.get(context);
+		Account[] accounts = am.getAccountsByType(AnalyticsConstants.ACCOUNT_TYPE_GOOGLE);
+
+		if(accounts == null || accounts.length == 0) {
+		    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "No google accounts!!");
+		    return;
+		}
+
+		StringBuilder userAccounts = new StringBuilder();
+	    for(Account account:accounts) {
+		    userAccounts.append(account.name);
+		    userAccounts.append(",");
+		}
+	    userAccounts.deleteCharAt(userAccounts.length()-1);
+
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "User google accounts: " + userAccounts);
+	    try {
+		    JSONObject metadata = new JSONObject();
+		    metadata.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.EVENT_USER_GOOGLE_ACCOUNTS);
+		    metadata.put(AnalyticsConstants.USER_GOOGLE_ACCOUNTS, userAccounts.toString());
+		    recordEvent(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.EVENT_USER_GOOGLE_ACCOUNTS,
+			EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_MOB);
+		} catch(JSONException e) {
+		    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		    return;
+		}
+
+		Editor editor = getPrefs().edit();
+	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
+	    editor.apply();
+	}
 }

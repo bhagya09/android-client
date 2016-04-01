@@ -15,6 +15,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -36,6 +37,8 @@ public class FTAnalyticEvents
 	public static final String FT_NETWORK_TYPE = "con";
 
 	public static final String FT_ATTACHEMENT_TYPE = "at";
+
+	public static final String FT_ATTACHEMENT_SHARED_AS = "atsrc";
 
 	public static final String FT_STATUS = "s";
 
@@ -289,7 +292,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs)
 	{
 		try
 		{
@@ -300,6 +303,9 @@ public class FTAnalyticEvents
 			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
+			if(!TextUtils.isEmpty(attachmentShardeAs)) {
+				metadata.put(FT_ATTACHEMENT_SHARED_AS, attachmentShardeAs);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);			
 		}
 		catch (JSONException e)
@@ -455,5 +461,22 @@ public class FTAnalyticEvents
 	public String toString()
 	{
 		return "AttachementType : " + mAttachementType + ", NetworkType : " + mNetwork + ", RetryCount : " + mRetryCount + ", PauseCount : " + mPauseCount;
+	}
+	//Sending File Transfer analytics for bots.
+	public static void platformAnalytics(String msisdn,String fileKey, String fileType)
+	{
+		JSONObject json = new JSONObject();
+		try {
+			json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_DOWNLAODED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, fileType);
+			json.putOpt(AnalyticsConstants.BOT_MSISDN, msisdn);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		}
+		catch(JSONException e)
+		{
+			Logger.e("FileAnalyticsEvent",e.toString());
+		}
 	}
 }

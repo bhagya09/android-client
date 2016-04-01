@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.retry;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
@@ -31,10 +32,10 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 public class BasicRetryPolicy
 {
 	/** The default number of retry attempts. */
-	private static final int DEFAULT_RETRY_COUNT = 1;
+	public static final int DEFAULT_RETRY_COUNT = 1;
 
 	/** The default delay before retry a request (in ms). */
-	private static final int DEFAULT_RETRY_DELAY = 2000;
+	public static final int DEFAULT_RETRY_DELAY = 2000;
 
 	/** The max retry delay value (2 min) which should not be exceeded in retry process (in ms) */
 	public static final int MAX_RETRY_DELAY = 2 * 60 * 1000;
@@ -162,6 +163,7 @@ public class BasicRetryPolicy
 	{
 		switch (ex.getErrorCode())
 		{
+		case HTTP_UNZIP_FAILED:
 		case HTTP_LENGTH_REQUIRED:
 			handle411Error(requestFacade);
 			break;

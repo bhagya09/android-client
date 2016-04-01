@@ -691,7 +691,6 @@
     <string name="update_all">ಎಲ್ಲವನ್ನೂ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ</string>
     <string name="RETRY">ಮರುಪ್ರಯತ್ನಿಸಿ</string>
     <string name="see_them">ಮಾಡಲಾಗಿದೆ</string>
-    <string name="drag_tip_text">ನಿಮ್ಮ ಸ್ಟಿಕರ್‌ ಪ್ಯಾಕ್‌ಗಳ ರೆಕಾರ್ಡರ್‌ಗೆ ಒಂದು ಪ್ಯಾಕ್ಅನ್ನು ತಟ್ಟಿ ಮತ್ತು ಹಿಡಿದುಕೊಳ್ಳಿ</string>
     <string name="CANCEL">ರದ್ದು</string>
     <string name="n_more">%1$d ಹೆಚ್ಚು</string>
     <string name="n_stickers">%1$d ಸ್ಟಿಕರ್‌ಗಳು</string>
@@ -850,7 +849,6 @@
     <string name="photo_dp_saved_sub">ಉತ್ತಮವಾಗಿ ಕಾಣುತ್ತಿದೆ</string>
     <string name="photo_dp_save_error">ಪ್ರೊಫೈಲ್‌ ಫೊಟೋ ಸೆಟ್‌ ಮಾಡಲಾಗುತ್ತಿಲ್ಲ</string>
     <string name="photo_dp_save_error_sub">ಮರು ಪ್ರಯತ್ನಿಸಲು ತಟ್ಟಿ</string>
-    <string name="photo_gallery_choose_pic">ಫೊಟೋ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="cropping_image">ಚಿತ್ರ ಕ್ರಾಪ್‌ ಮಾಡಲಾಗುತ್ತಿದೆ...</string>
     <string name="home_search_empty_text">\&apos;%1$s\&apos; ಗೆ ನಿಮ್ಮ ಹುಡುಕಾಟ ಯಾವುದೇ ಸಂಪರ್ಕಗಳಿಗೆ ಹೊಂದುತ್ತಿಲ್ಲ.</string>
     <string name="voip_mic_error">ಮೈಕ್‌ ಆರಂಬಿಸಲು ಅಸಾಧ್ಯ. ಈ ಕರೆ ಕೆಲಸ ಮಾಡದಿರದು.</string>
@@ -1075,8 +1073,6 @@
     <string name="status_hint">ನೀವು ಈಗ ಏನು ಮಾಡುತ್ತಿದ್ದೀರಿ?</string>
     <string name="status_hint_image">ಈ ಫೊಟೋದ ಬಗ್ಗೆ ಏನಾದರೂ</string>
     <string name="add_mood">ಮೂಡ್‌</string>
-    <string name="sticker_reorder_setting_info">ಸ್ಟಿಕರ್‌ ಪ್ಯಾಲೆಟ್‌ನಿಂದ ಪ್ಯಾಕ್‌ಗಳನ್ನು ಮರು ಹೊಂದಿಸಿ/ಗೌಪ್ಯವಾಗಿಸಿ</string>
-    <string name="sticker_reorder_setting_header">ಸ್ಟಿಕರ್ ಪ್ಯಾಕ್ ಅನುಕ್ರಮವನ್ನು ಬದಲಿಸಿ</string>
     <string name="sticker_recommendation_autopopup_setting_info">ನಾನು ಟೈಪ್‌ ಮಾಡಿದಂತೆಯೇ ಸ್ಟಿಕರನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಡಿಸ್‌ಪ್ಲೇ ಮಾಡಿ</string>
     <string name="sticker_recommendation_autopopup_setting_header">ಸ್ಟಿಕರ್‌ಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಲಹೆ ನೀಡಿ</string>
     <string name="sticker_recommend_ftue_heading">ಸ್ಟಿಕರ್ ಸಲಹೆಗಳು</string>
@@ -1100,7 +1096,7 @@
     <string name="photo_actions_header">ಉತ್ತಮವಾಗಿ ಕಾಣುತ್ತಿದೆ! ಈ ಫೊಟೋವನ್ನು ಬಳಸಿ ಇದಕ್ಕೆ,</string>
     <string name="profile_header_subtext">ಪ್ರೊಫೈಲ್‌ ಫೊಟೋ ಎಲ್ಲರಿಗೂ ಕಾಣುತ್ತದೆ</string>
     <string name="sms_with_settings">SMS ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="sms_credits_with_settings">ಉಚಿತ SMS: %1$d</string>
+    <string name="sms_credits_with_settings">ಉಚಿತ SMS: %1$s</string>
     <string name="free_hike_2_sms_india">ಭಾರತದಲ್ಲಿ ಮಾತ್ರ ಉಚಿತ</string>
     <string name="invite_friends_earn_rewards">hikeಗೆ ಸ್ನೇಹಿತರನ್ನು ಆಹ್ವಾನಿಸಿ ಮತ್ತು ಪುರಸ್ಕಾರ ಪಡೆಯಿರಿ</string>
     <string name="your_referral_code">ನಿಮ್ಮ 
@@ -1211,7 +1207,7 @@
     <string name="timeline_transition_anim">timeline_image_transit</string>
     <string name="home_overflow_new_photo">ಹೊಸ ಫೊಟೋ</string>
     <string name="upgrade_for_larger_files">ಈ ಫೈಲ್‌ವನ್ನು ಸ್ವೀಕರಿಸಲು %1$s ಅಪ್‌ಗ್ರೇಡ್‌ ಮಾಡಬೇಕಿದೆ. ಈಗ Hike ಡೈರೆಕ್ಟ್ ಮೂಲಕ hike ನ ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಿ.</string>
-    <string name="group_participant_info">ನೀವು ಗುಂಪಿಗೆ 500 ಸದಸ್ಯರವರೆಗೆ ಸೇರಿಸಬಹುದಾಗಿದೆ</string>
+	<string name="group_participant_info"><![CDATA[<font color=\"#000000\">ಈಗ ನೀವು </font><font color=\"#1090e0\"><b>1000</b> </font><font color=\"#000000\"> ಸದಸ್ಯರು ಕೂಡಿಸಬಹುದು</font>]]></string>
     <string name="maxContactInGroupErr">ಗರಿಷ್ಠ %1$s ಸದಸ್ಯರನ್ನು ಸೇರಿಸಬಹುದು</string>
     <string name="added_in_group">ಈ ಸಂಪರ್ಕ ಈಗಾಗಲೇ ಸದಸ್ಯರಾಗಿದ್ದಾರೆ</string>
     <string name="watsapp">WhatsApp ಮೂಲಕ ಸೇರಿಸಿ</string>
@@ -1427,5 +1423,47 @@
     <string name="language_ftue_complete_message">ಕೀಬೋರ್ಡ ಭಾಷೆ ಬದಲಿಸಲು \nಸೆಟ್ಟಿಂಗ್ಸ -> ಭಾಷೆ &amp; ಇನ್ಪುಟ್ ಗೆ ಹೋಗಿ</string>
     <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
     <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
+    <string name="delete_conversation">ಸಂವಾದವನ್ನು ಅಳಿಸುి</string>
+    <string name="switch_to_old_key">"ನಿಮ್ಮ ಹಳೆಯ ಕೀಬೋರ್ಡ್ ಗೆ ಬದಲಾಯಿಸಿ"</string>
+    <string name="switch_to_hike_key">"ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ hikeಗೆ ಬದಲಾಯಿಸಿ"</string>
+    <string name="admin_error">ಈ ವ್ಯಕ್ತಿ  ಗ್ರೂಪ್ ಚಾಟಿನಲ್ಲಿ ಭಾಗವಹಿಸುತ್ತಿಲ್ಲు</string>
 
+    <string name="deleting">ಅಳಿಸಲಾಗುತ್ತಿದೆ</string>
+    <string name="sticker_reorder_setting_info">ಸ್ಟಿಕರ್ ಪ್ಯಾಲೆಟ್‍ನಿಂದ ಪ್ಯಾಕ್‍ಗಳನ್ನು ಮರುಹೊಂದಿಸಿ.</string>
+    <string name="sticker_reorder_setting_header">ಮತ್ತೆ ಕೋರು</string>
+    <string name="sticker_delete_setting_info">ಫೋನ್‍ನಿಂದ ಸ್ಟಿಕರ್ ಪ್ಯಾಕ್‍ಗಳನ್ನು ಅಳಿಸಿ</string>
+    <string name="sticker_delete_setting_header">ಅಳಿಸಿ</string>
+    <string name="sticker_hide_setting_info">ಪ್ಯಾಲೆಟ್‍ನಿಂದ ಸ್ಟಿಕರ್ ಪ್ಯಾಕ್‍ಗಳನ್ನು ಮರೆಮಾಡಿ/ಮರೆಮಾಡಬೇಡಿ</string>
+    <string name="sticker_hide_setting_header">ಮರೆಮಾಡಿ</string>
+    <string name="sticker_update_setting_info">ಡೌನ್‍ಲೋಡ್ ಮಾಡಿದ ಸ್ಟಿಕರ್ ಪ್ಯಾಕ್‍ಗಳನ್ನು ಆಧುನೀಕರಿಸಿ</string>
+    <string name="sticker_update_setting_header">ಆಧುನೀಕರಿಸು</string>
+    <string name="delete_pack_question">ಈ ಸ್ಟಿಕರ್ ಪ್ಯಾಕ್ ಅನ್ನು ಅಳಿಸಬೇಕೆನ್ನುವ ಬಗ್ಗೆ ನಿಮಗೆ ಖಾತ್ರಿ ಇದೆಯೇ?</string>
+    <string name="settings_sticker">ಸ್ಟಿಕರ್ ಸೆಟ್ಟಿಂಗ್‍</string>
+    <string name="deleting_pack">ಪ್ಯಾಕ್ ಅಳಿಸಲಾಗುತ್ತಿದೆ...</string>
+    <string name="pack_deleted">ಪ್ಯಾಕ್ ಅಳಿಸಲಾಗಿದೆ</string>
+    <string name="n_more_stickers">%1$d ಹೆಚ್ಚು ಸ್ಟಿಕರ್‌ಗಳು</string>
+    <string name="all_packs_updated_heading">ಎಲ್ಲ ಪ್ಯಾಕ್‍ಗಳನ್ನೂ ಆಧುನೀಕರಿಸಲಾಗಿದೆ!</string>
+    <string name="all_packs_updated_info">ನಿಮ್ಮೆಲ್ಲ ಪ್ಯಾಕ್‍ಗಳೂ ಇತ್ತೀಚಿನದ್ದಾಗಿವೆ, ನಿಮಗೆ ಹೆಚ್ಚು ಸ್ಟಿಕರ್‌ಗಳು ಬೇಕಾಗಿದ್ದಲ್ಲಿ ಸ್ಟಿಕರ್ ಶಾಪ್‍ಗೆ ಭೇಟಿ ನೀಡಿ</string>
+    <string name="redirect_to_shop_text">ನನ್ನನ್ನು ಶಾಪ್‍ಗೆ ತೆಗೆದುಕೊಂಡು ಹೋಗು</string>
+    <string name="all_done">ಎಲ್ಲ ಆಯಿತು!!</string>
+    <string name="drag_tip_text">ಮರುಆರ್ಡರ್ ಮಾಡಲು ತಟ್ಟು ಹಾಗೂ ಎಳೆ.</string>
+    <string name="all_packs_deleted_heading">ನಮ್ಮ ಬಳಿ 10,000 ಸ್ಟಿಕರ್‌ಗಳಿವೆ </string>
+    <string name="all_packs_deleted_info">ಸ್ಟಿಕರ್ ಶಾಪ್ ಅನ್ನು ನೋಡಿ ಹಾಗೂ ನಿಮಗೆ ಇಷ್ಟವಾಗಿದ್ದನ್ನು ಮಾತ್ರ ಡೌನ್‍ಲೋಡ್ ಮಾಡಿ</string>
+
+    <string name="timeline_short_desc">ನಿಮ್ಮ ಸಂತಸದ ಸಮಯಗಳನ್ನು ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಿ</string>
+    <string name="multiple_su_post_failed">ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸ್ಟೇಟಸ್ ಅಪ್ಡೇಟುಗಳನ್ನು ಪೋಸ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ.</string>
+    <string name="timeline_post_timeout">ನಿಮ್ಮ ಚಿತ್ರಗಳು ಕೆಲವು ಕ್ಷಣಗಳಲ್ಲಿ ಪೋಸ್ಟ್ ಮಾಡಲಾಗುವುದು .</string>
+    <string name="crop">ಕತ್ತರಿಸಿ ಹಾಕು</string>
+    <string name="photo_gallery_choose_pic">ಚಿತ್ರಗಳು</string>
+    <string name="remove">ತೆಗೆ</string>
+    <string name="filters">ಫಿಲ್ಟರ್ </string>
+    <string name="rotate">ತಿರುಗಿಸಿ</string>
+    <string name="forward_to_plural_timeline">ಮೆಸೇಜನ್ನು %1$ ಸಂಪರ್ಕಗಳಿಗೆ  ಮತ್ತು  ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ ಕಳುಹಿಸಿ</string>
+    <string name="forward_to_single_timeline">ಮೆಸೇಜ್ಅನ್ನು ೧ ಸಂಪರ್ಕಕ್ಕೆ ಹಾಗು ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ ಕಳಿಸಬೇಕೆ ?</string>
+    <string name="share_with_timeline">%1$d ಸಂಪರ್ಕಗಳಿಗೆ ಮತ್ತು  ಟೈಮೆಲೈನ್ ಮೂಲಕ ಹಂಚಿಕೊಳ್ಳಬೇಕೆ?</string>
+    <string name="share_with_contact_timeline">%1$s ಮತ್ತು  ಟೈಮೆಲೈನ್ ಅಲ್ಲಿ  ಹಂಚಿಕೊಳ್ಳಬೇಕೆ? </string>
+    <string name="image_w_caption_sms">%1$s ಕ್ಯಾಪ್ಶನ್ನಿನೊಂದಿಗೆ ನಿಮಗೊಂದು ಚಿತ್ರಗಳು ಕಳುಹಿಸಲಾಗಿದೆ.</string>
+    <string name="share_on_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಬೇಕೆ?</string>
+    <string name="posting_photos_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಚಿತ್ರಗಳನ್ನು ಕಳುಹಿಸಿ.</string>
+    <string name="add_a_caption">ಕ್ಯಾಪ್ಶನ್ಅನ್ನು ಜೊಡಿಸಿ </string>
 </resources>

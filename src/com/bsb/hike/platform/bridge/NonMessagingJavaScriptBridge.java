@@ -28,9 +28,14 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
-import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.CustomWebView;
+import com.bsb.hike.platform.GpsLocation;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
@@ -39,6 +44,7 @@ import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -1306,7 +1312,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
 	 * Call this method to cancel the request that the Bot has initiated to do some http /https call.
 	 * @param functionId : the id of the function that native will call to call the js .
-	 * @param appName: the appname of the call that needs to be cancelled.
+	 * @param appName: the app name of the call that needs to be cancelled.
 	 */
 	@JavascriptInterface
 	public void cancelRequest(String functionId, String appName)
@@ -1316,11 +1322,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token)
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
-			token.cancel();
+			tokenCountPair.getFirst().cancel();
 		}
 		else
 		{
@@ -1386,8 +1392,8 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
-		RequestToken token = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
-		if (null != token&& token.isRequestRunning())
+		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
 		}
@@ -1407,36 +1413,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void chooseFile(final String id, final String displayCameraItem)
 	{
 		Logger.d("FileUpload","input Id chooseFile is "+ id);
-
-		if (null == mHandler)
-		{
-			Logger.e("FileUpload", "mHandler is null");
-			return;
-		}
-
-		mHandler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{	Context weakActivityRef=weakActivity.get();
-				if (weakActivityRef != null)
-				{
-					int galleryFlags;
-					if (Boolean.valueOf(displayCameraItem))
-					{
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					}
-					else
-					{
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((WebViewActivity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-				}
-			}
-		});
+		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
 	}
 
 	/**
@@ -1566,4 +1543,20 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	}
 
+        /**
+         * Platform Version 11
+         * This function is made to know, if any game is running and accordingly display the running status on games channel
+         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
+         * @param id : the id of the function that native will call to call the js .
+         */
+        @JavascriptInterface
+        public void getRunningGame(String id)
+        {
+                Activity context = weakActivity.get();
+                if (context != null)
+                {
+                        String gameId = PlatformUtils.getRunningGame(context);
+                        callbackToJS(id, gameId);
+                }
+        }
 }

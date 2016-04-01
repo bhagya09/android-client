@@ -31,6 +31,21 @@ public class HttpException extends Exception
 
 	public static final short REASON_CODE_SOCKET_EXCEPTION = 0x12;
 
+	public static final short REASON_CODE_IO_EXCEPTION = 13;
+
+	public static final short REASON_CODE_WRONG_URL = 14;
+
+    public static final short REASON_CODE_INCOMPLETE_REQUEST = 19;
+
+    public static final short REASON_CODE_ZERO_BYTE_ZIP_DOWNLOAD = 20;
+
+	/** Http custom status codes returned by server */
+
+	/**
+	 * This is returned when unzip fails at server end
+	 */
+	public static final int HTTP_UNZIP_FAILED = 420;
+
 	private int errorCode;
 
 	public HttpException(short errorCode)

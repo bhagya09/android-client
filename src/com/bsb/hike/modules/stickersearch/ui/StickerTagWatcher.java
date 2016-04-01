@@ -431,7 +431,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void onSettingsClicked()
 	{
-		IntentFactory.openSettingChat(activity);
+		IntentFactory.openStickerSettingsActivity(activity);
 		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
 	}
 

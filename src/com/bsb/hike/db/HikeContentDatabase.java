@@ -22,6 +22,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
+import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -38,8 +40,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	private HikeContentDatabase()
 	{
-		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION);
+		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION, new CustomDatabaseErrorHandler());
 		mDB = getWritableDatabase();
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDB);
+		setPragmaModeCommand.execute();
 	}
 
 	public static HikeContentDatabase getInstance()
@@ -50,7 +54,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		mDB = db;
 		String[] createQueries = getCreateQueries();
 		for (String create : createQueries)
 		{
@@ -62,7 +65,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		mDB = db;
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 

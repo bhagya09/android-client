@@ -2,11 +2,7 @@ package com.bsb.hike.platform;
 
 import java.io.File;
 
-import org.cocos2dx.lib.Cocos2dxActivity;
-import org.cocos2dx.lib.Cocos2dxHandler;
-import org.cocos2dx.lib.Cocos2dxHelper;
-import org.cocos2dx.lib.Cocos2dxVideoHelper;
-import org.cocos2dx.lib.Cocos2dxWebViewHelper;
+import org.cocos2dx.lib.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,10 +17,12 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -33,6 +31,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.chukong.cocosplay.client.CocosPlayClient;
@@ -43,6 +42,7 @@ import com.chukong.cocosplay.client.CocosPlayClient;
  * @author sk
  * 
  */
+@DoNotObfuscate
 public class CocosGamingActivity extends Cocos2dxActivity
 {
 	private static Context context;
@@ -101,10 +101,16 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		getSupportActionBar().hide();
 		context = CocosGamingActivity.this;
 		settings = getSharedPreferences(HikePlatformConstants.GAME_PROCESS, context.MODE_MULTI_PROCESS);
-		settings.edit().putInt(HikePlatformConstants.GAME_PROCESS,android.os.Process.myPid()).commit();
+		setIsGameRunning(true);
 
 		msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
 		platform_content_dir = PlatformContentConstants.PLATFORM_CONTENT_DIR;
+		if(TextUtils.isEmpty(msisdn))
+		{
+			finish();
+			Cocos2dxHelper.terminateProcess();
+			return;
+		}
 		botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 
 		if (botInfo == null || botInfo.getMetadata() == null)
@@ -141,6 +147,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		{
 			nativeBridge = new NativeBridge(msisdn, CocosGamingActivity.this);
 		}
+
+		checkAndRecordBotOpen();
 
 		loadGame();
 	}
@@ -304,9 +312,21 @@ public class CocosGamingActivity extends Cocos2dxActivity
 						platformCallback(NativeBridge.SEND_SHARED_MESSAGE, res);
 					}
 				});
-
+				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}
@@ -318,7 +338,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onResume();
 		HAManager.getInstance().startChatSession(msisdn);
 		openTimestamp = System.currentTimeMillis();
-		nativeBridge.sendAppState(true);
+		//nativeBridge.sendAppState(true);
 		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE, true).commit();
 	}
 
@@ -329,15 +349,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		super.onPause();
 		HAManager.getInstance().endChatSession(msisdn);
 		activeDuration = activeDuration + (System.currentTimeMillis() - openTimestamp);
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		nativeBridge.sendAppState(false);
-		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,false).commit();
+		//nativeBridge.sendAppState(false);
+		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
 		super.onDestroy();
@@ -390,6 +410,33 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
 
 		return path + File.separator;
+	}
+
+	/**
+	 * Used to record analytics for bot opens via push notifications
+	 * Sample JSON : {"ek":"bno","bot_msisdn":"+hikesnake+", "bot_source" : "bot_notif" }
+	 */
+	private void checkAndRecordBotOpen()
+	{
+		String source = (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER)) ? getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER) : "default";
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
+			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
+			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void setIsGameRunning(Boolean isGameRunning)
+	{
+		settings.edit().putBoolean(HikePlatformConstants.GAME_ACTIVE,isGameRunning).commit();
 	}
 
 }

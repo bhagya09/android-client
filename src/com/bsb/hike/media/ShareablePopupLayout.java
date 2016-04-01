@@ -278,8 +278,9 @@ public class ShareablePopupLayout
 		mKeyboardPopupLayout.setCustomKeyBoardHeight(height);
 	}
 	
-	public void setCustomKeyBoard(boolean isCustomKeyBoard)
+	public void setCustomKeyBoard(boolean isCustomKeyBoard, int height)
 	{
-	  mKeyboardPopupLayout.setCustomKeyBoard(isCustomKeyBoard);
+	  mKeyboardPopupLayout.setCustomKeyBoard(isCustomKeyBoard, height);
 	}
+	
 }

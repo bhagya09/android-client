@@ -235,6 +235,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								Logger.w(TAG, e);
 							}
 						}
+						StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -379,6 +380,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			b.putBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE, true);
 		}
 		StickerManager.getInstance().stickersDownloadFailed(b);
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.STICKER_PACK);
 	}
 
 	@Override
