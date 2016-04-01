@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -21,13 +20,17 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.adapters.CallerQuickReplyListAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -77,6 +80,8 @@ public class StickyCaller {
 	public static final short AFTER_INCOMING_UNKNOWN = 6;
 
 	public static final short AFTER_OUTGOING_UNKNOWN = 7;
+
+	public static final short QUICK_REPLY = 8;
 
 	public static String callCurrentNumber = null;
 
@@ -382,6 +387,12 @@ public class StickyCaller {
 				return;
 			}
 			break;
+
+		case QUICK_REPLY:
+			HAManager.getInstance().stickyCallerAnalyticsNonUIEvent(getCallEventFromCallType(CALL_TYPE), AnalyticsConstants.StickyCallerEvents.KNOWN, number,
+					AnalyticsConstants.StickyCallerEvents.SUCCESS, source);
+			settingQuickReplyCardLayout(context, number);
+			break;
 		}
 
 		setCallerParams();
@@ -424,6 +435,7 @@ public class StickyCaller {
 			case AFTER_OUTGOING_UNKNOWN:
 			case MISSED:
 			case SMS:
+			case QUICK_REPLY:
 				callerParams.type = LayoutParams.TYPE_PHONE;
 				break;
 		}
@@ -469,6 +481,9 @@ public class StickyCaller {
 
 			case AFTER_OUTGOING_UNKNOWN:
 				return AnalyticsConstants.StickyCallerEvents.AFTER_OUTGOING_UNKNOWN;
+
+			case QUICK_REPLY:
+				return AnalyticsConstants.StickyCallerEvents.QUICK_REPLY;
 
 		}
 		return null;
@@ -650,6 +665,38 @@ public class StickyCaller {
 		}
 	}
 
+	private static void settingQuickReplyCardLayout(final Context context, final String number)
+	{
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_quick_reply_layout, null);
+		final ListView defaultQuickReplyListView = (ListView)stickyCallerView.findViewById(R.id.caller_quick_reply_list);
+		BaseAdapter adapter = new CallerQuickReplyListAdapter(context, context.getResources().getStringArray(R.array.caller_quick_reply_items));
+		defaultQuickReplyListView.setAdapter(adapter);
+		defaultQuickReplyListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
+			{
+				String itemValue = (String) defaultQuickReplyListView.getItemAtPosition(position);
+
+				removeCallerView();
+				Utils.openChatThreadViaFreeSmsButton(number, itemValue);
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.QUICK_REPLY, number,
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+			}
+		});
+
+		//Handling Close cross button
+		View callerCloseButton = stickyCallerView.findViewById(R.id.caller_close_button);
+		callerCloseButton.setTag(number);
+		callerCloseButton.setOnClickListener(callerClickListener);
+
+		//Handling Custom Quick reply Button
+		View customQuickReplyButton = stickyCallerView.findViewById(R.id.open_quick_reply_chatthread);
+		customQuickReplyButton.setTag(number);
+		customQuickReplyButton.setOnClickListener(callerClickListener);
+
+	}
+
 	private static void settingOtherCallLayoutDataSuccess(Context context, String number, CallerContentModel callerContentModel)
 	{
 		boolean isIndianOrhikeNo = false ;
@@ -783,7 +830,7 @@ public class StickyCaller {
 					IncomingCallReceiver.callReceived = true;
 					CALL_TYPE = NONE;
 					Utils.killCall();
-					Utils.sendFreeSms(getPhoneNumberFromTag(v));
+					StickyCaller.showCallerViewWithDelay(getPhoneNumberFromTag(v), null, StickyCaller.QUICK_REPLY, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
 				}
 				break;
 			case R.id.missed_call_save_contact:
@@ -819,6 +866,18 @@ public class StickyCaller {
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 
+				break;
+			case R.id.open_quick_reply_chatthread:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CUSTOM_QUICK_REPLY_BUTTON, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				if (v.getTag() != null)
+				{
+					IncomingCallReceiver.callReceived = true;
+					CALL_TYPE = NONE;
+					Utils.killCall();
+					removeCallerView();
+					Utils.openChatThreadViaFreeSmsButton(getPhoneNumberFromTag(v), null);
+				}
 				break;
 			}
 		}

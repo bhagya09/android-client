@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:orientation="vertical">
+
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/quick_reply_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="bcmsabns"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold">
+    </com.bsb.hike.view.CustomFontTextView>
+
+</LinearLayout>
