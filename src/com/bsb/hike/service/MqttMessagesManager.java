@@ -2916,6 +2916,7 @@ public class MqttMessagesManager
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
+			Utils.makeFavFriendsTransition();
 		}
 
 		if (data.has(HikeConstants.IS_NEW_USER))
