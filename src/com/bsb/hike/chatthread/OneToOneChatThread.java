@@ -1826,6 +1826,12 @@ import java.util.Map;
 	 */
 	private void onCallClicked()
 	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.voip_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return; //If not atleast 1-way friend, do not even make a voip call!
+		}
 		Utils.onCallClicked(activity.getApplicationContext(), msisdn, VoIPUtils.CallSource.CHAT_THREAD);
 	}
 
@@ -3713,5 +3719,17 @@ import java.util.Map;
 		}
 
 		return super.onDoubleTapEvent(e);
+	}
+
+	@Override
+	protected void showAttchmentPicker()
+	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.attachment_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return; //If not atleast 1-way friend, do not even make a voip call!
+		}
+		super.showAttchmentPicker();
 	}
 }
