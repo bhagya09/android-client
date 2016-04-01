@@ -69,12 +69,14 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 	private void init()
 	{
 		sizeEachImage = StickerSearchUtils.getStickerSize();
+
 		stickerLoader = new StickerLoader.Builder()
 				.loadMiniStickerIfNotFound(true)
 				.setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder))
 				.setStickerDimension(new Size(sizeEachImage, sizeEachImage))
 				.downloadMiniStickerIfNotFound(true)
 				.build();
+
 		rowSize = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
 	}
 
@@ -106,7 +108,7 @@ public class PackPreviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 			ImageView stickerIv = stickerViewHolder.stickerIv;
 			stickerIv.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 			applyPadding(stickerIv, position);
-			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.MINI, stickerIv);
+			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, stickerIv);
 			break;
 		}
 	}

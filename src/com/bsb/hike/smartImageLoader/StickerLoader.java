@@ -56,18 +56,10 @@ public class StickerLoader extends ImageWorker
 
 		Size loadSize = (stickerSize == null) ? new Size(sticker.getWidth(), sticker.getHeight()) : stickerSize;
 
-		if (path.startsWith(HikeConstants.MINI_KEY_PREFIX))
-		{
-			bitmap = loadStickerBitmap(sticker.getSmallStickerPath());
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
-		}
-		else
-		{
-			Bitmap large = loadStickerBitmap(path);
-			bitmap = checkAndLoadOfflineSticker(large, sticker);
-			bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
-            checkAndDownloadLargeSticker(large, sticker);
-		}
+		Bitmap large = loadStickerBitmap(path);
+		bitmap = checkAndLoadOfflineSticker(large, sticker);
+		bitmap = checkAndLoadMiniSticker(bitmap, sticker, loadSize);
+		checkAndDownloadLargeSticker(large, sticker);
 
         bitmap = checkAndLoadDefaultBitmap(bitmap);
 
