@@ -543,7 +543,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			stickerCategory = category;
 		}
 
-		downloadBtn.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.rounded_rectangle_blue));
+		downloadBtn.setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.rounded_rectangle_blue));
 
 		switch (stickerCategory.getState())
 		{
