@@ -3721,6 +3721,8 @@ import java.util.Map;
 		{
 			checkAndStartLastSeenTask();
 		}
+
+		removeAddFriendViews();
 	}
 
 	@Override
@@ -3799,5 +3801,12 @@ import java.util.Map;
 	{
 		// This will automatically handle all the states for button.
 		inflateAddFriendButtonIfNeeded();
+	}
+
+	private void removeAddFriendViews()
+	{
+		activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+
+		activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
 	}
 }
