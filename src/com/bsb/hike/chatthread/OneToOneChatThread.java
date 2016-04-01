@@ -3698,6 +3698,8 @@ import java.util.Map;
 
 		View addFriendView = activity.findViewById(R.id.add_friend_view);
 
+		addFriendView.setVisibility(View.VISIBLE);
+
 		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
 
 		addFriendBtn.setOnClickListener(this);
