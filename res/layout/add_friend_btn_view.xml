@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
+
+<com.bsb.hike.view.CustomFontButton
+    android:id="@+id/add_friend_button"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="49dp"
+    android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical">
-
-    <com.bsb.hike.view.CustomFontButton
-        android:id="@+id/add_friend_button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:text="@string/ADD_FRIEND"
-        android:textColor="@color/blue_color_span"
-        android:textSize="15sp"/>
-
-</LinearLayout>
+    android:text="@string/ADD_FRIEND"
+    android:textColor="@color/blue_color_span"
+    android:textSize="15sp"/>
