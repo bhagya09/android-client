@@ -3257,6 +3257,11 @@ import java.util.Map;
 			return false;
 		}
 
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return false; //If not atleast 1-way friend, do not even send a nudge!
+		}
+
 		if (!mConversation.isOnHike() && mCredits <= 0)
 		{
 			if (!Utils.getSendSmsPref(activity.getApplicationContext()))
@@ -3718,18 +3723,6 @@ import java.util.Map;
 		}
 
 		removeAddFriendViews();
-	}
-
-	@Override
-	public boolean onDoubleTapEvent(MotionEvent e)
-	{
-		Logger.d(TAG, "On DoubleTap motion detected");
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
-		{
-			return false; //If not atleast 1-way friend, do not even send a nudge!
-		}
-
-		return super.onDoubleTapEvent(e);
 	}
 
 	@Override
