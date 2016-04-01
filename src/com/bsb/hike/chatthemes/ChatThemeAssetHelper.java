@@ -113,7 +113,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		int len = assets.length;
 		for(int i = 0 ; i < len; i++)
 		{
-			if(!isAssetRecorded(assets[i]) && mAssets.get(assets[i]).isAssetMissing())
+			if(!isAssetRecorded(assets[i]) || mAssets.get(assets[i]).isAssetMissing())
 			{
 				missingAssets.add(assets[i]);
 			}

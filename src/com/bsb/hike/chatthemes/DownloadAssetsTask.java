@@ -20,6 +20,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -74,6 +75,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 	@Override
 	public void doOnSuccess(Object result)
 	{
+		Logger.d(TAG, "chat theme asset download complete");
 		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, result);
 	}
@@ -81,6 +83,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 	@Override
 	public void doOnFailure(HttpException exception)
 	{
+		Logger.d(TAG, "chat theme asset download failed");
 		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE, exception);
 	}
@@ -146,10 +149,15 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		try
 		{
 			JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
+			String directoryPath = ChatThemeManager.getInstance().getThemeAssetStoragePath();
 			for (int i = 0; i < mAssetIds.length; i++)
 			{
-				// TODO CHATTHEME Filepath
-				String path = "";// ChatThemeManager.getInstance().getThemeAssetStoragePath() + File.separator + value;
+				if(directoryPath == null)
+				{
+					continue;
+				}
+
+				String path = directoryPath + File.separator + mAssetIds[i];
 				Utils.saveBase64StringToFile(new File(path), data.getString(mAssetIds[i]));
 			}
 		}

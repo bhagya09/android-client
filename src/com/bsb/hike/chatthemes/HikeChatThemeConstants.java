@@ -154,4 +154,7 @@ public class HikeChatThemeConstants
 
 	// JSON Constants
 	public static final String JSON_DWNLD_ASSET_ID = "asset_ids";
+
+	public static final String CHAT_THEMES_ROOT = "chatThemes";
+
 }
