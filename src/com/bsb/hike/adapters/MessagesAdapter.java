@@ -2212,7 +2212,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
 				String name = convMessage.getMessage();
 				setTextAndIconForSystemMessages(mainMessage,name, isDefaultTheme ? R.drawable.offline_inline_logo : R.drawable.offline_inline_logo_white);
-				((ViewGroup) participantInfoHolder.container).addView(mainMessage);		
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
 			else if(infoState == ParticipantInfoState.OFFLINE_FILE_NOT_RECEIVED)
 			{
@@ -2507,6 +2507,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
+			// Adding the friend request status system message here
+			else if(infoState == ParticipantInfoState.FRIEND_REQUSET_STATUS)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String messageText = convMessage.getMessage();
+				mainMessage.setText(messageText);
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
+			}
+
 			dayHolder = participantInfoHolder;
 		}
 		else if (viewType == ViewType.UNREAD_COUNT)

@@ -1,13 +1,5 @@
 package com.bsb.hike.models;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -37,6 +29,14 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomMessageTextView.DimentionMatrixHolder;
 import com.bsb.hike.view.CustomMessageTextView.ViewDimentions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, Comparable<ConvMessage>
 
@@ -235,7 +235,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		PARTICIPANT_JOINED, // The participant has joined
 		GROUP_END, // Group chat has ended
 		USER_OPT_IN, DND_USER, USER_JOIN, CHANGED_GROUP_NAME, CHANGED_GROUP_IMAGE, BLOCK_INTERNATIONAL_SMS, INTRO_MESSAGE, STATUS_MESSAGE, CHAT_BACKGROUND,
-		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE,OFFLINE_INLINE_MESSAGE , OFFLINE_FILE_NOT_RECEIVED;
+		VOIP_CALL_SUMMARY, VOIP_MISSED_CALL_OUTGOING, VOIP_MISSED_CALL_INCOMING,CHANGE_ADMIN, GC_SETTING_CHANGE,OFFLINE_INLINE_MESSAGE , OFFLINE_FILE_NOT_RECEIVED, FRIEND_REQUSET_STATUS;
 
 		public static ParticipantInfoState fromJSON(JSONObject obj)
 		{
