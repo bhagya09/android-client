@@ -3311,6 +3311,12 @@ import java.util.Map;
 		}
 		mContactInfo.setFavoriteType(favoriteType);
 		Utils.addFavorite(activity, mContactInfo, false);
+
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			ConvMessage message = Utils.makeConvMessage(msisdn, activity.getString(R.string.friend_req_inline_msg, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike());
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+		}
 	}
 	
 	@Override
