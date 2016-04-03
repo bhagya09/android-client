@@ -244,6 +244,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
+	private static final String TAG = Utils.class.getSimpleName();
+
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -8097,5 +8099,20 @@ public class Utils
 	{
 		HikeMqttManagerNew.getInstance().init(); // Init and then connect
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
+	public static String getExternalFilesDirPath(String type)
+	{
+		File externalDir = HikeMessengerApp.getInstance().getExternalFilesDir(type);
+		String externalDirPath = externalDir == null ? null : externalDir.getPath();
+		Logger.d(TAG, "external dir path : " + externalDirPath);
+		return externalDirPath;
+	}
+
+	public static boolean doesExternalDirExists()
+	{
+		boolean exists = !TextUtils.isEmpty(getExternalFilesDirPath(null));
+		Logger.d(TAG, "external dir exists : " + exists);
+		return exists;
 	}
 }

@@ -85,6 +85,13 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			return;
 		}
 
+		if(!Utils.doesExternalDirExists())
+		{
+			Logger.e(TAG, "Sticker download failed external dir path is null");
+			doOnFailure(null);
+			return;
+		}
+
 		String requestId = getRequestId(); // for duplicate check
 
 		if (imageOnly)
@@ -203,15 +210,21 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                         StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 
-						saveMiniStickerImage(sticker, stickerImage);
+						if(saveMiniSticker(sticker, stickerImage))
+						{
 
-                        doOnSuccess(sticker);
+							doOnSuccess(sticker);
+						}
+						else
+						{
+							doOnFailure(null);
+						}
 					}
 					else
 					{
 						StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-						boolean failed = !saveFullStickerImage(stickerImage, stickerData);
+						boolean failed = !saveFullSticker(stickerImage, stickerData);
 
                         if (!failed)
                         {
@@ -301,12 +314,10 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
         finish();
 	}
 
-	private void saveMiniStickerImage(Sticker sticker, String stickerImage)
+	private boolean saveMiniSticker(Sticker sticker, String stickerImage)
 	{
-
 		CacheRequest cacheRequest = new Base64StringRequest.Builder().setKey(sticker.getMiniStickerPath()).setString(stickerImage).build();
-		HikeMessengerApp.getDiskCache().put(cacheRequest);
-
+		return HikeMessengerApp.getDiskCache().put(cacheRequest);
 	}
 
 	private void getStickerTags(JSONObject data)
@@ -326,7 +337,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	}
 
-	private boolean saveFullStickerImage(String stickerImage, JSONObject stickerData) throws IOException
+	private boolean saveFullSticker(String stickerImage, JSONObject stickerData) throws IOException
 	{
 		String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 
