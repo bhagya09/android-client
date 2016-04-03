@@ -1638,6 +1638,12 @@ public class MqttMessagesManager
 		if(favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.makeConvMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 		else if(favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1645,6 +1651,12 @@ public class MqttMessagesManager
 			if (count >= 0)
 			{
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
+			}
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.makeConvMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 			}
 		}
 		
