@@ -304,8 +304,8 @@ public class StickerManager
 	{
 		stickerCategoriesMap = Collections.synchronizedMap(new LinkedHashMap<String, StickerCategory>());
 		context = HikeMessengerApp.getInstance();
-		String externalDir = getExternalFilesDirPath(null);
-		stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
+		String externalDir = Utils.getExternalFilesDirPath(null);
+		stickerExternalDir = Utils.doesExternalDirExists() ?  (externalDir + HikeConstants.STICKERS_ROOT) : null;
 		logStickerFolderError();
 	}
 
@@ -374,11 +374,7 @@ public class StickerManager
 		doUpgradeTasks();
 	}
 
-	public String getExternalFilesDirPath(String type)
-	{
-		File externalDir = context.getExternalFilesDir(type);
-		return (externalDir == null ? null : externalDir.getPath());
-	}
+
 
 	public List<StickerCategory> getStickerCategoryList()
 	{

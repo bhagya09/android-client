@@ -1064,7 +1064,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		if(diskCache == null) {
 
-			File cacheDir = new File(getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT);
+			File cacheDir = new File(Utils.getExternalFilesDirPath(null) + HikeConstants.DISK_CACHE_ROOT);
 			long diskCacheSize = Utils.calculateDiskCacheSize(cacheDir);
 			Logger.d("disk_cache", "disk cache size : " + diskCacheSize);
 
