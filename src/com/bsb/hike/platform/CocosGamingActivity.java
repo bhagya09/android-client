@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -82,6 +83,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private final String GAME_ANALYTICS_GAME_FAILED = "game_load_failed";
 	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
 	SharedPreferences settings;
+
+	private static boolean openViaNotif;
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
@@ -314,6 +317,18 @@ public class CocosGamingActivity extends Cocos2dxActivity
 				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}
@@ -412,6 +427,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
 			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			if(source.equals(AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF))
+			{
+				openViaNotif =true;
+			}
 			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
 		}
 

@@ -510,6 +510,8 @@ public class HikePubSub implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String DB_CORRUPT = "db_corrupt";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

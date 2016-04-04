@@ -8,12 +8,14 @@ import android.content.Intent;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.MessagingBotAlarmManager;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -83,6 +85,8 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 
     public static final int REQUESTCODE_LOG_HIKE_ANALYTICS = 4579;
+
+	public static final int REQUESTCODE_SHOW_CORRUPT_DB_NOTIF = 4580;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -332,8 +336,22 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 
@@ -416,8 +434,22 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 
