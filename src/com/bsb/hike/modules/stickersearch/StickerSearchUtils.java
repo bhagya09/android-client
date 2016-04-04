@@ -133,14 +133,14 @@ public class StickerSearchUtils
 			}
 			else if (count < allowedUndownloadedLimit)
 			{
-                if(sticker.isMiniStickerAvailable())
-                {
-                    resultList.add(sticker);
-                }
-                else
-                {
-                    undownloadedList.add(sticker);
-                }
+				if (sticker.isMiniStickerAvailable())
+				{
+					resultList.add(sticker);
+				}
+				else
+				{
+					undownloadedList.add(sticker);
+				}
 				count++;
 			}
 			else
@@ -149,7 +149,7 @@ public class StickerSearchUtils
 			}
 		}
 
-		if(undownloadedList.size()>0)
+		if (undownloadedList.size() > 0)
 		{
 			resultList.addAll(undownloadedList);
 		}
