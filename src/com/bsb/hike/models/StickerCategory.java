@@ -2,6 +2,7 @@ package com.bsb.hike.models;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 
@@ -636,7 +637,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private List<String> getStickerIdsFromDb()
 	{
-		return HikeConversationsDatabase.getInstance().getStickerIdsForCatgeoryId(categoryId);
+		return HikeConversationsDatabase.getInstance().getStickerIdsForCatgeoryId(categoryId, StickerConstants.StickerType.LARGE);
 	}
 
 	/**

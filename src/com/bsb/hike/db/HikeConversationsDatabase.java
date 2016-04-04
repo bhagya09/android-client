@@ -61,6 +61,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -2157,6 +2158,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
 				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
 				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
+                + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
 				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
 
@@ -9344,7 +9346,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private void moveStickerInfoToStickerTable()
 	{
 		List<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
-		insertStickersToDB(stickerSet);
+		insertStickersToDB(stickerSet, StickerConstants.StickerType.LARGE);
 	}
 
 	public Sticker getStickerFromStickerTable(Sticker sticker)
@@ -9384,14 +9386,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return sticker;
 	}
 
-	public List<String> getStickerIdsForCatgeoryId(String catId)
+	public List<String> getStickerIdsForCatgeoryId(String catId,StickerConstants.StickerType stickerType)
 	{
 		Cursor c = null;
 		List<String> stickerIdsList;
 		try
 		{
-			c = mDb.query(DBConstants.STICKER_TABLE, new String[] { DBConstants.STICKER_ID }, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?", new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE)}, null,
-					null, null, null);
+			c = mDb.query(
+                    DBConstants.STICKER_TABLE,
+                    new String[] { DBConstants.STICKER_ID },
+                    DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
+                    new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
+                    null, null, null, null);
 
 			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
 
@@ -9401,7 +9407,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				String stickerId = c.getString(stidIdx);
 				stickerIdsList.add(stickerId);
-
 			}
 		}
 		finally
@@ -9414,7 +9419,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return stickerIdsList;
 	}
 
-	public void insertStickersToDB(List<Sticker> stickers)
+	public void insertStickersToDB(List<Sticker> stickers, StickerConstants.StickerType stickerType)
 	{
 		try
 		{
@@ -9435,6 +9440,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
 				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
+                contentValues.put(DBConstants.TYPE,stickerType.ordinal());
+
 				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 			}
 			mDb.setTransactionSuccessful();

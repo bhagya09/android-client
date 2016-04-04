@@ -3041,16 +3041,16 @@ public class StickerManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, true);
 	}
 
-	public void saveSticker(Sticker sticker)
+	public void saveSticker(Sticker sticker, StickerConstants.StickerType stickerType)
 	{
 		List<Sticker> stickers = new ArrayList<Sticker>(1);
 		stickers.add(sticker);
-		saveSticker(stickers);
+		saveSticker(stickers, stickerType);
 	}
 
-	public void saveSticker(List<Sticker> stickers)
+	public void saveSticker(List<Sticker> stickers, StickerConstants.StickerType stickerType)
 	{
-		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers);
+		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers, stickerType);
 	}
 
 	public void deactivateSticker(Sticker sticker)
@@ -3133,7 +3133,7 @@ public class StickerManager
 			stickerList.add(sticker);
 		}
 
-		saveSticker(stickerList);
+		saveSticker(stickerList, StickerConstants.StickerType.LARGE);
 	}
 
     public void saveMiniStickerSetFromJSON(JSONObject stickers, String categoryId) throws JSONException
@@ -3157,7 +3157,7 @@ public class StickerManager
             stickerList.add(sticker);
         }
 
-        saveSticker(stickerList);
+        saveSticker(stickerList, StickerConstants.StickerType.MINI);
     }
 
     public String getStickerCacheKey(Sticker sticker, StickerConstants.StickerType stickerType)
