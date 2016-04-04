@@ -156,7 +156,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog, dbCorruptDialog;
+	private Dialog progDialog, dbCorruptDialog, restoreProgDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -2691,6 +2691,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
+		if (restoreProgDialog != null)
+		{
+			restoreProgDialog.dismiss();
+			restoreProgDialog = null;
+		}
+
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2722,7 +2728,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showRestoreInProcessDialog()
 	{
-		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		restoreProgDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
 		showingBlockingDialog = true;
 	}
 
