@@ -9338,14 +9338,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
 			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+            int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+            int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
 
 			if (c.moveToFirst())
 			{
-				String largeStickerPath = c.getString(largestickerpathIdx);
-				String smallStickerPath = c.getString(smallstickerpathIdx);
-
-				sticker.setSmallStickerPath(smallStickerPath);
-				sticker.setLargeStickerPath(largeStickerPath);
+				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+                sticker.setWidth(c.getInt(stickerWidthIdx));
+                sticker.setHeight(c.getInt(stickerHeightIdx));
 			}
 		}
 		finally
