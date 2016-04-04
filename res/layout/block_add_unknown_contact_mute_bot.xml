@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
 
     <LinearLayout
+        android:id="@+id/caller_reply_view"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        android:orientation="horizontal">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/caller_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/conv_item_ts_color"
+            android:text="@string/spam"
+            android:layout_gravity="center_vertical"
+            android:textSize="16sp"
+            android:visibility="visible" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/caller_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/conv_item_last_msg_color"
+            android:textSize="14sp"
+            android:layout_marginLeft="20dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/spam"
+            android:visibility="visible" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@+id/caller_reply_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="48dp"
         android:background="@color/black_unknwon_contacts"
         android:orientation="horizontal" >
 
