@@ -21,4 +21,5 @@
 	<dimen name="sticker_settings_tip_margin">60dp</dimen>
 
 	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
+	<dimen name="slide_to_cancel_margin">30dp</dimen>
 </resources>
