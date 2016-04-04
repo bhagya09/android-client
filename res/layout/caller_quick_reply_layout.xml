@@ -63,17 +63,16 @@
                 android:id="@+id/caller_free_layout"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                android:gravity="center"
+                android:layout_gravity="left"
+                android:layout_marginLeft="16dp"
                 android:orientation="horizontal"
                 android:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/open_quick_reply_chatthread"
-                    android:layout_width="0px"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="left|center_horizontal|center_vertical"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:visibility="visible">
 
@@ -81,6 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:scaleType="centerInside"
+                        android:visibility="gone"
                         android:src="@drawable/caller_message_icon" />
 
                     <com.bsb.hike.view.CustomFontTextView
