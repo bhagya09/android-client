@@ -13,7 +13,9 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.MessagingBotAlarmManager;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -425,7 +427,18 @@ public class HikeAlarmManager
 			HikeNotification.getInstance().showCorruptDbNotification();
 			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 
