@@ -617,6 +617,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	public void refreshUndownloadedStickerWatcher()
 	{
-		this.undownloadedStickerToDisplayCount = StickerSearchUtils.undownloadedStickersToDisplayCount();
+		this.undownloadedStickerToDisplayCount = StickerSearchUtils.getUndownloadedStickerToDisplayCount();
 	}
 }
