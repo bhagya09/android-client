@@ -9300,33 +9300,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, null, null);
 	}
 
-	public String getStickerList(String categoryId)
-	{
-		Cursor c = null;
-		String stickerListString = null;
-
-		try
-		{
-			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, new String[]{DBConstants.STICKER_LIST}, DBConstants._ID + "=?", new String[]{categoryId}, null, null, null);
-			if (c.moveToFirst())
-			{
-				stickerListString = c.getString(c.getColumnIndex(DBConstants.STICKER_LIST));
-			}
-		}
-		catch (Exception e)
-		{
-			Logger.wtf("StickerManager", "Exception in getStickerList  : " + e.toString());
-		}
-		finally
-		{
-			if(c != null)
-			{
-				c.close();
-			}
-		}
-		return stickerListString;
-	}
-
 	public boolean upgradeForStickerTable()
 	{
 		boolean result;
