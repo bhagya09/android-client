@@ -4018,4 +4018,6 @@ public class HikeConstants
 	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
 
 	public static final int DEFAULT_ACTIVITY_OPEN = 10;
+
+	public static final String ACTIVITY_LATENT_AREA="scrlat";
 }

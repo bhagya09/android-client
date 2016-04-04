@@ -23,6 +23,8 @@ public class RecordActivityOpenTime {
     private static final String TAG = "RecordActivityOpenTime";
 
 	private final int MAX_ACTIVITY_OPEN = 1000;
+
+    private final String LATENT_AREA="latarea";
     
     private String activity = null;
 
@@ -60,7 +62,7 @@ public class RecordActivityOpenTime {
             return;
         }
         //TODO need to figure out area,event with analytics
-        HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, MqttConstants.EXCEPTION_DEV_AREA + "_100", infoJson);
+        HAManager.getInstance().logDevEvent(HikeConstants.ACTIVITY_LATENT_AREA, LATENT_AREA, infoJson);
     }
 
     /**
