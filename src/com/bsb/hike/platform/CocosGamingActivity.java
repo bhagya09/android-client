@@ -84,6 +84,8 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	private final String GAME_ANALYTICS_GAME_OPEN = "game_open";
 	SharedPreferences settings;
 
+	private static boolean openViaNotif;
+
 	@Override
 	public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState)
 	{
@@ -425,6 +427,10 @@ public class CocosGamingActivity extends Cocos2dxActivity
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.BOT_NOTIF_TRACKER);
 			json.put(AnalyticsConstants.BOT_MSISDN, msisdn);
 			json.put(AnalyticsConstants.BOT_OPEN_SOURCE, source);
+			if(source.equals(AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF))
+			{
+				openViaNotif =true;
+			}
 			nativeBridge.logAnalytics("true", AnalyticsConstants.CLICK_EVENT, json.toString());
 		}
 
