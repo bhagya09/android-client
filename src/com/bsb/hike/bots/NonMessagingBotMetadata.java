@@ -24,6 +24,7 @@ public class NonMessagingBotMetadata
 	String appName;
 	JSONObject cardObj;
 	String appPackage;
+    String appPackageV2;
     private String unReadCountShowType;
 	private int targetPlatform;
 
@@ -100,6 +101,11 @@ public class NonMessagingBotMetadata
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 
+            if (cardObj.has(HikePlatformConstants.APP_PACKAGE_V2))
+            {
+                setAppPackageV2(cardObj.optString(HikePlatformConstants.APP_PACKAGE_V2));
+            }
+
 			if (cardObj.has(HikePlatformConstants.URL))
 			{
 				setUrl(cardObj.optString(HikePlatformConstants.URL));
@@ -172,6 +178,16 @@ public class NonMessagingBotMetadata
 	{
 		this.appPackage = appPackage;
 	}
+
+    public String getAppPackageV2()
+    {
+        return appPackageV2;
+    }
+
+    public void setAppPackageV2(String appPackageV2)
+    {
+        this.appPackageV2 = appPackageV2;
+    }
 
 	public JSONObject getCardObj()
 	{

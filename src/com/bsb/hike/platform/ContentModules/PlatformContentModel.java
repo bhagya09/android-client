@@ -343,7 +343,10 @@ public class PlatformContentModel
 
 	public String getLayout_url()
 	{
-		return cardObj.appPackage;
+		if(!TextUtils.isEmpty(cardObj.appPackageV2))
+            return cardObj.appPackageV2;
+        else
+            return cardObj.appPackage;
 	}
 
 	public byte getBotType()
@@ -410,7 +413,17 @@ public class PlatformContentModel
 			this.appPackage = appPackage;
 		}
 
-		public String getPush()
+        public String getAppPackageV2()
+        {
+            return appPackage;
+        }
+
+        public void setAppPackageV2(String appPackageV2)
+        {
+            this.appPackageV2 = appPackageV2;
+        }
+
+        public String getPush()
 		{
 			return push;
 		}
@@ -492,7 +505,10 @@ public class PlatformContentModel
 		@Expose
 		public String appPackage;
 
-		@Expose
+        @Expose
+        public String appPackageV2;
+
+        @Expose
 		public String push;
 
 		@Expose
