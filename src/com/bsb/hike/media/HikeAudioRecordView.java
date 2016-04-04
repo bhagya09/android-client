@@ -193,6 +193,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 }
                 boolean recordingStarted = startRecordingAudio();
                 Log.d(TAG, " action down event recordingStarted: " + recordingStarted);
+                if(!recordingStarted) {
+                    return false;
+                }
                 startedDraggingX = -1;
                 return true;
 
@@ -227,8 +230,12 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         slideLeftComplete();
                         return true;
                     } else {
-                        rectBgrnd.setVisibility(View.VISIBLE);
-                        recordingState.setVisibility(View.INVISIBLE);
+
+                        if(rectBgrnd.getVisibility() != View.VISIBLE) {
+                            rectBgrnd.setVisibility(View.VISIBLE);
+                            rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
+                            recordingState.setVisibility(View.INVISIBLE);
+                        }
                     }
                 } else {
                     rectBgrnd.setVisibility(View.INVISIBLE);
@@ -243,7 +250,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     slideLeftComplete();
                     return true;
                 }
-
                 if (stopRecordingAudio()) {
                     if (selectedFile == null) {
                         recordingError(true);
@@ -393,7 +399,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     private boolean startRecordingAudio() {
         if (recorder == null) {
-            initialiseRecorder(recordInfo);
+            boolean recorderSuccessful = initialiseRecorder(recordInfo);
+
             if (recorder != null && selectedFile == null) {
                 selectedFile = Utils.getOutputMediaFile(HikeFile.HikeFileType.AUDIO_RECORDING, null, true);
                 if(selectedFile == null){
@@ -436,7 +443,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             Logger.e(getClass().getSimpleName(), "Failed to start recording empty selectedFile");
             return false;
         }
-        return false;
+        return true;
     }
 
     private void setupRecordingView(TextView recordInfo, ImageView recordImage, long startTime) {
@@ -465,6 +472,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         recorderState = IDLE;
     }
 
+
     private void stopUpdateTimeAndRecorder(){
         if (updateRecordingDuration != null) {
             recordingHandler.removeCallbacks(updateRecordingDuration);
@@ -485,7 +493,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
-    private void initialiseRecorder(final TextView recordInfo) {
+    private boolean initialiseRecorder(final TextView recordInfo) {
         if (recorder == null) {
             try {
                 recorder = new MediaRecorder();
@@ -501,6 +509,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         Toast.makeText(mActivity, R.string.error_recording, Toast.LENGTH_SHORT).show();
                     }
                 });
+                return false;
             }
         }
 
@@ -524,6 +533,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 }
             }
         });
+        return true;
     }
 
     private void setUpPreviewRecordingLayout(TextView recordText, long duration) {
@@ -532,7 +542,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     public void dismissAudioRecordView() {
-        if (popup_l.isShowing()) {
+        if(popup_l != null && popup_l.isShowing()) {
             recorderImg.clearAnimation();
             dismissTipIfShowing();
             popup_l.dismiss();
@@ -544,7 +554,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT);
         }
 
-        if (popup_l.isShowing())
+        if (popup_l != null && popup_l.isShowing())
             popup_l.dismiss();
     }
 
