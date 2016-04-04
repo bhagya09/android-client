@@ -2937,6 +2937,15 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_NEW_USER, isNewUser);
 		}
 
+		if (data.has(HikeConstants.FTUE_FRIENDS_COUNT))
+		{
+			int newFriendsFtueCount = data.getInt(HikeConstants.FTUE_FRIENDS_COUNT);
+			if (newFriendsFtueCount > 0) //Saving only a positive value
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, newFriendsFtueCount);
+			}
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
