@@ -379,7 +379,6 @@ public interface DBConstants
         public static final String MAPP_DATA = "mapp_data";
         public static final String VERSION = "version";
         public static final String APP_PACKAGE = "app_package";
-        public static final String IS_SDK = "is_sdk";
 
 		//Bot Download state table starts here
 		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
