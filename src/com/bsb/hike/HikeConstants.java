@@ -4015,9 +4015,7 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 
-	public static final String RECORD_ACTIVITY_OPEN_TIME="rapt";
+	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
 
-	public static final String TIME_TO_LIVE="ttl";
-
-	public static final String MAX_COUNT="mc";
+	public static final int DEFAULT_ACTIVITY_OPEN = 10;
 }

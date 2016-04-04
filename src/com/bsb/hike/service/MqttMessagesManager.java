@@ -2875,11 +2875,10 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 		//{"t":"ac","d":{"screen":{"HomeActivity":{"mc":2},"ChatThreadActivity":{"mc":2}},"ttl":1458209573000}}
-		if(data.has(HikeConstants.SCREEN))
+		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
 		{
-			String str=data.toString();
-			if(!TextUtils.isEmpty(str))
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.RECORD_ACTIVITY_OPEN_TIME,str);
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
 		}
 
 		editor.commit();
