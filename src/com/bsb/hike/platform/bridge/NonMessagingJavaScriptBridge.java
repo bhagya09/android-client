@@ -1559,4 +1559,22 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
                         callbackToJS(id, gameId);
                 }
         }
+
+	/**
+	 * Call tis method to set alarm.
+	 * @param json {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}
+	 * @param timeInMills
+	 * @param persistent
+	 */
+	@JavascriptInterface
+	public void setAlarm(JSONObject json, long timeInMills,boolean persistent)
+	{
+		String msisdn = mBotInfo.getMsisdn();
+		Activity mContext = weakActivity.get();
+		if(TextUtils.isEmpty(msisdn) || mContext == null)
+		{
+			return;
+		}
+		NonMessagingBotAlarmManager.setAlarm(mContext,json,msisdn,timeInMills,persistent);
+	}
 }

@@ -37,22 +37,22 @@ public class NonMessagingBotAlarmManager {
      * @param context
      * @param json
      * @param msisdn
-     * @param id
      * @param timeInMills
      * @param persistent
      */
-    public static final void setAlarm(Context context, JSONObject json, String msisdn,int id, long timeInMills,boolean persistent)
+    public static final void setAlarm(Context context, JSONObject json, String msisdn, long timeInMills,boolean persistent)
     {
         Intent intent = new Intent();
+        String alarmData="";
         intent.putExtra(HikeConstants.MSISDN, msisdn);
-        intent.putExtra(HikePlatformConstants.ID, id);
         intent.putExtra(HikePlatformConstants.BOT_TYPE, HikeConstants.NON_MESSAGING_BOT);
         Iterator<String> i = json.keys();
         try
         {
             if (json.has(HikePlatformConstants.ALARM_DATA))
             {
-                intent.putExtra(HikePlatformConstants.ALARM_DATA, json.getString(HikePlatformConstants.ALARM_DATA));
+                alarmData = json.getString(HikePlatformConstants.ALARM_DATA);
+                intent.putExtra(HikePlatformConstants.ALARM_DATA, alarmData);
             }
             while (i.hasNext())
             {
@@ -64,7 +64,7 @@ public class NonMessagingBotAlarmManager {
         {
             e.printStackTrace();
         }
-        HikeAlarmManager.setAlarmwithIntentPersistance(context, timeInMills, (int)(msisdn.hashCode()+id), true, intent, persistent);
+        HikeAlarmManager.setAlarmwithIntentPersistance(context, timeInMills, (int)(msisdn.hashCode()+alarmData.hashCode()), true, intent, persistent);
     }
 
     /**
