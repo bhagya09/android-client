@@ -9020,7 +9020,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 													 .append(ChatThemes.ASSET_COL_TYPE 				+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
 													 .append(ChatThemes.ASSET_COL_VAL 				+ COLUMN_TYPE_TEXT 		+ COMMA_SEPARATOR)
 													 .append(ChatThemes.ASSET_COL_IS_DOWNLOADED 	+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
-													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL    + COLUMN_TYPE_INTEGER)
+													 .append(ChatThemes.ASSET_COL_SIZE				+ COLUMN_TYPE_INTEGER	+ COMMA_SEPARATOR)
+													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL + COLUMN_TYPE_INTEGER)
 													 .append(")");
 
 		return createAssetTableQuery.toString();
@@ -9078,8 +9079,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 			updatePrepStmt.bindNull(3);
 
-		updatePrepStmt.bindLong(4, saveAsset.getAssetDownloadStatus());
-		updatePrepStmt.bindString(5, saveAsset.getAssetId());
+		updatePrepStmt.bindLong(4, saveAsset.getSize());
+		updatePrepStmt.bindLong(5, saveAsset.getAssetDownloadStatus());
+		updatePrepStmt.bindString(6, saveAsset.getAssetId());
 
 		long rowsAffected = updatePrepStmt.executeUpdateDelete();
 		updatePrepStmt.clearBindings();
@@ -9094,7 +9096,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else
 				insertPrepStmt.bindNull(3);
 
-			insertPrepStmt.bindLong(4, saveAsset.getAssetDownloadStatus());
+			insertPrepStmt.bindLong(4, saveAsset.getSize());
+			insertPrepStmt.bindLong(5, saveAsset.getAssetDownloadStatus());
 
 			long rowInserted = insertPrepStmt.executeInsert();
 			insertPrepStmt.clearBindings();
@@ -9166,6 +9169,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						  + ChatThemes.ASSET_COL_ID + COMMA_SEPARATOR
 						  + ChatThemes.ASSET_COL_TYPE + COMMA_SEPARATOR
 						  + ChatThemes.ASSET_COL_VAL + COMMA_SEPARATOR
+						  + ChatThemes.ASSET_COL_SIZE + COMMA_SEPARATOR
 						  + ChatThemes.ASSET_COL_IS_DOWNLOADED
 						  + ") VALUES (" ;
 
@@ -9192,6 +9196,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ ChatThemes.ASSET_COL_ID 			 +  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.ASSET_COL_TYPE 		 +  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.ASSET_COL_VAL 			 +  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_SIZE			 +  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.ASSET_COL_IS_DOWNLOADED +  " = ?"
 				+ " WHERE " + ChatThemes.ASSET_COL_ID + " = ?;";
 
@@ -9407,7 +9412,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			mDb.endTransaction();
 		}
 
-
 		return allSaved;
 	}
 
@@ -9456,7 +9460,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 */
 	private SQLiteStatement prepStmtForChatThemeUpdate()
 	{
-		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_ASSET_TABLE + " SET "
+		String sqlQuery = "UPDATE " + ChatThemes.CHAT_THEME_TABLE + " SET "
 				+ ChatThemes.THEME_COL_BG_ID 						+  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_BG_LANDSCAPE 				+  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_BG_PORTRAIT 					+  " = ?" + COMMA_SEPARATOR
@@ -9657,9 +9661,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(!assetDbCursor.isNull(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL)))
 			assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
 
+		int assetSize = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_SIZE));
 		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
 
-		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal);
+		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal, assetSize);
 		asset.setIsDownloaded((byte)isDownloaded);
 
 		return asset;

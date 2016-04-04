@@ -145,6 +145,8 @@ public class HikeChatThemeConstants
 
 	public static final String JSON_SIGNAL_ASSET_VALUE = "value";
 
+	public static final String JSON_SIGNAL_ASSET_SIZE = "size";
+
 	//to be defined in the same order of asset indexs
 	public static final String[] JSON_SIGNAL_THEME = {JSON_SIGNAL_THEME_BG_PORTRAIT, JSON_SIGNAL_THEME_BG_LANDSCAPE, JSON_SIGNAL_THEME_ACTION_BAR, JSON_SIGNAL_THEME_CHAT_BUBBLE_BG,
 			JSON_SIGNAL_THEME_SENT_NUDGE, JSON_SIGNAL_THEME_RECEIVE_NUDGE, JSON_SIGNAL_THEME_INLINE_STATUS_BG, JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE, JSON_SIGNAL_THEME_OFFLINE_MSG_BG,
@@ -152,4 +154,7 @@ public class HikeChatThemeConstants
 
 	// JSON Constants
 	public static final String JSON_DWNLD_ASSET_ID = "asset_ids";
+
+	public static final String CHAT_THEMES_ROOT = "chatThemes";
+
 }
