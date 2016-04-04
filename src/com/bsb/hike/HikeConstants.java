@@ -4116,4 +4116,6 @@ public class HikeConstants
 	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 }

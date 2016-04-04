@@ -99,5 +99,5 @@ public class StickerConstants
 
 	public static final long DEFAULT_TTL_MINI_STICKERS = 1 * 24 * 60 * 60 * 1000; // 1 day
 
-	public static final short PACK_PREVIEW_VIEW_ALL_THRESHOLD_SIZE = 8;
+	public static final short DEFAULT_PACK_PREVIEW_VIEW_ALL_VISIBLE_ROWS = 2;
 }

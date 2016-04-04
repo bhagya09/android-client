@@ -2919,6 +2919,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
 
+		if (data.has(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE))
+		{
+			int numRowsInitiallyVisible = data.getInt(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE, numRowsInitiallyVisible);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

@@ -80,6 +80,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	public static int NUM_COLUMNS;
 
+	public static int NUM_INITIALLY_VISIBLE_STICKERS;
+
 	private boolean viewAllClicked;
 
 	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, categoryDescriptionMaxHeight, topMarginForCenterVertical;
@@ -90,6 +92,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		stickerOtherIconLoader = new StickerOtherIconLoader(HikeMessengerApp.getInstance(), true);
 		NUM_COLUMNS = StickerManager.getInstance().getNumColumnsForStickerGrid(HikeMessengerApp.getInstance());
+		NUM_INITIALLY_VISIBLE_STICKERS = NUM_COLUMNS * HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE, StickerConstants.DEFAULT_PACK_PREVIEW_VIEW_ALL_VISIBLE_ROWS);
+
 	}
 
 	public static PackPreviewFragment newInstance(String catId)
@@ -232,7 +236,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
 		List<Sticker> stickerList = stickerCategory.getAllStickers();
-		stickerList = Utils.isEmpty(stickerList) || stickerList.size() < StickerConstants.PACK_PREVIEW_VIEW_ALL_THRESHOLD_SIZE ? stickerList : stickerList.subList(0, StickerConstants.PACK_PREVIEW_VIEW_ALL_THRESHOLD_SIZE );
+		stickerList = Utils.isEmpty(stickerList) || stickerList.size() < NUM_INITIALLY_VISIBLE_STICKERS ? stickerList : stickerList.subList(0, NUM_INITIALLY_VISIBLE_STICKERS);
 		mAdapter = new PackPreviewAdapter(getActivity(), this);
 		mAdapter.setLists(stickerList, getHeaderList(), getFooterList());
 		rvGrid.setLayoutManager(layoutManager);
@@ -291,7 +295,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(3);
 
-		if(!viewAllClicked && !Utils.isEmpty(stickerCategory.getAllStickers()) && stickerCategory.getAllStickers().size() > StickerConstants.PACK_PREVIEW_VIEW_ALL_THRESHOLD_SIZE)
+		if(!viewAllClicked && !Utils.isEmpty(stickerCategory.getAllStickers()) && stickerCategory.getAllStickers().size() > NUM_INITIALLY_VISIBLE_STICKERS)
 		{
 			BasePackPreviewAdapterItem viewAllFooterItem = new ViewAllFooterItem(getActivity());
 			((ViewAllFooterItem) viewAllFooterItem).setOnClickListener(this);
