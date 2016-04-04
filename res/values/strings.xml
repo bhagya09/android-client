@@ -1587,4 +1587,6 @@
     <string name="voip_friend_error">Please add %1$s as friend to initiate call. </string>
     <string name="attachment_friend_error">Please add %1$s as friend to send attachment. </string>
     <string name="friend_req_pending">Friend request pending</string>
+    <string name="friend_req_inline_msg_sent">You added %1$s as a friend.</string>
+    <string name="friend_req_inline_msg_received">%1$s added you as a friend.</string>
 </resources>

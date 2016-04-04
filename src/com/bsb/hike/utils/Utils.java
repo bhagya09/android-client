@@ -8133,4 +8133,11 @@ public class Utils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.IS_NEW_USER, false);
 	}
 
+	public static ConvMessage generateAddFriendSystemMessage(String msisdn, String message, boolean isOnHike, State state)
+	{
+		ConvMessage convMessage = makeConvMessage(msisdn, message, isOnHike, state);
+		convMessage.setParticipantInfoState(ParticipantInfoState.FRIEND_REQUSET_STATUS);
+		return convMessage;
+	}
+
 }
