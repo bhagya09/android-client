@@ -1274,9 +1274,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			//linkurl is http://hike.in/refid:gc:code
 			String codeArray[] = linkUrl.split("/");
-			if(codeArray.length < 4)
+			if(codeArray.length < 4 || !linkUrl.contains(":gc:"))
 			{
-				Logger.d("link_share_error", "The linkurl is wrong, split in '/' is < 4 " + linkUrl);
+				Logger.d("link_share_error", "The linkurl is wrong, either no :gc: present or split in '/' is < 4 " + linkUrl);
 				return;
 			}
 			

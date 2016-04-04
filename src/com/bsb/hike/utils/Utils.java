@@ -579,7 +579,12 @@ public class Utils
 
 	public static File createNewFile(HikeFileType type, String prefix)
 	{
-		File selectedDir = new File(Utils.getFileParent(type, false));
+		return createNewFile(type, prefix, false);
+	}
+
+	public static File createNewFile(HikeFileType type, String prefix, boolean isSent)
+	{
+		File selectedDir = new File(Utils.getFileParent(type, isSent));
 		if (!selectedDir.exists())
 		{
 			if (!selectedDir.mkdirs())
@@ -3240,6 +3245,7 @@ public class Utils
 				
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
 				HikeNotification.getInstance().cancelPersistNotif();
+				HikeNotification.getInstance().cancelNotification(HikeNotification.NOTIF_INTERCEPT_NON_DOWNLOAD);
 				HikeMessengerApp.getPubSub().publish(HikePubSub.APP_FOREGROUNDED, null);
 				if (toLog)
 				{
@@ -3525,7 +3531,7 @@ public class Utils
 				}
 				else
 				{
-					return context.getString(R.string.image_w_caption_sms)+caption+"\"";
+					return String.format(context.getString(R.string.image_w_caption_sms),"\""+caption+"\"");
 				}
 			case VIDEO:
 				return context.getString(R.string.send_sms_video_msg);
@@ -7974,6 +7980,8 @@ public class Utils
 		{
 			return "#";
 		}
+
+		contactName = contactName.trim();
 
 		char first = contactName.charAt(0);
 

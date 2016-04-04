@@ -587,13 +587,12 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		}
 		StickerCategory category = mAdapter.getItem(position);
 
-		if(category.getState() == StickerCategory.RETRY && category.isVisible())
+		if((category.getState() == StickerCategory.RETRY) && (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK))
 		{
 			category.setState(StickerCategory.DOWNLOADING);
 			StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, getActivity());
 			mAdapter.notifyDataSetChanged();
 		}
-		
 		else
 		{
 			return;
