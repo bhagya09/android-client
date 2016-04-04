@@ -268,13 +268,6 @@
                     android:layout_height="wrap_content"
                     android:background="@color/white">
 
-                    <ViewStub
-                        android:id="@+id/addFriendViewStub"
-                        android:layout_width="match_parent"
-                        android:layout_height="49dp"
-                        android:inflatedId="@+id/add_friend_view"
-                        android:layout="@layout/add_friend_btn_view" />
-
                     <RelativeLayout
                         android:id="@+id/compose_container"
                         android:layout_width="match_parent"
@@ -433,5 +426,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"></FrameLayout>
+
+    <ViewStub
+        android:id="@+id/addFriendViewStub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:inflatedId="@+id/add_friend_view"
+        android:layout="@layout/add_friend_btn_view" />
 
 </RelativeLayout>
