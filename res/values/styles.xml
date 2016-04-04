@@ -1076,7 +1076,8 @@
 
     <style name="WalkietalkieAnim" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/slide_in_right_fast</item>
-        <item name="android:windowExitAnimation">@anim/slide_out_right</item>
+       <!-- commenting out temporarily, will uncomment once we fix CE-226
+        <item name="android:windowExitAnimation">@anim/slide_out_right</item>-->
     </style>
 
 </resources>
