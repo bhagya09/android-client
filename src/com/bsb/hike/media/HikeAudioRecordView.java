@@ -398,6 +398,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     private boolean startRecordingAudio() {
+        /* CE-154: When system dialog waiting for user to permit sound recording,
+           the orientation change needs to be blocked, as we unblock it in stopRecorder anyways */
+        Utils.blockOrientationChange(mActivity);
+        mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         if (recorder == null) {
             boolean recorderSuccessful = initialiseRecorder(recordInfo);
 
@@ -435,8 +439,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 return false;
             }
 
-            Utils.blockOrientationChange(mActivity);
-            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             stopRecorder();
             recordingError(true);
