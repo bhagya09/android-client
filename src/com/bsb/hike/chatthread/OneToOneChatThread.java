@@ -3755,7 +3755,7 @@ import java.util.Map;
 		super.showAttchmentPicker();
 	}
 
-	private void doSetupForAddFriend()
+	protected void doSetupForAddFriend()
 	{
 		if (!Utils.isFavToFriendsMigrationAllowed())
 		{
