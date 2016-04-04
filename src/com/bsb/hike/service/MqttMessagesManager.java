@@ -2874,7 +2874,7 @@ public class MqttMessagesManager
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
-		//{"t":"ac","d":{"screen":{"HomeActivity":{"mc":2},"ChatThreadActivity":{"mc":2}},"ttl":1458209573000}}
+
 		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
 		{
 			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);

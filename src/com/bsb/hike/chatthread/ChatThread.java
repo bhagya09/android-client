@@ -6899,6 +6899,4 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 
 	}
-
-
 }

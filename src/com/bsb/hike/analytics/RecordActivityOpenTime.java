@@ -65,27 +65,6 @@ public class RecordActivityOpenTime {
         HAManager.getInstance().logDevEvent(HikeConstants.ACTIVITY_LATENT_AREA, LATENT_AREA, infoJson);
     }
 
-    /**
-     * @return true/false shoud start the recording or not:
-     *
-     * ttl:Time Stamp in millis (Future Time Stamp)
-     * <p>
-     * Sample JSON {
-     * "t": "ac",
-     * "d": {
-     * "screen": {
-     * "HomeActivity": {
-     * "mc": 2
-     * },
-     * "ChatThreadActivity": {
-     * "mc": 2
-     * }
-     * },
-     * "ttl": 1458209573000
-     * }
-     * }
-     */
-
     public boolean shouldStart() {
         // Now using a Random number to generate probability
 
