@@ -752,6 +752,22 @@ public class PlatformUtils
 		}
 		final boolean autoResume = downloadData.optBoolean(HikePlatformConstants.AUTO_RESUME, false);
 
+        // Check here to reject a mapp packet if its latest version is already present on device
+        int currentMappVersionCode = 0,mAppVersionCode = 0;
+        JSONObject cardObjectJson = downloadData.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+        String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME);
+        if (cardObjectJson != null)
+            mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
+        if(HikeMessengerApp.hikeSdkMap.containsKey(appName))
+            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(appName);
+		if (mAppVersionCode <= currentMappVersionCode)
+		{
+            // Ignore the packet if data is already present on device and fire pubsub for the same
+            Pair<BotInfo, Boolean> mAppCreatedSuccessfullyPair = new Pair(appName, true);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
+            return;
+		}
+
         final PlatformContentModel platformContentModel = PlatformContentModel.make(downloadData.toString(), HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
 		PlatformContentRequest rqst = PlatformContentRequest.make(platformContentModel, new PlatformContentListener<PlatformContentModel>()
 		{
@@ -1991,7 +2007,6 @@ public class PlatformUtils
 			final int version = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, 0);
 			final String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME, "");
 			final String appPackage = cardObjectJson.optString(HikePlatformConstants.APP_PACKAGE, "");
-            final boolean isSdk = cardObjectJson.optBoolean(HikePlatformConstants.IS_SDK,false);
 
             // Publish pubsub for successful creation of mapp packet received
             Pair<BotInfo,Boolean> mAppCreatedSuccessfullyPair = new Pair(appName,true);
@@ -2006,7 +2021,7 @@ public class PlatformUtils
 				@Override
 				public void run()
 				{
-					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage,isSdk);
+					HikeContentDatabase.getInstance().insertIntoMAppDataTable(appName, version, appPackage);
 				}
 			});
 		}

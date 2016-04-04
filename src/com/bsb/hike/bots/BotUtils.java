@@ -475,6 +475,8 @@ public class BotUtils
 						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
 				{
                     PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
                     return;
                 }
             }
