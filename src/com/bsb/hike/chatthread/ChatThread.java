@@ -4190,6 +4190,11 @@ import android.widget.Toast;
 					case MotionEvent.ACTION_UP:
 						walkieView.update(v, event);
 						break;
+					case MotionEvent.ACTION_CANCEL:
+						/* CANCEL event is received if the user clicks on the system-popup Allow/Deny.
+						   As this is as good as a UP event, we will stopRecorder */
+						if(walkieView != null) walkieView.stopRecorderAndShowError();
+						break;
 					default:
 						return false;
 				}

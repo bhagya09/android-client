@@ -474,6 +474,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         recorderState = IDLE;
     }
 
+    public void stopRecorderAndShowError() {
+        stopRecorder();
+        recordingError(true);
+    }
 
     private void stopUpdateTimeAndRecorder(){
         if (updateRecordingDuration != null) {
@@ -531,6 +535,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     recordedTime = (System.currentTimeMillis() - recordStartTime) / 1000;
                     setUpPreviewRecordingLayout(recordInfo, recordedTime);
                 } else {
+                    stopRecorder();
                     recordingError(true);
                 }
             }
