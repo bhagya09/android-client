@@ -340,7 +340,18 @@ public class HikeAlarmManager
 			HikeNotification.getInstance().showCorruptDbNotification();
 			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 
