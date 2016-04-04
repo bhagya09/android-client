@@ -157,7 +157,6 @@ public class ProductJavaScriptBridge extends JavascriptBridge
 			ArrayList<ProductContentModel> mmArrayList = new ArrayList<ProductContentModel>();
 			mmArrayList.add((ProductContentModel) productContentModel);
 			ProductInfoManager.getInstance().deletePopups(mmArrayList);
-            ProductInfoManager.getInstance().deletePopUpCodeFromDisk(mmArrayList);
 		}
 
 		if (mHikeDialogFragment != null && mHikeDialogFragment.get() != null)
