@@ -473,4 +473,15 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		return;
 	}
+
+	/**
+	 * Returning false here, since we do not want any of friends shizzle in BotChats
+	 *
+	 * @return
+	 */
+	@Override
+	protected boolean isNotMyOneWayFriend()
+	{
+		return false;
+	}
 }
