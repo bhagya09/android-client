@@ -29,6 +29,7 @@ public class MessagingBotAlarmManager implements HikePlatformConstants
 	{
 		Intent intent = new Intent();
 		intent.putExtra(MESSAGE_ID, messageId); // for us uniqueness of a card is message id
+		intent.putExtra(HikePlatformConstants.BOT_TYPE,HikePlatformConstants.NON_MESSAGING_BOT_TYPE);
 		Iterator<String> i = json.keys();
 		try
 		{
