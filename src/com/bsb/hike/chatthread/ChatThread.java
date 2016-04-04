@@ -714,7 +714,7 @@ import android.widget.Toast;
 
 	protected boolean shouldShowKeyboardOffBoardingUI() {
 
-		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI();
+		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn();
 	}
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
@@ -1827,7 +1827,7 @@ import android.widget.Toast;
 	protected void showKeyboardOffboardingIfReady()
 	{
 //		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
-		if (keyboardOffBoarding != null && keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
+		if (keyboardOffBoarding != null && shouldShowKeyboardOffBoardingUI()) {
 
 			if (keyboardOffBoarding.showView()) {
 
