@@ -2507,6 +2507,11 @@ import java.util.Map;
 		{
 			return;
 		}
+
+		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		{
+			return;
+		}
 		
 		//User online and actionBarView is not null
 		
