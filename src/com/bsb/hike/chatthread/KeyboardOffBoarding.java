@@ -31,6 +31,8 @@ public class KeyboardOffBoarding
 {
 	public interface KeyboardShutdownListener
 	{
+		void onShown();
+
 		void onDestroyed();
 	}
 
@@ -90,49 +92,59 @@ public class KeyboardOffBoarding
 		}
 	}
 
-	public void showView()
-	{
-		mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		mState = SHOWING;
-		updateState(mState);
-		if(container.getChildCount() == 0) {
-			container.addView(rootView);
-		}
-		int rootViewHeight = (int) (mActivity.getResources().getDimension(R.dimen.keyboard_exit_ui));
-		updatePadding(rootViewHeight);
+	public boolean showView() {
+		if (mActivity != null) {
 
-		rootView.findViewById(R.id.btn_phone_keyboard).setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				destroy();
-				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_OPEN_KEYBOARD);
+			mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			mState = SHOWING;
+			updateState(mState);
+			if(container.getChildCount() == 0) {
+				container.addView(rootView);
 			}
-		});
+			int rootViewHeight = (int) (mActivity.getResources().getDimension(R.dimen.keyboard_exit_ui));
+			updatePadding(rootViewHeight);
 
-		rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				destroy();
-				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
+			if (keyboardShutdownListener != null) {
+				keyboardShutdownListener.onShown();
 			}
-		});
 
-		rootView.findViewById(R.id.btn_google_keyboard).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+			rootView.findViewById(R.id.btn_phone_keyboard).setOnClickListener(new View.OnClickListener() {
 
-				final String appPackageName = "com.google.android.apps.inputmethod.hindi&hl=en";
-				try {
-					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-				} catch (android.content.ActivityNotFoundException anfe) {
-					mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					destroy();
+					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_OPEN_KEYBOARD);
 				}
-				destroy();
-				trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON);
-			}
-		});
+			});
+
+			rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					destroy();
+					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
+				}
+			});
+
+			rootView.findViewById(R.id.btn_google_keyboard).setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+
+					final String appPackageName = "com.google.android.apps.inputmethod.hindi&hl=en";
+					try {
+						mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+					} catch (android.content.ActivityNotFoundException anfe) {
+						mActivity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+					}
+					destroy();
+					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON);
+				}
+			});
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public boolean isShowing()

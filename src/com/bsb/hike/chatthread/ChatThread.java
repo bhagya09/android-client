@@ -714,10 +714,16 @@ import android.widget.Toast;
 
 	protected boolean shouldShowKeyboardOffBoardingUI() {
 
-		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI();
+		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn();
 	}
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
+
+//		AND-5182, dismissing shareable popup when keyboard offboarding view is shown
+		@Override
+		public void onShown() {
+			dismissShareablePopup();
+		}
 
 		@Override
 		public void onDestroyed() {
@@ -1821,10 +1827,17 @@ import android.widget.Toast;
 	protected void showKeyboardOffboardingIfReady()
 	{
 //		Putting an NP check to make sure we don't try to show the keyboardOffBoarding UI when the object is null
-		if (keyboardOffBoarding != null && keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn()) {
-			keyboardOffBoarding.showView();
-			Utils.hideSoftKeyboard(activity, mComposeView);
-			activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
+		if (keyboardOffBoarding != null && shouldShowKeyboardOffBoardingUI()) {
+
+			if (keyboardOffBoarding.showView()) {
+
+				Utils.hideSoftKeyboard(activity, mComposeView);
+				activity.findViewById(R.id.compose_container).setVisibility(View.INVISIBLE);
+
+			} else {
+
+				initKeyboardOffBoarding();
+			}
 		}
 	}
 	
