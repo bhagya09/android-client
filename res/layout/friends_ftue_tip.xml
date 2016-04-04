@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
         android:layout_marginLeft="24dp"
+        android:layout_marginRight="48dp"
         android:layout_marginTop="24dp"
         android:text="@string/friends_ftue_heading"
         android:textColor="#3d475b"
@@ -21,6 +22,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
+        android:layout_marginRight="48dp"
+        android:maxLines="2"
         android:textColor="#5c000000"
         android:textSize="14sp"
         />
@@ -36,7 +39,8 @@
         android:text="@string/ADD_FRIEND"
         android:textColor="@color/blue_hike"
         android:textSize="14sp"
-        android:textStyle="normal"
+        android:textStyle="bold|italic"
+
 
         />
 
