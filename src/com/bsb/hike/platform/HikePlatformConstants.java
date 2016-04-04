@@ -2,9 +2,6 @@ package com.bsb.hike.platform;
 
 import android.support.annotation.IntDef;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 public interface HikePlatformConstants
 {
 	String DATA = "d";
@@ -45,6 +42,7 @@ public interface HikePlatformConstants
 	String CRICKET_CHAT_THEME_ID = "39";
 	String APP_NAME = "appName";
 	String APP_PACKAGE = "appPackage";
+    String APP_PACKAGE_V2 = "appPackageV2";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
 	String HIKE_MSISDN = "hikemsisdn";
@@ -97,7 +95,6 @@ public interface HikePlatformConstants
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
 	public static final String GAME_ACTIVE ="gameActive" ;
-    public static final String IS_SDK ="isSdk" ;
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	String HIKE_AFFINITY="hike_affinity";
 	String CLUB_BY_MSISDN="clubbymsisdn";
@@ -349,18 +346,6 @@ public interface HikePlatformConstants
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
 
-    String MICRO_APP_NEWS_STORAGE_NAME = "hikenews";
-
-    String MICRO_APP_CRICKET_STORAGE_NAME = "hikecricketnew";
-
-    String MICRO_APP_CAR_POOLING_STORAGE_NAME = "hikecarpooling";
-
-    String MICRO_APP_NEWS_REGEX = "news";
-
-    String MICRO_APP_CRICKET_REGEX = "cricket";
-
-    String MICRO_APP_CAR_POOLING_REGEX = "carpooling";
-
 	String TTL = "timeToLive";
 
 	String DEFULT_NETWORK = "unknown";
@@ -393,5 +378,7 @@ public interface HikePlatformConstants
 	String BITMAP_URL = "bitmap_url";
 
     String SETTING_OFF = "off";
+
+    String UPDATED_APP_NAME = "updated_name";
 
 }
