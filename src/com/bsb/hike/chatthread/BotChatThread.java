@@ -126,7 +126,7 @@ public class BotChatThread extends OneToOneChatThread
 
 	@Override
 	protected boolean shouldShowKeyboardOffBoardingUI() {
-		return configuration.isKptExitUIEnabled();
+		return configuration.isKptExitUIEnabled() && super.shouldShowKeyboardOffBoardingUI();
 	}
 
 	@Override
