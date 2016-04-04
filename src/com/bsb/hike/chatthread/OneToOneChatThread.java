@@ -1837,7 +1837,7 @@ import java.util.Map;
 	 */
 	private void onCallClicked()
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			String messageToDisplay = activity.getString(R.string.voip_friend_error, mContactInfo.getFirstNameAndSurname());
 			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
@@ -2508,7 +2508,7 @@ import java.util.Map;
 			return;
 		}
 
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			return;
 		}
@@ -3263,7 +3263,7 @@ import java.util.Map;
 			return false;
 		}
 
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			return false; //If not atleast 1-way friend, do not even send a nudge!
 		}
@@ -3362,8 +3362,7 @@ import java.util.Map;
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 
-				boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
-				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotFriend);
+				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotMyOneWayFriend());
 				break;
 
 			case R.string.block_title:
@@ -3746,7 +3745,7 @@ import java.util.Map;
 	@Override
 	protected void showAttchmentPicker()
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			String messageToDisplay = activity.getString(R.string.attachment_friend_error, mContactInfo.getFirstNameAndSurname());
 			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
@@ -3785,7 +3784,7 @@ import java.util.Map;
 	@Override
 	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			return; // Do not send MR if not a 1-way friend atleast
 		}
@@ -3795,7 +3794,7 @@ import java.util.Map;
 	@Override
 	protected void setMessagesRead()
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			return; // Do not send MR if not a 1-way friend atleast
 		}
@@ -3821,7 +3820,7 @@ import java.util.Map;
 	@Override
 	protected boolean shouldEnableSearch()
 	{
-		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+		boolean isNotFriend = (isNotMyOneWayFriend());
 
 		return ((!isNotFriend) && super.shouldEnableSearch());
 	}
@@ -3829,7 +3828,7 @@ import java.util.Map;
 	@Override
 	protected boolean shouldEnableHikeKeyboard()
 	{
-		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+		boolean isNotFriend = (isNotMyOneWayFriend());
 
 		return ((!isNotFriend) && super.shouldEnableHikeKeyboard());
 	}
@@ -3837,7 +3836,7 @@ import java.util.Map;
 	@Override
 	protected boolean shouldEnableClearChat()
 	{
-		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+		boolean isNotFriend = (isNotMyOneWayFriend());
 
 		return ((!isNotFriend) && super.shouldEnableClearChat());
 	}
@@ -3845,14 +3844,14 @@ import java.util.Map;
 	@Override
 	protected boolean shouldEnableEmailChat()
 	{
-		boolean isNotFriend = (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend());
+		boolean isNotFriend = (isNotMyOneWayFriend());
 
 		return ((!isNotFriend) && super.shouldEnableEmailChat());
 	}
 
 	private boolean shouldEnableHikeDirect()
 	{
-		if (Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend())
+		if (isNotMyOneWayFriend())
 		{
 			return false;
 		}
@@ -3919,5 +3918,15 @@ import java.util.Map;
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, (originalCount - 1));
 		}
+	}
+
+	/**
+	 * First checks for the Fav to friends flag before checking the contact info object.
+	 *
+	 * @return
+	 */
+	protected boolean isNotMyOneWayFriend()
+	{
+		return Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend();
 	}
 }
