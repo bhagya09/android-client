@@ -31,6 +31,8 @@ public class KeyboardOffBoarding
 {
 	public interface KeyboardShutdownListener
 	{
+		void onShown();
+
 		void onDestroyed();
 	}
 
@@ -100,6 +102,10 @@ public class KeyboardOffBoarding
 		}
 		int rootViewHeight = (int) (mActivity.getResources().getDimension(R.dimen.keyboard_exit_ui));
 		updatePadding(rootViewHeight);
+
+		if (keyboardShutdownListener != null) {
+			keyboardShutdownListener.onShown();
+		}
 
 		rootView.findViewById(R.id.btn_phone_keyboard).setOnClickListener(new View.OnClickListener() {
 

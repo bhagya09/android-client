@@ -719,6 +719,12 @@ import android.widget.Toast;
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
 
+//		AND-5182, dismissing shareable popup when keyboard offboarding view is shown
+		@Override
+		public void onShown() {
+			dismissShareablePopup();
+		}
+
 		@Override
 		public void onDestroyed() {
 			// TODO Auto-generated method stub
