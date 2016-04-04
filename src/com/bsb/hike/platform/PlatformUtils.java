@@ -2426,6 +2426,12 @@ public class PlatformUtils
 			@Override
 			public void run() {
 				HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+				//Deleting state and incomplete downloaded zip file.
+				if (!TextUtils.isEmpty(name + FileRequestPersistent.STATE_FILE_EXT))
+				{
+					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + name + FileRequestPersistent.STATE_FILE_EXT));
+					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR+PlatformContentConstants.TEMP_DIR_NAME+ name +".zip"));
+				}
 			}
 		});
 	}
@@ -2488,6 +2494,7 @@ public class PlatformUtils
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
 							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+							continue;
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
 						{
@@ -2497,7 +2504,7 @@ public class PlatformUtils
 								tokenCountPair.getFirst().cancel();
 							}
 						}
-						if (prefNetwork >= currentNetwork) // Only retry on higher NetworkTypes
+						else // Only retry on higher NetworkTypes
 						{
 							sendDownloadResumedAnalytics(name);
 							switch (type)
