@@ -1589,4 +1589,6 @@
     <string name="friend_req_pending">Friend request pending</string>
     <string name="friend_req_inline_msg_sent">You added %1$s as a friend.</string>
     <string name="friend_req_inline_msg_received">%1$s added you as a friend.</string>
+    <string name="friends_ftue_heading">Hike is more fun with friends.</string>
+    <string name="friends_ftue_subtext">Add %1$s as your friend and continue chatting</string>
 </resources>
