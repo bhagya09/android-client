@@ -11,9 +11,12 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -85,12 +88,12 @@ public class StickerSearchUtils
 	 * @return a pair of boolean and sticker list where boolean represents whether all stickers in original list are available or not. if boolean is true it return list containing
 	 *         allowed stickers only and original sticker list if boolean is false
 	 */
-	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
+	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList, int undownloadedStickersToDisplay)
 	{
 
 		boolean result = false;
 
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0) == 0)
+		if ((undownloadedStickersToDisplay == 0))
 		{
 			result = stickerList.get(0).isStickerAvailable();
 		}
@@ -105,7 +108,7 @@ public class StickerSearchUtils
 
 		if (result)
 		{
-			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList));
+			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList, undownloadedStickersToDisplay));
 		}
 		else
 		{
@@ -114,11 +117,9 @@ public class StickerSearchUtils
 
 	}
 
-	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList)
+	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList, int allowedUndownloadedLimit)
 	{
 		int length = stickerList.size(), count = 0;
-
-		int allowedUndownloadedLimit = HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
 
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
 		List<Sticker> undownloadedList = new ArrayList<Sticker>();
@@ -132,14 +133,14 @@ public class StickerSearchUtils
 			}
 			else if (count < allowedUndownloadedLimit)
 			{
-                if(sticker.isMiniStickerAvailable())
-                {
-                    resultList.add(sticker);
-                }
-                else
-                {
-                    undownloadedList.add(sticker);
-                }
+				if (sticker.isMiniStickerAvailable())
+				{
+					resultList.add(sticker);
+				}
+				else
+				{
+					undownloadedList.add(sticker);
+				}
 				count++;
 			}
 			else
@@ -148,7 +149,7 @@ public class StickerSearchUtils
 			}
 		}
 
-		if(undownloadedList.size()>0)
+		if (undownloadedList.size() > 0)
 		{
 			resultList.addAll(undownloadedList);
 		}
@@ -221,4 +222,19 @@ public class StickerSearchUtils
 		}
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
+
+    /**
+     *
+     * @return server controlled limit if not connected via Hike Direct and user on wifi
+     */
+    public static int getUndownloadedStickerToDisplayCount()
+    {
+        if((Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()) == 1) && !OfflineController.getInstance().isConnected())
+        {
+            return HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
+        }
+
+        return  0;
+    }
+
 }

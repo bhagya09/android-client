@@ -32,6 +32,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.smartImageLoader.ImageWorker.ImageLoaderListener;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
@@ -98,7 +99,7 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
 
 		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
-		loadMini = StickerManager.getInstance().isMiniStickersEnabled();
+		loadMini = StickerManager.getInstance().isMiniStickersEnabled() && !OfflineController.getInstance().isConnected();
         this.stickerLoader = new StickerLoader.Builder()
                             .downloadLargeStickerIfNotFound(!loadMini)
                             .loadMiniStickerIfNotFound(loadMini)

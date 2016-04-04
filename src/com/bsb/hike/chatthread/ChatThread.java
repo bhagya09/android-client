@@ -6660,7 +6660,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		
+		stickerTagWatcher.refreshUndownloadedStickerWatcher();
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6675,7 +6675,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        stickerTagWatcher.refreshUndownloadedStickerWatcher();
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
