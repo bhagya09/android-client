@@ -19,11 +19,13 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.EventData;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.models.NotifData;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -729,7 +731,88 @@ public class NativeBridge
 
 	public void chooseFile(String id,String displayCameraItem)
 	{
-		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
+		PlatformHelper.chooseFile(id, displayCameraItem, weakActivity.get());
 	}
+
+	/**
+	 * Call tis method to set alarm.
+	 * @param json {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}
+	 * @param timeInMills
+	 * @param persistent
+	 */
+	public void setAlarm(final JSONObject json, final long timeInMills, final boolean persistent)
+	{
+		if(weakActivity == null)
+		{
+			return;
+		}
+		final Activity mContext = weakActivity.get();
+		if (TextUtils.isEmpty(msisdn) || mContext == null)
+		{
+			return;
+		}
+		mThread.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+
+				NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, timeInMills, persistent);
+			}
+		});
+	}
+
+	/**
+	 * call this function to get the notif data pertaining to the microApp.
+	 * 
+	 * @param id:
+	 *            the id of the function that native will call to call the js .
+	 */
+
+	public void getNotifData(final String id)
+	{
+		if(mBotInfo == null)
+		{
+			return;
+		}
+		final String value = mBotInfo.getNotifData();
+		activity.runOnGLThread(new Runnable() {
+			@Override
+			public void run() {
+				activity.platformCallback(id, value);
+			}
+		});
+	}
+	/**
+	 * call this function to delete the entire notif data of the microApp.
+	 */
+	public void deleteAllNotifData()
+	{
+		if(msisdn==null)
+		{
+			return;
+		}
+		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+		hikeProcessIntentService.putExtra(HikeProcessIntentService.NOTIF_DATA_DELETE, msisdn);
+		activity.startService(hikeProcessIntentService);
+	}
+
+	/**
+	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
+	 * @param key: the key of the saved data. Will remain unique for a unique microApp.
+	 */
+	public void deletePartialNotifData(String key)
+	{
+		if(key==null || msisdn == null)
+		{
+			return;
+		}
+		NotifData notifData = new NotifData(key,msisdn);
+		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
+		hikeProcessIntentService.putExtra(HikeProcessIntentService.NOTIF_DATA_PARTIAL_DELETE, notifData);
+		activity.startService(hikeProcessIntentService);
+	}
+
+
+
+
 
 }
