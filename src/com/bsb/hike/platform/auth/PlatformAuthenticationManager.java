@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -38,7 +39,7 @@ public class PlatformAuthenticationManager
 
 	private String _clientId;
 
-	private  boolean _isLongTermTokenRequired;
+	private  boolean _isLongTermTokenRequired = false;
 
 	private String _mAppId;
 
@@ -58,9 +59,11 @@ public class PlatformAuthenticationManager
 		_mAppId = mAppId;
 	}
 
-	public String requestAuthToken(boolean longTermToken)
+	public void requestAuthToken(int tokenLife)
 	{
-		_isLongTermTokenRequired = longTermToken;
+		if(tokenLife==DBConstants.LONG_LIVED){
+			_isLongTermTokenRequired = true;
+		}
 		if (_clientId!=null)
 		{
 			requestAuthToken(_clientId);
@@ -71,7 +74,6 @@ public class PlatformAuthenticationManager
 				_callBack.onTokenErrorResponse(null);
 			}
 		}
-		return null;
 	}
 
 	// Request for auth token

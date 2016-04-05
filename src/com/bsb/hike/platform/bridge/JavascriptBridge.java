@@ -121,7 +121,7 @@ public abstract class JavascriptBridge
 
 	boolean sendIntentData = false;
 
-	protected static final int MAX_COUNT =1;
+	protected static final int MAX_COUNT =2;
 
 	//Hashmap of URL vs Count
 	HashMap<String,Integer> platformRequest=new HashMap<String,Integer>();
@@ -901,6 +901,7 @@ public abstract class JavascriptBridge
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 	
 	protected String getEncodedDataForJS(String data) {

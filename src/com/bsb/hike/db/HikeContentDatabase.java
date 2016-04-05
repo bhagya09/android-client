@@ -890,9 +890,13 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			if (c.moveToFirst())
 			{
 
-				return c.getString(c.getColumnIndex(DBConstants.BG_ID));
+				return c.getString(c.getColumnIndex(DBConstants.HIKE_CONTENT.TOKEN));
 
 			}
+			return null;
+		}
+		catch(Exception e){
+			Logger.d(getClass().getSimpleName(), "Caught Exception while getTokenForMicroapp : "+ e.getMessage());
 			return null;
 		}
 		finally

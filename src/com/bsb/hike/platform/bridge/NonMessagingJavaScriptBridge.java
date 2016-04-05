@@ -1,6 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -1581,27 +1582,37 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		String urlKey;
 		JSONObject data;
 		int current_count;
-		public PlatformPostListener(String id, String urlKey, final JSONObject data, final int count)
+		private int tokenLife;
+		public PlatformPostListener(String id, String urlKey, final JSONObject data, final int count, int tokenLife)
 		{
 			this.id =id;
 			this.urlKey =urlKey;
 			this.data=data;
 			this.current_count = count;
+			this.tokenLife = tokenLife;
 		}
 		@Override
 		public void onRequestFailure(HttpException httpException) {
-			AuthListener authListener = new AuthListener() {
-				@Override
-				public void onTokenResponse(String authToken) {
-					doInfraPost(id,urlKey,data, --current_count);
-				}
+			Logger.e("NonMessagingJavascriptBridge", "Error while parsing success request: "+httpException.getErrorCode()+" : "+httpException.getMessage());
+			if (httpException.getErrorCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+			{
+				AuthListener authListener = new AuthListener()
+				{
+					@Override
+					public void onTokenResponse(String authToken)
+					{
+						Logger.d("NonMessagingJavascriptBridge", "Again trying infra url");
+						doInfraPost(id, urlKey, data, --current_count);
+					}
 
-				@Override
-				public void onTokenErrorResponse(String error) {
+					@Override
+					public void onTokenErrorResponse(String error)
+					{
 
-				}
-			};
-			PlatformUtils.requestAuthToken(mBotInfo, authListener);
+					}
+				};
+				PlatformUtils.requestAuthToken(mBotInfo, authListener, tokenLife);
+			}
 		}
 
 		@Override
@@ -1667,19 +1678,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if(tokenLife == DBConstants.LONG_LIVED) {
 			final String oAuth = HikeContentDatabase.getInstance().getTokenForMicroapp(mBotInfo.getMsisdn());
 			if (TextUtils.isEmpty(oAuth)) {
-				fetchToken(id, urlKey, data, count, url);
+				Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its not saved earlier");
+				fetchToken(id, urlKey, data, count, url,tokenLife);
 			} else {
-				makePlatformPostRequest(id, url, data, oAuth, urlKey, count);
+				makePlatformPostRequest(id, url, data, oAuth, urlKey, count,tokenLife);
 			}
 		}else{
-			fetchToken(id, urlKey, data, count, url);
+			Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its long lived");
+			fetchToken(id, urlKey, data, count, url,tokenLife);
 		}
 	}
-    private void fetchToken(final String id, final String urlKey, final JSONObject data, final int count, final String url){
+    private void fetchToken(final String id, final String urlKey, final JSONObject data, final int count, final String url, final int tokenLife){
 		AuthListener authListener = new AuthListener() {
 			@Override
 			public void onTokenResponse(String authToken) {
-				makePlatformPostRequest(id, url, data, authToken, urlKey, count);
+				makePlatformPostRequest(id, url, data, authToken, urlKey, count,tokenLife);
 			}
 
 			@Override
@@ -1687,11 +1700,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 			}
 		};
-		PlatformUtils.requestAuthToken(mBotInfo, authListener);
+		PlatformUtils.requestAuthToken(mBotInfo, authListener,tokenLife);
 	}
-	private void makePlatformPostRequest(String id, String url, JSONObject json, String oAuth, String urlKey, int count)
+	private void makePlatformPostRequest(String id, String url, JSONObject json, String oAuth, String urlKey, int count, int tokenLife)
 	{
-		RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, json, count));
+		RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, json, count,tokenLife));
 
 		if (!token.isRequestRunning())
 		{

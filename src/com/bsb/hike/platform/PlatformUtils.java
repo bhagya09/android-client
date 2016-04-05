@@ -467,10 +467,6 @@ public class PlatformUtils
 	{
 		enableBot(botInfo, enableBot,true);
 		BotUtils.updateBotParamsInDb(botChatTheme, botInfo, enableBot, notifType);
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false))
-		{
-			requestAuthToken(botInfo, null);
-		}
 		createBotAnalytics(HikePlatformConstants.BOT_CREATED, botInfo);
 		createBotMqttAnalytics(HikePlatformConstants.BOT_CREATED_MQTT, botInfo);
 	}
@@ -480,9 +476,9 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
-	public static void requestAuthToken(BotInfo botInfo, AuthListener authListener){
+	public static void requestAuthToken(BotInfo botInfo, AuthListener authListener, int tokenLife){
 		PlatformAuthenticationManager manager =new PlatformAuthenticationManager(botInfo.getClientId(), botInfo.getMsisdn(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null),authListener);
-		manager.requestAuthToken(botInfo.getClientId());
+		manager.requestAuthToken(tokenLife);
 	}
 	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
