@@ -93,6 +93,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
+	private static final String HIKE_SETTINGS = "/hikesettings/";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -505,5 +507,9 @@ public class HttpRequestConstants
     }
 	public static String getAnalyticsUrl() {
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
+	public static String getSettingsUploadUrl() {
+		return  BASE_URL + BASE_V1 + HIKE_SETTINGS;
 	}
 }

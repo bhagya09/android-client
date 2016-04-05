@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -1125,6 +1126,21 @@ public class HttpRequests
                 .build();
         requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
         return requestToken;
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	{
+		JsonBody jsonBody = new JsonBody(payloadJSON);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.post(jsonBody)
+				.build();
+		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
 	}
 
 }

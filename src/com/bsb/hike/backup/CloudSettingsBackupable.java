@@ -13,6 +13,7 @@ import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -58,7 +59,7 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 		JSONObject backupJson = serialize();
 
 		// Upload to server
-		// HttpRequests.uploadUserSettings(backupJson);
+		HttpRequests.uploadUserSettings(this, 2, 1000, backupJson).execute();
 	}
 
 	public JSONObject serialize() throws JSONException
