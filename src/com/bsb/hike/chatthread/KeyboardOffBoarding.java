@@ -230,7 +230,7 @@ public class KeyboardOffBoarding
 
 	public static boolean kptExitServerSwitch() {
 //		server-side switch
-		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, true);
+		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, false);
 		return show;
 	}
 
