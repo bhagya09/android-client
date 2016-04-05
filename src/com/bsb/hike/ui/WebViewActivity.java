@@ -1516,6 +1516,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
 			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
+		}else if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_VIA_MENU))
+		{
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_VIA_MENU));
 		}
 	}
 

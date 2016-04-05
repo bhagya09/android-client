@@ -2226,6 +2226,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 case R.string.wallet_menu:
 					
 					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
 				case R.string.timeline:
