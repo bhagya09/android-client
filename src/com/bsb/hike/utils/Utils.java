@@ -4677,7 +4677,7 @@ public class Utils
 		}, contactInfo.getFirstName());
 	}
 
-	public static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
 	{
 		FavoriteType favoriteType;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -4706,6 +4706,7 @@ public class Utils
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteAdded);
+		return favoriteType;
 	}
 
 	public static void addToContacts(Context context, String msisdn)
@@ -8101,7 +8102,7 @@ public class Utils
 
 	public static void revertFavToFriendsChange()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 2)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) == 1)
 		{
 			Context context = HikeMessengerApp.getInstance().getApplicationContext();
 			// Change last seen pref to friends if its is not already set to friends or noone.
