@@ -30,9 +30,10 @@
                     android:src="@drawable/hike_caller_logo" />
 
                 <com.bsb.hike.ui.utils.RecyclingImageView
-                    android:id="@+id/caller_close_button"
+                    android:id="@+id/qr_caller_close_button"
                     android:layout_width="44dp"
                     android:layout_height="44dp"
+                    android:layout_marginTop="12dp"
                     android:layout_alignParentRight="true"
                     android:scaleType="centerInside"
                     android:src="@drawable/close_icon" />

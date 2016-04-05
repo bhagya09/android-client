@@ -4,14 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/caller_reply_view"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginTop="16dp"
-        android:visibility="visible"
-        android:orientation="horizontal">
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:visibility="gone"
+        android:background="#676460">
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/caller_name"
@@ -20,22 +18,33 @@
             android:textColor="@color/conv_item_ts_color"
             android:text="@string/spam"
             android:layout_gravity="center_vertical"
-            android:textSize="16sp"
-            android:visibility="visible" />
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="20dp"/>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/caller_location"
+            android:layout_below="@+id/caller_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:textColor="@color/conv_item_last_msg_color"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:layout_marginLeft="20dp"
-            android:layout_gravity="center_vertical"
-            android:text="@string/spam"
-            android:visibility="visible" />
+            android:text="@string/spam"/>
 
-    </LinearLayout>
+        <com.bsb.hike.ui.utils.RecyclingImageView
+            android:layout_toRightOf="@+id/caller_name"
+            android:layout_above="@+id/caller_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/hike_caller_logo" />
+
+    </RelativeLayout>
     <LinearLayout
         android:layout_below="@+id/caller_reply_view"
         android:layout_width="match_parent"
@@ -59,7 +68,6 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/spam_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:tag="@string/caller_spam"
             android:text="@string/caller_spam" />
 
         <View
