@@ -316,6 +316,11 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			{
 				return OFFLINE_FILE_NOT_RECEIVED;
 			}
+
+			else if (HikeConstants.FRIENDS_SYSTEM_MESSAGE.equals(type))
+			{
+				return FRIEND_REQUSET_STATUS;
+			}
 				
 			return NO_INFO;
 		}

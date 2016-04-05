@@ -8137,6 +8137,18 @@ public class Utils
 	{
 		ConvMessage convMessage = makeConvMessage(msisdn, message, isOnHike, state);
 		convMessage.setParticipantInfoState(ParticipantInfoState.FRIEND_REQUSET_STATUS);
+		try
+		{
+			JSONObject obj = new JSONObject();
+			obj.put(HikeConstants.TYPE, HikeConstants.FRIENDS_SYSTEM_MESSAGE);
+			convMessage.setMetadata(obj);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.wtf("Utils", "getting exception while creating convmessage : " + e.toString());
+		}
+
 		return convMessage;
 	}
 
