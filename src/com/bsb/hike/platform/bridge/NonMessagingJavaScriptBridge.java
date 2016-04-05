@@ -28,6 +28,7 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -1569,7 +1570,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param persistent
 	 */
 	@JavascriptInterface
-	public void setAlarm(JSONObject json, long timeInMills,boolean persistent)
+	public void setAlarm(JSONObject json, String timeInMills,String persistent)
 	{
 		String msisdn = mBotInfo.getMsisdn();
 		Activity mContext = weakActivity.get();
@@ -1593,5 +1594,18 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		HikeAlarmManager.cancelAlarm(weakActivity.get(), (mBotInfo.getMsisdn().hashCode() + alarmData.hashCode()));
+	}
+	/**
+	 * Platform Version 11
+	 * Method to update last message
+	 */
+	public void updateLastMessage(String message)
+	{
+		if (!TextUtils.isEmpty(message) && mBotInfo !=null)
+		{
+			HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(mBotInfo.getMsisdn(), message);
+			// Saving lastConvMessage in memory as well to refresh the UI
+			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_UNREAD));
+		}
 	}
 }

@@ -358,7 +358,6 @@
     <string name="one_new_message">1 नया संदेश</string>
     <string name="terms">शर्तें</string>
     <string name="get_started">शुरू करें</string>
-    <string name="got_it">समझ गए</string>
     <string name="whats_your_number">hi! आपका नंबर क्या है?</string>
     <string name="select_country">देश चुनें</string>
     <string name="wrong_country">अमान्य देश कोड</string>
@@ -667,7 +666,7 @@
     <string name="selected_contacts_count_plural">%1$s संपर्क</string>
     <string name="selected_contacts_count_singular">%1$s संपर्क</string>
     <string name="wish_now">अभिवादन करें</string>
-    <string name="messages_sent_succees">संदेश भेजा दिया</string>
+    <string name="messages_sent_succees">संदेश भेज दिया</string>
     <string name="content_card_tag">कार्ड</string>
     <string name="content_card_title_tag">T1</string>
     <string name="content_card_subtitle_tag">T2</string>
@@ -1030,8 +1029,6 @@
 	<string name="sms_admin_toast">आप SMS संपर्कों के साथ ऐडमिन अधिकार शेयर नहीं कर सकते हैं</string>
 	<string name="group_settings_updated">ने ग्रुप सेटिंग्स बदल दी हैं</string>
 	<string name="you_group_settings_updated">आपने ग्रुप सेटिंग्स बदल दी हैं</string>
-	<string name="ftue_multiadmin_header">एकाधिक ऐडमिन</string>
-	<string name="ftue_multiadmin_description">इस ग्रुप के और सदस्यों के साथ अपने ऐडमिन अधिकार शेयर करें</string>
 	<string name="unknown_server_error">फ़ाइल डाउनलोड करने में असमर्थ।</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s वार्तालापों से %1$s संदेश</string>
@@ -1445,7 +1442,6 @@
     <string name="timeline_short_desc">आनंदपूर्ण क्षणों को मित्रों से साझा करें</string>
     <string name="multiple_su_post_failed">एक या उससे अधिक स्टेटस पोस्ट नहीं किए जा सकते।</string>
     <string name="timeline_post_timeout">आपके फ़ोटोस जल्दी हो पोस्ट किए जाएंगे</string>
-    <string name="timeline_post_multimsg">छोड़े गए अतिरिक्त संदेश</string>
     <string name="crop">क्रॉप</string>
     <string name="photo_gallery_choose_pic">फ़ोटोस</string>
     <string name="remove">निकालें</string>
@@ -1455,6 +1451,8 @@
     <string name="forward_to_single_timeline">1 संपर्क को और टाइमलाइन पर संदेश भेजें?</string>
     <string name="share_with_timeline">%1$d संपर्क से और टाइमलाइन पर साझा करें?</string>
     <string name="share_with_contact_timeline">%1$s से और टाइमलाइन पर साझा करें?</string>
-    <string name="image_w_caption_sms">ने आपको शीर्षक वाली फ़ोटो भेजी</string>
+    <string name="image_w_caption_sms">ने आपको %1$s कैप्शन वाली फ़ोटो भेजीी</string>
     <string name="share_on_timeline">टाइमलाइन पर साझा करें?</string>
+    <string name="posting_photos_timeline">आपके फ़ोटोस टाइमलाइन पर पोस्ट किए जा रहे हैं</string>
+    <string name="add_a_caption">कैप्शन डालें</string>
 </resources>

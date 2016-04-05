@@ -96,29 +96,30 @@ public class BotChatThread extends OneToOneChatThread
 	public void onPause()
 	{
 		super.onPause();
+        HAManager.getInstance().endChatSession(msisdn);
 	}
 	
 	@Override
 	public void onResume()
 	{
 		super.onResume();
+        HAManager.getInstance().startChatSession(msisdn);
 	}
 	
 	@Override
 	protected void onStart()
 	{
-		HAManager.getInstance().startChatSession(msisdn);
 		super.onStart();
 	}
 	
 	@Override
 	protected void onStop()
 	{
-		HAManager.getInstance().endChatSession(msisdn);
 		super.onStop();
+        HAManager.getInstance().recordIndividualChatSession(msisdn);
 	}
-	
-	@Override
+
+    @Override
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);

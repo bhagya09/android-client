@@ -747,9 +747,13 @@ public class ChatHeadUtils
 
 	public static void postNumberRequest(Context context, String searchNumber)
 	{
-		final String number = getValidNumber(Utils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
-				.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
-		if (number != null)
+		String number = null;
+		if (!TextUtils.isEmpty(searchNumber))
+		{
+			 number = getValidNumber(Utils.normalizeNumber(searchNumber, HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0)
+					.getString(HikeMessengerApp.COUNTRY_CODE, HikeConstants.INDIA_COUNTRY_CODE)));
+
+		if (!TextUtils.isEmpty(number))
 		{
 			//removing caller view as old caller view must be removed when new caller card request is initiated
 			StickyCaller.removeCallerView();
@@ -797,6 +801,7 @@ public class ChatHeadUtils
 					callerServerCall(number, false, callerContentModel);
 				}
 			}
+		}
 		}
 	}
 	
