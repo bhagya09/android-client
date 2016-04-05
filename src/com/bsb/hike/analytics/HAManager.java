@@ -465,7 +465,14 @@ public class HAManager
 			{
 				metadata = new JSONObject();
 			}
-			
+			else
+			{
+				//Some metadata creators, modify metadata after calling the recordEvent()
+				//Due to this, there was a ConcurrentModificationException while persisting the JSON
+				//Cloning metadata will help us in this.
+				metadata = Utils.cloneJsonObject(metadata);
+			}
+
 			metadata.put(AnalyticsConstants.SESSION_ID, fgSessionInstance.getSessionId());
 
 			data.put(AnalyticsConstants.METADATA, metadata);

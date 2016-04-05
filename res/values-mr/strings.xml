@@ -359,7 +359,6 @@
     <string name="one_new_message">1 नवीन संदेश</string>
     <string name="terms">अटी</string>
     <string name="get_started">आरंभ करा</string>
-    <string name="got_it">समजले</string>
     <string name="whats_your_number">हाय! तुमचा क्रमांक काय आहे?</string>
     <string name="select_country">देश निवडा</string>
     <string name="wrong_country">देश कोड अवैध</string>
@@ -1032,8 +1031,6 @@
 	<string name="sms_admin_toast">तुम्ही SMS वापरकर्त्यांसोबत तुमचे ॲडमिन ीय हक्क सामायिक करू शकत नाही</string>
 	<string name="group_settings_updated">ने समूह सेटिंग्ज बदलले</string>
 	<string name="you_group_settings_updated">तुम्ही समूह सेटिंग्ज बदलले</string>
-	<string name="ftue_multiadmin_header">एकाधिक ॲडमिन </string>
-	<string name="ftue_multiadmin_description">आता तुमचे ॲडमिन ीय हक्क या समूहाच्या एका किंवा अधिक सदस्यांसोबत सामायिक करा</string>
 	<string name="unknown_server_error">फाइल डाउनलोड करू शकत नाही.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s संभाषणांकडील %1$s संदेश</string>
@@ -1449,7 +1446,6 @@
     <string name="timeline_short_desc">तुमचे क्षण मित्रांसह शेअर करा</string>
     <string name="multiple_su_post_failed">एक किंवा दोन स्टेटस पोस्ट करता येनार नाहीत.</string>
     <string name="timeline_post_timeout">तुमचे फोटो लवकरच पोस्ट केले जातील</string>
-    <string name="timeline_post_multimsg">अतिरिक्त संदेश फेकून द्या</string>
     <string name="crop">क्रॉप करा</string>
     <string name="photo_gallery_choose_pic">फोटो</string>
     <string name="remove">काढा</string>
@@ -1459,6 +1455,8 @@
     <string name="forward_to_single_timeline">1 संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
     <string name="share_with_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
     <string name="share_with_contact_timeline">%1$s सह आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
-    <string name="image_w_caption_sms">तुम्हाला मथळ्यासह एक फोटो पाठवली \"</string>
+    <string name="image_w_caption_sms">तुम्हाला कैप्शन सहित एक फोटो पाठवली %1$s</string>
     <string name="share_on_timeline">टाइमलाइन वर शेअर करायची?</string>
+    <string name="posting_photos_timeline">तुमचे फोटोज टाइमलईंवरपोस्ट केले जात आहेत</string>
+    <string name="add_a_caption">कैप्शन सामील</string>
 </resources>
