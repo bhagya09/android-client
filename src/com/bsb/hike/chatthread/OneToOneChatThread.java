@@ -50,7 +50,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
@@ -258,20 +260,45 @@ import java.util.Map;
 		}
 	}
 
+	/**
+	 * Two things are Shown
+	 * 1. Caller View  inside unknown contact overlay
+	 * 2. Show quick reply message inside chat thread
+	 * @param intent
+	 */
 	private void addQuickReplyMessage(Intent intent)
 	{
 		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
 		{
-			String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
-			String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
-			ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
-
+			//Showing Caller View inside unknown contact overlay
 			if(mContactInfo != null && mContactInfo.isUnknownContact())
 			{
-				convMessage.setBlockAddHeader(true);
+				if(messages != null && messages.size() == 0)
+				{
+					ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
+					cm.setBlockAddHeader(true);
+					messages.add(0, cm);
+				}
+
+				//Provide content to caller View inside Unknown contact overlay
+				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
+
+				if(mAdapter != null && callerContentModel != null)
+				{
+					mConversation.setOnHike(callerContentModel.getIsOnHike());
+					mAdapter.setCallerContentModel(callerContentModel);
+					mAdapter.notifyDataSetChanged();
+				}
 			}
 
-			sendMessage(convMessage);
+			//Showing quick reply message inside CT
+			if(intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG))
+			{
+				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
+				String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
+				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
+				sendMessage(convMessage);
+			}
 			intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
 		}
 	}
@@ -2707,7 +2734,7 @@ import java.util.Map;
 			break;
 
 		case R.id.add_unknown_contact:
-			if ( null != v.getTag() && v.getTag().equals(R.string.add))
+			if ( null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
 			{
 				Utils.addToContacts(activity, msisdn);
 			}
@@ -2723,6 +2750,8 @@ import java.util.Map;
 			handleNetworkCardClick(false);
 			break;
 		case R.id.spam_unknown_contact:
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String)v.getTag(),
+					AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
 			ChatHeadUtils.makeHttpCallToMarkUserAsSpam((String)v.getTag());
 			break;
 		default:

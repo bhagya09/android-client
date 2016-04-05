@@ -597,9 +597,17 @@ public class AnalyticsConstants
 
 		public static final String UNBLOCK_DIALOG = "unblkDlg";
 
-		public static final String QUICK_REPLY = "qrep";
+		public static final String STATIC_QUICK_REPLY_BUTTON = "sqrep";
 
 		public static final String CUSTOM_QUICK_REPLY_BUTTON = "cqrep";
+
+		public static final String QUICK_REPLY_CLOSE_BUTTON = "qrcb";
+
+		public static final String QUICK_REPLY = "qrep";
+
+		public static final String CHAT_THREAD_SPAM_BUTTON = "ctsbutton";
+
+		public static final String TEXT = "txt";
 	}
 	
 	public static String EVENT_SOURCE = "sr";

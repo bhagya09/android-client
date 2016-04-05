@@ -682,9 +682,17 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType)
+	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType, JSONObject metadata)
 	{
-		JSONObject metadata = new JSONObject();
+		if(metadata == null)
+		{
+			metadata = new JSONObject();
+		}
+		else
+		{
+			metadata = Utils.cloneJsonObject(metadata);
+		}
+
 		try
 		{
 			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
@@ -699,7 +707,12 @@ public class HAManager
 			e.printStackTrace();
 		}
 	}
-	
+
+	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType)
+	{
+		stickyCallerAnalyticsUIEvent(eventKey, msisdn, source, callType, null);
+	}
+
 	public void updateTipAndNotifAnalyticEvent(String eventType, String eventKey, String eventContext)
 	{
 		JSONObject metadata = new JSONObject();

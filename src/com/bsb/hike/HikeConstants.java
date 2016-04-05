@@ -1863,6 +1863,10 @@ public class HikeConstants
 
 		public static final String CALLER_QUICK_REPLY_MSG = "caller_quick_reply_msg";
 
+		public static final String CALLER_QUICK_REPLY_NAME = "caller_quick_reply_name";
+
+		public static final String CALLER_QUICK_REPLY_LOC = "caller_quick_reply_loc";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{

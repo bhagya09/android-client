@@ -1120,4 +1120,19 @@ public class ChatHeadUtils
 			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
 		}
 	}
+
+	public static CallerContentModel getCallerContentModelFormIntent(Intent intent)
+	{
+		CallerContentModel callerContentModel = null;
+		if(intent != null)
+		{
+			String name = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NAME);
+			String location = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_LOC);
+			String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
+			boolean isOnHike = intent.getBooleanExtra(HikeConstants.Extras.ON_HIKE, false);
+			callerContentModel = new CallerContentModel(location, msisdn, name);
+			callerContentModel.setIsOnHike(isOnHike);
+		}
+		return callerContentModel;
+	}
 }

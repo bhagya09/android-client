@@ -27,8 +27,8 @@
             android:layout_below="@+id/caller_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:textColor="@color/conv_item_last_msg_color"
             android:textSize="12sp"
             android:layout_marginLeft="20dp"
@@ -80,8 +80,8 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/add_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:tag="@string/add"
-            android:text="@string/add" />
+            android:tag="@string/save_unknown_contact"
+            android:text="@string/save_unknown_contact" />
 
     </LinearLayout>
 

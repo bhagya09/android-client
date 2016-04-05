@@ -66,6 +66,7 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -116,6 +117,7 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontButton;
+import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
@@ -355,6 +357,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
+
+	private CallerContentModel callerContentModel;
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -2556,10 +2560,24 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					addButton.setTag(R.string.add);
+					addButton.setTag(R.string.save_unknown_contact);
 				}
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
+				convertView.findViewById(R.id.spam_unknown_contact).setTag(conversation.getMsisdn());
+				convertView.findViewById(R.id.spam_unknown_contact).setOnClickListener(mOnClickListener);
+
+				//To Show Caller View in case user opens 1-1 chat via caller "free sms" button click on hike caller card
+				if(callerContentModel != null)
+				{
+					//visible
+					convertView.findViewById(R.id.caller_reply_view).setVisibility(View.VISIBLE);
+					
+					//set UI (Name and Location)
+					((CustomFontTextView)convertView.findViewById(R.id.caller_name)).setText(callerContentModel.getFullName());
+					((CustomFontTextView)convertView.findViewById(R.id.caller_location)).setText(callerContentModel.getLocation());
+
+				}
 
 			}
 			return convertView;
@@ -4638,5 +4656,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
+	}
+
+	public void setCallerContentModel(CallerContentModel callerContentModel)
+	{
+		this.callerContentModel = callerContentModel;
 	}
 }

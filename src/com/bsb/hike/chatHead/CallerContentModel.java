@@ -43,6 +43,18 @@ public class CallerContentModel
 
     private long updation_time, creation_time;
 
+	public CallerContentModel()
+	{
+
+	}
+
+	public CallerContentModel(String location, String msisdn, String full_name)
+	{
+		this.location = location;
+		this.msisdn = msisdn;
+		this.full_name = full_name;
+	}
+
 	private String getLastName()
 	{
 		if (name != null && name.has(LAST_NAME) && !name.get(LAST_NAME).isJsonNull())
