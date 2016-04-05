@@ -1569,7 +1569,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param persistent
 	 */
 	@JavascriptInterface
-	public void setAlarm(JSONObject json, long timeInMills,boolean persistent)
+	public void setAlarm(JSONObject json, String timeInMills,String persistent)
 	{
 		String msisdn = mBotInfo.getMsisdn();
 		Activity mContext = weakActivity.get();
@@ -1592,6 +1592,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		HikeAlarmManager.cancelAlarm(weakActivity.get(),(mBotInfo.getMsisdn().hashCode()+alarmData.hashCode()));
+		HikeAlarmManager.cancelAlarm(weakActivity.get(), (mBotInfo.getMsisdn().hashCode() + alarmData.hashCode()));
 	}
 }
