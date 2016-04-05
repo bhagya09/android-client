@@ -1570,8 +1570,17 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * @param persistent
 	 */
 	@JavascriptInterface
-	public void setAlarm(JSONObject json, String timeInMills,String persistent)
+	public void setAlarm(String inputJson, String timeInMills,String persistent)
 	{
+		JSONObject json = null;
+		try
+		{
+			json = new JSONObject(inputJson);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 		String msisdn = mBotInfo.getMsisdn();
 		Activity mContext = weakActivity.get();
 		if(TextUtils.isEmpty(msisdn) || mContext == null)
