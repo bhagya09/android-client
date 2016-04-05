@@ -46,7 +46,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
-import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.CustomTabsHelper;
@@ -1048,9 +1047,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
-<<<<<<< HEAD
 
-=======
 		initCrashReportingTool();
 	}
 
@@ -1060,7 +1057,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		if (!TextUtils.isEmpty(msisdn)) {
 			Crashlytics.setUserIdentifier(msisdn);
 		}
->>>>>>> 444973a12bfa86fa6d0bff2b506a405e9a72716a
 	}
 
 	/**
