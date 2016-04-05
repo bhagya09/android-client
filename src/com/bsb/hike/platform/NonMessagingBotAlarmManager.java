@@ -94,15 +94,6 @@ public class NonMessagingBotAlarmManager {
 				}
 
 				String message = data.getString(HikePlatformConstants.NOTIFICATION);
-				if (!TextUtils.isEmpty(message))
-				{
-					HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(msisdn, message);
-					// Saving lastConvMessage in memory as well to refresh the UI
-					botInfo.setLastConversationMsg(Utils.makeConvMessage(msisdn, message, true, ConvMessage.State.RECEIVED_UNREAD));
-				}
-				showNotification(data, context);
-				boolean increaseUnreadCount = Boolean.valueOf(data.getString(HikePlatformConstants.INCREASE_UNREAD));
-				boolean rearrangeChat = Boolean.valueOf(data.getString(HikePlatformConstants.REARRANGE_CHAT));
                 NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
                 if(metadata!= null && metadata.isNativeMode())
                 {
@@ -112,6 +103,15 @@ public class NonMessagingBotAlarmManager {
                         return;
                     }
                 }
+				if (!TextUtils.isEmpty(message))
+				{
+					HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(msisdn, message);
+					// Saving lastConvMessage in memory as well to refresh the UI
+					botInfo.setLastConversationMsg(Utils.makeConvMessage(msisdn, message, true, ConvMessage.State.RECEIVED_UNREAD));
+				}
+				showNotification(data, context);
+				boolean increaseUnreadCount = Boolean.valueOf(data.getString(HikePlatformConstants.INCREASE_UNREAD));
+				boolean rearrangeChat = Boolean.valueOf(data.getString(HikePlatformConstants.REARRANGE_CHAT));
 				Utils.rearrangeChat(msisdn, rearrangeChat, increaseUnreadCount);
 
 			}
