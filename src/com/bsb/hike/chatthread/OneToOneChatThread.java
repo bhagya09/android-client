@@ -418,7 +418,7 @@ import java.util.Map;
 
 		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
-			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
+			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_as_favorite_menu : R.string.add_as_friend_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
