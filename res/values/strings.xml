@@ -1596,4 +1596,5 @@
     <string name="add_as_friend_notification_line">Added you as a friend</string>
     <string name="add_as_friend_menu">Add Friend</string>
     <string name="remove_from_friends">Remove Friend</string>
+    <string name="add_frn">Add to friends</string>
 </resources>

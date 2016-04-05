@@ -1047,7 +1047,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					fav_layout.setVisibility(View.VISIBLE);  //Simply show add to fav view if contact is unsaved
 					extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-					extraInfo.setText(getResources().getString(R.string.add_fav));
+					extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 					smallIcon.setImageResource(R.drawable.ic_add_friend);
 				}
 				
@@ -1083,7 +1083,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							dual_layout.setVisibility(View.GONE);
 							fav_layout.setVisibility(View.VISIBLE);
 							extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-							extraInfo.setText(getResources().getString(R.string.add_fav));
+							extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 							smallIcon.setImageResource(R.drawable.ic_add_friend);
 						}
 					}
