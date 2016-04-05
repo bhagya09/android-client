@@ -716,7 +716,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 String appName = null;
                 Boolean isMappCreationSuccess = false;
 
-                if((((Pair) object).second) instanceof  String)
+                if((((Pair) object).first) instanceof  String)
                     appName = (String)(((Pair) object).first);
 
                 if((((Pair) object).second) instanceof  Boolean)
@@ -927,49 +927,62 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
         // Code for micro app request to the server
         RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
         {
-
             @Override
 			public void onRequestSuccess(Response result)
 			{
-				Logger.d(TAG, "Bot download request success for " + appName + result.getBody().getContent());
+                Logger.d(TAG, "Bot download request success for " + appName + result.getBody().getContent());
 
-                // Handle 
-				if (result.getBody().getContent() instanceof JSONObject)
+				if (result.getBody().getContent() instanceof String)
 				{
-					JSONObject responseJson = (JSONObject) result.getBody().getContent();
-
+					String responseJsonString = (String) result.getBody().getContent();
 					try
 					{
+						JSONObject responseJson = new JSONObject(responseJsonString);
 						JSONArray apps = responseJson.optJSONArray(HikePlatformConstants.APPS);
-                        for (int i = 0; i < apps.length(); i++)
-                        {
-                            JSONObject appsJson = apps.getJSONObject(i);
-                            String updatedAppName = appName;
-                            if (apps != null)
-                            {
-                                updatedAppName = appsJson.optString(HikePlatformConstants.UPDATED_APP_NAME);
-                                JSONObject cardObj = convMessage.webMetadata.getCardobj();
 
-                                cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);
-                                convMessage.webMetadata.setCardobj(cardObj);
-                            }
+                        // Check if server responded with updated app name , set pubsub acc to it else proceed with message appName
+                        if (apps != null)
+						{
+							for (int i = 0; i < apps.length(); i++)
+							{
+								JSONObject appsJson = apps.getJSONObject(i);
+								String updatedAppName = appName;
+								
+								updatedAppName = appsJson.optString(HikePlatformConstants.UPDATED_APP_NAME);
+								JSONObject cardObj = convMessage.webMetadata.getCardobj();
 
-                            ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
+								cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);
+								convMessage.webMetadata.setCardobj(cardObj);
 
-                            // In case view holders array list is null , initialize it with an empty array list
-                            if (viewHolders == null)
-                                viewHolders = new ArrayList<>();
+								ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
 
-                            viewHolders.add(webViewHolder);
-                            webViewHolderMap.put(updatedAppName, viewHolders);
-                        }
+								// In case view holders array list is null , initialize it with an empty array list
+								if (viewHolders == null)
+									viewHolders = new ArrayList<>();
+
+								viewHolders.add(webViewHolder);
+								webViewHolderMap.put(updatedAppName, viewHolders);
+							}
+						}
+						else
+						{
+							ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+							// In case view holders array list is null , initialize it with an empty array list
+							if (viewHolders == null)
+								viewHolders = new ArrayList<>();
+
+							viewHolders.add(webViewHolder);
+							webViewHolderMap.put(appName, viewHolders);
+						}
 					}
 					catch (JSONException e)
 					{
 						e.printStackTrace();
 					}
 				}
-			}
+
+            }
 
             @Override
             public void onRequestProgressUpdate(float progress)
