@@ -1,6 +1,9 @@
 package com.bsb.hike.media;
 
 import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -32,6 +35,7 @@ import com.bsb.hike.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by nidhi on 01/02/16.
@@ -295,11 +299,13 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         recorderState = CANCELLED;
         doVibration(50);
         stopUpdateTimeAndRecorder();
+        recordInfo.animate().alpha(0.0f).setDuration(0).start();
         recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
     }
 
     static final int CANCEL_RECORDING = 1;
     static final int DO_CANCEL_ANIMATION = 2;
+    static final int DO_SCATTER_ANIMATION = 3;
     protected Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             if (msg == null) {
@@ -319,6 +325,14 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 recorderImg.setVisibility(View.INVISIBLE);
                 rectBgrnd.startAnimation(HikeAnimationFactory.getScaleInAnimation(0));
                 break;
+            case DO_SCATTER_ANIMATION:
+                rectBgrnd.setVisibility(View.INVISIBLE);
+                ImageView innerView = (ImageView)inflatedLayoutView.findViewById(R.id.delete_inner);
+                innerView.setVisibility(View.VISIBLE);
+                ImageView outerView = (ImageView) inflatedLayoutView.findViewById(R.id.delete_outer);
+                outerView.setVisibility(View.VISIBLE);
+                playDeleteAnim(innerView, outerView);
+                break;
             default:
                 break;
         }
@@ -330,8 +344,86 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         mHandler.sendMessageDelayed(message, 500);
 
         Message message1 = Message.obtain();
-        message1.what = CANCEL_RECORDING;
-        mHandler.sendMessageDelayed(message1,1000);
+        message1.what = DO_SCATTER_ANIMATION;
+        mHandler.sendMessageDelayed(message1,700);
+    }
+
+    private void postCancelMessage(){
+
+        Message cancelMsg = Message.obtain();
+        cancelMsg.what = CANCEL_RECORDING;
+        mHandler.sendMessageDelayed(cancelMsg,200);
+    }
+
+    static int anim_repeat_count;
+    private static final int SCATTER_ANIM_DURATION = 100;
+    public void playDeleteAnim(View inner, View outer){
+
+        anim_repeat_count = 1;
+        AnimatorSet deletingAnimation = new AnimatorSet();
+
+        ArrayList<Animator> viewAnimList = new ArrayList<Animator>();
+
+        ObjectAnimator innerAlpha = ObjectAnimator.ofFloat(inner, "alpha", 0.0f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        innerAlpha.setRepeatCount(1);
+        innerAlpha.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(innerAlpha);
+
+        ObjectAnimator anim1 = ObjectAnimator.ofFloat(inner, "scaleX", 0.5f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        anim1.setRepeatCount(1);
+        anim1.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(anim1);
+
+        ObjectAnimator anim1y = ObjectAnimator.ofFloat(inner, "scaleY", 0.5f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        anim1y.setRepeatCount(1);
+        anim1y.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(anim1y);
+
+        ObjectAnimator outerAlpha = ObjectAnimator.ofFloat(outer, "alpha", 0.0f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        outerAlpha.setStartDelay(50);
+        outerAlpha.setRepeatCount(1);
+        outerAlpha.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(outerAlpha);
+
+        ObjectAnimator anim2 = ObjectAnimator.ofFloat(outer, "scaleX", 0.5f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        anim2.setRepeatCount(1);
+        anim2.setStartDelay(100);
+        anim2.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(anim2);
+
+        ObjectAnimator anim2y = ObjectAnimator.ofFloat(outer, "scaleY", 0.5f, 1.0f).setDuration(SCATTER_ANIM_DURATION);
+        anim2y.setRepeatCount(1);
+        anim2y.setStartDelay(100);
+        anim2y.setRepeatMode(ValueAnimator.REVERSE);
+        viewAnimList.add(anim2y);
+
+        deletingAnimation.playTogether(viewAnimList);
+
+        deletingAnimation.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+                anim_repeat_count--;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                if (anim_repeat_count > 0) {
+                    animator.start();
+                } else {
+                    postCancelMessage();
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        deletingAnimation.start();
     }
 
     private void recordingError(boolean showError) {
@@ -583,6 +675,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             float amtOfXTranslated = (recorderImg.getX() - recorderImg.getTranslationX());
             recorderImg.setX(amtOfXTranslated);
             slideToCancel.setAlpha(1);
+            recordInfo.setAlpha(1);
             rectBgrnd.clearAnimation();
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
