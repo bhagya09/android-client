@@ -491,7 +491,10 @@ import java.util.Map;
 		}
 
 		//Hide all Possible Buttons for interaction here if user is not a friend.
-		doSetupForAddFriend();
+		if (!mConversation.isBlocked()) //If conv is blocked, no need to show add as friend button
+		{
+			doSetupForAddFriend();
+		}
 	}
 
 	private void showTips()
@@ -3432,6 +3435,8 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+
+			doSetupForAddFriend(); // Hey, if the user is not a 1-way friend, even after unblocking, we can't allow messaging
 		}
 	}
 
