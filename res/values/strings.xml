@@ -368,7 +368,6 @@
     <string name="one_new_message">1 new message</string>
     <string name="terms">Terms</string>
     <string name="get_started">Get Started</string>
-    <string name="got_it">GOT IT</string>
     <string name="whats_your_number">Hi! What\'s your number?</string>
     <string name="select_country">Select Country</string>
     <string name="wrong_country">Invalid country code</string>
@@ -1023,17 +1022,18 @@
     <string name="sticker_widget_show">Show the Stickey in all the apps listed</string>
     <string name="settings_select_all">Select all </string>
     <string name="more_stickers">More stickers</string>
-    <string name="add_members">Add Members</string>
-    <string name="add_members_to_conference">Add To Conference</string>
-    <string name="created_group_text">You created the group chat</string>
-    <string name="group_member_added">%1$s added %2$s</string>
-    <string name="you_group_member_added">You added %1$s</string>
-    <string name="num_members">%1$d members</string>
-    <string name="num_member">%1$d member</string>
-    <string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
-    <string name="show_degraded_image_quality">Going to load a low quality Image</string>
-    <string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
-    <string name="cont_desc_photos_tab_filter">TabFilter</string>
+	<string name="add_members">Add Members</string>
+	<string name="add_members_to_conference">Add To Conference</string>
+	<string name="created_group_text">You created the group chat</string>
+	<string name="you_added_as_group_member">%1$s added you</string>
+	<string name="group_member_added">%1$s added %2$s</string>
+	<string name="you_group_member_added">You added %1$s</string>
+	<string name="num_members">%1$d members</string>
+	<string name="num_member">%1$d member</string>
+	<string name="profile_pic_upload_in_background">Profile picture upload will continue..</string>
+	<string name="show_degraded_image_quality">Going to load a low quality Image</string>
+	<string name="toast_for_showing_thumbnail">Going to show Thumbanil</string>
+	<string name="cont_desc_photos_tab_filter">TabFilter</string>
     <string name="cont_desc_photos_tab_doodle">TabDoodle</string>
     <string name="now">Now</string>
     <string name="sticker_recommend_tip">Tap on blue words</string>
@@ -1052,8 +1052,6 @@
     <string name="sms_admin_toast">You cannot share your Admin rights with SMS users</string>
     <string name="group_settings_updated">has changed the group settings</string>
     <string name="you_group_settings_updated">You have changed the group settings</string>
-    <string name="ftue_multiadmin_header">Multiple Admins</string>
-    <string name="ftue_multiadmin_description">Now share your Admin rights with multiple members of this group</string>
     <string name="unknown_server_error">Unable to download the file.</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
@@ -1515,7 +1513,6 @@
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
-    <string name="timeline_post_multimsg">Discarded extra messages</string>
     <string name="crop">Crop</string>
     <string name="photo_gallery_choose_pic">Photos</string>
     <string name="remove">Remove</string>
@@ -1525,7 +1522,7 @@
     <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
-    <string name="image_w_caption_sms">sent you an image with caption \"</string>
+    <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
     <string name="share_on_timeline">Share on Timeline?</string>
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
@@ -1568,8 +1565,8 @@
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
     <string name="spam">REPORTED AS SPAM</string>
-    <string name="restore_version_error">Your backup was taken on a newer version of hike. To ensure everything works perfectly, please update your app to the latest version and try again.</string>
-    <string name="restore_msisdn_error">Bummer! You seem to have a backup file of someone else! This backup cannot be restored to your account.</string>
+    <string name="posting_photos_timeline">Posting photos to Timeline</string>
+    <string name="add_a_caption">Add a caption</string>
     <string name="upgrade_hike">Update</string>
     <string name="restore_chat_title">Restore chat history</string>
     <string name="restore_chat_body">Something went wrong with your chat history. Don\'t worry, you can restore your chat history from the backup. If you don\'t restore now, you won\'t be able to restore later.</string>
@@ -1579,4 +1576,7 @@
     <string name="restore_success">Chats restored successfully!</string>
     <string name="restore_failure">Some error occured. Could not restore your chats</string>
     <string name="db_corrupt_notif_msg">You have a new notification</string>
+    <string name="restore_msisdn_error">You seem to have a backup file of someone else!</string>
+    <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
+    <string name="bummer">Bummer</string>
 </resources>

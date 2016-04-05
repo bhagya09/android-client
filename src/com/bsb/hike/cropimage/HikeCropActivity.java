@@ -244,6 +244,11 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 				Intent resultIntent = new Intent();
 				resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
 				resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null)
+				{
+					resultIntent.putExtras(extras);
+				}
 				setResult(RESULT_OK, resultIntent);
 				finish();
 			}

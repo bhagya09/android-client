@@ -698,7 +698,16 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			this.mMessage = context.getString(R.string.voip_missed_call_notif);
 			break;
 		}
-		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
+
+		if(isSelfGenerated || (metadata != null && metadata.isSync()))
+		{
+			setState(State.RECEIVED_READ);
+		}
+		else
+		{
+			setState(State.RECEIVED_UNREAD);
+		}
+
 	}
 
 	public void setMetadata(MessageMetadata messageMetadata)
