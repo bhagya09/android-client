@@ -741,24 +741,29 @@ public class NativeBridge
 	 * @param timeInMills
 	 * @param persistent
 	 */
-	public void setAlarm(final JSONObject json, final long timeInMills, final boolean persistent)
+	public void setAlarm(final String inputJson, final float timeInMills, final boolean persistent)
 	{
-		if(weakActivity == null)
-		{
-			return;
-		}
-		final Activity mContext = weakActivity.get();
-		if (TextUtils.isEmpty(msisdn) || mContext == null)
-		{
-			return;
-		}
-		mThread.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-
-				NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, timeInMills, persistent);
+		try {
+			final JSONObject json = new JSONObject(inputJson);
+			if (weakActivity == null) {
+				return;
 			}
-		});
+			final Activity mContext = weakActivity.get();
+			if (TextUtils.isEmpty(msisdn) || mContext == null) {
+				return;
+			}
+			mThread.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+
+					NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, (long)timeInMills, persistent);
+				}
+			});
+		}
+		catch(JSONException e)
+		{
+			Logger.e(TAG,"json exception in setAlarm");
+		}
 	}
 
 	/**

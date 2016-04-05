@@ -342,7 +342,7 @@ public class HikeAlarmManager
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
 			{
-				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				if (HikeConstants.NON_MESSAGING_BOT.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
 				{
 					NonMessagingBotAlarmManager.processTasks(intent, context);
 				}
@@ -440,7 +440,7 @@ public class HikeAlarmManager
 		default:
 			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
 			{
-				if (HikePlatformConstants.NON_MESSAGING_BOT_TYPE.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				if (HikeConstants.NON_MESSAGING_BOT.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
 				{
 					NonMessagingBotAlarmManager.processTasks(intent, context);
 				}

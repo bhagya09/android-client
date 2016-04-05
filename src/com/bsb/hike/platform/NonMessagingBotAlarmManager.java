@@ -66,7 +66,7 @@ public class NonMessagingBotAlarmManager {
         {
             e.printStackTrace();
         }
-        HikeAlarmManager.setAlarmwithIntentPersistance(context, timeInMills, (int)(msisdn.hashCode()+alarmData.hashCode()), true, intent, persistent);
+        HikeAlarmManager.setAlarmwithIntentPersistance(context,System.currentTimeMillis()+ timeInMills, (int)(msisdn.hashCode()+alarmData.hashCode()), true, intent, persistent);
     }
 
     /**
