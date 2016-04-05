@@ -3305,8 +3305,10 @@ public class StickerManager
 			{
 				HikeConversationsDatabase.getInstance().upgradeForStickerShopVersion1(); // This prepopulates the Categories Table
 				moveStickerPreviewAssetsToSdcard(); // This is a heavy operation and hence needs to be done on the BG Thread.
-				setupStickerCategoryList();			// Set up the in-memory list so that the pallete can function
-				resetSignupUpgradeCallPreference(); // This is needed to make a call to the server to fetch categories in order of user's region/location
+				HikeConversationsDatabase.getInstance().upgradeForStickerTable();// This prepopulates the Stickers Table
+                HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
+                setupStickerCategoryList();			// Set up the in-memory list so that the pallete can function		 +				HikeConversationsDatabase.getInstance().upgradeForStickerTable();
+                resetSignupUpgradeCallPreference(); // This is needed to make a call to the server to fetch categories in order of user's region/location
 			}
 		}, 0);
 
