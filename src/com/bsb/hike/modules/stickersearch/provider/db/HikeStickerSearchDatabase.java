@@ -139,6 +139,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					HikeStickerSearchBaseConstants.DEFAULT_VT_TABLE_LIST);
 
 			sHikeStickerSearchDatabase.loadTableMap();
+
+            sHikeStickerSearchDatabase.setUndownloadedTagsCount();
 		}
 	}
 
