@@ -207,7 +207,14 @@ public class StickerSearchUtils
 
 	public static boolean tagCacheLimitReached(int tagType)
 	{
-		return getUndownloadedTagsStickersCount() - getTagCacheLimit(tagType) > 0;
+		int cacheLimit = getTagCacheLimit(tagType);
+
+        if (cacheLimit == StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT)
+		{
+			return false;
+		}
+
+		return getUndownloadedTagsStickersCount() - cacheLimit > 0;
 	}
 
 	public static String getISOCodeFromLocale(Locale locale)
