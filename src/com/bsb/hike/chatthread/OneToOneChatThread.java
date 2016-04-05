@@ -3388,7 +3388,6 @@ import java.util.Map;
 				{
 					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ftue_hike_direct_logo_red_dot;
@@ -3857,7 +3856,7 @@ import java.util.Map;
 
 	private boolean shouldEnableHikeDirect()
 	{
-		if (isNotMyOneWayFriend())
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
 		{
 			return false;
 		}
