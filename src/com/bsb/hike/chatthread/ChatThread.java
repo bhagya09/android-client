@@ -6662,7 +6662,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		if(stickerTagWatcher != null)
         {
-            stickerTagWatcher.refreshUndownloadedStickerWatcher();
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(false);
         }
 	}
 	
@@ -6680,7 +6680,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
         if(stickerTagWatcher != null)
         {
-            stickerTagWatcher.refreshUndownloadedStickerWatcher();
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(true);
         }
 	}
 	
