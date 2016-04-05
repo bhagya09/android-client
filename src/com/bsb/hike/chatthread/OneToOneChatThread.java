@@ -410,8 +410,7 @@ import java.util.Map;
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
-		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, true, R.string.block_title));
-		
+
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -421,6 +420,8 @@ import java.util.Map;
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
+
+		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
 		return list;
 	}
 
@@ -491,7 +492,10 @@ import java.util.Map;
 		}
 
 		//Hide all Possible Buttons for interaction here if user is not a friend.
-		doSetupForAddFriend();
+		if (!mConversation.isBlocked()) //If conv is blocked, no need to show add as friend button
+		{
+			doSetupForAddFriend();
+		}
 	}
 
 	private void showTips()
@@ -3384,7 +3388,6 @@ import java.util.Map;
 				{
 					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ftue_hike_direct_logo_red_dot;
@@ -3432,6 +3435,8 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+
+			doSetupForAddFriend(); // Hey, if the user is not a 1-way friend, even after unblocking, we can't allow messaging
 		}
 	}
 
@@ -3691,12 +3696,12 @@ import java.util.Map;
 
 		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
 
-		viewStub.setLayoutResource(getFriendsTipLayoutToInflate());
 		/**
 		 * Inflating it only once when needed on demand.
 		 */
 		if (viewStub != null)
 		{
+			viewStub.setLayoutResource(getFriendsTipLayoutToInflate());
 			viewStub.setOnInflateListener(this);
 			viewStub.inflate();
 		}
@@ -3851,7 +3856,7 @@ import java.util.Map;
 
 	private boolean shouldEnableHikeDirect()
 	{
-		if (isNotMyOneWayFriend())
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
 		{
 			return false;
 		}
@@ -3928,5 +3933,16 @@ import java.util.Map;
 	protected boolean isNotMyOneWayFriend()
 	{
 		return Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend();
+	}
+
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		if (isNotMyOneWayFriend())
+		{
+			return false; //Not showing the keyboard even, if the user is not a 1-way friend
+		}
+
+		return super.shouldShowKeyboard();
 	}
 }
