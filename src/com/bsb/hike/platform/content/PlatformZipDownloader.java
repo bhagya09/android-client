@@ -324,10 +324,10 @@ public class PlatformZipDownloader
 								return;
 							}
 							Boolean isSuccess = (Boolean) data;
-                            zipFile.delete();
-                            if (isSuccess)
-                            {
-                                if (!TextUtils.isEmpty(asocCbotMsisdn))
+
+							if (isSuccess)
+							{
+								if (!TextUtils.isEmpty(asocCbotMsisdn))
 								{
 									BotInfo botinfo = BotUtils.getBotInfoForBotMsisdn(asocCbotMsisdn);
 									if (botinfo != null)
@@ -347,27 +347,27 @@ public class PlatformZipDownloader
 								{
 									mRequest.getListener().onComplete(mRequest.getContentData());
 									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
-                                    PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
-                                }
+									PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
+								}
 								else
 								{
 									mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 									PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								}
 
-                                if(isTemplatingEnabled)
-                                {
-                                    PlatformRequestManager.setReadyState(mRequest);
-                                    PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
-                                    PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
-                                }
+								if(isTemplatingEnabled)
+								{
+									PlatformRequestManager.setReadyState(mRequest);
+									PlatformUtils.sendMicroAppServerAnalytics(true, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
+									PlatformUtils.microAppDiskConsumptionAnalytics(mRequest.getContentData().cardObj.appName);
+								}
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipSuccess"));
 							}
 							else
 							{
 								mRequest.getListener().downloadedContentLength(fileSize);
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
-                                PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
+								PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 
 								if (autoResume)
@@ -381,7 +381,8 @@ public class PlatformZipDownloader
 								{
 									PlatformUtils.deleteDirectory(unzipPath + appName); // Deleting incorrect unzipped file.
 								}
-                            }
+							}
+							zipFile.delete();
 						}
 					});
 				}

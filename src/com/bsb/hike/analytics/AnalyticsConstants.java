@@ -230,9 +230,9 @@ public class AnalyticsConstants
 
 	public static String DOWNLOAD_PAUSED = "download_paused";
 	public static String DOWNLOAD_RESUMED = "download_resumed";
-
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
+	public static String TTL_EXPIRED = "ttlExpired";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions

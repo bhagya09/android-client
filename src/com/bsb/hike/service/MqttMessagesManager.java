@@ -734,9 +734,10 @@ public class MqttMessagesManager
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
 
-        PlatformContentRequest rqst = PlatformContentRequest.make(
+		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
-		{
+				{
+
 					@Override
 					public void onComplete(PlatformContentModel content)
 					{
@@ -744,11 +745,11 @@ public class MqttMessagesManager
 					}
 
 					@Override
-					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
-							// do nothing
+							//do nothing
 							return;
 						}
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
@@ -763,26 +764,27 @@ public class MqttMessagesManager
 					}
 				});
 
-        // Stop the flow and return from here in case any exception occurred and contentData becomes null
-        if(rqst.getContentData() == null)
-            return;
+		// Stop the flow and return from here in case any exception occurred and contentData becomes null
+		if(rqst.getContentData() == null)
+			return;
 
-        //  Parameters to call if micro app already exists method for this case
-        String mAppName = rqst.getContentData().cardObj.getAppName();
-        int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
-        byte botType = rqst.getBotType();
-        String msisdn = rqst.getContentData().getMsisdn();
+		//  Parameters to call if micro app already exists method for this case
+		String mAppName = rqst.getContentData().cardObj.getAppName();
+		int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
+		byte botType = rqst.getBotType();
+		String msisdn = rqst.getContentData().getMsisdn();
 
-        if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
+		if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
 		{
-            PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
-            downloader.downloadAndUnzip();
+			PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
+			downloader.downloadAndUnzip();
 		}
 		else
 		{
 			saveMessage(convMessage);
 		}
 	}
+
 
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
