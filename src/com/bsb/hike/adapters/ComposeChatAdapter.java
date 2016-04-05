@@ -462,19 +462,27 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			if (showCheckbox)
 			{
-				holder.checkbox.setVisibility(View.VISIBLE);
-				if (selectedPeople.containsKey(contactInfo.getMsisdn()))
+				if (!contactInfo.isMyOneWayFriend()
+						&& Utils.isFavToFriendsMigrationAllowed()
+						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
 				{
-
-					holder.checkbox.setChecked(true);
+					holder.addFriendIcon.setVisibility(View.VISIBLE);
+					holder.checkbox.setVisibility(View.GONE);
 				}
 				else
 				{
-					holder.checkbox.setChecked(false);
+					holder.addFriendIcon.setVisibility(View.GONE);
+					holder.checkbox.setVisibility(View.VISIBLE);
+					if (selectedPeople.containsKey(contactInfo.getMsisdn())){
+						holder.checkbox.setChecked(true);
+					} else {
+						holder.checkbox.setChecked(false);
+					}
 				}
 			}
 			else
 			{
+				holder.addFriendIcon.setVisibility(View.GONE);
 				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
@@ -520,6 +528,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.status = (TextView) convertView.findViewById(R.id.last_seen);
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 			holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
 			convertView.setTag(holder);
 			break;
@@ -549,6 +558,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
 			holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
+			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 			holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
 			convertView.setTag(holder);
 			break;
@@ -577,6 +587,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ImageView inviteIcon;
 		
 		RecyclerView recyclerView;
+
+		ImageView addFriendIcon;
 	}
 
 	@Override
@@ -960,7 +972,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 		notifyDataSetChanged();
 	}
-	
+
 	public void preSelectContacts(HashSet<String> ... preSelectedMsisdnSets){
 		int total = preSelectedMsisdnSets.length;
 		for(int i=0;i<total;i++){
@@ -983,7 +995,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					if(contactInfo.isOnhike())
 					{
-						selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						if (Utils.isFavToFriendsMigrationAllowed() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
+						{
+							if (contactInfo.isMyOneWayFriend())
+								selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						}
+						else
+						{
+							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						}
 					}
 				}
 			}
