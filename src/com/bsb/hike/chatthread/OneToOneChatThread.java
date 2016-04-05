@@ -410,8 +410,7 @@ import java.util.Map;
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
-		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, true, R.string.block_title));
-		
+
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
@@ -421,6 +420,8 @@ import java.util.Map;
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
+
+		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
 		return list;
 	}
 
