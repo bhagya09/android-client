@@ -512,6 +512,14 @@ public class HikePubSub implements Runnable
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String CLOUD_SETTINGS_BACKUP_SUCESS = "cldSetBackupDone";
+
+	public static final String CLOUD_SETTINGS_BACKUP_FAILED = "cldSetBackupFailed";
+
+	public static final String CLOUD_SETTINGS_RESTORE_SUCCESS = "cldSetRestoreDone";
+
+	public static final String CLOUD_SETTINGS_RESTORE_FAILED = "cldSetRestoreFailed";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

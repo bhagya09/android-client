@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.backup.iface.Backupable;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
@@ -108,7 +109,8 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		// Do analytics logging
+		// PubSub
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, httpException);
 
 		// Abort
 		prefInfoList.clear();
@@ -122,6 +124,9 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 			// Save backup timestamp
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_TS_PREF, System.currentTimeMillis());
 			prefInfoList.clear();
+
+			//PubSub
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_SUCESS, result);
 		}
 		else
 		{

@@ -14,13 +14,6 @@ public class BackupRestoreExecutorTask<T> extends AsyncTask<T, Boolean, Boolean>
 {
 	private final String TAG = BackupRestoreExecutorTask.class.getSimpleName();
 
-	private Listener mListener;
-
-	public void setListener(Listener argListener)
-	{
-		mListener = argListener;
-	}
-
 	@SafeVarargs
 	@Override
 	protected final Boolean doInBackground(T... jobs)
@@ -92,28 +85,6 @@ public class BackupRestoreExecutorTask<T> extends AsyncTask<T, Boolean, Boolean>
 	@Override
 	protected void onPostExecute(Boolean isSuccess)
 	{
-		if (mListener != null)
-		{
-			if (isSuccess)
-			{
-				mListener.onSuccess();
-			}
-			else
-			{
-				mListener.onFailure();
-			}
-		}
-		else
-		{
-			Logger.d(TAG, "No listener present to notify");
-		}
-
-	}
-
-	public interface Listener
-	{
-		void onSuccess();
-
-		void onFailure();
+		// Not in use at the moment. The respective backupable/restorable implementations notify the app via PubSub events.
 	}
 }
