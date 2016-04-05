@@ -1591,4 +1591,9 @@
     <string name="friend_req_inline_msg_received">%1$s added you as a friend.</string>
     <string name="friends_ftue_heading">Hike is more fun with friends</string>
     <string name="friends_ftue_subtext">Add %1$s as your friend to continue chatting</string>
+    <string name="friend_request_sent">Added as a friend</string>
+    <string name="friend_request_sent_multiple">Added as friends</string>
+    <string name="add_as_friend_notification_line">Added you as a friend</string>
+    <string name="add_as_friend_menu">Add Friend</string>
+    <string name="remove_from_friends">Remove Friend</string>
 </resources>

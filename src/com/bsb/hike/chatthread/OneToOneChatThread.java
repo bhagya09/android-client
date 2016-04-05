@@ -165,7 +165,7 @@ import java.util.Map;
 	
 	private static final int SHOW_OVERFLOW_MENU = 119;
 
-	private static final int SHOW_ADD_FRIEND_VIEWS = 120;
+	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -418,7 +418,7 @@ import java.util.Map;
 
 		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
-			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
+			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_as_favorite_menu : R.string.add_as_friend_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
@@ -798,7 +798,12 @@ import java.util.Map;
 		if (mContactInfo.isFriendRequestReceivedForMe() || mContactInfo.isNotMyFriend())
 		{
 			// Just received a request. Change the UI to show request accept button instead.
-			sendUIMessage(SHOW_ADD_FRIEND_VIEWS, null);
+			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, true);
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
+		{
+			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, false);
 		}
 	}
 
@@ -929,8 +934,8 @@ import java.util.Map;
 		case SHOW_OVERFLOW_MENU:
 			showOverflowMenu();
 			break;
-		case SHOW_ADD_FRIEND_VIEWS:
-			updateAddFriendViews();
+		case UPDATE_ADD_FRIEND_VIEWS:
+			updateAddFriendViews((Boolean) msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -3807,10 +3812,30 @@ import java.util.Map;
 		super.setMessagesRead();
 	}
 
-	private void updateAddFriendViews()
+	private void updateAddFriendViews(Boolean showAddFriendbutton)
 	{
-		// This will automatically handle all the states for button.
-		inflateAddFriendButtonIfNeeded();
+		if (showAddFriendbutton)
+		{
+			inflateAddFriendButtonIfNeeded();
+		}
+
+		else
+		{
+			//If now we can show the last seen, we should
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			{
+				checkAndStartLastSeenTask();
+			}
+
+			// Definitely show the compose container
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+
+			// If add Friend View was previously there, now is a good time to hide it
+			if (activity.findViewById(R.id.add_friend_view) != null)
+			{
+				activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+			}
+		}
 	}
 
 	private void removeAddFriendViews()
@@ -3932,7 +3957,7 @@ import java.util.Map;
 	 */
 	protected boolean isNotMyOneWayFriend()
 	{
-		return Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend();
+		return Utils.isNotMyOneWayFriend(mContactInfo);
 	}
 
 	@Override

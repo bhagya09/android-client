@@ -850,7 +850,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
-						friendItem.setTitle(R.string.remove_from_favorites);
+						friendItem.setTitle(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_favorites : R.string.remove_from_friends);
 					}
 					else
 					{
@@ -3662,6 +3662,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
+		if (Utils.isNotMyOneWayFriend(contactInfo)) //If Not one way friend, no need to initiate Voip
+		{
+			String messageToDisplay = getString(R.string.voip_friend_error, contactInfo.getFirstNameAndSurname());
+			Toast.makeText(this, messageToDisplay, Toast.LENGTH_LONG).show();
+			return;
+		}
+
 		Utils.onCallClicked(this, mLocalMSISDN, VoIPUtils.CallSource.PROFILE_ACTIVITY);
 	}
 	
