@@ -11,6 +11,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
@@ -85,7 +86,7 @@ public class NonMessagingBotAlarmManager {
 				return;
 			}
 			BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-			if (botInfo.isNonMessagingBot())
+			if (botInfo != null && botInfo.isNonMessagingBot())
 			{
 				if (ContactManager.getInstance().isBlocked(msisdn))
 				{
@@ -102,6 +103,15 @@ public class NonMessagingBotAlarmManager {
 				showNotification(data, context);
 				boolean increaseUnreadCount = Boolean.valueOf(data.getString(HikePlatformConstants.INCREASE_UNREAD));
 				boolean rearrangeChat = Boolean.valueOf(data.getString(HikePlatformConstants.REARRANGE_CHAT));
+                NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+                if(metadata!= null && metadata.isNativeMode())
+                {
+                    msisdn=metadata.getParentMsisdn();
+                    if(TextUtils.isEmpty(msisdn))
+                    {
+                        return;
+                    }
+                }
 				Utils.rearrangeChat(msisdn, rearrangeChat, increaseUnreadCount);
 
 			}
