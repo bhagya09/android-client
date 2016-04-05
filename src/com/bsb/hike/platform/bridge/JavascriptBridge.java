@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,6 +75,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
 import com.bsb.hike.utils.Telephony;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.JsonArray;
 import com.squareup.okhttp.Headers;
 
 import org.json.JSONException;
@@ -885,7 +887,13 @@ public abstract class JavascriptBridge
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 			if(msisdn.equalsIgnoreCase("+hikerecharge+")){
 				Telephony telephonyInfo = Telephony.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
-			    jsonObj.put(HikePlatformConstants.SIM_OPERATORS,telephonyInfo.getOperators());
+				String[] sims= telephonyInfo.getOperators();
+				JSONArray array = new JSONArray();
+				for(int i =0; i<sims.length; i++){
+					array.put(sims[i]);
+				}
+				
+			    jsonObj.put(HikePlatformConstants.SIM_OPERATORS,array);
 			}
 		}
 		catch (JSONException e)

@@ -14,6 +14,16 @@ public final class Telephony {
 	private String imeiSIM2;
 
 	static String[] operators = new String[3];
+	static int[] simSlot = {-1,-1,-1};
+	private static int activeSimCount;
+
+	public static int getActiveSimCount() {
+		return activeSimCount;
+	}
+
+	public static void setActiveSimCount(int activeSimCount) {
+		Telephony.activeSimCount = activeSimCount;
+	}
 
 	public String[] getOperators() {
 		return operators;
@@ -40,6 +50,9 @@ public final class Telephony {
 
 	private boolean isSIM1Ready;
 	private boolean isSIM2Ready;
+	private String imeiSIM3;
+	private boolean isMultiSimEnabled;
+	private boolean isSIM3Ready;
 
 	public String getImeiSIM1() {
 		return imeiSIM1;
@@ -73,8 +86,65 @@ public final class Telephony {
 		telephonyManager = ((TelephonyManager) context
 				.getSystemService(Context.TELEPHONY_SERVICE));
 
+		checkForMultiSim(context);
+		activeSimCount = getSimReadyCount();
 		getOperatorNames();
 		return telephonyInfo;
+	}
+
+	private static int getSimReadyCount() {
+		int count = 0;
+		if (telephonyInfo.isSIM1Ready) {
+			simSlot[0] = 0;
+			count++;
+		}
+		if (telephonyInfo.isSIM2Ready) {
+			simSlot[1] = 1;
+			count++;
+		}
+		if (telephonyInfo.isSIM3Ready) {
+			simSlot[2] = 2;
+			count++;
+		}
+		return count;
+	}
+
+	public static void checkForMultiSim(Context context) {
+
+		telephonyInfo.isSIM1Ready = telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY;
+		telephonyInfo.isSIM2Ready = false;
+		telephonyInfo.isSIM3Ready = false;
+
+		try {
+			for (int i = 0; i < simSlot.length; i++) {
+			
+					getSIMStateBySlot(context, "getSimStateGemini", i);
+				
+			}
+
+		} catch (GeminiMethodNotFoundException e) {
+
+			e.printStackTrace();
+			 {
+				
+					try {
+						for (int i = 0; i < simSlot.length; i++){
+						   getSIMStateBySlot(context, "getSimState",i);
+						}
+					} catch (GeminiMethodNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						try {
+							for (int i = 0; i < simSlot.length; i++){
+							   getSIMStateBySlot(context, "getDefault",i);
+							}
+						} catch (GeminiMethodNotFoundException e2) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+			}
+		}
 	}
 
 	public static void getOperatorNames() {
@@ -89,112 +159,116 @@ public final class Telephony {
 			search = true;
 		}
 		if (search) {
-
 			try {
-				operators[0] = getDeviceIdBySlot(mContext,
-						"getNetworkOperatorNameGemini", 0);
-				operators[1] = getDeviceIdBySlot(mContext,
-						"getNetworkOperatorNameGemini", 1);
-				operators[2] = getDeviceIdBySlot(mContext,
-						"getNetworkOperatorNameGemini", 2);
+				for (int i = 0; i < simSlot.length; i++) {
+					if (simSlot[i] != -1) {
+						getDeviceIdBySlot(mContext,
+								"getNetworkOperatorNameGemini", simSlot[i]);
+					}
+				}
 			} catch (GeminiMethodNotFoundException e) {
 				e.printStackTrace();
 
 				try {
-					operators[0] = getDeviceIdBySlot(mContext,
-							"getNetworkOperatorName", 0);
-					operators[1] = getDeviceIdBySlot(mContext,
-							"getNetworkOperatorName", 1);
-					operators[2] = getDeviceIdBySlot(mContext,
-							"getNetworkOperatorName", 2);
+					for (int i = 0; i < simSlot.length; i++) {
+						if (simSlot[i] != -1) {
+							getDeviceIdBySlot(mContext,
+									"getNetworkOperatorName", simSlot[i]);
+						}
+					}
+
 				} catch (GeminiMethodNotFoundException e1) {
 					// Call here for next manufacturer's predicted method name
 					// if you wish
 					try {
-						operators[0] = getDeviceIdBySlot(mContext,
-								"getSubscriberInfo", 0);
-						operators[1] = getDeviceIdBySlot(mContext,
-								"getSubscriberInfo", 1);
-						operators[2] = getDeviceIdBySlot(mContext,
-								"getSubscriberInfo", 2);
+						for (int i = 0; i < simSlot.length; i++) {
+							if (simSlot[i] != -1) {
+								getDeviceIdBySlot(mContext,
+										"getSubscriberInfo", simSlot[i]);
+							}
+						}
+
 					} catch (GeminiMethodNotFoundException e2) {
 						// Call here for next manufacturer's predicted method
 						// name
 						// if you wish
 						e1.printStackTrace();
 						try {
-							operators[0] = getDeviceIdSlot(mContext,
-									"getSimOperatorName", 0l);
-							operators[1] = getDeviceIdSlot(mContext,
-									"getSimOperatorName", 1l);
-							operators[2] = getDeviceIdSlot(mContext,
-									"getSimOperatorName", 2l);
+							for (int i = 0; i < simSlot.length; i++) {
+								if (simSlot[i] != -1) {
+									getDeviceIdSlot(mContext,
+											"getSimOperatorName",
+											Long.valueOf(simSlot[i]));
+								}
+							}
+
 						} catch (GeminiMethodNotFoundException e3) {
 							// Call here for next manufacturer's predicted
 							// method name
 							// if you wish
 							try {
-								operators[0] = getDeviceIdSlot(mContext,
-										"getNetworkOperator", 0l);
-								operators[1] = getDeviceIdSlot(mContext,
-										"getNetworkOperator", 1l);
-								operators[2] = getDeviceIdSlot(mContext,
-										"getNetworkOperator", 2l);
+								for (int i = 0; i < simSlot.length; i++) {
+									if (simSlot[i] != -1) {
+										getDeviceIdSlot(mContext,
+												"getNetworkOperator",
+												Long.valueOf(simSlot[i]));
+									}
+								}
+
 							} catch (GeminiMethodNotFoundException e4) {
 								// Call here for next manufacturer's predicted
 								// method name
 								try {
-									operators[0] = getDeviceIdSlot(mContext,
-											"getSimOperator", 0l);
-									operators[1] = getDeviceIdSlot(mContext,
-											"getSimOperator", 1l);
-									operators[2] = getDeviceIdSlot(mContext,
-											"getSimOperator", 2l);
+									for (int i = 0; i < simSlot.length; i++) {
+										if (simSlot[i] != -1) {
+											getDeviceIdSlot(mContext,
+													"getSimOperator",
+													Long.valueOf(simSlot[i]));
+										}
+									}
+
 								} catch (GeminiMethodNotFoundException e5) {
 									// Call here for next manufacturer's
 									// predicted method name
 									// if you wish
 									e1.printStackTrace();
 									try {
-										operators[0] = getDeviceIdSlot(
-												mContext, "getSimOperatorName",
-												0l);
-										operators[1] = getDeviceIdSlot(
-												mContext, "getSimOperatorName",
-												1l);
-										operators[2] = getDeviceIdSlot(
-												mContext, "getSimOperatorName",
-												2l);
+										for (int i = 0; i < simSlot.length; i++) {
+											if (simSlot[i] != -1) {
+												getDeviceIdSlot(
+														mContext,
+														"getSimOperatorName",
+														Long.valueOf(simSlot[i]));
+											}
+										}
+
 									} catch (GeminiMethodNotFoundException e6) {
 										// Call here for next manufacturer's
 										// predicted method name
 										// if you wish
 										e1.printStackTrace();
 										try {
-											operators[0] = getDeviceIdBySlot(
-													mContext,
-													"getSimOperatorNameForPhone",
-													0);
-											operators[1] = getDeviceIdBySlot(
-													mContext,
-													"getSimOperatorNameForPhone",
-													1);
-											operators[2] = getDeviceIdBySlot(
-													mContext,
-													"getSimOperatorNameForPhone",
-													2);
+											for (int i = 0; i < simSlot.length; i++) {
+												if (simSlot[i] != -1) {
+													getDeviceIdBySlot(
+															mContext,
+															"getSimOperatorNameForPhone",
+															simSlot[i]);
+												}
+											}
+
 										} catch (GeminiMethodNotFoundException e7) {
 											e1.printStackTrace();
 											try {
-												operators[0] = getDeviceIdBySlot(
-														mContext, "getDefault",
-														0);
-												operators[1] = getDeviceIdBySlot(
-														mContext, "getDefault",
-														1);
-												operators[2] = getDeviceIdBySlot(
-														mContext, "getDefault",
-														2);
+												for (int i = 0; i < simSlot.length; i++) {
+													if (simSlot[i] != -1) {
+														getDeviceIdBySlot(
+																mContext,
+																"getDefault",
+																simSlot[i]);
+													}
+												}
+
 											} catch (GeminiMethodNotFoundException e9) {
 												// Call here for next
 												// manufacturer's predicted
@@ -215,11 +289,11 @@ public final class Telephony {
 		}
 	}
 
-	private static String getDeviceIdBySlot(Context context,
+	private static void getDeviceIdBySlot(Context context,
 			String predictedMethodName, int slotID)
 			throws GeminiMethodNotFoundException {
 
-		String imei = null;
+		String value = null;
 
 		try {
 
@@ -246,10 +320,13 @@ public final class Telephony {
 					}
 				}
 
-				return operatorNaame;
+				value = operatorNaame;
 
 			} else if (ob_phone != null) {
-				imei = ob_phone.toString();
+				value = ob_phone.toString();
+				if( value.trim().length()==0){
+					throw new GeminiMethodNotFoundException(predictedMethodName);
+				}
 
 			}
 		} catch (Exception e) {
@@ -257,14 +334,14 @@ public final class Telephony {
 			throw new GeminiMethodNotFoundException(predictedMethodName);
 		}
 
-		return imei;
+		operators[slotID] = value;
 	}
 
-	private static String getDeviceIdSlot(Context context,
+	private static void getDeviceIdSlot(Context context,
 			String predictedMethodName, long slotID)
 			throws GeminiMethodNotFoundException {
 
-		String imei = null;
+		String value = null;
 
 		TelephonyManager telephony = (TelephonyManager) context
 				.getSystemService(Context.TELEPHONY_SERVICE);
@@ -285,7 +362,7 @@ public final class Telephony {
 			Object ob_phone = getSimID.invoke(telephony, obParameter);
 
 			if (ob_phone != null) {
-				imei = ob_phone.toString();
+				value = ob_phone.toString();
 
 			}
 		} catch (Exception e) {
@@ -293,10 +370,10 @@ public final class Telephony {
 			throw new GeminiMethodNotFoundException(predictedMethodName);
 		}
 
-		return imei;
+		operators[(int)slotID] = value;
 	}
 
-	private static boolean getSIMStateBySlot(Context context,
+	private static void getSIMStateBySlot(Context context,
 			String predictedMethodName, int slotID)
 			throws GeminiMethodNotFoundException {
 
@@ -318,8 +395,16 @@ public final class Telephony {
 			Object[] obParameter = new Object[1];
 			obParameter[0] = slotID;
 			Object ob_phone = getSimStateGemini.invoke(telephony, obParameter);
+			if (ob_phone instanceof TelephonyManager) {
+				TelephonyManager tManager = (TelephonyManager) ob_phone;
+				int simState = tManager.getSimState();
+				if (simState == TelephonyManager.SIM_STATE_READY) {
+					isReady = true;
+				}
 
-			if (ob_phone != null) {
+				// value = operatorNaame;
+
+			} else if(ob_phone != null) {
 				int simState = Integer.parseInt(ob_phone.toString());
 				if (simState == TelephonyManager.SIM_STATE_READY) {
 					isReady = true;
@@ -330,7 +415,13 @@ public final class Telephony {
 			throw new GeminiMethodNotFoundException(predictedMethodName);
 		}
 
-		return isReady;
+		if (slotID == 0) {
+			telephonyInfo.isSIM1Ready = isReady;
+		} else if (slotID == 1) {
+			telephonyInfo.isSIM2Ready = isReady;
+		} else if (slotID == 2) {
+			telephonyInfo.isSIM3Ready = isReady;
+		}
 	}
 
 	private static class GeminiMethodNotFoundException extends Exception {
