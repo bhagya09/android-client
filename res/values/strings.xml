@@ -1592,4 +1592,5 @@
     <string name="friends_ftue_heading">Hike is more fun with friends</string>
     <string name="friends_ftue_subtext">Add %1$s as your friend to continue chatting</string>
     <string name="friend_request_sent">Added as a friend</string>
+    <string name="friend_request_sent_multiple">Added as friends</string>
 </resources>
