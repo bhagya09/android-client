@@ -3615,7 +3615,7 @@ public class HikeConstants
 	{
 		public static final String HIKE_RECHARGE = "+hikerecharge+";
 		
-		public static final String HIKE_WALLET = "+hikepay+";
+		public static final String HIKE_WALLET = "+hikewallet+";
 
 	}
 	
