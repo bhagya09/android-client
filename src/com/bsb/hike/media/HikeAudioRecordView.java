@@ -167,18 +167,22 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      * @param view
      */
     private void startPulsatingDotAnimation(View view) {
-        View micImage = recorderImg.findViewById(R.id.mic_image);
-        micImage.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid_bounce));
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 600);
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 1350);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
+        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
         return new Runnable() {
             @Override
             public void run() {
-                ImageView ringView = (ImageView) view.findViewById(viewId);
-                ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
+                if(viewId == R.id.ring2) {
+                    ImageView ringView = (ImageView) view.findViewById(viewId);
+                    ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
+                } else {
+                    View micImage = recorderImg.findViewById(R.id.mic_image);
+                    micImage.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid_bounce));
+                }
             }
         };
     }
