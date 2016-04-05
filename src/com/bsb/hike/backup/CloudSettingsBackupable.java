@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.iface.Backupable;
-import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -97,23 +96,22 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	@Override
 	public void postBackupSetup() throws Exception
 	{
-		// Save backup timestamp
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_TS_PREF, System.currentTimeMillis());
+		// Since this Backupable instance makes a HTTP POST. We do destructor activities in listener registered with the call.
 	}
 
 	@Override
 	public void finish()
 	{
-		prefInfoList.clear();
+		// Since this Backupable instance makes a HTTP POST. We do destructor activities in listener registered with the call.
 	}
 
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
-		//Do analytics logging
+		// Do analytics logging
 
-		//Abort
-		finish();
+		// Abort
+		prefInfoList.clear();
 	}
 
 	@Override
@@ -121,14 +119,9 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	{
 		if (Utils.isResponseValid((JSONObject) result.getBody().getContent()))
 		{
-			try
-			{
-				postBackupSetup();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			// Save backup timestamp
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_TS_PREF, System.currentTimeMillis());
+			prefInfoList.clear();
 		}
 		else
 		{
@@ -139,6 +132,6 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-
+		// Do nothing
 	}
 }
