@@ -171,6 +171,14 @@ public class PlatformContentCache
 
 		return formedContentCache.get(request.getContentData().hashCode());
 	}
+    
+	/**
+	 * Clear formed content cache. Code only to be executed when we are clearing client data
+	 */
+	public static void clearFormedContentCache()
+    {
+        formedContentCache.evictAll();
+    }
 
 	public interface IExceptionHandler
 	{
