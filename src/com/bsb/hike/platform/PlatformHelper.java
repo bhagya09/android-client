@@ -1,6 +1,7 @@
 package com.bsb.hike.platform;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -20,7 +21,9 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -388,4 +391,39 @@ public class PlatformHelper
 		}
 		return true;
 	}
+
+	public static void chooseFile(final String id,final String displayCameraItem,final Context weakActivityRef)
+	{
+		mHandler = new Handler(HikeMessengerApp.getInstance().getMainLooper());
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+
+		mHandler.post(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (weakActivityRef != null)
+				{
+					int galleryFlags;
+					if (Boolean.valueOf(displayCameraItem))
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					}
+					else
+					{
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
+					}
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
+					((Activity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+				}
+			}
+		});
+	}
+
 }

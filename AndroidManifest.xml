@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1626"
-    android:versionName="4.2.0.18.12.resume_versioning" >
+    android:versionCode="1633"
+    android:versionName="4.2.0.18.7.hike_platform_internal" >
+
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -308,7 +309,7 @@
         </activity>
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
-            android:configChanges="keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"
@@ -580,6 +581,10 @@
             </intent-filter>
         </receiver>
 
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
         <receiver
             android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
             <intent-filter >

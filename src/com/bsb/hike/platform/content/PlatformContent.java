@@ -175,7 +175,7 @@ public class PlatformContent
 		if (request != null)
 		{
 			if(clearRequestInQueue){
-				PlatformZipDownloader.removeDownloadingRequest(request.getContentData().getLayout_url());
+				PlatformZipDownloader.removeDownloadingRequest(request.getContentData().getId());
 			}
 			PlatformContentLoader.getLoader().handleRequest(request);
 			return request;

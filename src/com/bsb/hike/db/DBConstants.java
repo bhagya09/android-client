@@ -512,4 +512,5 @@ public interface DBConstants
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
 	
+	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
 }

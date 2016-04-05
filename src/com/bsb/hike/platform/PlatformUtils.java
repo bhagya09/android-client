@@ -2207,7 +2207,7 @@ public class PlatformUtils
 
         List<ContactInfo> finalContacts=new ArrayList<>(allContacts.size());
         for (ContactInfo ci : allContacts) {
-            if(!ci.isBot()&&ci.isOnhike())  // add more check here ..ex:stealth,unknown etc...
+            if(!ci.isBot()&&ci.isOnhike()&&!ci.isBlocked())  // add more check here ..ex:stealth,unknown etc...
             {
                 finalContacts.add(ci);
             }
@@ -2559,4 +2559,36 @@ public class PlatformUtils
 
 
 
+
+	public static String getFileUploadJson(Intent data)
+	{
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();
+
+		if(TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload","Invalid file Path");
+			return "";
+		}
+		else
+		{
+			Logger.d("FileUpload", "Path of selected file :" + filepath);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put("filePath", filepath);
+				json.put("mimeType", mimeType);
+				json.put("filesize", (new File(filepath)).length());
+				return json.toString();
+			}
+			catch (JSONException e)
+			{
+				Logger.e("FileUpload", "Unable to send in Json");
+				return "";
+			}
+
+		}
+	}
 }
