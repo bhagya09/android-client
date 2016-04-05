@@ -70,6 +70,8 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ContactInfo> contactList;
 
+	private String caption;
+
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";
@@ -348,6 +350,8 @@ public class UploadFileTask extends FileTransferBase
 				JSONArray filesArray = new JSONArray();
 				filesArray.put(hikeFile.serialize());
 				metadata.put(HikeConstants.FILES, filesArray);
+				metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
+				((ConvMessage) userContext).setMetadata(metadata);
 				userContext.setMetadata(metadata);
 			}
 		}

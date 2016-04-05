@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
@@ -286,10 +287,10 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			statusCode = response.getStatusCode();
 
-			if (statusCode == HTTP_LENGTH_REQUIRED)
+			if (statusCode == HTTP_LENGTH_REQUIRED || statusCode == HTTP_UNZIP_FAILED)
 			{
 				/*
-				 * in case of response code == 411 we make a retry without gzip
+				 * in case of response code == 411 or 420 we make a retry without gzip
 				 */
 				handleRetry(ex, statusCode);
 			}

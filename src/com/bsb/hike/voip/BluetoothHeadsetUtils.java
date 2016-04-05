@@ -280,7 +280,12 @@ public abstract class BluetoothHeadsetUtils
         public void onTick(long millisUntilFinished)
         {
             // When this call is successful, this count down timer will be canceled.
-            mAudioManager.startBluetoothSco();
+            try {
+                mAudioManager.startBluetoothSco();
+            } catch (NullPointerException e) {
+                // http://stackoverflow.com/questions/26642218/audiomanager-startbluetoothsco-crashes-on-android-lollipop
+                Logger.d(TAG, "startBluetoothSco() failed. no bluetooth device connected.");
+            }
 
 //            Logger.d(TAG, "\nonTick start bluetooth Sco"); //$NON-NLS-1$
         }

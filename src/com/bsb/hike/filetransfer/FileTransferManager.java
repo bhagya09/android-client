@@ -1,5 +1,33 @@
 package com.bsb.hike.filetransfer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.Thread.State;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -289,18 +317,23 @@ public class FileTransferManager
 				return;
 			}
 
-			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext);
+			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
 			fileTaskMap.put(msgId, downloadFileTask);
 		}
 
 		downloadFileTask.download();
 	}
 
-    /**
-     *
-     * @param convMessage
-     * @param fileKey
-     */
+	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType)
+	{
+		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
+	}
+
+	/**
+	 *
+	 * @param convMessage
+	 * @param fileKey
+	 */
 	public void uploadFile(ConvMessage convMessage, String fileKey)
 	{
 		if (isFileTaskExist(convMessage.getMsgID()))
@@ -378,7 +411,7 @@ public class FileTransferManager
 		}
 	}
 
-    /**
+	/**
      *
      * @param msgId
      * @param hikeFile
@@ -387,6 +420,11 @@ public class FileTransferManager
      */
 	public void cancelTask(long msgId, HikeFile hikeFile, boolean sent, long fileSize)
 	{
+		cancelTask(msgId, hikeFile, sent, fileSize, null);
+	}
+
+	public void cancelTask(long msgId, HikeFile hikeFile, boolean sent, long fileSize, String attachmentShardeAs)
+	{
 		File mFile = hikeFile.getFile();
 		FileSavedState fss;
 		if (sent)
@@ -394,7 +432,8 @@ public class FileTransferManager
 		else
 			fss = getDownloadFileState(msgId, hikeFile);
 
-		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED)
+		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED
+				|| fss.getFTState() == FTState.ERROR)
 		{
 			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
@@ -414,8 +453,7 @@ public class FileTransferManager
 			// TODO
 			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
-			deleteLogFile(msgId, mFile);
+			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
 		}
 	}
 

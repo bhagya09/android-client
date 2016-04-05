@@ -359,7 +359,6 @@
     <string name="one_new_message">1 नवीन संदेश</string>
     <string name="terms">अटी</string>
     <string name="get_started">आरंभ करा</string>
-    <string name="got_it">समजले</string>
     <string name="whats_your_number">हाय! तुमचा क्रमांक काय आहे?</string>
     <string name="select_country">देश निवडा</string>
     <string name="wrong_country">देश कोड अवैध</string>
@@ -691,7 +690,6 @@
     <string name="update_all">सर्व अद्यतनीत करा</string>
     <string name="RETRY">पुन्हा प्रयत्न करा</string>
     <string name="see_them">पूर्ण झाले</string>
-    <string name="drag_tip_text">तुमचे स्टिकर पॅक पुनर्क्रमित करण्यासाठी पॅक वर टॅप करून धरून ठेवा</string>
     <string name="CANCEL">रद्द करा</string>
     <string name="n_more">%1$d अधिक</string>
     <string name="n_stickers">%1$d स्टिकर्स</string>
@@ -848,7 +846,6 @@
     <string name="photo_dp_saved_sub">चांगले दिसत आहे</string>
     <string name="photo_dp_save_error">प्रोफाईल फोटो सेट करू शकलो नाही</string>
     <string name="photo_dp_save_error_sub">पुन्हा प्रयत्न करण्यासाठी टॅप करा</string>
-    <string name="photo_gallery_choose_pic">एक फोटो निवडा</string>
     <string name="cropping_image">प्रतिमा कापत आहे..</string>
 	<string name="home_search_empty_text">तुमचा \&apos;%1$s\&apos; साठीचा शोध संपर्कांमधील कोणाशीही जुळत नाही आहे.</string>
     <string name="voip_mic_error">माइक सुरु करण्यास असमर्थ. हा कॉल कदाचित कार्य करणार नाही.</string>
@@ -1034,8 +1031,6 @@
 	<string name="sms_admin_toast">तुम्ही SMS वापरकर्त्यांसोबत तुमचे ॲडमिन ीय हक्क सामायिक करू शकत नाही</string>
 	<string name="group_settings_updated">ने समूह सेटिंग्ज बदलले</string>
 	<string name="you_group_settings_updated">तुम्ही समूह सेटिंग्ज बदलले</string>
-	<string name="ftue_multiadmin_header">एकाधिक ॲडमिन </string>
-	<string name="ftue_multiadmin_description">आता तुमचे ॲडमिन ीय हक्क या समूहाच्या एका किंवा अधिक सदस्यांसोबत सामायिक करा</string>
 	<string name="unknown_server_error">फाइल डाउनलोड करू शकत नाही.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s संभाषणांकडील %1$s संदेश</string>
@@ -1069,8 +1064,6 @@
 	<string name="status_hint">कस काय, काय चाललेय ?</string>
 	<string name="status_hint_image">या फोटोविषयी काही</string>
 	<string name="add_mood">मूड</string>
-    <string name="sticker_reorder_setting_info">स्टिकर पॅलेटवरून पॅक पुनर्क्रमित करा/लपवा</string>
-    <string name="sticker_reorder_setting_header">स्टिकर पॅक क्रम बदला</string>
     <string name="sticker_recommendation_autopopup_setting_info">टाइप केल्यावर स्टिकर स्वयंप्रकाशित करा</string>
 	<string name="sticker_recommendation_autopopup_setting_header">स्वयं सूचित स्टिकर सल्ला</string>
 	<string name="sticker_recommend_ftue_heading">स्टिकर सल्ला</string>
@@ -1423,7 +1416,47 @@
     <string name="language_ftue_complete_message">किबोर्ड ची भाषा कधीही बदलण्याकरिता \nसेटींग्स -> भाषा आणि इनपुट</string>
     <string name="error_message_upgrade_peer"> माफ करा. हा संपर्क hike च्या जुन्या आवृत्ति वर आहे. यांच्याकडे hike डाइरेक्ट नाही आहे.</string>
     <string name="error_message_unsupported_peer">माफ करा. hike डाइरेक्ट ने तुम्ही फक्त एंड्राइड फोन शी जोडू शकता.</string>
+    <string name="delete_conversation">संभाषण हटवा</string>
     <string name="switch_to_old_key">"तुमचा जुना किबोर्ड वापरा"</string>
     <string name="switch_to_hike_key">"तुमचा  hike किबोर्ड वापरा "</string>
-    
+    <string name="admin_error">हा वापरकर्ता आता या ग्रुप चा सभासद नाही</string>
+
+    <string name="deleting">हटवत आहे</string>
+    <string name="sticker_reorder_setting_info">स्टिकर पॅक्सचा अनुक्रम बदला</string>
+    <string name="sticker_reorder_setting_header">अनुक्रम बदला</string>
+    <string name="sticker_delete_setting_info">फोनमधून स्टिकर पॅक्स हटवा</string>
+    <string name="sticker_delete_setting_header">हटवा</string>
+    <string name="sticker_hide_setting_info">पॅलेटपासून स्टिकर पॅक्स लपवा/उघड करा</string>
+    <string name="sticker_hide_setting_header">लपवा</string>
+    <string name="sticker_update_setting_info">डाउनलोड केलेले स्टिकर पॅक्स अपडेट करा</string>
+    <string name="sticker_update_setting_header">अपडेट करा</string>
+    <string name="delete_pack_question">तुम्हाला स्टिकर पॅक्स नक्की हटवायचे आहेत का?</string>
+    <string name="settings_sticker">स्टिकर सेटिंग्ज</string>
+    <string name="deleting_pack">पॅक्स हटवत आहे…</string>
+    <string name="pack_deleted">पॅक हटवला आहे</string>
+    <string name="n_more_stickers">%1$d अधिक स्टिकर्स</string>
+    <string name="all_packs_updated_heading">सर्व पॅक्स अपडेटेड आहेत!</string>
+    <string name="all_packs_updated_info">सर्व पॅक्स अपडेटेड आहेत, तुम्हाला आणखी स्टिकर्स हवे असल्यास स्टिकर दुकानास भेट द्या</string>
+    <string name="redirect_to_shop_text">मला दुकानात घेऊन चला</string>
+    <string name="all_done">सर्व काम झाले!!</string>
+    <string name="drag_tip_text">अनुक्रम बदलण्यासाठी टॅप करा आणि ड्रॅग करा</string>
+    <string name="all_packs_deleted_heading">आमच्याकडे 10,000 हून अधिक स्टिकर्स आहेत</string>
+    <string name="all_packs_deleted_info">आमच्या स्टिकरचे दुकान बघा आणि जे तुम्हाला पसंत पडतील फक्त तेच डाउनलोड करा!</string>
+
+    <string name="timeline_short_desc">तुमचे क्षण मित्रांसह शेअर करा</string>
+    <string name="multiple_su_post_failed">एक किंवा दोन स्टेटस पोस्ट करता येनार नाहीत.</string>
+    <string name="timeline_post_timeout">तुमचे फोटो लवकरच पोस्ट केले जातील</string>
+    <string name="crop">क्रॉप करा</string>
+    <string name="photo_gallery_choose_pic">फोटो</string>
+    <string name="remove">काढा</string>
+    <string name="filters">फिल्टर्स</string>
+    <string name="rotate">फिरवा</string>
+    <string name="forward_to_plural_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
+    <string name="forward_to_single_timeline">1 संपर्क आणि टाइमलाइन वर संदेश पाठवायचा?</string>
+    <string name="share_with_timeline">%1$s संपर्क आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
+    <string name="share_with_contact_timeline">%1$s सह आणि टाइमलाइन वर संदेश शेअर करायचा?</string>
+    <string name="image_w_caption_sms">तुम्हाला कैप्शन सहित एक फोटो पाठवली %1$s</string>
+    <string name="share_on_timeline">टाइमलाइन वर शेअर करायची?</string>
+    <string name="posting_photos_timeline">तुमचे फोटोज टाइमलईंवरपोस्ट केले जात आहेत</string>
+    <string name="add_a_caption">कैप्शन सामील</string>
 </resources>

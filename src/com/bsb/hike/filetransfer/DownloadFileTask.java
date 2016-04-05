@@ -21,8 +21,12 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,13 +38,16 @@ public class DownloadFileTask extends FileTransferBase
 
 	private File tempDownloadedFile;
 
+	private boolean showToast;
+
 	private String downLoadUrl;
 
-	public DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext)
+	protected DownloadFileTask(Context ctx, File tempFile, File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
 	{
 		super(ctx, destinationFile, msgId, hikeFileType);
-		this.tempDownloadedFile = tempFile;
 		this.fileKey = fileKey;
+		this.tempDownloadedFile = tempFile;
+		this.showToast = showToast;
 		this.userContext = userContext;
 	}
 
@@ -49,15 +56,31 @@ public class DownloadFileTask extends FileTransferBase
 		IRequestListener downloadFileRequestListener = getDownloadRequestListener();
 
 		downLoadUrl = null;
-		if (userContext != null)
+
+		HikeFile hikeFile = null;
+		if (userContext == null)
 		{
-			ConvMessage msg = (ConvMessage) userContext;
-			HikeFile hikeFile = msg.getMetadata().getHikeFiles().get(0);
-			if (hikeFile != null)
+			JSONObject jo;
+			try
 			{
-				downLoadUrl = hikeFile.getDownloadURL();
+				jo = new JSONObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_JSON, "{}"));
+				hikeFile = new HikeFile(jo, false);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
 			}
 		}
+		else
+		{
+			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
+		}
+
+		if (hikeFile != null)
+		{
+			downLoadUrl = hikeFile.getDownloadURL();
+		}
+
 		if (TextUtils.isEmpty(downLoadUrl))
 		{
 			downLoadUrl = AccountUtils.fileTransferBaseDownloadUrl + fileKey;
@@ -65,7 +88,8 @@ public class DownloadFileTask extends FileTransferBase
 
 		if (requestToken == null)
 		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener, new FileTransferChunkSizePolicy(context));
+			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
+					new FileTransferChunkSizePolicy(context));
 		}
 		requestToken.execute();
 	}
@@ -163,6 +187,10 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			if (HikeFileType.IMAGE == hikeFileType)
 				HikeMessengerApp.getPubSub().publish(HikePubSub.PUSH_FILE_DOWNLOADED, (ConvMessage) userContext);
+			if (HikeFileType.APK == hikeFileType)
+			{
+				FTApkManager.checkAndActOnDownloadedApk(mFile);
+			}
 		}
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/hike_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@drawable/conversation_list_item"
+    android:paddingLeft="@dimen/conv_item_padding"
+    android:paddingRight="@dimen/conv_item_padding">
+
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/compose_item_height"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent"
+        android:button="@drawable/hike_list_item_checkbox"
+        android:clickable="false"
+        android:focusable="false"
+        android:gravity="right|center" />
+
+    <com.bsb.hike.view.RoundedImageView
+        android:id="@+id/contact_image"
+        style="@style/RoundedStyle"
+        android:layout_width="@dimen/compose_avatar_dimen"
+        android:layout_height="@dimen/compose_avatar_dimen"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true" />
+
+
+    <LinearLayout
+        android:id="@+id/name_num_layout"
+        style="@style/compose_name_container_margins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/checkbox"
+        android:layout_toRightOf="@id/contact_image"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            style="@style/ListItemHeaderTextView" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/number"
+            style="@style/ListItemSubHeaderTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/number" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/contact_divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@id/contact_image"
+        android:background="@color/home_screen_list_divider" />
+
+</RelativeLayout>
