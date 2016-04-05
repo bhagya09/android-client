@@ -431,7 +431,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			JSONObject viewsPayload = new JSONObject();
 			try
 			{
-				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
+				viewsPayload.put(HikeConstants.SU_ID, viewedJsonArray);
 				Logger.d("SendViewsAPI", "Payload"+viewsPayload.toString());
 				timelineCardsAdapter.getSUViewedSet().clear();
 				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
@@ -445,7 +445,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						Logger.d("SendViewsAPI", "Success");
+						if (Utils.isResponseValid((JSONObject) result.getBody().getContent()))
+						{
+							Logger.d("SendViewsAPI", "Success");
+						}
+						else
+						{
+							Logger.d("SendViewsAPI", "Stat failed");
+						}
+
 					}
 
 					@Override

@@ -7,6 +7,7 @@
     android:versionName="4.2.0.18.12.resume_versioning" >
 
 
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
@@ -581,6 +582,10 @@
             </intent-filter>
         </receiver>
 
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
         <receiver
             android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
             <intent-filter >

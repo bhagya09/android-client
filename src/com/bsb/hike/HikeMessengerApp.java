@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -58,6 +59,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.crashlytics.android.Crashlytics;
 import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
 
 import org.acra.ACRA;
@@ -81,6 +83,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.fabric.sdk.android.Fabric;
 
 
 //https://github.com/ACRA/acra/wiki/Backends
@@ -388,8 +392,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String SHOWN_GROUP_CHAT_TIP = "shownGroupChatTip";
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
-
-	public static final String SHOWN_MULTI_ADMIN_TIP = "shownMultiAdminTip";
 
 	public static final String MQTT_IPS = "mqttIps";
 
@@ -772,9 +774,13 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+
+
+
+		// We need to set all AppConfig params on the start when _instance have been initialized
+		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
+		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
+		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -963,6 +969,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
+	private void initCrashReportingTool()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		{
+			Logger.d("HikeMessangerApp","Initializing Crashlytics");
+			Fabric.with(this, new Crashlytics());
+			logUser();
+		}
+		else
+		{
+			Logger.d("HikeMessangerApp","Initializing ACRA");
+			ACRA.init(this);
+			CustomReportSender customReportSender = new CustomReportSender();
+			ErrorReporter.getInstance().setReportSender(customReportSender);
+		}
+	}
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1026,7 +1048,19 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+<<<<<<< HEAD
 
+=======
+		initCrashReportingTool();
+	}
+
+	private void logUser() {
+		// TODO: Use the current user's information
+		// You can call any combination of these three methods
+		if (!TextUtils.isEmpty(msisdn)) {
+			Crashlytics.setUserIdentifier(msisdn);
+		}
+>>>>>>> 444973a12bfa86fa6d0bff2b506a405e9a72716a
 	}
 
 	/**

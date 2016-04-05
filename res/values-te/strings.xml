@@ -359,7 +359,6 @@
     <string name="one_new_message">1 కొత్త సందేశం</string>
     <string name="terms">నిబంధనలు</string>
     <string name="get_started">ప్రారంభించండి</string>
-    <string name="got_it">అర్ధమయ్యింది</string>
     <string name="whats_your_number">హాయ్! మీ నెంబరు ఏంటి?</string>
     <string name="select_country">దేశం ఎంచుకోండి</string>
     <string name="wrong_country">చెల్లుబాటుకాని దేశం కోడ్</string>
@@ -1032,8 +1031,6 @@
 	<string name="sms_admin_toast">SMS వినియోగదారులతో మీరు మీ అడ్మిన్ రైట్‌లను పంచుకోలేరు</string>
     <string name="group_settings_updated">గ్రూపు సెట్టింగ్‌లు మార్చబడినాయి</string>
 	<string name="you_group_settings_updated">మీరు గ్రూపు సెట్టిం‌గ్‌లను మార్చారు.</string>
-	<string name="ftue_multiadmin_header">బహుళ అడ్మిన్‌లు</string>
-	<string name="ftue_multiadmin_description">ఈ గ్రూపులోని బహుళ సభ్యులతో మీరు మీ అడ్మిన్ రైట్‌లను పంచుకోవచ్చు</string>
 	<string name="unknown_server_error">ఫైలును డౌన్‌లోడ్ చేయలేకపోయింది.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s సంభాషణల నుంచి %1$s సందేశాలు</string>
@@ -1445,7 +1442,6 @@
     <string name="timeline_short_desc">మీ అనుభూతులను స్నేహితులతో పంచుకోండి</string>
     <string name="multiple_su_post_failed">ఒకటి లేదా అంతకంటే ఎక్కువ స్టేటస్ అప్‌డేట్‌లు పోస్ట్ చేయబడవు</string>
     <string name="timeline_post_timeout">మీ ఫోటోలు త్వరలో పోస్ట్ చేయబడతాయి</string>
-    <string name="timeline_post_multimsg">విస్మరించిన అదనపు సందేశాలు </string>
     <string name="crop">క్రాప్</string>
     <string name="photo_gallery_choose_pic">ఫోటోలు</string>
     <string name="remove">తొలగించు</string>
@@ -1455,6 +1451,8 @@
     <string name="forward_to_single_timeline">1 కాంటాక్ట్స్ మరియు టైమ్ లైన్కు సందేశం పంపబడిందా?</string>
     <string name="share_with_timeline">%1$d కాంటాక్ట్స్ మరియు టైమ్ లైన్ మీద పంచుకోవాలా?</string>
     <string name="share_with_contact_timeline">%1$s మరియు టైమ్ లైన్ మీద పంచుకోబడ్డాయా?</string>
-    <string name="image_w_caption_sms">క్యాప్షన్ తో ఉన్న  ఫోటో మీకు పంపబడింది /"</string>
+    <string name="image_w_caption_sms">క్యాప్షన్ తో ఉన్న  ఫోటో మీకు పంపబడింది %1$s</string>
     <string name="share_on_timeline">టైమ్ లైన్ మీద పంచుకోవాలా?</string>
+    <string name="posting_photos_timeline">ఫొటోస్ టైంలైన్ కి పోస్టింగ్ అవుతున్నాయి</string>
+    <string name="add_a_caption">ఒక క్యాప్షన్ ను జత చేయ్యండి.  </string>
 </resources>
