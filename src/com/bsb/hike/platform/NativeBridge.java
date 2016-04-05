@@ -820,13 +820,16 @@ public class NativeBridge
 	 */
 	public String getNotifData()
 	{
+		if(msisdn == null)
+			return "";
+		BotInfo botinfo = HikeConversationsDatabase.getInstance().getBotInfoForMsisdn(msisdn);
 		try
 		{
-			if (mBotInfo == null)
+			if (botinfo == null)
 			{
 				return "";
 			}
-			String value = mBotInfo.getNotifData();
+			String value = botinfo.getNotifData();
 			if (value != null && value.length() > 0)
 			{
 				JSONObject notifJson = new JSONObject(value);
