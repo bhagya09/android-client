@@ -98,7 +98,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/walkie_recorder"
         android:layout_marginTop="10dp"
-        android:background="@drawable/overflow_tip"
+        android:background="@drawable/misc_rec"
         android:gravity="center_vertical"
         android:text="@string/error_recording"
         style="@style/CustomInfoTipDown"
