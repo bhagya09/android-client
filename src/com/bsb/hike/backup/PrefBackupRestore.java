@@ -1,5 +1,6 @@
 package com.bsb.hike.backup;
 
+import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.utils.CBCEncryption;
 
 import java.io.File;

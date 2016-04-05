@@ -64,7 +64,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -79,6 +78,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -8062,6 +8062,20 @@ public class Utils
 	{
 		HikeMqttManagerNew.getInstance().init(); // Init and then connect
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
+	public static PackageInfo getHikePackageInfo()
+	{
+		PackageInfo pInfo = null;
+		try
+		{
+			pInfo = HikeMessengerApp.getInstance().getPackageManager().getPackageInfo(HikeMessengerApp.getInstance().getPackageName(), 0);
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return pInfo;
 	}
 
 }

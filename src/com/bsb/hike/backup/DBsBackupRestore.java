@@ -1,6 +1,7 @@
 package com.bsb.hike.backup;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;

@@ -4054,4 +4054,24 @@ public class HikeConstants
 	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+
+	public static class BackupRestore
+	{
+		public static final String OS = "os";
+
+		public static final String FROM = "f";
+
+		public static final String TIMESTAMP = "ts";
+
+		public static final String VERSION = "ver";
+
+		public static final String DATA = "d";
+
+		public static final String VALUE = "v";
+
+		public static final String DATA_TYPE = "dt";
+
+		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
+	}
 }

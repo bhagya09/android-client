@@ -1,4 +1,4 @@
-package com.bsb.hike.backup;
+package com.bsb.hike.backup.model;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
