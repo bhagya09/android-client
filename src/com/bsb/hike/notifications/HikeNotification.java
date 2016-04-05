@@ -1506,7 +1506,6 @@ public class HikeNotification
 			setNotificationIntentForBuilder(mBuilder, notificationIntent, notificationId, retryCount);
 		}
 
-		setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		
 		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{

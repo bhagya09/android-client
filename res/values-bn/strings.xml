@@ -359,7 +359,6 @@
     <string name="one_new_message">1 টি নতুন মেসেজ</string>
     <string name="terms">শর্তাবলী</string>
     <string name="get_started">লঞ্চ করুন</string>
-    <string name="got_it">বুঝেছি</string>
     <string name="whats_your_number">হাই! আপনার নম্বর কত?</string>
     <string name="select_country">দেশ বেছে নিন</string>
     <string name="wrong_country">দেশের কোড ভুল</string>
@@ -1033,8 +1032,6 @@
     <string name="sms_admin_toast">আপনি SMS ইউজারদের সঙ্গে আপনার প্রশাসনিক অধিকার শেয়ার করতে পারবেন না</string>
     <string name="group_settings_updated">গ্রুপের সেটিংস পরিবর্তন করেছেন</string>
     <string name="you_group_settings_updated">এই গ্রুপের সেটিংস আপনি পরিবর্তন করেছেন</string>
-    <string name="ftue_multiadmin_header">একাধিক অ্যাডমিন</string>
-    <string name="ftue_multiadmin_description">এখন এই গ্রুপের একাধিক সদস্যদেরকে প্রশাসনিক অধিকার শেয়ার করুন</string>
     <string name="unknown_server_error">ফাইল ডাউনলোড করা যাবে না।</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s কথোপকথন থেকে %1$s মেসেজ</string>

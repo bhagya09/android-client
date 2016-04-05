@@ -368,7 +368,6 @@
     <string name="one_new_message">1 new message</string>
     <string name="terms">Terms</string>
     <string name="get_started">Get Started</string>
-    <string name="got_it">GOT IT</string>
     <string name="whats_your_number">Hi! What\'s your number?</string>
     <string name="select_country">Select Country</string>
     <string name="wrong_country">Invalid country code</string>
@@ -1053,8 +1052,6 @@
     <string name="sms_admin_toast">You cannot share your Admin rights with SMS users</string>
     <string name="group_settings_updated">has changed the group settings</string>
     <string name="you_group_settings_updated">You have changed the group settings</string>
-    <string name="ftue_multiadmin_header">Multiple Admins</string>
-    <string name="ftue_multiadmin_description">Now share your Admin rights with multiple members of this group</string>
     <string name="unknown_server_error">Unable to download the file.</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%1$s messages from %2$s conversations</string>
