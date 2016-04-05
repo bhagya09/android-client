@@ -381,4 +381,6 @@ public interface HikePlatformConstants
 
     String UPDATED_APP_NAME = "updated_name";
 
+    String IS_WEB_CARD = "isWebCard";
+
 }

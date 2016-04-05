@@ -863,8 +863,12 @@ public class PlatformUtils
         }
 
         // As this flow is there for MAPP flow, setting the request type to Hike Mapps
-        rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
-        rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        boolean isWebCard = downloadData.optBoolean(HikePlatformConstants.IS_WEB_CARD, false);
+        if(!isWebCard)
+        {
+            rqst.setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+            rqst.getContentData().setBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS);
+        }
 
 		boolean doReplace = downloadData.optBoolean(HikePlatformConstants.REPLACE_MICROAPP_VERSION);
 		String callbackId = downloadData.optString(HikePlatformConstants.CALLBACK_ID);
