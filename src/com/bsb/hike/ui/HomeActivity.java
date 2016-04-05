@@ -638,6 +638,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(null);
+			searchView.clearFocus();
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
 
