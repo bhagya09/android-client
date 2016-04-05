@@ -2479,6 +2479,10 @@ public class PlatformUtils
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
 							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+							if(type == HikePlatformConstants.PlatformTypes.CBOT)
+							{
+								sendCbotFailDueToTTL(getMsisdnFromAppName(name));
+							}
 							continue;
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
@@ -2512,7 +2516,15 @@ public class PlatformUtils
 			}
 		});
 	}
-// analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"fld6”:567888,"fld1”:"hikenews","ek":"micro_app","event":"download_paused"},"cts":1458220184473,"tag":"plf"},"t":"le_android”}
+
+	private static String getMsisdnFromAppName(String name)
+	{
+		if (TextUtils.isEmpty(name))
+			return "";
+		return "+" + name + "+";
+	}
+
+	// analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1458220124380,"fld6”:567888,"fld1”:"hikenews","ek":"micro_app","event":"download_paused"},"cts":1458220184473,"tag":"plf"},"t":"le_android”}
 	private static void sendDownloadPausedAnalytics(String id) {
 		int downloadedLength=0;
 		JSONObject json = new JSONObject();
@@ -2590,5 +2602,29 @@ public class PlatformUtils
 			}
 
 		}
+	}
+
+	public static void sendCbotFailDueToTTL(String msisdn)
+	{
+		JSONObject json = new JSONObject();
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		if(botInfo == null)
+		{
+			return;
+		}
+		try {
+			json.put(HikePlatformConstants.ERROR_CODE,AnalyticsConstants.TTL_EXPIRED);
+			json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
+		}
+		catch(JSONException e)
+		{
+			Logger.e(TAG,"Error in sending analytics");
+		}
+			createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
+			createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 	}
 }
