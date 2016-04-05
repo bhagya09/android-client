@@ -4058,4 +4058,8 @@ public class HikeConstants
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
 	public static final String IS_NEW_USER = "is_new_user";
+
+	public static final int DEFAULT_FRIENDS_FTUE_COUNT = 5;
+
+	public static final String FTUE_FRIENDS_COUNT = "friends_ftue_count";
 }
