@@ -8126,7 +8126,7 @@ public class Utils
 
 	public static boolean isFavToFriendsMigrationAllowed()
 	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, true);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, false);
 	}
 
 	public static boolean isNewUser()
