@@ -176,7 +176,7 @@ public class AddFriendsActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else
 		{
-			Toast.makeText(this, R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, Utils.isFavToFriendsMigrationAllowed() ? R.string.favorite_request_sent : R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
 		}
 
 	}
