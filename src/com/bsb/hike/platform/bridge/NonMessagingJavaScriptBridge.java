@@ -1575,6 +1575,21 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		NonMessagingBotAlarmManager.setAlarm(mContext,json,msisdn,timeInMills,persistent);
+		NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, Long.valueOf(timeInMills).longValue(), Boolean.valueOf(persistent));
+	}
+
+	/**
+	 * Platform Version 11
+	 * Call this function to cancel the alarm data associtated with a particular alarm data
+	 * @param alarmData
+	 */
+	@JavascriptInterface
+	public void cancelAlarm(String alarmData)
+	{
+		if(mBotInfo ==  null || weakActivity == null || TextUtils.isEmpty(mBotInfo.getMsisdn()))
+		{
+			return;
+		}
+		HikeAlarmManager.cancelAlarm(weakActivity.get(),(mBotInfo.getMsisdn().hashCode()+alarmData.hashCode()));
 	}
 }

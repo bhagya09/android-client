@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 /**
+ * Class which handles alarms for Non-Messaging Bots
  * Created by pushkargupta on 28/03/16.
  */
 public class NonMessagingBotAlarmManager {

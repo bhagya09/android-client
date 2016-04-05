@@ -22,6 +22,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.EventData;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
@@ -801,7 +802,7 @@ public class NativeBridge
 	 */
 	public void deletePartialNotifData(String key)
 	{
-		if(key==null || msisdn == null)
+		if(key==null || TextUtils.isEmpty(msisdn))
 		{
 			return;
 		}
@@ -809,6 +810,18 @@ public class NativeBridge
 		Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 		hikeProcessIntentService.putExtra(HikeProcessIntentService.NOTIF_DATA_PARTIAL_DELETE, notifData);
 		activity.startService(hikeProcessIntentService);
+	}
+	/**
+	 * Call this function to cancel the alarm data associtated with a particular alarm data
+	 * @param alarmData
+	 */
+	public void cancelAlarm(String alarmData)
+	{
+		if(weakActivity == null || TextUtils.isEmpty(msisdn) || alarmData == null)
+		{
+			return;
+		}
+		HikeAlarmManager.cancelAlarm(weakActivity.get(),msisdn.hashCode()+alarmData.hashCode());
 	}
 
 
