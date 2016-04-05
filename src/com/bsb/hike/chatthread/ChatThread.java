@@ -6657,10 +6657,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
-	
+
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		stickerTagWatcher.refreshUndownloadedStickerWatcher();
+		if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher();
+        }
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6675,7 +6678,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-        stickerTagWatcher.refreshUndownloadedStickerWatcher();
+        if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher();
+        }
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
