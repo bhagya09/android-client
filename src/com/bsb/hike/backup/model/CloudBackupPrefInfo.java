@@ -18,7 +18,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 public class CloudBackupPrefInfo
 {
 
-	@IntDef({ TYPE_BOOL, TYPE_INT, TYPE_STRING, TYPE_STR_ARR })
+	@IntDef({ TYPE_BOOL, TYPE_INT, TYPE_STRING, TYPE_LONG, TYPE_FLOAT })
 	@Retention(RetentionPolicy.SOURCE)
 	public @interface PrefDataType
 	{
@@ -30,7 +30,9 @@ public class CloudBackupPrefInfo
 
 	public static final int TYPE_STRING = 3;
 
-	public static final int TYPE_STR_ARR = 4;
+	public static final int TYPE_LONG = 4;
+
+	public static final int TYPE_FLOAT = 5;
 
 	private String keyName;
 
@@ -71,8 +73,12 @@ public class CloudBackupPrefInfo
 			dataType = TYPE_BOOL;
 			break;
 
-		case TYPE_STR_ARR:
-			dataType = TYPE_STR_ARR;
+		case TYPE_FLOAT:
+			dataType = TYPE_FLOAT;
+			break;
+
+		case TYPE_LONG:
+			dataType = TYPE_LONG;
 			break;
 
 		default:
@@ -125,9 +131,35 @@ public class CloudBackupPrefInfo
 	{
 		HikeSharedPreferenceUtil sharedPref = HikeSharedPreferenceUtil.getInstance(prefName);
 		JSONObject settingJSON = new JSONObject();
-		settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, defaultValue.toString()));
+
+		switch (dataType)
+		{
+		case TYPE_BOOL:
+			boolean boolVal = (Boolean) defaultValue;
+			settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, boolVal));
+			break;
+
+		case TYPE_INT:
+			int intVal = (Integer) defaultValue;
+			settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, intVal));
+			break;
+
+		case TYPE_STRING:
+			String strVal = (String) defaultValue;
+			settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, strVal));
+			break;
+
+		case TYPE_LONG:
+			long strArray = (Long) defaultValue;
+			settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, strArray));
+			break;
+
+		case TYPE_FLOAT:
+			float strFloat = (Float) defaultValue;
+			settingJSON.put(HikeConstants.BackupRestore.VALUE, sharedPref.getData(keyName, strFloat));
+			break;
+		}
 		settingJSON.put(HikeConstants.BackupRestore.DATA_TYPE, dataType);
 		return settingJSON;
 	}
-
 }
