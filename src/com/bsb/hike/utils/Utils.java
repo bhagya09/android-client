@@ -8140,4 +8140,9 @@ public class Utils
 		return convMessage;
 	}
 
+	public static boolean isNotMyOneWayFriend(ContactInfo contactInfo)
+	{
+		return Utils.isFavToFriendsMigrationAllowed() && !contactInfo.isMyOneWayFriend();
+	}
+
 }

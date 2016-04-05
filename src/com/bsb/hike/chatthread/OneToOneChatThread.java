@@ -3932,7 +3932,7 @@ import java.util.Map;
 	 */
 	protected boolean isNotMyOneWayFriend()
 	{
-		return Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend();
+		return Utils.isNotMyOneWayFriend(mContactInfo);
 	}
 
 	@Override
