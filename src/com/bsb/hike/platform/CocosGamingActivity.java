@@ -17,6 +17,7 @@ import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -314,6 +315,18 @@ public class CocosGamingActivity extends Cocos2dxActivity
 				//nativeBridge.sendAppState(true); // AND-4907
 				Logger.d(TAG, "+onActivityResult");
 				break;
+				case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
+					final String id =data.getStringExtra(HikeConstants.CALLBACK_ID);
+					this.runOnGLThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							platformCallback(id,PlatformUtils.getFileUploadJson(data));
+						}
+					});
+					Logger.d(TAG, "+onActivityResult");
+					break;
 			}
 		}
 	}

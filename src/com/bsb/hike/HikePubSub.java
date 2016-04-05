@@ -506,6 +506,8 @@ public class HikePubSub implements Runnable
 
 	public static final String FILE_OPENED = "fileOpened";
 
+	public static final String DB_CORRUPT = "db_corrupt";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

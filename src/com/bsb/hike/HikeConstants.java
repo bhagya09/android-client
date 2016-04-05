@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -3826,10 +3838,6 @@ public class HikeConstants
 	
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
-
-	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
-
 	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
 
 	public static final String SINGLE_STICKER_CDN = "sscdn";
@@ -3847,6 +3855,16 @@ public class HikeConstants
 	public static final String HIDE_DELETED_CONTACTS = "h_d_c";
 	
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final String CRASH_REPORTING_TOOL="cpt";
+
+	public static final String ACRA="a";
+
+	public static final String CRASHLYTICS="c";
 
 	public static final class INTERCEPTS
 	{
@@ -3899,4 +3917,24 @@ public class HikeConstants
 	}
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String JOURNAL_MODE = "journal_mode";
+
+	public static final String SQLITE_VERSION = "sqlite_ver";
+
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
+
+	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 }

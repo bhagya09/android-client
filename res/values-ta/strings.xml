@@ -359,7 +359,6 @@
     <string name="one_new_message">1 புதிய மெஸ்சேஜ்</string>
     <string name="terms">விதிகள்</string>
     <string name="get_started">துவங்குவீர்</string>
-    <string name="got_it">புரிந்தது</string>
     <string name="whats_your_number">ஹை! உன் எண் என்ன?</string>
     <string name="select_country">நாட்டினைத் தேர்ந்தெடும்</string>
     <string name="wrong_country">செல்லாத நாட்டுக் குறியீடு</string>
@@ -1029,8 +1028,6 @@
 	<string name="sms_admin_toast">உம்மால் SMS பயனர்களோடு உன் அட்மின் உரிமைகளை ஷேர் செய்து கொள்ள முடியாது</string>
 	<string name="group_settings_updated">குழு செட்டிங்ஸை மாற்றி விட்டார்</string>
 	<string name="you_group_settings_updated">நீங்கள் குழு செட்டிங்ஸை மாற்றி விட்டீர்கள்</string>
-	<string name="ftue_multiadmin_header">மல்டிபிள் அட்மின்கள்</string>
-	<string name="ftue_multiadmin_description">இப்போது உமது அட்மின் ரைட்களை, இந்த குழுபின் மல்டிபிள் மெம்பர்களோடு ஷேர் செய்யும்</string>
 	<string name="unknown_server_error">ஃபைலை பதிவிறக்கம்செய்ய இயலவில்லை.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s உரையாடல்களில் இருந்து %1$s மெஸ்சேஜ்கள்</string>

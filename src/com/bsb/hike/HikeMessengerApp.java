@@ -21,6 +21,23 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.acra.util.HttpRequest;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.widget.Toast;
 
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -62,23 +79,9 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.crashlytics.android.Crashlytics;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Pair;
-import android.widget.Toast;
+import io.fabric.sdk.android.Fabric;
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -386,8 +389,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SHOWN_ADD_FAVORITE_TIP = "shownAddFavoriteTip";
 
-	public static final String SHOWN_MULTI_ADMIN_TIP = "shownMultiAdminTip";
-
 	public static final String MQTT_IPS = "mqttIps";
 
 	public static final String STEALTH_ENCRYPTED_PATTERN = "stealthEncryptedPattern";
@@ -646,8 +647,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void connectToService()
 	{
-		if (!Utils.isUserSignedUp(getApplicationContext(), false))
+		if (!Utils.shouldConnectToMQTT())
 		{
+			Logger.d("HikeMessengerApp", "Not Connecting to service yet");
 			return;
 		}
 
@@ -764,9 +766,13 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		int convInt = settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1);
 		int msgHashGrpReadUpgrade = settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1);
 		int upgradeForDbVersion28 = settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1);
-		ACRA.init(this);
-		CustomReportSender customReportSender = new CustomReportSender();
-		ErrorReporter.getInstance().setReportSender(customReportSender);
+
+
+
+		// We need to set all AppConfig params on the start when _instance have been initialized
+		// reason : AppConfig class is loaded before we set _instance ==> HikeSharedPrefUtil won't be able to
+		// initialize successfully ==> Utils.isSendLogsEnabled would return false. and Send logs won't show up
+		AppConfig.refresh();
 
 		setupAppLocalization();
 		Utils.setDensityMultiplier(getResources().getDisplayMetrics());
@@ -953,6 +959,22 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
+	private void initCrashReportingTool()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		{
+			Logger.d("HikeMessangerApp","Initializing Crashlytics");
+			Fabric.with(this, new Crashlytics());
+			logUser();
+		}
+		else
+		{
+			Logger.d("HikeMessangerApp","Initializing ACRA");
+			ACRA.init(this);
+			CustomReportSender customReportSender = new CustomReportSender();
+			ErrorReporter.getInstance().setReportSender(customReportSender);
+		}
+	}
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1009,6 +1031,15 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+		initCrashReportingTool();
+	}
+
+	private void logUser() {
+		// TODO: Use the current user's information
+		// You can call any combination of these three methods
+		if (!TextUtils.isEmpty(msisdn)) {
+			Crashlytics.setUserIdentifier(msisdn);
+		}
 	}
 
 	/**
@@ -1044,16 +1075,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public void startUpdgradeIntent()
 	{
-		// turn off future push notifications as soon as the app has
-		// started.
-		// this has to be turned on whenever the upgrade finishes.
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
-		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
-		editor.putBoolean(BLOCK_NOTIFICATIONS, true);
-		editor.commit();
-
-		Intent msgIntent = new Intent(this, UpgradeIntentService.class);
-		startService(msgIntent);
+		IntentFactory.startUpgradeIntent(this);
 	}
 
 	private void replaceGBKeys()
