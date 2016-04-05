@@ -1,8 +1,6 @@
 package com.bsb.hike.backup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.json.JSONException;
@@ -88,12 +86,12 @@ public class CloudSettingsRestorable implements Restorable, IRequestListener
 			if (isSharedPref)
 			{
 				// Save into shared preferences
-                restoreSharedPreference(prefInfo);
+				restoreSharedPreference(prefInfo);
 			}
 			else
 			{
 				// Handle manual cases
-                restoreCustomData(prefInfo);
+				restoreCustomData(prefInfo);
 			}
 		}
 
@@ -106,31 +104,35 @@ public class CloudSettingsRestorable implements Restorable, IRequestListener
 		switch (dataType)
 		{
 		case CloudBackupPrefInfo.TYPE_BOOL:
-            prefs.saveData(prefInfo.getKeyName(),Boolean.valueOf(prefInfo.getRestoreValue()));
+			prefs.saveData(prefInfo.getKeyName(), Boolean.valueOf(prefInfo.getRestoreValue()));
 			break;
 
 		case CloudBackupPrefInfo.TYPE_STRING:
-            prefs.saveData(prefInfo.getKeyName(),String.valueOf(prefInfo.getRestoreValue()));
+			prefs.saveData(prefInfo.getKeyName(), String.valueOf(prefInfo.getRestoreValue()));
 			break;
 
 		case CloudBackupPrefInfo.TYPE_INT:
-            prefs.saveData(prefInfo.getKeyName(),Integer.valueOf(prefInfo.getRestoreValue()));
+			prefs.saveData(prefInfo.getKeyName(), Integer.valueOf(prefInfo.getRestoreValue()));
 			break;
 
-		case CloudBackupPrefInfo.TYPE_STR_ARR:
-            String[] arr = prefInfo.getRestoreValue().split(",");
-            prefs.saveStringSet(prefInfo.getKeyName(),  new HashSet<String>(Arrays.asList(arr)));
+		case CloudBackupPrefInfo.TYPE_FLOAT:
+			prefs.saveData(prefInfo.getKeyName(), Float.valueOf(prefInfo.getRestoreValue()));
 			break;
+
+		case CloudBackupPrefInfo.TYPE_LONG:
+			prefs.saveData(prefInfo.getKeyName(), Long.valueOf(prefInfo.getRestoreValue()));
+			break;
+
 		}
 	}
 
 	public void restoreCustomData(CloudBackupPrefInfo prefInfo)
 	{
-        String prefName = prefInfo.getPrefName();
-        if(prefName.equals("mutesettings"))
-        {
-            //TODO
-        }
+		String prefName = prefInfo.getPrefName();
+		if (prefName.equals("mutesettings"))
+		{
+			// TODO
+		}
 	}
 
 	@Override
