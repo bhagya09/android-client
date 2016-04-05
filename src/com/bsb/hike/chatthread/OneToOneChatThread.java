@@ -3934,4 +3934,15 @@ import java.util.Map;
 	{
 		return Utils.isFavToFriendsMigrationAllowed() && !mContactInfo.isMyOneWayFriend();
 	}
+
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		if (isNotMyOneWayFriend())
+		{
+			return false; //Not showing the keyboard even, if the user is not a 1-way friend
+		}
+
+		return super.shouldShowKeyboard();
+	}
 }
