@@ -3691,12 +3691,12 @@ import java.util.Map;
 
 		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
 
-		viewStub.setLayoutResource(getFriendsTipLayoutToInflate());
 		/**
 		 * Inflating it only once when needed on demand.
 		 */
 		if (viewStub != null)
 		{
+			viewStub.setLayoutResource(getFriendsTipLayoutToInflate());
 			viewStub.setOnInflateListener(this);
 			viewStub.inflate();
 		}
