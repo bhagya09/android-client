@@ -4687,7 +4687,7 @@ public class Utils
 		else
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.favorite_request_sent : R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
