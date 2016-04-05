@@ -477,6 +477,12 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recordingError(false);
             return false;
 
+        } else if(selectedFile.length() == 0){
+            /* CE-159: Preventing the empty file from being sent.
+                This happen on some devices when sound recording permission is forbidden/denied */
+            listener.audioRecordCancelled(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT);
+            recordingError(true);
+            return false;
         } else {
             if(mDuration <= HikeConstants.MAX_DURATION_RECORDING_SEC * 1000) {
                 recordedTime = mDuration / 1000;
