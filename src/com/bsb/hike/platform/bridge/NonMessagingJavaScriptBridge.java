@@ -28,12 +28,14 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -1590,6 +1592,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		HikeAlarmManager.cancelAlarm(weakActivity.get(),(mBotInfo.getMsisdn().hashCode()+alarmData.hashCode()));
+		HikeAlarmManager.cancelAlarm(weakActivity.get(), (mBotInfo.getMsisdn().hashCode() + alarmData.hashCode()));
 	}
 }
