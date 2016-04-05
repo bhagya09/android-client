@@ -16,7 +16,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;

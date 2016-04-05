@@ -10,13 +10,13 @@ import android.support.customtabs.CustomTabsService;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
