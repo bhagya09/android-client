@@ -2875,6 +2875,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
+		{
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		

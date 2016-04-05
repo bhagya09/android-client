@@ -4014,4 +4014,10 @@ public class HikeConstants
 	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
+
+	public static final int DEFAULT_ACTIVITY_OPEN = 10;
+
+	public static final String ACTIVITY_LATENT_AREA="scrlat";
 }
