@@ -3848,14 +3848,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected boolean shouldEnableSearch()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableSearch());
-	}
-
-	@Override
 	protected boolean shouldEnableHikeKeyboard()
 	{
 		boolean isNotFriend = (isNotMyOneWayFriend());
