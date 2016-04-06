@@ -1,17 +1,6 @@
 package com.bsb.hike.chatthread;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-
-import com.bsb.hike.R;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -19,6 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,7 +157,7 @@ public class KeyboardOffBoarding
 
 	public boolean shouldShowKeyboardOffBoardingUI()
 	{
-		if (!(showKptExitUI() && kptExitServerSwitch())) {
+		if (!(showKptExitUI())) {
 			return false;
 		}
 
@@ -228,16 +226,23 @@ public class KeyboardOffBoarding
 		}
 	}
 
-	public static boolean kptExitServerSwitch() {
+	private static boolean kptExitServerSwitch() {
 //		server-side switch
 		boolean show = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_SERVER_SWITCH, false);
 		return show;
 	}
 
-	public static boolean showKptExitUI() {
-		boolean keyboardFtueShown = (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.KEYBOARD_FTUE_STATE, 0) > 0);
+	private static boolean kptKeyboardSet() {
+
 		boolean kptKeyboardSet = !(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPTConstants.SYSTEM_KEYBOARD_SELECTED, true));
-		return keyboardFtueShown || kptKeyboardSet;
+		return kptKeyboardSet;
 	}
+
+	private boolean showKptExitUI() {
+
+		return kptExitServerSwitch() || kptKeyboardSet();
+	}
+
+
 
 }
