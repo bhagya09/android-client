@@ -730,6 +730,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			Utils.unblockOrientationChange(activity);
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+			Utils.removeKptDictionaries(activity.getApplicationContext());
 		}
 	};
 	
