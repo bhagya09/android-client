@@ -364,13 +364,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void showOverflowTip(int stringResId)
-	{
-		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
-			super.showOverflowTip(stringResId);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -3371,6 +3364,7 @@ import java.util.Map;
 		if (isBlocked)
 		{
 			hideLastSeenText();
+			removeKeyboardShutdownIfShowing();	// AND-5155
 		}
 
 		else
@@ -3379,6 +3373,7 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+			initKeyboardOffBoarding();	//AND-5154
 		}
 	}
 
@@ -3620,5 +3615,11 @@ import java.util.Map;
 			shouldinitialteConnectionFragment = false;
 			startFreeHikeConversation(true);
 		}
+	}
+
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!mConversation.isBlocked())
+			super.initKeyboardOffBoarding();
 	}
 }

@@ -60,7 +60,6 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.HomeFtueActivity;
-import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -96,11 +95,6 @@ public class IntentFactory
 	public static void openSetting(Context context)
 	{
 		context.startActivity(new Intent(context, SettingsActivity.class));
-	}
-
-	public static void openKeyboardLanguageSetting(Context context)
-	{
-		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
 
 	public static void openSettingNotification(Context context)
@@ -298,7 +292,7 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_localization);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.language);
 		context.startActivity(intent);
 	}
 
@@ -315,30 +309,6 @@ public class IntentFactory
 		{
 			context.startActivity(intent);
 		}
-	}
-	
-	public static Intent getIntentForKeyboardAdvSettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
-		return intent;
-	}
-	
-	public static Intent getIntentForKeyboardPrimarySettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.keyboard_preference_title);
-		return intent;
-	}
-	
-	public static Intent getIntentForTextCorrectionSettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.text_correction_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.text_correction_pref_title);
-		return intent;
 	}
 	
 	public static void openInviteSMS(Context context)

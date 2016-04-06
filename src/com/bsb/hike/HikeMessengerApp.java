@@ -1,5 +1,26 @@
 package com.bsb.hike;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +52,6 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
@@ -60,29 +80,6 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
-import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -756,10 +753,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.onCreate();
 		_instance = this;
 
-		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		Utils.enableNetworkListner(this);
-		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -959,7 +954,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 		CustomTabsHelper.getPackageNameToUse(this);
@@ -1279,35 +1273,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
 	}
 	
-	public static boolean isSystemKeyboard()
-	{
-		return (!isCustomKeyboardUsable() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
-	}
-
-	public static boolean isCustomKeyboardUsable()
-	{
-		Logger.d("KptDebug", "isCustomKeyboardUsable value get.time: " + System.currentTimeMillis());
-		return (
-				// server switches
-				isCustomKeyboardEnabled()
-					// If custom(kpt) keyboard is not supported, it should not be used.
-					&& isCustomKeyboardSupported());
-	}
-
-	public static boolean isCustomKeyboardSupported()
-	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, true);
-	}
-
-	public static boolean isCustomKeyboardEnabled()
-	{
-		return (
-				// server switch
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
-					// If localization is disabled in the app. Custom Keyboard is not to be used.
-					&& isLocalisationEnabled());
-	}
-
 	public static boolean isLocalisationEnabled()
 	{
 		// server switch
@@ -1317,10 +1282,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void setupAppLocalization()
 	{
 		setupLocalLanguage();
-		// initialized keyboard manager only if its enabled.
-		Logger.d("KptDebug","call to keyboard manager.time: " + System.currentTimeMillis());
-		if (isCustomKeyboardEnabled())
-			KptKeyboardManager.getInstance();
 		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 
@@ -1363,4 +1324,5 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
     }
+
 }

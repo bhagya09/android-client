@@ -125,6 +125,11 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
+	protected boolean shouldShowKeyboardOffBoardingUI() {
+		return configuration.isKptExitUIEnabled() && super.shouldShowKeyboardOffBoardingUI();
+	}
+
+	@Override
 	protected String[] getPubSubListeners()
 	{
 		String[] oneToOnePubSub = super.getPubSubListeners();
@@ -219,12 +224,6 @@ public class BotChatThread extends OneToOneChatThread
 		return true;
 	}
 
-	@Override
-	protected boolean showOverflowMenuKeyboardTipIfRequired()
-	{
-		return true;
-	}
-
 	/**
 	 * Returns a list of over flow menu items to be displayed
 	 *
@@ -269,14 +268,6 @@ public class BotChatThread extends OneToOneChatThread
 		if (configuration.isEmailChatInOverflowMenuEnabled())
 		{
 			list.add(new OverFlowMenuItem(getString(R.string.email_chat), 0, 0, R.string.email_chat));
-		}
-		
-		if (configuration.isHikeKeyboardInOverflowMenuEnabled())
-		{
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, true) && HikeMessengerApp.isCustomKeyboardUsable())
-			{
-				list.add(new OverFlowMenuItem(getString(isSystemKeyboard()?R.string.hike_keyboard:R.string.system_keyboard), 0, 0, R.string.hike_keyboard));
-			}
 		}
 		
 		return list;

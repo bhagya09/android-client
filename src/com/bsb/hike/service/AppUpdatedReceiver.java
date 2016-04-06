@@ -22,7 +22,6 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.util.KPTConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,10 +45,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
 
-			Intent intentKpt = new Intent();
-			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
-			context.sendBroadcast(intentKpt);
-			
 			/*
 			 * If the user has not signed up yet, don't do anything.
 			 */
