@@ -4073,5 +4073,7 @@ public class HikeConstants
 		public static final String DATA_TYPE = "dt";
 
 		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
+
+		public static final String RUX_BACKUP_PENDING = "ruxbkuppending";
 	}
 }
