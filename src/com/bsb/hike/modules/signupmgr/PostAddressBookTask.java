@@ -11,6 +11,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 import org.json.JSONArray;
@@ -40,7 +41,7 @@ public class PostAddressBookTask
 			return false;
 		}
 		
-		RequestToken requestToken = postAddressBookRequest(postObject, getRequestListener(), getResponseInterceptor());
+		RequestToken requestToken = postAddressBookRequest(postObject, getRequestListener(), getResponseInterceptor(), new SignUpHttpRetryPolicy(SignUpHttpRetryPolicy.MAX_RETRY_COUNT, BasicRetryPolicy.DEFAULT_RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER));
 		requestToken.execute();
 		return (resultObject != null);
 	}
