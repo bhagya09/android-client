@@ -2925,6 +2925,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE, numRowsInitiallyVisible);
 		}
 
+		if (data.has(HikeConstants.DISK_CACHE_SIZE))
+		{
+			long diskCacheSize = data.getLong(HikeConstants.DISK_CACHE_SIZE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISK_CACHE_SIZE, diskCacheSize);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

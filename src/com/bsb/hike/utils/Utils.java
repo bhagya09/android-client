@@ -8051,7 +8051,9 @@ public class Utils
 		}
 
 		// Bound inside min/max size for disk cache.
-		return Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+		size = Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+		size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) != -1 ? HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) : size ;
+		return size;
 	}
 
 	public static int dpToPx(float dp)
