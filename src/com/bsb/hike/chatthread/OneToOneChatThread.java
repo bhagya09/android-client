@@ -3855,22 +3855,6 @@ import java.util.Map;
 		return ((!isNotFriend) && super.shouldEnableHikeKeyboard());
 	}
 
-	@Override
-	protected boolean shouldEnableClearChat()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableClearChat());
-	}
-
-	@Override
-	protected boolean shouldEnableEmailChat()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableEmailChat());
-	}
-
 	private boolean shouldEnableHikeDirect()
 	{
 		if (mConversation.isBlocked() || isNotMyOneWayFriend())
