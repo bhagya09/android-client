@@ -1,12 +1,4 @@
-package com.bsb.hike.tasks;
-
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.postAddressBookRequest;
-
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+package com.bsb.hike.modules.signupmgr;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -20,6 +12,14 @@ import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.postAddressBookRequest;
 
 public class PostAddressBookTask
 {
