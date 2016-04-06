@@ -11,6 +11,7 @@ import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.GzipRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
+import com.bsb.hike.modules.httpmgr.request.BitmapRequest;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
@@ -759,7 +760,13 @@ public class HttpRequests
 		
 		return requestToken;		
 	}
-	
+
+	public static RequestToken downloadBitmapTaskRequest(String urlString, IRequestListener listener){
+		BitmapRequest.Builder builder= new BitmapRequest.Builder()
+				.setUrl(urlString).setRequestListener(listener).get();
+		RequestToken requestToken = builder.build();
+		return requestToken;
+	}
 	public static RequestToken editProfileAvatarRequest(String filePath, IRequestListener requestListener)
 	{
 		File file = new File(filePath);
@@ -808,7 +815,6 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.post(body)
 				.build();
-		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 	

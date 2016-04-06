@@ -598,7 +598,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				return;
 			}
 
-			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor);
+			Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText,-1,defAvBgColor, true);
 			mAvatarEdit.setImageDrawable(drawable);
 		}
 	};

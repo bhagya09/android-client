@@ -3,9 +3,11 @@ package com.bsb.hike.adapters;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
@@ -353,8 +355,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
-
-	private EmoticonTextWatcher emoticonTextWatcher = new EmoticonTextWatcher();
 
 	public MessagesAdapter(Context context, MovingList<ConvMessage> objects, Conversation conversation, OnClickListener listener, ListView mListView, Activity activity)
 	{
@@ -1532,10 +1532,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
+					CharSequence caption = SmileyParser.getInstance().addSmileySpans(convMessage.getMetadata().getCaption(),false);
 					imageHolder.caption.setVisibility(View.VISIBLE);
-					imageHolder.caption.setText(convMessage.getMetadata().getCaption());
+					imageHolder.caption.setText(caption);
 					Linkify.addLinks(imageHolder.caption, Linkify.ALL);
-					imageHolder.caption.addTextChangedListener(emoticonTextWatcher);
 				}
 			}
 			else if (viewType == ViewType.LOCATION_SENT || viewType == ViewType.LOCATION_RECEIVE)
@@ -3990,6 +3990,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		private int initialAudioMode;
 
+		private HeadSetConnectionReceiver headsetReceiver;
+		IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 
 		public VoiceMessagePlayer()
 		{
@@ -3997,6 +3999,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			audioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
 			initialAudioMode = audioManager.getMode();
 			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
+			headsetReceiver = new HeadSetConnectionReceiver();
 			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
 			if (proximitySensor == null) {
@@ -4034,8 +4037,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				});
 				handler.post(updateTimer);
 
-				if (proximitySensorExists)
-					sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+				registerPoximitySensor();
+				mActivity.registerReceiver(headsetReceiver, filter);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4062,8 +4065,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			mediaPlayer.pause();
 			setTimer();
 			setFileBtnResource();
-			if (proximitySensorExists)
-				sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			unregisterProximitySensor();
+			mActivity.unregisterReceiver(headsetReceiver);
 		}
 
 		public void resumePlayer()
@@ -4078,8 +4081,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			handler.post(updateTimer);
 			setFileBtnResource();
 
-			if (proximitySensorExists)
-				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+			registerPoximitySensor();
+			mActivity.registerReceiver(headsetReceiver, filter);
 		}
 
 		public void resetPlayer()
@@ -4101,8 +4104,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationTxt = null;
 			durationProgress = null;
 
-			if (proximitySensorExists)
-				sensorManager.unregisterListener(VoiceMessagePlayer.this);
+			unregisterProximitySensor();
 			audioManager.setMode(initialAudioMode);
 		}
 
@@ -4122,6 +4124,48 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		public void onAccuracyChanged(Sensor sensor, int i) {
 			// Do nothing
 		}
+
+		/* AND-4884:
+		* Listen to headset plug and unregister proximity sensor when plugged and register back
+		* @TODO: check for behavior when BT/wireless headset is connected.
+		* */
+		private static final int HEADSET_UNPLUGGED = 0;
+		private static final int HEADSET_PLUGGED = 1;
+		private boolean mIsSensorResgistered = false;
+		private class HeadSetConnectionReceiver extends BroadcastReceiver {
+			@Override public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+					int state = intent.getIntExtra("state", -1);
+					switch (state) {
+						case HEADSET_UNPLUGGED:
+							audioManager.setMode(AudioManager.STREAM_MUSIC);
+							audioManager.setSpeakerphoneOn(true);
+							registerPoximitySensor();
+							break;
+						case HEADSET_PLUGGED:
+							audioManager.setMode(AudioManager.USE_DEFAULT_STREAM_TYPE);
+							audioManager.setSpeakerphoneOn(false);
+							unregisterProximitySensor();
+							break;
+					}
+				}
+			}
+		}
+
+		private void registerPoximitySensor(){
+			if (proximitySensorExists && !mIsSensorResgistered) {
+				sensorManager.registerListener(VoiceMessagePlayer.this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+				mIsSensorResgistered = true;
+			}
+		}
+
+		private void unregisterProximitySensor(){
+			if (proximitySensorExists && mIsSensorResgistered) {
+				sensorManager.unregisterListener(VoiceMessagePlayer.this);
+				mIsSensorResgistered = false;
+			}
+		}
+
 
 		public String getFileKey()
 		{

@@ -57,7 +57,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver
 			return;
 		}
 
-		if (!Utils.isUserSignedUp(context, false) || !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
+		if (!Utils.shouldConnectToMQTT() || !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.RECEIVE_SMS_PREF, false))
 		{
 			return;
 		}

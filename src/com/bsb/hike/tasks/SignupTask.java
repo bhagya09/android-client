@@ -1,5 +1,16 @@
 package com.bsb.hike.tasks;
 
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -21,7 +32,10 @@ import android.text.TextUtils;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.R;
+import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
@@ -38,10 +52,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
+import com.crashlytics.android.Crashlytics;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -234,7 +245,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 	@Override
 	protected Boolean doInBackground(Void... unused)
 	{
-		deletePreviouslySavedProfileImages();
 		Logger.e("SignupTask", "FETCHING NUMBER? " + isAlreadyFetchingNumber);
 		isPinError = false;
 		SharedPreferences settings = this.context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
@@ -257,6 +267,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/*
 			 * need to get the MSISDN. If we're on Wifi don't bother trying to autodetect
 			 */
+			deletePreviouslySavedProfileImages();
 			ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Activity.CONNECTIVITY_SERVICE);
 			NetworkInfo wifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
@@ -431,6 +442,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
+			//Check for crash reporting tool
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			{
+				Crashlytics.setUserIdentifier(accountInfo.getMsisdn());
+			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
@@ -681,20 +697,33 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				{
 					this.data = null;
 					
-					boolean status = restore(settings);
+					@RestoreErrorStates int restoreStatus = restore(settings);
 					
 					// A delay so that user is able to understand the UI animations.
 					synchronized (this)
 					{
 						this.wait(HikeConstants.BACKUP_RESTORE_UI_DELAY);
 					}
-					if (status)
+					if (restoreStatus == STATE_RESTORE_SUCCESS)
 					{
+						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
 					}
 					else
 					{
-						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.FALSE.toString()));
+						BotUtils.initBots();
+						switch (restoreStatus)
+						{
+						case STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_version_error)));
+							break;
+						case STATE_RESTORE_FAILURE_MSISDN_MISMATCH:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, context.getString(R.string.restore_msisdn_error)));
+							break;
+						default:
+							publishProgress(new StateValue(State.RESTORING_BACKUP, Boolean.FALSE.toString()));
+							break;
+						}
 						// After publishing 'restore failed' the task waits for the user to again make an input(Restore or Skip)
 						synchronized (this)
 						{
@@ -726,17 +755,18 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 		return Boolean.TRUE;
 	}
-	
-	private boolean restore(SharedPreferences settings)
+
+	@RestoreErrorStates
+	private int restore(SharedPreferences settings)
 	{
 		Editor editor = settings.edit();
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, true);
 		editor.commit();
 		
 		publishProgress(new StateValue(State.RESTORING_BACKUP,null));
-		boolean status = AccountBackupRestore.getInstance(context).restore();
+		@RestoreErrorStates  int restoreStatus = AccountBackupRestore.getInstance(context).restore();
 		
-		if (status)
+		if (restoreStatus == STATE_RESTORE_SUCCESS)
 		{
 			/**
 			 * This will shutdown the contact manager completely and then Contact Manager will be initialized with new hike user db values that restored during backup restore
@@ -750,7 +780,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		editor.putBoolean(HikeMessengerApp.RESTORING_BACKUP, false);
 		editor.commit();
 		
-		return status;
+		return restoreStatus;
 	}
 	
 	@Override

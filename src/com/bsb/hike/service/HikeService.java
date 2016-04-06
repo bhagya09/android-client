@@ -34,7 +34,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
@@ -42,7 +42,6 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
-import com.bsb.hike.modules.contactmgr.FetchContactIconRunnable;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -53,7 +52,6 @@ import com.bsb.hike.offline.CleanFileRunnable;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineException;
-import com.bsb.hike.offline.OfflineSessionTracking;
 import com.bsb.hike.platform.HikeSDKRequestHandler;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.SyncContactExtraInfo;
@@ -63,7 +61,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.hike.transporter.TException;
 
 public class HikeService extends Service
 {
@@ -81,9 +78,11 @@ public class HikeService extends Service
 		@Override
 		public void run()
 		{
-			if (!Utils.isUserOnline(context))
+			if (!Utils.shouldConnectToMQTT())
 			{
-				Logger.d("CONTACT UTILS", "Airplane mode is on , skipping sync update tasks.");
+				// This check is needed, because if the user is undergoing a corrupt db recovery process, then we cannot have db operations going on.
+				// Contact Sync relies on an external broadcast and can be trigerred leading to a db operation, which could interfere with restore process.
+				Logger.d("CONTACT UTILS", " User not signed in or undergoing a corrupt db recovery. Skipping contact sync for now");
 			}
 			else
 			{
@@ -206,7 +205,7 @@ public class HikeService extends Service
 		// If user is not signed up. Do not initialize MQTT or serve any SDK requests. Instead, re-route to Welcome/Signup page.
 		// TODO : This is a fix to handle edge case when a request comes from SDK and user has not signed up yet. In future we must make a separate bound service for handling SDK
 		// related requests.
-		if (!Utils.isUserSignedUp(getApplicationContext(), true))
+		if (!Utils.shouldConnectToMQTT())
 		{
 			return;
 		}

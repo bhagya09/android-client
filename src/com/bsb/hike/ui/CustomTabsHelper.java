@@ -10,6 +10,14 @@ import android.support.customtabs.CustomTabsService;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +76,15 @@ public class CustomTabsHelper
 		}
 
 		// Get all apps that can handle VIEW intents.
-		List<ResolveInfo> resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+		List<ResolveInfo> resolvedActivityList;
+		//AND-4994
+		//In marshmellow, news full story opens in webview instead of chrome custom tabs when default browser set as firefox.
+		if(Utils.isMarshmallowOrHigher()){
+			resolvedActivityList = pm.queryIntentActivities(activityIntent, HikeConstants.PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL);
+		}else{
+			resolvedActivityList = pm.queryIntentActivities(activityIntent, 0);
+		}
+
 		List<String> packagesSupportingCustomTabs = new ArrayList<>();
 		for (ResolveInfo info : resolvedActivityList)
 		{
@@ -78,6 +94,7 @@ public class CustomTabsHelper
 			if (pm.resolveService(serviceIntent, 0) != null)
 			{
 				packagesSupportingCustomTabs.add(info.activityInfo.packageName);
+				sendAnalyticsForChromeSupport(true);
 			}
 		}
 
@@ -86,6 +103,7 @@ public class CustomTabsHelper
 		if (packagesSupportingCustomTabs.isEmpty())
 		{
 			sPackageNameToUse = null;
+			sendAnalyticsForChromeSupport(false);
 		}
 		else if (packagesSupportingCustomTabs.size() == 1)
 		{
@@ -115,6 +133,22 @@ public class CustomTabsHelper
 		return sPackageNameToUse;
 	}
 
+
+	private static void sendAnalyticsForChromeSupport(boolean supported){
+		//{"t":"le_android","d":{"et":"nonUiEvent","st":"repl","ep":"HIGH","cts":1456826270480,"tag":"plf","md":{"ek":"micro_app","event":"chromeCustomTabs","fld4":"chromeTabsUnSupported/chromeTabsSupported","sid":1456826226544}}}
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.CHROME_CUSTOM_TABS);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4,supported?AnalyticsConstants.CHROME_TABS_SUPPORTED:AnalyticsConstants.CHROME_TABS_UNSUPPORTED);
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+	}
 	/**
 	 * Used to check whether there is a specialized handler for a given intent.
 	 * 

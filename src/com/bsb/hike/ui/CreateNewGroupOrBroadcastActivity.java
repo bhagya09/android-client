@@ -138,13 +138,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 					break;
 			}
 			setConversationId(conversationId);
-
-			TypedArray bgColorArray = Utils.getDefaultAvatarBG();
-
-			int index = BitmapUtils.iconHash(conversationId) % (bgColorArray.length());
-
-			defAvBgColor = bgColorArray.getColor(index, 0);
 		}
+
+		TypedArray bgColorArray = Utils.getDefaultAvatarBG();
+		int index = BitmapUtils.iconHash(getConvId()) % (bgColorArray.length());
+		defAvBgColor = bgColorArray.getColor(index, 0);
 
 		Object object = getLastCustomNonConfigurationInstance();
 		if (object != null && (object instanceof Bitmap))
@@ -246,7 +244,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});
@@ -258,8 +256,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 
 			convImage = (ImageView) findViewById(R.id.group_profile_image);
 			convName = (CustomFontEditText) findViewById(R.id.group_name);
-			getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-			groupNote = (TextView) findViewById(R.id.group_info);		
+			groupNote = (TextView) findViewById(R.id.group_info);
 			groupNote.setText(Html.fromHtml(getString(R.string.group_participant_info)));
 			editImageIcon = (ImageView) findViewById(R.id.change_image);
 			gsSettings = (CheckBox) findViewById(R.id.checkBox);
@@ -300,7 +297,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 						return;
 					}
 
-					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor);
+					Drawable drawable = HikeBitmapFactory.getDefaultTextAvatar(newText, -1, defAvBgColor, true);
 					convImage.setImageDrawable(drawable);
 				}
 			});
