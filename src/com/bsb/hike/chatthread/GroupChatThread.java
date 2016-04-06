@@ -14,6 +14,10 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.GroupParticipant;
@@ -125,6 +129,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		updateUnreadPinCount();
+		activity.recordActivityEndTime();
 	}
 
 	@Override
@@ -187,7 +192,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
+		mConversation = oneToNConversation = (GroupConversation) HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
 		// imp message from DB like pin
 		if (mConversation != null)
 		{
@@ -545,9 +550,13 @@ public class GroupChatThread extends OneToNChatThread
 			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
+			if(item.getItemId() != android.R.id.home) {
+				if(isWalkieTalkieShowing()) return true;
+			}
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
+
 				// Make a group voip call after confirmation
 				new AlertDialog.Builder(activity).
 				setTitle(R.string.voip_conference_label).

@@ -2916,6 +2916,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
+		{
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
+		}
+
 		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
 		{
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);

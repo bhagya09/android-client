@@ -392,6 +392,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return;
 	}
 	
+	public boolean isWalkieTalkieShowing(){
+		if(chatThread != null) {
+			return chatThread.isWalkieTalkieShowing();
+		}
+		return false;
+	}
+
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
@@ -399,5 +406,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (chatThread != null) {
 			chatThread.onPostResume();
 		}
+	}
+
+	protected void recordActivityEndTime()
+	{
+		super.recordActivityEndTime();
 	}
 }
