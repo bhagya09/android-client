@@ -1837,6 +1837,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void setUpThemePicker()
 	{
 		/**
+		 * Dismissing emoticon panel, sticker panel or any shareable popup when chat theme palette is opened
+		 */
+		dismissShareablePopup();
+
+		/**
 		 * We can now dismiss the chatTheme tip if it is there or we can hide any other visible tip
 		 */
 		if (!wasTipSetSeen(ChatThreadTips.ATOMIC_CHAT_THEME_TIP))
