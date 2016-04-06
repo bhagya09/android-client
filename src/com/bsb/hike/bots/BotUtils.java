@@ -484,7 +484,7 @@ public class BotUtils
 
                     if (!HikeConstants.OFF.equals(notifType))
                     {
-                        ToastListener.getInstance().showBotDownloadNotification(msisdn, botInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
+                        ToastListener.getInstance().showBotDownloadNotification(msisdn, currentBotInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
                     }
 
                     PlatformUtils.invalidDataBotAnalytics(botInfo);
