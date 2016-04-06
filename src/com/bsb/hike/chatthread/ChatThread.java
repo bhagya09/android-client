@@ -4229,6 +4229,7 @@ import android.widget.Toast;
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
+			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 
 		isActivityVisible = true;
