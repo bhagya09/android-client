@@ -1595,16 +1595,13 @@ public class HikeNotification
 					notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
 				}
 				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture, false);
-				if(TextUtils.isEmpty(bitmapString)){
+				String bitmap_url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
+				if(TextUtils.isEmpty(bitmapString) && !TextUtils.isEmpty(bitmap_url)){
 					FileTransferManager.NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
 					if ((networkType == FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
 							|| (networkType != FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 					{
-						String url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
-						if(TextUtils.isEmpty(url)){
-							return;
-						}
-						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(url, new IRequestListener() {
+						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(bitmap_url, new IRequestListener() {
 							@Override
 							public void onRequestFailure(HttpException httpException) {
 								httpException.printStackTrace();
