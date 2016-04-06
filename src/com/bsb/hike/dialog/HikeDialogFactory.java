@@ -128,8 +128,6 @@ public class HikeDialogFactory
 	
 	public static final int GROUP_ADD_MEMBER_SETTINGS = 40;
 	
-	public static final int MULTI_ADMIN_DIALOG = 41;
-
 	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 42;
 	
 	public static final int ADD_TO_FAV_DIALOG = 43;
@@ -148,7 +146,9 @@ public class HikeDialogFactory
 
 	public static final int DELETE_STICKER_PACK_DIALOG = 50;
 
-	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 45;
+	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 51;
+
+	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -165,9 +165,6 @@ public class HikeDialogFactory
 			
 		case ADD_TO_FAV_DIALOG:
 			return showAddToFavoriteDialog(dialogId, context, listener, data);
-			
-		case MULTI_ADMIN_DIALOG:
-			return showMultiAdminDialog(dialogId, context, listener, data);
 			
 		case RESET_STEALTH_DIALOG:
 			return showStealthResetDialog(dialogId, context, listener, data);
@@ -245,6 +242,9 @@ public class HikeDialogFactory
 		case CALLER_BLOCK_CONTACT_DIALOG:
 		case CALLER_UNBLOCK_CONTACT_DIALOG:
 			return showBlockContactDialog(context, dialogId, listener, data);
+
+		case DB_CORRUPT_RESTORE_DIALOG:
+			return showDBCorruptDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -395,33 +395,6 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
-	private static HikeDialog showMultiAdminDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
-	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		hikeDialog.setContentView(R.layout.multiadmin_popup);
-		hikeDialog.setCancelable(true);
-		View yes = hikeDialog.findViewById(R.id.gotItButton);
-		OnClickListener clickListener = new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View arg0)
-			{
-				switch (arg0.getId())
-				{
-				case R.id.gotItButton:
-					hikeDialog.dismiss();
-					listener.positiveClicked(hikeDialog);
-					break;
-				
-				}
-
-			}
-		};
-		yes.setOnClickListener(clickListener);
-		hikeDialog.show();
-		return hikeDialog;
-	}
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
 		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
@@ -1265,4 +1238,19 @@ public class HikeDialogFactory
 
 		return dialog;
 	}
+
+	private static HikeDialog showDBCorruptDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
+
+		dialog.setTitle(context.getString(R.string.restore_chat_title));
+		dialog.setMessage(context.getString(R.string.restore_chat_body));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
+		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
+
+		dialog.show();
+		return dialog;
+	}
+
 }

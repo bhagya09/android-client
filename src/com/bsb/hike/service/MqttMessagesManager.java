@@ -2,18 +2,16 @@ package com.bsb.hike.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,8 +32,13 @@ import android.util.Base64;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.bsb.hike.*;
+import com.bsb.hike.AppConfig;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.NotificationType;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
@@ -47,26 +50,36 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.DownloadFileTask;
+import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.Conversation.*;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.GroupTypingNotification;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.MessagePrivateData;
+import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.httpmgr.RequestToken;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
-import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -75,13 +88,14 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
-import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentListener;
+import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.content.*;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.tasks.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
@@ -91,9 +105,21 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.userlogs.UserLogInfo;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.ClearGroupTypingNotification;
+import com.bsb.hike.utils.ClearTypingNotification;
+import com.bsb.hike.utils.FestivePopup;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.NUXManager;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
@@ -550,8 +576,9 @@ public class MqttMessagesManager
 		if(metadata.has(HikeConstants.GROUP_SETTING)){
 			setting = metadata.optInt(HikeConstants.GROUP_SETTING);
 		}
-		if(setting>-1 ||role>-1){
-			this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(),setting,role, new ContentValues());
+		if (setting > -1 || role > -1)
+		{
+			this.convDb.changeGroupSettings(oneToNConversation.getMsisdn(), setting, role, new ContentValues());
 			Logger.d(getClass().getSimpleName(), "GCJ Message - GS setting change");
 		}
 	}
@@ -705,35 +732,35 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(
-				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
-		{
+		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(convMessage.webMetadata.JSONtoString()),
+				new PlatformContentListener<PlatformContentModel>()
+				{
 
-			@Override
-			public void onComplete(PlatformContentModel content)
-			{
-				saveMessage(convMessage);
-			}
+					@Override
+					public void onComplete(PlatformContentModel content)
+					{
+						saveMessage(convMessage);
+					}
 
-			@Override
-			public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
-			{
-				if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
-				{
-					//do nothing
-					return;
-				}
-				else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
-				{
-					Logger.d(HikePlatformConstants.TAG, "microapp already exists");
-				}
-				else
-				{
-					saveMessage(convMessage);
-					HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
-				}
-			}
-		});
+					@Override
+					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+					{
+						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
+						{
+							// do nothing
+							return;
+						}
+						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
+						{
+							Logger.d(HikePlatformConstants.TAG, "microapp already exists");
+						}
+						else
+						{
+							saveMessage(convMessage);
+							HikeAnalyticsEvent.cardErrorAnalytics(event, convMessage);
+						}
+					}
+				});
 
 		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
 		if (!downloader.isMicroAppExist())
@@ -745,7 +772,6 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 	}
-
 
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
@@ -1080,7 +1106,7 @@ public class MqttMessagesManager
         if (!OneToNConversationUtils.isOneToNConversation(id))
 		{
 			Map<String, ArrayList<Long>> map = convDb.getMsisdnMapForServerIds(serverIdsArrayList, id);
-			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. "+ map);
+			Logger.d(AnalyticsConstants.MSG_REL_TAG, "NOT GC so --> For mr/nmr, calling : ids, map" + serverIdsArrayList + " , .. " + map);
 			if (map != null && !map.isEmpty())
 			{
 				for (String chatMsisdn : map.keySet())
@@ -2779,7 +2805,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
 		{
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0: 1);
+			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0 : 1);
 		}
 		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
 		{
@@ -2820,6 +2846,11 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MAX_RETRY_COUNT_MAPPS, newRetryCount);
 		}
 
+		if(data.has(HikeConstants.CRASH_REPORTING_TOOL))
+		{
+			String crashRepT=data.optString(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CRASH_REPORTING_TOOL,crashRepT);
+		}
 		if(data.has(HikeConstants.SINGLE_STICKER_CDN))
 		{
 			boolean singleStickerCdnEnabled = data.getBoolean(HikeConstants.SINGLE_STICKER_CDN);
@@ -2881,6 +2912,11 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
 		}
 
+		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
+		{
+			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
@@ -2974,6 +3010,17 @@ public class MqttMessagesManager
 		{
 			byte contactSyncResult = ContactManager.getInstance().syncUpdates(context);
 			Logger.d(getClass().getSimpleName(), "contacts sync result : " + contactSyncResult);
+		}
+
+		if (data.optBoolean(HikeConstants.LOG_SQLITE_PROPERTIES))
+		{
+			String journalMode = HikeConversationsDatabase.getInstance().getJournalMode();
+			JSONObject json = new JSONObject();
+			json.put(HikeConstants.JOURNAL_MODE, journalMode);
+			GetSqliteVersionCommand getSqliteVersionCommand = new GetSqliteVersionCommand();
+			String sqliteVersion = (String) getSqliteVersionCommand.execute();
+			json.put(HikeConstants.SQLITE_VERSION, sqliteVersion);
+			HAManager.getInstance().logDevEvent(AnalyticsConstants.DATABASE_AREA, AnalyticsConstants.SQLITE_PROPERTY, json);
 		}
 	}
 
@@ -3727,7 +3774,15 @@ public class MqttMessagesManager
 						
 						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
-							generateNotification(body, destination, silent);
+
+							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
+							{
+								HikeNotification.getInstance().showPlatformNotification(data, jsonObj.optString(HikeConstants.FROM));
+							}
+							else
+							{
+								generateNotification(body, destination, silent);
+							}
 						}
 
 						//to update the badge counter
@@ -3856,7 +3911,7 @@ public class MqttMessagesManager
 				try
 				{
 					ContactManager.getInstance().getWritableDatabase().beginTransaction();
-					convDb.getWriteDatabase().beginTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().beginTransaction();
 
 					while (i < length)
 					{
@@ -3868,7 +3923,7 @@ public class MqttMessagesManager
 					}
 					Logger.d("BulkProcess", "going on");
 					finalProcessing();
-					convDb.getWriteDatabase().setTransactionSuccessful();
+					convDb.initializeIfRequiredAndGetWriteDatabase().setTransactionSuccessful();
 					ContactManager.getInstance().getWritableDatabase().setTransactionSuccessful();
 				}
 				catch (JSONException e)
@@ -3882,7 +3937,7 @@ public class MqttMessagesManager
 				}
 				finally
 				{
-					convDb.getWriteDatabase().endTransaction();
+					convDb.initializeIfRequiredAndGetWriteDatabase().endTransaction();
 					ContactManager.getInstance().getWritableDatabase().endTransaction();
 
 					Logger.d("BulkProcess", "stopped");
