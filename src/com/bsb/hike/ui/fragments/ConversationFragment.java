@@ -13,7 +13,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
-import android.provider.Settings;
 import android.support.v4.app.ListFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -63,7 +62,7 @@ import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -115,7 +114,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -2133,12 +2131,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				convInfo.setSortingTimeStamp(ts);
 			}
 
-			Collections.sort(displayedConversations, mConversationsComparator);
 			getActivity().runOnUiThread(new Runnable()
 			{
 				@Override
 				public void run()
 				{
+					Collections.sort(displayedConversations, mConversationsComparator); //AND-5145
 					notifyDataSetChanged();
 				}
 			});
