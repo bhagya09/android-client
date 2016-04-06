@@ -3892,7 +3892,9 @@ public class HikeConstants
 
 	public static final class KPTConstants {
 
-		public static final String KEYBOARD_FTUE_STATE = "keyboardFTUEState";
+		public static final String KPT_LANGUAGE_DIR_NAME = "lang-dict";
+
+		public static final String KPT_LANGUAGE_DIR_ROOT = "/" + KPT_LANGUAGE_DIR_NAME;
 
 		public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
 

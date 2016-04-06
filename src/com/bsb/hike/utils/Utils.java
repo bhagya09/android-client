@@ -7997,4 +7997,17 @@ public class Utils
 		}
 	}
 
+	public static boolean kptDictionaryDownloaded(Context context) {
+
+		File hikeDir = context.getExternalFilesDir(null);
+		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
+
+		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 }

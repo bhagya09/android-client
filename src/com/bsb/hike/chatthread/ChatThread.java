@@ -1,117 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.HikePubSub.Listener;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.adapters.MessagesAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.MsgRelLogManager;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
-import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.media.AttachmentPicker;
-import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
-import com.bsb.hike.media.EmoticonPicker;
-import com.bsb.hike.media.HikeActionBar;
-import com.bsb.hike.media.ImageParser;
-import com.bsb.hike.media.ImageParser.ImageParserListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
-import com.bsb.hike.media.OverflowItemClickListener;
-import com.bsb.hike.media.PickContactParser;
-import com.bsb.hike.media.PickFileParser;
-import com.bsb.hike.media.PickFileParser.PickFileListener;
-import com.bsb.hike.media.PopupListener;
-import com.bsb.hike.media.ShareablePopupLayout;
-import com.bsb.hike.media.StickerPicker;
-import com.bsb.hike.media.StickerPickerListener;
-import com.bsb.hike.media.ThemePicker;
-import com.bsb.hike.media.ThemePicker.ThemePickerListener;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.ConvMessage.State;
-import com.bsb.hike.models.GalleryItem;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
-import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
-import com.bsb.hike.models.PhonebookContact;
-import com.bsb.hike.models.Sticker;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Unique;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.modules.stickersearch.StickerSearchManager;
-import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
-import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
-import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
-import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
-import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.offline.IOfflineCallbacks;
-import com.bsb.hike.offline.OfflineConstants;
-import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
-import com.bsb.hike.offline.OfflineController;
-import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.CardComponent;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.platform.PlatformMessageMetadata;
-import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.platform.WebMetadata;
-import com.bsb.hike.platform.content.PlatformContent;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.tasks.EmailConversationsAsyncTask;
-import com.bsb.hike.ui.ComposeViewWatcher;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChatTheme;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SearchManager;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.SoundUtils;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.utils.Utils.ExternalStorageState;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
-import com.bsb.hike.view.CustomLinearLayout;
-import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -120,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -183,6 +70,118 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.HikePubSub.Listener;
+import com.bsb.hike.R;
+import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
+import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.CustomAlertDialog;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.media.AttachmentPicker;
+import com.bsb.hike.media.AudioRecordView;
+import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
+import com.bsb.hike.media.EmoticonPicker;
+import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.ImageParser;
+import com.bsb.hike.media.ImageParser.ImageParserListener;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.media.OverFlowMenuLayout.OverflowViewListener;
+import com.bsb.hike.media.OverflowItemClickListener;
+import com.bsb.hike.media.PickContactParser;
+import com.bsb.hike.media.PickFileParser;
+import com.bsb.hike.media.PickFileParser.PickFileListener;
+import com.bsb.hike.media.PopupListener;
+import com.bsb.hike.media.ShareablePopupLayout;
+import com.bsb.hike.media.StickerPicker;
+import com.bsb.hike.media.StickerPickerListener;
+import com.bsb.hike.media.ThemePicker;
+import com.bsb.hike.media.ThemePicker.ThemePickerListener;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.PhonebookContact;
+import com.bsb.hike.models.Sticker;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
+import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
+import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.offline.IOfflineCallbacks;
+import com.bsb.hike.offline.OfflineConstants;
+import com.bsb.hike.offline.OfflineConstants.ERRORCODE;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.CardComponent;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformMessageMetadata;
+import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.tasks.EmailConversationsAsyncTask;
+import com.bsb.hike.ui.ComposeViewWatcher;
+import com.bsb.hike.ui.GalleryActivity;
+import com.bsb.hike.ui.utils.LockPattern;
+import com.bsb.hike.ui.utils.StatusBarColorChanger;
+import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SearchManager;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.SoundUtils;
+import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.Utils.ExternalStorageState;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
+import com.bsb.hike.view.CustomLinearLayout;
+import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -714,7 +713,7 @@ import android.widget.Toast;
 
 	protected boolean shouldShowKeyboardOffBoardingUI() {
 
-		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn();
+		return (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() || Utils.kptDictionaryDownloaded(activity.getApplicationContext())) && !mActionMode.isActionModeOn();
 	}
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
@@ -2435,7 +2434,7 @@ import android.widget.Toast;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !keyboardOffBoarding.shouldShowKeyboardOffBoardingUI())
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !shouldShowKeyboardOffBoardingUI())
 				|| shouldShowKeyboardInActionMode());
 	}
 	
