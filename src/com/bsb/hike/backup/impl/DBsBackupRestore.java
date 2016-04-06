@@ -24,7 +24,7 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private DB usersDB;
 
-	DBsBackupRestore(String backupToken)
+	public DBsBackupRestore(String backupToken)
 	{
 		this.backupToken = backupToken;
 		init();
