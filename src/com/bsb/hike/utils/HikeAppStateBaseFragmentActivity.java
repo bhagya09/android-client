@@ -28,6 +28,7 @@ import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.HikeBaseActivity;
+import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
 
 public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
@@ -75,6 +76,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	{
 		startRecordTime();
 		HikeAppStateUtils.onCreate(this);
+		HikeMessengerApp.getPubSub().addListener(HikePubSub.DB_CORRUPT, this);
 		super.onCreate(savedInstanceState);
 	}
 
@@ -229,8 +231,23 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 				}
 			});
 		}
+
+		else if (HikePubSub.DB_CORRUPT.equals(type))
+		{
+			if (amIHomeActivity())
+			{
+				return;
+			}
+
+			else
+			{
+				Intent intent = IntentFactory.getHomeActivityIntent(HikeAppStateBaseFragmentActivity.this);
+				startActivity(intent);
+				this.finish();
+			}
+		}
 	}
-	
+
 	protected void openImageViewer(Object object)
 	{
 		return;
@@ -325,6 +342,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	protected void onDestroy()
 	{
 		onHandlerDestroy();
+		HikeMessengerApp.getInstance().getPubSub().removeListener(HikePubSub.DB_CORRUPT, this);
 		super.onDestroy();
 	}
 
@@ -378,4 +396,9 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		recordActivityOpenTime.onDestroy();
 		recordActivityOpenTime = null;
 	}
+	private boolean amIHomeActivity()
+	{
+		return (HikeAppStateBaseFragmentActivity.this instanceof HomeActivity);
+	}
+
 }

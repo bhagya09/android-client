@@ -359,7 +359,6 @@
     <string name="one_new_message">1 નવો મેસેજ</string>
     <string name="terms">શરતો</string>
     <string name="get_started">શરૂ કરો</string>
-    <string name="got_it">સમજાયું</string>
     <string name="whats_your_number">હાઈ! તમારો નંબર શું છે?</string>
     <string name="select_country">કન્ટ્રી સિલેક્ટ કરો</string>
     <string name="wrong_country">અમાન્ય કન્ટ્રી કોડ</string>
@@ -1032,8 +1031,6 @@
 	<string name="sms_admin_toast">તમે SMS વપરાશકર્તાઓ સાથે તમારા ઍડમિનના અધિકારો શેર કરી શકતા નથી</string>
 	<string name="group_settings_updated">દ્વારા ગ્રુપ સેટિંગ્સ બદલવામાં આવી છે</string>
 	<string name="you_group_settings_updated">તમે ગ્રુપ સેટિંગ્સ બદલી છે</string>
-	<string name="ftue_multiadmin_header">બહુવિધ ઍડમિન</string>
-	<string name="ftue_multiadmin_description">હવે તમારા ઍડમિનના અધિકારો આ ગ્રુપના બહુવિધ સભ્યો સાથે શેર કરો</string>
 	<string name="unknown_server_error">ફાઈલ ડાઉનલોડ કરવા માટે અસમર્થ.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s વાર્તાલાપથી %1$s મેસેજીસ</string>

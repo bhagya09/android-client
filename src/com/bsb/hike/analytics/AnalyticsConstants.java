@@ -227,6 +227,8 @@ public class AnalyticsConstants
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
 	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+	public static String PLATFORM_NOTIFICATION = "platform_notification";
+	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
@@ -680,6 +682,10 @@ public class AnalyticsConstants
 
 	public static final String DATABASE_ERROR = "db_error";
 
+	public static final String DATABASE_AREA = "db";
+
+	public static final String SQLITE_PROPERTY = "sqlite_prop";
+
 	public static final class InterceptEvents
 	{
 		public static final String INTERCEPTS = "intrcpt";
@@ -720,5 +726,6 @@ public class AnalyticsConstants
 	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
 
 	public static final String JUST_OPENED = "justOpened";
-
+	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
+	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
 }
