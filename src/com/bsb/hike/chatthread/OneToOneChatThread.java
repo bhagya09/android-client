@@ -3750,6 +3750,8 @@ import java.util.Map;
 		}
 
 		removeAddFriendViews();
+
+		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
 	}
 
 	@Override
