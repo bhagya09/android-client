@@ -2415,7 +2415,7 @@ public class PlatformUtils
 				if (!TextUtils.isEmpty(name + FileRequestPersistent.STATE_FILE_EXT))
 				{
 					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + name + FileRequestPersistent.STATE_FILE_EXT));
-					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR+PlatformContentConstants.TEMP_DIR_NAME+ name +".zip"));
+					Utils.deleteFile(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.TEMP_DIR_NAME + File.separator + name +".zip"));
 				}
 			}
 		});
@@ -2478,7 +2478,7 @@ public class PlatformUtils
 						if (currentTime > ttl)
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
-							HikeContentDatabase.getInstance().removeFromPlatformDownloadStateTable(name, mAppVersionCode);
+							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
 							if(type == HikePlatformConstants.PlatformTypes.CBOT)
 							{
 								sendCbotFailDueToTTL(getMsisdnFromAppName(name));
