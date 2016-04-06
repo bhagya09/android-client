@@ -69,7 +69,7 @@ public class HikeAnimationFactory
 
 		Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
 		anim0.setStartOffset(initialOffset);
-		anim0.setDuration(500);
+		anim0.setDuration(200);
 		animSet.addAnimation(anim0);
 
 		return anim0;
