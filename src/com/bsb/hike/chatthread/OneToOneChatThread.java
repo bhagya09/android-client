@@ -232,6 +232,7 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		activity.recordActivityEndTime();
 	};
 	
 	@Override
@@ -374,7 +375,11 @@ import java.util.Map;
 				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
-		
+
+		if(item.getItemId() != android.R.id.home) {
+			if(isWalkieTalkieShowing()) return true;
+		}
+
 		switch (item.getItemId())
 		{
 			case R.id.voip_call:
@@ -417,7 +422,7 @@ import java.util.Map;
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 

@@ -1,5 +1,23 @@
 package com.bsb.hike.chatthread;
 
+import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -51,6 +69,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -70,6 +89,8 @@ import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
+
+import android.graphics.drawable.BitmapDrawable;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
@@ -95,9 +116,11 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.HikeAudioRecordListener;
+import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -160,6 +183,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.StopWatch;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
@@ -167,28 +191,14 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
+import android.view.HapticFeedbackConstants;
 
 /**
  * @generated
  */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
-		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
+		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
@@ -304,6 +314,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
+	protected HikeAudioRecordView walkieView;
 
 	protected Conversation mConversation;
 
@@ -360,7 +371,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
 	private int intentDataHash;
-	
+
 	protected HikeDialog dialog;
 	
 	protected IChannelSelector channelSelector;
@@ -370,9 +381,18 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected int mCurrentActionMode;
 
 	private boolean shouldKeyboardPopupShow;
-	
+
 	protected KeyboardOffBoarding keyboardOffBoarding;
-	
+
+	Callable<Conversation> callable=new Callable<Conversation>() {
+		@Override
+		public Conversation call() throws Exception {
+			return fetchConversation();
+		}
+	};
+
+	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -603,13 +623,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected Bundle savedState;
 
+	FetchConversationAsyncTask fetchConversationAsyncTask=null;
+
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
-
+		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
+		fetchConversationAsyncTask=new FetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
+		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
+		StopWatch initTime=new StopWatch();
 		init();
+		initTime.start();
 		setContentView();
+		initTime.stop();
+		Logger.d(TAG,"Time taken to render view is "+initTime.getElapsedTime());
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
@@ -680,7 +708,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	}
 
-
 	/**
 	 * This function must be called after setting content view
 	 */
@@ -688,7 +715,9 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		mComposeView.setOnClickListener(this);
-		audioRecordView = new AudioRecordView(activity, this);
+
+		audioRecordView = new AudioRecordView(activity,this);
+		walkieView = new HikeAudioRecordView(activity,this);
 
 		initShareablePopup();
 
@@ -767,11 +796,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.msg_compose, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.msg_compose, R.id.sticker_recommendation_parent };
 			}
 			else
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.sticker_recommendation_parent };
 			}
 
 			initStickerPicker();
@@ -828,6 +857,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
 		activity.findViewById(R.id.send_message).setOnClickListener(this);
+		activity.findViewById(R.id.send_message_audio).setOnTouchListener(this);
 		activity.findViewById(R.id.new_message_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_bottom_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_top_indicator).setOnClickListener(this);
@@ -866,6 +896,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		switch (item.getItemId())
 		{
 		case R.id.attachment:
+			if(isWalkieTalkieShowing()) return true;
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
@@ -1198,6 +1229,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public void onClick(View v)
 	{
+		// Eat/Discard the click event when the WT recording is in progress
+		if(isWalkieTalkieShowing()) return;
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
@@ -1266,17 +1299,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void sendButtonClicked()
 	{
-		if (TextUtils.isEmpty(mComposeView.getText()))
-		{
-			audioRecordClicked();
-		}
-		else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-		}
+		sendMessageForStickerRecommendLearning();
+		sendMessage();
+		dismissStickerRecommendationPopup();
+		dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 	}
 
 	/**
@@ -1339,11 +1365,6 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
-	}
-
-	protected void audioRecordClicked()
-	{
-		showAudioRecordView();
 	}
 
 	protected void showAudioRecordView()
@@ -1469,6 +1490,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void setUpThemePicker()
 	{
 		/**
+		 * Dismissing emoticon panel, sticker panel or any shareable popup when chat theme palette is opened
+		 */
+		dismissShareablePopup();
+
+		/**
 		 * We can now dismiss the chatTheme tip if it is there or we can hide any other visible tip
 		 */
 		if (!wasTipSetSeen(ChatThreadTips.ATOMIC_CHAT_THEME_TIP))
@@ -1553,8 +1579,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+
+			removeChatThemeFromCache();
+
 			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+			{
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
 
@@ -1562,9 +1593,24 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setStatusBarColor(theme.statusBarColor());
 		}
 	}
+
+	private void removeChatThemeFromCache()
+	{
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		{
+			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+		}
+	}
+
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
+	}
+
+	protected String getOrientationPrefix()
+	{
+		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -1578,13 +1624,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
+
+			Drawable drawable = loadChatTheme(theme);
+
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
+	}
+
+	/**
+	 *
+	 * @param theme
+	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
+	 */
+	private Drawable loadChatTheme(ChatTheme theme)
+	{
+		// Now we are first fetching from Cache
+		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(theme.bgId() + getOrientationPrefix());
+		if (drawable == null)
+		{
+			Logger.d(TAG, "Did not found in cached Fetching from APK");
+			// Not found in cache load from apk
+			drawable = Utils.getChatTheme(theme, activity);
+
+			// insert into cached
+			HikeMessengerApp.getLruCache().saveChatTheme(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
+		}
+		else
+		{
+			Logger.d(TAG, "Bitmap Chat Theme found in cache");
+		}
+		return drawable;
 	}
 
 	@Override
@@ -1611,13 +1684,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			return true;
 		}
-		
+
+		if(dismissWalkieTalkie()) return true;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-		
+
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
@@ -1634,6 +1709,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	private void actionBarBackPressed()
 	{
+		if(dismissWalkieTalkie()) return;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -2139,7 +2216,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void setConversationTheme(ChatTheme theme)
 	{
-		System.gc();
+		//System.gc();
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
@@ -2192,11 +2269,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	@Override
-	public void audioRecordCancelled()
+	public void audioRecordCancelled(int cause)
 	{
 		Logger.i(TAG, "Audio Recorded failed");
+		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
 	}
 
+	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private View mWalkieInfoTip;
+
+	private void showRecordingErrorTip(final int stringResId) {
+		if (mWalkieInfoTip == null) {
+			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+		}
+		if (tipVisibilityAnimator == null) {
+			View chatlayout = activity.findViewById(R.id.chatContentlayout);
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+		}
+		tipVisibilityAnimator.startInfoTipAnim();
+	}
+
+	private void inflateInfoTipView(ViewStub recordingTipView) {
+		if (recordingTipView != null) {
+			recordingTipView.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					mWalkieInfoTip = inflated;
+				}
+			});
+			recordingTipView.inflate();
+		}
+	}
 	/**
 	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 * 
@@ -2204,14 +2310,48 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected final void fetchConversation(boolean async)
 	{
+		boolean isThreadException=false;
+		StopWatch watch=new StopWatch();
+		watch.start();
 		Logger.i(TAG, "fetch conversation called , isAsync " + async);
 		if (async)
 		{
 			activity.getSupportLoaderManager().initLoader(FETCH_CONV, null, this);
 		}
-		else
-		{
-			setupConversation(fetchConversation());
+		else {
+			Conversation conv = null;
+			if (fetchConversationAsyncTask == null || fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
+
+				if(fetchConversationAsyncTask!=null) {
+					fetchConversationAsyncTask.cancel(true);
+					Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
+				}
+				Logger.d(TAG,"Now fetching on UI thread Only...");
+				conv = fetchConversation();
+			} else {
+				Logger.d(TAG, "trying to get it from future object");
+				try {
+					conv = conversationFuture.get();
+				} catch (InterruptedException e) {
+					Logger.d(TAG,"Interrupted Exception called...>"+Thread.currentThread().getName());
+					isThreadException=true;
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					Logger.d(TAG,"Exceution Exception called...>"+Thread.currentThread().getName());
+					e.printStackTrace();
+					isThreadException=true;
+				}
+			}
+			if(isThreadException&&conv==null&&Thread.currentThread()==uiHandler.getLooper().getThread())
+			{
+				// Being aggressive here giving it one more try to load obj from DB
+				Logger.d(TAG,"trying to fetch the objects from DB one more time as their was thread exception in the previous state");
+				conv=fetchConversation();
+			}
+			Logger.d(TAG,"Current Thread Name"+Thread.currentThread().getName());
+			watch.stop();
+			Logger.d(TAG,"Time taken to execuet fetchConversation is -->" +watch.getElapsedTime());
+			setupConversation(conv);
 		}
 	}
 	
@@ -2490,7 +2630,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		/* get the number of credits and also listen for changes */
 		int mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
-		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), mCredits,
+		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), (ImageButton) activity.findViewById(R.id.send_message_audio), mCredits,
 				activity.getApplicationContext());
 
 		mComposeViewWatcher.init();
@@ -3287,6 +3427,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
+		if(isWalkieTalkieShowing()) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
@@ -3548,13 +3689,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		switch (v.getId())
 		{
-		case R.id.msg_compose:
+			case R.id.msg_compose:
 
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
 			}
-			
+
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -3573,9 +3714,38 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			else {
 				return mShareablePopupLayout.onEditTextTouch(v, event);
 			}
+			case R.id.send_message_audio:
+				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
+					return true;
+				}
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+						if (tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+							tipVisibilityAnimator.dismissInfoTipIfShowing();
+						}
+						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
+						walkieView.update(v,event);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_UP:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_CANCEL:
+						/* CANCEL event is received if the user clicks on the system-popup Allow/Deny.
+						   As this is as good as a UP event, we will stopRecorder */
+						if(walkieView != null) walkieView.stopRecorderAndShowError();
+						break;
+					default:
+						return false;
+				}
 
-		default:
-			return mGestureDetector.onTouchEvent(event);
+				return true;
+
+			default:
+				return mGestureDetector.onTouchEvent(event);
 		}
 
 	}
@@ -4136,6 +4306,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			mComposeView.setOnTouchListener(null);
 		}
+
+		if(fetchConversationAsyncTask!=null)
+		{
+			fetchConversationAsyncTask.cancel(true);
+		}
+
+		walkieView = null;
+		if(tipVisibilityAnimator != null){
+			tipVisibilityAnimator.dismissInfoTipIfShowing();
+			tipVisibilityAnimator = null;
+		}
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4213,6 +4394,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
+		dismissWalkieTalkie();
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -4342,6 +4524,22 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			audioRecordView.dismissAudioRecordView();
 		}
+		dismissWalkieTalkie();
+	}
+
+	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
+	private boolean dismissWalkieTalkie(){
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isWalkieTalkieShowing(){
+		if(walkieView != null)
+			return walkieView.isShowing();
+		return false;
 	}
 
 
@@ -5624,6 +5822,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+
+		if(walkieView != null && !walkieView.isShowing()){
+			walkieView.onConfigChanged();
+		}
 		
 	}
 	
@@ -5732,7 +5934,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		// on back press - if keyboard was open , now keyboard gone , try to hide emoticons
 		// if keyboard ws not open , onbackpress of activity will get call back, dismiss popup there
 		// if we dismiss here in second case as well, then onbackpress of acitivty will be called and it will finish activity
-		
+		dismissWalkieTalkie();
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -6176,5 +6378,33 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onPostResume()
 	{
 
+	}
+
+	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
+	{
+
+		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
+
+		FetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
+		{
+			this.conversationFuture=callableWeakReference;
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			StopWatch watch=new StopWatch();
+			watch.start();
+			Logger.d(TAG, "Starting callable");
+			if(conversationFuture.get()!=null) {
+				conversationFuture.get().run();
+			}
+			watch.stop();
+			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
+			return null;
+		}
+	}
+
+	protected int getCurrentOrientation()
+	{
+		return activity.getResources().getConfiguration().orientation;
 	}
 }
