@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.httpmgr;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
@@ -177,7 +179,9 @@ public class HttpManager
 
 		try
 		{
-			ipArray = new JSONArray(ipString);
+			if (!TextUtils.isEmpty(ipString)) {
+				ipArray = new JSONArray(ipString);
+			}
 		}
 		catch (JSONException e)
 		{

@@ -1,7 +1,6 @@
 package com.bsb.hike.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,7 +97,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.tasks.PostAddressBookTask;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -2907,6 +2906,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
 		}
 
+		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
+		{
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
+		}
+
 		if (data.has(HikeConstants.JOURNAL_MODE_INDEX))
 		{
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
@@ -2952,20 +2957,9 @@ public class MqttMessagesManager
 			Map<String, List<ContactInfo>> contacts = ContactManager.getInstance().convertToMap(contactinfos);
 			try
 			{
-				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
-				{
-					new PostAddressBookTask(contacts).execute();
-				}
-				else
-				{
-					AccountUtils.postAddressBook(token, contacts);
-				}
+				new PostAddressBookTask(contacts).execute();
 			}
 			catch (IllegalStateException e)
-			{
-				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
-			}
-			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), "Exception while posting ab", e);
 			}

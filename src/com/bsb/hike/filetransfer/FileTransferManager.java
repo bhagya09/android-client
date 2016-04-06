@@ -1,32 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.lang.Thread.State;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.text.TextUtils;
@@ -44,6 +17,8 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 import java.io.File;
@@ -51,8 +26,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+
 /**
- * 
+ * This manager will manage the upload and download (File Transfers).
+ * A general thread pool is maintained which will be used for both downloads and uploads.
+ * The manager will run on main thread hence an executor is used to delegate task to thread pool threads.
  */
 public class FileTransferManager
 {
@@ -692,7 +671,4 @@ public class FileTransferManager
 		}
 		return 0;
 	}
-
-
-
 }
