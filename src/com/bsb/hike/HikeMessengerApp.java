@@ -629,7 +629,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
-    public static ConcurrentHashMap<String,Integer> hikeSdkMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,Integer> hikeMappInfo = new ConcurrentHashMap<>();
 
 	static
 	{

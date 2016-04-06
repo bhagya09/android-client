@@ -237,8 +237,8 @@ public class BotUtils
 			}
 		});
                 
-        Logger.d("hikeSdkMap", "Keys are " + HikeMessengerApp.hikeSdkMap.keySet() + "------");
-        Logger.d("hikeSdkMap", "values are " + HikeMessengerApp.hikeSdkMap.values());
+        Logger.d("hikeMappInfo", "Keys are " + HikeMessengerApp.hikeMappInfo.keySet() + "------");
+        Logger.d("hikeMappInfo", "values are " + HikeMessengerApp.hikeMappInfo.values());
 	}
 
 	/**

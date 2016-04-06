@@ -913,7 +913,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         long insertedRow = mDB.insertWithOnConflict(MAPP_DATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
         if(insertedRow > 0)
-            HikeMessengerApp.hikeSdkMap.put(mAppName,version);
+            HikeMessengerApp.hikeMappInfo.put(mAppName,version);
     }
 
     /*
@@ -928,7 +928,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
             String appName = c.getString(c.getColumnIndex(DBConstants.NAME));
             int version = c.getInt(c.getColumnIndex(DBConstants.HIKE_CONTENT.VERSION));
             Logger.v("BOT", "Putting sdk Info in hashmap " + appName + version);
-            HikeMessengerApp.hikeSdkMap.put(appName,version);
+            HikeMessengerApp.hikeMappInfo.put(appName,version);
         }
 
         if (c != null)

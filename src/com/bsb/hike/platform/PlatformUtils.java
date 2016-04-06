@@ -758,8 +758,8 @@ public class PlatformUtils
         String appName = cardObjectJson.optString(HikePlatformConstants.APP_NAME);
         if (cardObjectJson != null)
             mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
-        if(HikeMessengerApp.hikeSdkMap.containsKey(appName))
-            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(appName);
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            currentMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
 		if (mAppVersionCode <= currentMappVersionCode)
 		{
             // Ignore the packet if data is already present on device and fire pubsub for the same
@@ -2117,8 +2117,8 @@ public class PlatformUtils
         File unzipPath = new File(getMicroAppContentRootFolder() + PlatformContentConstants.HIKE_MAPPS, mAppName);
 
         int currentMappVersionCode = 0;
-        if(HikeMessengerApp.hikeSdkMap.containsKey(mAppName))
-            currentMappVersionCode = HikeMessengerApp.hikeSdkMap.get(mAppName);
+        if(HikeMessengerApp.hikeMappInfo.containsKey(mAppName))
+            currentMappVersionCode = HikeMessengerApp.hikeMappInfo.get(mAppName);
         else
             return false;
 
