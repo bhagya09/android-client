@@ -14,7 +14,7 @@
         </shape>
     </item>
     <item android:drawable="@drawable/ic_white_cross"
-        android:top="30dp" android:bottom="30dp"
-        android:right="30dp" android:left="30dp"
+        android:top="33dp" android:bottom="33dp"
+        android:right="33dp" android:left="33dp"
         />
 </layer-list>
