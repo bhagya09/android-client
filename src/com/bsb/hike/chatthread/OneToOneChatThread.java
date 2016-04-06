@@ -3369,7 +3369,7 @@ import java.util.Map;
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
+				overFlowMenuItem.enabled = shouldEnableChatTheme();
 
 				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotMyOneWayFriend());
 				break;
@@ -3961,5 +3961,15 @@ import java.util.Map;
 		}
 
 		return super.shouldShowKeyboard();
+	}
+
+	private boolean shouldEnableChatTheme()
+	{
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
