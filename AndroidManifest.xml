@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1631"
+    android:versionCode="1639"
     android:versionName="4.2.0.82.33.3.chatThreadOO" >
 
     <uses-sdk
@@ -578,6 +578,10 @@
             </intent-filter>
         </receiver>
 
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
         <receiver
             android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
             <intent-filter >
