@@ -30,10 +30,10 @@ public class HikeTipVisibilityAnimator {
         inflatedView = parentView;
         mTipViewResID = tipViewResID;
         final TextView tip = (TextView) inflatedView.findViewById(tipViewResID);
-        mTipVisiblityAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.0f, 1.0f);
+        mTipVisiblityAnimation = ObjectAnimator.ofFloat(tip, "alpha", 0.9f, 1.0f);
         mTipVisiblityAnimation.setRepeatCount(1);
         mTipVisiblityAnimation.setRepeatMode(ValueAnimator.REVERSE);
-        mTipVisiblityAnimation.setDuration(500);
+        mTipVisiblityAnimation.setDuration(1000);
         mTipVisiblityAnimation.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -56,7 +56,6 @@ public class HikeTipVisibilityAnimator {
             @Override
             public void onAnimationRepeat(Animator animation) {
                 mIsAnimShown = true;
-                animation.setDuration(1500);
             }
         });
     }
@@ -69,7 +68,6 @@ public class HikeTipVisibilityAnimator {
 
     public void startInfoTipAnim() {
         mIsAnimShown = false;
-        mTipVisiblityAnimation.setDuration(500);
         mTipVisiblityAnimation.start();
     }
 
