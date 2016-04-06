@@ -46,6 +46,11 @@ public final class DefaultHeaders
 
 	private static void addRetryHeader(Request request)
 	{
+		if (request == null)
+		{
+			return;
+		}
+
 		int retryCount = 1;
 		if (request.getRetryPolicy() != null)
 		{
