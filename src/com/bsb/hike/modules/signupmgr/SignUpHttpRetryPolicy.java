@@ -11,7 +11,7 @@ import java.net.URL;
 /**
  * Created by sidharth on 11/03/16.
  */
-public class SignUpHttpRetryPolicy extends BasicRetryPolicy
+class SignUpHttpRetryPolicy extends BasicRetryPolicy
 {
 	public static final int MAX_RETRY_COUNT = 3;
 
