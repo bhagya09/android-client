@@ -1136,6 +1136,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
 				.setRequestListener(requestListener)
+				.setId(Integer.toString(payloadJSON.hashCode()))
 				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
 				.post(jsonBody)
 				.build();
