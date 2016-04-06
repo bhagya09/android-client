@@ -4035,6 +4035,10 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 
+	public static final String ORIENTATION_PORTRAIT="_p" ;
+
+	public static final String ORIENTATION_LANDSCAPE="_l";
+
 	public static final String SERVER_NAME_SETTING = "serverName";
 
 	public static final String SERVER_GENDER_SETTING = "serverGender";

@@ -12,87 +12,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -109,6 +35,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -266,6 +193,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.StopWatch;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontEditText;
@@ -275,23 +203,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 import com.kpt.adaptxt.beta.KPTAddonItem;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 /**
  * @generated
@@ -492,7 +403,16 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean keyboardSelectedLanguageChanged;
 
 	ObjectAnimator tipFadeInAnimation;
-	
+
+	Callable<Conversation> callable=new Callable<Conversation>() {
+		@Override
+		public Conversation call() throws Exception {
+			return fetchConversation();
+		}
+	};
+
+	private FutureTask<Conversation> conversationFuture=new FutureTask<>(callable);
+
 	private class ChatThreadBroadcasts extends BroadcastReceiver
 	{
 		@Override
@@ -720,13 +640,21 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected Bundle savedState;
 
+	FetchConversationAsyncTask fetchConversationAsyncTask=null;
+
 	public void onCreate(Bundle savedState)
 	{
 		Logger.i(TAG, "onCreate(" + savedState + ")");
-
+		//HikeHandlerUtil.getInstance().postRunnable(conversationFuture);
+		fetchConversationAsyncTask=new FetchConversationAsyncTask(new WeakReference<FutureTask<Conversation>>(conversationFuture));
+		fetchConversationAsyncTask.execute();
 		this.savedState = savedState;
+		StopWatch initTime=new StopWatch();
 		init();
+		initTime.start();
 		setContentView();
+		initTime.stop();
+		Logger.d(TAG,"Time taken to render view is "+initTime.getElapsedTime());
 		fetchConversation(false);
 		uiHandler.sendEmptyMessage(SET_WINDOW_BG);
 		StickerManager.getInstance().checkAndDownLoadStickerData();
@@ -1365,7 +1293,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			{
 				sharedPreference.saveData(HikeConstants.CT_OVRFLW_KEYBOARD_CLICKED, true);
 			}
-			recordKeyboardChangeEvent(item,isSystemKeyboard());
+			recordKeyboardChangeEvent(item, isSystemKeyboard());
 			if (isSystemKeyboard() && isKeyboardOpen())
 			{
 				Utils.hideSoftKeyboard(activity, mComposeView);
@@ -1926,8 +1854,13 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		else if (mAdapter.getChatTheme() != theme)
 		{
 			Logger.i(TAG, "update ui for theme " + theme);
+
+			removeChatThemeFromCache();
+
 			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+			{
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
+			}
 			else if (theme == ChatTheme.DEFAULT)
 				setChatBackground(R.color.chat_thread_default_bg);
 
@@ -1935,9 +1868,24 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			setStatusBarColor(theme.statusBarColor());
 		}
 	}
+
+	private void removeChatThemeFromCache()
+	{
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		{
+			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+		}
+	}
+
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
+	}
+
+	protected String getOrientationPrefix()
+	{
+		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 	protected void setBackground(ChatTheme theme)
 	{
@@ -1951,13 +1899,40 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
+
+			Drawable drawable = loadChatTheme(theme);
+
 			if(!theme.isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
+	}
+
+	/**
+	 *
+	 * @param theme
+	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
+	 */
+	private Drawable loadChatTheme(ChatTheme theme)
+	{
+		// Now we are first fetching from Cache
+		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(theme.bgId() + getOrientationPrefix());
+		if (drawable == null)
+		{
+			Logger.d(TAG, "Did not found in cached Fetching from APK");
+			// Not found in cache load from apk
+			drawable = Utils.getChatTheme(theme, activity);
+
+			// insert into cached
+			HikeMessengerApp.getLruCache().saveChatTheme(theme.bgId() + getOrientationPrefix(), (BitmapDrawable) drawable);
+		}
+		else
+		{
+			Logger.d(TAG, "Bitmap Chat Theme found in cache");
+		}
+		return drawable;
 	}
 
 	@Override
@@ -2617,7 +2592,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void setConversationTheme(ChatTheme theme)
 	{
-		System.gc();
+		//System.gc();
 		// messages theme changed, call adapter
 		mAdapter.setChatTheme(theme);
 		// action bar
@@ -2682,14 +2657,48 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	 */
 	protected final void fetchConversation(boolean async)
 	{
+		boolean isThreadException=false;
+		StopWatch watch=new StopWatch();
+		watch.start();
 		Logger.i(TAG, "fetch conversation called , isAsync " + async);
 		if (async)
 		{
 			activity.getSupportLoaderManager().initLoader(FETCH_CONV, null, this);
 		}
-		else
-		{
-			setupConversation(fetchConversation());
+		else {
+			Conversation conv = null;
+			if (fetchConversationAsyncTask == null || fetchConversationAsyncTask.getStatus() == AsyncTask.Status.PENDING) {
+
+				if(fetchConversationAsyncTask!=null) {
+					fetchConversationAsyncTask.cancel(true);
+					Logger.d(TAG, "Cancelling Asyntask as it is not started till Now.Is the Threedpool full?");
+				}
+				Logger.d(TAG,"Now fetching on UI thread Only...");
+				conv = fetchConversation();
+			} else {
+				Logger.d(TAG, "trying to get it from future object");
+				try {
+					conv = conversationFuture.get();
+				} catch (InterruptedException e) {
+					Logger.d(TAG,"Interrupted Exception called...>"+Thread.currentThread().getName());
+					isThreadException=true;
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					Logger.d(TAG,"Exceution Exception called...>"+Thread.currentThread().getName());
+					e.printStackTrace();
+					isThreadException=true;
+				}
+			}
+			if(isThreadException&&conv==null&&Thread.currentThread()==uiHandler.getLooper().getThread())
+			{
+				// Being aggressive here giving it one more try to load obj from DB
+				Logger.d(TAG,"trying to fetch the objects from DB one more time as their was thread exception in the previous state");
+				conv=fetchConversation();
+			}
+			Logger.d(TAG,"Current Thread Name"+Thread.currentThread().getName());
+			watch.stop();
+			Logger.d(TAG,"Time taken to execuet fetchConversation is -->" +watch.getElapsedTime());
+			setupConversation(conv);
 		}
 	}
 	
@@ -4648,6 +4657,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if(mComposeView!=null)
 		{
 			mComposeView.setOnTouchListener(null);
+		}
+
+		if(fetchConversationAsyncTask!=null)
+		{
+			fetchConversationAsyncTask.cancel(true);
 		}
 	}
 	
@@ -6903,5 +6917,33 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	public void onPostResume()
 	{
 
+	}
+
+	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
+	{
+
+		private  WeakReference<FutureTask<Conversation>> conversationFuture=null;
+
+		FetchConversationAsyncTask(WeakReference<FutureTask<Conversation>> callableWeakReference)
+		{
+			this.conversationFuture=callableWeakReference;
+		}
+		@Override
+		protected Void doInBackground(Void... params) {
+			StopWatch watch=new StopWatch();
+			watch.start();
+			Logger.d(TAG, "Starting callable");
+			if(conversationFuture.get()!=null) {
+				conversationFuture.get().run();
+			}
+			watch.stop();
+			Logger.d(TAG, "Ending callable function"+watch.getElapsedTime());
+			return null;
+		}
+	}
+
+	protected int getCurrentOrientation()
+	{
+		return activity.getResources().getConfiguration().orientation;
 	}
 }
