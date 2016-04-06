@@ -167,9 +167,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      * @param view
      */
     private void startPulsatingDotAnimation(View view) {
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
-        new Handler().postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
