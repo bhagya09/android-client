@@ -1527,8 +1527,7 @@
     <string name="admin_error">This user is no more a participant of this group</string>
     <string name="switch_to_old_key">Switch to your old keyboard</string>
     <string name="switch_to_hike_key">Switch to your hike keyboard</string>
-     <string name="recharge_menu">Recharge</string>
-      <string name="wallet_menu">Wallet</string>
+    <string name="wallet_menu">Wallet</string>
     <string name="deleting">DELETING</string>
     <string name="sticker_reorder_setting_info">Rearrange packs in sticker pallete</string>
     <string name="sticker_reorder_setting_header">Reorder</string>
