@@ -52,6 +52,8 @@ public class MessagingBotConfiguration extends BotConfiguration
 		public static byte SEARCH = 23;
 		
 		public static byte HIKE_KEYBOARD = 25;
+
+		public static byte HELP = 26;
 	}
 
 
@@ -227,6 +229,10 @@ public class MessagingBotConfiguration extends BotConfiguration
 	public boolean isReadSlideOutEnabled()
 	{
 		return isBitSet(READ_SLIDE_OUT);
+	}
+	public boolean isHelpInOverflowMenuEnabled()
+	{
+		return isBitSet(OverflowMenu.HELP);
 	}
 	
 }

@@ -520,4 +520,5 @@ public interface DBConstants
 	int SHORT_LIVED = 0;
 	int LONG_LIVED = 1;
 	
+	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
 }

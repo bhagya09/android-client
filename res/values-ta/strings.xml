@@ -359,7 +359,6 @@
     <string name="one_new_message">1 புதிய மெஸ்சேஜ்</string>
     <string name="terms">விதிகள்</string>
     <string name="get_started">துவங்குவீர்</string>
-    <string name="got_it">புரிந்தது</string>
     <string name="whats_your_number">ஹை! உன் எண் என்ன?</string>
     <string name="select_country">நாட்டினைத் தேர்ந்தெடும்</string>
     <string name="wrong_country">செல்லாத நாட்டுக் குறியீடு</string>
@@ -691,7 +690,6 @@
     <string name="update_all">அனைத்தையும் அப்டேட் செய்க</string>
     <string name="RETRY">மீண்டும் முயற்சி செய்க</string>
     <string name="see_them">ஆயிற்று</string>
-    <string name="drag_tip_text">உன் ஸ்டிக்கர் பேக்ஸ்-ஐ ரீஆர்டர் செய்ய ஒரு பேக்-ஐத் தட்டி, அப்படியே பிடித்துக் கொள்ளும்</string>
     <string name="CANCEL">கேன்செல் செய்க</string>
     <string name="n_more">இன்னும் %1$d</string>
     <string name="n_stickers">%1$d ஸ்டிக்கர்ஸ்</string>
@@ -848,7 +846,6 @@
     <string name="photo_dp_saved_sub">நன்றாகத் தோன்றுகிறது</string>
     <string name="photo_dp_save_error">புரொஃபைல் ஃபோட்டோவை செட் செய்ய முடியவில்லை</string>
     <string name="photo_dp_save_error_sub">மறுபடியும் முயற்சிக்கத் தட்டும்</string>
-    <string name="photo_gallery_choose_pic">ஃபோட்டோ ஒன்றைத் தேர்ந்தெடும்</string>
     <string name="cropping_image">இமேஜை கிராப் செய்கிறது..</string>
 	<string name="home_search_empty_text">\'%1$s\'-க்கான உமது தேடலுக்கு எந்த தொடர்புகளும் பொருந்தவில்லை.</string>
     <string name="voip_mic_error">மைக்-ஐ ஸ்டார்ட் செய்ய முடியவில்லை. இந்த அழைப்பு வேலை செய்யாது.</string>
@@ -1034,8 +1031,6 @@
 	<string name="sms_admin_toast">உம்மால் SMS பயனர்களோடு உன் அட்மின் உரிமைகளை ஷேர் செய்து கொள்ள முடியாது</string>
 	<string name="group_settings_updated">குழு செட்டிங்ஸை மாற்றி விட்டார்</string>
 	<string name="you_group_settings_updated">நீங்கள் குழு செட்டிங்ஸை மாற்றி விட்டீர்கள்</string>
-	<string name="ftue_multiadmin_header">மல்டிபிள் அட்மின்கள்</string>
-	<string name="ftue_multiadmin_description">இப்போது உமது அட்மின் ரைட்களை, இந்த குழுபின் மல்டிபிள் மெம்பர்களோடு ஷேர் செய்யும்</string>
 	<string name="unknown_server_error">ஃபைலை பதிவிறக்கம்செய்ய இயலவில்லை.</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s உரையாடல்களில் இருந்து %1$s மெஸ்சேஜ்கள்</string>
@@ -1069,8 +1064,6 @@
 	<string name="status_hint">நீங்கள் என்ன செய்து கொண்டிருக்கிறீர்கள்?</string>
 	<string name="status_hint_image">இந்த ஃபோட்டோ குறித்த ஏதோவொன்று</string>
 	<string name="add_mood">மனநிலை</string>
-    <string name="sticker_reorder_setting_info">ஸ்டிக்கர் பேல்லெட்டில் இருந்து பேக்குகளை ரீஅரேஞ்சு /ஹைடு செய்க</string>
-    <string name="sticker_reorder_setting_header">ஸ்டிக்கர் பீக் ஆர்டரை மாற்றுக</string>
     <string name="sticker_recommendation_autopopup_setting_info">நான் டைப் செய்கையில் ஸ்டிக்கரை ஆட்டோமேட்டிக்காக டிஸ்பிளே செய்க</string>
 	<string name="sticker_recommendation_autopopup_setting_header">ஆட்டோ சஜ்ஜஸ்ட் ஸ்டிக்கர்ஸ்</string>
 	<string name="sticker_recommend_ftue_heading">ஸ்டிக்கர் சஜ்ஜஷன்கள்</string>
@@ -1423,5 +1416,43 @@
     <string name="switch_to_old_key">"உங்கள் பழைய கீபோர்டிற்கு மாறுங்கள்"</string>
     <string name="switch_to_hike_key">"உங்கள் hike கீபோர்டிற்கு மாறுங்கள் "</string>
     <string name="admin_error">இந்த நபர் குரூப்பில் இருந்து விலகிவிட்டார்</string>
-    
+
+    <string name="deleting">அழிக்கிறது</string>
+    <string name="sticker_reorder_setting_info">ஸ்டிக்கர் பேல்லெட்டில் உள்ள பேக்குகளை ரீஅரேஞ் செய்யவும்</string>
+    <string name="sticker_reorder_setting_header">ரீஆர்டர் </string>
+    <string name="sticker_delete_setting_info">ஃபோனில் இருந்து ஸ்டிக்கர் பேக்குகளை அழிக்கவும்</string>
+    <string name="sticker_delete_setting_header">அழிக்கவும்</string>
+    <string name="sticker_hide_setting_info">பேல்லெட்டில் இருந்து ஸ்டிக்கர் பேக்குகளை ஹைடு/அன்ஹைடு செய்க</string>
+    <string name="sticker_hide_setting_header">ஹைடு</string>
+    <string name="sticker_update_setting_info">டவுன்லோடு செய்த ஸ்டிக்கர் பேக்குகளை அப்டேட் செய்க</string>
+    <string name="sticker_update_setting_header">அப்டேட் செய்க</string>
+    <string name="delete_pack_question">நீர் நிச்சயமாகவே ஸ்டிக்கர் பேக்கை அழிக்க விரும்புகிறீர்களா?</string>
+    <string name="settings_sticker">ஸ்டிக்கர் செட்டிங்ஸ்</string>
+    <string name="deleting_pack">பேக்கை அழிக்கிறது...</string>
+    <string name="pack_deleted">பேக் அழிந்துவிட்டது</string>
+    <string name="n_more_stickers">%1$d இன்னும் அதிக ஸ்டிக்கர்கள்</string>
+    <string name="all_packs_updated_heading">பேக்குகள் அப்டேட்டாக உள்ளது!</string>
+    <string name="all_packs_updated_info">பேக்குகள் அப்டேட்டாக உள்ளன, அதிக ஸ்டிக்கர்களுக்கு ஸ்டிக்கர் ஷாப் வாருங்கள்</string>
+    <string name="redirect_to_shop_text">என்னை ஷாப்பிற்கு இட்டுச் செல்க</string>
+    <string name="all_done">அனைத்தும் செய்தாயிற்று!!</string>
+    <string name="drag_tip_text">ரீஆர்டர் செய்ய ட்டாப் செய்து, டிராக் செய்க</string>
+    <string name="all_packs_deleted_heading">இங்கு 10,000 -க்கும் மேல் ஸ்டிக்கர்கள் உள்ளன</string>
+    <string name="all_packs_deleted_info">ஸ்டிக்கர் ஷாப் சென்று, உங்களுக்குப் பிடித்ததை  டவுன்லோடு செய்க!</string>
+
+    <string name="timeline_short_desc">உங்களது பொன்னான தருணங்களை நண்பர்களோடு பகிர்ந்து கொள்ளுங்கள்</string>
+    <string name="multiple_su_post_failed">ஒன்று அல்லது அதற்கு மேற்பட்ட ஸ்டேட்டஸ் அப்டேட்களை போஸ்ட் செய்ய முடியவில்லை.</string>
+    <string name="timeline_post_timeout">உங்களது படங்கள் விரைவில் போஸ்ட் செய்து விடுவோம்</string>
+    <string name="crop">வெட்டு</string>
+    <string name="photo_gallery_choose_pic">படங்கள்</string>
+    <string name="remove">நீக்குக</string>
+    <string name="filters">வடிகட்டிகள்</string>
+    <string name="rotate">சுழற்று</string>
+    <string name="forward_to_plural_timeline">%1$s தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="forward_to_single_timeline">1 தொடர்புகள் மற்றும் டைம்லைன் -ல் மெஸ்சேஜ் அனுப்பவா?</string>
+    <string name="share_with_timeline">%1$d தொடர்புகள் மற்றும் டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="share_with_contact_timeline">%1$s உடனும், டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="image_w_caption_sms">%1$s கேப்ஷன் உடன் உங்களுக்கு ஒரு படங்கள் அனுப்பியுள்ளார்</string>
+    <string name="share_on_timeline">டைம்லைன் -ல் ஷேர் செய்யவா?</string>
+    <string name="posting_photos_timeline">படங்களை டைம்லைன் -ல் போஸ்ட் செய்கிறது </string>
+    <string name="add_a_caption">கேப்ஷனை சேர்க்கவும்</string>
 </resources>

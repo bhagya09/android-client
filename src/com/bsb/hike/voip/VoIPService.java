@@ -317,7 +317,7 @@ public class VoIPService extends Service implements Listener
 				
 			case VoIPConstants.MSG_UPDATE_FORCE_MUTE_LAYOUT:
 				if (client == null) return;
-				
+
 				if (forceMute != client.forceMute) {
 					forceMute = client.forceMute;
 					Logger.d(tag, "Force mute: " + forceMute);
@@ -325,7 +325,7 @@ public class VoIPService extends Service implements Listener
 						setMute(true);
 					} 
 					// Text to speech
-					if (client.isCallActive()) {
+					if (client.isCallActive() && tts != null) {
 						if (forceMute)
 							tts.speak(getString(R.string.voip_speech_force_mute_on), TextToSpeech.QUEUE_FLUSH, null);
 						 else
@@ -383,13 +383,18 @@ public class VoIPService extends Service implements Listener
 		
 		// Initialize text to speech
 		tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-			
+
 			@Override
 			public void onInit(int status) {
-				if (status != TextToSpeech.ERROR)
-					tts.setLanguage(Locale.getDefault());
-				else
-					Logger.w(tag, "Error initializing text to speech.");
+				try {
+					if (status != TextToSpeech.ERROR)
+						tts.setLanguage(Locale.getDefault());
+					else
+						Logger.w(tag, "Error initializing text to speech.");
+				} catch (Exception e) {		// AND-5043
+					Logger.e(tag, "TTS Exception: " + e.toString());
+					tts = null;
+				}
 			}
 		});
 

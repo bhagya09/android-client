@@ -1,11 +1,11 @@
 package com.bsb.hike.analytics;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.utils.Utils;
 
 public class Session
 	{
@@ -199,4 +199,9 @@ public class Session
 		{
 			return new ArrayList<ChatSession>(msisdnChatSessionMap.values());
 		}
+
+        public ChatSession getIndividualChatSesions(String msisdn)
+        {
+            return msisdnChatSessionMap.get(msisdn);
+        }
 	}

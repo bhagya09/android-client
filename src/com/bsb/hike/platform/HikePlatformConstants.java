@@ -98,6 +98,8 @@ public interface HikePlatformConstants
 	public static final String ASSOCIATE_CBOT = "assocCbot";
     public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	public static final String GAME_ACTIVE ="gameActive" ;
+	String HIKE_AFFINITY="hike_affinity";
+	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
 	public static final String NEW_AUTH_ENABLE="newAuthEnable";
 	
@@ -346,10 +348,12 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
-
 	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
 	public static final String CLIENT_ID = "clientId";
 	public static final String CLIENT_HASH = "client_hash";
+	String BIG_PICTURE = "big_picture";
+
+	String BITMAP_URL = "bitmap_url";
 }

@@ -1,14 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -37,10 +28,20 @@ import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -517,15 +518,8 @@ public class StickerSearchManager
 			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
 
-		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
-				getRebalancingAlarmIntent(), true);
-	}
-
-	private Intent getRebalancingAlarmIntent()
-	{
-		Intent intent = new Intent();
-		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
-		return intent;
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION, true,
+                IntentFactory.getPersistantAlarmIntent(), true);
 	}
 
 	public void startRebalancing(Intent intent)
