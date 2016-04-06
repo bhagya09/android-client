@@ -4118,4 +4118,6 @@ public class HikeConstants
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
+
+	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 }

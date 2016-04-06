@@ -566,7 +566,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			break;
 		case StickerCategory.UPDATE:
 			downloadBtn.setText(getResources().getString(R.string.update));
-			downloadBtn.setBackgroundDrawable(getContext().getDrawable(R.drawable.rounded_rectangle_green));
+			downloadBtn.setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.rounded_rectangle_green));
 			break;
 		case StickerCategory.RETRY:
 			downloadBtn.setText(getResources().getString(R.string.retry));
