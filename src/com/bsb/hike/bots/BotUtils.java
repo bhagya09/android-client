@@ -669,15 +669,11 @@ public class BotUtils
 
 	public static void addAllMicroAppMenu(List<OverFlowMenuItem> overFlowMenuItems,int triggerPoint, Context context)
 	{
-		List<BotInfo> botList = new ArrayList<BotInfo>();
 		for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
 		{
 
 			if(!mBotInfo.isConvPresent()&&mBotInfo.getTriggerPointFormenu()==triggerPoint){
-				if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
-				{
-					overFlowMenuItems.add(new OverFlowMenuItem(context.getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
-				}else if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+				 if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 				{
 					overFlowMenuItems.add(new OverFlowMenuItem(context.getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
 				}

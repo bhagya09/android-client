@@ -2261,10 +2261,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
-				case R.string.recharge_menu:
-					
-					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE,getApplicationContext());
-					break;
+				
                 case R.string.wallet_menu:
 					
 					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
@@ -2390,11 +2387,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
 	{
-		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
-		{
-			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
-		}
-		else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
 		}

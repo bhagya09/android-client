@@ -859,7 +859,7 @@ public abstract class JavascriptBridge
 				jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
 			}
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
-			if(msisdn.equalsIgnoreCase("+hikerecharge+")){
+			if(msisdn.equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE)){
 				Telephony telephonyInfo = Telephony.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
 				String[] sims= telephonyInfo.getOperators();
 				JSONArray array = new JSONArray();
