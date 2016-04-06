@@ -322,7 +322,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             switch (type)
 			{
 			case WEBVIEW_CARD:
-                fetchContent(position, convMessage, viewHolder, false);
+                loadContent(position, convMessage, viewHolder, false);
 			case FORWARD_WEBVIEW_CARD_SENT:
 				loadContent(position, convMessage, viewHolder, false);
 				break;
