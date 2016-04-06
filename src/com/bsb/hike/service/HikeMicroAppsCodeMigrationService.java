@@ -200,6 +200,8 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
             PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
             PlatformContentCache.clearFormedContentCache();
             PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.MICROAPPS_MIGRATION_SUCCESS_TRIGGER);
+            HikeMessengerApp.getInstance().hikeBotInfoMap.clear();
+            HikeConversationsDatabase.getInstance().getBotHashmap();
 		}
 		else
 		{
