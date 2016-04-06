@@ -18,9 +18,6 @@ import java.util.concurrent.FutureTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,12 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -70,16 +65,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -97,6 +91,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import android.graphics.drawable.BitmapDrawable;
+
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -104,7 +100,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
@@ -122,9 +117,11 @@ import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
-import com.bsb.hike.media.AudioRecordView.AudioRecordListener;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
+import com.bsb.hike.media.HikeAudioRecordListener;
+import com.bsb.hike.media.HikeAudioRecordView;
+import com.bsb.hike.media.HikeTipVisibilityAnimator;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -194,85 +191,14 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.net.wifi.ScanResult;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.MenuItemCompat;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.Pair;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.webkit.MimeTypeMap;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.PopupWindow.OnDismissListener;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
+import android.view.HapticFeedbackConstants;
 
 /**
  * @generated
  */
 
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
-		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
+		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
@@ -388,6 +314,7 @@ import android.widget.Toast;
 	protected ShareablePopupLayout mShareablePopupLayout;
 
 	protected AudioRecordView audioRecordView;
+	protected HikeAudioRecordView walkieView;
 
 	protected Conversation mConversation;
 
@@ -444,7 +371,7 @@ import android.widget.Toast;
 	private static final String NEW_LINE_DELIMETER = "\n";
 	
 	private int intentDataHash;
-	
+
 	protected HikeDialog dialog;
 	
 	protected IChannelSelector channelSelector;
@@ -781,7 +708,6 @@ import android.widget.Toast;
 
 	}
 
-
 	/**
 	 * This function must be called after setting content view
 	 */
@@ -789,7 +715,9 @@ import android.widget.Toast;
 	{
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		mComposeView.setOnClickListener(this);
-		audioRecordView = new AudioRecordView(activity, this);
+
+		audioRecordView = new AudioRecordView(activity,this);
+		walkieView = new HikeAudioRecordView(activity,this);
 
 		initShareablePopup();
 
@@ -867,11 +795,11 @@ import android.widget.Toast;
 			int[] mEatOuterTouchIds =null;
 			if (shouldKeyboardPopupShow)
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.msg_compose, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.msg_compose, R.id.sticker_recommendation_parent };
 			}
 			else
 			{
-				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.sticker_recommendation_parent };
+				mEatOuterTouchIds = new int[] { R.id.sticker_btn, R.id.emoticon_btn, R.id.send_message, R.id.send_message_audio, R.id.sticker_recommendation_parent };
 			}
 
 			initStickerPicker();
@@ -928,6 +856,7 @@ import android.widget.Toast;
 		activity.findViewById(R.id.sticker_btn).setOnClickListener(this);
 		activity.findViewById(R.id.emoticon_btn).setOnClickListener(this);
 		activity.findViewById(R.id.send_message).setOnClickListener(this);
+		activity.findViewById(R.id.send_message_audio).setOnTouchListener(this);
 		activity.findViewById(R.id.new_message_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_bottom_indicator).setOnClickListener(this);
 		activity.findViewById(R.id.scroll_top_indicator).setOnClickListener(this);
@@ -966,6 +895,7 @@ import android.widget.Toast;
 		switch (item.getItemId())
 		{
 		case R.id.attachment:
+			if(isWalkieTalkieShowing()) return true;
 			showAttchmentPicker();
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.ATCH_SCR.ordinal());
 			return true;
@@ -1298,6 +1228,8 @@ import android.widget.Toast;
 	@Override
 	public void onClick(View v)
 	{
+		// Eat/Discard the click event when the WT recording is in progress
+		if(isWalkieTalkieShowing()) return;
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
@@ -1366,17 +1298,10 @@ import android.widget.Toast;
 
 	protected void sendButtonClicked()
 	{
-		if (TextUtils.isEmpty(mComposeView.getText()))
-		{
-			audioRecordClicked();
-		}
-		else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-		}
+		sendMessageForStickerRecommendLearning();
+		sendMessage();
+		dismissStickerRecommendationPopup();
+		dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
 	}
 
 	/**
@@ -1439,11 +1364,6 @@ import android.widget.Toast;
 		{
 			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
-	}
-
-	protected void audioRecordClicked()
-	{
-		showAudioRecordView();
 	}
 
 	protected void showAudioRecordView()
@@ -1763,13 +1683,15 @@ import android.widget.Toast;
 		{
 			return true;
 		}
-		
+
+		if(dismissWalkieTalkie()) return true;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
 			return true;
 		}
-		
+
 		if (themePicker != null && themePicker.isShowing())
 		{
 			return themePicker.onBackPressed();
@@ -1786,6 +1708,8 @@ import android.widget.Toast;
 
 	private void actionBarBackPressed()
 	{
+		if(dismissWalkieTalkie()) return;
+
 		if (mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
@@ -2344,11 +2268,40 @@ import android.widget.Toast;
 	}
 
 	@Override
-	public void audioRecordCancelled()
+	public void audioRecordCancelled(int cause)
 	{
 		Logger.i(TAG, "Audio Recorded failed");
+		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
 	}
 
+	private HikeTipVisibilityAnimator tipVisibilityAnimator;
+	private View mWalkieInfoTip;
+
+	private void showRecordingErrorTip(final int stringResId) {
+		if (mWalkieInfoTip == null) {
+			inflateInfoTipView((ViewStub) activity.findViewById(R.id.recording_info_view));
+		}
+		if (tipVisibilityAnimator == null) {
+			View chatlayout = activity.findViewById(R.id.chatContentlayout);
+			tipVisibilityAnimator = new HikeTipVisibilityAnimator(stringResId, chatlayout, activity, R.id.recording_error_tip, HikeTipVisibilityAnimator.TIP_ANIMATION_LENGTH_SHORT);
+		}
+		tipVisibilityAnimator.startInfoTipAnim();
+	}
+
+	private void inflateInfoTipView(ViewStub recordingTipView) {
+		if (recordingTipView != null) {
+			recordingTipView.setOnInflateListener(new ViewStub.OnInflateListener() {
+
+				@Override
+				public void onInflate(ViewStub stub, View inflated) {
+					mWalkieInfoTip = inflated;
+				}
+			});
+			recordingTipView.inflate();
+		}
+	}
 	/**
 	 * This method calls {@link #fetchConversation(String)} in UI or non UI thread, depending upon async variable For non UI, it starts asyncloader, see {@link ConversationLoader}
 	 * 
@@ -2676,7 +2629,7 @@ import android.widget.Toast;
 		/* get the number of credits and also listen for changes */
 		int mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
-		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), mCredits,
+		mComposeViewWatcher = new ComposeViewWatcher(mConversation, mComposeView, (ImageButton) activity.findViewById(R.id.send_message), (ImageButton) activity.findViewById(R.id.send_message_audio), mCredits,
 				activity.getApplicationContext());
 
 		mComposeViewWatcher.init();
@@ -3473,6 +3426,7 @@ import android.widget.Toast;
 	@Override
 	public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id)
 	{
+		if(isWalkieTalkieShowing()) return true;
 		return showMessageContextMenu(mAdapter.getItem(position - mConversationsView.getHeaderViewsCount()), view);
 	}
 
@@ -3734,13 +3688,13 @@ import android.widget.Toast;
 	{
 		switch (v.getId())
 		{
-		case R.id.msg_compose:
+			case R.id.msg_compose:
 
 			if(stickerTagWatcher != null)
 			{
 				stickerTagWatcher.onTouch(v, event);
 			}
-			
+
 			/**
 			 * Fix for android bug, where the focus is removed from the edittext when you have a layout with tabs (Emoticon layout) for hard keyboard devices
 			 * http://code.google.com/p/android/issues/detail?id=2516
@@ -3759,9 +3713,38 @@ import android.widget.Toast;
 			else {
 				return mShareablePopupLayout.onEditTextTouch(v, event);
 			}
+			case R.id.send_message_audio:
+				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
+					return true;
+				}
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+						if (tipVisibilityAnimator != null && tipVisibilityAnimator.isShowingInfoTip()) {
+							tipVisibilityAnimator.dismissInfoTipIfShowing();
+						}
+						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
+						walkieView.update(v,event);
+						break;
+					case MotionEvent.ACTION_MOVE:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_UP:
+						walkieView.update(v, event);
+						break;
+					case MotionEvent.ACTION_CANCEL:
+						/* CANCEL event is received if the user clicks on the system-popup Allow/Deny.
+						   As this is as good as a UP event, we will stopRecorder */
+						if(walkieView != null) walkieView.stopRecorderAndShowError();
+						break;
+					default:
+						return false;
+				}
 
-		default:
-			return mGestureDetector.onTouchEvent(event);
+				return true;
+
+			default:
+				return mGestureDetector.onTouchEvent(event);
 		}
 
 	}
@@ -4327,6 +4310,12 @@ import android.widget.Toast;
 		{
 			fetchConversationAsyncTask.cancel(true);
 		}
+
+		walkieView = null;
+		if(tipVisibilityAnimator != null){
+			tipVisibilityAnimator.dismissInfoTipIfShowing();
+			tipVisibilityAnimator = null;
+		}
 	}
 	
 	private void releaseShareablePopUpResources()
@@ -4404,6 +4393,7 @@ import android.widget.Toast;
 	{
 		Utils.hideSoftKeyboard(activity, mComposeView);
 
+		dismissWalkieTalkie();
 		isActivityVisible = false;
 		
 		resumeImageLoaders(true);
@@ -4533,6 +4523,22 @@ import android.widget.Toast;
 		{
 			audioRecordView.dismissAudioRecordView();
 		}
+		dismissWalkieTalkie();
+	}
+
+	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
+	private boolean dismissWalkieTalkie(){
+		if(walkieView != null && walkieView.isShowing()){
+			walkieView.cancelAndDismissAudio();
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isWalkieTalkieShowing(){
+		if(walkieView != null)
+			return walkieView.isShowing();
+		return false;
 	}
 
 
@@ -5815,6 +5821,10 @@ import android.widget.Toast;
 				attachmentPicker.onOrientationChange(newConfig.orientation);
 			}
 		}
+
+		if(walkieView != null && !walkieView.isShowing()){
+			walkieView.onConfigChanged();
+		}
 		
 	}
 	
@@ -5923,7 +5933,7 @@ import android.widget.Toast;
 		// on back press - if keyboard was open , now keyboard gone , try to hide emoticons
 		// if keyboard ws not open , onbackpress of activity will get call back, dismiss popup there
 		// if we dismiss here in second case as well, then onbackpress of acitivty will be called and it will finish activity
-		
+		dismissWalkieTalkie();
 		if (mShareablePopupLayout.isKeyboardOpen() && mShareablePopupLayout.isShowing())
 		{
 			mShareablePopupLayout.dismiss();
