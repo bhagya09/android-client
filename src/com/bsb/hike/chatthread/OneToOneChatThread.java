@@ -3370,8 +3370,6 @@ import java.util.Map;
 				break;
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = shouldEnableChatTheme();
-
-				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotMyOneWayFriend());
 				break;
 
 			case R.string.block_title:
