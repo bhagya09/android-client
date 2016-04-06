@@ -98,7 +98,7 @@ public class NonMessagingBotAlarmManager {
                 if(metadata!= null && metadata.isNativeMode())
                 {
                     msisdn=metadata.getParentMsisdn();
-                    if(TextUtils.isEmpty(msisdn))
+                    if(TextUtils.isEmpty(msisdn) || !BotUtils.getBotInfoForBotMsisdn(msisdn).isConvPresent())
                     {
                         return;
                     }
