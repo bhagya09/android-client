@@ -3369,9 +3369,7 @@ import java.util.Map;
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
 			case R.string.chat_theme:
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
-
-				overFlowMenuItem.enabled = overFlowMenuItem.enabled && (!isNotMyOneWayFriend());
+				overFlowMenuItem.enabled = shouldEnableChatTheme();
 				break;
 
 			case R.string.block_title:
@@ -3750,6 +3748,8 @@ import java.util.Map;
 		}
 
 		removeAddFriendViews();
+
+		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
 	}
 
 	@Override
@@ -3779,6 +3779,11 @@ import java.util.Map;
 		if (mContactInfo.isFriendRequestReceivedForMe())
 		{
 			showFriendReqPendingAsLastSeen();
+		}
+
+		else if(!mContactInfo.isMyTwoWayFriend())
+		{
+			hideLastSeenText();
 		}
 
 		inflateAddFriendButtonIfNeeded();
@@ -3816,7 +3821,7 @@ import java.util.Map;
 	{
 		if (showAddFriendbutton)
 		{
-			inflateAddFriendButtonIfNeeded();
+			doSetupForAddFriend();
 		}
 
 		else
@@ -3848,35 +3853,11 @@ import java.util.Map;
 	}
 
 	@Override
-	protected boolean shouldEnableSearch()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableSearch());
-	}
-
-	@Override
 	protected boolean shouldEnableHikeKeyboard()
 	{
 		boolean isNotFriend = (isNotMyOneWayFriend());
 
 		return ((!isNotFriend) && super.shouldEnableHikeKeyboard());
-	}
-
-	@Override
-	protected boolean shouldEnableClearChat()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableClearChat());
-	}
-
-	@Override
-	protected boolean shouldEnableEmailChat()
-	{
-		boolean isNotFriend = (isNotMyOneWayFriend());
-
-		return ((!isNotFriend) && super.shouldEnableEmailChat());
 	}
 
 	private boolean shouldEnableHikeDirect()
@@ -3969,5 +3950,15 @@ import java.util.Map;
 		}
 
 		return super.shouldShowKeyboard();
+	}
+
+	private boolean shouldEnableChatTheme()
+	{
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
