@@ -7769,11 +7769,16 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		for (File file : folder.listFiles()) {
-			if (file.isFile())
-				length += file.length();
-			else
+		
+		// Precautionary check to prevent NPE from empty list files.
+		if (folder.listFiles() == null)
+			return length;
+		for (File file : folder.listFiles())
+		{
+			if (file.isDirectory())
 				length += folderSize(file);
+			else if (file.isFile())
+				length += file.length();
 		}
 		return length;
 	}
