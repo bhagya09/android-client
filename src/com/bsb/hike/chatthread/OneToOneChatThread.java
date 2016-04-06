@@ -3726,7 +3726,8 @@ import java.util.Map;
 
 		View addFriendView = activity.findViewById(R.id.add_friend_view);
 
-		if ((HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FTUE_FRIENDS_COUNT, HikeConstants.DEFAULT_FRIENDS_FTUE_COUNT) > 0))
+		// There can be a crash here, if this method is called again after adding friends, to prevent the crash, we might have to show the ftue again in the same chat for a while
+		if (wasFriendFtuePreviouslyShown(addFriendView) || (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FTUE_FRIENDS_COUNT, HikeConstants.DEFAULT_FRIENDS_FTUE_COUNT) > 0))
 		{
 			setupAddFriendFTUETipViews(addFriendView);
 		}
@@ -3960,5 +3961,15 @@ import java.util.Map;
 		}
 
 		return true;
+	}
+
+	private boolean wasFriendFtuePreviouslyShown(View view)
+	{
+		if (view != null)
+		{
+			return (view.findViewById(R.id.ftue_friends_title) != null); // Friends FTUE View
+		}
+
+		return false;
 	}
 }
