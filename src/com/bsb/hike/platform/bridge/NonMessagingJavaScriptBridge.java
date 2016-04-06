@@ -28,12 +28,15 @@ import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -1559,4 +1562,59 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
                         callbackToJS(id, gameId);
                 }
         }
+
+	/**
+	 * Call tis method to set alarm.
+	 * @param json {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}
+	 * @param timeInMills
+	 * @param persistent
+	 */
+	@JavascriptInterface
+	public void setAlarm(String inputJson, String timeInMills,String persistent)
+	{
+		JSONObject json = null;
+		try
+		{
+			json = new JSONObject(inputJson);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		String msisdn = mBotInfo.getMsisdn();
+		Activity mContext = weakActivity.get();
+		if(TextUtils.isEmpty(msisdn) || mContext == null)
+		{
+			return;
+		}
+		NonMessagingBotAlarmManager.setAlarm(mContext, json, msisdn, Long.valueOf(timeInMills).longValue(), Boolean.valueOf(persistent));
+	}
+
+	/**
+	 * Platform Version 11
+	 * Call this function to cancel the alarm data associtated with a particular alarm data
+	 * @param alarmData
+	 */
+	@JavascriptInterface
+	public void cancelAlarm(String alarmData)
+	{
+		if(mBotInfo ==  null || weakActivity == null || TextUtils.isEmpty(mBotInfo.getMsisdn()))
+		{
+			return;
+		}
+		HikeAlarmManager.cancelAlarm(weakActivity.get(), (mBotInfo.getMsisdn().hashCode() + alarmData.hashCode()));
+	}
+	/**
+	 * Platform Version 11
+	 * Method to update last message
+	 */
+	public void updateLastMessage(String message)
+	{
+		if (!TextUtils.isEmpty(message) && mBotInfo !=null)
+		{
+			HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(mBotInfo.getMsisdn(), message);
+			// Saving lastConvMessage in memory as well to refresh the UI
+			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_UNREAD));
+		}
+	}
 }
