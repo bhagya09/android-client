@@ -12,6 +12,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformContentCache;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -197,7 +198,10 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		{
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
             PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
+            PlatformContentCache.clearFormedContentCache();
             PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.MICROAPPS_MIGRATION_SUCCESS_TRIGGER);
+            HikeMessengerApp.getInstance().hikeBotInfoMap.clear();
+            HikeConversationsDatabase.getInstance().getBotHashmap();
 		}
 		else
 		{

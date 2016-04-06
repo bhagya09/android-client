@@ -733,6 +733,7 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
+
 		PlatformContentRequest rqst = PlatformContentRequest.make(
 				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
 				{

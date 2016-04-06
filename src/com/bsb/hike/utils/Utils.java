@@ -8048,6 +8048,7 @@ public class Utils
 			default : return 0;
 		}
 	}
+
 	/**
 	 * This method checks whether we should connect to MQTT or not
 	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.

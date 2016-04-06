@@ -46,7 +46,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
-import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.CustomTabsHelper;
@@ -85,6 +84,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.fabric.sdk.android.Fabric;
+
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -629,7 +629,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	
 	public static int bottomNavBarWidthLandscape = 0;
 
-    public static ConcurrentHashMap<String,Integer> hikeSdkMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String,Integer> hikeMappInfo = new ConcurrentHashMap<>();
 
 	static
 	{

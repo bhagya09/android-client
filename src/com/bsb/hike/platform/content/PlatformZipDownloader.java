@@ -1,5 +1,14 @@
 package com.bsb.hike.platform.content;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -26,15 +35,6 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
 
 /**
  * Download and store template. First
@@ -369,10 +369,17 @@ public class PlatformZipDownloader
 								mRequest.getListener().onEventOccured(0, EventCode.UNZIP_FAILED);
 								PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
+
 								if (autoResume)
 								{
 									PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName,
 											mRequest.getContentData().cardObj.getmAppVersionCode()); // Incase of unzip fail we will remove from state table.
+								}
+
+								String appName= mRequest.getContentData().cardObj.appName;
+								if (!TextUtils.isEmpty(appName))
+								{
+									PlatformUtils.deleteDirectory(unzipPath + appName); // Deleting incorrect unzipped file.
 								}
 							}
 							zipFile.delete();

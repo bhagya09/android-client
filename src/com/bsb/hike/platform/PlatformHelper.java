@@ -23,7 +23,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -132,7 +131,18 @@ public class PlatformHelper
             /*
              *  Adding these fields for determining compatibility and making sync call to server on recipient (Code added in versioning release)
              */
-            cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
+
+            // Add mAppVersionCode from forward Card if its present in the bot
+            if(metadata.getFwdCardObj() != null)
+            {
+                JSONObject forwardCardObj = metadata.getFwdCardObj();
+                int forwardCardMAppVersionCode = forwardCardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE,-1);
+                cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE,forwardCardMAppVersionCode);
+            }
+            else
+            {
+                cardObj.put(HikePlatformConstants.MAPP_VERSION_CODE, metadata.getmAppVersionCode());
+            }
 
 			JSONObject webMetadata = new JSONObject();
 			webMetadata.put(HikePlatformConstants.TARGET_PLATFORM, metadata.getTargetPlatform());

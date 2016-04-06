@@ -63,6 +63,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -321,6 +322,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             switch (type)
 			{
 			case WEBVIEW_CARD:
+                fetchContent(position, convMessage, viewHolder, false);
 			case FORWARD_WEBVIEW_CARD_SENT:
 				loadContent(position, convMessage, viewHolder, false);
 				break;
@@ -360,33 +362,9 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
         String appName = convMessage.webMetadata.getAppName();
 
-        // Checks required here for handling forward card compatibility case for versioning changes for forward card for news,cricket and carpooling micro app
-        if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_NEWS_REGEX))
-        {
-            appName = HikePlatformConstants.MICRO_APP_NEWS_STORAGE_NAME;
-        }
-        else if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_CRICKET_REGEX))
-        {
-            appName = HikePlatformConstants.MICRO_APP_CRICKET_STORAGE_NAME;
-        }
-        else if(appName.toLowerCase().contains(HikePlatformConstants.MICRO_APP_CAR_POOLING_REGEX))
-        {
-            appName = HikePlatformConstants.MICRO_APP_CAR_POOLING_STORAGE_NAME;
-        }
-
 		// Check if the micro app already exists on device, load the content else call the installer service
 		if (new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS, PlatformContentConstants.HIKE_MICRO_APPS, appName)).exists())
 		{
-			try
-			{
-				cardObj.put(HikePlatformConstants.APP_NAME, appName);
-				convMessage.webMetadata.setCardobj(cardObj);
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
             // Added hard code addition here as msisdn string can always be made from app name in this way
             String msisdn = "+" + appName + "+";
             BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -399,12 +377,13 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             // Compare requested forwarded card mapp version code with the current mapp version code and initiate cbot request based on it
             if(requestedMappVersionCode <= currentMappVersionCode)
                 loadContent(position, convMessage, viewHolder, isFromErrorPress);
+            else
+                initiateCBotDownload(appName, viewHolder, convMessage, position);
 		}
         else
         {
             // Call initiate cbot server api here and loading webview directly for required packet request and sending other params for showing error screen for request api failure case
             initiateCBotDownload(appName, viewHolder, convMessage, position);
-            return;
         }
 	}
 
@@ -737,7 +716,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 String appName = null;
                 Boolean isMappCreationSuccess = false;
 
-                if((((Pair) object).second) instanceof  String)
+                if((((Pair) object).first) instanceof  String)
                     appName = (String)(((Pair) object).first);
 
                 if((((Pair) object).second) instanceof  Boolean)
@@ -922,15 +901,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 	 */
     private void initiateCBotDownload(final String appName,final WebViewHolder webViewHolder,final ConvMessage convMessage,final int position)
     {
-        ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
-
-        // In case view holders array list is null , initialize it with an empty array list
-        if(viewHolders == null)
-            viewHolders = new ArrayList<>();
-
-        viewHolders.add(webViewHolder);
-        webViewHolderMap.put(appName, viewHolders);
-
         // Json to send to install.json on server requesting for micro app download
         JSONObject json = new JSONObject();
 
@@ -957,11 +927,61 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
         // Code for micro app request to the server
         RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
         {
-
             @Override
-            public void onRequestSuccess(Response result)
-            {
+			public void onRequestSuccess(Response result)
+			{
                 Logger.d(TAG, "Bot download request success for " + appName + result.getBody().getContent());
+
+				if (result.getBody().getContent() instanceof String)
+				{
+					String responseJsonString = (String) result.getBody().getContent();
+					try
+					{
+						JSONObject responseJson = new JSONObject(responseJsonString);
+						JSONArray apps = responseJson.optJSONArray(HikePlatformConstants.APPS);
+
+                        // Check if server responded with updated app name , set pubsub acc to it else proceed with message appName
+                        if (apps != null)
+						{
+							for (int i = 0; i < apps.length(); i++)
+							{
+								JSONObject appsJson = apps.getJSONObject(i);
+								String updatedAppName = appName;
+								
+								updatedAppName = appsJson.optString(HikePlatformConstants.UPDATED_APP_NAME);
+								JSONObject cardObj = convMessage.webMetadata.getCardobj();
+
+								cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);
+								convMessage.webMetadata.setCardobj(cardObj);
+
+								ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
+
+								// In case view holders array list is null , initialize it with an empty array list
+								if (viewHolders == null)
+									viewHolders = new ArrayList<>();
+
+								viewHolders.add(webViewHolder);
+								webViewHolderMap.put(updatedAppName, viewHolders);
+							}
+						}
+						else
+						{
+							ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+							// In case view holders array list is null , initialize it with an empty array list
+							if (viewHolders == null)
+								viewHolders = new ArrayList<>();
+
+							viewHolders.add(webViewHolder);
+							webViewHolderMap.put(appName, viewHolders);
+						}
+					}
+					catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+				}
+
             }
 
             @Override
