@@ -1,7 +1,6 @@
 package com.bsb.hike.utils;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -12,6 +11,7 @@ import com.bsb.hike.tasks.FetchBulkLastSeenTask;
 import com.bsb.hike.tasks.FetchBulkLastSeenTask.FetchBulkLastSeenCallback;
 import com.bsb.hike.tasks.FetchLastSeenTask;
 import com.bsb.hike.tasks.FetchLastSeenTask.FetchLastSeenCallback;
+import com.bsb.hike.utils.customClasses.AsyncTask.MyAsyncTask;
 
 public class LastSeenScheduler
 {
@@ -80,7 +80,7 @@ public class LastSeenScheduler
 		if(fetchBulkLastSeenTask == null)
 		{
 			fetchBulkLastSeenTask = new FetchBulkLastSeenTask(context, bulkLastSeenCallback);
-			fetchBulkLastSeenTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			fetchBulkLastSeenTask.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -200,7 +200,7 @@ public class LastSeenScheduler
 				return;
 			}
 			fetchLastSeenTask = new FetchLastSeenTask(context, msisdn, lastSeenCallback);
-			fetchLastSeenTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			fetchLastSeenTask.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	};
 
@@ -210,7 +210,7 @@ public class LastSeenScheduler
 		public void run()
 		{
 			fetchBulkLastSeenTask = new FetchBulkLastSeenTask(context, bulkLastSeenCallback);
-			fetchBulkLastSeenTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			fetchBulkLastSeenTask.executeOnExecutor(MyAsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	};
 }

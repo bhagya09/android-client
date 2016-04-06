@@ -30,7 +30,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 
 	private ActivityFeedCursorAdapter activityFeedCardAdapter;
 
-	private String[] pubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE };
+	private String[] pubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ACTIVITY_UPDATE, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT };
 
 	private RecyclerView mActivityFeedRecyclerView;
 
@@ -121,6 +121,10 @@ public class ActivityFeedFragment extends Fragment implements Listener
 			Logger.d(HikeConstants.TIMELINE_LOGS, "inside AFF, revc pubsub ACTIVITY_UPDATE");
 			executeActivityFeedFetchTask();
 		}
+		else if (HikePubSub.CLOSE_CURRENT_STEALTH_CHAT.equals(type))
+		{
+			executeActivityFeedFetchTask();
+		}
 	}
 
 	private class FetchActivityFeeds extends AsyncTask<Void, Void, Cursor>
@@ -129,7 +133,8 @@ public class ActivityFeedFragment extends Fragment implements Listener
 		@Override
 		protected Cursor doInBackground(Void... params)
 		{
-			return HikeConversationsDatabase.getInstance().getActivityFeedsCursor();
+			String[] msisdnList = HikeConversationsDatabase.getInstance().getTimelineFriendsMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING,""));
+			return HikeConversationsDatabase.getInstance().getActivityFeedsCursor(msisdnList);
 		}
 
 		@Override

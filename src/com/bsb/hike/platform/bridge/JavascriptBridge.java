@@ -40,6 +40,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -109,6 +110,8 @@ public abstract class JavascriptBridge
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
 
+	protected static final int SHARE_EXTERNAL = 5;
+
 	boolean sendIntentData = false;
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
@@ -159,6 +162,11 @@ public abstract class JavascriptBridge
 			}
 			
 			break;
+			case SHARE_EXTERNAL :
+				JSONObject json = (JSONObject)msg.obj;
+				String title = json.optString("title");
+				String caption = json.optString("caption");
+				PlatformUtils.share(title,caption,weakActivity.get(),mWebView);
 
 		default:
 			break;
@@ -334,68 +342,18 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void share(String text, String caption)
 	{
-		FileOutputStream fos = null;
-		File cardShareImageFile = null;
-		Activity mContext = weakActivity.get();
-		if(mContext!=null)
+		JSONObject json = new JSONObject();
+		try
 		{
-			try
-			{
-				if (TextUtils.isEmpty(text))
-				{
-					text = mContext.getString(R.string.cardShareHeading); // fallback
-				}
-
-				cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-				fos = new FileOutputStream(cardShareImageFile);
-				View share = LayoutInflater.from(mContext).inflate(com.bsb.hike.R.layout.web_card_share, null);
-				// set card image
-				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
-				Bitmap b = Utils.viewToBitmap(mWebView);
-				image.setImageBitmap(b);
-
-				// set heading here
-				TextView heading = (TextView) share.findViewById(R.id.heading);
-				heading.setText(text);
-
-				// set description text
-				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
-				tv.setText(Html.fromHtml(mContext.getString(com.bsb.hike.R.string.cardShareDescription)));
-
-				Bitmap shB = Utils.undrawnViewToBitmap(share);
-				Logger.i(tag, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
-				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-				fos.flush();
-				Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
-				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
-						TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
-			}
-
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				showToast(mContext.getString(com.bsb.hike.R.string.error_card_sharing));
-			}
-			finally
-			{
-				if (fos != null)
-				{
-					try
-					{
-						fos.close();
-					}
-					catch (IOException e)
-					{
-						// Do nothing
-						e.printStackTrace();
-					}
-				}
-			}
-			if (cardShareImageFile != null && cardShareImageFile.exists())
-			{
-				cardShareImageFile.deleteOnExit();
-			}
+			json.put("text", text);
+			json.put("caption", caption);
+			sendMessageToUiThread(SHARE_EXTERNAL, json);
 		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "Error in share");
+		}
+
 	}
 
 	/**
@@ -677,38 +635,11 @@ public abstract class JavascriptBridge
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{	
-		if(resultCode == Activity.RESULT_OK)
+	{
+		if (resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();	
-			
-			if(TextUtils.isEmpty(filepath))
-				{
-				Logger.e("FileUpload","Invalid file Path");
-				return;
-				}
-			else
-			{
-			Logger.d("FileUpload", "Path of selected file :" + filepath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
-			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
-			JSONObject json = new JSONObject();
-			try
-			{
-				json.put("filePath", filepath);
-				json.put("mimeType", mimeType);
-				json.put("filesize",  (new File(filepath)).length());
-				String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
-				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
-				callbackToJS(id, json.toString());
-			}
-			catch (JSONException e)
-			{
-				Logger.e("FileUpload", "Unable to send in Json");
-			}
-			
-		}
+			String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
+			callbackToJS(id,PlatformUtils.getFileUploadJson(data));
 		}
 	}
 

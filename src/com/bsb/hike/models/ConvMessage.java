@@ -642,8 +642,8 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		case CHANGED_GROUP_IMAGE:
 			String msisdn = metadata.getMsisdn();
 			String userMsisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-
-			String participantName = userMsisdn.equals(msisdn) ? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
+			isSelfGenerated=userMsisdn.equals(msisdn);
+			String participantName = isSelfGenerated? context.getString(R.string.you) : ((OneToNConversation) conversation).getConvParticipantFirstNameAndSurname(msisdn);
 			
 			if (participantInfoState == ParticipantInfoState.CHANGED_GROUP_NAME)
 			{
@@ -698,7 +698,16 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			this.mMessage = context.getString(R.string.voip_missed_call_notif);
 			break;
 		}
-		setState(isSelfGenerated ? State.RECEIVED_READ : State.RECEIVED_UNREAD);
+
+		if(isSelfGenerated || (metadata != null && metadata.isSync()))
+		{
+			setState(State.RECEIVED_READ);
+		}
+		else
+		{
+			setState(State.RECEIVED_UNREAD);
+		}
+
 	}
 
 	public void setMetadata(MessageMetadata messageMetadata)
@@ -725,7 +734,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 			participantInfoState = this.metadata.getParticipantInfoState();
 
 			isStickerMessage = this.metadata.getSticker() != null;
-			
 			
 		}
 	}

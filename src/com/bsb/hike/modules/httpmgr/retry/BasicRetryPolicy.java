@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.retry;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.FT_PRODUCTION_API;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
@@ -32,10 +33,10 @@ import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 public class BasicRetryPolicy
 {
 	/** The default number of retry attempts. */
-	private static final int DEFAULT_RETRY_COUNT = 1;
+	public static final int DEFAULT_RETRY_COUNT = 1;
 
 	/** The default delay before retry a request (in ms). */
-	private static final int DEFAULT_RETRY_DELAY = 2000;
+	public static final int DEFAULT_RETRY_DELAY = 2000;
 
 	/** The max retry delay value (2 min) which should not be exceeded in retry process (in ms) */
 	public static final int MAX_RETRY_DELAY = 2 * 60 * 1000;
@@ -43,7 +44,9 @@ public class BasicRetryPolicy
 	/** The default back off multiplier. */
 	public static final float DEFAULT_BACKOFF_MULTIPLIER = 1f;
 
-	private int retryCount;
+	private int numOfRetries;
+
+	private int retryIndex;
 
 	private int retryDelay;
 
@@ -60,7 +63,7 @@ public class BasicRetryPolicy
 	 */
 	public BasicRetryPolicy()
 	{
-		this.retryCount = DEFAULT_RETRY_COUNT;
+		this.numOfRetries = DEFAULT_RETRY_COUNT;
 		this.retryDelay = DEFAULT_RETRY_DELAY;
 		this.backOffMultiplier = DEFAULT_BACKOFF_MULTIPLIER;
 	}
@@ -68,16 +71,16 @@ public class BasicRetryPolicy
 	/**
 	 * This constructor accepts three parameters which are used by the default retry policy
 	 * 
-	 * @param retryCount
+	 * @param numOfRetries
 	 *            number of retries
 	 * @param retryDelay
 	 *            delay between each retry
 	 * @param backOffMultiplier
 	 *            back off multiplier used to change delay between each retry
 	 */
-	public BasicRetryPolicy(int retryCount, int retryDelay, float backOffMultiplier)
+	public BasicRetryPolicy(int numOfRetries, int retryDelay, float backOffMultiplier)
 	{
-		this.retryCount = retryCount;
+		this.numOfRetries = numOfRetries;
 		this.retryDelay = retryDelay;
 		this.backOffMultiplier = backOffMultiplier;
 	}
@@ -101,14 +104,19 @@ public class BasicRetryPolicy
 		}
 	}
 
+	public int getRetryIndex()
+	{
+		return retryIndex;
+	}
+
 	/**
 	 * This method returns the number of retries of a request
 	 * 
 	 * @return
 	 */
-	public int getRetryCount()
+	public int getNumOfRetries()
 	{
-		return retryCount;
+		return numOfRetries;
 	}
 
 	/**
@@ -152,7 +160,7 @@ public class BasicRetryPolicy
 	 */
 	protected void changeRetryParameters(RequestFacade requestFacade, HttpException ex)
 	{
-		retryCount--;
+		retryIndex++;
 		retryDelay = (int) (retryDelay * backOffMultiplier);
 	}
 
@@ -166,6 +174,7 @@ public class BasicRetryPolicy
 	{
 		switch (ex.getErrorCode())
 		{
+		case HTTP_UNZIP_FAILED:
 		case HTTP_LENGTH_REQUIRED:
 			handle411Error(requestFacade);
 			break;
@@ -173,8 +182,14 @@ public class BasicRetryPolicy
 			handleUnknownHostException(requestFacade);
 			break;
 		default:
+			handleDefaultErrorCase(requestFacade, ex);
 			break;
 		}
+	}
+
+	protected void handleDefaultErrorCase(RequestFacade requestFacade, HttpException ex)
+	{
+
 	}
 
 	/**

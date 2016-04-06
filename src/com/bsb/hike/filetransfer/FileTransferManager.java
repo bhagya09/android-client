@@ -1,5 +1,6 @@
 package com.bsb.hike.filetransfer;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,6 +17,8 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 import java.io.File;
@@ -23,8 +26,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+
 /**
- * 
+ * This manager will manage the upload and download (File Transfers).
+ * A general thread pool is maintained which will be used for both downloads and uploads.
+ * The manager will run on main thread hence an executor is used to delegate task to thread pool threads.
  */
 public class FileTransferManager
 {
@@ -289,18 +296,23 @@ public class FileTransferManager
 				return;
 			}
 
-			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext);
+			downloadFileTask = new DownloadFileTask(context, tempDownloadedFile, destinationFile, fileKey, msgId, hikeFileType, userContext, showToast);
 			fileTaskMap.put(msgId, downloadFileTask);
 		}
 
 		downloadFileTask.download();
 	}
 
-    /**
-     *
-     * @param convMessage
-     * @param fileKey
-     */
+	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType)
+	{
+		downloadFile(destinationFile, fileKey, -100L, hikeFileType, null, false);
+	}
+
+	/**
+	 *
+	 * @param convMessage
+	 * @param fileKey
+	 */
 	public void uploadFile(ConvMessage convMessage, String fileKey)
 	{
 		if (isFileTaskExist(convMessage.getMsgID()))
@@ -378,7 +390,7 @@ public class FileTransferManager
 		}
 	}
 
-    /**
+	/**
      *
      * @param msgId
      * @param hikeFile
@@ -387,6 +399,11 @@ public class FileTransferManager
      */
 	public void cancelTask(long msgId, HikeFile hikeFile, boolean sent, long fileSize)
 	{
+		cancelTask(msgId, hikeFile, sent, fileSize, null);
+	}
+
+	public void cancelTask(long msgId, HikeFile hikeFile, boolean sent, long fileSize, String attachmentShardeAs)
+	{
 		File mFile = hikeFile.getFile();
 		FileSavedState fss;
 		if (sent)
@@ -394,7 +411,8 @@ public class FileTransferManager
 		else
 			fss = getDownloadFileState(msgId, hikeFile);
 
-		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED)
+		if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.INITIALIZED
+				|| fss.getFTState() == FTState.ERROR)
 		{
 			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
@@ -414,8 +432,7 @@ public class FileTransferManager
 			// TODO
 			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED);
-			deleteLogFile(msgId, mFile);
+			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
 		}
 	}
 
@@ -654,7 +671,4 @@ public class FileTransferManager
 		}
 		return 0;
 	}
-
-
-
 }

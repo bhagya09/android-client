@@ -4,7 +4,7 @@
     
     <item
         android:id="@+id/edit_pic"
-		android:icon="@drawable/btn_wand"
+		android:icon="@drawable/ic_filter"
         app:showAsAction="always"
         android:title="@string/edit"/>
 

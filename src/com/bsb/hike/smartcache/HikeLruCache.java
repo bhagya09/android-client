@@ -16,16 +16,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
 
@@ -295,55 +295,6 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 			return b;
 	}
 	
-	public BitmapDrawable getDefaultAvatar(int index)
-	{
-		//Adding '+' will insure we return one to one conversation avatar
-		return getDefaultAvatar("+" + index);
-	}
-	
-	public BitmapDrawable getDefaultAvatar(String msisdn)
-	{
-		return getDefaultAvatar(msisdn, false);
-	}
-	
-	public BitmapDrawable getDefaultAvatar(String msisdn, boolean hiRes)
-	{
-		if(hiRes)
-		{
-			return HikeBitmapFactory.getDefaultAvatar(mResources, msisdn, hiRes);
-		}
-		else
-		{
-			String cacheKey = getDefaultAvatarKey(msisdn);
-
-			BitmapDrawable bd = get(cacheKey);
-
-			if (bd == null)
-			{
-				bd = HikeBitmapFactory.getDefaultAvatar(mResources, msisdn, hiRes);
-				putInCache(cacheKey, bd);
-			}
-			return bd;
-		}
-	}
-	
-	private String getDefaultAvatarKey(String msisdn)
-	{
-		int index = BitmapUtils.iconHash(msisdn) % (HikeConstants.DEFAULT_AVATAR_KEYS.length);
-		
-		String key = HikeConstants.DEFAULT_AVATAR_KEYS[index];
-		if(OneToNConversationUtils.isBroadcastConversation(msisdn))
-		{
-			key += HikeConstants.IS_BROADCAST;
-		}
-		else if(OneToNConversationUtils.isGroupConversation(msisdn))
-		{
-			key += HikeConstants.IS_GROUP;
-		}
-		
-		return key;
-	}
-
 	public BitmapDrawable getFileIconFromCache(String key)
 	{
 		BitmapDrawable b = get(key);
@@ -403,5 +354,33 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 	public void removeItemForKey(String key)
 	{
 		remove(key);
+	}
+
+	public void removeChatTheme(String chatThemeId)
+	{
+		remove(chatThemeId+HikeConstants.ORIENTATION_LANDSCAPE);
+		remove(chatThemeId+HikeConstants.ORIENTATION_PORTRAIT);
+	}
+
+	public void saveChatTheme(String chatThemeId,BitmapDrawable bitmapDrawable)
+	{
+		if(TextUtils.isEmpty(chatThemeId)||bitmapDrawable==null)
+		{
+			return;
+		}
+
+		put(chatThemeId, bitmapDrawable);
+	}
+
+	public BitmapDrawable getChatTheme(String chatThemeId)
+	{
+		BitmapDrawable bd = null;
+		if (TextUtils.isEmpty(chatThemeId))
+		{
+			return bd;
+		}
+		bd = get(chatThemeId);
+
+		return bd;
 	}
 }
