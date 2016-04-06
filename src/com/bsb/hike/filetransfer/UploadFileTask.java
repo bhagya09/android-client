@@ -655,6 +655,7 @@ public class UploadFileTask extends FileTransferBase
 
 		filesArray.put(hikeFile.serialize());
 		metadata.put(HikeConstants.FILES, filesArray);
+		metadata.put(HikeConstants.CAPTION, ((ConvMessage) userContext).getMetadata().getCaption());
 
 		if (isMultiMsg)
 		{
