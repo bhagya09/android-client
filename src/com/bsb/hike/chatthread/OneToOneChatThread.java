@@ -3833,6 +3833,11 @@ import java.util.Map;
 				checkAndStartLastSeenTask();
 			}
 
+			else
+			{
+				hideLastSeenText();
+			}
+
 			// Definitely show the compose container
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 
