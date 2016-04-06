@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.backup.iface.Backupable;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
@@ -42,12 +43,53 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 		prefInfoList.add(new CloudBackupPrefInfo(HikeMessengerApp.CONV_DB_VERSION_PREF, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_INT,
 				DBConstants.CONVERSATIONS_DATABASE_VERSION));
 		prefInfoList.add(new CloudBackupPrefInfo(HikePlatformConstants.CUSTOM_TABS, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+
 
 		// HikeMessengerApp.DEFAULT_SETTINGS_PREF
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_NOTIFICATION_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_INDICATOR_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.CHANGE_STEALTH_TIMEOUT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING,
 				StealthModeManager.DEFAULT_RESET_TOGGLE_TIME));
+		/*
+		 * Notification Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.VIBRATE_PREF_LIST, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, HikeMessengerApp
+				.getInstance().getString(R.string.vib_default)));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.TICK_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.COLOR_LED_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING,
+				HikeConstants.LED_DEFAULT_WHITE_COLOR));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NOTIF_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, "HikeJingle"));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STATUS_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.H2O_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+
+		/*
+		 * Media Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.COMPRESS_VIDEO, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.MD_AUTO_DOWNLOAD_VIDEO_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.MD_AUTO_DOWNLOAD_AUDIO_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.WF_AUTO_DOWNLOAD_VIDEO_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.WF_AUTO_DOWNLOAD_AUDIO_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+
+		/*
+		 * Chat Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.DOUBLE_TAP_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.SEND_ENTER_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+
+		/*
+		 * Privacy Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.PROFILE_PIC_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LAST_SEEN_PREF_LIST, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, HikeMessengerApp
+				.getInstance().getString(R.string.privacy_my_contacts)));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.SSL_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
 
 		return true;
 	}
