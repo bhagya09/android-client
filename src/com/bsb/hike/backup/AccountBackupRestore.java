@@ -23,6 +23,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.backup.iface.BackupableRestorable;
+import com.bsb.hike.backup.impl.DBsBackupRestore;
+import com.bsb.hike.backup.impl.PrefBackupRestore;
 import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;

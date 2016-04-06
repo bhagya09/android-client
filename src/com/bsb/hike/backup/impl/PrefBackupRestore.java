@@ -1,5 +1,7 @@
-package com.bsb.hike.backup;
+package com.bsb.hike.backup.impl;
 
+import com.bsb.hike.backup.BackupUtils;
+import com.bsb.hike.backup.Prefs;
 import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.utils.CBCEncryption;
 

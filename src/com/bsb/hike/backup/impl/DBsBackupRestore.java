@@ -1,4 +1,4 @@
-package com.bsb.hike.backup;
+package com.bsb.hike.backup.impl;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.backup.iface.BackupableRestorable;

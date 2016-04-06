@@ -1,4 +1,4 @@
-package com.bsb.hike.backup;
+package com.bsb.hike.backup.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.backup.iface.Restorable;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
