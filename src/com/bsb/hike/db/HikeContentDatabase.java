@@ -1027,4 +1027,13 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		return c;
 	}
 
+	/**
+	 * Method to delete all entries from Platform Download State Table
+	 */
+	public void flushPlatformDownloadStateTable()
+	{
+		Logger.v("HikeContentDatabase", "Fluhsing Download state table");
+		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE, null, null);
+	}
+
 }

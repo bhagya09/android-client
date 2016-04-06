@@ -104,6 +104,7 @@ public interface HikePlatformConstants
 	public static final String CUSTOM_TABS="customTabs";
 	String PACKET_DATA = "packetData";
 	String PREF_NETWORK = "preferredNetwork";
+	String FLUSH_DOWNLOAD_TABLE = "flushDwnldTable";
 
     public static final class PlatformFetchType
 	{

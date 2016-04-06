@@ -2937,6 +2937,11 @@ public class MqttMessagesManager
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
+
+		if(data.has(HikePlatformConstants.FLUSH_DOWNLOAD_TABLE))
+		{
+			HikeContentDatabase.getInstance().flushPlatformDownloadStateTable();
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
