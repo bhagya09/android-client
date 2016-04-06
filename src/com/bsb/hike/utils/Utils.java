@@ -7476,7 +7476,18 @@ public class Utils
 
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
+		if (isFavToFriendsMigrationAllowed())
+		{
+			return contactInfo.isMyTwoWayFriend();
+		}
+
+		else
+		{
+			return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) ||
+					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) ||
+					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) &&
+					(contactInfo.isOnhike());
+		}
 	}
 
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
