@@ -17,6 +17,8 @@ public class AnalyticsConstants
 	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
+	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
+	public static final int DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD = 10; //10 events approx size: 1.5 KB, good enough to gzip and upload
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
