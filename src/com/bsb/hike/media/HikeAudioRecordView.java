@@ -168,8 +168,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      */
     private void startPulsatingDotAnimation(View view) {
         mHandler.postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1000);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
@@ -178,6 +178,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             public void run() {
                 if(viewId == R.id.ring2) {
                     ImageView ringView = (ImageView) view.findViewById(viewId);
+                    if(ringView.getVisibility() != View.VISIBLE) ringView.setVisibility(View.VISIBLE);
                     ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
                 } else {
                     View micImage = recorderImg.findViewById(R.id.mic_image);
@@ -242,12 +243,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         if(rectBgrnd.getVisibility() != View.VISIBLE) {
                             rectBgrnd.setVisibility(View.VISIBLE);
                             rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
-                            recordingState.setVisibility(View.INVISIBLE);
                         }
                     }
                 } else {
                     rectBgrnd.setVisibility(View.INVISIBLE);
-                    recordingState.setVisibility(View.VISIBLE);
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -690,6 +689,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
+            ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
+            ringView.setVisibility(View.INVISIBLE);
         }
     }
 
