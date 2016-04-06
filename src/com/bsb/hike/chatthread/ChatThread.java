@@ -28,6 +28,8 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -96,7 +98,6 @@ import com.bsb.hike.ui.ComposeViewWatcher;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -302,7 +303,7 @@ import android.widget.Toast;
 
 	protected HikeSharedPreferenceUtil sharedPreference;
 
-	protected ChatTheme currentTheme;
+	protected String currentThemeId;
 
 	protected String msisdn;
 
@@ -491,7 +492,7 @@ import android.widget.Toast;
 			deleteMessages((Pair<Boolean, ArrayList<Long>>) msg.obj);
 			break;
 		case CHAT_THEME:
-			changeChatTheme((ChatTheme) msg.obj);
+			changeChatTheme((String) msg.obj);
 			break;
 		case CLOSE_CURRENT_STEALTH_CHAT:
 			closeStealthChat();
@@ -1698,7 +1699,7 @@ import android.widget.Toast;
 
 		if (themePicker == null)
 		{
-			themePicker = new ThemePicker(activity, this, currentTheme);
+			themePicker = new ThemePicker(activity, this, currentThemeId);
 		}
 	}
 
@@ -1732,17 +1733,17 @@ import android.widget.Toast;
 	}
 
 	@Override
-	public void themeClicked(ChatTheme theme)
+	public void themeClicked(String themeId)
 	{
-		Logger.i(TAG, "theme clicked " + theme);
+		Logger.i(TAG, "theme clicked " + themeId);
 
-		updateUIAsPerTheme(theme);
+		updateUIAsPerTheme(themeId);
 	}
 
 	@Override
-	public void themeSelected(ChatTheme chatTheme)
+	public void themeSelected(String chatThemeId)
 	{
-		Logger.i(TAG, "theme selected " + chatTheme);
+		Logger.i(TAG, "theme selected " + chatThemeId);
 
 		/**
 		 * Need to update the UI here as well as theme selected  and current theme could be different
@@ -1752,54 +1753,61 @@ import android.widget.Toast;
 		/**
 		 * Save current theme and send chat theme message
 		 */
-		if (currentTheme != chatTheme)
+		if (currentThemeId != chatThemeId)
 		{
-			updateUIAsPerTheme(chatTheme);
-			currentTheme = chatTheme;
+			updateUIAsPerTheme(chatThemeId);
+			currentThemeId = chatThemeId;
 			sendChatThemeMessage();
 		}
 	}
 
-	protected void updateUIAsPerTheme(ChatTheme theme)
+	protected void updateUIAsPerTheme(String themeId)
 	{
-		if (mAdapter.getChatTheme() == theme && theme == ChatTheme.DEFAULT)
+		if (mAdapter.getChatThemeId().equals(themeId) && themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			activity.updateActionBarColor(theme.headerBgResId());
+			activity.updateActionBarColor(ChatThemeManager.getInstance().
+					getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 			setChatBackground(R.color.chat_thread_default_bg);
-			setStatusBarColor(theme.statusBarColor());
+
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			setStatusBarColorValue(statusBarColor.getColor());
 
 		}
 
-		else if (mAdapter.getChatTheme() != theme)
+		else if (mAdapter.getChatThemeId() != themeId)
 		{
-			Logger.i(TAG, "update ui for theme " + theme);
-			if (mAdapter.getChatTheme() == ChatTheme.DEFAULT)
+			Logger.i(TAG, "update ui for theme " + themeId);
+			if (mAdapter.getChatThemeId() == ChatThemeManager.getInstance().defaultChatThemeId)
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
-			else if (theme == ChatTheme.DEFAULT)
+			else if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 				setChatBackground(R.color.chat_thread_default_bg);
 
-			setConversationTheme(theme);
-			setStatusBarColor(theme.statusBarColor());
+			setConversationTheme(themeId);
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			setStatusBarColorValue(statusBarColor.getColor());
 		}
 	}
 	protected void setChatBackground(int colorResID){
 		View chatlayout=activity.findViewById(R.id.chatContentlayout);
 		chatlayout.setBackgroundResource(colorResID);
 	}
-	protected void setBackground(ChatTheme theme)
+	protected void setBackground(String themeId)
 	{
 		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
-		if (theme == ChatTheme.DEFAULT)
+		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			backgroundImage.setImageResource(theme.bgResId());
+			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().
+					getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
 			setChatBackground(R.color.chat_thread_default_bg);
 		}
 		else
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
-			backgroundImage.setScaleType(theme.isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = Utils.getChatTheme(theme, activity);
-			if(!theme.isTiled())
+			backgroundImage.setScaleType(ChatThemeManager.getInstance().getTheme(themeId).isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
+			Drawable drawable = Utils.getChatTheme(themeId, activity);
+			if(!ChatThemeManager.getInstance().getTheme(themeId).isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
@@ -1811,9 +1819,9 @@ import android.widget.Toast;
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (currentTheme != mAdapter.getChatTheme())
+		if (currentThemeId != mAdapter.getChatThemeId())
 		{
-			setConversationTheme(currentTheme);
+			setConversationTheme(currentThemeId);
 		}
 	}
 
@@ -2454,26 +2462,29 @@ import android.widget.Toast;
 
 	}
 
-	protected void setConversationTheme(ChatTheme theme)
+	protected void setConversationTheme(String themeId)
 	{
 		System.gc();
 		// messages theme changed, call adapter
-		mAdapter.setChatTheme(theme);
+		mAdapter.setChatThemeId(themeId);
 		// action bar
 		if (OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			activity.updateActionBarColor(new ColorDrawable(Color.BLACK));
-			setStatusBarColor(R.color.black);
+			setStatusBarColorValue(getResources().getColor(R.color.black));
 		}
 		else
 		{
-			activity.updateActionBarColor(theme.headerBgResId());
-			setStatusBarColor(theme.statusBarColor());
+			activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
+											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			setStatusBarColorValue(statusBarColor.getColor());
 		}
 		
 		
 		// background image
-		setBackground(theme);
+		setBackground(themeId);
 	}
 
 	@Override
@@ -2700,8 +2711,8 @@ import android.widget.Toast;
 		addtoMessageMap(0, messages.size());
 
 		initListViewAndAdapter(); // init adapter, listView and add clicks etc
-		currentTheme = mConversation.getChatTheme();
-		updateUIAsPerTheme(currentTheme);// it has to be done after setting adapter
+		currentThemeId = mConversation.getChatThemeId();
+		updateUIAsPerTheme(currentThemeId);// it has to be done after setting adapter
 		setupDefaultActionBar(true); // Setup the action bar
 		initMessageSenderLayout();
 
@@ -4194,7 +4205,7 @@ import android.widget.Toast;
 	{
 		activity.runOnUiThread(new Runnable()
 		{
-			
+
 			@Override
 			public void run()
 			{
@@ -5223,7 +5234,7 @@ import android.widget.Toast;
 	 */
 	private void onChatBackgroundChanged(Object object)
 	{
-		Pair<String, ChatTheme> pair = (Pair<String, ChatTheme>) object;
+		Pair<String, String> pair = (Pair<String, String>) object;
 
 		/**
 		 * Proceeding only if the chat theme is changed for the current msisdn
@@ -5275,7 +5286,8 @@ import android.widget.Toast;
 			}
 			else
 			{
-				activity.updateActionBarColor(currentTheme.headerBgResId());
+				activity.updateActionBarColor(ChatThemeManager.getInstance().
+						getDrawableHelper().getDrawableForTheme(currentThemeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 			}
 			activity.getSupportActionBar().show();
 		}
@@ -5340,8 +5352,8 @@ import android.widget.Toast;
 	protected void sendChatThemeMessage()
 	{
 		long timestamp = System.currentTimeMillis() / 1000;
-		mConversationDb.setChatBackground(msisdn, currentTheme.bgId(), timestamp);
-		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentTheme.bgId(), mConversation);
+		mConversationDb.setChatBackground(msisdn, currentThemeId, timestamp);
+		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentThemeId, mConversation);
 		sendMessage(convMessage);
 	}
 	
@@ -5351,11 +5363,11 @@ import android.widget.Toast;
 	 * 
 	 * @param chatTheme
 	 */
-	private void changeChatTheme(ChatTheme chatTheme)
+	private void changeChatTheme(String chatThemeId)
 	{
-		updateUIAsPerTheme(chatTheme);
+		updateUIAsPerTheme(chatThemeId);
 
-		currentTheme = chatTheme;
+		currentThemeId = chatThemeId;
 	}
 
 	/**
@@ -5366,9 +5378,9 @@ import android.widget.Toast;
 		return;
 	}
 
-	protected ChatTheme getCurrentlTheme()
+	protected String getCurrentlThemeId()
 	{
-		return mAdapter.getChatTheme();
+		return mAdapter.getChatThemeId();
 	}
 
 	/**
@@ -5976,10 +5988,12 @@ import android.widget.Toast;
 		/**
 		 * Handle theme background image change.
 		 */
-		if (getCurrentlTheme() != null && getCurrentlTheme() != ChatTheme.DEFAULT)
+		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			setBackground(getCurrentlTheme());
-			setStatusBarColor(getCurrentlTheme().statusBarColor());
+			setBackground(getCurrentlThemeId());
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+											getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			setStatusBarColorValue(statusBarColor.getColor());
 		}
 		
 		/**
@@ -6452,7 +6466,7 @@ import android.widget.Toast;
 		//Hiding the Kpt Keyboard updates the padding to 0 hence Message enter box is not shown if shareable pop is showing 
 		hideKeyboardIfNeeded();
 		setUpThemePicker();
-		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentTheme,footerTextId, activity.getResources().getConfiguration().orientation);
+		themePicker.showThemePicker(activity.findViewById(R.id.attachment_anchor), currentThemeId, footerTextId, activity.getResources().getConfiguration().orientation);
 	}
 	
 	public void saveCurrentActionMode()
@@ -6508,11 +6522,12 @@ import android.widget.Toast;
 				releaseOfflineListeners();
 			}
 		}
-	}	
-	public void setStatusBarColor(int resIdcolor)
+	}
+
+	public void setStatusBarColorValue(int colorValue)
 	{
-		StatusBarColorChanger.setStatusBarColor(activity, resIdcolor);
-		activity.statusBarColorID=resIdcolor;
+		StatusBarColorChanger.setStatusBarColorValue(activity, colorValue);
+		activity.statusBarColorValue = colorValue;
 	}
 	
 	public void clearComposeText()

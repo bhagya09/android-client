@@ -149,7 +149,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 		try
 		{
 			JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
-			String directoryPath = ChatThemeManager.getInstance().getThemeAssetStoragePath();
+			String directoryPath = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath();
 			for (int i = 0; i < mAssetIds.length; i++)
 			{
 				if(directoryPath == null)

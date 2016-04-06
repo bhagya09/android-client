@@ -13,6 +13,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by sriram on 22/02/16.
@@ -24,6 +26,21 @@ public class ChatThemeDrawableHelper
 	public ChatThemeDrawableHelper()
 	{
 
+	}
+
+	/**
+	 * method to get a drawable given a themeId and an asset index. In case of any problem, it returns a default asset.
+	 * @param themeId
+	 * @param assetIndex
+	 * @return a drawable corresponding to the asset
+	 */
+	public Drawable getDrawableForTheme(String themeId, byte assetIndex)
+	{
+		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId) || !ChatThemeManager.getInstance().isThemeAvailable(themeId))
+		{
+			return getDefaultDrawable(assetIndex);
+		}
+		return getDrawableForTheme(ChatThemeManager.getInstance().getTheme(themeId), assetIndex);
 	}
 
 	/**
@@ -41,7 +58,7 @@ public class ChatThemeDrawableHelper
 
 	public Drawable getDrawableForTheme(HikeChatTheme theme, byte assetIndex)
 	{
-		return getDrawableForTheme(HikeMessengerApp.getInstance(), theme, assetIndex);
+		return getDrawableForTheme(HikeMessengerApp.getInstance().getApplicationContext(), theme, assetIndex);
 	}
 
 	public Drawable getDrawableForTheme(Context context, HikeChatTheme theme, byte assetIndex)
@@ -77,7 +94,8 @@ public class ChatThemeDrawableHelper
 	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex)
 	{
 		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(theme.getAssetId(assetIndex));
-		if(asset == null){
+		if(asset == null)
+		{
 			return null;
 		}
 		return getDrawableFromSDCard(asset);
@@ -89,7 +107,7 @@ public class ChatThemeDrawableHelper
 		if (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_COLOR)
 		{
 			// java.lang.NumberFormatException: Invalid long: "#1E131C"
-			String color = asset.getValue();
+			String color = asset.getAssetId(); //assetId are equivalent to values for colors
 			if (color.charAt(0) == '#')
 			{
 				drawable = new ColorDrawable(Color.parseColor(color));
@@ -101,15 +119,14 @@ public class ChatThemeDrawableHelper
 		}
 		else
 		{
-			drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getValue());
+			drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
 			if (drawable == null)
 			{
-				// TODO CHATTHEME Filepath
-				String path = "";// getThemeAssetStoragePath() + File.separator + asset.getValue();
+				String path = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath() + File.separator + asset.getAssetId();
 				if (isFileExists(path))
 				{
 					BitmapDrawable bmp = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), path);
-					HikeMessengerApp.getLruCache().putInCache(asset.getValue(), bmp);
+					HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), bmp);
 					drawable = bmp;
 				}
 			}
@@ -155,6 +172,8 @@ public class ChatThemeDrawableHelper
 			return getDrawableFromId(R.color.blue_hike_status_bar_m);
 		case HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG:
 			return getDrawableFromId(R.drawable.bg_sms_toggle);
+		case HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL:
+			return getDrawableFromId(R.drawable.ic_ct_default_preview);
 		}
 		return null;
 	}
@@ -169,5 +188,79 @@ public class ChatThemeDrawableHelper
 		{
 			return HikeMessengerApp.getInstance().getResources().getDrawable(resId);
 		}
+	}
+
+	/**
+	 * method which returns the storage directory for saving chat theme assets. inspired by similar method in StickerManager
+	 * @return the path of the directory
+	 */
+	public String getThemeAssetStoragePath()
+	{
+		/*
+		 * We give a higher priority to external storage. If we find an exisiting directory in the external storage, we will return its path. Otherwise if there is an exisiting
+		 * directory in internal storage, we return its path.
+		 *
+		 * If the directory is not available in both cases, we return the external storage's path if external storage is available. Else we return the internal storage's path.
+		 */
+		boolean externalAvailable = false;
+		Utils.ExternalStorageState st = Utils.getExternalStorageState();
+		Logger.d(TAG, "External Storage state : " + st.name());
+		if (st == Utils.ExternalStorageState.WRITEABLE)
+		{
+			externalAvailable = true;
+			String themeDirPath = getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
+			Logger.d(TAG, "Theme dir path : " + themeDirPath);
+			if (themeDirPath == null)
+			{
+				return null;
+			}
+
+			File themeDir = new File(themeDirPath);
+
+			if (themeDir.exists())
+			{
+				Logger.d(TAG, "Theme Dir exists ... so returning");
+				return themeDir.getPath();
+			}
+		}
+		if (externalAvailable)
+		{
+			Logger.d(TAG, "Returning external storage dir.");
+			return getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	/**
+	 * creates a new directory in the external memory for saving chat theme
+	 * @param context
+	 * @return returns path to the external memory directory
+	 */
+	private String getExternalThemeDirectory(Context context)
+	{
+		File dir = context.getExternalFilesDir(null);
+		if (dir == null)
+		{
+			return null;
+		}
+		String themePath = dir.getPath() + File.separator + HikeChatThemeConstants.CHAT_THEMES_ROOT;
+		dir = new File(themePath);
+
+		if(dir.isDirectory())
+		{
+			return themePath;
+		}
+		else
+		{
+			boolean created = dir.mkdir();
+			if(created)
+			{
+				return themePath;
+			}
+		}
+		return null;
 	}
 }

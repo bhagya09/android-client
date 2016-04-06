@@ -128,6 +128,8 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -5360,24 +5362,30 @@ public class Utils
 		context.startActivity(intent);
 	}
 
-	public static Drawable getChatTheme(ChatTheme chatTheme, Context context)
+	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
 		/*
 		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
 		 */
 		int inSampleSize = 1;
-		if (!chatTheme.isTiled() && Utils.scaledDensityMultiplier < 2)
+		if (ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled() && Utils.scaledDensityMultiplier < 2)
 		{
 			inSampleSize = 2;
 		}
 
-		Bitmap b = HikeBitmapFactory.decodeSampledBitmapFromResource(context.getResources(), chatTheme.bgResId(), inSampleSize);
+		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE)
+		{
+			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
+		}
 
-		BitmapDrawable bd = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
+		// TEMPORARY CHAT THEME FIX (did not consider lowering the resolution of image for different phones)
+		BitmapDrawable bd = (BitmapDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+													  getDrawableForTheme(chatThemeId, asset);
 
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(b));
+		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
 
-		if (bd != null && chatTheme.isTiled())
+		if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled())
 		{
 			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
 		}

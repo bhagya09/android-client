@@ -11,6 +11,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
@@ -64,7 +65,10 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -103,7 +107,6 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
-import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -316,7 +319,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private boolean isOneToNChat;
 
-	private ChatTheme chatTheme;
+	private String chatThemeId;
 
 	private boolean isDefaultTheme = true;
 
@@ -366,7 +369,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		this.voiceMessagePlayer = new VoiceMessagePlayer();
 		this.preferences = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		this.isOneToNChat = OneToNConversationUtils.isOneToNConversation(conversation.getMsisdn());
-		this.chatTheme = ChatTheme.DEFAULT;
+		this.chatThemeId = ChatThemeManager.getInstance().defaultChatThemeId;
 		this.mSelectedItemsIds = new HashSet<Long>();
 		setLastSentMessagePosition();
 		this.shownSdrIntroTip = preferences.getBoolean(HikeMessengerApp.SHOWN_SDR_INTRO_TIP, false);
@@ -388,21 +391,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		notifyDataSetChanged();
 	}
 
-	public void setChatTheme(ChatTheme theme)
+	public void setChatThemeId(String themeId)
 	{
-		if (theme == null)
+		if (themeId == null)
 		{
-			Logger.d("MessageAdapter", "ChatTheme is null in setChatTheme Method");
+			Logger.d("MessageAdapter", "ChatThemeId is null in setChatTheme Method");
 			return;
 		}
-		chatTheme = theme;
-		isDefaultTheme = chatTheme == ChatTheme.DEFAULT;
+		chatThemeId = themeId;
+		isDefaultTheme = chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId);
 		notifyDataSetChanged();
 	}
 	
-	public ChatTheme getChatTheme()
+	public String getChatThemeId()
 	{
-		return chatTheme;
+		return chatThemeId;
 	}
 
 	public boolean isDefaultTheme()
@@ -982,20 +985,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			dayHolder = nudgeHolder;
 			setSenderDetails(convMessage, position, nudgeHolder, true);
-			if (!chatTheme.isAnimated())
+			if (!ChatThemeManager.getInstance().getTheme(chatThemeId).isAnimated())
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
-				setNudgeImageResource(chatTheme, nudgeHolder.nudge, convMessage.isSent());
+				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());
 			}
 			else
 			{
 				nudgeHolder.nudge.setVisibility(View.VISIBLE);
 
-				setNudgeImageResource(chatTheme, nudgeHolder.nudge, convMessage.isSent());
+				setNudgeImageResource(chatThemeId, nudgeHolder.nudge, convMessage.isSent());
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					int animId = chatTheme.getAnimationId();
+					int animId = -1; // TEMPORARY CHAT THEME FIX
 					if(animId != -1)
 					{
 						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
@@ -1098,13 +1101,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (convMessage.isSent())
 				{
 					/* label outgoing hike conversations in green */
-					if (chatTheme == ChatTheme.DEFAULT)
+					if (chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 					{
 						circle.getPaint().setColor(context.getResources().getColor(!convMessage.isSMS() ? R.color.bubble_blue : R.color.bubble_green));
 					}
 					else
 					{
-						circle.getPaint().setColor(context.getResources().getColor(chatTheme.bubbleColor()));
+						ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+														getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR);
+						circle.getPaint().setColor(statusBarColor.getColor());
 					}
 
 				}
@@ -2075,7 +2080,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(chatTheme.systemMessageBackgroundId());
+			// TEMPORARY CHAT THEME FIX
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.bg_system_message_dark);
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2149,7 +2155,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				statusHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 				statusHolder.messageTextView.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			statusHolder.container.setBackgroundResource(chatTheme.inLineUpdateBGResId());
+			statusHolder.container.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+												 getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG));
+
 			if (viewType == ViewType.STATUS_MESSAGE)
 			{
 				fillStatusMessageData(statusHolder, convMessage, v);
@@ -2184,7 +2192,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
+			// TEMPORARY CHAT THEME FIX
+			int layoutRes = R.layout.system_message_dark;
 			
 			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
 			{
@@ -2504,7 +2513,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			int layoutRes = chatTheme.systemMessageTextViewLayoutId();
+			// TEMPORARY CHAT THEME FIX
+			int layoutRes = R.layout.system_message_dark;
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{
@@ -2608,13 +2618,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		int bottomPad = messageContainer.getPaddingBottom();
 		if (convMessage.isSent() && messageContainer != null)
 		{
-			if (chatTheme == ChatTheme.DEFAULT)
+			if (chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 			{
 				messageContainer.setBackgroundResource(!convMessage.isSMS() ? R.drawable.ic_bubble_blue_selector : R.drawable.ic_bubble_green_selector);
 			}
 			else
 			{
-				messageContainer.setBackgroundResource(chatTheme.bubbleResId());
+				messageContainer.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+											   getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
 			}
 		}
 		messageContainer.setPadding(leftPad, topPad, rightPad, bottomPad);
@@ -2648,7 +2659,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				/*
 				 * If a message has been selected then background of selected state overlay will change to selected state color. otherwise this overlay will be transparent
 				 */
-				overlay.setBackgroundColor(context.getResources().getColor(chatTheme.multiSelectBubbleColor()));
+				overlay.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+									  getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 				Logger.d("sticker", "colored");
 			}
 			else
@@ -2701,9 +2713,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		iconLoader.loadImage(msisdn, imageView, false, true, false);
 	}
 
-	private void setNudgeImageResource(ChatTheme chatTheme, ImageView iv, boolean isMessageSent)
+	private void setNudgeImageResource(String chatThemeId, ImageView iv, boolean isMessageSent)
 	{
-		iv.setImageResource(isMessageSent ? chatTheme.sentNudgeResId() : chatTheme.receivedNudgeResId());
+		if(isMessageSent)
+		{
+			iv.setImageDrawable(ChatThemeManager.getInstance().getDrawableHelper().
+								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG));
+		}
+		else
+		{
+			iv.setImageDrawable(ChatThemeManager.getInstance().getDrawableHelper().
+								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG));
+		}
 	}
 
 	private void inflateNSetDay(ConvMessage convMessage, final DayHolder dayHolder)
@@ -2767,13 +2788,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
 			if (isNameExternal)
 			{
+				ColorDrawable offlineMsgTextColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+													getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG);
 				if (detailHolder.senderName != null)
 				{
-					detailHolder.senderName.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
+					detailHolder.senderName.setTextColor(offlineMsgTextColor.getColor());
 				}
 				if (detailHolder.senderNameUnsaved != null)
 				{
-					detailHolder.senderNameUnsaved.setTextColor(context.getResources().getColor(chatTheme.offlineMsgTextColor()));
+					detailHolder.senderNameUnsaved.setTextColor(offlineMsgTextColor.getColor());
 				}
 			}
 			else

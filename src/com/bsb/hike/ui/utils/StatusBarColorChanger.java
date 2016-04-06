@@ -59,4 +59,12 @@ public class StatusBarColorChanger
 		}
 
 	}
+
+	public static void setStatusBarColorValue(Activity activity, int colorValue)
+	{
+		if(activity != null)
+		{
+			setStatusBarColor(activity.getWindow(), colorValue);
+		}
+	}
 }
