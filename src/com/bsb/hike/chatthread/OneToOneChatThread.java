@@ -3783,6 +3783,11 @@ import java.util.Map;
 			showFriendReqPendingAsLastSeen();
 		}
 
+		else if(!mContactInfo.isMyTwoWayFriend())
+		{
+			hideLastSeenText();
+		}
+
 		inflateAddFriendButtonIfNeeded();
 	}
 
@@ -3818,7 +3823,7 @@ import java.util.Map;
 	{
 		if (showAddFriendbutton)
 		{
-			inflateAddFriendButtonIfNeeded();
+			doSetupForAddFriend();
 		}
 
 		else
