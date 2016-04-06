@@ -63,7 +63,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private Fragment fragment;
 
-	private Fragment fragmentFtue;
+	private StickerRecommendationFtueFragment fragmentFtue;
 
 	private int count;
 
@@ -91,7 +91,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
-        refreshUndownloadedStickerWatcher();
+        refreshUndownloadedStickerWatcher(StickerManager.getInstance().isMiniStickersEnabled());
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
 
@@ -615,8 +615,13 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		return colorSpanPool;
 	}
 
-	public void refreshUndownloadedStickerWatcher()
+	public void refreshUndownloadedStickerWatcher(boolean loadMini)
 	{
 		this.undownloadedStickerToDisplayCount = StickerSearchUtils.getUndownloadedStickerToDisplayCount();
+
+		if (fragmentFtue != null)
+		{
+			fragmentFtue.setupStickerLoader(loadMini);
+		}
 	}
 }
