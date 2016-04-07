@@ -10,9 +10,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -87,7 +85,6 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
 			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
-			StickerManager.getInstance().doInitialSetup();
 		}
 		
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
@@ -117,6 +114,19 @@ public class UpgradeIntentService extends IntentService
 		{
 			{
 				LocalLanguageUtils.requestLanguageOrderListFromServer();
+			}
+		}
+
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if(upgradeForStickerTable())
+			{
+				Logger.v(TAG, "Upgrade for sticker table was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+                StickerManager.getInstance().doInitialSetup();
 			}
 		}
 
@@ -160,5 +170,10 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForSortingIdField()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
+	}
+
+	private boolean upgradeForStickerTable()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
 }

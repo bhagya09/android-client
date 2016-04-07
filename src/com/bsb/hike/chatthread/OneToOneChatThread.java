@@ -3397,6 +3397,8 @@ import java.util.Map;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+        super.connectedToMsisdn(connectedDevice);
+
 		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
@@ -3432,7 +3434,8 @@ import java.util.Map;
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        super.onDisconnect(errorCode);
+
 		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());

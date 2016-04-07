@@ -694,7 +694,7 @@ public class ToastListener implements Listener
 		if (convMessage.isStickerMessage())
 		{
 			final Sticker sticker = convMessage.getMetadata().getSticker();
-			final String filePath = sticker.getStickerPath();
+			final String filePath = sticker.getLargeStickerPath();
 			if (!TextUtils.isEmpty(filePath))
 			{
 				bigPictureImage = HikeBitmapFactory.decodeFile(filePath);

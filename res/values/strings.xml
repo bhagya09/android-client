@@ -1510,6 +1510,13 @@
     <string name="tamil">Tamil</string>
     <string name="telugu">Telugu</string>
     <string name="english">English</string>
+    <string name="preview_category">PREVIEW</string>
+    <string name="sticker_tap_text">Tap sticker to preview</string>
+    <string name="copyright_text">Copyright @ 2016 Hike Limited</string>
+    <string name="recommended_packs">recommended packs</string>
+    <string name="pack_preview_activity_actionbar_text">Sticker Details</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="downloading_sticker">Downloading...</string>
     <string name="timeline_short_desc">Share your moments with friends</string>
     <string name="multiple_su_post_failed">One or more status updates could not be posted.</string>
     <string name="timeline_post_timeout">Your photos will be posted shortly</string>
@@ -1564,6 +1571,9 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
+    <string name="view_all">View All</string>
+    <string name="author_text"><![CDATA[Crafted with love by <b>%1$s</b>]]></string>
+    <string name="update">Update</string>
     <string name="spam">REPORTED AS SPAM</string>
     <string name="posting_photos_timeline">Posting photos to Timeline</string>
     <string name="add_a_caption">Add a caption</string>
