@@ -3,9 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1633"
-    android:versionName="4.2.0.18.1.payments" >
-
+    android:versionCode="1639"
+    android:versionName="4.2.0.82.18.internal_release" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
