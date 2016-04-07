@@ -1642,7 +1642,7 @@ public class HikeNotification
 	}
 
 	private void showAnalyticsForRichNotifImageShow(boolean success, String reason){
-		//{"t":"le_android","d":{"et":"nonUiEvent","st":"repl","ep":"HIGH","cts":1456826270480,"tag":"plf","md":{"ek":"micro_app","event":"chromeCustomTabs","fld4":"justOpened","fld1":"http:\/\/timesofindia.indiatimes.com\/business\/india-business\/Day-after-Budget-Sensex-surges-over-450-points\/articleshow\/51204579.cms","sid":1456826226544}}}
+		//{"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1460008590298,"fld1":"autoDownloadOff/requestFailure","ek":"micro_app","event":"platformRichNotifs","fld4":"success/fail"},"cts":1460008340211,"tag":"plf"},"t":"le_android"}
 		JSONObject json = new JSONObject();
 		try
 		{
