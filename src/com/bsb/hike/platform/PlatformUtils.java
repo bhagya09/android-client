@@ -655,7 +655,7 @@ public class PlatformUtils
 		rqst.getContentData().setBotType(botInfo.getBotType());
 		rqst.getContentData().setMsisdn(botInfo.getMsisdn());
 
-		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, botInfo.getMsisdn(), autoResume);
+		downloadAndUnzip(rqst, false, botMetadata.shouldReplace(), botMetadata.getCallbackId(), resumeSupport, "", autoResume);
 	}
     
 
