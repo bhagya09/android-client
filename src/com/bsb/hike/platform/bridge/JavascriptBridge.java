@@ -686,14 +686,7 @@ public abstract class JavascriptBridge
 						Logger.d(tag, "Inside call back to js with id " + id);
 						try
 						{
-							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
-							{
-								@Override
-								public void onReceiveValue(String value)
-								{
-									Logger.d("JavascriptBridge", value);
-								}
-							});
+							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')",null);
 						}
 						catch (IllegalStateException e)
 						{
