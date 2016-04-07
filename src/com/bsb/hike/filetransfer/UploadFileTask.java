@@ -160,6 +160,7 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFTState(FTState.ERROR);
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 					return;
@@ -172,12 +173,12 @@ public class UploadFileTask extends FileTransferBase
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
-					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", httpException);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 				}
 				else if (httpException.getCause() instanceof FileNotFoundException)
 				{
-					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", e);
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", httpException);
 					showToast(HikeConstants.FTResult.CARD_UNMOUNT);
 				}
 				else if (httpException.getCause() instanceof Exception)
@@ -185,18 +186,18 @@ public class UploadFileTask extends FileTransferBase
 					Throwable throwable = httpException.getCause();
 					if (FileTransferManager.READ_FAIL.equals(throwable.getMessage()))
 					{
-						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", e);
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", httpException);
 						showToast(HikeConstants.FTResult.READ_FAIL);
 					}
 					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(throwable.getMessage()))
 					{
-						// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", e);
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", httpException);
 						showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 				}
 				else
 				{
-					// FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", e);
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 				}
 			}
