@@ -98,7 +98,7 @@ public class PeopleActivity extends HikeAppStateBaseFragmentActivity implements 
         if(!TextUtils.isEmpty(actionBarTitle))
             title.setText(actionBarTitle);
         else
-            title.setText(R.string.favorites);
+            title.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends : R.string.favorites);
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent=(Toolbar)actionBarView.getParent();
