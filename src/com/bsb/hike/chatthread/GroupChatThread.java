@@ -14,6 +14,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -40,9 +41,7 @@ import com.kpt.adaptxt.beta.RemoveDialogData;
 import com.kpt.adaptxt.beta.util.KPTConstants;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
@@ -58,12 +57,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,58 +105,6 @@ public class GroupChatThread extends OneToNChatThread
 		super.onCreate(savedState);
 	}
 
-	private void shouldShowMultiAdminPopup() {
-		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat&&oneToNConversation.isConversationAlive())
-		{
-			try {
-				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
-		            Utils.blockOrientationChange(activity);
-					showMultiAdminTip(activity);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-		
-	}
-	public void showMultiAdminTip(final Context context)
-	{
-	
-		HikeDialog hikeDialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
-			}
-
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-				
-			}
-
-		}, 0);
-         hikeDialog.setOnDismissListener(new OnDismissListener() {
-			
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				Utils.unblockOrientationChange(activity);
-				
-			}
-		});
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -187,6 +132,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		updateUnreadPinCount();
+		activity.recordActivityEndTime();
 	}
 
 	@Override
@@ -249,7 +195,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
+		mConversation = oneToNConversation = (GroupConversation) HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
 		// imp message from DB like pin
 		if (mConversation != null)
 		{
@@ -275,8 +221,6 @@ public class GroupChatThread extends OneToNChatThread
 		showTips();
 		oneToNConversation = (GroupConversation) conversation;
 		super.fetchConversationFinished(conversation);
-
-		shouldShowMultiAdminPopup();
 
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
