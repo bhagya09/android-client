@@ -1,17 +1,18 @@
 package com.bsb.hike.modules.signupmgr;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.validateNumberRequest;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.validateNumberRequest;
 
 public class ValidateNumberTask
 {
@@ -26,7 +27,7 @@ public class ValidateNumberTask
 
 	public String execute()
 	{
-		RequestToken requestToken = validateNumberRequest(getPostObject(), getRequestListener());
+		RequestToken requestToken = validateNumberRequest(getPostObject(), getRequestListener(), new SignUpHttpRetryPolicy(SignUpHttpRetryPolicy.MAX_RETRY_COUNT, BasicRetryPolicy.DEFAULT_RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER));
 		requestToken.execute();
 		return resultMsisdn;
 	}

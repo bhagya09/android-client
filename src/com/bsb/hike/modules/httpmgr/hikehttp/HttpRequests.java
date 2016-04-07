@@ -70,9 +70,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupPr
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.lastSeenUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerImageDownloadUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.multiStickerImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postAddressbookBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postDeviceDetailsBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.postGreenBlueDetailsBaseUrl;
@@ -84,6 +83,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sendUse
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.setProfileUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpPinCallBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerTagsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
@@ -454,13 +454,14 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken registerAccountRequest(JSONObject json, IRequestListener requestListener)
+	public static RequestToken registerAccountRequest(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(registerAccountBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
 				.post(body)
 				.setAsynchronous(false)
 				.build();
@@ -468,13 +469,14 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken validateNumberRequest(JSONObject json, IRequestListener requestListener)
+	public static RequestToken validateNumberRequest(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(validateNumberBaseUrl() + "?digits=4")
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
 				.post(body)
 				.setAsynchronous(false)
 				.build();
@@ -482,13 +484,14 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken setProfileRequest(JSONObject json, IRequestListener requestListener)
+	public static RequestToken setProfileRequest(JSONObject json, IRequestListener requestListener, BasicRetryPolicy retryPolicy)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(setProfileUrl())
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
 				.post(body)
 				.setAsynchronous(false)
 				.build();
@@ -496,13 +499,14 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken postAddressBookRequest(JSONObject json, IRequestListener requestListener, IResponseInterceptor responseInterceptor)
+	public static RequestToken postAddressBookRequest(JSONObject json, IRequestListener requestListener, IResponseInterceptor responseInterceptor, BasicRetryPolicy retryPolicy)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(postAddressbookBaseUrl())
 				.setRequestType(Request.REQUEST_TYPE_LONG)
 				.setRequestListener(requestListener)
+				.setRetryPolicy(retryPolicy)
 				.post(body)
 				.setAsynchronous(false)
 				.build();
