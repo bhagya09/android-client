@@ -1124,13 +1124,14 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy)
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString)
 	{
 		RequestToken token = new FileDownloadRequest.Builder()
 				.setUrl(url)
 				.setRequestListener(requestListener)
 				.addHeader(new Header("Accept-Encoding", "musixmatch"))
 				.setFile(destFilePath)
+				.setFileTypeString(fileTypeString)
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setId(String.valueOf(msgId))
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))

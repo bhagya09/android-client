@@ -81,9 +81,12 @@ public class DownloadFileTask extends FileTransferBase
 			hikeFile = userContext.getMetadata().getHikeFiles().get(0);
 		}
 
+		String fileTypeString = "";
+
 		if (hikeFile != null)
 		{
 			downLoadUrl = hikeFile.getDownloadURL();
+			fileTypeString = hikeFile.getFileTypeString();
 		}
 
 		if (TextUtils.isEmpty(downLoadUrl))
@@ -94,7 +97,7 @@ public class DownloadFileTask extends FileTransferBase
 		if (requestToken == null)
 		{
 			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
-					new FileTransferChunkSizePolicy(context));
+					new FileTransferChunkSizePolicy(context), fileTypeString);
 		}
 		requestToken.execute();
 	}
@@ -165,7 +168,7 @@ public class DownloadFileTask extends FileTransferBase
 		{
 			Logger.d(getClass().getSimpleName(), "FT failed");
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
-			showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+			showToast(HikeConstants.FTResult.READ_FAIL);
 		}
 		else
 		{
