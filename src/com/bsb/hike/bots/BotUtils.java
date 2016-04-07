@@ -440,6 +440,7 @@ public class BotUtils
 		else if (type.equals(HikeConstants.NON_MESSAGING_BOT))
 		{
             botInfo = getBotInfoForNonMessagingBots(jsonObj, msisdn);
+            boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
 
             // Check if botInfo generated is null, stop the flow and call cbot failed analytics
             if(botInfo == null)
@@ -474,6 +475,18 @@ public class BotUtils
 				if (mAppVersionCode == -1 || mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
 						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
 				{
+                    /**
+                     * If we are rejecting packet but enableBot is set as true for the same, we need to honour that scenario
+                     * Notification will be played only if notifType is Silent/Loud
+                     */
+                    if(enableBot)
+                        PlatformUtils.enableBot(currentBotInfo, enableBot, true);
+
+                    if (!HikeConstants.OFF.equals(notifType))
+                    {
+                        ToastListener.getInstance().showBotDownloadNotification(msisdn, currentBotInfo.getLastMessageText(),notifType.equals(HikeConstants.SILENT));
+                    }
+
                     PlatformUtils.invalidDataBotAnalytics(botInfo);
                     Pair<BotInfo,Boolean> botInfoCreatedSuccessfullyPair = new Pair(botInfo,true);
                     HikeMessengerApp.getPubSub().publish(HikePubSub.BOT_CREATED, botInfoCreatedSuccessfullyPair);
@@ -481,7 +494,7 @@ public class BotUtils
                 }
             }
 
-			boolean enableBot = jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT);
+
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 
             if (botMetadata.isMicroAppMode())
