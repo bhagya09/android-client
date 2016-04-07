@@ -3168,6 +3168,8 @@ public class HikeConstants
 
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String ACCOUNT_LOG_ANALYTICS = "actl";
+
 	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
