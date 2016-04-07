@@ -36,6 +36,8 @@ public class DownloadFileTask extends FileTransferBase
 {
 	public static final String FILE_TOO_LARGE_ERROR_MESSAGE = "file_too_large_error";
 
+	public static final String CARD_UNMOUNT_ERROR = "card_mount_error";
+
 	private File tempDownloadedFile;
 
 	private boolean showToast;
@@ -68,7 +70,10 @@ public class DownloadFileTask extends FileTransferBase
 			}
 			catch (JSONException e)
 			{
-				e.printStackTrace();
+				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "JSONException", "DOWNLOAD_FAILED : " , e);
+				showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+				Logger.e("DownloadFileTask", "Json exception while creating hike file object : ", e);
+				return;
 			}
 		}
 		else
@@ -153,13 +158,13 @@ public class DownloadFileTask extends FileTransferBase
 		 */
 		if (!isFileMoved)
 		{
-			// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "RENAME_FAILED");
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "RENAME_FAILED");
 			isFileMoved = Utils.moveFile(tempDownloadedFile, mFile);
 		}
 		if (!isFileMoved) // if failed
 		{
 			Logger.d(getClass().getSimpleName(), "FT failed");
-			// FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
 			showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 		}
 		else
@@ -205,11 +210,18 @@ public class DownloadFileTask extends FileTransferBase
 		Throwable ex = httpException.getCause();
 		if (ex instanceof FileNotFoundException)
 		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_3, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", ex);
 			showToast(HikeConstants.FTResult.NO_SD_CARD);
 		}
 		else if (ex instanceof IOException && ex.getMessage().equals(FILE_TOO_LARGE_ERROR_MESSAGE))
 		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
 			showToast(HikeConstants.FTResult.FILE_TOO_LARGE);
+		}
+		else if (ex instanceof IOException && ex.getMessage().equals(CARD_UNMOUNT_ERROR))
+		{
+			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", ex);
+			showToast(HikeConstants.FTResult.CARD_UNMOUNT);
 		}
 		else
 		{
@@ -227,6 +239,7 @@ public class DownloadFileTask extends FileTransferBase
 					showToast(HikeConstants.FTResult.CANCELLED);
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , ex);
 					showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					break;
 				default:
