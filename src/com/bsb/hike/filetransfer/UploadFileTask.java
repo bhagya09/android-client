@@ -473,12 +473,37 @@ public class UploadFileTask extends FileTransferBase
 					fss.setFTState(FTState.ERROR);
 					fss.setFileKey(fileKey);
 					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 				}
-				else
+				else if (httpException.getErrorCode() % 100 > 0)
 				{
 					uploadFile(selectedFile);
+				}
+				else if (httpException.getCause() instanceof FileTransferCancelledException)
+				{
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", httpException);
+					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+				}
+				else if (httpException.getCause() instanceof FileNotFoundException)
+				{
+					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "UPLOAD_FAILED - ", httpException);
+					showToast(HikeConstants.FTResult.CARD_UNMOUNT);
+				}
+				else if (httpException.getCause() instanceof Exception)
+				{
+					Throwable throwable = httpException.getCause();
+					if (FileTransferManager.READ_FAIL.equals(throwable.getMessage()))
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", httpException);
+						showToast(HikeConstants.FTResult.READ_FAIL);
+					}
+					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(throwable.getMessage()))
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", httpException);
+						showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+					}
 				}
 			}
 
