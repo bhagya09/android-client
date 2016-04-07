@@ -1430,6 +1430,11 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						acceptBtn.setOnClickListener(acceptOnClickListener);
 						rejectBtn.setOnClickListener(rejectOnClickListener);
 
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							rejectBtn.setVisibility(View.GONE);
+						}
+
 					}
 					else if (viewType == ViewType.FTUE_CONTACT)
 					{
