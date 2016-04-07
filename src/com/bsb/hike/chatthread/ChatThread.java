@@ -83,7 +83,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
@@ -140,6 +139,7 @@ import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -149,7 +149,6 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
-import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerPickerRecommendationListener;
@@ -191,6 +190,7 @@ import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
+
 import android.view.HapticFeedbackConstants;
 
 /**
@@ -742,7 +742,7 @@ import android.view.HapticFeedbackConstants;
 
 	protected boolean shouldShowKeyboardOffBoardingUI() {
 
-		return keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() && !mActionMode.isActionModeOn();
+		return (keyboardOffBoarding.shouldShowKeyboardOffBoardingUI() || Utils.kptDictionaryDownloaded(activity.getApplicationContext())) && !mActionMode.isActionModeOn();
 	}
 
 	protected KeyboardShutdownListener keyboardShutdownListener = new KeyboardShutdownListener() {
@@ -759,6 +759,7 @@ import android.view.HapticFeedbackConstants;
 			Utils.unblockOrientationChange(activity);
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			Utils.showSoftKeyboard(activity.getApplicationContext(), mComposeView);
+			Utils.removeKptDictionaries(activity.getApplicationContext());
 		}
 	};
 	
@@ -2574,7 +2575,7 @@ import android.view.HapticFeedbackConstants;
 	
 	protected boolean shouldShowKeyboard()
 	{
-		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !keyboardOffBoarding.shouldShowKeyboardOffBoardingUI())
+		return ((mConversation.getMessagesList().isEmpty() && !mConversation.isBlocked() && !activity.getIntent().getBooleanExtra(HikeConstants.Extras.HIKE_DIRECT_MODE,false) && !shouldShowKeyboardOffBoardingUI())
 				|| shouldShowKeyboardInActionMode());
 	}
 	
