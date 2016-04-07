@@ -232,6 +232,52 @@ public class AnalyticsConstants
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
 
+	//Constants for v2 (Normalized Taxonomy)
+	public static final class V2
+	{
+		public static final String VERSION = "ver";
+
+		public static final String VERSION_VALUE = "v2";
+
+		public static final String UNIQUE_KEY = "uk";
+
+		public static final String KINGDOM = "k";
+
+		public static final String PHYLUM = "p";
+
+		public static final String CLASS = "c";
+
+		public static final String ORDER = "o";
+
+		public static final String FAMILY = "fa";
+
+		public static final String GENUS = "f";
+
+		public static final String SPECIES = "s";
+
+		public static final String VARIETY = "v";
+
+		public static final String FORM = "f";
+
+		public static final String VAL_STR = "vs";
+
+		public static final String VAL_INT = "vi";
+
+		public static final String RECORD_ID = "r";
+
+		public static final String FROM_USER = "fu";
+
+		public static final String DEVICE_ID = "di";
+
+		public static final String REC_ID = "ri";
+
+		public static final String TO_USER = "tu";
+
+		public static final String USER_STATE = "us";
+
+		public static final String TS = "ts";
+	}
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
