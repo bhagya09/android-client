@@ -15,7 +15,8 @@
         android:gravity="center"
         android:paddingTop="26dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/circle_walkie_ring_outer" />
+        android:src="@drawable/circle_walkie_ring_outer"
+        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/mic_image"
