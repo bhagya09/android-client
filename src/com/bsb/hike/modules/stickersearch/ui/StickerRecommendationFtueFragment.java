@@ -32,6 +32,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerRecommendFragmentListener;
+import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.smartImageLoader.ImageWorker.ImageLoaderListener;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.utils.IntentFactory;
@@ -74,8 +75,6 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 
 	private String phrase;
 
-	private boolean loadMini;
-	
 	public static StickerRecommendationFtueFragment newInstance(IStickerRecommendFragmentListener istickerRecommendFragmentListener, ArrayList<Sticker> stickerList)
 	{
 		StickerRecommendationFtueFragment stickerRecommendationFtueFragment = new StickerRecommendationFtueFragment();
@@ -98,14 +97,11 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
 		HikeMessengerApp.getPubSub().addListeners(StickerRecommendationFtueFragment.this, pubSubListeners);
 
 		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
-		loadMini = StickerManager.getInstance().isMiniStickersEnabled();
-        this.stickerLoader = new StickerLoader.Builder()
-                            .downloadLargeStickerIfNotFound(!loadMini)
-                            .loadMiniStickerIfNotFound(loadMini)
-                            .downloadMiniStickerIfNotFound(loadMini)
-                            .build();
+		boolean loadMini = StickerManager.getInstance().isMiniStickersEnabled();
 
-		stickerLoader.setImageLoaderListener(this);
+        setupStickerLoader(loadMini);
+
+        stickerLoader.setImageLoaderListener(this);
 	}
 	
 	@Override
@@ -337,4 +333,13 @@ public class StickerRecommendationFtueFragment extends Fragment implements Liste
         pbSticker.setVisibility(View.VISIBLE);
         ivSticker.setVisibility(View.GONE);
 	}
+
+    public void setupStickerLoader(boolean loadMini)
+    {
+        this.stickerLoader = new StickerLoader.Builder()
+                .downloadLargeStickerIfNotFound(!loadMini)
+                .loadMiniStickerIfNotFound(loadMini)
+                .downloadMiniStickerIfNotFound(loadMini)
+                .build();
+    }
 }

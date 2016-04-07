@@ -18,6 +18,7 @@ import android.util.Pair;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -138,6 +139,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					HikeStickerSearchBaseConstants.DEFAULT_VT_TABLE_LIST);
 
 			sHikeStickerSearchDatabase.loadTableMap();
+
+            sHikeStickerSearchDatabase.setUndownloadedTagsCount();
 		}
 	}
 
@@ -2424,6 +2427,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 			int rowCount = (c == null) ? 0 : c.getCount();
 
+            Logger.i(TAG,"rebalanceUndownloadedStickers() : undownloaded sticker count = "+rowCount);
+
 			if (rowCount > 0)
 			{
 				resultSet = new ArrayList<StickerAppositeDataContainer>(rowCount);
@@ -2482,7 +2487,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		});
 
-		int stickersToDelete = StickerSearchUtils.getUndownloadedTagsStickersCount() - StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);
+
+        int stickersToDelete = StickerSearchUtils.getUndownloadedTagsStickersCount() - StickerSearchUtils.getTagCacheLimit(StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD);
+
+		stickersToDelete = stickersToDelete > resultSet.size() ? resultSet.size() : stickersToDelete;
+        
+        Logger.i(TAG,"rebalanceUndownloadedStickers() : undownloaded sticker set to delete count = "+stickersToDelete);
 
 		//Todo remove mini stickers from disk lru cache
 
@@ -2491,10 +2501,50 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		for (int i =0; i<stickersToDelete;i++)
 		{
 			stickersSetToDelete.add(resultSet.get(i).getStickerCode());
+            Logger.i(TAG, "rebalanceUndownloadedStickers() : undownloaded sticker to be deleted = " + resultSet.get(i).getStickerCode());
 		}
 
 		removeTagsForDeletedStickers(stickersSetToDelete);
 
 	}
+
+    private void setUndownloadedTagsCount()
+    {
+
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Cursor c = null;
+
+				int result = 0;
+
+				try
+				{
+					c = mDb.query(true, HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE,
+							HikeStickerSearchBaseConstants.STICKER_AVAILABILITY }, HikeStickerSearchBaseConstants.STICKER_AVAILABILITY
+							+ HikeStickerSearchBaseConstants.SYNTAX_SINGLE_PARAMETER_CHECK, new String[] { String.valueOf(HikeStickerSearchBaseConstants.DECISION_STATE_NO) },
+							null, null, null, null);
+
+					result = (c == null) ? 0 : c.getCount();
+				}
+				finally
+				{
+					if (c != null)
+					{
+						c.close();
+						c = null;
+					}
+					SQLiteDatabase.releaseMemory();
+				}
+
+				Logger.i(TAG, "getUndownloadedTagsCount() = " + result);
+
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, result);
+			}
+		});
+        
+    }
 
 }

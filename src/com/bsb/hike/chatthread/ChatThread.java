@@ -6676,10 +6676,13 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	{
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
-	
+
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		
+		if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(false);
+        }
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6694,7 +6697,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(true);
+        }
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
