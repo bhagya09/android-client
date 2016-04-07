@@ -3994,4 +3994,22 @@ import java.util.Map;
 
 		super.sendMessage(convMessage);
 	}
+
+	@Override
+	protected void blockUser(Object object, boolean isBlocked)
+	{
+		String mMsisdn = (String) object;
+
+		/**
+		 * Proceeding only if the blocked user's msisdn is that of the current chat thread
+		 */
+		if (mMsisdn.equals(getMsisdnMainUser()))
+		{
+			// HS-204 Contact info was having stale data as regards to friendship status and possibly other stuff.
+			// Updating it's reference from ContactManager again.
+			mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+		}
+
+		super.blockUser(object, isBlocked);
+	}
 }

@@ -6511,7 +6511,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 	}
 	
-	private void blockUser(Object object, boolean isBlocked)
+	protected void blockUser(Object object, boolean isBlocked)
 	{
 		String mMsisdn = (String) object;
 
