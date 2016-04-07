@@ -1571,20 +1571,54 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 	}
 
-        /**
-         * Platform Version 11
-         * This function is made to know, if any game is running and accordingly display the running status on games channel
-         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
-         * @param id : the id of the function that native will call to call the js .
-         */
-        @JavascriptInterface
-        public void getRunningGame(String id)
+	/**
+	 * Platform Version 11 This function is made to know, if any game is running and accordingly display the running status on games channel Call this method to get the current
+	 * game name running in hike. Gameid is empty, if no game is running
+	 * 
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getRunningGame(String id)
+	{
+		Activity context = weakActivity.get();
+		if (context != null)
+		{
+			String gameId = PlatformUtils.getRunningGame(context);
+			callbackToJS(id, gameId);
+		}
+	}
+
+    /**
+     * Platform Version 11
+     * Call this function to get the bot mAppVersionCode.
+     * @param id: the id of the function that native will call to call the js .
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id)
+    {
+        callbackToJS(id, String.valueOf(mBotInfo.getMAppVersionCode()));
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked msisdn.
+     * @param id: the id of the function that native will call to call the js .
+     * returns -1 if bot not exists
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id, String msisdn)
+    {
+        if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
         {
-                Activity context = weakActivity.get();
-                if (context != null)
-                {
-                        String gameId = PlatformUtils.getRunningGame(context);
-                        callbackToJS(id, gameId);
-                }
+            callbackToJS(id,"-1");
+            return;
         }
+
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+        callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
+    }
+
+
 }
