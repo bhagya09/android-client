@@ -1260,13 +1260,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			callbackToJS(id,"-1");
 			return;
 		}
 
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		callbackToJS(id, String.valueOf(botInfo.getVersion()));
 	}
 
@@ -1610,14 +1611,16 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
     @JavascriptInterface
     public void getMicroAppVersionCode(String id, String msisdn)
     {
-        if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn) )
         {
             callbackToJS(id,"-1");
             return;
         }
 
-        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
         callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
+
     }
 
 
