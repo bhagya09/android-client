@@ -9,7 +9,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.backup.iface.Backupable;
+import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -25,12 +25,12 @@ import com.bsb.hike.utils.Utils;
 /**
  * Responsible for creating and uploading settings backup JSON. Created by atul on 31/03/16.
  */
-public class CloudSettingsBackupable implements Backupable, IRequestListener
+public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IRequestListener
 {
 	private ArrayList<CloudBackupPrefInfo> prefInfoList;
 
 	@Override
-	public boolean preBackupSetup() throws Exception
+	public boolean doPreTask()
 	{
 		prefInfoList = new ArrayList<CloudBackupPrefInfo>();
 
@@ -43,10 +43,10 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 		prefInfoList.add(new CloudBackupPrefInfo(HikeMessengerApp.CONV_DB_VERSION_PREF, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_INT,
 				DBConstants.CONVERSATIONS_DATABASE_VERSION));
 		prefInfoList.add(new CloudBackupPrefInfo(HikePlatformConstants.CUSTOM_TABS, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList
+				.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
-
 
 		// HikeMessengerApp.DEFAULT_SETTINGS_PREF
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_NOTIFICATION_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
@@ -95,13 +95,29 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	}
 
 	@Override
-	public void backup() throws Exception
+	public void doTask()
 	{
-		// Get backup data in JSON
-		JSONObject backupJson = serialize();
+		JSONObject backupJSON = null;
+		try
+		{
+			// Get backup data in JSON
+			backupJSON = serialize();
+		}
+		catch (JSONException jsonex)
+		{
+			jsonex.printStackTrace();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, jsonex);
+			return;
+		}
+
+		if (backupJSON == null)
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, null);
+			return;
+		}
 
 		// Upload to server
-		HttpRequests.uploadUserSettings(this, 2, 1000, backupJson).execute();
+		HttpRequests.uploadUserSettings(this, 2, 1000, backupJSON).execute();
 	}
 
 	public JSONObject serialize() throws JSONException
@@ -137,13 +153,7 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 	}
 
 	@Override
-	public void postBackupSetup() throws Exception
-	{
-		// Since this Backupable instance makes a HTTP POST. We do destructor activities in listener registered with the call.
-	}
-
-	@Override
-	public void finish()
+	public void doPostTask()
 	{
 		// Since this Backupable instance makes a HTTP POST. We do destructor activities in listener registered with the call.
 	}
@@ -167,7 +177,7 @@ public class CloudSettingsBackupable implements Backupable, IRequestListener
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_TS_PREF, System.currentTimeMillis());
 			prefInfoList.clear();
 
-			//PubSub
+			// PubSub
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_SUCESS, result);
 		}
 		else

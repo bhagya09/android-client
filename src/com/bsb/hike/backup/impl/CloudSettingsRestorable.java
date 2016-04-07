@@ -10,7 +10,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.backup.BackupUtils;
-import com.bsb.hike.backup.iface.Restorable;
+import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -21,7 +21,7 @@ import com.bsb.hike.utils.Utils;
 /**
  * Created by atul on 05/04/16.
  */
-public class CloudSettingsRestorable implements Restorable, IRequestListener
+public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IRequestListener
 {
 
 	private JSONObject mSettingsJSON;
@@ -34,14 +34,14 @@ public class CloudSettingsRestorable implements Restorable, IRequestListener
 	}
 
 	@Override
-	public boolean preRestoreSetup() throws Exception
+	public boolean doPreTask()
 	{
 		prefInfoList = new ArrayList<CloudBackupPrefInfo>();
 		return true;
 	}
 
 	@Override
-	public void restore() throws Exception
+	public void doTask()
 	{
 		// Is restore JSON available? If not, GET it first then re-run.
 		if (mSettingsJSON == null)
@@ -150,16 +150,9 @@ public class CloudSettingsRestorable implements Restorable, IRequestListener
 	}
 
 	@Override
-	public void postRestoreSetup() throws Exception
+	public void doPostTask()
 	{
 
-	}
-
-	@Override
-	public void finish()
-	{
-		mSettingsJSON = null;
-		prefInfoList = null;
 	}
 
 	@Override
@@ -176,8 +169,7 @@ public class CloudSettingsRestorable implements Restorable, IRequestListener
 			try
 			{
 //				setBackupDataJSON(json);
-
-				restore();
+				doTask();
 			} catch (Exception e) {
 				HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS, null);
 				e.printStackTrace();

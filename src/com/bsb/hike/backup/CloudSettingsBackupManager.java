@@ -7,8 +7,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.backup.iface.Backupable;
-import com.bsb.hike.backup.iface.Restorable;
+import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
 import com.bsb.hike.backup.impl.CloudSettingsBackupable;
 import com.bsb.hike.backup.impl.CloudSettingsRestorable;
 import com.bsb.hike.backup.tasks.BackupRestoreExecutorTask;
@@ -49,7 +48,7 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 	{
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_PENDING, true);
 		CloudSettingsBackupable settingsBackupable = new CloudSettingsBackupable();
-		new BackupRestoreExecutorTask<Backupable>().execute(settingsBackupable);
+		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsBackupable);
 	}
 
 	public void doRestore(String backupData)
@@ -69,7 +68,7 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 			}
 		}
 
-		new BackupRestoreExecutorTask<Restorable>().execute(settingsRestorable);
+		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsRestorable);
 	}
 
 	@Override
