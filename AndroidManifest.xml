@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1639"
-    android:versionName="4.2.0.82.33.3.chatThreadOO" >
+    android:versionName="4.2.0.82.18.internal_release" >
 
     <uses-sdk
         android:minSdkVersion="14"
