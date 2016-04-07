@@ -4656,25 +4656,35 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG,
+					new HikeDialogListener()
+					{
 
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog) {
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-			}
+						@Override
+						public void positiveClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+							HikeSharedPreferenceUtil.getInstance()
+									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+						}
 
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog) {
-			}
+						@Override
+						public void neutralClicked(HikeDialog hikeDialog)
+						{
+						}
 
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog) {
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-			}
+						@Override
+						public void negativeClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+							HikeSharedPreferenceUtil.getInstance()
+									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+						}
 
-		}, contactInfo.getFirstName());
+					}, contactInfo.getFirstName());
+		}
 	}
 
 	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
