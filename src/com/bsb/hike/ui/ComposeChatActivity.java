@@ -1215,7 +1215,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			info.setFavoriteType(Utils.toggleFavorite(this, info, false));
 			if (info.isMyTwoWayFriend())
-				Toast.makeText(this, R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
 		}
 	}
 	
