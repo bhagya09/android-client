@@ -1597,4 +1597,12 @@
     <string name="add_as_friend_menu">Add Friend</string>
     <string name="remove_from_friends">Remove Friend</string>
     <string name="add_frn">Add to friends</string>
+    <string name="timeline_add_as_frn">ADD AS FRIEND</string>
+    <string name="ls_friends_summary">Last seen is visible only to your friends</string>
+    <string name="privacy_friends_key">Friends</string>
+    <string name="ls_my_contacts_summary_frn">Last seen is visible to your address book contacts and friends</string>
+    <string name="frn_list_summary">Add/Remove users from friends</string>
+    <string name="friends_upper_case">FRIENDS</string>
+    <string name="add_frn_upper_case">ADD FRIENDS</string>
+    <string name="msg_friend_error">Please add %1$s as friend to send message. </string>
 </resources>
