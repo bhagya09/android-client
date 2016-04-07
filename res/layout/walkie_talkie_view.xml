@@ -65,11 +65,12 @@
 
     <ViewStub
         android:id="@+id/walkie_recorder"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="-14dp"
+        android:layout_marginBottom="-12dp"
         android:layout_gravity="center"
         android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
         android:gravity="center"
