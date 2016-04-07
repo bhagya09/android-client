@@ -480,7 +480,7 @@ public class BotUtils
                      * Notification will be played only if notifType is Silent/Loud
                      */
                     if(enableBot)
-                        PlatformUtils.enableBot(botInfo, enableBot, true);
+                        PlatformUtils.enableBot(currentBotInfo, enableBot, true);
 
                     if (!HikeConstants.OFF.equals(notifType))
                     {
