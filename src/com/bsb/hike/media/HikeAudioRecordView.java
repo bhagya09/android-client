@@ -28,10 +28,15 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -304,6 +309,21 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
         recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
+        sendAnalyticsUserCancelledRecording();
+    }
+
+    private void sendAnalyticsUserCancelledRecording()
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     static final int CANCEL_RECORDING = 1;

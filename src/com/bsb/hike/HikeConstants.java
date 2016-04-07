@@ -2720,6 +2720,8 @@ public class HikeConstants
 
 		public static final String NET_INFO = "none";
 
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
+
 	}
 
 	public static final class Toast
