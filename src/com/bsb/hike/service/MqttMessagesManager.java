@@ -3064,8 +3064,13 @@ public class MqttMessagesManager
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
 		 * Also if the user is blocked, we ignore the message.
+		 *
+		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
-		if (statusMessage.getStatusMessageType() == null || conMgr.isBlocked(statusMessage.getMsisdn()))
+		if (statusMessage.getStatusMessageType() == null
+				|| conMgr.isBlocked(statusMessage.getMsisdn())
+				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				)
 		{
 			return;
 		}
