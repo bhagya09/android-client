@@ -168,6 +168,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		View cardView;
 
+		TextView ftueBottomText;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -215,6 +217,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				ftueShow = convertView.findViewById(R.id.ftue_show);
 				cancelFTUE = (ImageView) convertView.findViewById(R.id.remove_ftue);
+				ftueBottomText = (TextView) convertView.findViewById(R.id.addfavtext);
 				break;
 			case USER_PROFILE_HEADER:
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
@@ -793,6 +796,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
 			viewHolder.ftueShow.setOnClickListener(ftueListItemClickListener);
+			viewHolder.ftueBottomText.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.timeline_add_as_frn : R.string.timeline_add_as_fav);
 			int imageSize = mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 			profileLoader = new ProfileImageLoader(mContext, contact.getMsisdn(), viewHolder.largeProfilePic, imageSize, false, true);
 			profileLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
