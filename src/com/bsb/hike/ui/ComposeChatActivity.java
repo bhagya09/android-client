@@ -1039,7 +1039,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		final ContactInfo contactInfo = adapter.getItem(arg2);
 
-        if(isContactChooserFilter)
+		if (ContactManager.getInstance().isBlocked(contactInfo.getMsisdn()))
+		{
+			showToast(getString(R.string.block_overlay_message, contactInfo.getFirstName()));
+			return;
+		}
+
+		if(isContactChooserFilter)
         {
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
