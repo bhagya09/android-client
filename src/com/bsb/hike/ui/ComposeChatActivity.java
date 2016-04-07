@@ -1039,7 +1039,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		final ContactInfo contactInfo = adapter.getItem(arg2);
 
-        if(isContactChooserFilter)
+		if (ContactManager.getInstance().isBlocked(contactInfo.getMsisdn()))
+		{
+			showToast(getString(R.string.block_overlay_message, contactInfo.getFirstName()));
+			return;
+		}
+
+		if(isContactChooserFilter)
         {
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
@@ -1291,7 +1297,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed()) {
+		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
 			sendFriendRequest(contactInfo);
 		}
 		adapter.addContact(contactInfo);
@@ -1390,6 +1396,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case MULTIPLE_FWD:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
+			adapter.provideAddFriend(true);
 			tagEditText.clear(false);
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);

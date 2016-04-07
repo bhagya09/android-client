@@ -94,6 +94,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
     private boolean isContactChooserFilter = false;
 
+	private boolean addFriendOption;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -464,7 +466,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			{
 				if (!contactInfo.isMyOneWayFriend()
 						&& Utils.isFavToFriendsMigrationAllowed()
-						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
+						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
+						&& addFriendOption)
 				{
 					holder.addFriendIcon.setVisibility(View.VISIBLE);
 					holder.checkbox.setVisibility(View.GONE);
@@ -778,6 +781,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.showCheckbox = showCheckbox;
 
+	}
+
+	public void provideAddFriend(boolean addFriend)
+	{
+		this.addFriendOption = addFriend;
 	}
 
 	public ArrayList<ContactInfo> getAllSelectedContacts()
