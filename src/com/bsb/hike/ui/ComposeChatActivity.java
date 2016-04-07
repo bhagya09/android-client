@@ -1291,7 +1291,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private void selectContact(ContactInfo contactInfo)
 	{
-		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed()) {
+		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
 			sendFriendRequest(contactInfo);
 		}
 		adapter.addContact(contactInfo);
@@ -1390,6 +1390,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case MULTIPLE_FWD:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
+			adapter.provideAddFriend(true);
 			tagEditText.clear(false);
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);
