@@ -19,6 +19,26 @@
         android:layout_height="wrap_content">
     </com.bsb.hike.media.StickerPreviewContainer>
 
+    <LinearLayout
+        android:id="@+id/viewAllButton"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/view_all_btn">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/view_all"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:alpha="0.4"
+            android:textSize="13sp" />
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/category_detail_container"
         android:layout_width="match_parent"

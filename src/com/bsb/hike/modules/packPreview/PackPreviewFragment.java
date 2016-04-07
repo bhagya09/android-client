@@ -47,7 +47,7 @@ import java.util.List;
  * Created by anubhavgupta on 04/01/16.
  */
 public class PackPreviewFragment extends Fragment implements HikePubSub.Listener, PackPreviewFragmentScrollListener.OnVerticalScrollListener,
-		PackPreviewRecyclerView.TouchListener, View.OnClickListener, ViewAllFooterItem.ViewAllClickedListener
+		PackPreviewRecyclerView.TouchListener, View.OnClickListener
 {
 
 	private static final String TAG = PackPreviewFragment.class.getSimpleName();
@@ -76,13 +76,11 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private StickerPreviewContainer stickerPreviewContainer;
 
-	private View headerContainer;
+	private View headerContainer, viewAllButton;
 
 	public static int NUM_COLUMNS;
 
 	public static int NUM_INITIALLY_VISIBLE_STICKERS;
-
-	private boolean viewAllClicked;
 
 	private int categoryDetailsContainerMaxHeight, categoryIconMaxWidth, categoryIconMaxHeight, categoryDescriptionMaxHeight, topMarginForCenterVertical;
 
@@ -172,7 +170,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		loadingView = parent.findViewById(R.id.loading);
 		loadingFailed = parent.findViewById(R.id.loading_failed);
-		loadingFailed.setOnClickListener(loadingFailedClickListener);
+		loadingFailed.setOnClickListener(this);
 		categoryIcon = (ImageView) parent.findViewById(R.id.category_icon);
 		downloadBtn = (CustomFontButton) parent.findViewById(R.id.download_btn);
 		categoryName = (TextView) parent.findViewById(R.id.category_name);
@@ -184,6 +182,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		categoryDetailsContainer = parent.findViewById(R.id.category_detail_container);
 		stickerPreviewContainer = (StickerPreviewContainer) parent.findViewById(R.id.sticker_preview_container);
 		stickerPreviewContainer.initialise(rvGrid, this);
+		viewAllButton = parent.findViewById(R.id.viewAllButton);
+		viewAllButton.setOnClickListener(this);
 	}
 
 	private void registerListener()
@@ -206,6 +206,11 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private void setDetails()
 	{
+		if(Utils.isEmpty(stickerCategory.getAllStickers()) || stickerCategory.getAllStickers().size() < NUM_INITIALLY_VISIBLE_STICKERS)
+		{
+			viewAllButton.setVisibility(View.GONE);
+		}
+
 		stickerOtherIconLoader.loadImage(
 				StickerManager.getInstance().getCategoryOtherAssetLoaderKey(stickerCategory.getCategoryId(), StickerManager.PREVIEW_IMAGE_PACK_PREVIEW_SHOP_TYPE), categoryIcon);
 		if (stickerCategory.getTotalStickers() > 0)
@@ -232,7 +237,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 			categoryDescription.setText(stickerCategory.getDescription());
 		}
 		categoryName.setText(stickerCategory.getCategoryName());
-		downloadBtn.setOnClickListener(getDownloadButtonClickListener());
+		downloadBtn.setOnClickListener(this);
 
 		layoutManager = new GridLayoutManager(getActivity(), NUM_COLUMNS, LinearLayoutManager.VERTICAL, false);
 		List<Sticker> stickerList = stickerCategory.getAllStickers();
@@ -295,20 +300,16 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(3);
 
-		if(!viewAllClicked && !Utils.isEmpty(stickerCategory.getAllStickers()) && stickerCategory.getAllStickers().size() > NUM_INITIALLY_VISIBLE_STICKERS)
+		if(viewAllButton.getVisibility() == View.GONE)
 		{
-			BasePackPreviewAdapterItem viewAllFooterItem = new ViewAllFooterItem(getActivity());
-			((ViewAllFooterItem) viewAllFooterItem).setOnClickListener(this);
-			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_VIEW_ALL_FOOTER, viewAllFooterItem));
-		}
+			BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), stickerCategory.getAuthor(), stickerCategory.getCopyRightString());
+			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
 
-		BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), stickerCategory.getAuthor(), stickerCategory.getCopyRightString());
-		footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
-
-		if(!Utils.isEmpty(stickerCategory.getSimilarPacks()))
-		{
-			BasePackPreviewAdapterItem recommendedPacksFooterItem = new RecommendedPacksFooterItem(getActivity(), getActivity(), stickerCategory);
-			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_RECOMMENDED_PACKS_FOOTER, recommendedPacksFooterItem));
+			if(!Utils.isEmpty(stickerCategory.getSimilarPacks()))
+			{
+				BasePackPreviewAdapterItem recommendedPacksFooterItem = new RecommendedPacksFooterItem(getActivity(), getActivity(), stickerCategory);
+				footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_RECOMMENDED_PACKS_FOOTER, recommendedPacksFooterItem));
+			}
 		}
 
 		return footerList;
@@ -324,17 +325,21 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	}
 
 	@Override
-	public void onClick(View v) {
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
-		{
-			int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
-			if (position < 0 || position >= stickerCategory.getAllStickers().size())
-			{
-				return;
-			}
-
-			Sticker sticker = stickerCategory.getAllStickers().get(position);
-			stickerPreviewContainer.show(v, sticker);
+	public void onClick(View v)
+	{
+		switch (v.getId()) {
+		case R.id.viewAllButton:
+			viewAllClicked();
+			break;
+		case R.id.loading_failed:
+			loadingFailedClicked();
+			break;
+		case R.id.download_btn:
+			downloadButtonClicked();
+			break;
+		default:
+			stickerClicked(v);
+			break;
 		}
 	}
 
@@ -486,59 +491,6 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	}
 
-	private View.OnClickListener loadingFailedClickListener = new View.OnClickListener()
-	{
-
-		@Override
-		public void onClick(View v)
-		{
-			executeFetchCategoryDetailsTask(new FetchCategoryDetailsTask(catId));
-		}
-	};
-
-	private View.OnClickListener getDownloadButtonClickListener()
-	{
-		return new View.OnClickListener()
-		{
-
-			@Override
-			public void onClick(View v)
-			{
-				switch (stickerCategory.getState())
-				{
-				case StickerCategory.NONE:
-				case StickerCategory.DONE_SHOP_SETTINGS:
-				case StickerCategory.DONE:
-					if (stickerCategory.getDownloadedStickersCount() == 0 || !stickerCategory.isDownloaded())
-					{
-						StickerManager.getInstance().setShowLastCategory(true);
-						StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
-						stickerPalleteImageDownloadTask.execute();
-						StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW,
-								StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance());
-					}
-					break;
-				case StickerCategory.UPDATE:
-				case StickerCategory.RETRY:
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW, HikeMessengerApp.getInstance());
-					break;
-				default:
-					break;
-				}
-
-				updateButtonState();
-				/**
-				 * This is done to remove the green dot for update available state. For a new category added on the fly from the server, the update available is set to true to show
-				 * a green indicator. To remove that, we are doing this.
-				 */
-				if (stickerCategory.isUpdateAvailable())
-				{
-					stickerCategory.setUpdateAvailable(false);
-				}
-			}
-		};
-	}
-
 	private void updateButtonState()
 	{
 		StickerCategory category = StickerManager.getInstance().getStickerCategoryMap().get(catId);
@@ -673,11 +625,66 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		}
 	}
 
-	@Override
-	public void onViewAllClicked()
+
+	private void stickerClicked(View v)
 	{
-		viewAllClicked = true;
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_PREVIEW, false))
+		{
+			int position = rvGrid.getChildAdapterPosition(v) - mAdapter.getHeaderListSize();
+			if (position < 0 || position >= stickerCategory.getAllStickers().size())
+			{
+				return;
+			}
+
+			Sticker sticker = stickerCategory.getAllStickers().get(position);
+			stickerPreviewContainer.show(v, sticker);
+		}
+	}
+
+	private void viewAllClicked()
+	{
+		viewAllButton.setVisibility(View.GONE);
 		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
 		mAdapter.notifyDataSetChanged();
+	}
+
+	private void loadingFailedClicked()
+	{
+		executeFetchCategoryDetailsTask(new FetchCategoryDetailsTask(catId));
+	}
+
+	private void downloadButtonClicked()
+	{
+		switch (stickerCategory.getState())
+		{
+			case StickerCategory.NONE:
+			case StickerCategory.DONE_SHOP_SETTINGS:
+			case StickerCategory.DONE:
+				if (stickerCategory.getDownloadedStickersCount() == 0 || !stickerCategory.isDownloaded())
+				{
+					StickerManager.getInstance().setShowLastCategory(true);
+					StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
+					stickerPalleteImageDownloadTask.execute();
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW,
+							StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance());
+				}
+				break;
+			case StickerCategory.UPDATE:
+			case StickerCategory.RETRY:
+				StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW, HikeMessengerApp.getInstance());
+				break;
+			default:
+				break;
+		}
+
+		updateButtonState();
+		/**
+		 * This is done to remove the green dot for update available state. For a new category added on the fly from the server, the update available is set to true to show
+		 * a green indicator. To remove that, we are doing this.
+		 */
+		if (stickerCategory.isUpdateAvailable())
+		{
+			stickerCategory.setUpdateAvailable(false);
+		}
 	}
 }
