@@ -3977,4 +3977,17 @@ import java.util.Map;
 
 		return false;
 	}
+
+	@Override
+	protected void sendMessage(ConvMessage convMessage)
+	{
+		if (isNotMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.msg_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		super.sendMessage(convMessage);
+	}
 }

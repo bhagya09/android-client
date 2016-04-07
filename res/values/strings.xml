@@ -1604,4 +1604,5 @@
     <string name="frn_list_summary">Add/Remove users from friends</string>
     <string name="friends_upper_case">FRIENDS</string>
     <string name="add_frn_upper_case">ADD FRIENDS</string>
+    <string name="msg_friend_error">Please add %1$s as friend to send message. </string>
 </resources>
