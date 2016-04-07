@@ -492,7 +492,7 @@ import java.util.Map;
 		}
 
 		//Hide all Possible Buttons for interaction here if user is not a friend.
-		if (!mConversation.isBlocked()) //If conv is blocked, no need to show add as friend button
+		if (!mConversation.isBlocked() && (!mContactInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn()))) //If conv is blocked, no need to show add as friend button
 		{
 			doSetupForAddFriend();
 		}
@@ -3944,6 +3944,10 @@ import java.util.Map;
 	 */
 	protected boolean isNotMyOneWayFriend()
 	{
+		if (mContactInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn()))
+		{
+			return false; //Self obsessed 1-way friend
+		}
 		return Utils.isNotMyOneWayFriend(mContactInfo);
 	}
 
