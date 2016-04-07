@@ -10,15 +10,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BitmapModule.RecyclingBitmapDrawable;
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.ui.ProfileActivity;
-import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.customClasses.MySoftReference;
 
@@ -331,5 +332,33 @@ public class HikeLruCache extends LruCache<String, BitmapDrawable>
 	public void removeItemForKey(String key)
 	{
 		remove(key);
+	}
+
+	public void removeChatTheme(String chatThemeId)
+	{
+		remove(chatThemeId+HikeConstants.ORIENTATION_LANDSCAPE);
+		remove(chatThemeId+HikeConstants.ORIENTATION_PORTRAIT);
+	}
+
+	public void saveChatTheme(String chatThemeId,BitmapDrawable bitmapDrawable)
+	{
+		if(TextUtils.isEmpty(chatThemeId)||bitmapDrawable==null)
+		{
+			return;
+		}
+
+		put(chatThemeId, bitmapDrawable);
+	}
+
+	public BitmapDrawable getChatTheme(String chatThemeId)
+	{
+		BitmapDrawable bd = null;
+		if (TextUtils.isEmpty(chatThemeId))
+		{
+			return bd;
+		}
+		bd = get(chatThemeId);
+
+		return bd;
 	}
 }
