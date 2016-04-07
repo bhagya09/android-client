@@ -811,14 +811,14 @@ public class StickyCaller {
 				{
 					intent.putExtra(HikeConstants.MSISDN, v.getTag().toString());
 					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
+					intent.putExtra(HikeConstants.CALL_TYPE, getCallEventFromCallType(CALL_TYPE));
+					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
+							AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				}
 				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				IncomingCallReceiver.callReceived = true;
 				CALL_TYPE = NONE;
 				Utils.killCall();
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
-						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-
 				break;
 			}
 		}

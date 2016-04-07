@@ -810,6 +810,8 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
+	public static final String CALL_TYPE = "call_type";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
