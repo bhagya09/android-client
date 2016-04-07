@@ -4038,7 +4038,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				handler.post(updateTimer);
 
 				registerPoximitySensor();
-				mActivity.registerReceiver(headsetReceiver, filter);
+				registerHeadSetReceiver();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4066,7 +4066,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setTimer();
 			setFileBtnResource();
 			unregisterProximitySensor();
-			mActivity.unregisterReceiver(headsetReceiver);
+			unregisterHeadserReceiver();
 		}
 
 		public void resumePlayer()
@@ -4082,7 +4082,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setFileBtnResource();
 
 			registerPoximitySensor();
-			mActivity.registerReceiver(headsetReceiver, filter);
+			registerHeadSetReceiver();
 		}
 
 		public void resetPlayer()
@@ -4131,7 +4131,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		* */
 		private static final int HEADSET_UNPLUGGED = 0;
 		private static final int HEADSET_PLUGGED = 1;
-		private boolean mIsSensorResgistered = false;
+		private boolean mIsSensorResgistered = false, mIsHeadSetRegistered = false;
+		//Crash observed when audio message is double tapped or setDataSource throws exception
+		//as Playmessage havent finished register and we call the unregister from pause
+		private void registerHeadSetReceiver() {
+			if(!mIsHeadSetRegistered ) {
+				mActivity.registerReceiver(headsetReceiver, filter);
+				mIsHeadSetRegistered = true;
+			}
+		}
+
+		private void unregisterHeadserReceiver() {
+			if(mIsHeadSetRegistered) {
+				mActivity.unregisterReceiver(headsetReceiver);
+				mIsHeadSetRegistered = false;
+			}
+		}
 		private class HeadSetConnectionReceiver extends BroadcastReceiver {
 			@Override public void onReceive(Context context, Intent intent) {
 				if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
