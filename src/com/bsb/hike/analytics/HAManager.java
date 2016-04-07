@@ -1,17 +1,12 @@
 package com.bsb.hike.analytics;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Random;
 
 import com.bsb.hike.utils.AccountUtils;
-import com.bsb.hike.voip.VoIPConstants;
-import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +21,6 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants.AppOpenSource;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.media.ShareablePopupLayout;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
@@ -501,7 +495,7 @@ public class HAManager
 	 */
 	public void sendAnalyticsData(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);		
+		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);
 	}	
 	
 	/**
@@ -569,8 +563,17 @@ public class HAManager
 		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 
 		fgSessionInstance.reset();
-		
+
+		uploadAnalyticsIfReqd();
 		return metadata; 
+	}
+
+	private void uploadAnalyticsIfReqd() {
+		if(getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) >
+				AnalyticsConstants.DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "----Uploading events on Session end----");
+			sendAnalyticsData(true, false);
+		}
 	}
 
 	private JSONObject getMetaDataForSession( Session session, boolean sessionStart)
@@ -734,7 +737,7 @@ public class HAManager
 		}
 		catch (JSONException e)
 		{
-			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" +e.toString());
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" + e.toString());
 		}
 	}
 	
@@ -1078,7 +1081,7 @@ public class HAManager
 		} 
 		catch (JSONException e) 
 		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:", e);
 		}
 
 	}
@@ -1138,5 +1141,18 @@ public class HAManager
 		Editor editor = getPrefs().edit();
 	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
 	    editor.apply();
+	}
+
+	public void resetAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0);
+		sharedPrefEditor.commit();
+	}
+
+	public void incrementAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT,
+				getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) + 1);
+		sharedPrefEditor.commit();
 	}
 }
