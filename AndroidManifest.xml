@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1642"
-    android:versionName="4.2.5.5.friends" >
+    android:versionName="4.2.5.6.friends" >
 
     <uses-sdk
         android:minSdkVersion="14"
