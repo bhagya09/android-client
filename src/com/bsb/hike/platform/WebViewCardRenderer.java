@@ -909,6 +909,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             // Json object to create adding params to micro app requesting json (In our scenario, we need to receive cbot only with enable bot as false for our scenario)
             JSONObject paramsJsonObject = new JSONObject();
             paramsJsonObject.put(HikePlatformConstants.ENABLE_BOT,false);
+            paramsJsonObject.put(HikePlatformConstants.NOTIF,HikePlatformConstants.SETTING_OFF);
 
             // Json object containing all the information required for one micro app
             JSONObject appsJsonObject = new JSONObject();
