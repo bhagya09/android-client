@@ -2609,6 +2609,9 @@ public class HikeConstants
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
 		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
+
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
+
 	}
 
 	public static final class Toast
