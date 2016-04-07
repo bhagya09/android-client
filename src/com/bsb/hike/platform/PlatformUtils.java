@@ -2481,7 +2481,7 @@ public class PlatformUtils
 							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
 							if(type == HikePlatformConstants.PlatformTypes.CBOT)
 							{
-								sendCbotFailDueToTTL(getMsisdnFromAppName(name));
+								sendCbotFailDueToTTL(name);
 							}
 							continue;
 						}
@@ -2604,27 +2604,24 @@ public class PlatformUtils
 		}
 	}
 
-	public static void sendCbotFailDueToTTL(String msisdn)
+	/**
+	 * analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1460011903528,"fld1":"pushkar11","ek":"micro_app","fld2":"+pushkar11+","event":"ttlExpired"},"cts":1460011966846,"tag":"plf"},"t":"le_android"}
+	 * @param name
+	 */
+	public static void sendCbotFailDueToTTL(String name)
 	{
 		JSONObject json = new JSONObject();
-		if(TextUtils.isEmpty(msisdn))
+		try
 		{
-			return;
-		}
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
-		if(botInfo == null)
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.TTL_EXPIRED);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_1, name);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_2,getMsisdnFromAppName(name));
+		} catch (JSONException e)
 		{
-			return;
+			Logger.e(TAG,"Errorin sending analytics");
 		}
-		try {
-			json.put(HikePlatformConstants.ERROR_CODE,AnalyticsConstants.TTL_EXPIRED);
-			json.put(AnalyticsConstants.INTERNAL_STORAGE_SPACE, String.valueOf(Utils.getFreeInternalStorage()) + " MB");
-		}
-		catch(JSONException e)
-		{
-			Logger.e(TAG,"Error in sending analytics");
-		}
-			createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
-			createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, json);
 	}
 }
