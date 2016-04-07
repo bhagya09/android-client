@@ -946,10 +946,17 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 						{
 							for (int i = 0; i < apps.length(); i++)
 							{
-								JSONObject appsJson = apps.getJSONObject(i);
-								String updatedAppName = appName;
-								
-								updatedAppName = appsJson.optString(HikePlatformConstants.UPDATED_APP_NAME);
+                                JSONObject appsJSONObject = apps.getJSONObject(i);
+                                String appStatus = appsJSONObject.optString(HikePlatformConstants.APP_STATUS,"");
+
+                                // Load content from the conv Message if app is not found on MIS V2 call
+								if (appStatus.equals(HikePlatformConstants.APP_NOT_FOUND))
+								{
+									loadContent(position, convMessage, webViewHolder, false);
+									return;
+								}
+                                JSONObject appsJson = apps.getJSONObject(i);
+                                String updatedAppName = appsJson.optString(HikePlatformConstants.UPDATED_APP_NAME,appName);
 								JSONObject cardObj = convMessage.webMetadata.getCardobj();
 
 								cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);

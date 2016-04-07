@@ -383,4 +383,7 @@ public interface HikePlatformConstants
 
     String IS_WEB_CARD = "isWebCard";
 
+    String APP_NOT_FOUND = "appNotFound";
+
+    String APP_STATUS = "app_status";
 }
