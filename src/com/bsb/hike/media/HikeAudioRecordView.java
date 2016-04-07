@@ -28,10 +28,15 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,8 +173,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      */
     private void startPulsatingDotAnimation(View view) {
         mHandler.postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 750);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1000);
+        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
@@ -178,6 +183,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             public void run() {
                 if(viewId == R.id.ring2) {
                     ImageView ringView = (ImageView) view.findViewById(viewId);
+                    if(ringView.getVisibility() != View.VISIBLE) ringView.setVisibility(View.VISIBLE);
                     ringView.startAnimation(HikeAnimationFactory.getScaleFadeRingAnimation(0));
                 } else {
                     View micImage = recorderImg.findViewById(R.id.mic_image);
@@ -242,12 +248,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         if(rectBgrnd.getVisibility() != View.VISIBLE) {
                             rectBgrnd.setVisibility(View.VISIBLE);
                             rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
-                            recordingState.setVisibility(View.INVISIBLE);
                         }
                     }
                 } else {
                     rectBgrnd.setVisibility(View.INVISIBLE);
-                    recordingState.setVisibility(View.VISIBLE);
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -305,6 +309,21 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
         recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
+        sendAnalyticsUserCancelledRecording();
+    }
+
+    private void sendAnalyticsUserCancelledRecording()
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     static final int CANCEL_RECORDING = 1;
@@ -690,6 +709,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
+            ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
+            ringView.setVisibility(View.INVISIBLE);
         }
     }
 

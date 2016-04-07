@@ -13,9 +13,10 @@
         android:layout_gravity="center"
         android:background="@null"
         android:gravity="center"
-        android:paddingTop="26dp"
+        android:layout_marginTop="-1dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/circle_walkie_ring_outer" />
+        android:src="@drawable/circle_walkie_ring_outer"
+        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/mic_image"
@@ -24,7 +25,6 @@
         android:layout_gravity="center"
         android:background="@null"
         android:gravity="center"
-        android:paddingTop="20dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_walkie_talkie_with_container" />
 
