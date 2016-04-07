@@ -17,6 +17,8 @@ public class AnalyticsConstants
 	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
+	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
+	public static final int DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD = 10; //10 events approx size: 1.5 KB, good enough to gzip and upload
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -229,6 +231,52 @@ public class AnalyticsConstants
 	public static String BOT_CONTENT_SHARED = "bot_content_shared";
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
+
+	//Constants for v2 (Normalized Taxonomy)
+	public static final class V2
+	{
+		public static final String VERSION = "ver";
+
+		public static final String VERSION_VALUE = "v2";
+
+		public static final String UNIQUE_KEY = "uk";
+
+		public static final String KINGDOM = "k";
+
+		public static final String PHYLUM = "p";
+
+		public static final String CLASS = "c";
+
+		public static final String ORDER = "o";
+
+		public static final String FAMILY = "fa";
+
+		public static final String GENUS = "f";
+
+		public static final String SPECIES = "s";
+
+		public static final String VARIETY = "v";
+
+		public static final String FORM = "f";
+
+		public static final String VAL_STR = "vs";
+
+		public static final String VAL_INT = "vi";
+
+		public static final String RECORD_ID = "r";
+
+		public static final String FROM_USER = "fu";
+
+		public static final String DEVICE_ID = "di";
+
+		public static final String REC_ID = "ri";
+
+		public static final String TO_USER = "tu";
+
+		public static final String USER_STATE = "us";
+
+		public static final String TS = "ts";
+	}
 
 	// Edit picture flags and events
 	public static final class ProfileImageActions
