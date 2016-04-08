@@ -13,6 +13,7 @@ import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -47,12 +48,16 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 		if (mSettingsJSON == null)
 		{
 			// Do HTTP GET
-
+			HttpRequests.downloadUserSettings(this, 2, 500).execute();
 			return; // Very important
 		}
 
+		//Retrieve "setting"
+		JSONObject settingsJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.KEY_SETTING);
+
 		// Retrieve "d"
-		JSONObject settingsDataJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.DATA);
+		JSONObject settingsDataJSON = settingsJSON.optJSONObject(HikeConstants.BackupRestore.DATA);
+
 		Iterator<String> iterPrefFile = settingsDataJSON.keys();
 
 		// Traverse through preference types (account settings, mute settings, etc)
@@ -168,10 +173,11 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 		{
 			try
 			{
-//				setBackupDataJSON(json);
+				mSettingsJSON = (JSONObject) result.getBody().getContent();
 				doTask();
-			} catch (Exception e) {
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS, null);
+			} catch (Exception e)
+			{
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED, null);
 				e.printStackTrace();
 			}
 		}

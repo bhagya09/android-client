@@ -43,6 +43,6 @@ public class BackupRestoreExecutorTask<T extends BackupRestoreTaskLifecycle> ext
 	@Override
 	protected void onPostExecute(Void aVoid)
 	{
-		// Not in use at the moment. The respective backupable/restorable implementations notify the app via PubSub events.
+		// Not in use at the moment. The respective BackupRestoreTaskLifecycle implementations notify the app via PubSub events.
 	}
 }
