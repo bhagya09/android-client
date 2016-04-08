@@ -638,42 +638,8 @@ public abstract class JavascriptBridge
 	{
 		if (resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
-
-			if (TextUtils.isEmpty(filepath))
-			{
-				//Could be from crop activity
-				filepath = 	data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
-			}
-
-			if (TextUtils.isEmpty(filepath))
-			{
-				Logger.e("FileUpload", "Invalid file Path");
-				return;
-			}
-			else
-			{
-				filepath = filepath.toLowerCase();
-				Logger.d("FileUpload", "Path of selected file :" + filepath);
-				String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
-				String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
-				Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
-				JSONObject json = new JSONObject();
-				try
-				{
-					json.put("filePath", filepath);
-					json.put("mimeType", mimeType);
-					json.put("filesize", (new File(filepath)).length());
-					String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
-					Logger.d("FileUpload", " Choose File >>calling callbacktoJS " + id);
-					callbackToJS(id, json.toString());
-				}
-				catch (JSONException e)
-				{
-					Logger.e("FileUpload", "Unable to send in Json");
-				}
-
-			}
+			String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
+			callbackToJS(id,PlatformUtils.getFileUploadJson(data));
 		}
 	}
 
@@ -718,14 +684,14 @@ public abstract class JavascriptBridge
 					if (Utils.isKitkatOrHigher())
 					{
 						Logger.d(tag, "Inside call back to js with id " + id);
-						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						try
 						{
-							@Override
-							public void onReceiveValue(String value)
-							{
-								Logger.d("JavascriptBridge",value);
-							}
-						});
+							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')",null);
+						}
+						catch (IllegalStateException e)
+						{
+							mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')"); // On some Custom ROMs and Nokia phones depite being on API greater than 19 this function is not available.This API not supported on Android 4.3 and earlier\n\tat android.webkit.WebViewClassic.evaluateJavaScript(WebViewClassic.java:2674)\n\tat
+						}
 					}
 					else
 					{

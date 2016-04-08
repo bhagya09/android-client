@@ -359,7 +359,6 @@
     <string name="one_new_message">1 ಹೊಸ ಸಂದೇಶ</string>
     <string name="terms">ನಿಯಮಗಳು</string>
     <string name="get_started">ಆರಂಭಿಸಿ</string>
-    <string name="got_it">ಸಿಕ್ಕಿತು</string>
     <string name="whats_your_number">ಹಾಯ್‌! ನಿಮ್ಮ ಸಂಖ್ಯೆ ಯಾವುದು ?</string>
     <string name="select_country">ದೇಶ ಆಯ್ಕೆ</string>
     <string name="wrong_country">ದೇಶದ ಅಮಾನ್ಯ ಕೋಡ್‌</string>
@@ -1035,8 +1034,6 @@
     <string name="sms_admin_toast">SMS ಬಳಕೆದಾರರೊಂದಿಗೆ ನಿಮ್ಮ ಅಡ್ಮಿನ್‌ ಹಕ್ಕುಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾದು</string>
     <string name="group_settings_updated">ಗುಂಪು ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಬದಲಾಗಿವೆ</string>
     <string name="you_group_settings_updated">ನೀವು ಗುಂಪಿನ‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಿಸಿದ್ದೀರಿ</string>
-    <string name="ftue_multiadmin_header">ಬಹು ಅಡ್ಮಿನ್‌ಗಳು</string>
-    <string name="ftue_multiadmin_description">ಈ ಗುಂಪಿನ ಹಲವು ಸದಸ್ಯರೊಂದಿಗೆ ಈಗ ನೀವು ನಿಮ್ಮ ಅಡ್ಮಿನ್‌ ಹಕ್ಕುಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</string>
     <string name="unknown_server_error">ಫೈಲ್‌ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಅಸಾಧ್ಯ</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s ಸಂಭಾಷಣೆಯಿಂದ %1$s ಸಂದೇಶಗಳು</string>

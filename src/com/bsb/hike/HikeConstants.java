@@ -91,6 +91,18 @@ public class HikeConstants
 
 	public static final String NAME = "name";
 
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
+
 	public static final String MSISDN = "msisdn";
 
 	public static final String ADMIN = "admin";
@@ -302,6 +314,8 @@ public class HikeConstants
 	public static final String STICKER_IDS = "stIds";
 
 	public static final String STICKER = "stk";
+	
+	public static final String STICKER_CATEGORY_ID = "stickerCategoryId";
 
 	public static final String RESOLUTION_ID = "resId";
 
@@ -1069,6 +1083,8 @@ public class HikeConstants
 	public static final String SENT_ROOT = "/sent";
 
 	public static final String STICKERS_ROOT = "/stickers";
+
+	public static final String DISK_CACHE_ROOT = "/diskcache";
 
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
@@ -3133,6 +3149,16 @@ public class HikeConstants
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
+	
+	public static final String DESCRIPTION = "desc";
+
+	public static final String STICKER_LIST = "sticker_list";
+
+	public static final String SIMILAR_PACKS = "similar_packs";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT = "copyright";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -3563,6 +3589,8 @@ public class HikeConstants
 
 	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
 
+	public static final String STICKER_UNDOWNLOADED_TAG_TRIGGER = "sudtt";
+
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
 	public static final String CALLBACK_ID = "callbackid";
@@ -3823,20 +3851,30 @@ public class HikeConstants
 	public static final String CHAT_OPENING_BENCHMARK = "chatOpeningBenchmark";
 	
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
-	
+
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
 
-	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+	public static final String STICKER_FORCE_DOWNLOAD = "f_download";
 
-	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+	public static final String FORCED_RECENTS_PRESENT = "forced_recents";
 
-	public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
+	public static final String FORCED_RECENTS_LIST = "forced_recents_list";
+
+    public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
 
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+
+	public static final String MINI_STICKER_ENABLED = "m_stk_st";
+
+	public static final String UNDOWNLOADED_DATA = "ud_d";
 
 	public static final String ENABLE_AB_SYNC_CHANGE = "ab_sync_change";
 
@@ -3847,6 +3885,46 @@ public class HikeConstants
 	public static final String HIDE_DELETED_CONTACTS = "h_d_c";
 	
 	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+
+	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final String DISPLAY_MINI_IN_CT = "d_m_ct";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String STICKER_TYPE = "type";
+
+    public static final String STICKER_IMAGE = "image";
+
+    public static final String MINI_STICKER_IMAGE = "mini_image";
+
+    public static final String TAGS = "tags";
+
+    public static final String RECENTS = "recents";
+
+    public static final String getMetadata = "md";
+
+    public static final String START = "start";
+
+    public static final String END = "end";
+
+    public static final String RANK = "rank";
+
+    public static final int MAX_DISK_CACHE_KEY_LENGTH = 115;
+
+    public static final String MINI_KEY_PREFIX = "mini_";
+
+	public static final String STICKER_SIZE = "stkr_size";
+
+	public static final String CRASH_REPORTING_TOOL="cpt";
+
+	public static final String ACRA="a";
+
+	public static final String CRASHLYTICS="c";
 
 	public static final class INTERCEPTS
 	{
@@ -3900,5 +3978,41 @@ public class HikeConstants
 
 	}
 
+	public static final String SHOW_STICKER_PREVIEW = "show_sticker_preview";
+
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
+
+	public static final int DEFAULT_ACTIVITY_OPEN = 10;
+
+	public static final String ACTIVITY_LATENT_AREA="scrlat";
+
+	public static final String ORIENTATION_PORTRAIT="_p" ;
+
+	public static final String ORIENTATION_LANDSCAPE="_l";
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String JOURNAL_MODE = "journal_mode";
+
+	public static final String SQLITE_VERSION = "sqlite_ver";
+
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
+
+	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
+
+	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 }

@@ -196,6 +196,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.AccountInfo;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ContactInfoData;
@@ -242,6 +243,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
+	private static final String TAG = Utils.class.getSimpleName();
+
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -713,6 +716,16 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
+		editor.putString(HikeConstants.SERVER_NAME_SETTING,accountInfo.getServerName());
+		editor.putString(HikeConstants.SERVER_GENDER_SETTING,accountInfo.getServerGender());
+
+		Birthday serverDOB = accountInfo.getServerDOB();
+		if (serverDOB != null);
+		{
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_DAY, serverDOB.day);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_MONTH, serverDOB.month);
+			editor.putInt(HikeConstants.SERVER_BIRTHDAY_YEAR, serverDOB.year);
+		}
 		editor.commit();
 
 		/*
@@ -3764,6 +3777,18 @@ public class Utils
 	}
 
 	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
+	{
+		if (isHoneycombOrHigher())
+		{
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		}
+		else
+		{
+			asyncTask.execute();
+		}
+	}
+
+	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
 	{
 		if (isHoneycombOrHigher())
 		{
@@ -7226,6 +7251,11 @@ public class Utils
 		return (argument == null) || !argument.iterator().hasNext();
 	}
 
+	public static boolean isEmpty(JSONArray jsonArray)
+	{
+		return (jsonArray == null) || (jsonArray.length() == 0);
+	}
+
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
@@ -7980,6 +8010,7 @@ public class Utils
 		JSONObject json = new JSONObject();
 		try
 		{
+
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 			json.put(AnalyticsConstants.EVENT, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
@@ -8066,4 +8097,82 @@ public class Utils
 		}
 	}
 
+	public static long calculateDiskCacheSize(File dir) {
+		long size = HikeConstants.MIN_DISK_CACHE_SIZE;
+
+		try {
+			StatFs statFs = new StatFs(dir.getAbsolutePath());
+			long available = ((long) statFs.getBlockCount()) * statFs.getBlockSize();
+			// Target 2% of the total space.
+			size = available / 50;
+		} catch (IllegalArgumentException ignored) {
+		}
+
+		// Bound inside min/max size for disk cache.
+		size = Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+		size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) != -1 ? HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) : size ;
+		return size;
+	}
+
+	public static int dpToPx(float dp)
+	{
+		return (int) (dp * Utils.densityMultiplier);
+	}
+
+	public static int spToPx(float sp)
+	{
+		return (int) (sp * Utils.scaledDensityMultiplier);
+	}
+
+	public static void deleteDiskCache()
+	{
+		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+	}
+
+	/**
+	 * This method checks whether we should connect to MQTT or not
+	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
+	 *
+	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
+	 *
+	 * @return
+	 */
+	public static boolean shouldConnectToMQTT()
+	{
+		return (!isDBCorrupt()) && (isUserSignedUp(HikeMessengerApp.getInstance(), false));
+	}
+
+	public static boolean isDBCorrupt()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DB_CORRUPT, false);
+	}
+
+	/**
+	 * WARNING : Do not ever call this method unless you have a valid reason to do so
+	 */
+	public static void disconnectFromMQTT()
+	{
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("destroy", true));
+	}
+
+	public static void connectToMQTT()
+	{
+		HikeMqttManagerNew.getInstance().init(); // Init and then connect
+		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
+	public static String getExternalFilesDirPath(String type)
+	{
+		File externalDir = HikeMessengerApp.getInstance().getExternalFilesDir(type);
+		String externalDirPath = externalDir == null ? null : externalDir.getPath();
+		Logger.d(TAG, "external dir path : " + externalDirPath);
+		return externalDirPath;
+	}
+
+	public static boolean doesExternalDirExists()
+	{
+		boolean exists = !TextUtils.isEmpty(getExternalFilesDirPath(null));
+		Logger.d(TAG, "external dir exists : " + exists);
+		return exists;
+	}
 }

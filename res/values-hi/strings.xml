@@ -358,7 +358,6 @@
     <string name="one_new_message">1 नया संदेश</string>
     <string name="terms">शर्तें</string>
     <string name="get_started">शुरू करें</string>
-    <string name="got_it">समझ गए</string>
     <string name="whats_your_number">hi! आपका नंबर क्या है?</string>
     <string name="select_country">देश चुनें</string>
     <string name="wrong_country">अमान्य देश कोड</string>
@@ -1027,8 +1026,6 @@
 	<string name="sms_admin_toast">आप SMS संपर्कों के साथ ऐडमिन अधिकार शेयर नहीं कर सकते हैं</string>
 	<string name="group_settings_updated">ने ग्रुप सेटिंग्स बदल दी हैं</string>
 	<string name="you_group_settings_updated">आपने ग्रुप सेटिंग्स बदल दी हैं</string>
-	<string name="ftue_multiadmin_header">एकाधिक ऐडमिन</string>
-	<string name="ftue_multiadmin_description">इस ग्रुप के और सदस्यों के साथ अपने ऐडमिन अधिकार शेयर करें</string>
 	<string name="unknown_server_error">फ़ाइल डाउनलोड करने में असमर्थ।</string>
 	<string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s वार्तालापों से %1$s संदेश</string>

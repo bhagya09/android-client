@@ -345,7 +345,7 @@ public class RequestExecuter
 		{
 			BasicRetryPolicy retryPolicy = request.getRetryPolicy();
 			retryPolicy.retry(new RequestFacade(request), httpException);
-			if (retryPolicy.getRetryCount() >= 0)
+			if (retryPolicy.getRetryIndex() <= retryPolicy.getNumOfRetries())
 			{
 				LogFull.i("retring " + request.toString());
 				execute(false, retryPolicy.getRetryDelay());
@@ -397,10 +397,6 @@ public class RequestExecuter
 			else
 			{
 				LogFull.d("Pre-processing completed for " + request.toString());
-				if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
-				{
-					return;
-				}
 				allInterceptorsExecuted = true;
 				processRequest();
 			}

@@ -1098,7 +1098,12 @@ public class PlatformUtils
 
 			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
 			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				StickerCategory category = new StickerCategory.Builder()
+						.setCategoryId(categoryId)
+						.setCategoryName(categoryName)
+						.setTotalStickers(totalStickers)
+						.setCategorySize(categorySize)
+						.build();
 				downloadStkPk(category);
 			}
 		}
@@ -1757,6 +1762,12 @@ public class PlatformUtils
         }
 
         Sticker sticker = new Sticker(categoryId, stickerId);
+
+        if(!sticker.isDisabled())
+        {
+            StickerManager.getInstance().addRecentStickerToPallete(sticker);
+        }
+
         ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
 
         if (cm != null) {
@@ -1891,5 +1902,37 @@ public class PlatformUtils
 			Logger.d(TAG, "Exception in bot share utils");
 		}
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+	}
+
+	public static String getFileUploadJson(Intent data)
+	{
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();
+
+		if(TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload","Invalid file Path");
+			return "";
+		}
+		else
+		{
+			Logger.d("FileUpload", "Path of selected file :" + filepath);
+			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
+			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
+			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
+			JSONObject json = new JSONObject();
+			try
+			{
+				json.put("filePath", filepath);
+				json.put("mimeType", mimeType);
+				json.put("filesize", (new File(filepath)).length());
+				return json.toString();
+			}
+			catch (JSONException e)
+			{
+				Logger.e("FileUpload", "Unable to send in Json");
+				return "";
+			}
+
+		}
 	}
 }

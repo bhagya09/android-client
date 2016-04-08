@@ -400,4 +400,9 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 			chatThread.onPostResume();
 		}
 	}
+
+	protected void recordActivityEndTime()
+	{
+		super.recordActivityEndTime();
+	}
 }

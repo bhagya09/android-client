@@ -81,18 +81,7 @@ public enum StickerSearchDataController
 
 	public void setupStickerSearchWizard(JSONObject json, int state)
 	{
-		if (!Utils.isHoneycombOrHigher())
-		{
-			Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
-			StickerManager.getInstance().removeStickerSet(state);
-			return;
-		}
-
 		JSONObject packsData = json.optJSONObject(HikeConstants.PACKS);
-		if ((packsData == null) || (packsData.length() <= 0))
-		{
-			return;
-		}
 
 		Set<String> receivedStickers = new HashSet<String>();
 		Set<String> stickersWithValidTags = new HashSet<String>();

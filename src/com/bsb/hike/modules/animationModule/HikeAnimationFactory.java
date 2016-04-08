@@ -87,4 +87,10 @@ public class HikeAnimationFactory
 		});
 		return animSet;
 	}
+
+	public static Animation getStickerPreviewFtueAnimation(Context context)
+	{
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.pack_preview_shop_ftue_anim);
+		return animSet;
+	}
 }

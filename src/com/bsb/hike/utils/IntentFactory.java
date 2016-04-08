@@ -30,7 +30,6 @@ import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.cropimage.HikeCropActivity;
-import com.bsb.hike.db.AccountBackupRestore;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
@@ -44,6 +43,7 @@ import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
@@ -70,6 +70,7 @@ import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -88,7 +89,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bsb.hike.db.AccountBackupRestore.*;
+import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1503,6 +1504,13 @@ public class IntentFactory
 		return intent;
 	}
 
+	public static void openPackPreviewIntent(Context context, String catId)
+	{
+		Intent intent = new Intent(context, PackPreviewActivity.class);
+		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		context.startActivity(intent);
+	}
+
 	public static String getTextFromActionSendIntent(Intent presentIntent)
 	{
 		String msg = null;
@@ -1561,5 +1569,19 @@ public class IntentFactory
 			Logger.e(HomeActivity.class.getSimpleName(), "Unable to open market");
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
 		}
+	}
+
+	public static void startUpgradeIntent(Context context)
+	{
+		// turn off future push notifications as soon as the app has
+		// started.
+		// this has to be turned on whenever the upgrade finishes.
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, true);
+		SharedPreferences.Editor editor = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).edit();
+		editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, true);
+		editor.commit();
+
+		Intent msgIntent = new Intent(context, UpgradeIntentService.class);
+		context.startService(msgIntent);
 	}
 }

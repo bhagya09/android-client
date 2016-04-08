@@ -232,6 +232,7 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		activity.recordActivityEndTime();
 	};
 	
 	@Override
@@ -417,7 +418,7 @@ import java.util.Map;
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -3391,6 +3392,8 @@ import java.util.Map;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+        super.connectedToMsisdn(connectedDevice);
+
 		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
@@ -3426,7 +3429,8 @@ import java.util.Map;
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        super.onDisconnect(errorCode);
+
 		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());

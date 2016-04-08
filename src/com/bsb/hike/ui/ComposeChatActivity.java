@@ -2416,10 +2416,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						multipleMessageList.add(sendSticker(sticker, categoryId, arrayList, StickerManager.FROM_FORWARD));
-						boolean isDis = sticker.isDisabled(sticker, this.getApplicationContext());
+						boolean isDis = sticker.isDisabled();
 						// add this sticker to recents if this sticker is not disabled
 						if (!isDis)
-							StickerManager.getInstance().addRecentSticker(sticker);
+							StickerManager.getInstance().addRecentStickerToPallete(sticker);
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
@@ -2534,6 +2534,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 			if (type.startsWith(HikeConstants.SHARE_CONTACT_CONTENT_TYPE))
 			{
+				if(offlineContact!=null)
+				{
+					arrayList.add(offlineContact);
+				}
 				String lookupKey = fileUri.getLastPathSegment();
 
         		String[] projection = new String[] { Data.CONTACT_ID };
@@ -2562,6 +2566,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 					}
 					PhonebookContact contact = PickContactParser.getContactData(contactId, this);
 					final ArrayList<ContactInfo> finalArrayList = arrayList;
+					final ContactInfo finalOfflineContact = offlineContact;
 					if (contact != null)
 					{
 						contactDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.CONTACT_SEND_DIALOG, new HikeDialogListener()
@@ -2570,6 +2575,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							@Override
 							public void positiveClicked(HikeDialog hikeDialog)
 							{
+								if(finalOfflineContact !=null) {
+									ConvMessage offlineConvMessage = OfflineUtils.createOfflineContactConvMessage(finalOfflineContact.getMsisdn(), ((PhonebookContact) hikeDialog.data).jsonData, true);
+									OfflineController.getInstance().sendMessage(offlineConvMessage);
+									finalArrayList.remove(finalOfflineContact);
+								}
 								initialiseContactTransfer(((PhonebookContact) hikeDialog.data).jsonData,finalArrayList);
 								hikeDialog.dismiss();
 								startActivity(intent);

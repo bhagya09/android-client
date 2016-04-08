@@ -23,11 +23,13 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONTENT;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 
 public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONTENT
@@ -41,6 +43,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		super(HikeMessengerApp.getInstance().getApplicationContext(), DB_NAME, null, DB_VERSION, new CustomDatabaseErrorHandler());
 		mDB = getWritableDatabase();
+		SetPragmaModeCommand setPragmaModeCommand = new SetPragmaModeCommand(mDB);
+		setPragmaModeCommand.execute();
 	}
 
 	public static HikeContentDatabase getInstance()
@@ -51,7 +55,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
-		mDB = db;
 		String[] createQueries = getCreateQueries();
 		for (String create : createQueries)
 		{
@@ -63,7 +66,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		mDB = db;
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 
@@ -318,8 +320,53 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(END_TIME, productContentModel.getEndtime());
 		cv.put(TRIGGER_POINT, productContentModel.getTriggerpoint());
 		cv.put(_ID, productContentModel.hashCode());
-		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv,SQLiteDatabase.CONFLICT_REPLACE);
+		productContentModel = getPopupFromId(productContentModel.hashCode());
+		if (productContentModel != null)
+		{
+			ProductInfoManager.recordPopupEvent(productContentModel.getAppName(), productContentModel.getPid(), productContentModel.isFullScreen(),
+					ProductPopupsConstants.RECEIVED_NOT_SHOWN);
+		}
+		long val = mDB.insertWithOnConflict(POPUPDATA, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 		Logger.d("ProductPopup", "DB Inserted Successfully..." + val + "");
+	}
+
+	private ProductContentModel getPopupFromId(int id)
+	{
+		ProductContentModel productContentModel=null;
+		Cursor c = null;
+		try
+		{
+			String query = "select * from "+POPUPDATA +" where _id = "+ id;
+
+			c = mDB.rawQuery(query, null);
+
+			if (c.moveToFirst())
+			{
+				do
+				{
+					int triggerPoint = c.getInt(c.getColumnIndex(TRIGGER_POINT));
+					int startTime = c.getInt(c.getColumnIndex(START_TIME));
+					String json = c.getString(c.getColumnIndex(POPUPDATA));
+					int endTime = c.getInt(c.getColumnIndex(END_TIME));
+					productContentModel = ProductContentModel.makeProductContentModel(new JSONObject(json));
+					Logger.d("ProductPopup>", triggerPoint + " >" + startTime + ">>>" + endTime);
+
+				}
+				while ((c.moveToNext()));
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(c!=null)
+			{
+				c.close();
+			}
+		}
+		return productContentModel;
 	}
 
 	/**
