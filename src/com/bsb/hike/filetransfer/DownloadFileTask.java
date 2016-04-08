@@ -257,8 +257,6 @@ public class DownloadFileTask extends FileTransferBase
 					break;
 			}
 		}
-		// TODO
-		// result == FTResult.CARD_UNMOUNT ? R.string.card_unmount
 
 		if (mFile != null)
 		{
