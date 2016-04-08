@@ -355,7 +355,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				while ((c.moveToNext()));
 			}
 		}
-		catch (Exception e)
+		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
