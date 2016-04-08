@@ -1016,7 +1016,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
 
 			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			}
+			else
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			}
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);
@@ -1041,6 +1048,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					// Show add/not now screen.
 					req_layout.setVisibility(View.VISIBLE);
+					if (Utils.isFavToFriendsMigrationAllowed())
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.INVISIBLE);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.voip_accept);
+					}
 				}
 				
 				else if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED && !contactInfo.isUnknownContact())
@@ -1197,7 +1209,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if(status != null)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() == FavoriteType.FRIEND)
+			|| status == null)
+		{
+			status = StatusMessage.getJoinedHikeStatus(contactInfo);
+			setStatusText(status, subText, name);
+		}
+		else
 		{
 			if (status.hasMood())  //Adding mood image for status
 			{
@@ -1209,11 +1227,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				statusMood.setVisibility(View.GONE);
 			}
 			subText.setText(smileyParser.addSmileySpans(status.getText(), true));
-			return;
 		}
-		
-		status = StatusMessage.getJoinedHikeStatus(contactInfo);
-		setStatusText(status, subText, name);
 	}
 	
 	private void setStatusText(StatusMessage status,final TextView subText, TextView name)
@@ -1226,21 +1240,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			subText.setVisibility(View.INVISIBLE);
 			Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up_hike_joined);
 			name.startAnimation(animation);
-			animation.setAnimationListener(new AnimationListener()
-			{
+			animation.setAnimationListener(new AnimationListener() {
 				@Override
-				public void onAnimationStart(Animation animation)
-				{
+				public void onAnimationStart(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationRepeat(Animation animation)
-				{
+				public void onAnimationRepeat(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationEnd(Animation animation)
-				{
+				public void onAnimationEnd(Animation animation) {
 					subText.setVisibility(View.VISIBLE);
 				}
 			});
@@ -1302,8 +1312,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND) && (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
-				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED) && (contactInfo.isOnhike());
+		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED)
+				&& (contactInfo.isOnhike());
 	}
 
 	private void setupGroupAndBroadcastProfileScreen()
