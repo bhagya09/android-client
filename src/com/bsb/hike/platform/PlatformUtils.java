@@ -685,7 +685,7 @@ public class PlatformUtils
 		{
 			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
 			JSONObject data = new JSONObject();
-			data.put(HikeConstants.EVENT_TYPE, "" + botInfo.getMAppVersionCode());
+			data.put(HikeConstants.EVENT_TYPE, String.valueOf(botInfo.getMAppVersionCode()));
 
 			metadata.put(HikeConstants.EVENT_KEY, key);
 			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
@@ -721,7 +721,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-			HikeAnalyticsEvent.analyticsForNonMessagingBots("" + botInfo.getMAppVersionCode(), AnalyticsConstants.DOWNLOAD_EVENT, json);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots(String.valueOf(botInfo.getMAppVersionCode()), AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
 		{

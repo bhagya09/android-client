@@ -536,7 +536,7 @@ public class PlatformZipDownloader
 						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.FILE_DOWNLOADED);
 						json.putOpt(AnalyticsConstants.LOG_FIELD_6, zipFileLength);
 						json.putOpt(AnalyticsConstants.LOG_FIELD_1, mRequest.getContentData().getId());
-                        json.putOpt(AnalyticsConstants.LOG_FIELD_2, "" + mRequest.getContentData().cardObj.getmAppVersionCode());
+                        json.putOpt(AnalyticsConstants.LOG_FIELD_2, String.valueOf(mRequest.getContentData().cardObj.getmAppVersionCode()));
 						json.putOpt(AnalyticsConstants.LOG_FIELD_5,result.getStatusCode());
 					} catch (JSONException e)
 					{
