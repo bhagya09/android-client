@@ -60,7 +60,6 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HikePreferences;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.HomeFtueActivity;
-import com.bsb.hike.ui.LanguageSettingsActivity;
 import com.bsb.hike.ui.NUXInviteActivity;
 import com.bsb.hike.ui.NuxSendCustomMessageActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -71,6 +70,7 @@ import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -96,11 +96,6 @@ public class IntentFactory
 	public static void openSetting(Context context)
 	{
 		context.startActivity(new Intent(context, SettingsActivity.class));
-	}
-
-	public static void openKeyboardLanguageSetting(Context context)
-	{
-		context.startActivity(new Intent(context, LanguageSettingsActivity.class));
 	}
 
 	public static void openSettingNotification(Context context)
@@ -298,7 +293,7 @@ public class IntentFactory
 	{
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_settings_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.settings_localization);
+		intent.putExtra(HikeConstants.Extras.TITLE, R.string.language);
 		context.startActivity(intent);
 	}
 
@@ -315,30 +310,6 @@ public class IntentFactory
 		{
 			context.startActivity(intent);
 		}
-	}
-	
-	public static Intent getIntentForKeyboardAdvSettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.kpt_advanced_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.advanced_keyboard_settings);
-		return intent;
-	}
-	
-	public static Intent getIntentForKeyboardPrimarySettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.keyboard_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.keyboard_preference_title);
-		return intent;
-	}
-	
-	public static Intent getIntentForTextCorrectionSettings(Context context)
-	{
-		Intent intent = new Intent(context, HikePreferences.class);
-		intent.putExtra(HikeConstants.Extras.PREF, R.xml.text_correction_preferences);
-		intent.putExtra(HikeConstants.Extras.TITLE, R.string.text_correction_pref_title);
-		return intent;
 	}
 	
 	public static void openInviteSMS(Context context)
@@ -1531,6 +1502,13 @@ public class IntentFactory
 			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
 		}
 		return intent;
+	}
+
+	public static void openPackPreviewIntent(Context context, String catId)
+	{
+		Intent intent = new Intent(context, PackPreviewActivity.class);
+		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		context.startActivity(intent);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)

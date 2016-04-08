@@ -4,7 +4,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class DBsBackupRestore implements BackupableRestorable
 	{
 		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
 				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE },
+				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE,DBConstants.STICKER_TABLE },
 				backupToken)
 		{
 			@Override
@@ -45,6 +47,17 @@ public class DBsBackupRestore implements BackupableRestorable
 				{
 					HikeConversationsDatabase.getInstance().clearTable(table);
 				}
+
+                /**
+                 * Resetting upgrade pref for the excluded tables
+                 * These prefs insure that upgrade intent actions are taken for these tables
+                 *
+                 */
+
+
+                HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
+                HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false);
 			}
 		};
 
