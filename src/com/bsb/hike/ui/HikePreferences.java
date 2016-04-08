@@ -1746,6 +1746,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			favPref.setTitle(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key));
 			favPref.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.frn_list_summary : R.string.fav_list_summary));
 		}
+
+		SwitchPreferenceCompat profilePicPrefs = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
+
+		if (profilePicPrefs != null)
+		{
+			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
+		}
 	}
 
 	private String getLSSummaryText()
