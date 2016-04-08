@@ -156,8 +156,6 @@ public class Session
 			msgType = "";
 
 			appOpenSource = AnalyticsConstants.AppOpenSource.REGULAR_APP_OPEN;
-			
-			msisdnChatSessionMap.clear();
 		}
 		
 		public void endChatSessions()
@@ -203,5 +201,10 @@ public class Session
         public ChatSession getIndividualChatSesions(String msisdn)
         {
             return msisdnChatSessionMap.get(msisdn);
+        }
+
+        public void removeChatSessionFromMap(String msisdn)
+        {
+            msisdnChatSessionMap.remove(msisdn);
         }
 	}
