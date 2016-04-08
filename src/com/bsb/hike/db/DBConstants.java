@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 49;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -275,6 +275,26 @@ public interface DBConstants
 	
 	public static final String FEED_INDEX = "feed_idx";
 
+	//StickerTable
+
+	public static final String STICKER_TABLE = "sticker_table";
+
+	public static final String STICKER_ID = "st_id";
+
+	public static final String SMALL_STICKER_PATH = "sm_st_path";
+
+	public static final String LARGE_STICKER_PATH = "lr_st_path";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String IS_ACTIVE = "is_active";
+
+	public static final int DEFAULT_ACTIVE_STATE = 1;
+
+	public static final int DEFAULT_INACTIVE_STATE = 0;
+
 	public static interface HIKE_CONV_DB
 	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
@@ -470,6 +490,18 @@ public interface DBConstants
 	public static final String CATEGORY_INDEX = "catIndex";
 
 	public static final String CATEGORY_SIZE = "categorySize";
+	
+	public static final String CATEGORY_DESCRIPTION = "categoryDescription";
+
+	public static final String STICKER_LIST = "stickerList";
+
+	public static final String IS_DOWNLOADED = "isDownloaded";
+
+	public static final String SIMILAR_CATEGORIES = "similarCategories";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT_STRING = "copyRightString";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	

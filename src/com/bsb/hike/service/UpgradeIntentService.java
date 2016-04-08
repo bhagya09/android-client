@@ -88,7 +88,6 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
 			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
-			StickerManager.getInstance().doInitialSetup();
 		}
 		
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
@@ -126,6 +125,19 @@ public class UpgradeIntentService extends IntentService
         {
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
         }
+
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if(upgradeForStickerTable())
+			{
+				Logger.v(TAG, "Upgrade for sticker table was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
+				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+				editor.commit();
+                StickerManager.getInstance().doInitialSetup();
+			}
+		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
@@ -169,6 +181,7 @@ public class UpgradeIntentService extends IntentService
 		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
 	}
 
+
     /**
      * Used to schedule the alarm for migration of old running micro apps in the content directory
      */
@@ -181,4 +194,9 @@ public class UpgradeIntentService extends IntentService
             context.startService(migrationIntent);
         }
     }
+
+	private boolean upgradeForStickerTable()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
+	}
 }

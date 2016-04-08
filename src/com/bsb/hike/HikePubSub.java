@@ -1,5 +1,9 @@
 package com.bsb.hike;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -7,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class HikePubSub implements Runnable
+public class HikePubSub extends Handler implements Runnable
 {
 	public class Operation
 	{
@@ -25,6 +29,11 @@ public class HikePubSub implements Runnable
 	public interface Listener
 	{
 		public void onEventReceived(String type, Object object);
+	}
+
+	public interface UiListener
+	{
+		public void onUiEventReceived(String type, Object object);
 	}
 
 	private static final Operation DONE_OPERATION = null; /*
@@ -508,6 +517,10 @@ public class HikePubSub implements Runnable
 
 	public static final String LASTMSG_UPDATED ="lastMsgUpdated";
 
+	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_SUCCESS = "stickerCategoryDetailsDownloadSuccess";
+	
+	public static final String STICKER_CATEGORY_DETAILS_DOWNLOAD_FAILURE = "stickerCategoryDetailsDownloadFailure";
+	
 	public static final String STICKER_PACK_DELETED = "stickerPackDeleted";
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
@@ -518,12 +531,21 @@ public class HikePubSub implements Runnable
 
 	private final BlockingQueue<Operation> mQueue;
 
+	private final BlockingQueue<Operation> mUiQueue;
+
 	private Map<String, Set<Listener>> listeners;
+
+	private Map<String, Set<UiListener>> uiListeners;
+
+	private boolean handlerActive = false;
 
 	public HikePubSub()
 	{
+		super (Looper.getMainLooper());
 		listeners = new ConcurrentHashMap<String, Set<Listener>>();
+		uiListeners = new ConcurrentHashMap<String, Set<UiListener>>();
 		mQueue = new LinkedBlockingQueue<Operation>();
+		mUiQueue = new LinkedBlockingQueue<Operation>();
 		mThread = new Thread(this);
 		mThread.start();
 	}
@@ -559,6 +581,37 @@ public class HikePubSub implements Runnable
 		list.add(listener);
 	}
 
+	public void addUiListener(String type, UiListener listener)
+	{
+		add(type, listener);
+	}
+
+	public void addUiListeners(UiListener listener, String... types)
+	{
+		for (String type : types)
+		{
+			add(type, listener);
+		}
+	}
+
+	private void add(String type, UiListener listener)
+	{
+		Set<UiListener> list;
+		list = uiListeners.get(type);
+		if (list == null)
+		{
+			synchronized (this) // take a smaller lock
+			{
+				if ((list = uiListeners.get(type)) == null)
+				{
+					list = new CopyOnWriteArraySet<UiListener>();
+					uiListeners.put(type, list);
+				}
+			}
+		}
+		list.add(listener);
+	}
+
 	/*
 	 * We also need to make removeListener a synchronized method. if we don't do that it would lead to memory inconsistency issue. in our case some activities won't get destroyed
 	 * unless we unregister all listeners and in that slot if activity receives a pubsub event it would try to handle this event which may lead to anything unusual.
@@ -586,6 +639,29 @@ public class HikePubSub implements Runnable
 		}
 	}
 
+	public void removeUiListener(String type, UiListener listener)
+	{
+		remove(type, listener);
+	}
+
+	public void removeListeners(UiListener listener, String... types)
+	{
+		for (String type : types)
+		{
+			remove(type, listener);
+		}
+	}
+
+	private void remove(String type, UiListener listener)
+	{
+		Set<UiListener> l = null;
+		l = uiListeners.get(type);
+		if (l != null)
+		{
+			l.remove(listener);
+		}
+	}
+
 	public boolean publish(String type, Object o)
 	{
 		Set<Listener> l = listeners.get(type);
@@ -594,6 +670,28 @@ public class HikePubSub implements Runnable
 			mQueue.add(new Operation(type, o));
 			return true;
 		}
+
+		return false;
+	}
+
+	public boolean publishOnUI(String type, Object o)
+	{
+		Set<UiListener> uiListenerSet = uiListeners.get(type);
+		if (uiListenerSet != null && uiListenerSet.size() >= 0)
+		{
+			mUiQueue.add(new Operation(type, o));
+
+			if (!handlerActive)
+			{
+				handlerActive = true;
+				if (!sendMessage(obtainMessage()))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
 		return false;
 	}
 
@@ -628,6 +726,43 @@ public class HikePubSub implements Runnable
 			for (Listener l : list)
 			{
 				l.onEventReceived(type, o);
+			}
+		}
+	}
+
+	@Override
+	public void handleMessage(Message msg)
+	{
+		while (true)
+		{
+			Operation operation = mUiQueue.poll();
+			if (operation == null)
+			{
+				synchronized (this)
+				{
+					// Check again, this time in synchronized
+					operation = mUiQueue.poll();
+					if (operation == null)
+					{
+						handlerActive = false;
+						return;
+					}
+				}
+			}
+			String type = operation.type;
+			Object o = operation.payload;
+
+			Set<UiListener> list = uiListeners.get(type);
+
+			if (list == null || list.isEmpty())
+			{
+				handlerActive = false;
+				return;
+			}
+
+			for (UiListener l : list)
+			{
+				l.onUiEventReceived(type, o);
 			}
 		}
 	}

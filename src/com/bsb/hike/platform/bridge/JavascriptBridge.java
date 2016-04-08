@@ -672,14 +672,14 @@ public abstract class JavascriptBridge
 					if (Utils.isKitkatOrHigher())
 					{
 						Logger.d(tag, "Inside call back to js with id " + id);
-						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						try
 						{
-							@Override
-							public void onReceiveValue(String value)
-							{
-								Logger.d("JavascriptBridge",value);
-							}
-						});
+							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')",null);
+						}
+						catch (IllegalStateException e)
+						{
+							mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')"); // On some Custom ROMs and Nokia phones depite being on API greater than 19 this function is not available.This API not supported on Android 4.3 and earlier\n\tat android.webkit.WebViewClassic.evaluateJavaScript(WebViewClassic.java:2674)\n\tat
+						}
 					}
 					else
 					{
