@@ -1608,13 +1608,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 * Platform Version 11
 	 * Method to update last message
 	 */
+	@JavascriptInterface
 	public void updateLastMessage(String message)
 	{
 		if (!TextUtils.isEmpty(message) && mBotInfo !=null)
 		{
 			HikeConversationsDatabase.getInstance().updateLastMessageForNonMessagingBot(mBotInfo.getMsisdn(), message);
+			HikeConversationsDatabase.getInstance().updateLastMessageStateAndCount(mBotInfo.getMsisdn(), ConvMessage.State.RECEIVED_READ.ordinal());
 			// Saving lastConvMessage in memory as well to refresh the UI
-			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_UNREAD));
+			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_READ));
 		}
 	}
 }
