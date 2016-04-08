@@ -746,4 +746,5 @@ public class AnalyticsConstants
 	public static final String JUST_OPENED = "justOpened";
 	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
 	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
+    public static final String MIGRATION_FAILURE_ANALYTICS = "migration_failure";
 }

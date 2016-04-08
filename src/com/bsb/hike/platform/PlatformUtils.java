@@ -2658,7 +2658,7 @@ public class PlatformUtils
         {
             JSONObject json = new JSONObject();
             json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
-            json.put(AnalyticsConstants.EVENT, "migration_failure");
+            json.put(AnalyticsConstants.EVENT, AnalyticsConstants.MIGRATION_FAILURE_ANALYTICS);
             json.put(AnalyticsConstants.LOG_FIELD_2, errorMsg); //Error
             HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
         }
