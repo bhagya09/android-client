@@ -18,7 +18,7 @@ import com.bsb.hike.HikeMessengerApp;
 public class HikeSharedPreferenceUtil
 {
 	@Retention(RetentionPolicy.SOURCE)
-	@StringDef({ HikeMessengerApp.ACCOUNT_SETTINGS, HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF })
+	@StringDef({ HikeMessengerApp.ACCOUNT_SETTINGS, HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF_NO_DOT })
 	public @interface SharedPrefFile
 	{
 	}
