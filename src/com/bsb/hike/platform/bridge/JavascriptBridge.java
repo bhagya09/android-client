@@ -74,6 +74,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.utils.Sim;
 import com.bsb.hike.utils.Telephony;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.JsonArray;
@@ -861,11 +862,15 @@ public abstract class JavascriptBridge
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
 			if(msisdn.equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE)){
 				Telephony telephonyInfo = Telephony.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
-				String[] sims= telephonyInfo.getOperators();
-				JSONArray array = new JSONArray();
-				for(int i =0; i<sims.length; i++){
-					array.put(sims[i]);
-				}
+				   Sim[] sims= telephonyInfo.getSims();
+					JSONArray array = new JSONArray();
+					for(int i =0; i<sims.length; i++){
+						if(sims[i]!=null){
+						  array.put(sims[i].toJSONString());
+						}else{
+							 array.put(null);
+						}
+					}
 				
 			    jsonObj.put(HikePlatformConstants.SIM_OPERATORS,array);
 			}

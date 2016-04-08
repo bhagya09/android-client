@@ -1695,7 +1695,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				makePlatformPostRequest(id, url, data, oAuth, urlKey, count,tokenLife);
 			}
 		}else{
-			Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its long lived");
+			Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its short lived");
 			fetchToken(id, urlKey, data, count, url,tokenLife);
 		}
 	}
