@@ -780,4 +780,6 @@ public class AnalyticsConstants
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
+
+	public static final String USER_TL_OPEN = "user_TL_open";
 }
