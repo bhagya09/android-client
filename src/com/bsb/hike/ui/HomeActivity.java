@@ -1795,7 +1795,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			}
 		}else if (HikePubSub.BOT_CREATED.equals(type))
 		{
-			 final BotInfo info = ((BotInfo) object);
+			if(object == null || ! (object instanceof Pair) || !(Boolean)((Pair) object).second)
+			{
+				return;
+			}
+			 final BotInfo info = ((BotInfo) ((Pair) object).first);
+			if(info == null)
+			{
+				return;
+			}
 			 if(!info.isConvPresent()&&info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
 			 {
 				 runOnUiThread(new Runnable()
