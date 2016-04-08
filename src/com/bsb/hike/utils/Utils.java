@@ -4237,6 +4237,7 @@ public class Utils
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, fromNotif);
+		intent.putExtra(TimelineActivity.TIMELINE_SOURCE, fromNotif ? TimelineActivity.TimelineOpenSources.NOTIF : TimelineActivity.TimelineOpenSources.UNKNOWN);
 		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}

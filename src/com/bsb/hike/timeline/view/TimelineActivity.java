@@ -94,6 +94,23 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private boolean isFromNotif;
 
+	public static final String TIMELINE_SOURCE = "tl_source";
+
+	public static final class TimelineOpenSources
+	{
+		public static final int UNKNOWN = 0;
+
+		public static final int NOTIF = 1;
+
+		public static final int STATUS_UPDATE = 2;
+
+		public static final int COMPOSE_CHAT = 3;
+
+		public static final int HOME_ACTIVITY = 4;
+
+		public static final int PROFILE_PIC_FRAGMENT = 5;
+	}
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -163,6 +180,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			fetchUnreadFeedsTask.execute();
 		}
+
+		sendTimeLineOpenAnalytics();
 	}
 
 	@Override
@@ -772,5 +791,27 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
 		return count == 0 ? true : false;
+	}
+
+	private void sendTimeLineOpenAnalytics()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.TIMELINE_OPEN);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.GENUS, getIntent().getIntExtra(TIMELINE_SOURCE, TimelineOpenSources.UNKNOWN));
+
+			HAManager.getInstance().recordV2(json);
+
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+
 	}
 }

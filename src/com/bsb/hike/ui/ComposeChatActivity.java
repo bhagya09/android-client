@@ -2225,6 +2225,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									{
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+										intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.COMPOSE_CHAT);
 										startActivity(intent);
 										finish();
 										return;
