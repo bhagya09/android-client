@@ -463,6 +463,11 @@ public class UploadFileTask extends FileTransferBase
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 				}
+				else if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+				{
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "All", "CANCELLED UPLOAD");
+					showToast(HikeConstants.FTResult.CANCELLED);
+				}
 				else if (httpException.getErrorCode() % 100 > 0)
 				{
 					uploadFile(selectedFile);
@@ -614,6 +619,12 @@ public class UploadFileTask extends FileTransferBase
 				public void onRequestFailure(HttpException httpException)
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
+					if (userContext != null)
+					{
+						removeTask();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					}
+
 					if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 					{
 						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
@@ -627,13 +638,32 @@ public class UploadFileTask extends FileTransferBase
 					{
 						deleteStateFile();
 					}
-
-					if (userContext != null)
+					else if (httpException.getErrorCode() == HttpException.REASON_CODE_MALFORMED_URL)
 					{
-						removeTask();
-						HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "URLCreation", "UPLOAD_FAILED - ", httpException);
+						Logger.e(getClass().getSimpleName(), "Exception", httpException);
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
-
+					else if (httpException.getCause() instanceof FileNotFoundException)
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", httpException);
+						Logger.e(getClass().getSimpleName(), "Exception", httpException);
+						showToast(HikeConstants.FTResult.READ_FAIL);
+					} else if (httpException.getCause() instanceof IOException)
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_4, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "all", "IOException UPLOAD_FAILED - ", httpException);
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else if (httpException.getCause() instanceof JSONException)
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_5, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "json", "JSONException UPLOAD_FAILED - ", httpException);
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else if (httpException.getCause() instanceof Exception)
+					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_6, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception UPLOAD_FAILED - ", httpException);
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
 				}
 			}, getUploadFileInterceptor(), new FileTransferChunkSizePolicy(context));
 		}
