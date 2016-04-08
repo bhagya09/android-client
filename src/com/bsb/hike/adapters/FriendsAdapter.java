@@ -1419,7 +1419,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						lastSeen.setVisibility(View.VISIBLE);
 						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							lastSeen.setText(context.getString(R.string.sent_you_friend_req));
+						}
+						else
+						{
+							lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						}
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
