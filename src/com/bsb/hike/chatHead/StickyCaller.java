@@ -805,6 +805,8 @@ public class StickyCaller {
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			case R.id.block_contact:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), BlockCallerActivity.class);
 				CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(v.getTag().toString());
 				if (v.getTag() != null && contentModel != null && contentModel.getFullName() != null)
@@ -812,8 +814,6 @@ public class StickyCaller {
 					intent.putExtra(HikeConstants.MSISDN, v.getTag().toString());
 					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
 					intent.putExtra(HikeConstants.CALL_TYPE, getCallEventFromCallType(CALL_TYPE));
-					HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
-							AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				}
 				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				IncomingCallReceiver.callReceived = true;
