@@ -30,14 +30,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerInside"
-            android:src="@drawable/sticker_shop_download_drawable_selector" />
+            android:src="@drawable/ic_arrow" />
 
-       <ProgressBar 
-        android:id="@+id/download_progress_bar"
-       	android:layout_width="24dp"
-       	android:layout_height="24dp"
-       	android:indeterminateDrawable="@drawable/rotating_blue"
-        android:visibility="gone" />
     </LinearLayout>
 	
 	<LinearLayout

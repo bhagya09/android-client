@@ -776,4 +776,10 @@ public class AnalyticsConstants
 	public static final String JUST_OPENED = "justOpened";
 	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
 	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
+
+	public static final String PLATFORM_RICH_NOTIFS = "platformRichNotifs";
+	public static final String BITMAP_DOWNLOAD_SUCCESS = "success";
+	public static final String BITMAP_DOWNLOAD_UNSUCESSFULL = "fail";
+	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
+	public static final String REQUEST_FAILURE = "requestFailure";
 }

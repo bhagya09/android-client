@@ -1099,7 +1099,12 @@ public class PlatformUtils
 
 			if (!TextUtils.isEmpty(categoryId) && !TextUtils.isEmpty(categoryName))
 			{
-				StickerCategory category = new StickerCategory(categoryId, categoryName, totalStickers, categorySize);
+				StickerCategory category = new StickerCategory.Builder()
+						.setCategoryId(categoryId)
+						.setCategoryName(categoryName)
+						.setTotalStickers(totalStickers)
+						.setCategorySize(categorySize)
+						.build();
 				downloadStkPk(category);
 			}
 		}
@@ -1762,6 +1767,12 @@ public class PlatformUtils
         }
 
         Sticker sticker = new Sticker(categoryId, stickerId);
+
+        if(!sticker.isDisabled())
+        {
+            StickerManager.getInstance().addRecentStickerToPallete(sticker);
+        }
+
         ConvMessage cm = getConvMessageForSticker(sticker, categoryId, allContacts.get(0), StickerManager.FROM_FORWARD);
 
         if (cm != null) {

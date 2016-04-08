@@ -71,6 +71,7 @@ import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -1531,6 +1532,13 @@ public class IntentFactory
 			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
 		}
 		return intent;
+	}
+
+	public static void openPackPreviewIntent(Context context, String catId)
+	{
+		Intent intent = new Intent(context, PackPreviewActivity.class);
+		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		context.startActivity(intent);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)
