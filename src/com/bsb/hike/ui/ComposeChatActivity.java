@@ -2973,9 +2973,14 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 		else if (HikePubSub.BOT_CREATED.equals(type))
 		{
-			if (adapter != null)
-			{
-				adapter.onBotCreated(object);
+            if (object instanceof Pair)
+            {
+                BotInfo botInfo = (BotInfo)(((Pair) object).first);
+                Boolean isBotCreationSuccess = (Boolean) (((Pair) object).second);
+				if (adapter != null && isBotCreationSuccess)
+				{
+					adapter.onBotCreated(botInfo);
+				}
 			}
 		}
 	}

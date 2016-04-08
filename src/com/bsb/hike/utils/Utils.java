@@ -8060,16 +8060,16 @@ public class Utils
 
 	public static void delete(File file) throws IOException {
 
-		if(file.isDirectory()) {
+		if (file.isDirectory()) {
 
 			//directory is empty, then delete it
-			if(file.list().length==0) {
+			if (file.list().length == 0) {
 
 				file.delete();
 				System.out.println("Directory is deleted : "
 						+ file.getAbsolutePath());
 
-			}else {
+			} else {
 
 				//list all the directory contents
 				String files[] = file.list();
@@ -8083,17 +8083,41 @@ public class Utils
 				}
 
 				//check the directory again, if empty then delete it
-				if(file.list().length==0) {
+				if (file.list().length == 0) {
 					file.delete();
 					System.out.println("Directory is deleted : "
 							+ file.getAbsolutePath());
 				}
 			}
 
-		}else {
+		} else {
 			//if file, then delete it
 			file.delete();
 			System.out.println("File is deleted : " + file.getAbsolutePath());
+		}
+	}
+
+	/**
+	Method to return network type as short in descending order
+	 */
+	public static short getNetworkShortinOrder(String networkType)
+	{
+		switch (networkType)
+		{
+		case "wifi":
+			return 1;
+		case "2g":
+			return 4;
+		case "3g":
+			return 3;
+		case "4g":
+			return 2;
+		case "off":
+			return -1;
+		case "unknown":
+			return 5;
+		default:
+			return 0;
 		}
 	}
 
