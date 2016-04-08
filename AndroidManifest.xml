@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1643"
-    android:versionName="4.2.5.7.friends" >
+    android:versionCode="1644"
+    android:versionName="4.2.5.8.friends" >
 
     <uses-sdk
         android:minSdkVersion="14"
