@@ -2255,34 +2255,38 @@ public class StickerManager
 
 
     /**
-     * JSON packet sent structure
+     * JSON Structure example
+     {
+         "md":{
+             "eD":[
+                 {
+                 "eName":"X-(",
+                 "eCnt":11
+                 },
+                 {
+                 "eName":":\")",
+                 "eCnt":4
+                 },
+                 {
+                 "eName":"=)",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":":-P",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":"^.^",
+                 "eCnt":6
+                 }
+                ],
+             "ek":"eSnt"
+         }
+     }
      *
-     * For a single time with 10 emoticons used
-     * Sending in batches of N = 8 due string length on parsing from server
-
-     Packet1
-     {
-     "ek":"eSnt",
-     "Tag_0":":'-(_5",
-     "Tag_1":":-P_1",
-     "Tag_2":":D_3",
-     "Tag_3":"T_T_1",
-     "Tag_4":":?-(_3",
-     "Tag_5":"(stop)_2",
-     "Tag_6":"(sweat)_2",
-     "Tag_7":":-(_1",
-     "sid":1460486840551
-     }
-
-     Packet2
-     {
-     "ek":"eSnt",
-     "Tag_0":":-D_1",
-     "Tag_1":":-|_2",
-     "sid":1460486840551
-     }
-
      */
+
+
 	public void sendEmoticonUsageAnalytics()
 	{
 		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
@@ -2297,22 +2301,28 @@ public class StickerManager
 			JSONObject emojiList = new JSONObject(emoticonsSent);
 			Iterator<String> emoticons = emojiList.keys();
 
+			JSONObject metadata = new JSONObject();
+			JSONArray emojiUsage = new JSONArray();
 			while (emoticons.hasNext())
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
-				int i = 0;
-				for (i = 0; i < 8 && emoticons.hasNext(); i++)
-				{
-					String emoji = emoticons.next();
-					int count = emojiList.getInt(emoji);
-					metadata.put(HikeConstants.TAG + HikeConstants.SEPARATOR_ + Integer.toString(i), emoji + HikeConstants.SEPARATOR_ + count);
-				}
+				JSONObject emoji = new JSONObject();
 
-				if (i > 0)
-				{
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				}
+				String emojiName = emoticons.next();
+				int count = emojiList.getInt(emojiName);
+
+				emoji.put(HikeConstants.LogEvent.EMOTICON_NAME, emojiName);
+				emoji.put(HikeConstants.LogEvent.EMOTICON_COUNT, count);
+
+				emojiUsage.put(emoji);
+
+			}
+
+			if (emojiUsage.length() > 0)
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
+				metadata.put(HikeConstants.LogEvent.EMOTICON_DATA, emojiUsage);
+
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 			}
 
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
