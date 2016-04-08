@@ -1535,7 +1535,7 @@
     <string name="keyboard_shutdown_description">You can always chat with your phone keyboard or download one from the playstore</string>
     <string name="open_phone_keyboard">PHONE KEYBOARD</string>
     <string name="open_google_keyboard">GOOGLE KEYBOARD</string>
-    <string name="compose_chat_empty_contact_status_payment_mode">Tap to send money</string>
+    <string name="compose_chat_empty_contact_status_payment_mode">Tap to recharge</string>
     <string name="view_all">View All</string>
     <string name="author_text"><![CDATA[Crafted with love by <b>%1$s</b>]]></string>
     <string name="update">Update</string>
