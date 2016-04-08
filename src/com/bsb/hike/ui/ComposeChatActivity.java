@@ -1196,13 +1196,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if(getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
 				{
-					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
+					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
 					startActivity(in);
 				}
 				else
 				{
-					Utils.startChatThread(this, contactInfo, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
+					Utils.startChatThread(this, contactInfo, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 				}
 				finish();
 			}
