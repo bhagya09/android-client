@@ -1,12 +1,10 @@
 package com.bsb.hike.ui;
 
 
-import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,8 +19,6 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -80,8 +76,6 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;

@@ -9,11 +9,12 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
@@ -25,9 +26,11 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.HikeNotification;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContent.EventCode;
-import com.bsb.hike.platform.ContentModules.PlatformContentModel;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupStateEnum;
 import com.bsb.hike.productpopup.ProductPopupsConstants.PopupTriggerPoints;
 import com.bsb.hike.utils.Logger;
@@ -157,8 +160,7 @@ public class ProductInfoManager
 					for (ProductContentModel a : mmArrayList)
 					{
 						hashCode[length++] = a.hashCode() + "";
-
-					}
+                    }
 					Logger.d("ProductPopup",hashCode.toString());
 					HikeContentDatabase.getInstance().deletePopup(hashCode);
 					int triggerPoint = (mmArrayList.get(0).getTriggerpoint());
@@ -205,7 +207,7 @@ public class ProductInfoManager
 	public void parseAndShowPopup(final ProductContentModel productContentModel, final IActivityPopup iShowPopup)
 	{
 
-		PlatformContent.getContent(productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
+		PlatformContent.getContent(HikePlatformConstants.PlatformBotType.ONE_TIME_POPUPS,productContentModel.toJSONString(), new PopupContentListener(productContentModel, iShowPopup)
 		{
 			ProductContentModel productContentModel = null;
 
@@ -470,4 +472,5 @@ public class ProductInfoManager
 		}
 		return countValidPopUps;
 	}
+    
 }

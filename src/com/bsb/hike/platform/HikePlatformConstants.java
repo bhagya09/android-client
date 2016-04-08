@@ -1,5 +1,7 @@
 package com.bsb.hike.platform;
 
+import android.support.annotation.IntDef;
+
 public interface HikePlatformConstants
 {
 	String DATA = "d";
@@ -40,6 +42,7 @@ public interface HikePlatformConstants
 	String CRICKET_CHAT_THEME_ID = "39";
 	String APP_NAME = "appName";
 	String APP_PACKAGE = "appPackage";
+    String APP_PACKAGE_V2 = "appPackageV2";
 	String LAYOUT = "layoutId";
 	String LONG_PRESS_DISABLED = "lpd";
 	String HIKE_MSISDN = "hikemsisdn";
@@ -91,11 +94,14 @@ public interface HikePlatformConstants
 	public static final String FORWARD_CARD_OBJECT = "fwdCardObj";
 	public static final String TIMESTAMP = "timestamp";
 	public static final String ASSOCIATE_CBOT = "assocCbot";
-    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	public static final String GAME_ACTIVE ="gameActive" ;
+    public static final String INCOMPLETE_ZIP_DOWNLOAD = "incomplete_zip_download";
 	String HIKE_AFFINITY="hike_affinity";
 	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
+	String PACKET_DATA = "packetData";
+	String PREF_NETWORK = "preferredNetwork";
+	String FLUSH_DOWNLOAD_TABLE = "flushDwnldTable";
 
     public static final class PlatformFetchType
 	{
@@ -161,6 +167,7 @@ public interface HikePlatformConstants
 	public static final String BOT_CREATION_FAILED_MQTT = "cbot_err_m";
 	public static final String MICROAPP_DOWNLOADED = "mapp";
 	public static final String MICROAPP_DOWNLOAD_FAILED = "mapp_err";
+    public static final String NAME = "name";
 
 	public static final String PLATFORM_BRIDGE_NAME = "PlatformBridge";
 
@@ -196,6 +203,8 @@ public interface HikePlatformConstants
 	public static final String TARGET_PLATFORM = "target_platform";
 	
 	public static final String TARGET_ACTIVITY = "target_activity";
+
+    public static final String MAPP_VERSION_CODE = "mAppVersionCode";
 	
 	public static final String MIN_PLATFORM = "min_platform";
 
@@ -265,6 +274,8 @@ public interface HikePlatformConstants
 	public static final String BOT_LATEST_VERSION = "latest_version";
 	
 	public static final String MSISDN = "msisdn";
+
+    public static final String BOT_MSISDN = "botMsisdn";
 	
 	public static final String BOT_NAME = "name";
 	
@@ -281,6 +292,18 @@ public interface HikePlatformConstants
 	public static final String GAME_CHANNEL="+hikegames+";
 	
 	final static String RESUME_SUPPORT = "resume_support";
+
+    final class PlatformBotType
+    {
+        public static final byte WEB_MICRO_APPS = 1;
+
+        public static final byte ONE_TIME_POPUPS = 2;
+
+        public static final byte NATIVE_APPS = 3;
+
+        public static final byte HIKE_MAPPS = 4;
+
+    }
 
 	public static final String IS_SHORTCUT = "is_shortcut";
 
@@ -312,10 +335,56 @@ public interface HikePlatformConstants
 	public static final String NATASHA_MSISDN = "+hike5+";
 	
 	public static final String CRICKET_HIKE_MSISDN = "+hikecricket+";
+
+    public static final String PLATFORM_SDK_PATH = "platformSdkPath";
+
+    public static final String PLATFORM_WEB_SDK = "platformSdk";
+
 	public static final int MAPP_DEFAULT_RETRY_COUNT = 2;
+
+    public static final String APPS = "apps";
+
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
+
+	String TTL = "timeToLive";
+
+	String DEFULT_NETWORK = "unknown";
+
+	String AUTO_RESUME = "autoResume";
+
+	
+	@IntDef({ PlatformDwnldState.IN_PROGRESS, PlatformDwnldState.FAILED, PlatformDwnldState.SUCCESS })
+	@interface PlatformDwnldState
+	{
+		int IN_PROGRESS = 0;
+
+		int FAILED = 1;
+
+		int SUCCESS = 2;
+	}
+
+	
+   @IntDef({PlatformTypes.CBOT,PlatformTypes.MAPP})
+	@interface PlatformTypes
+	{
+		int CBOT = 0;
+		int MAPP = 1;
+	}
+
+	long oneDayInMS = 86400000;
+
 	String BIG_PICTURE = "big_picture";
 
 	String BITMAP_URL = "bitmap_url";
+
+    String SETTING_OFF = "off";
+
+    String UPDATED_APP_NAME = "updated_name";
+
+    String IS_WEB_CARD = "isWebCard";
+
+    String APP_NOT_FOUND = "appNotFound";
+
+    String APP_STATUS = "app_status";
 }

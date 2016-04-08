@@ -48,7 +48,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
-import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.CustomTabsHelper;
@@ -87,6 +86,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.fabric.sdk.android.Fabric;
+
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -637,6 +637,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static int bottomNavBarWidthLandscape = 0;
 
+    public static ConcurrentHashMap<String,Integer> hikeMappInfo = new ConcurrentHashMap<>();
+
 	private static InternalCache diskCache;
 
 	static
@@ -853,7 +855,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0 || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -1016,6 +1018,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		initContactManager();
 		BotUtils.initBots();
+		//Check if any pending platform packet is waiting for download.
+		PlatformUtils.retryPendingDownloadsIfAny(Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(getApplicationContext())));
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
@@ -1026,6 +1030,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+
+        // Set default path as internal storage on production host
+        PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
 
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -1047,6 +1054,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+
 		initCrashReportingTool();
 	}
 
@@ -1197,6 +1205,21 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS);
+        Utils.makeNoMediaFile(folder, true);
 
 	}
 
@@ -1369,6 +1392,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.attachBaseContext(base);
 		MultiDex.install(this);
 	}
+
 
     private void setAnalyticsSendAlarm()
     {

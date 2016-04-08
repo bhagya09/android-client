@@ -164,6 +164,8 @@ public class MqttMessagesManager
 
 	private static final String DP_DOWNLOAD_TAG = "dp_download";
 
+    private String TAG = "MqttMessagesManager";
+
 	private MqttMessagesManager(Context context)
 	{
 		Logger.d(getClass().getSimpleName(), "initialising MqttMessagesManager");
@@ -674,14 +676,13 @@ public class MqttMessagesManager
 
 		// Logs for Msg Reliability
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
-
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
 		{
 			// discard message since the conversation is blocked
 			return;
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+        if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
 		}
@@ -690,7 +691,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 
-	}
+ 	}
 
 	private void saveMessage(ConvMessage convMessage)
 	{
@@ -741,8 +742,9 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(convMessage.webMetadata.JSONtoString()),
-				new PlatformContentListener<PlatformContentModel>()
+
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
 				{
 
 					@Override
@@ -752,11 +754,11 @@ public class MqttMessagesManager
 					}
 
 					@Override
-					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
-							// do nothing
+							//do nothing
 							return;
 						}
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
@@ -771,9 +773,19 @@ public class MqttMessagesManager
 					}
 				});
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
-		if (!downloader.isMicroAppExist())
+		// Stop the flow and return from here in case any exception occurred and contentData becomes null
+		if(rqst.getContentData() == null)
+			return;
+
+		//  Parameters to call if micro app already exists method for this case
+		String mAppName = rqst.getContentData().cardObj.getAppName();
+		int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
+		byte botType = rqst.getBotType();
+		String msisdn = rqst.getContentData().getMsisdn();
+
+		if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
 		{
+			PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
 			downloader.downloadAndUnzip();
 		}
 		else
@@ -781,6 +793,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 	}
+
 
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
@@ -1955,9 +1968,9 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.getJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
-			for (int i = 0; i < botsTobeAdded.length(); i++)
-			{
-				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
+			for (int i = 0; i< botsTobeAdded.length(); i++){
+				BotUtils.createBot((JSONObject) botsTobeAdded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
+
 			}
 		}
 		if (data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
@@ -1965,7 +1978,21 @@ public class MqttMessagesManager
 			JSONArray microAppsTobeRemoved = data.getJSONArray(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
 			for (int i = 0; i < microAppsTobeRemoved.length(); i++)
 			{
-				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+				// First check dmapp packet json structure and based on the packet structure call respective method to delete from versioning directory or older micro app path
+                JSONObject jsonObject = (JSONObject) microAppsTobeRemoved.get(i);
+
+				if(jsonObject.has(HikePlatformConstants.APP_NAME))
+                {
+                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                {
+                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else
+                {
+                    Logger.e(TAG, "Stopping mapps delete flow as wrong packet structure is being sent for dmapp");
+                }
 			}
 		}
 		if (data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
@@ -1990,7 +2017,7 @@ public class MqttMessagesManager
 			JSONArray appsToBeDownloaded = data.getJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
 			for (int i = 0; i < appsToBeDownloaded.length(); i++)
 			{
-				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i));
+				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context)));
 			}
 		}
 		if (data.has(HikeConstants.GET_BULK_LAST_SEEN))
@@ -2922,6 +2949,11 @@ public class MqttMessagesManager
 		{
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
+		}
+
+		if(data.has(HikePlatformConstants.FLUSH_DOWNLOAD_TABLE))
+		{
+			HikeContentDatabase.getInstance().flushPlatformDownloadStateTable();
 		}
 
 		if (data.has(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE))

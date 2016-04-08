@@ -1,11 +1,5 @@
 package com.bsb.hike.platform.bridge;
 
-import java.io.File;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +11,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -42,13 +35,16 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * API bridge that connects the javascript to the non-messaging Native environment. Make the instance of this class and add it as the
@@ -197,6 +193,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.MUTE, Boolean.toString(mBotInfo.isMute()));
 			jsonObject.put(HikePlatformConstants.NETWORK_TYPE, Integer.toString(Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext())));
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
+            jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, mBotInfo.getMAppVersionCode());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
 
 			if (!TextUtils.isEmpty(extraData))
@@ -1267,13 +1264,14 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void getBotVersion(String id, String msisdn)
 	{
-		if (!BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn))
 		{
 			callbackToJS(id,"-1");
 			return;
 		}
 
-		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
 		callbackToJS(id, String.valueOf(botInfo.getVersion()));
 	}
 
@@ -1302,12 +1300,28 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id)
 	{
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+        String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + nonMessagingBotMetadata.getAppName());
-		if (file.exists())
-			callbackToJS(id, "true");
-		else
-			callbackToJS(id, "false");
+
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + nonMessagingBotMetadata.getAppName());
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + nonMessagingBotMetadata.getAppName());
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + nonMessagingBotMetadata.getAppName());
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + nonMessagingBotMetadata.getAppName());
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + nonMessagingBotMetadata.getAppName());
+
+        if (fileInMappsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
+        else
+            callbackToJS(id, "false");
 	}
 
 	/**
@@ -1325,7 +1339,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
+
 		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst())
 		{
 			callbackToJS(functionId, "true");
@@ -1365,19 +1381,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		if (!BotUtils.isSpecialBot(mBotInfo) || botInfo == null)
 			return;
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
-		JSONObject json = new JSONObject();
-		try
-		{
-			JSONArray array = new JSONArray();
-			array.put(nonMessagingBotMetadata.getAppName());
-			json.put(HikePlatformConstants.APP_NAME, array);
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-		BotUtils.removeMicroApp(json);
-		BotUtils.deleteBot(msisdn);
+
+        // Json to remove micro app code from old micro app content path and from new structured versioning path
+        JSONObject json = new JSONObject();
+        try
+        {
+            // Generating app Names json array
+            JSONArray appNameArray = new JSONArray();
+            appNameArray.put(nonMessagingBotMetadata.getAppName());
+
+            // Generating msisdn json array
+            JSONArray msisdnArray = new JSONArray();
+            msisdnArray.put(msisdn);
+
+            json.put(HikePlatformConstants.APP_NAME, appNameArray);
+            json.put(HikePlatformConstants.MSISDN, msisdnArray);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        BotUtils.removeMicroApp(json);
+        BotUtils.removeMicroAppFromVersioningPath(json);
+
+        // code to delete bot from conversations
+        BotUtils.deleteBot(msisdn);
 	}
 	/**
 	 * Platform Version 9
@@ -1395,7 +1423,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			callbackToJS(functionId, "false");
 			return;
 		}
+
 		PairModified<RequestToken, Integer> tokenCountPair = PlatformZipDownloader.getCurrentDownloadingRequests().get(appName);
+
 		if (null != tokenCountPair && null != tokenCountPair.getFirst() && tokenCountPair.getFirst().isRequestRunning())
 		{
 			callbackToJS(functionId, "true");
@@ -1512,22 +1542,57 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		Utils.executeAsyncTask(logsTask);
 	}
 
-        /**
-         * Platform Version 11
-         * This function is made to know, if any game is running and accordingly display the running status on games channel
-         * Call this method to get the current game name running in hike. Gameid is empty, if no game is running
-         * @param id : the id of the function that native will call to call the js .
-         */
-        @JavascriptInterface
-        public void getRunningGame(String id)
+	/**
+	 * Platform Version 11 This function is made to know, if any game is running and accordingly display the running status on games channel Call this method to get the current
+	 * game name running in hike. Gameid is empty, if no game is running
+	 * 
+	 * @param id
+	 *            : the id of the function that native will call to call the js .
+	 */
+	@JavascriptInterface
+	public void getRunningGame(String id)
+	{
+		Activity context = weakActivity.get();
+		if (context != null)
+		{
+			String gameId = PlatformUtils.getRunningGame(context);
+			callbackToJS(id, gameId);
+		}
+	}
+
+    /**
+     * Platform Version 11
+     * Call this function to get the bot mAppVersionCode.
+     * @param id: the id of the function that native will call to call the js .
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id)
+    {
+        callbackToJS(id, String.valueOf(mBotInfo.getMAppVersionCode()));
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked msisdn.
+     * @param id: the id of the function that native will call to call the js .
+     * returns -1 if bot not exists
+     */
+    @JavascriptInterface
+    public void getMicroAppVersionCode(String id, String msisdn)
+    {
+        BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(msisdn);
+
+        if (botInfo == null || !BotUtils.isSpecialBot(mBotInfo) || !BotUtils.isBot(msisdn) )
         {
-                Activity context = weakActivity.get();
-                if (context != null)
-                {
-                        String gameId = PlatformUtils.getRunningGame(context);
-                        callbackToJS(id, gameId);
-                }
+            callbackToJS(id,"-1");
+            return;
         }
+
+        callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
+
+    }
+
 
 	/**
 	 * Call tis method to set alarm.
