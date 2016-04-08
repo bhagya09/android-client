@@ -45,6 +45,8 @@ public class FileUploadRequest extends Request<JSONObject>
 
 	private IGetChunkSize chunkSizePolicy;
 
+	private final int DEFAULT_CHUNK_SIZE = 4 * 1024;
+
 	private FileUploadRequest(Init<?> init)
 	{
 		super(init);
@@ -164,6 +166,18 @@ public class FileUploadRequest extends Request<JSONObject>
 			{
 				chunkSize = chunkSize / 5;
 			}
+
+			/*
+			 * Safe check for the case where chunk size equals zero while calculating based on network and device memory. https://hike.fogbugz.com/default.asp?42482
+			 */
+			if (chunkSize <= 0)
+			{
+				FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.UPLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
+				chunkSize = DEFAULT_CHUNK_SIZE;
+			}
+
+			if (chunkSize > length)
+				chunkSize = (int) length;
 
 			// calculate start and end for range header using mStart and chunkSize
 			int start = mStart;
