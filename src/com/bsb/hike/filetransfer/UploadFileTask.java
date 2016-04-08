@@ -152,14 +152,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
-					FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
-					if (fss == null)
-					{
-						fss = new FileSavedState();
-					}
-					fss.setFTState(FTState.ERROR);
-					fss.setFileKey(fileKey);
-					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					saveNoNetworkState(fileKey);
 					FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
@@ -465,14 +458,7 @@ public class UploadFileTask extends FileTransferBase
 			{
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
-					FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
-					if (fss == null)
-					{
-						fss = new FileSavedState();
-					}
-					fss.setFTState(FTState.ERROR);
-					fss.setFileKey(fileKey);
-					HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+					saveNoNetworkState(fileKey);
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_CALLBACK_AREA_1_1, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "No Internet error");
 					showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
@@ -724,6 +710,48 @@ public class UploadFileTask extends FileTransferBase
 		}
 		HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
 		Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
+	}
+
+	protected void saveNoNetworkState(String fileKey)
+	{
+		if (isMultiMsg)
+		{
+			for (ConvMessage msg:messageList)
+			{
+				saveNoNetworkState(fileKey, msg.getMsgID());
+			}
+		}
+		else
+		{
+			saveNoNetworkState(fileKey, msgId);
+		}
+	}
+
+	protected void saveNoNetworkState(String fileKey, long msgId)
+	{
+		FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+		if (fss == null)
+		{
+			fss = new FileSavedState();
+		}
+		fss.setFTState(FTState.ERROR);
+		fss.setFileKey(fileKey);
+		HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), fss);
+	}
+
+	protected void deleteStateFile()
+	{
+		if (isMultiMsg)
+		{
+			for (ConvMessage msg: messageList)
+			{
+				HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msg.getMsgID()));
+			}
+		}
+		else
+		{
+			HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+		}
 	}
 
 	private void removeTask()
