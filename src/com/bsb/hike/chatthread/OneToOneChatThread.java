@@ -4030,4 +4030,21 @@ import java.util.Map;
 		}
 	}
 
+	@Override
+	protected JSONObject getChatThreadOpenJSON()
+	{
+		JSONObject json = super.getChatThreadOpenJSON();
+
+		try
+		{
+			json.put(AnalyticsConstants.V2.GENUS, mContactInfo.getFavoriteType().toString());
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		return json;
+	}
 }

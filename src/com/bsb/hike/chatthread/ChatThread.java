@@ -6931,6 +6931,15 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 	protected void recordChatThreadOpen()
 	{
+		JSONObject json = getChatThreadOpenJSON();
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	protected JSONObject getChatThreadOpenJSON()
+	{
 		try
 		{
 			JSONObject json = new JSONObject();
@@ -6943,12 +6952,14 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
 
-			HAManager.getInstance().recordV2(json);
+			return json;
+
 		}
 
 		catch (JSONException e)
 		{
 			e.toString();
+			return null;
 		}
 	}
 
