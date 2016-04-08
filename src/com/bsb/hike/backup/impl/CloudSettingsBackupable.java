@@ -44,9 +44,9 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 				DBConstants.CONVERSATIONS_DATABASE_VERSION));
 		prefInfoList.add(new CloudBackupPrefInfo(HikePlatformConstants.CUSTOM_TABS, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
 		prefInfoList
-				.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+				.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
 
 		// HikeMessengerApp.DEFAULT_SETTINGS_PREF
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_NOTIFICATION_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
@@ -59,12 +59,13 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.VIBRATE_PREF_LIST, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, HikeMessengerApp
 				.getInstance().getString(R.string.vib_default)));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.TICK_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.COLOR_LED_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING,
-				HikeConstants.LED_DEFAULT_WHITE_COLOR));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NOTIF_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, "HikeJingle"));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STATUS_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STATUS_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_INT, 0));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.H2O_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_INT,
+				HikeConstants.LED_DEFAULT_WHITE_COLOR));
 
 		/*
 		 * Media Settings
@@ -130,24 +131,28 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		prefsBackupJson.put(HikeConstants.BackupRestore.TIMESTAMP, System.currentTimeMillis());
 		prefsBackupJson.put(HikeConstants.BackupRestore.VERSION, Utils.getHikePackageInfo().versionName);
 
+		JSONObject dataObject = new JSONObject();
+
 		for (CloudBackupPrefInfo prefInfo : prefInfoList)
 		{
 			String prefName = prefInfo.getPrefName();
 			String settingName = prefInfo.getKeyName();
 
 			// Check if JSON corresponding to preference file is available
-			JSONObject prefObject = prefsBackupJson.optJSONObject(prefName);
+			JSONObject prefObject = dataObject.optJSONObject(prefName);
 
 			// If not present, add one
 			if (prefObject == null)
 			{
 				prefObject = new JSONObject();
-				prefsBackupJson.put(prefName, prefObject);
+				dataObject.put(prefName, prefObject);
 			}
 
 			// Lets add setting key/values
 			prefObject.put(settingName, prefInfo.serialize());
 		}
+
+		prefsBackupJson.put(HikeConstants.BackupRestore.DATA, dataObject);
 
 		return prefsBackupJson;
 	}
