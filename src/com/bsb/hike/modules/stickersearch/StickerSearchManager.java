@@ -8,6 +8,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickersForcedDownloadTask;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -401,7 +402,7 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		downloadStickerTags(firstTime, state, null, languagesSet);
+		downloadStickerTags(firstTime, state, languagesSet,null);
 	}
 
 	/**
@@ -416,7 +417,7 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet,stickerSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
@@ -780,5 +781,11 @@ public class StickerSearchManager
 		this.tapOnHighlightWordClicksPerLanguageMap = null;
 
 		_instance = null;
+	}
+
+	public void downloadForcedStickers()
+	{
+		StickersForcedDownloadTask stickersForcedDownloadTask= new StickersForcedDownloadTask(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE));
+		stickersForcedDownloadTask.execute();
 	}
 }

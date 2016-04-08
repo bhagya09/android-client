@@ -228,7 +228,17 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
 	}
+
+	public static String getForcedStickersUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+	}
 	
+	public static String stickerCategoryDetailsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";

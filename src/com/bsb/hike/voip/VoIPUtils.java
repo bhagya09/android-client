@@ -774,15 +774,17 @@ public class VoIPUtils {
 		return packetData;
 	}
 
-	public static VoIPDataPacket getPacketFromUDPData(byte[] data) {
-		VoIPDataPacket dp = null;
+	public static VoIPDataPacket getPacketFromUDPData(byte[] data, int dataLength) {
+		VoIPDataPacket dp;
 		byte prefix = data[0];
-		byte[] packetData = new byte[data.length - 1];
-		System.arraycopy(data, 1, packetData, 0, packetData.length);
 
 		if (prefix == VoIPConstants.PP_PROTOCOL_BUFFER) {
-			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(data, dataLength);
 		} else {
+			// This code path should no longer be used, except when communicating with a very old
+			// client.
+			byte[] packetData = new byte[dataLength - 1];
+			System.arraycopy(data, 1, packetData, 0, packetData.length);
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			dp.setData(packetData);
 			if (prefix == VoIPConstants.PP_ENCRYPTED_VOICE_PACKET)
