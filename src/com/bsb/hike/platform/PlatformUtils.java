@@ -685,7 +685,7 @@ public class PlatformUtils
 		{
 			JSONObject metadata = json == null ? new JSONObject() : new JSONObject(json.toString());
 			JSONObject data = new JSONObject();
-			data.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.NON_UI_EVENT);
+			data.put(HikeConstants.EVENT_TYPE, "" + botInfo.getMAppVersionCode());
 
 			metadata.put(HikeConstants.EVENT_KEY, key);
 			metadata.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
@@ -721,7 +721,7 @@ public class PlatformUtils
 			json.put(AnalyticsConstants.BOT_NAME, botInfo.getConversationName());
 			json.put(AnalyticsConstants.BOT_MSISDN, botInfo.getMsisdn());
 			json.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-			HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+			HikeAnalyticsEvent.analyticsForNonMessagingBots("" + botInfo.getMAppVersionCode(), AnalyticsConstants.DOWNLOAD_EVENT, json);
 		}
 		catch (JSONException e)
 		{
@@ -2644,4 +2644,28 @@ public class PlatformUtils
 			createBotAnalytics(HikePlatformConstants.BOT_CREATION_FAILED, botInfo, json);
 			createBotMqttAnalytics(HikePlatformConstants.BOT_CREATION_FAILED_MQTT, botInfo, json);
 	}
+
+    /**
+     * Sample log lines : { "t": "le_android", "d": { "et": "nonUiEvent", "st": "dwnld", "ep": "HIGH", "cts": 1453620927336, "tag": "plf", "md": { "ek": "micro_app", "event":
+     * "exception_track", "fld2": "java.io.FileNotFoundException: abc", "platformUid": "VTBoRgRzkEkRVAu3", "networkType": "1", "app_version": "4.1.0.36",
+     * "sid": 1453620914078 } } }
+     *
+     * @param errorMsg
+     */
+    public static void microappsMigrationFailedAnalytics(String errorMsg)
+    {
+        try
+        {
+            JSONObject json = new JSONObject();
+            json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
+            json.put(AnalyticsConstants.EVENT, "migration_failure");
+            json.put(AnalyticsConstants.LOG_FIELD_2, errorMsg); //Error
+            HikeAnalyticsEvent.analyticsForNonMessagingBots(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.DOWNLOAD_EVENT, json);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
 }
