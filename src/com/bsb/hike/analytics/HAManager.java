@@ -915,6 +915,7 @@ public class HAManager
 	{
 		JSONObject metadata;
         ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
+        fgSessionInstance.removeChatSessionFromMap(msisdn);
 		try
 		{
 			if (chatSession != null)
