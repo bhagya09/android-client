@@ -354,18 +354,6 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken kptLanguageDictionaryZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
-	{
-		RequestToken requestToken = new FileRequest.Builder()
-				.setUrl(url)
-				.setFile(filePath)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
-
 	public static RequestToken getPlatformFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()

@@ -616,10 +616,6 @@ public class HikeService extends Service
 						{
 							Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 						}
-						if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-						{
-							Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
-						}
 					}
 					editor.commit();
 					Logger.d("HTTP", "Successfully updated account. response:" + response);

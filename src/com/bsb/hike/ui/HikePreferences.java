@@ -1,14 +1,11 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -31,7 +28,6 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
@@ -53,14 +49,9 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
-import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
-import com.bsb.hike.view.SeekBarPreference;
 import com.bsb.hike.view.SwitchPreferenceCompat;
-import com.kpt.adaptxt.beta.AdaptxtSettings;
-import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
-import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -108,10 +99,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean mIsResumed = false;
 	
-	KPTAdaptxtAddonSettings kptSettings;
-
-	List<KPTAddonItem> mInstalledLanguagesList;
-
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -142,16 +129,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			setBlockingTask((ActivityCallableTask) retained);
 			mTask.setActivity(this);
 		}
-       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
-    		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
+       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.language)
 		{
-			kptSettings = KptKeyboardManager.getInstance().getKptSettings();
 			saveKeyboardPref();
 		}
 
 		addClickPreferences();
 		addSwitchPreferences();
-		addSeekbarPreferences();
 		addAppLanguagePreference();
 
 		Preference deletePreference = getPreferenceScreen().findPreference(HikeConstants.DELETE_PREF);
@@ -197,97 +181,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void addSeekbarPreferences() {
-		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF,200);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF,1);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF, 1);
-	}
-
 	private void saveKeyboardPref()
 	{
-		if (!HikeMessengerApp.isCustomKeyboardUsable())
-		{
-			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
-			if (keyboardSettings != null)
-			{
-				getPreferenceScreen().removePreference(keyboardSettings);
-				return;
-			}
-		}
-
-		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
-		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
-		{
-			boolean val = HikeMessengerApp.isSystemKeyboard();
-			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
-		}
-
 		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
 		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
 			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
 
-		setKeyboardLangSummary();
-
-		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
-		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
-		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
-		setPrefValueFromKpt(HikeConstants.SOUND_ON_KEYPRESS_PREF, kptSettings.getSoundOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.POPUP_ON_KEYPRESS_PREF, kptSettings.getPopupOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.VIBRATE_ON_KEYPRESS_PREF, kptSettings.getVibrateOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.AUTO_CORRECT_PREF, kptSettings.getAutoCorrectionState());
-		setPrefValueFromKpt(HikeConstants.DISPLAY_SUGGESTIONS_PREF, kptSettings.getDisplaySuggestionsState());
-		setPrefValueFromKpt(HikeConstants.PRIVATE_MODE_PREF, kptSettings.getPrivateModeState());
-		setPrefValueFromKpt(HikeConstants.DISPLAY_ACCENTS_PREF, kptSettings.getDisplayAccentsState());
-		setPrefValueFromKpt(HikeConstants.LONG_PRESS_DUR_PREF, kptSettings.getLongPressDuration());
-		setPrefValueFromKpt(HikeConstants.KEYPRESS_VOL_PREF, (int)kptSettings.getKeyPressSoundVolume());
-		setPrefValueFromKpt(HikeConstants.KEYPRESS_VIB_DUR_PREF, kptSettings.getKeyPressVibrationDuration());
 	}
 
-	private void setPrefValueFromKpt(String PreferenceName, int state)
-	{
-		Preference preference = findPreference(PreferenceName);
-		if (preference != null && preference instanceof SwitchPreferenceCompat)
-		{
-			boolean value = true;
-			switch (state)
-			{
-				case AdaptxtSettings.KPT_TRUE:
-					value = true;
-					break;
-				case AdaptxtSettings.KPT_FALSE:
-					value = false;
-					break;
-			}
-			((SwitchPreferenceCompat)preference).setChecked(value);
-		}
-		else if (preference != null && preference instanceof SeekBarPreference)
-		{
-			((SeekBarPreference)preference).setCurrentValue(state);
-		}
-	}
-	
-	private void setKeyboardLangSummary()
-	{
-		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
-		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
-		{
-			String summary = new String();
-			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance().getInstalledLanguagesList();
-			for (KPTAddonItem item : langList)
-			{
-				if (KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
-				{
-					summary += item.getDisplayName();
-					summary += ", ";
-				}
-			}
-			summary = summary.substring(0, Math.max(summary.length() - 2, 0));
-			kbdLanguagePref.setSummary(summary);			
-		}
-	}
-	
 	private void addClickPreferences()
 	{
 		addOnPreferenceClickListeners(HikeConstants.DELETE_PREF);
@@ -306,25 +209,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
-		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_LANGUAGE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.CALLER_BLOKED_LIST_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
-	}
-	
-	private void addKeyboardPreferenceClickListeners(String preferenceName)
-	{
-		Preference preference = getPreferenceScreen().findPreference(preferenceName);
-		if (preference != null)
-		{
-			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
-			preference.setOnPreferenceClickListener(this);
-		}
-		else
-		{
-			Logger.d(getClass().getSimpleName(), preferenceName + " preference is null");
-		}
 	}
 	
 	private void addSwitchPreferences()
@@ -334,32 +219,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.DOUBLE_TAP_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
-		addKeyboardPreferenceChangeListener();
-		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_CORRECT_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_SPACING_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_SUGGESTIONS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.PRIVATE_MODE_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_ACCENTS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.POPUP_ON_KEYPRESS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.SOUND_ON_KEYPRESS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.VIBRATE_ON_KEYPRESS_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
 		addStickerRecommendPreferenceChangeListener();
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
 		addEnableKnownNumberCardPrefListener();
-	}
-	
-	private void addKeyboardPreferenceChangeListener()
-	{
-		final SwitchPreferenceCompat preference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_PREF);
-		if (preference != null)
-		{
-			preference.shouldDisableDependents();
-			preference.setOnPreferenceChangeListener(this);
-		}
 	}
 	
 	private void addEnableKnownNumberCardPrefListener()
@@ -653,36 +517,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void addOnSeekbarChangeListeners(String preferenceName, int min) {
-		final SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen()
-				.findPreference(preferenceName);
-		if (preference != null) {
-			preference.setMinimun(min);
-			preference.setOnPreferenceChangeListener(this);
-			setSeekbarPrefSummary(preferenceName, min);
-		}
-	}
-	
-	private void setSeekbarPrefSummary(String preferenceName, int min)
-	{
-		SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen().findPreference(preferenceName);
-		if (preference != null)
-		{
-			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
-			{
-				preference.setSummary("Level " + kptSettings.getKeyPressSoundVolume());
-			}
-			else if (preferenceName == HikeConstants.KEYPRESS_VIB_DUR_PREF)
-			{
-				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " ms");
-			}
-			else if (preferenceName == HikeConstants.LONG_PRESS_DUR_PREF)
-			{
-				preference.setSummary(kptSettings.getLongPressDuration() + " ms");
-			}
-		}
-	}
-	
 	private void tryToSetupSMSPreferencesScreen()
 	{
 		Preference hikeOffline = getPreferenceScreen().findPreference(HikeConstants.SMS_SETTINGS.KEY_HIKE_OFFLINE);
@@ -813,7 +647,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	protected void onResume() {
 		super.onResume();
 		mIsResumed = true;
-		setKeyboardLangSummary();
 	}
 	
 	@Override
@@ -1232,22 +1065,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
 			startActivity(i);
 		}
-		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))
-		{
-			IntentFactory.openKeyboardLanguageSetting(HikePreferences.this);
-		}
-		else if(HikeConstants.KEYBOARD_PRIMARY_PREF.equals(preference.getKey()))
-		{
-			startActivity(IntentFactory.getIntentForKeyboardPrimarySettings(HikePreferences.this));
-		}
-		else if(HikeConstants.TEXT_CORRECTION_PREF.equals(preference.getKey()))
-		{
-			startActivity(IntentFactory.getIntentForTextCorrectionSettings(HikePreferences.this));
-		}
-		else if(HikeConstants.KEYBOARD_ADV_PREF.equals(preference.getKey()))
-		{
-			startActivity(IntentFactory.getIntentForKeyboardAdvSettings(HikePreferences.this));
-		}
 		
 		return true;
 	}
@@ -1291,25 +1108,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			return false;
 		}
 
-		if (newValue instanceof Integer)
-		{
-			int value = (int) newValue;
-			if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setLongPressDuration(value);
-				preference.setSummary(value + " ms");
-			}
-			else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setKeyPressSoundVolume(value);
-				preference.setSummary("Level " + value);
-			}
-			else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setKeyPressVibrationDuration(value);
-				preference.setSummary(value + " ms");
-			}
-		}
 		else if (newValue instanceof Boolean)
 		{
 			boolean isChecked = (Boolean) newValue;
@@ -1561,44 +1359,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			} else if (HikeConstants.STEALTH_INDICATOR_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
-			} else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey())) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
-				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, HikeConstants.TOGGLE, isChecked);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
-				if (AppConfig.SHOW_LOGS)
-				{
-					Toast.makeText(getApplicationContext(), kptSettings.getKptSdkVersion(), Toast.LENGTH_SHORT).show();
-				}
-			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {
-				kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CORRECT_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CAPITALIZATION_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_SPACING_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey())) {
-				kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.DISPLAY_SUGGESTION_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey())) {
-				kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.PRIVATE_MODE_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey())) {
-				kptSettings.setDisplayAccentsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			} else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_POPUP_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_SOUND_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_VIBRATION_ON, HikeConstants.TOGGLE, isChecked);
-			}
+			} 
 		}
 		return true;
 	}

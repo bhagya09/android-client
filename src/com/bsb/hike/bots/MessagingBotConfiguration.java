@@ -50,8 +50,6 @@ public class MessagingBotConfiguration extends BotConfiguration
 		public static byte VIEW_PROFILE = 11;
 
 		public static byte SEARCH = 23;
-		
-		public static byte HIKE_KEYBOARD = 25;
 
 		public static byte HELP = 26;
 	}
@@ -83,6 +81,8 @@ public class MessagingBotConfiguration extends BotConfiguration
 	public static final byte SLIDE_IN = 23;
 	
 	public static final byte READ_SLIDE_OUT = 24;
+
+	public static final byte SHOW_KPT_EXIT_UI = 25;
 	
 	public boolean isLongTapEnabled()
 	{
@@ -129,11 +129,6 @@ public class MessagingBotConfiguration extends BotConfiguration
 		return isBitSet(OverflowMenu.EMAIL_CHAT);
 	}
 	
-	public boolean isHikeKeyboardInOverflowMenuEnabled()
-	{
-		return isBitSet(OverflowMenu.HIKE_KEYBOARD);
-	}
-
 	public boolean isClearChatInOverflowMenuEnabled()
 	{
 		return isBitSet(OverflowMenu.CLEAR_CHAT);
@@ -230,6 +225,12 @@ public class MessagingBotConfiguration extends BotConfiguration
 	{
 		return isBitSet(READ_SLIDE_OUT);
 	}
+
+	public boolean isKptExitUIEnabled() {
+
+		return isBitSet(SHOW_KPT_EXIT_UI);
+	}
+
 	public boolean isHelpInOverflowMenuEnabled()
 	{
 		return isBitSet(OverflowMenu.HELP);

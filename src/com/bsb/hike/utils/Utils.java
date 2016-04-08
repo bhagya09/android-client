@@ -221,7 +221,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -3047,12 +3046,6 @@ public class Utils
 			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
-			String keyBoardLang;
-			if (!HikeMessengerApp.isSystemKeyboard())
-				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
-			else
-				keyBoardLang = "";
-			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
 			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
 			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
@@ -7787,11 +7780,16 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		for (File file : folder.listFiles()) {
-			if (file.isFile())
-				length += file.length();
-			else
+		
+		// Precautionary check to prevent NPE from empty list files.
+		if (folder.listFiles() == null)
+			return length;
+		for (File file : folder.listFiles())
+		{
+			if (file.isDirectory())
 				length += folderSize(file);
+			else if (file.isFile())
+				length += file.length();
 		}
 		return length;
 	}
@@ -7982,16 +7980,6 @@ public class Utils
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
 	}
 
-	public static void setCustomKeyboardEnable(boolean enable)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
-	}
-
-	public static void setCustomKeyboardSupported(boolean supported)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
-	}
-
 	public static String getInitialsFromContactName(String contactName)
 	{
 		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
@@ -8023,6 +8011,7 @@ public class Utils
 		JSONObject json = new JSONObject();
 		try
 		{
+
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 			json.put(AnalyticsConstants.EVENT, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
@@ -8040,7 +8029,76 @@ public class Utils
 		}
 	}
 
-// Use this method to encrypt a string
+	public static boolean kptDictionaryDownloaded(Context context) {
+
+		File hikeDir = context.getExternalFilesDir(null);
+		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
+
+		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void removeKptDictionaries(Context context) {
+
+		File hikeDir = context.getExternalFilesDir(null);
+		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
+
+		if (hikeLanguageDir.exists()) {
+
+			try {
+
+				delete(hikeLanguageDir);
+
+			}catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void delete(File file) throws IOException {
+
+		if (file.isDirectory()) {
+
+			//directory is empty, then delete it
+			if (file.list().length == 0) {
+
+				file.delete();
+				System.out.println("Directory is deleted : "
+						+ file.getAbsolutePath());
+
+			} else {
+
+				//list all the directory contents
+				String files[] = file.list();
+
+				for (String temp : files) {
+					//construct the file structure
+					File fileDelete = new File(file, temp);
+
+					//recursive delete
+					delete(fileDelete);
+				}
+
+				//check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+					System.out.println("Directory is deleted : "
+							+ file.getAbsolutePath());
+				}
+			}
+
+		} else {
+			//if file, then delete it
+			file.delete();
+			System.out.println("File is deleted : " + file.getAbsolutePath());
+		}
+	}
+
+	// Use this method to encrypt a string
 	public static String encrypt(String input)
 	{
 		if(input==null)
@@ -8066,8 +8124,9 @@ public class Utils
 		AESEncryption aesObj = new AESEncryption(key + salt,"MD5");
 		return aesObj.decrypt(input);
 	}
-	/*
-	Method to return network type as short in descending order
+
+	/**
+	 *Method to return network type as short in descending order
 	 */
 	public static short getNetworkShortinOrder(String networkType)
 	{
