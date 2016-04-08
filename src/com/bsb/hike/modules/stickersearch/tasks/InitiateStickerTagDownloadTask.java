@@ -24,7 +24,14 @@ public class InitiateStickerTagDownloadTask implements Runnable
 
 	private Set<String> languagesSet;
 
-	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> stickerSet, Set<String> languagesSet)
+	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet)
+	{
+		this.firstTime = firstTime;
+		this.state = state;
+		this.languagesSet = languagesSet;
+	}
+
+	public InitiateStickerTagDownloadTask(boolean firstTime, int state, Set<String> languagesSet,Set<String> stickerSet)
 	{
 		this.firstTime = firstTime;
 		this.state = state;
@@ -35,23 +42,30 @@ public class InitiateStickerTagDownloadTask implements Runnable
 	@Override
 	public void run()
 	{
-		if(Utils.isEmpty(stickerSet)) {
-
-			if (firstTime) {
+		if(Utils.isEmpty(stickerSet))
+		{
+			if (firstTime)
+			{
 				List<StickerCategory> stickerCategoryList = StickerManager.getInstance().getAllStickerCategories().second;
 				stickerSet = StickerManager.getInstance().getStickerSet(state);
 
-				if (Utils.isEmpty(stickerCategoryList)) {
+				if (Utils.isEmpty(stickerCategoryList))
+				{
 					Logger.wtf(TAG, "Empty sticker category list while downloading tags first time.");
-				} else {
-					for (StickerCategory category : stickerCategoryList) {
+				}
+				else
+				{
+					for (StickerCategory category : stickerCategoryList)
+					{
 						List<Sticker> stickers = category.getStickerList();
 						stickerSet.addAll(StickerManager.getInstance().getStickerSetFromList(stickers));
 					}
 
-					StickerManager.getInstance().saveStickerSet(stickerSet, state, false);
+					StickerManager.getInstance().saveStickerSet(stickerSet, state,false);
 				}
-			} else {
+			}
+			else
+			{
 				stickerSet = StickerManager.getInstance().getStickerSet(state);
 			}
 		}
@@ -72,8 +86,9 @@ public class InitiateStickerTagDownloadTask implements Runnable
 			}
 			return ;
 		}
-		
+
 		MultiStickerTagDownloadTask stickerTagDownloadTask = new MultiStickerTagDownloadTask(stickerSet, state, languagesSet);
 		stickerTagDownloadTask.execute();
+
 	}
 }

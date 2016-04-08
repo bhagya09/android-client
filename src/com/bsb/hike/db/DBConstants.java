@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 49;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -276,6 +276,26 @@ public interface DBConstants
 	String URL_KEY = "urlKey";
 	String URL_KEY_INDEX = "urlKeyIndex";
 
+	//StickerTable
+
+	public static final String STICKER_TABLE = "sticker_table";
+
+	public static final String STICKER_ID = "st_id";
+
+	public static final String SMALL_STICKER_PATH = "sm_st_path";
+
+	public static final String LARGE_STICKER_PATH = "lr_st_path";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String IS_ACTIVE = "is_active";
+
+	public static final int DEFAULT_ACTIVE_STATE = 1;
+
+	public static final int DEFAULT_INACTIVE_STATE = 0;
+
 	public static interface HIKE_CONV_DB
 	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
@@ -304,7 +324,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 6;
+		public static final int DB_VERSION = 7;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -378,9 +398,18 @@ public interface DBConstants
 		public static final String UPDATED_VERSION = "u_v";
 		
 		public static final String BOT_DISCOVERY_TABLE = "bot_discovery";
-		
-		// --- Bot Discovery Table ends here ---
 
+        // --- Bot Discovery Table ends here ---
+
+        // ------ MAPP TABLE constants ----------
+        public static final String MAPP_DATA = "mapp_data";
+        public static final String VERSION = "version";
+        public static final String APP_PACKAGE = "app_package";
+
+		//Bot Download state table starts here
+		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
+
+		String DOWNLOAD_STATE = "downloadState";
 		
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";
@@ -472,6 +501,18 @@ public interface DBConstants
 	public static final String CATEGORY_INDEX = "catIndex";
 
 	public static final String CATEGORY_SIZE = "categorySize";
+	
+	public static final String CATEGORY_DESCRIPTION = "categoryDescription";
+
+	public static final String STICKER_LIST = "stickerList";
+
+	public static final String IS_DOWNLOADED = "isDownloaded";
+
+	public static final String SIMILAR_CATEGORIES = "similarCategories";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT_STRING = "copyRightString";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	

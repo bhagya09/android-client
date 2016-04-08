@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1636"
-    android:versionName="4.2.0.18.11.payments" >
+    android:versionCode="1646"
+    android:versionName="4.2.0.82.19.internal_release" >
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
@@ -310,6 +311,10 @@
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".ui.FileSelectActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
@@ -540,6 +545,8 @@
 
         <service android:name=".service.SimpleWakefulService" >
         </service>
+
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
 
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>

@@ -116,8 +116,14 @@ public class BotChatThread extends OneToOneChatThread
 	protected void onStop()
 	{
 		super.onStop();
-        HAManager.getInstance().recordIndividualChatSession(msisdn);
 	}
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        HAManager.getInstance().recordIndividualChatSession(msisdn);
+    }
 
     @Override
 	protected void fetchConversationFinished(Conversation conversation)

@@ -211,7 +211,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, AudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback
 {
 	private static final String TAG = ChatThread.class.getSimpleName();
 
@@ -293,7 +293,9 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int MESSAGE_SENT = 39;
-	
+
+	protected static final int OPEN_PICKER = 40;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -402,6 +404,8 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	protected boolean keyboardSelectedLanguageChanged;
 
+	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
+
 	ObjectAnimator tipFadeInAnimation;
 
 	Callable<Conversation> callable=new Callable<Conversation>() {
@@ -425,7 +429,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			case StickerManager.STICKERS_DOWNLOADED:
 				if (mStickerPicker != null)
 				{
-					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
 				break;
@@ -570,6 +573,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+		case OPEN_PICKER:
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+			StickerManager.getInstance().setShowLastCategory(false);
+			stickerClicked();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -940,7 +947,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	private void initStickerPicker()
 	{
 		
-		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this, this));
 	}
 
 	private void initEmoticonPicker()
@@ -1275,7 +1282,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 				}
 			}
 			break;
-		case HikeConstants.PLATFORM_REQUEST:
+			case RESULT_CODE_STICKER_SHOP_ACTIVITY:
+				uiHandler.sendEmptyMessage(OPEN_PICKER);
+				break;
+			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
@@ -1472,13 +1482,6 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			if (mShareablePopupLayout.isBusyInOperations())
-			{//  previous task is running don't accept this event
-				return;
-			}
-			mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
-			setEmoticonButtonSelected(false);
-			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
@@ -1649,6 +1652,13 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	protected void stickerClicked()
 	{
+		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
+			return;
+		}
+		mShareablePopupLayout.setCustomKeyBoardHeight((keyboardHeight == 0) ? getKeyBoardAndCVHeight() : keyboardHeight);
+		setEmoticonButtonSelected(false);
+		setStickerButtonSelected(true);
+
 		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
@@ -3250,12 +3260,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						sendSticker(sticker, StickerManager.FROM_FORWARD);
-						boolean isDis = sticker.isDisabled(sticker, activity.getApplicationContext());
-						// add this sticker to recents if this sticker is not disabled
-						if (!isDis)
-						{
-							StickerManager.getInstance().addRecentSticker(sticker);
-						}
+
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
@@ -6671,10 +6676,13 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	{
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
-	
+
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		
+		if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(false);
+        }
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6689,7 +6697,10 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(true);
+        }
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
@@ -6917,6 +6928,14 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	public void onPostResume()
 	{
 
+	}
+
+	@Override
+	public void shopClicked()
+	{
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH);
+		Intent i = IntentFactory.getStickerShopIntent(activity);
+		activity.startActivityForResult(i, RESULT_CODE_STICKER_SHOP_ACTIVITY);
 	}
 
 	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>

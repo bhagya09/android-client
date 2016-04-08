@@ -88,6 +88,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -441,8 +442,6 @@ public abstract class JavascriptBridge
 		}
 	}
 
-	;
-
 	public static void expand(final View v, final int targetHeight)
 	{
 		final int initHeight = v.getMeasuredHeight();
@@ -688,14 +687,14 @@ public abstract class JavascriptBridge
 					if (Utils.isKitkatOrHigher())
 					{
 						Logger.d(tag, "Inside call back to js with id " + id);
-						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						try
 						{
-							@Override
-							public void onReceiveValue(String value)
-							{
-								Logger.d("JavascriptBridge",value);
-							}
-						});
+							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')",null);
+						}
+						catch (IllegalStateException e)
+						{
+							mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')"); // On some Custom ROMs and Nokia phones depite being on API greater than 19 this function is not available.This API not supported on Android 4.3 and earlier\n\tat android.webkit.WebViewClassic.evaluateJavaScript(WebViewClassic.java:2674)\n\tat
+						}
 					}
 					else
 					{
@@ -1442,7 +1441,8 @@ public abstract class JavascriptBridge
 		botInfo.setUnreadCount(0);
 
 	}
-	/**
+
+    /**
 	 * Platform Version 9
 	 * This function is made  to know whether a microapp exists.
 	 * @param id: the id of the function that native will call to call the js .
@@ -1451,9 +1451,27 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id, String mapp)
 	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+		String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + mapp);
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileNameInGamesAfterMigrationCheck = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + PlatformContentConstants.HIKE_DIR_NAME.toLowerCase() + mapp);
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + mapp);
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + mapp);
+
+        if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileNameInGamesAfterMigrationCheck.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
 	}

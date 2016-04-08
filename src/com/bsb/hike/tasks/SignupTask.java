@@ -443,7 +443,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			//Check for crash reporting tool
 			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
 			{
-				Crashlytics.setUserIdentifier(accountInfo.getMsisdn());
+				Crashlytics.setUserIdentifier(accountInfo.getUid());
 			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
