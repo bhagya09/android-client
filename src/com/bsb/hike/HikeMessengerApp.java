@@ -1053,8 +1053,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void logUser() {
 		// TODO: Use the current user's information
 		// You can call any combination of these three methods
-		if (!TextUtils.isEmpty(msisdn)) {
-			Crashlytics.setUserIdentifier(msisdn);
+		String uId = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
+		if (!TextUtils.isEmpty(uId)) {
+			Crashlytics.setUserIdentifier(uId);
 		}
 	}
 
