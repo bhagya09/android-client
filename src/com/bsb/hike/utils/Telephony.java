@@ -36,6 +36,7 @@ public final class Telephony {
 
 	private static int activeSimCount;
 	private static boolean defaultCheckDone;
+	private static boolean needTocheck;
 
 	public static int getActiveSimCount() {
 		return activeSimCount;
@@ -60,25 +61,33 @@ public final class Telephony {
 	private Telephony() {
 	}
 
-	public static Telephony getInstance(Context context) {
+	public static Telephony getInstance(Context context)
+	{
 		telephonyInfo = new Telephony();
 
-		telephonyManager = ((TelephonyManager) context
-				.getSystemService(Context.TELEPHONY_SERVICE));
+		telephonyManager = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
 
 		mContext = context;
 		checkForMultiSim(context);
 		activeSimCount = getSimReadyCount();
-		
+
 		getIMEI();
-		
-		
-		if (isLollipopMR1OrHigher()) {
+
+		if (isLollipopMR1OrHigher())
+		{
 			buildSimObjects();
-		} else {
-			//printTelephonyManagerMethodNamesForThisDevice(context);
-			// Check for default case
-			if (!defaultCheckDone) {
+		}
+		else
+		{
+			needTocheck = true;
+		}
+
+		// printTelephonyManagerMethodNamesForThisDevice(context);
+		// Check for default case
+		if (needTocheck)
+		{
+			if (!defaultCheckDone)
+			{
 				checkDefault();
 
 				// Check for all Attributes
@@ -87,12 +96,13 @@ public final class Telephony {
 				getRoaming();
 				getCountryISO();
 			}
-
-			// Create sims object
-			createSimObject();
 		}
+
+		// Create sims object
+		createSimObject();
 		return telephonyInfo;
 	}
+
 
 	private static void getCountryISO() {
 		boolean search = false;
@@ -444,6 +454,7 @@ public final class Telephony {
 	private static void buildSimObjects() {
 		List<SubscriptionInfo> subscriptionInfos = SubscriptionManager.from(
 				mContext).getActiveSubscriptionInfoList();
+		if(subscriptionInfos!=null){
 		for (int i = 0; i < subscriptionInfos.size(); i++) {
 			Sim sim = new Sim();
 			SubscriptionInfo lsuSubscriptionInfo = subscriptionInfos.get(i);
@@ -455,6 +466,9 @@ public final class Telephony {
 			sim.setSlotIndex(lsuSubscriptionInfo.getSimSlotIndex());
 			sim.setImei(imei[i]);
 			sims[i] = sim;
+		}
+		}else{
+			needTocheck = true;
 		}
 
 	}
