@@ -4075,5 +4075,9 @@ public class HikeConstants
 		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
 
 		public static final String RUX_BACKUP_PENDING = "ruxbkuppending";
+
+		public static final String KEY_SETTINGS = "settings";
+
+		public static final String KEY_SETTING = "setting";
 	}
 }

@@ -55,6 +55,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_V4 = "/v4";
 
+	private static final String BASE_V5 = "/v5";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
@@ -93,7 +95,7 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
-	private static final String HIKE_SETTINGS = "/hikesettings/";
+	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	public static synchronized void setUpBase()
 	{
@@ -505,11 +507,18 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
-	public static String getAnalyticsUrl() {
+	public static String getAnalyticsUrl()
+	{
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
 
-	public static String getSettingsUploadUrl() {
-		return  BASE_URL + BASE_V1 + HIKE_SETTINGS;
+	public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 }
