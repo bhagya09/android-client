@@ -47,6 +47,22 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
         String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
+        // Migrating static files (DP directory) here
+        try
+        {
+            if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR).exists())
+            {
+                isDPDirectoryMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR),
+                        new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.MICROAPPS_DP_DIR));
+            }
+            else
+                isDPDirectoryMigrated = true;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
 		/*
 		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently present in BotTable
 		 */
@@ -152,16 +168,19 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 				{
                     mapForMigratedApps.put(entry.getKey(), true);
                     Logger.e("Hike Micro apps code Migration Service File Not Found Exception" ,fnfe.toString());
+                    PlatformUtils.microappsMigrationFailedAnalytics(fnfe.toString());
                     fnfe.printStackTrace();
 				}
                 catch (JSONException e)
                 {
                     Logger.e("Hike Micro apps code Migration Service JSONException",e.toString());
+                    PlatformUtils.microappsMigrationFailedAnalytics(e.toString());
                     e.printStackTrace();
                 }
                 catch (IOException e)
                 {
                     Logger.e("Hike Micro apps code Migration Service IOException",e.toString());
+                    PlatformUtils.microappsMigrationFailedAnalytics(e.toString());
                     e.printStackTrace();
                 }
 			}
@@ -173,22 +192,6 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 				isMicroAppsSuccessfullyMigrated = false;
 				break;
 			}
-		}
-
-        // Migrating static files (DP directory) here
-		try
-		{
-			if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR).exists())
-			{
-				isDPDirectoryMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR),
-						new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.MICROAPPS_DP_DIR));
-			}
-			else
-				isDPDirectoryMigrated = true;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
 		}
 
 		/*
