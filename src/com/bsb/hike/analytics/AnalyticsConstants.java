@@ -778,4 +778,6 @@ public class AnalyticsConstants
 	public static final String ACT_LOG_2 = "act_log2";
 
 	public static final String CHAT_OPEN = "chat_open";
+
+	public static final String ADD_FRIEND = "add_friend";
 }

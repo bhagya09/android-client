@@ -96,6 +96,8 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -2741,7 +2743,7 @@ import java.util.Map;
 			break;
 		case R.id.add_friend_view:
 		case R.id.add_friend_button:
-			handleAddFavoriteButtonClick();
+			handleAddFavoriteButtonClick(v.getId());
 			break;
 		default:
 			super.onClick(v);
@@ -3738,9 +3740,12 @@ import java.util.Map;
 		}
 	}
 
-	private void handleAddFavoriteButtonClick()
+	private void handleAddFavoriteButtonClick(int viewResId)
 	{
 		addFavorite();
+
+		// Record Analytics Event
+		recordAddFavoriteButtonClick(viewResId);
 
 		//If now we can show the last seen, we should
 		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
@@ -4001,4 +4006,28 @@ import java.util.Map;
 
 		super.blockUser(object, isBlocked);
 	}
+
+	private void recordAddFavoriteButtonClick(int viewResId)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.GENUS, viewResId == R.id.add_friend_button ? "req_acc" : "req_sent");
+			json.put(AnalyticsConstants.V2.SPECIES, viewResId == R.id.add_friend_button ? "ftue" : "non_ftue");
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }
