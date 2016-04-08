@@ -142,7 +142,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				ImageView animatedThemeIndicator = (ImageView) convertView.findViewById(R.id.animated_theme_indicator);
 
 				animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
-				theme.setBackground(ChatThemeManager.getInstance().getDrawableHelper().getDrawableForTheme(chatTheme, HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+				theme.setBackground(ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
 				theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
 
 				return convertView;

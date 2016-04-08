@@ -451,7 +451,7 @@ public class PinHistoryAdapter extends BaseAdapter implements OnLongClickListene
 			if (isSelected(convMessage))
 			{
 				//calling multi select color for the theme
-				overlay.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+				overlay.setBackground(ChatThemeManager.getInstance().
 						getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 			}
 			else

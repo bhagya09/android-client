@@ -40,6 +40,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinHistoryAdapter;
+import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -123,7 +124,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		mPinListView.setOnItemLongClickListener(this);
 		
 		mPinListView.setAdapter(pinAdapter);
-		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 										getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 		StatusBarColorChanger.setStatusBarColorValue(this, statusBarColor.getColor());
 		
@@ -169,7 +170,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 
 		if(!chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			actionBar.setBackgroundDrawable(ChatThemeManager.getInstance().getDrawableHelper().
+			actionBar.setBackgroundDrawable(ChatThemeManager.getInstance().
 					getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 		}
 		else
@@ -341,7 +342,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		try
 		{
-			// TEMPORARY CHAT THEME FIX
+			// TODO CHATTHEME
 			TextView tv = (TextView) LayoutInflater.from(this).inflate(R.layout.system_message_dark, null, false);
 			tv.setText(R.string.pinHistoryTutorialText);
 			if (chatThemeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))

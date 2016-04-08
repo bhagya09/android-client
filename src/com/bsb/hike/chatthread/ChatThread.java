@@ -28,6 +28,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
+import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
@@ -1765,12 +1766,10 @@ import android.widget.Toast;
 	{
 		if (mAdapter.getChatThemeId().equals(themeId) && themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			activity.updateActionBarColor(ChatThemeManager.getInstance().
-					getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+			activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 			setChatBackground(R.color.chat_thread_default_bg);
 
-			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
-											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
 
 		}
@@ -1784,8 +1783,7 @@ import android.widget.Toast;
 				setChatBackground(R.color.chat_thread_default_bg);
 
 			setConversationTheme(themeId);
-			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
-											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
 		}
 	}
@@ -1798,8 +1796,7 @@ import android.widget.Toast;
 		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
 		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
-			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().
-					getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
+			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
 			setChatBackground(R.color.chat_thread_default_bg);
 		}
 		else
@@ -1819,7 +1816,7 @@ import android.widget.Toast;
 	public void themeCancelled()
 	{
 		Logger.i(TAG, "theme cancelled, resetting the default theme if needed.");
-		if (currentThemeId != mAdapter.getChatThemeId())
+		if (!currentThemeId.equals(mAdapter.getChatThemeId()))
 		{
 			setConversationTheme(currentThemeId);
 		}
@@ -2475,10 +2472,9 @@ import android.widget.Toast;
 		}
 		else
 		{
-			activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+			activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 
-			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
-											getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
 		}
 		
@@ -5239,7 +5235,7 @@ import android.widget.Toast;
 		/**
 		 * Proceeding only if the chat theme is changed for the current msisdn
 		 */
-		if (mConversation.getMsisdn().equals(pair.first))
+		if (mConversation.getMsisdn().equals(pair.first) && ChatThemeManager.getInstance().isThemeAvailable(pair.second)) // TODO CHAT THEME
 		{
 			sendUIMessage(CHAT_THEME, pair.second);
 		}
@@ -5286,8 +5282,7 @@ import android.widget.Toast;
 			}
 			else
 			{
-				activity.updateActionBarColor(ChatThemeManager.getInstance().
-						getDrawableHelper().getDrawableForTheme(currentThemeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+				activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(currentThemeId, HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 			}
 			activity.getSupportActionBar().show();
 		}
@@ -5991,7 +5986,7 @@ import android.widget.Toast;
 		if (getCurrentlThemeId() != null && !getCurrentlThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
 			setBackground(getCurrentlThemeId());
-			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 											getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
 		}

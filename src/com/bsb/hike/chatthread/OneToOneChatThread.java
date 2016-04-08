@@ -50,6 +50,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -952,11 +953,9 @@ import java.util.Map;
 		mActionBar.updateOverflowMenuItemString(R.string.scan_free_hike, getString(R.string.scan_free_hike));
 		fetchLastSeen();
 		showNetworkError(ChatThreadUtils.checkNetworkError());
-		activity.updateActionBarColor(ChatThemeManager.getInstance().
-				getDrawableHelper().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
+		activity.updateActionBarColor(ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_ACTION_BAR_BG));
 
-		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
-				getDrawableHelper().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
+		ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(getCurrentlThemeId(), HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 		setStatusBarColorValue(statusBarColor.getColor());
 
 		showCallIcon();
@@ -1526,8 +1525,7 @@ import java.util.Map;
 			regularSmsText.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggleSubtext.setTextColor(this.getResources().getColor(R.color.white));
 			smsToggle.setButtonDrawable(R.drawable.sms_checkbox_custom_theme);
-			activity.findViewById(R.id.sms_toggle_button).setBackground(ChatThemeManager.getInstance().
-					getDrawableHelper().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG));
+			activity.findViewById(R.id.sms_toggle_button).setBackground(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_SMS_TOGGLE_BG));
 		}
 
 		boolean smsToggleOn = Utils.getSendSmsPref(activity.getApplicationContext());

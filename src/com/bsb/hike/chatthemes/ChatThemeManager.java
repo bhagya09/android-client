@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthemes;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class ChatThemeManager
 
 	public String defaultChatThemeId = "0";
 
+	public HikeChatTheme defaultChatTheme = new HikeChatTheme();
+
 	private String TAG = "ChatThemeManager";
 
 	private ChatThemeManager()
@@ -66,6 +69,10 @@ public class ChatThemeManager
 		mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
 		mDrawableHelper = new ChatThemeDrawableHelper();
 		mAssetHelper = new ChatThemeAssetHelper();
+
+		// initialising the default theme
+		defaultChatTheme.setThemeId(defaultChatThemeId);
+		mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
 	}
 
 	public ChatThemeAssetHelper getAssetHelper()
@@ -93,6 +100,9 @@ public class ChatThemeManager
 	 */
 	public boolean isThemeAvailable(String themeId)
 	{
+		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId)) // the default theme is always available
+			return true;
+
 		if(themeId == null || !mChatThemesList.containsKey(themeId))
 			return false;
 
@@ -111,7 +121,11 @@ public class ChatThemeManager
 	 */
 	public String[] getMissingAssetsForTheme(String themeId)
 	{
-		return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
+		if(!isThemeAvailable(themeId) && mChatThemesList.containsKey(themeId)) // the second check is to avoid any null pointer exception at the getTheme call
+		{
+			return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
+		}
+		return new String[0];
 	}
 
 	public void downloadAssetsForTheme(String themeId)
@@ -208,5 +222,20 @@ public class ChatThemeManager
 
 		Collections.sort(availableThemes); // sorting the themes on the basis of themeId currently.
 		return availableThemes.toArray(new String[availableThemes.size()]);
+	}
+
+	/**
+	 * method to get a drawable given a themeId and an asset index. In case of any problem, it returns a default asset.
+	 * @param themeId
+	 * @param assetIndex
+	 * @return a drawable corresponding to the asset
+	 */
+	public Drawable getDrawableForTheme(String themeId, byte assetIndex)
+	{
+		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId) || !ChatThemeManager.getInstance().isThemeAvailable(themeId))
+		{
+			return mDrawableHelper.getDefaultDrawable(assetIndex);
+		}
+		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
 	}
 }

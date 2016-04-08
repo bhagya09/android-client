@@ -29,21 +29,6 @@ public class ChatThemeDrawableHelper
 	}
 
 	/**
-	 * method to get a drawable given a themeId and an asset index. In case of any problem, it returns a default asset.
-	 * @param themeId
-	 * @param assetIndex
-	 * @return a drawable corresponding to the asset
-	 */
-	public Drawable getDrawableForTheme(String themeId, byte assetIndex)
-	{
-		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId) || !ChatThemeManager.getInstance().isThemeAvailable(themeId))
-		{
-			return getDefaultDrawable(assetIndex);
-		}
-		return getDrawableForTheme(ChatThemeManager.getInstance().getTheme(themeId), assetIndex);
-	}
-
-	/**
 	 * This method returns the drawable for the theme
 	 *
 	 * @param Context
@@ -147,7 +132,7 @@ public class ChatThemeDrawableHelper
 	 * @return the Drawable
 	 *
 	 */
-	private Drawable getDefaultDrawable(int assetIndex)
+	public Drawable getDefaultDrawable(int assetIndex)
 	{
 		switch (assetIndex)
 		{

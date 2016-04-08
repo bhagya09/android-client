@@ -5379,9 +5379,8 @@ public class Utils
 			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
 
-		// TEMPORARY CHAT THEME FIX (did not consider lowering the resolution of image for different phones)
-		BitmapDrawable bd = (BitmapDrawable) ChatThemeManager.getInstance().getDrawableHelper().
-													  getDrawableForTheme(chatThemeId, asset);
+		// TODO CHATTHEME (did not consider lowering the resolution of image for different phones)
+		BitmapDrawable bd = (BitmapDrawable) ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
 
 		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
 

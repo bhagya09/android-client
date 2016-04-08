@@ -998,7 +998,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					int animId = -1; // TEMPORARY CHAT THEME FIX
+					int animId = -1; // TODO CHATTHEME
 					if(animId != -1)
 					{
 						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
@@ -1107,7 +1107,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else
 					{
-						ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
+						ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().
 														getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_BUBBLE_COLOR);
 						circle.getPaint().setColor(statusBarColor.getColor());
 					}
@@ -2080,7 +2080,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			// TEMPORARY CHAT THEME FIX
+			// TODO CHATTHEME
 			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.bg_system_message_dark);
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
@@ -2155,7 +2155,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				statusHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 				statusHolder.messageTextView.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			statusHolder.container.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+			statusHolder.container.setBackground(ChatThemeManager.getInstance().
 												 getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_INLINE_STATUS_MSG_BG));
 
 			if (viewType == ViewType.STATUS_MESSAGE)
@@ -2192,7 +2192,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			// TEMPORARY CHAT THEME FIX
+			// TODO CHATTHEME
 			int layoutRes = R.layout.system_message_dark;
 			
 			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
@@ -2513,7 +2513,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			// TEMPORARY CHAT THEME FIX
+			// TODO CHATTHEME
 			int layoutRes = R.layout.system_message_dark;
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
@@ -2624,7 +2624,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			}
 			else
 			{
-				messageContainer.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+				messageContainer.setBackground(ChatThemeManager.getInstance().
 											   getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_CHAT_BUBBLE_BG));
 			}
 		}
@@ -2659,7 +2659,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				/*
 				 * If a message has been selected then background of selected state overlay will change to selected state color. otherwise this overlay will be transparent
 				 */
-				overlay.setBackground(ChatThemeManager.getInstance().getDrawableHelper().
+				overlay.setBackground(ChatThemeManager.getInstance().
 									  getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG));
 				Logger.d("sticker", "colored");
 			}
@@ -2717,12 +2717,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	{
 		if(isMessageSent)
 		{
-			iv.setImageDrawable(ChatThemeManager.getInstance().getDrawableHelper().
+			iv.setImageDrawable(ChatThemeManager.getInstance().
 								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_SENT_NUDGE_BG));
 		}
 		else
 		{
-			iv.setImageDrawable(ChatThemeManager.getInstance().getDrawableHelper().
+			iv.setImageDrawable(ChatThemeManager.getInstance().
 								getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_RECEIVED_NUDGE_BG));
 		}
 	}
@@ -2788,8 +2788,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			setGroupParticipantName(convMessage, detailHolder.senderDetails, detailHolder.senderName, detailHolder.senderNameUnsaved, firstMessageFromParticipant);
 			if (isNameExternal)
 			{
-				ColorDrawable offlineMsgTextColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableHelper().
-													getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG);
+				ColorDrawable offlineMsgTextColor = (ColorDrawable) ChatThemeManager.getInstance().
+						getDrawableForTheme(chatThemeId, HikeChatThemeConstants.ASSET_INDEX_OFFLINE_MESSAGE_BG);
 				if (detailHolder.senderName != null)
 				{
 					detailHolder.senderName.setTextColor(offlineMsgTextColor.getColor());
