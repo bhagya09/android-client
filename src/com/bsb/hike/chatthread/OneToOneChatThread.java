@@ -3806,18 +3806,7 @@ import java.util.Map;
 		}
 		super.publishReadByForMessage(message, msisdn, channelSelector);
 	}
-
-	@Override
-	protected void setMessagesRead()
-	{
-		if (isNotMyOneWayFriend())
-		{
-			return; // Do not send MR if not a 1-way friend atleast
-		}
-
-		super.setMessagesRead();
-	}
-
+	
 	private void updateAddFriendViews(Boolean showAddFriendbutton)
 	{
 		if (showAddFriendbutton)
