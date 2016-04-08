@@ -209,7 +209,8 @@ public class UploadContactOrLocationTask extends FileTransferBase
 		}
 		catch (JSONException e)
 		{
-			e.printStackTrace();
+			Logger.e(TAG, "Exception while sending localtion ot contact ", e);
+			doOnFailure();
 		}
 	}
 
