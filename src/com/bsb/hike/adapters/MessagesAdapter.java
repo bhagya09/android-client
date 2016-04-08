@@ -3215,7 +3215,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if ((context.getString(R.string.send_message)).equals(option))
 					{
-						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true, false);
+						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.UNSAVED_CONTACT_CLICK);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						context.startActivity(intent);
 					}

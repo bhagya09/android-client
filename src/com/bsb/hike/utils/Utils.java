@@ -4020,7 +4020,7 @@ public class Utils
 
 		else
 		{
-			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv, ChatThreadActivity.ChatThreadOpenSources.SHORTCUT);
 		}
 
 		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
@@ -4560,7 +4560,7 @@ public class Utils
 		return false;
 	}
 
-	public static void startChatThread(Context context, ContactInfo contactInfo)
+	public static void startChatThread(Context context, ContactInfo contactInfo, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
 		if (contactInfo.getName() != null)
@@ -4573,6 +4573,7 @@ public class Utils
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		context.startActivity(intent);
 	}
 
@@ -7634,7 +7635,7 @@ public class Utils
 
 	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}

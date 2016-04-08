@@ -51,6 +51,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
 {

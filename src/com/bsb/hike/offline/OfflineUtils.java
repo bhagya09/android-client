@@ -48,7 +48,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.TConstants.ERRORCODES;
-
+import com.bsb.hike.chatthread.ChatThreadActivity;
 /**
  * 
  * @author himanshu, deepak malik, sahil
@@ -763,7 +763,7 @@ public class OfflineUtils
 			}
 			
 			NotificationCompat.Action[] actions = getNotificationActions(context,msisdn);
-			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
+			Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 			intent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 			intent.putExtra(HikeConstants.C_TIME_STAMP, System.currentTimeMillis());
 			HikeNotificationMsgStack hikeNotifMsgStack =  HikeNotificationMsgStack.getInstance();
@@ -799,7 +799,8 @@ public class OfflineUtils
 
 	private static Action[] getNotificationActions(Context context, String msisdn)
 	{
-		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false);
+		Intent chatThreadIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false,false,
+				ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		chatThreadIntent.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 		PendingIntent chatThreadPendingIntent = PendingIntent.getActivity(context, 0, chatThreadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

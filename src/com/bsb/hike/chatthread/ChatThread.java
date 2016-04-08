@@ -2900,8 +2900,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			}
 		}
+
+		recordChatThreadOpen();
 	}
-	
+
 	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
 	{
 		@Override
@@ -6925,6 +6927,12 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean shouldEnableEmailChat()
 	{
 		return (!isMessageListEmpty());
+	}
+
+	protected void recordChatThreadOpen()
+	{
+
+		// TODO
 	}
 
 }
