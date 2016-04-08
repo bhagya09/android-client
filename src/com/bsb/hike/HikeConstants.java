@@ -4048,6 +4048,23 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static final class SPACE_MANAGER
+	{
+		public static final String NOTIFY_DISK_SPACE_USAGE = "nspusg";
+
+		public static final String DISK_SPACE_INFO = "spcinf";
+
+		public static final String MAP_DIRECTORY = "mapdir";
+
+		public static final String DIRECTORY_LIST = "dirlist";
+
+		public static final String DIRECTORY_PATH = "dir_p";
+
+		public static final String DIRECTORY_SIZE = "dir_s";
+
+		public static final String DIRECTORY_TYPE = "dir_t";
+	}
+
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
