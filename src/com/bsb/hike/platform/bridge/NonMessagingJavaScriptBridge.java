@@ -1511,40 +1511,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		SendLogsTask logsTask = new SendLogsTask(mContext);
 		Utils.executeAsyncTask(logsTask);
 	}
-	/**
-	 * Platform Version 10
-	 *This function allows for a bot to send analytics via mqtt
-	 */
-	@JavascriptInterface
-	public void logAnalyticsMq(String isUI, String subType, String json)
-	{
-		JSONObject jsonObject=null;
-		if(TextUtils.isEmpty(json)||TextUtils.isEmpty(isUI))
-		{
-			return;
-		}
-		try
-		{
-			jsonObject=new JSONObject(json);
-			jsonObject.put(AnalyticsConstants.BOT_MSISDN, mBotInfo.getMsisdn());
-			jsonObject.put(AnalyticsConstants.BOT_NAME, mBotInfo.getConversationName());
-			jsonObject.put(AnalyticsConstants.SUB_TYPE,subType);
-		} catch (JSONException e)
-		{
-			e.printStackTrace();
-			return;
-		}
-		if (Boolean.valueOf(isUI))
-		{
-			Utils.sendLogEvent(jsonObject,AnalyticsConstants.MICROAPP_UI_EVENT, null);
-		}
-		else
-		{
-			Utils.sendLogEvent(jsonObject, AnalyticsConstants.MICROAPP_NON_UI_EVENT, null);
-		}
-
-
-	}
 
         /**
          * Platform Version 11
