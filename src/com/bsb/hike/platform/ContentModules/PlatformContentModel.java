@@ -1,6 +1,9 @@
 package com.bsb.hike.platform.ContentModules;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
@@ -50,6 +53,12 @@ public class PlatformContentModel
 
 	public String target_platform;
 
+	private static PlatformContentModel object = null;
+
+	private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+	private String msisdn = "";
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -60,7 +69,7 @@ public class PlatformContentModel
 	{
 		if (mHash == -1)
 		{
-			mHash = new String(cardObj.appName + cardObj.layoutId + cardObj.appVersion + cardObj.ld).hashCode();
+			mHash = new String(cardObj.appName + cardObj.layoutId + cardObj.mAppVersionCode + cardObj.ld).hashCode();
 		}
 		return mHash;
 	}
@@ -74,7 +83,7 @@ public class PlatformContentModel
 	{
 		if (mTemplateHash == -1)
 		{
-			mTemplateHash = new String(cardObj.layoutId + cardObj.appVersion + cardObj.appName).hashCode();
+			mTemplateHash = new String(cardObj.layoutId + cardObj.mAppVersionCode + cardObj.appName).hashCode();
 		}
 		return mTemplateHash;
 	}
@@ -88,37 +97,60 @@ public class PlatformContentModel
 	{
 		if (mAppHash == -1)
 		{
-			mAppHash = new String(cardObj.appName + cardObj.appVersion).hashCode();
+			mAppHash = new String(cardObj.appName + cardObj.mAppVersionCode).hashCode();
 		}
 		return mAppHash;
 	}
 
-	public static PlatformContentModel make(String contentData){
-		return make(0, contentData);
+	public static PlatformContentModel make(String contentData)
+	{
+		return make(0, contentData,HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 	}
-	/**
+
+	public static PlatformContentModel make(String contentData, byte botType)
+	{
+		return make(0, contentData, botType);
+	}
+
+    /**
 	 * Make.
-	 * 
-	 * @param card_data
+	 *
+	 * @param contentData
 	 *            the content data
 	 * @return the platform content model
 	 */
-	public static PlatformContentModel make(int unique,String contentData)
+	public static PlatformContentModel make(int unique, String contentData, byte botType)
 	{
 		Logger.d(TAG, "making PlatformContentModel");
 		JsonParser parser = new JsonParser();
-		JsonObject jsonObj = (JsonObject) parser.parse(contentData);
-		PlatformContentModel object = null;
+		JsonObject gsonObj = (JsonObject) parser.parse(contentData);
+
 		try
 		{
-			object = new Gson().fromJson(jsonObj, PlatformContentModel.class);
+			object = new Gson().fromJson(gsonObj, PlatformContentModel.class);
 			if (object.cardObj.getLd() != null)
 			{
-				object.cardObj.ld
-						.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + object.cardObj.appName + File.separator);
+				String microApp = object.cardObj.getAppName();
+                // Precautionary check for is Micro App Name check
+                if(TextUtils.isEmpty(microApp))
+                    return null;
+
+				String unzipPath = PlatformContentConstants.HIKE_MICRO_APPS;
+                // Keeping default code path as newer hierarichal versioning path
+				String basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
+                String platformSDKPath = PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, HikePlatformConstants.PLATFORM_WEB_SDK);
+
+                // Check if micro app is present in newer versioning path, else check for micro app in old content directory
+                if(new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp)).exists())
+                    basePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, microApp);
+                else if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microApp).exists())
+                    basePath = microApp + File.separator;
+
+                object.cardObj.ld.addProperty(PlatformContentConstants.KEY_TEMPLATE_PATH, PlatformContentConstants.CONTENT_AUTHORITY_BASE + basePath);
 				object.cardObj.ld.addProperty(PlatformContentConstants.MESSAGE_ID, Integer.toString(unique));
 				object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
-			}
+                object.cardObj.ld.addProperty(HikePlatformConstants.PLATFORM_SDK_PATH,PlatformContentConstants.CONTENT_AUTHORITY_BASE + platformSDKPath);
+            }
 		}
 		catch (JsonParseException e)
 		{
@@ -220,16 +252,6 @@ public class PlatformContentModel
 	}
 
 	/**
-	 * Gets the version.
-	 * 
-	 * @return the version
-	 */
-	public String getVersion()
-	{
-		return cardObj.appVersion;
-	}
-
-	/**
 	 * Gets the content data.
 	 * 
 	 * @return the content data
@@ -273,7 +295,7 @@ public class PlatformContentModel
 	/**
 	 * Sets the appID.
 	 * 
-	 * @param appID
+	 * @param id`
 	 *            the new appID
 	 */
 	public void setId(String id)
@@ -285,12 +307,12 @@ public class PlatformContentModel
 	{
 		// Cannot make objects directly
 	}
-	
+
 	public void setUniqueId(int uniqueId)
 	{
 		this.uniqueId = uniqueId;
 	}
-	
+
 	public int getUniqueId()
 	{
 		return uniqueId;
@@ -321,7 +343,30 @@ public class PlatformContentModel
 
 	public String getLayout_url()
 	{
-		return cardObj.appPackage;
+		if(!TextUtils.isEmpty(cardObj.appPackageV2))
+            return cardObj.appPackageV2;
+        else
+            return cardObj.appPackage;
+	}
+
+	public byte getBotType()
+	{
+		return botType;
+	}
+
+	public void setBotType(byte botType)
+	{
+		this.botType = botType;
+	}
+
+	public String getMsisdn()
+	{
+		return msisdn;
+	}
+
+	public void setMsisdn(String msisdn)
+	{
+		this.msisdn = msisdn;
 	}
 
 	@DoNotObfuscate
@@ -338,14 +383,14 @@ public class PlatformContentModel
 			this.appName = appName;
 		}
 
-		public String getAppVersion()
+		public int getmAppVersionCode()
 		{
-			return appVersion;
+			return mAppVersionCode;
 		}
 
-		public void setAppVersion(String appVersion)
+		public void setmAppVersionCode(int mAppVersionCode)
 		{
-			this.appVersion = appVersion;
+			this.mAppVersionCode = mAppVersionCode;
 		}
 
 		public String getLayoutId()
@@ -368,7 +413,17 @@ public class PlatformContentModel
 			this.appPackage = appPackage;
 		}
 
-		public String getPush()
+        public String getAppPackageV2()
+        {
+            return appPackage;
+        }
+
+        public void setAppPackageV2(String appPackageV2)
+        {
+            this.appPackageV2 = appPackageV2;
+        }
+
+        public String getPush()
 		{
 			return push;
 		}
@@ -437,12 +492,12 @@ public class PlatformContentModel
 		{
 			this.notifText = notifText;
 		}
-		
+
 		@Expose
 		public String appName;
 
 		@Expose
-		public String appVersion;
+		public int mAppVersionCode;
 
 		@Expose
 		public String layoutId;
@@ -450,7 +505,10 @@ public class PlatformContentModel
 		@Expose
 		public String appPackage;
 
-		@Expose
+        @Expose
+        public String appPackageV2;
+
+        @Expose
 		public String push;
 
 		@Expose
@@ -467,7 +525,7 @@ public class PlatformContentModel
 
 		@Expose
 		public String h;
-		
+
 		@Expose
 		public String notifText;
 

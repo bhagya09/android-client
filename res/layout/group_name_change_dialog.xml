@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:atx="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parent"
     android:layout_width="240dp"
     android:layout_height="wrap_content"
@@ -36,7 +35,6 @@
         android:layout_marginTop="16dp"
         android:inputType="textCapSentences"
         android:background="@drawable/bg_country_picker_selector"
-        atx:charInputMaxLength="@integer/max_length_group_name"
         android:maxLength="@integer/max_length_group_name"
         android:paddingBottom="8dp"
         android:paddingLeft="10dp"

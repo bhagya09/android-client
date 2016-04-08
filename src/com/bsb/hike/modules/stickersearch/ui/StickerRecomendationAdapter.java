@@ -1,7 +1,5 @@
 package com.bsb.hike.modules.stickersearch.ui;
 
-import java.util.List;
-
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -14,10 +12,15 @@ import android.widget.ImageView.ScaleType;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.smartImageLoader.ImageWorker;
 import com.bsb.hike.smartImageLoader.StickerLoader;
+import com.bsb.hike.utils.StickerManager;
 
-public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+import java.util.List;
+
+public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ImageWorker.ImageLoaderListener
 {
 
 	private List<Sticker> stickerList;
@@ -35,8 +38,18 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 	public StickerRecomendationAdapter(List<Sticker> stickerList, StickerRecommendationFragment listener)
 	{
 		this.stickerList = stickerList;
-		this.stickerLoader = new StickerLoader(HikeMessengerApp.getInstance(), true);
-		this.mContext = HikeMessengerApp.getInstance();
+
+		//the sticker loader will attempt to download mini sticker if sticker not present provided the server switch is enabled other wise will download full sticker
+		boolean loadMini = StickerManager.getInstance().isMiniStickersEnabled();
+		this.stickerLoader = new StickerLoader.Builder()
+                            .downloadLargeStickerIfNotFound(!loadMini)
+                            .loadMiniStickerIfNotFound(loadMini)
+                            .downloadMiniStickerIfNotFound(loadMini)
+                            .build();
+
+        this.stickerLoader.setImageLoaderListener(this);
+
+        this.mContext = HikeMessengerApp.getInstance();
 		this.sizeEachImage = StickerSearchUtils.getStickerSize();
 		this.listener = listener;
 	}
@@ -61,8 +74,9 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		ImageView imageView = stickerViewHolder.imageView;
 		int padding = mContext.getResources().getDimensionPixelSize(R.dimen.sticker_recommend_sticker_image_padding);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
+        imageView.setEnabled(false);
 		imageView.setPadding(padding, padding, padding, padding);
-		stickerLoader.loadImage(sticker.getSmallStickerPath(), imageView, false);
+		stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, imageView);
 	}
 
 	@Override
@@ -74,15 +88,33 @@ public class StickerRecomendationAdapter extends RecyclerView.Adapter<RecyclerVi
 		return new StickerViewHolder(convertView);
 	}
 
-	public class StickerViewHolder extends RecyclerView.ViewHolder implements OnClickListener
+	@Override
+	public void onImageWorkSuccess(ImageView imageView)
+	{
+		if (listener.isAdded())
+		{
+			imageView.setEnabled(true);
+		}
+	}
+
+	@Override
+	public void onImageWorkFailed(ImageView imageView)
+	{
+		if (listener.isAdded())
+		{
+			imageView.setEnabled(false);
+		}
+	}
+
+    public class StickerViewHolder extends RecyclerView.ViewHolder implements OnClickListener
 	{
 		private ImageView imageView;
 
 		public StickerViewHolder(View row)
 		{
 			super(row);
-			row.setOnClickListener(this);
 			this.imageView = (ImageView) row;
+            this.imageView.setOnClickListener(this);
 		}
 
 		@Override

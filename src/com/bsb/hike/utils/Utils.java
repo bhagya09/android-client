@@ -221,7 +221,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -239,11 +238,14 @@ import com.bsb.hike.ui.PeopleActivity;
 import com.bsb.hike.ui.SignupActivity;
 import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.ui.WelcomeActivity;
+import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Utils
 {
+	private static final String TAG = Utils.class.getSimpleName();
+
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
 	{
@@ -3044,12 +3046,6 @@ public class Utils
 			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
-			String keyBoardLang;
-			if (!HikeMessengerApp.isSystemKeyboard())
-				keyBoardLang = KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName();
-			else
-				keyBoardLang = "";
-			data.put(HikeConstants.KEYBOARD_LANGUAGE, keyBoardLang);
 			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
 			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
@@ -7256,6 +7252,11 @@ public class Utils
 		return (argument == null) || !argument.iterator().hasNext();
 	}
 
+	public static boolean isEmpty(JSONArray jsonArray)
+	{
+		return (jsonArray == null) || (jsonArray.length() == 0);
+	}
+
 	/**
 	 * Determine whether supplied module is being tested.
 	 *
@@ -7779,11 +7780,16 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		for (File file : folder.listFiles()) {
-			if (file.isFile())
-				length += file.length();
-			else
+		
+		// Precautionary check to prevent NPE from empty list files.
+		if (folder.listFiles() == null)
+			return length;
+		for (File file : folder.listFiles())
+		{
+			if (file.isDirectory())
 				length += folderSize(file);
+			else if (file.isFile())
+				length += file.length();
 		}
 		return length;
 	}
@@ -7974,16 +7980,6 @@ public class Utils
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_ENABLED, enable);
 	}
 
-	public static void setCustomKeyboardEnable(boolean enable)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, enable);
-	}
-
-	public static void setCustomKeyboardSupported(boolean supported)
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, supported);
-	}
-
 	public static String getInitialsFromContactName(String contactName)
 	{
 		if (contactName == null || TextUtils.isEmpty(contactName.trim()))
@@ -8015,6 +8011,7 @@ public class Utils
 		JSONObject json = new JSONObject();
 		try
 		{
+
 			json.put(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 			json.put(AnalyticsConstants.EVENT, "db_corrupt");
 			json.put(AnalyticsConstants.LOG_FIELD_1, dbObj.getPath());
@@ -8030,6 +8027,158 @@ public class Utils
 		{
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean kptDictionaryDownloaded(Context context) {
+
+		File hikeDir = context.getExternalFilesDir(null);
+		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
+
+		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void removeKptDictionaries(Context context) {
+
+		File hikeDir = context.getExternalFilesDir(null);
+		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
+
+		if (hikeLanguageDir.exists()) {
+
+			try {
+
+				delete(hikeLanguageDir);
+
+			}catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void delete(File file) throws IOException {
+
+		if (file.isDirectory()) {
+
+			//directory is empty, then delete it
+			if (file.list().length == 0) {
+
+				file.delete();
+				System.out.println("Directory is deleted : "
+						+ file.getAbsolutePath());
+
+			} else {
+
+				//list all the directory contents
+				String files[] = file.list();
+
+				for (String temp : files) {
+					//construct the file structure
+					File fileDelete = new File(file, temp);
+
+					//recursive delete
+					delete(fileDelete);
+				}
+
+				//check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+					System.out.println("Directory is deleted : "
+							+ file.getAbsolutePath());
+				}
+			}
+
+		} else {
+			//if file, then delete it
+			file.delete();
+			System.out.println("File is deleted : " + file.getAbsolutePath());
+		}
+	}
+
+	// Use this method to encrypt a string
+	public static String encrypt(String input)
+	{
+		if(input==null)
+			return null;
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		//for the case when AI packet will not send us the backup Token
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		AESEncryption aesObj = new AESEncryption(key + salt,"MD5");
+		return aesObj.encrypt(input);
+	}
+
+	//Use this method to decrypt a string encrypted using the method above
+
+	public static String decrypt(String input)
+	{
+		if(input==null)
+			return null;
+		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
+		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		//for the case when AI packet will not send us the backup Token
+		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		AESEncryption aesObj = new AESEncryption(key + salt,"MD5");
+		return aesObj.decrypt(input);
+	}
+
+	/**
+	 *Method to return network type as short in descending order
+	 */
+	public static short getNetworkShortinOrder(String networkType)
+	{
+		switch (networkType)
+		{
+		case "wifi":
+			return 1;
+		case "2g":
+			return 4;
+		case "3g":
+			return 3;
+		case "4g":
+			return 2;
+		case "off":
+			return -1;
+		case "unknown":
+			return 5;
+		default:
+			return 0;
+		}
+	}
+
+	public static long calculateDiskCacheSize(File dir) {
+		long size = HikeConstants.MIN_DISK_CACHE_SIZE;
+
+		try {
+			StatFs statFs = new StatFs(dir.getAbsolutePath());
+			long available = ((long) statFs.getBlockCount()) * statFs.getBlockSize();
+			// Target 2% of the total space.
+			size = available / 50;
+		} catch (IllegalArgumentException ignored) {
+		}
+
+		// Bound inside min/max size for disk cache.
+		size = Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
+		size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) != -1 ? HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) : size ;
+		return size;
+	}
+
+	public static int dpToPx(float dp)
+	{
+		return (int) (dp * Utils.densityMultiplier);
+	}
+
+	public static int spToPx(float sp)
+	{
+		return (int) (sp * Utils.scaledDensityMultiplier);
+	}
+
+	public static void deleteDiskCache()
+	{
+		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
 	}
 
 	/**
@@ -8064,4 +8213,18 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
+	public static String getExternalFilesDirPath(String type)
+	{
+		File externalDir = HikeMessengerApp.getInstance().getExternalFilesDir(type);
+		String externalDirPath = externalDir == null ? null : externalDir.getPath();
+		Logger.d(TAG, "external dir path : " + externalDirPath);
+		return externalDirPath;
+	}
+
+	public static boolean doesExternalDirExists()
+	{
+		boolean exists = !TextUtils.isEmpty(getExternalFilesDirPath(null));
+		Logger.d(TAG, "external dir exists : " + exists);
+		return exists;
+	}
 }

@@ -392,13 +392,6 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return;
 	}
 	
-	public void hideKeyboard() {
-		if(chatThread!=null){
-			chatThread.hideKeyboard();
-		}
-		return;
-	}
-
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
@@ -406,5 +399,10 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		if (chatThread != null) {
 			chatThread.onPostResume();
 		}
+	}
+
+	protected void recordActivityEndTime()
+	{
+		super.recordActivityEndTime();
 	}
 }

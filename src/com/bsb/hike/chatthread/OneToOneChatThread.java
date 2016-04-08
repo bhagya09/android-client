@@ -232,6 +232,7 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		activity.recordActivityEndTime();
 	};
 	
 	@Override
@@ -363,13 +364,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void showOverflowTip(int stringResId)
-	{
-		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
-			super.showOverflowTip(stringResId);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -424,7 +418,7 @@ import java.util.Map;
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -3370,6 +3364,7 @@ import java.util.Map;
 		if (isBlocked)
 		{
 			hideLastSeenText();
+			removeKeyboardShutdownIfShowing();	// AND-5155
 		}
 
 		else
@@ -3378,6 +3373,7 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+			initKeyboardOffBoarding();	//AND-5154
 		}
 	}
 
@@ -3396,6 +3392,8 @@ import java.util.Map;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+        super.connectedToMsisdn(connectedDevice);
+
 		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
@@ -3431,7 +3429,8 @@ import java.util.Map;
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        super.onDisconnect(errorCode);
+
 		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
@@ -3619,5 +3618,11 @@ import java.util.Map;
 			shouldinitialteConnectionFragment = false;
 			startFreeHikeConversation(true);
 		}
+	}
+
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!mConversation.isBlocked())
+			super.initKeyboardOffBoarding();
 	}
 }

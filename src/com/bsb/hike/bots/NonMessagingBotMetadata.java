@@ -1,15 +1,17 @@
 package com.bsb.hike.bots;
 
-import java.util.List;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.Logger;
+import java.io.File;
+import java.util.List;
 
 
 /**
@@ -22,6 +24,7 @@ public class NonMessagingBotMetadata
 	String appName;
 	JSONObject cardObj;
 	String appPackage;
+    String appPackageV2;
     private String unReadCountShowType;
 	private int targetPlatform;
 
@@ -33,8 +36,11 @@ public class NonMessagingBotMetadata
 	private boolean replace;
 	private String callbackId, parentMsisdn;
 	private JSONObject fwdCardObj;
-	private boolean resumeSupported=false;
+	private boolean resumeSupported;
 	private JSONArray assoc_mapp;
+    private int mAppVersionCode;
+	private boolean autoResume;
+	private int prefNetwork;
 
 	public NonMessagingBotMetadata(String jsonString)
 	{
@@ -78,6 +84,8 @@ public class NonMessagingBotMetadata
 		setCallbackId(json.optString(HikePlatformConstants.CALLBACK_ID));
 		setResumeSupported(json.optBoolean(HikePlatformConstants.RESUME_SUPPORTED));
 		setAsocmapp(json.optJSONArray(HikePlatformConstants.ASSOCIATE_MAPP));
+		setAutoResume(json.optBoolean(HikePlatformConstants.AUTO_RESUME,false));
+		setPrefNetwork(json.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)));
 
 		if (json.has(HikePlatformConstants.CARD_OBJECT))
 		{
@@ -93,6 +101,11 @@ public class NonMessagingBotMetadata
 				setAppPackage(cardObj.optString(HikePlatformConstants.APP_PACKAGE));
 			}
 
+            if (cardObj.has(HikePlatformConstants.APP_PACKAGE_V2))
+            {
+                setAppPackageV2(cardObj.optString(HikePlatformConstants.APP_PACKAGE_V2));
+            }
+
 			if (cardObj.has(HikePlatformConstants.URL))
 			{
 				setUrl(cardObj.optString(HikePlatformConstants.URL));
@@ -107,6 +120,11 @@ public class NonMessagingBotMetadata
 			{
 				setTargetActivity(cardObj.optString(HikePlatformConstants.TARGET_ACTIVITY));
 			}
+
+            if (cardObj.has(HikePlatformConstants.MAPP_VERSION_CODE))
+            {
+                setmAppVersionCode(cardObj.optInt(HikePlatformConstants.MAPP_VERSION_CODE));
+            }
 
 		}
 
@@ -160,6 +178,16 @@ public class NonMessagingBotMetadata
 	{
 		this.appPackage = appPackage;
 	}
+
+    public String getAppPackageV2()
+    {
+        return appPackageV2;
+    }
+
+    public void setAppPackageV2(String appPackageV2)
+    {
+        this.appPackageV2 = appPackageV2;
+    }
 
 	public JSONObject getCardObj()
 	{
@@ -315,6 +343,64 @@ public class NonMessagingBotMetadata
 	public JSONArray getAsocmapp()
 	{
 		return assoc_mapp;
+	}
+
+    public void setmAppVersionCode(int mAppVersionCode) {
+        this.mAppVersionCode = mAppVersionCode;
+    }
+
+    public int getmAppVersionCode() {
+        return mAppVersionCode;
+    }
+
+    /*
+     * Method to retrieve unzipped micro app stored file path for this bot. (For default case, this method returns file path for micro app mode)
+     */
+	public String getBotFilePath()
+	{
+        switch (nonMessagingBotType)
+		{
+		case HikePlatformConstants.MICROAPP_MODE:
+			return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
+		case HikePlatformConstants.NATIVE_MODE:
+            // If file is not found in the newer structured hierarchy directory path, then look for file in the older content directory path used before versioning
+            String microAppPath = PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES + getAppName();
+            if(new File(microAppPath).exists())
+            {
+                return microAppPath;
+            }
+            else
+            {
+                return PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + getAppName();
+            }
+		default:
+            return PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS + getAppName();
+		}
+
+	}
+
+	public void setAutoResume(boolean autoResume)
+	{
+		this.autoResume=autoResume;
+		if (autoResume)
+		{
+			resumeSupported = true;
+		} // for auto resume resume supported has to be true.
+	}
+
+	public boolean getAutoResume()
+	{
+		return autoResume;
+	}
+
+	public void setPrefNetwork(int prefNetwork)
+	{
+		this.prefNetwork = prefNetwork;
+	}
+
+	public int getPrefNetwork()
+	{
+		return prefNetwork;
 	}
 
 }

@@ -2,4 +2,7 @@
 <resources>
     <item type="id" name="scroll_threshold_key"/>
     <item type="id" name="activity_feed_item_key"></item>
+    <item type="id" name="msg_id_key"></item>
+    <item type="id" name="position_key"></item>
+    <item type="id" name="conv_message_key"></item>
 </resources>
