@@ -61,6 +61,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import static com.bsb.hike.timeline.view.TimelineActivity.TimelineOpenSources.*;
 
 public class TimelineActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
@@ -802,7 +803,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.TIMELINE_OPEN);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-			json.put(AnalyticsConstants.V2.GENUS, getIntent().getIntExtra(TIMELINE_SOURCE, TimelineOpenSources.UNKNOWN));
+			json.put(AnalyticsConstants.V2.GENUS, getTimelineOpenSource(getIntent().getIntExtra(TIMELINE_SOURCE, UNKNOWN)));
 
 			HAManager.getInstance().recordV2(json);
 
@@ -813,5 +814,24 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			e.toString();
 		}
 
+	}
+
+	private String getTimelineOpenSource(int source)
+	{
+		switch (source)
+		{
+		case NOTIF:
+			return "notif";
+		case STATUS_UPDATE:
+			return "status_update";
+		case COMPOSE_CHAT:
+			return "compose_chat";
+		case HOME_ACTIVITY:
+			return "home_activity";
+		case PROFILE_PIC_FRAGMENT:
+			return "profile_pic_fragment";
+		default:
+			return "unknown";
+		}
 	}
 }
