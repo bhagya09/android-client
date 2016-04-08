@@ -206,7 +206,7 @@ public class UploadFileTask extends FileTransferBase
 			if (fst != null && !TextUtils.isEmpty(fst.getFileKey()))
 			{
 				fileKey = fst.getFileKey();
-				HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+				deleteStateFile();
 			}
 			else
 			{
@@ -620,12 +620,12 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
 					{
-						// deleteStateFile();
+						deleteStateFile();
 						showToast(HikeConstants.FTResult.CANCELLED);
 					}
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
-						// deleteStateFile();
+						deleteStateFile();
 					}
 
 					if (userContext != null)
@@ -708,7 +708,7 @@ public class UploadFileTask extends FileTransferBase
 			// Message sent from here will contain file key and also message_id ==> this is actually being sent to the server.
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, convMessageObject);
 		}
-		HttpManager.getInstance().deleteRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+		deleteStateFile();
 		Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 	}
 
