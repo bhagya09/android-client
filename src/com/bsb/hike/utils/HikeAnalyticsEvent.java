@@ -196,6 +196,7 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject analyticsObj = new JSONObject();
+			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
 			analyticsObj.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);

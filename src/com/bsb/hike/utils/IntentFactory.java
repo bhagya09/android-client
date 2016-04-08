@@ -679,6 +679,7 @@ public class IntentFactory
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}

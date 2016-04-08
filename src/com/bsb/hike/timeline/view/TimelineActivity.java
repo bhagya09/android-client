@@ -799,6 +799,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		try
 		{
 			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.TIMELINE_OPEN);
