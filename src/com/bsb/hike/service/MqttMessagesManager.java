@@ -55,6 +55,7 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.models.*;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -2859,6 +2860,11 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
 		}
+		if(data.has(HikePlatformConstants.NEW_AUTH_ENABLE))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.NEW_AUTH_ENABLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.NEW_AUTH_ENABLE, enable);
+		}
 		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
 		{
 			boolean enableWhiteScreenFix = data.getBoolean(HikeConstants.WHITE_SCREEN_FIX);
@@ -2906,6 +2912,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+
 		if (data.has(HikeConstants.ENABLE_AB_SYNC_CHANGE))
 		{
 			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
@@ -2937,10 +2944,34 @@ public class MqttMessagesManager
 			ContactUtils.triggerSyncContacts(context);
 		}
 
-		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
-		{
+		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS)) {
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
+		}
+		if (data.has(HikeConstants.ADD_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.ADD_URL);
+				PlatformUtils.insertUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+		}
+		if (data.has(HikeConstants.DELETE_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.DELETE_URL);
+				PlatformUtils.deleteUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+
 		}
 
 		if(data.has(HikeConstants.SHOW_STICKER_PREVIEW))
@@ -4440,9 +4471,47 @@ public class MqttMessagesManager
 		{
 			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.PLATFORM_INFRA_CONFIG.equals(type))
+		{
+			saveInfraConfig(jsonObj);
+		}
+
 		else if (HikeConstants.TOAST.equals(type))
 		{
 			showToast(jsonObj);
+		}
+	}
+	
+	private void saveInfraConfig(JSONObject jsonObj)
+	{
+		if (jsonObj.has(HikeConstants.DATA))
+		{
+			try
+			{
+				JSONObject dJson = jsonObj.getJSONObject(HikeConstants.DATA);
+				
+				JSONArray configArray = dJson.getJSONArray(HikeConstants.URLS);
+				for (int i = 0; i < configArray.length(); i++)
+				{
+					JSONObject chatBgJson = configArray.optJSONObject(i);
+
+					if (chatBgJson == null)
+					{
+						continue;
+					}
+
+					String url = chatBgJson.optString(HikeConstants.URL);
+					String key = chatBgJson.optString(HikeConstants.KEY);
+					int life = chatBgJson.optInt(HikeConstants.LIFE);
+					convDb.insertURL(key, url, life);
+
+				}
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

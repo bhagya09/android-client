@@ -126,6 +126,18 @@ public class HikeConstants
 	public static final String NEW_USER = "nu";
 
 	public static final String EMAIL = "email";
+	
+	public static final String PRODUCT = "product";
+	
+	public static final String CLIENT_URL = "clienturl";
+	
+	public static final String CLIENT_IMAGE_URL = "imageurl";
+	
+	public static final String CLIENT_TYPE = "client_type";
+	
+	public static final String PACKAGE_NAME = "package_name";
+	
+	public static final String SHA1 = "sha1";
 
 	public static final String GENDER = "gender";
 
@@ -751,6 +763,9 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+	public static String ADD_URL = "addUrl";
+	public static String DELETE_URL = "deleteUrl";
+
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
@@ -2849,6 +2864,8 @@ public class HikeConstants
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 		
 		public static final String HIKE_DIRECT_ANALYTICS = "hdle";
+		
+		public static final String PLATFORM_INFRA_CONFIG = "infc";
 	}
 
 	public static final class GeneralEventMessagesTypes
@@ -3063,6 +3080,8 @@ public class HikeConstants
 	public static final int MAX_PIN_CONTENT_LINES_IN_HISTORY = 10;
 
 	public static final String URL = "url";
+	
+	public static final String URLS = "urls";
 
 	public static final String MEDIA_POSITION = "position";
 
@@ -3434,6 +3453,8 @@ public class HikeConstants
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 
 	public static final String KEY = "key";
+	
+	public static final String LIFE = "life";
 
 	public static final String VALUE = "val";
 
@@ -3548,6 +3569,16 @@ public class HikeConstants
 
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
 	}
+	
+	public static class MicroApp_Msisdn
+	{
+		public static final String HIKE_RECHARGE = "+hikerecharge+";
+		
+		public static final String HIKE_WALLET = "+hikewallet+";
+
+	}
+	
+
 
 	public static class AutoApkDownload
 	{

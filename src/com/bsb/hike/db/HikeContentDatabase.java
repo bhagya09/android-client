@@ -29,6 +29,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -138,6 +139,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ IN_HIKE + " INTEGER" + ")";
 		createAndIndexes[i++]= urlWhitelistTable;
 		// URL WHITELIST ENDS
+		
+		// Auth_TABLE
+				String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
+						+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
+						+ TOKEN + " TEXT "
+					 + ")";
+				createAndIndexes[i++]= authTable;
+		// Auth Table ENDS
+		
 
         //CREATE MAPP_TABLE
         String mAppTable = CREATE_TABLE + MAPP_DATA + "("
@@ -229,9 +239,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			String createBotDiscoveryQuery = getCreateBotDiscoveryTableQuery();
 			queries.add(createBotDiscoveryQuery);
 		}
+		if(oldVersion < 7)
+		{
+			//Auth_Table
+			String authTable = CREATE_TABLE + AUTH_TABLE + "(" 
+					+ MICROAPP_ID + " TEXT PRIMARY KEY, " 
+					+ TOKEN + " TEXT "
+				 + ")";
+			queries.add(authTable);
 
-        if (oldVersion < 7)
-        {
             String createMappTableQuery = getCreateMAppDataTableQuery();
 			String botDownloadStateTableQuery = getPlatformDownloadStateTableQuery();
 			queries.add(botDownloadStateTableQuery);
@@ -547,7 +563,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 
 	}
-
+	
+	
 	public void deleteDomainFromWhitelist(String domain)
 	{
 		deleteDomainFromWhitelist(new String[] { domain });
@@ -943,6 +960,57 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		}
 		
 		return array;
+	}
+	
+	public String getTokenForMicroapp(String mappId)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(AUTH_TABLE, new String[] { DBConstants.HIKE_CONTENT.TOKEN }, DBConstants.HIKE_CONTENT.MICROAPP_ID + "=?", new String[] { mappId }, null, null, null);
+			if (c.moveToFirst())
+			{
+
+				return c.getString(c.getColumnIndex(DBConstants.HIKE_CONTENT.TOKEN));
+
+			}
+			return null;
+		}
+		catch(Exception e){
+			Logger.d(getClass().getSimpleName(), "Caught Exception while getTokenForMicroapp : "+ e.getMessage());
+			return null;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+	
+	public void addAuthToken(String mId, String token)
+	{
+		try
+		{
+			mDB.beginTransaction();
+			ContentValues cv = new ContentValues();
+				cv.put(DBConstants.HIKE_CONTENT.MICROAPP_ID, mId);
+				cv.put(DBConstants.HIKE_CONTENT.TOKEN, token);
+				mDB.insert(AUTH_TABLE, null, cv);
+			mDB.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDB.endTransaction();
+		}
+
+	}
+	public void deleteMicroAppFromAuthTAble(String[] mAppId)
+	{
+		
+		String whereClause = DBConstants.HIKE_CONTENT.MICROAPP_ID + "=?";
+		mDB.delete(AUTH_TABLE, whereClause, mAppId);
 	}
 
     /*

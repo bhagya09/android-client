@@ -27,6 +27,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private int configuration = Integer.MAX_VALUE;
 
 	private String namespace;
+	
+	private int triggerPointFormenu;
 
 	private String metadata;
 
@@ -49,18 +51,30 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private String botDescription;
 	
 	private int updatedVersion;
-
-    private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
-
-    private int mAppVersionCode;
-
-    public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
+	
+	private String clientId;
+	
+	private String clientHash;
+	
+	 private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+	 
+	private int mAppVersionCode;
+	
+	public static final class TriggerEntryPoint
 	{
-		private int type, config, version, updatedVersion,mAppVersionCode;
+		public static final int ENTRY_AT_HOME_MENU = 1;
 
+		public static final int ENTRY_AT_CHAT_MENU = 2;
+
+	}
+	
+	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
+	{
+		private int type, config, version, updatedVersion, triggerPointForMenu,mAppVersionCode;
+   
 		private String namespace;
 
-		private String metadata, configData, notifData, helperData, botDescription;
+		private String metadata, configData, notifData, helperData, botDescription, clientId, clientHash;
 
         private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
@@ -72,6 +86,24 @@ public class BotInfo extends ConvInfo implements Cloneable
 		public P setType(int type)
 		{
 			this.type = type;
+			return getSelfObject();
+		}
+		
+		public P setTriggerPoint(int triggerPoint)
+		{
+			this.triggerPointForMenu = triggerPoint;
+			return getSelfObject();
+		}
+		
+		public P setClientid(String id)
+		{
+			this.clientId = id;
+			return getSelfObject();
+		}
+		
+		public P setClientHash(String hash)
+		{
+			this.clientHash = hash;
 			return getSelfObject();
 		}
 
@@ -92,7 +124,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.type = type;
 			return getSelfObject();
 		}
-
+		
 		public P setConfigData(String configData)
 		{
 			this.configData = configData;
@@ -201,6 +233,16 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.namespace = namespace;
 	}
 
+	public int getTriggerPointFormenu()
+	{
+		return triggerPointFormenu;
+	}
+
+	public void setTriggerPointFormenu(int triggerPointFormenu)
+	{
+		this.triggerPointFormenu = triggerPointFormenu;
+	}
+
 	public String getNotifData()
 	{
 		return notifData == null ? "{}" : notifData;
@@ -248,6 +290,23 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.notifData = notifData;
 	}
 
+    public String getClientId(){
+		return clientId;
+	}
+
+	public void setClientId(String clientId){
+		this.clientId = clientId;
+	}
+	
+	public String getClientHash()
+	{
+		return clientHash;
+	}
+
+	public void setClientHash(String clientHash)
+	{
+		this.clientHash = clientHash;
+	}
 
 	public static class HikeBotBuilder extends BotInfo.InitBuilder<HikeBotBuilder>
 	{
@@ -272,6 +331,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
 		this.namespace = builder.namespace;
+		this.triggerPointFormenu = builder.triggerPointForMenu;
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
 		this.setOnHike(true);
@@ -279,6 +339,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.botDescription = builder.botDescription;
         this.mAppVersionCode = builder.mAppVersionCode;
 		this.updatedVersion = builder.updatedVersion;
+		this.clientId = builder.clientId;
+		this.clientHash = builder.clientHash;
 
         // Get mAppVersionCode from the metadata to store in the Object in case of
         if (!TextUtils.isEmpty(metadata) && mAppVersionCode <= 0)

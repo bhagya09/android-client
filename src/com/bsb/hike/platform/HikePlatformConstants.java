@@ -48,6 +48,10 @@ public interface HikePlatformConstants
 	String HIKE_MSISDN = "hikemsisdn";
 	String PLATFORM_USER_ID = "platformUid";
 	String PLATFORM_TOKEN = "platformToken";
+	String SIM_OPERATORS = "simOperators";
+	String PLATFORM_AUTH_TOKEN = "access_token";
+	String PLATFORM_AUTH_TOKEN_EXPIRY = "access_token_expiry";
+	String PLATFORM_CLIENTID = "clientId";
 	String PLATFORM_UID_FOR_ADDRESS_BOOK_FETCH = "platformUidForAddressBookFetch";
 	public int NUMBER_OF_RETRIES = 3;  // number of retries
 	public int RETRY_DELAY = 1000; // 1 sec
@@ -61,6 +65,7 @@ public interface HikePlatformConstants
 	public static final String STATUS = "status";
 	public static final String STATUS_CODE = "status_code";
 	public static final String RESPONSE = "response";
+	public static final String COOKIE = "cookie";
 	public static final String ERROR_MESSAGE = "error_message";
 	public static final String SUCCESS = "success";
 	public static final String FAILURE = "failure";
@@ -99,6 +104,35 @@ public interface HikePlatformConstants
 	String HIKE_AFFINITY="hike_affinity";
 	String CLUB_BY_MSISDN="clubbymsisdn";
 	public static final String CUSTOM_TABS="customTabs";
+	public static final String NEW_AUTH_ENABLE="newAuthEnable";
+	
+	public static final class AuthConstants
+	{
+		public static final String AUTH_TEST_CLIENT_PACKAGE_NAME = "test_package_name";
+
+		public static final String AUTH_TEST_RESPONSE_TYPE = "token";
+
+		public static final String AUTH_TEST_PARAM_SCOPE = "publish_actions";
+		
+		public static final String AUTH_LONG_TYPE = "long";
+		
+		public static final String AUTH_SHORT_TYPE = "short";
+	}
+
+	public static final class PaymentConstants
+	{
+		public static final String BASE_URL = "projectx-staging.hike.in";
+		
+		public static final String PAY_URL = "/payment-merchant-service/merchant/merchantPayment";
+		
+		public static final String WALLET_URL = "/hike-wallet-service/wallet/funds";
+		
+		public static final String AMOUNT = "amount";
+		
+		public static final String CURRENCY = "currency";
+
+	}
+	
 	String PACKET_DATA = "packetData";
 	String PREF_NETWORK = "preferredNetwork";
 	String FLUSH_DOWNLOAD_TABLE = "flushDwnldTable";
@@ -221,6 +255,8 @@ public interface HikePlatformConstants
 	public static final String CONFIG_DATA = "cd";
 
 	public static final String ENABLE_BOT = "enable_bot";
+	
+	public static final String TRIGGGER_POINT_FOR_MENU = "menu_trigger_point";
 
 	public static final String BOT_TYPE = "bot_type";
 
@@ -346,7 +382,8 @@ public interface HikePlatformConstants
 
     int CHROME_TABS_PENDING_INTENT_SHARE = -299;
 	int CHROME_TABS_PENDING_INTENT_FORWARD = -300;
-
+	public static final String CLIENT_ID = "clientId";
+	public static final String CLIENT_HASH = "client_hash";
 	String TTL = "timeToLive";
 
 	String DEFULT_NETWORK = "unknown";
