@@ -34,6 +34,8 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 
 	public static final class ChatThreadOpenSources
 	{
+		public static final int UNKNOWN = 0;
+
 		public static final int NOTIF = 1;
 
 		public static final int CONV_FRAGMENT = 2;

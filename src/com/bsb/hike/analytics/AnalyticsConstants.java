@@ -774,4 +774,8 @@ public class AnalyticsConstants
 	public static final String JUST_OPENED = "justOpened";
 	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
 	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
+
+	public static final String ACT_LOG_2 = "act_log2";
+
+	public static final String CHAT_OPEN = "chat_open";
 }
