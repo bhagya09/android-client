@@ -1,8 +1,15 @@
 package com.bsb.hike.platform.bridge;
 
+import java.io.File;
+import java.net.HttpURLConnection;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -10,7 +17,9 @@ import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
+import com.bsb.hike.ui.WebViewActivity;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -19,13 +28,21 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.platform.*;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -35,7 +52,10 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
+import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -160,7 +180,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void forwardToChat(String json, String hikeMessage)
 	{
-		PlatformHelper.forwardToChat(json, hikeMessage,mBotInfo,weakActivity.get());
+		PlatformHelper.forwardToChat(json, hikeMessage, mBotInfo, weakActivity.get());
 	}
 
 	/**
@@ -203,7 +223,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
 			PlatformUtils.addLocaleToInitJSON(jsonObject);
 
-			mWebView.loadUrl("javascript:init('"+getEncodedDataForJS(jsonObject.toString())+"')");
+			mWebView.loadUrl("javascript:init('" + getEncodedDataForJS(jsonObject.toString()) + "')");
 		}
 		catch (JSONException e)
 		{
@@ -415,11 +435,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:notifDataReceived" + "('" + getEncodedDataForJS(notifData) + "')");
 			}
 		});
@@ -431,11 +449,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:eventReceived" + "('" + getEncodedDataForJS(event) + "')");
 			}
 		});
@@ -1120,7 +1136,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void enableBot(String msisdn, String enable)
 	{
-		enableBot(msisdn,enable, Boolean.toString(false));
+		enableBot(msisdn, enable, Boolean.toString(false));
 	}
 	/**
 	 * Added in Platform Version:7
@@ -1134,28 +1150,23 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void getLocation()
 	{
 		final GpsLocation gps = GpsLocation.getInstance();
-		gps.getLocation(new LocationListener()
-		{
+		gps.getLocation(new LocationListener() {
 			@Override
-			public void onLocationChanged(Location location)
-			{
+			public void onLocationChanged(Location location) {
 				HikeMessengerApp.getPubSub().publish(HikePubSub.LOCATION_AVAILABLE, gps.getLocationManager());
 				gps.removeUpdates(this);
 			}
 
 			@Override
-			public void onProviderDisabled(String provider)
-			{
+			public void onProviderDisabled(String provider) {
 			}
 
 			@Override
-			public void onProviderEnabled(String provider)
-			{
+			public void onProviderEnabled(String provider) {
 			}
 
 			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras)
-			{
+			public void onStatusChanged(String provider, int status, Bundle extras) {
 			}
 		});
 
@@ -1190,11 +1201,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:locationReceived" + "('" + getEncodedDataForJS(latLong) + "')");
 			}
 		});
@@ -1281,11 +1290,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			return;
 		}
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				mWebView.loadUrl("javascript:downloadStatus" + "('" + id + "','" + progress + "')");
 			}
 		});
@@ -1445,6 +1452,32 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void chooseFile(final String id, final String displayCameraItem)
 	{
+		Logger.d("FileUpload", "input Id chooseFile is " + id);
+
+		if (null == mHandler)
+		{
+			Logger.e("FileUpload", "mHandler is null");
+			return;
+		}
+
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				Context weakActivityRef = weakActivity.get();
+				if (weakActivityRef != null) {
+					int galleryFlags;
+					if (Boolean.valueOf(displayCameraItem)) {
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+					} else {
+						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
+					}
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, null);
+					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
+					((WebViewActivity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+				}
+			}
+		});
 		Logger.d("FileUpload","input Id chooseFile is "+ id);
 		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
 	}
@@ -1594,6 +1627,141 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
     }
 
 
+	private class PlatformPostListener implements IRequestListener
+	{
+		String id;
+		String urlKey;
+		JSONObject data;
+		int current_count;
+		private int tokenLife;
+		public PlatformPostListener(String id, String urlKey, final JSONObject data, final int count, int tokenLife)
+		{
+			this.id =id;
+			this.urlKey =urlKey;
+			this.data=data;
+			this.current_count = count;
+			this.tokenLife = tokenLife;
+		}
+		@Override
+		public void onRequestFailure(HttpException httpException) {
+			Logger.e("NonMessagingJavascriptBridge", "Error while parsing success request: "+httpException.getErrorCode()+" : "+httpException.getMessage());
+			if (httpException.getErrorCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+			{
+				AuthListener authListener = new AuthListener()
+				{
+					@Override
+					public void onTokenResponse(String authToken)
+					{
+						Logger.d("NonMessagingJavascriptBridge", "Again trying infra url");
+						doInfraPost(id, urlKey, data, --current_count);
+					}
+
+					@Override
+					public void onTokenErrorResponse(String error)
+					{
+
+					}
+				};
+				PlatformUtils.requestAuthToken(mBotInfo, authListener, tokenLife);
+			}
+		}
+
+		@Override
+		public void onRequestSuccess(Response result) {
+			Logger.d("JavascriptBridge", "microapp request success with code " + result.getStatusCode());
+			JSONObject success = new JSONObject();
+			try
+			{
+				success.put(HikePlatformConstants.STATUS, HikePlatformConstants.SUCCESS);
+				success.put(HikePlatformConstants.STATUS_CODE, result.getStatusCode());
+				success.put(HikePlatformConstants.RESPONSE, result.getBody().getContent());
+			}
+			catch (JSONException e)
+			{
+				Logger.e("JavascriptBridge", "Error while parsing success request");
+				e.printStackTrace();
+			}
+			callbackToJS(id, String.valueOf(success));
+		}
+
+		@Override
+		public void onRequestProgressUpdate(float progress) {
+
+		}
+
+	}
+
+	/**
+	 * Platform Version 11
+	 */
+	@JavascriptInterface
+	public void doInfraPostinit(final String id, String urlKey, String data)
+	{
+		try
+		{
+			JSONObject jsonData = new JSONObject(data);
+			doInfraPost(id, urlKey, jsonData, MAX_COUNT);
+		}
+		catch (JSONException ex)
+		{
+
+		}
+	}
+
+	public void doInfraPost(final String id, final String urlKey, final JSONObject data, final int count)
+	{
+		if (count <= 0)
+		{
+			return;
+		}
+		Cursor cursor = HikeConversationsDatabase.getInstance().getURL(urlKey);
+		if(cursor == null){
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		final String url  = Utils.decrypt(cursor.getString(cursor.getColumnIndex(DBConstants.URL)));
+		if (TextUtils.isEmpty(url))
+		{
+			callbackToJS(id, "Invalid Key");
+			return;
+		}
+		int tokenLife = cursor.getInt(cursor.getColumnIndex(DBConstants.LIFE));
+		if(tokenLife == DBConstants.LONG_LIVED) {
+			final String oAuth = HikeContentDatabase.getInstance().getTokenForMicroapp(mBotInfo.getMsisdn());
+			if (TextUtils.isEmpty(oAuth)) {
+				Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its not saved earlier");
+				fetchToken(id, urlKey, data, count, url,tokenLife);
+			} else {
+				makePlatformPostRequest(id, url, data, oAuth, urlKey, count,tokenLife);
+			}
+		}else{
+			Logger.d("NonMessagingJavascriptBridge", "Fetching auth token as its short lived");
+			fetchToken(id, urlKey, data, count, url,tokenLife);
+		}
+	}
+    private void fetchToken(final String id, final String urlKey, final JSONObject data, final int count, final String url, final int tokenLife){
+		AuthListener authListener = new AuthListener() {
+			@Override
+			public void onTokenResponse(String authToken) {
+				makePlatformPostRequest(id, url, data, authToken, urlKey, count,tokenLife);
+			}
+
+			@Override
+			public void onTokenErrorResponse(String error) {
+
+			}
+		};
+		PlatformUtils.requestAuthToken(mBotInfo, authListener,tokenLife);
+	}
+	private void makePlatformPostRequest(String id, String url, JSONObject json, String oAuth, String urlKey, int count, int tokenLife)
+	{
+		RequestToken token = HttpRequests.platformPostRequest(url, json, PlatformUtils.getHeaderForOauth(oAuth), new PlatformPostListener(id, urlKey, json, count,tokenLife));
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
+	}
 	/**
 	 * Call tis method to set alarm.
 	 * @param json {"notification_sound":true,"increase_unread":true,"alarm_data":{},"notification":"test notif","rearrange_chat":true}

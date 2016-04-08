@@ -272,8 +272,9 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
-	
 	public static final String FEED_INDEX = "feed_idx";
+	String URL_KEY = "urlKey";
+	String URL_KEY_INDEX = "urlKeyIndex";
 
 	//StickerTable
 
@@ -383,7 +384,12 @@ public interface DBConstants
 		public static final String HELPER_DATA = "helper_data";
 		
 		public static final String BOT_VERSION = "version";
-
+		
+		public static final String BOT_TRIGGER_POINT = "trigger_point";
+		
+		public static final String CLIENT_ID = "client_id";
+		
+		public static final String CLIENT_HASH = "client_hash";
 		//Bot Discrovery Table starts here
 		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
 		
@@ -404,6 +410,11 @@ public interface DBConstants
 		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
 		String DOWNLOAD_STATE = "downloadState";
+		
+		// AUTH TABLE ->auth_table--> microApp_id,token
+		public static final String AUTH_TABLE = "auth_table";
+		public static final String MICROAPP_ID = "microapp_id";
+		public static final String TOKEN = "token";
 
 	}
 	
@@ -542,6 +553,13 @@ public interface DBConstants
 	 */
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
+
+	public static final String URL_TABLE = "urlTable";
+
+	public static final String URL = "url";
+	String LIFE = "life";
+	int SHORT_LIVED = 0;
+	int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
 }

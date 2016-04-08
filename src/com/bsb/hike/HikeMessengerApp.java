@@ -127,6 +127,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String PLATFORM_UID_SETTING = "platformUID";
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN = "platformAuthToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN_EXPIRY = "platformAuthTokenExpiry";
 
 	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
 

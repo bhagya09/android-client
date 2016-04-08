@@ -58,6 +58,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
@@ -83,6 +84,8 @@ import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
@@ -678,7 +681,11 @@ public class PlatformUtils
 		createBotMqttAnalytics(key, botInfo, null);
 	}
 
-    public static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
+	public static void requestAuthToken(BotInfo botInfo, AuthListener authListener, int tokenLife){
+		PlatformAuthenticationManager manager =new PlatformAuthenticationManager(botInfo.getClientId(), botInfo.getMsisdn(), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null), HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null),authListener);
+		manager.requestAuthToken(tokenLife);
+	}
+	private static void createBotMqttAnalytics(String key, BotInfo botInfo, JSONObject json)
 	{
 
 		try
@@ -965,9 +972,7 @@ public class PlatformUtils
                 isMicroAppExist = PlatformUtils.isMicroAppExistForMappPacket(mAppName, mAppVersionCode);
                 break;
         }
-
-        // Code to check if micro app already does not exists, then download micro app code
-		if (!isMicroAppExist)
+        if (!isMicroAppExist)
 		{
             PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(request).setIsTemplatingEnabled(isTemplatingEnabled)
                     .setCallbackId(callbackId).setResumeSupported(resumeSupported).setAssocCbotMsisdn(assocCbot).setAutoResume(autoResume).createPlatformZipDownloader();
@@ -1060,6 +1065,7 @@ public class PlatformUtils
 		}
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
+
 		mThread.postRunnable(new Runnable()
 		{
 
@@ -1074,6 +1080,7 @@ public class PlatformUtils
 				}
 				else
 				{
+
 					Logger.e("fileUpload", "Empty File Body");
 					return;
 				}
@@ -1884,19 +1891,16 @@ public class PlatformUtils
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.TIME_INTERVAL, interval);
 		}
 
-		Logger.i(TAG, "Starting recurring location updates at time : "+ System.currentTimeMillis() + ". Duration : "+duration+" Interval : "+interval);
+		Logger.i(TAG, "Starting recurring location updates at time : " + System.currentTimeMillis() + ". Duration : " + duration + " Interval : " + interval);
 
 		final GpsLocation gps = GpsLocation.getInstance();
 
-		gps.requestRecurringLocation(new LocationListener()
-		{
+		gps.requestRecurringLocation(new LocationListener() {
 			@Override
-			public void onLocationChanged(Location location)
-			{
-				Logger.i(TAG, "Location available : "+location.getLatitude()+" , "+location.getLongitude() + " Source : "+location.getProvider());
+			public void onLocationChanged(Location location) {
+				Logger.i(TAG, "Location available : " + location.getLatitude() + " , " + location.getLongitude() + " Source : " + location.getProvider());
 				locationAnalytics(location);
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval)
-				{
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.RECURRING_LOCATION_END_TIME, -1L) < location.getTime() + interval) {
 					Logger.i(TAG, "Stopping recurring location updates at time : " + System.currentTimeMillis());
 					gps.removeUpdates(this);
 					HikeSharedPreferenceUtil.getInstance().removeData(HikePlatformConstants.RECURRING_LOCATION_END_TIME);
@@ -1904,20 +1908,17 @@ public class PlatformUtils
 			}
 
 			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras)
-			{
+			public void onStatusChanged(String provider, int status, Bundle extras) {
 
 			}
 
 			@Override
-			public void onProviderEnabled(String provider)
-			{
+			public void onProviderEnabled(String provider) {
 
 			}
 
 			@Override
-			public void onProviderDisabled(String provider)
-			{
+			public void onProviderDisabled(String provider) {
 
 			}
 		}, interval, duration);
@@ -2291,6 +2292,7 @@ public class PlatformUtils
 		return convMessage;
 	}
 
+
     /*
      * Method to determine and send analytics for disk space occupied by the platform. This method is called on app update and also it can be invoked by sending nmapp packet
      * Json generated here :: {"fld1":"disk_consumption","fld3":"app_updated","fld2":"DP","ek":"micro_app","fld5":111107,"event":"nmapp"}
@@ -2368,9 +2370,7 @@ public class PlatformUtils
         }
     }
 
-    /*
-    * Method to add analytics event to consider this micro app download as failure because of invalid data
-    */
+
     public static void invalidDataBotAnalytics(BotInfo botInfo) {
         // Added analytics event to consider this micro app download as failure because of invalid data
         PlatformContent.EventCode event = PlatformContent.EventCode.INVALID_DATA;
@@ -2393,16 +2393,13 @@ public class PlatformUtils
 	{
 		String fileKey = hikeFile.getFileKey();
 		JSONObject json = new JSONObject();
-		try
-		{
+		try {
 			json.putOpt(AnalyticsConstants.EVENT_KEY, AnalyticsConstants.MICRO_APP_EVENT);
 			json.putOpt(AnalyticsConstants.EVENT, AnalyticsConstants.BOT_CONTENT_SHARED);
 			json.putOpt(AnalyticsConstants.LOG_FIELD_4, fileKey);
 			json.putOpt(AnalyticsConstants.LOG_FIELD_1, hikeFile.getHikeFileType());
 			json.putOpt(AnalyticsConstants.BOT_MSISDN, msisdn);
-		}
-		catch (JSONException e)
-		{
+		} catch (JSONException e) {
 			Logger.d(TAG, "Exception in bot share utils");
 		}
 		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
@@ -2599,6 +2596,52 @@ public class PlatformUtils
 
 	}
 
+
+	public static void insertUrl(JSONArray array) {
+		String key;
+		String url;
+		int life;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				url = jsonObject.getString(HikeConstants.URL);
+				life = jsonObject.getInt(DBConstants.LIFE);
+				db.insertURL(key, url, life);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
+	}
+
+	public static void deleteUrl(JSONArray array) {
+		String key;
+		JSONObject jsonObject;
+		HikeConversationsDatabase db = HikeConversationsDatabase.getInstance();
+		for (int i = 0; i < array.length(); i++) {
+			try {
+				jsonObject = array.getJSONObject(i);
+				key = jsonObject.getString(DBConstants.URL_KEY);
+				db.deleteURL(key);
+			} catch (JSONException e) {
+				Logger.e(TAG, e.toString());
+			}
+		}
+
+
+	}
+
+	public static List<Header> getHeaderForOauth(String oAuth) {
+		List<Header> headers = new ArrayList<Header>(1);
+		headers.add(new Header(HttpHeaderConstants.COOKIE_HEADER_NAME,
+				"OAUTH" + "=" + oAuth));
+
+		return headers;
+	}
 
 	public static String getFileUploadJson(Intent data)
 	{

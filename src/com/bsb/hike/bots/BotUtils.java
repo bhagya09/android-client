@@ -14,6 +14,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.BotConversation;
@@ -40,7 +41,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -571,6 +574,11 @@ public class BotUtils
 			String name = jsonObj.optString(HikeConstants.NAME);
 			botInfo.setmConversationName(name);
 		}
+		if (jsonObj.has(HikePlatformConstants.TRIGGGER_POINT_FOR_MENU))
+		{
+			int triggerPoint = jsonObj.optInt(HikePlatformConstants.TRIGGGER_POINT_FOR_MENU);
+			botInfo.setTriggerPointFormenu(triggerPoint);
+		}
 
 		JSONObject configData = null;
 		if (jsonObj.has(HikePlatformConstants.CONFIG_DATA))
@@ -591,6 +599,12 @@ public class BotUtils
 		{
 			String namespace = jsonObj.optString(HikePlatformConstants.NAMESPACE);
 			botInfo.setNamespace(namespace);
+		}
+		
+		if (jsonObj.has(HikePlatformConstants.TRIGGGER_POINT_FOR_MENU))
+		{
+			int trigger = jsonObj.optInt(HikePlatformConstants.TRIGGGER_POINT_FOR_MENU);
+			botInfo.setTriggerPointFormenu(trigger);
 		}
 
 		if (jsonObj.has(HikeConstants.METADATA))
@@ -622,6 +636,12 @@ public class BotUtils
 
 		}
 
+		if(jsonObj.has(HikePlatformConstants.CLIENT_ID)){
+			botInfo.setClientId(jsonObj.optString(HikePlatformConstants.CLIENT_ID));
+		}
+		if(jsonObj.has(HikePlatformConstants.CLIENT_HASH)){
+			botInfo.setClientHash(jsonObj.optString(HikePlatformConstants.CLIENT_HASH));
+		}
         if (jsonObj.has(HikePlatformConstants.METADATA))
         {
             int mAppVersionCode = 0;
@@ -638,6 +658,7 @@ public class BotUtils
 
 
         return botInfo;
+
 	}
 
 	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
@@ -852,6 +873,19 @@ public class BotUtils
 		}, 0);
 	}
 
+	public static void addAllMicroAppMenu(List<OverFlowMenuItem> overFlowMenuItems,int triggerPoint, Context context)
+	{
+		for (final BotInfo mBotInfo : HikeMessengerApp.hikeBotInfoMap.values())
+		{
+
+			if(!mBotInfo.isConvPresent()&&mBotInfo.getTriggerPointFormenu()==triggerPoint){
+				 if (mBotInfo.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+				{
+					overFlowMenuItems.add(new OverFlowMenuItem(context.getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+				}
+			}
+		}
+	}
 	public static boolean isSpecialBot(BotInfo botInfo)
 	{
 		NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(botInfo.getMetadata());

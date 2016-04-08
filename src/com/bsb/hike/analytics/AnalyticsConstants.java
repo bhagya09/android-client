@@ -674,6 +674,10 @@ public class AnalyticsConstants
 	
 	public static final String BOT_NOTIF_TRACKER = "bno";
 	
+	public static final String BOT_VIA_MENU = "bvmenu";
+	
+	public static final String BOT_VIA_HOME_MENU = "home_menu";
+	
 	public static final String BOT_OPEN_SOURCE_DISC = "bot_discovery";
 	
 	public static final String BOT_OPEN_SOURCE_NOTIF = "bot_notif";
