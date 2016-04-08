@@ -109,7 +109,6 @@ public class DownloadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				FileTransferManager.getInstance(context).removeTask(msgId);
 				String md5Hash = null;
 				for (Header h : result.getHeaders())
 				{
@@ -139,6 +138,11 @@ public class DownloadFileTask extends FileTransferBase
 
 	private void doOnSuccess(String md5Hash)
 	{
+		if (getFileSavedState().getFTState() == FTState.PAUSED)
+		{
+			return;
+		}
+
 		String file_md5Hash = Utils.fileToMD5(tempDownloadedFile.getPath());
 		if (md5Hash != null)
 		{
@@ -200,6 +204,7 @@ public class DownloadFileTask extends FileTransferBase
 				FTApkManager.checkAndActOnDownloadedApk(mFile);
 			}
 		}
+		FileTransferManager.getInstance(context).removeTask(msgId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 

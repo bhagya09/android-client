@@ -159,7 +159,10 @@ public class FileDownloadRequest extends Request<File>
 					{
 
 					}
-					state.setFTState(FTState.COMPLETED);
+					if (getState().getFTState() != FTState.PAUSED)
+					{
+						state.setFTState(FTState.COMPLETED);
+					}
 					saveStateInDB(state);
 					break;
 				}
