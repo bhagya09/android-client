@@ -94,8 +94,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	
 	private long sortingId = -1;
 
-	private boolean fromCustomKeyboard=false;
-
 	public String getNameSpace()
 	{
 		return nameSpace;
@@ -919,8 +917,6 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 					else if (metadata.isPokeMessage())
 					{
 						data.put(HikeConstants.POKE, true);
-					}else if(fromCustomKeyboard()){
-						data.put(HikeConstants.METADATA, md);
 					}
 				}
 				
@@ -1400,12 +1396,7 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 	{
 		this.messageOriginType = messageOriginType;
 	}
-	public void setfromCustomKeyboard(boolean fromCustomKeyboard){
-		this.fromCustomKeyboard=fromCustomKeyboard;
-	}
-	public boolean fromCustomKeyboard(){
-		return fromCustomKeyboard;
-	}
+
 	public long getServerId()
 	{
 		if(isBroadcastMessage() && !isBroadcastConversation())

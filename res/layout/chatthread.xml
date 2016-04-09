@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:atx="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/chatThreadParentLayout"
-
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    
+	<LinearLayout 
+     android:id="@+id/chatThreadParentLayout"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent">
 
         <RelativeLayout
             android:id="@+id/ct_parent_rl"
@@ -340,14 +340,12 @@
                                     android:inputType="text|textAutoCorrect|textCapSentences"
                                     android:lineSpacingExtra="1dp"
                                     android:maxLength="@integer/max_length_message"
-                                    android:maxLines="4"
                                     android:minHeight="27dp"
                                     android:paddingLeft="5dp"
                                     android:paddingTop="3dp"
                                     android:textColor="@color/chat_color"
                                     android:textColorHint="#cdcdc8"
-                                    android:textSize="17sp"
-                                    atx:charInputMaxLength="@integer/max_length_message" />
+                                    android:textSize="17sp" />
 
                                 <ImageButton
                                     android:id="@+id/emoticon_btn"
@@ -405,34 +403,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></FrameLayout>
 
-            <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/overflow_tip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@id/chatThreadParentLayout"
-                android:layout_marginTop="@dimen/st__action_bar_default_height"
-                android:background="@drawable/overflow_tip"
-                android:gravity="center_vertical"
-                android:paddingBottom="12dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
-                android:text="Switch Keyboard"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:visibility="gone" />
-
         </RelativeLayout>
 
     </LinearLayout>
-
-    <include layout="@layout/kpt_keyboard_viewholder" />
-
-    <FrameLayout
-        android:id="@+id/keyboard_ftue_container"
+    
+	<FrameLayout
+        android:id="@+id/keyboard_shutdown_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"></FrameLayout>
-
+	
 </RelativeLayout>

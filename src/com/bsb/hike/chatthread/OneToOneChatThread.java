@@ -237,6 +237,7 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		activity.recordActivityEndTime();
 	};
 	
 	@Override
@@ -368,13 +369,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void showOverflowTip(int stringResId)
-	{
-		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
-			super.showOverflowTip(stringResId);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -430,7 +424,7 @@ import java.util.Map;
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -3432,6 +3426,7 @@ import java.util.Map;
 		if (isBlocked)
 		{
 			hideLastSeenText();
+			removeKeyboardShutdownIfShowing();	// AND-5155
 		}
 
 		else
@@ -3440,6 +3435,8 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+
+			initKeyboardOffBoarding();	//AND-5154
 
 			doSetupForAddFriend(); // Hey, if the user is not a 1-way friend, even after unblocking, we can't allow messaging
 		}
@@ -3460,6 +3457,8 @@ import java.util.Map;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+        super.connectedToMsisdn(connectedDevice);
+
 		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
@@ -3495,7 +3494,8 @@ import java.util.Map;
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        super.onDisconnect(errorCode);
+
 		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
@@ -3687,6 +3687,7 @@ import java.util.Map;
 		}
 	}
 
+<<<<<<< HEAD
 	private void inflateAddFriendButtonIfNeeded()
 	{
 		if (!Utils.isFavToFriendsMigrationAllowed())
@@ -4047,5 +4048,11 @@ import java.util.Map;
 		}
 
 		return json;
+=======
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!mConversation.isBlocked())
+			super.initKeyboardOffBoarding();
+>>>>>>> ef78227620905752c6fd5bb20e4fee3b55fc05ed
 	}
 }
