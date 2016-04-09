@@ -3108,5 +3108,29 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return selfMsisdn.equals(outsideMsisdn);
 	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isOneWayFriend(String msidn)
+	{
+		FavoriteType favoriteType = getFriendshipStatus(msidn);
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isTwoWayFriend(msidn));
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isTwoWayFriend(String msisdn)
+	{
+		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
+	}
 }
 

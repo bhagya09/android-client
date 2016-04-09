@@ -64,7 +64,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -4017,7 +4016,7 @@ public class Utils
 
 		else
 		{
-			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv);
+			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv, ChatThreadActivity.ChatThreadOpenSources.SHORTCUT);
 		}
 
 		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
@@ -4237,6 +4236,7 @@ public class Utils
 		final Intent intent = new Intent(context, TimelineActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		intent.putExtra(HikeConstants.Extras.FROM_NOTIFICATION, fromNotif);
+		intent.putExtra(TimelineActivity.TIMELINE_SOURCE, fromNotif ? TimelineActivity.TimelineOpenSources.NOTIF : TimelineActivity.TimelineOpenSources.UNKNOWN);
 		intent.putExtra(HikeConstants.Extras.OPEN_ACTIVITY_FEED, openActivityFeed);
 		return intent;
 	}
@@ -4560,7 +4560,7 @@ public class Utils
 		return false;
 	}
 
-	public static void startChatThread(Context context, ContactInfo contactInfo)
+	public static void startChatThread(Context context, ContactInfo contactInfo, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
 		if (contactInfo.getName() != null)
@@ -4573,6 +4573,7 @@ public class Utils
 		String whichChatThread = ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		context.startActivity(intent);
 	}
 
@@ -4656,28 +4657,38 @@ public class Utils
 			return;
 		}
 
-		HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener() {
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG,
+					new HikeDialogListener()
+					{
 
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog) {
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-			}
+						@Override
+						public void positiveClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+							HikeSharedPreferenceUtil.getInstance()
+									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+						}
 
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog) {
-			}
+						@Override
+						public void neutralClicked(HikeDialog hikeDialog)
+						{
+						}
 
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog) {
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-			}
+						@Override
+						public void negativeClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+							HikeSharedPreferenceUtil.getInstance()
+									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+						}
 
-		}, contactInfo.getFirstName());
+					}, contactInfo.getFirstName());
+		}
 	}
 
-	public static void toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
 	{
 		FavoriteType favoriteType;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -4687,7 +4698,7 @@ public class Utils
 		else
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
-			Toast.makeText(context, R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
@@ -4706,6 +4717,7 @@ public class Utils
 		}
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_TOGGLED, favoriteAdded);
+		return favoriteType;
 	}
 
 	public static void addToContacts(Context context, String msisdn)
@@ -7480,7 +7492,18 @@ public class Utils
 
 	public static boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) && (contactInfo.isOnhike());
+		if (isFavToFriendsMigrationAllowed())
+		{
+			return contactInfo.isMyTwoWayFriend();
+		}
+
+		else
+		{
+			return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) ||
+					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) ||
+					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) &&
+					(contactInfo.isOnhike());
+		}
 	}
 
 	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
@@ -7617,7 +7640,7 @@ public class Utils
 
 	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	    HikeMessengerApp.getInstance().startActivity(intent);
 	}
@@ -8214,6 +8237,100 @@ public class Utils
 	{
 		HikeMqttManagerNew.getInstance().init(); // Init and then connect
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
+	}
+
+	public static void makeFavFriendsTransition()
+	{
+		if (isFavToFriendsMigrationAllowed())
+		{
+			changeFavToFriends();
+		}
+		else
+		{
+			revertFavToFriendsChange();
+		}
+	}
+
+	public static void changeFavToFriends()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) != 1)
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			// Change last seen pref to friends if its is not already set to friends or noone.
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			if (!currentValue.equals(context.getString(R.string.privacy_favorites))
+					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				Editor settingEditor = settings.edit();
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
+				try {
+					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+					settingEditor.commit();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static void revertFavToFriendsChange()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0) == 1)
+		{
+			Context context = HikeMessengerApp.getInstance().getApplicationContext();
+			// Change last seen pref to friends if its is not already set to friends or noone.
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
+					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+				Editor settingEditor = settings.edit();
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_my_contacts));
+				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_my_contacts));
+				try {
+					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
+					settingEditor.commit();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 2);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static boolean isFavToFriendsMigrationAllowed()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, false);
+	}
+
+	public static boolean isNewUser()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.IS_NEW_USER, false);
+	}
+
+	public static ConvMessage generateAddFriendSystemMessage(String msisdn, String message, boolean isOnHike, State state)
+	{
+		ConvMessage convMessage = makeConvMessage(msisdn, message, isOnHike, state);
+		convMessage.setParticipantInfoState(ParticipantInfoState.FRIEND_REQUSET_STATUS);
+		try
+		{
+			JSONObject obj = new JSONObject();
+			obj.put(HikeConstants.TYPE, HikeConstants.FRIENDS_SYSTEM_MESSAGE);
+			convMessage.setMetadata(obj);
+		}
+
+		catch (JSONException e)
+		{
+			Logger.wtf("Utils", "getting exception while creating convmessage : " + e.toString());
+		}
+
+		return convMessage;
+	}
+
+	public static boolean isNotMyOneWayFriend(ContactInfo contactInfo)
+	{
+		return Utils.isFavToFriendsMigrationAllowed() && !contactInfo.isMyOneWayFriend();
 	}
 
 	public static String getExternalFilesDirPath(String type)

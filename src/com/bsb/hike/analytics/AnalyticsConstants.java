@@ -798,6 +798,15 @@ public class AnalyticsConstants
 	public static final String JUST_OPENED = "justOpened";
 	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
 	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
+
+	public static final String ACT_LOG_2 = "act_log2";
+
+	public static final String CHAT_OPEN = "chat_open";
+
+	public static final String ADD_FRIEND = "add_friend";
+
+	public static final String USER_TL_OPEN = "user_TL_open";
+
     public static final String MIGRATION_FAILURE_ANALYTICS = "migration_failure";
 	public static final String PLATFORM_RICH_NOTIFS = "platformRichNotifs";
 	public static final String BITMAP_DOWNLOAD_SUCCESS = "success";

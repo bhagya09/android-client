@@ -143,7 +143,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog, dbCorruptDialog;
+	private Dialog progDialog, dbCorruptDialog, restoreProgDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -829,6 +829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
+					intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.HOME_ACTIVITY);
 					startActivity(intent);
 				}
 			});
@@ -2061,6 +2062,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
+		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
+
 		addEmailLogItem(optionsList);
 		
 		addBotItems(optionsList);
@@ -2195,6 +2198,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					startActivity(galleryPickerIntent);
 
 					sendAnalyticsTakePicture();
+					break;
+
+				case -100: // Dummy commit for QA Testing.
+					// TODO : Revert this before build goes live.
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
+					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
+					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
 					break;
 					
 				}
@@ -2534,6 +2544,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
+		if (restoreProgDialog != null)
+		{
+			restoreProgDialog.dismiss();
+			restoreProgDialog = null;
+		}
+
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2565,7 +2581,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showRestoreInProcessDialog()
 	{
-		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		restoreProgDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
 		showingBlockingDialog = true;
 	}
 

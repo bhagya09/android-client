@@ -612,7 +612,7 @@ public class IntentFactory
 		return callIntent;
 	}
 
-	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard, boolean newGroup)
+	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard, boolean newGroup, int source)
 	{
 		Intent intent = new Intent();
 
@@ -622,20 +622,21 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
 		intent.putExtra(HikeConstants.Extras.NEW_GROUP, newGroup);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		return intent;
 	}
 
-	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard, boolean newGroup)
+	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard, boolean newGroup, int source)
 	{
 		// If the contact info was made using a group conversation, then the
 		// Group ID is in the contact ID
 		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
-		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard, newGroup);
+		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard, newGroup, source);
 	}
 
-	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation)
+	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
 		if (conversation.getConversationName() != null)
@@ -650,6 +651,7 @@ public class IntentFactory
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
@@ -1470,11 +1472,11 @@ public class IntentFactory
 		}
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false, ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 		}
 	}
 	
-	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot)
+	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot, int source)
 	{
 		if (isBot)
 		{
@@ -1482,7 +1484,7 @@ public class IntentFactory
 		}
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, source);
 		}
 
 	}

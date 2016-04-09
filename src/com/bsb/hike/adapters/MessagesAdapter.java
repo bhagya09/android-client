@@ -136,6 +136,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -2507,6 +2508,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
 			}
+			// Adding the friend request status system message here
+			else if(infoState == ParticipantInfoState.FRIEND_REQUSET_STATUS)
+			{
+				TextView mainMessage = (TextView) inflater.inflate(layoutRes, null);
+				String messageText = convMessage.getMessage();
+				mainMessage.setText(messageText);
+				((ViewGroup) participantInfoHolder.container).addView(mainMessage);
+			}
+
 			dayHolder = participantInfoHolder;
 		}
 		else if (viewType == ViewType.UNREAD_COUNT)
@@ -3206,7 +3216,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if ((context.getString(R.string.send_message)).equals(option))
 					{
-						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true, false);
+						Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(context, message.getGroupParticipantMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.UNSAVED_CONTACT_CLICK);
 						intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						context.startActivity(intent);
 					}
