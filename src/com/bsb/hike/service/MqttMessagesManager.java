@@ -3036,6 +3036,11 @@ public class MqttMessagesManager
 	private void updateShortCut(JSONObject data) throws  JSONException
 	{
 		String msisdn = data.getString(HikeConstants.MSISDN);
+			
+        if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+		{
+			return;
+		}
 
 		ConvInfo info;
 		if (BotUtils.isBot(msisdn))
