@@ -59,7 +59,7 @@ public class StickerTagDataContainer
 
 	public boolean getStickerAvailabilityStatus()
 	{
-		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).getStickerCurrentAvailability();
+		return (mStickerCode == null) ? false : StickerManager.getInstance().getStickerFromSetString(mStickerCode).isStickerAvailable();
 	}
 
 	public ArrayList<String> getTagList()
