@@ -4046,6 +4046,16 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
+
+	public static final String IS_NEW_USER = "is_new_user";
+
+	public static final int DEFAULT_FRIENDS_FTUE_COUNT = 5;
+
+	public static final String FTUE_FRIENDS_COUNT = "friends_ftue_count";
+
+	public static final String FRIENDS_SYSTEM_MESSAGE = "frn_sys_msg";
+
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";

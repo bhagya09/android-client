@@ -262,11 +262,19 @@
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <FrameLayout
                     android:id="@+id/bottom_panel"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/white">
+
+                    <ViewStub
+                        android:id="@+id/addFriendViewStub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:inflatedId="@+id/add_friend_view"
+                        android:layout="@layout/add_friend_btn_view" />
 
                     <RelativeLayout
                         android:id="@+id/compose_container"
@@ -378,7 +386,7 @@
                             android:gravity="center_horizontal"
                             android:visibility="invisible" />
                     </RelativeLayout>
-                </RelativeLayout>
+                </FrameLayout>
             </com.bsb.hike.view.CustomLinearLayout>
 
             <include layout="@layout/dark_overlay" />

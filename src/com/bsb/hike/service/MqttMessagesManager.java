@@ -1646,6 +1646,12 @@ public class MqttMessagesManager
 		if (favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1653,6 +1659,12 @@ public class MqttMessagesManager
 			if (count >= 0)
 			{
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
+			}
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 			}
 		}
 
@@ -2992,6 +3004,27 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
 
+		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
+		{
+			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
+			Utils.makeFavFriendsTransition();
+		}
+
+		if (data.has(HikeConstants.IS_NEW_USER))
+		{
+			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_NEW_USER, isNewUser);
+		}
+
+		if (data.has(HikeConstants.FTUE_FRIENDS_COUNT))
+		{
+			int newFriendsFtueCount = data.getInt(HikeConstants.FTUE_FRIENDS_COUNT);
+			if (newFriendsFtueCount > 0) //Saving only a positive value
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, newFriendsFtueCount);
+			}
+		}
 		if(data.has(HikePlatformConstants.FLUSH_DOWNLOAD_TABLE))
 		{
 			HikeContentDatabase.getInstance().flushPlatformDownloadStateTable();
@@ -3116,8 +3149,13 @@ public class MqttMessagesManager
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
 		 * Also if the user is blocked, we ignore the message.
+		 *
+		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
-		if (statusMessage.getStatusMessageType() == null || conMgr.isBlocked(statusMessage.getMsisdn()))
+		if (statusMessage.getStatusMessageType() == null
+				|| conMgr.isBlocked(statusMessage.getMsisdn())
+				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				)
 		{
 			return;
 		}

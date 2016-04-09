@@ -71,6 +71,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -953,7 +954,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		final ContactInfo contactInfo = adapter.getItem(arg2);
 
-        if(isContactChooserFilter)
+		if (ContactManager.getInstance().isBlocked(contactInfo.getMsisdn()))
+		{
+			showToast(getString(R.string.block_overlay_message, contactInfo.getFirstName()));
+			return;
+		}
+
+		if(isContactChooserFilter)
         {
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
@@ -1072,9 +1079,10 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else{
 					name = viewtype == ViewType.NOT_FRIEND_SMS.ordinal() ? contactInfo.getName() + " (SMS) " : contactInfo.getName();
-					if (!nuxIncentiveMode)
+					if (!nuxIncentiveMode) {
 						// change is to prevent the Tags from appearing in the search bar.
-						toggleTag(name, contactInfo.getMsisdn(),contactInfo);
+						toggleTag(name, contactInfo.getMsisdn(), contactInfo);
+					}
 					else {
 						// newFragment.toggleViews(contactInfo);
 						FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -1084,17 +1092,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						imm.hideSoftInputFromWindow(tagEditText.getWindowToken(), 0);
 						adapter.removeFilter();
 						tagEditText.clear(false);
-						if (adapter.isContactAdded(contactInfo))
+						if (!adapter.isContactAdded(contactInfo))
 						{
-							if (newFragment.removeView(contactInfo))
-								adapter.removeContact(contactInfo);
+							if (newFragment.addView(contactInfo))
+								selectContact(contactInfo);
 
 						}
 						else
 						{
-							if (newFragment.addView(contactInfo))
-								adapter.addContact(contactInfo);
-
+							if (newFragment.removeView(contactInfo))
+								deSelectContact(contactInfo);
 						}
 					}
 				}
@@ -1103,29 +1110,40 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if(getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
 				{
-					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false);
+					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
 					startActivity(in);
 				}
 				else
 				{
-					Utils.startChatThread(this, contactInfo);
+					Utils.startChatThread(this, contactInfo, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 				}
 				finish();
 			}
 			break;
 		}
 	}
+
+	private void sendFriendRequest(ContactInfo info)
+	{
+		if (!OneToNConversationUtils.isOneToNConversation(info.getMsisdn()))
+		{
+			info.setFavoriteType(Utils.toggleFavorite(this, info, false));
+			if (info.isMyTwoWayFriend())
+				Toast.makeText(this, R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
+		}
+	}
 	
 	private void onItemClickDuringSelectAllMode(ContactInfo contactInfo){
 
 		tagEditText.clear(false);
-		if(adapter.isContactAdded(contactInfo)){
-			adapter.removeContact(contactInfo);
-
-		}else{
-			adapter.addContact(contactInfo);
-
+		if (!adapter.isContactAdded(contactInfo))
+		{
+			selectContact(contactInfo);
+		}
+		else
+		{
+			deSelectContact(contactInfo);
 		}
 		int selected = adapter.getSelectedContactCount();
 		if(selected>0){
@@ -1169,7 +1187,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		String dataString = null;
 		if(tag.data instanceof ContactInfo){
-		adapter.addContact((ContactInfo) tag.data);
+			ContactInfo contactInfo = (ContactInfo) tag.data;
+			selectContact(contactInfo);
 		}else if(tag.data instanceof String)
 		{
 			dataString = (String) tag.data;
@@ -1190,6 +1209,20 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 
+
+	private void selectContact(ContactInfo contactInfo)
+	{
+		if (!contactInfo.isMyOneWayFriend() && Utils.isFavToFriendsMigrationAllowed() && composeMode == MULTIPLE_FWD) {
+			sendFriendRequest(contactInfo);
+		}
+		adapter.addContact(contactInfo);
+	}
+
+	private void deSelectContact(ContactInfo contactInfo)
+	{
+		adapter.removeContact(contactInfo);
+
+	}
 	@Override
 	public void characterAddedAfterSeparator(String characters)
 	{
@@ -1278,6 +1311,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		case MULTIPLE_FWD:
 			// createGroupHeader.setVisibility(View.GONE);
 			adapter.showCheckBoxAgainstItems(true);
+			adapter.provideAddFriend(true);
 			tagEditText.clear(false);
 			adapter.removeFilter();
 			adapter.clearAllSelection(true);
@@ -1856,7 +1890,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else
 				{
-					intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
+					intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 				}
 			}
 			else
@@ -1999,7 +2033,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
-					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
+					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 					intent.putExtras(presentIntent);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
@@ -2037,12 +2071,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						else
 						{
-							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 						}
 					}
 					else
 					{
-						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 					}
 
 				}
@@ -2114,6 +2148,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									{
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+										intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.COMPOSE_CHAT);
 										startActivity(intent);
 										finish();
 										return;
@@ -2151,7 +2186,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 										Intent intent = null;
 										if (!TextUtils.isEmpty(id))
 										{
-											intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, id, false, false);
+											intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 										}
 										else
 										{

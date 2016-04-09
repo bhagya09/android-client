@@ -523,6 +523,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
