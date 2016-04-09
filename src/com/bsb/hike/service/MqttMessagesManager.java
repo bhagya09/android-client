@@ -3036,9 +3036,20 @@ public class MqttMessagesManager
 	private void updateShortCut(JSONObject data) throws  JSONException
 	{
 		String msisdn = data.getString(HikeConstants.MSISDN);
+
+		ConvInfo info;
+		if (BotUtils.isBot(msisdn))
+		{
+			info = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		}
+		else
+		{
+			info = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(ContactManager.getInstance().getName(msisdn)).build();
+		}
+
 		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
 		{
-			Utils.createShortcut(context, new ConvInfo.ConvInfoBuilder(msisdn).build());
+			Utils.createShortcut(context, info);
 		}
 	}
 
