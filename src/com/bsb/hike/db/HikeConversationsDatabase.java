@@ -966,9 +966,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if (oldVersion < 48)
 		{
-			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0";
-			db.execSQL(alter);
-	
 			try
 			{
 				String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
@@ -987,6 +984,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if(oldVersion < 49)
         {
+			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0";
+			db.execSQL(alter);
+
 			String sql = getURLTableCreateStatement();
 			db.execSQL(sql);
 
