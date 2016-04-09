@@ -4003,7 +4003,7 @@ public class Utils
 		return !convMessage.isSent() && convMessage.getState() == State.RECEIVED_UNREAD && convMessage.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE;
 	}
 
-	public static void createShortcut(Activity activity, ConvInfo conv)
+	public static void createShortcut(Context activity, ConvInfo conv, boolean showToast)
 	{
 		Intent shortcutIntent;
 		Intent intent = new Intent();
@@ -4038,7 +4038,10 @@ public class Utils
 		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, scaled);
 		intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 		activity.sendBroadcast(intent);
-		Toast.makeText(activity, R.string.shortcut_created, Toast.LENGTH_SHORT).show();
+		if(showToast)
+		{
+			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName() , Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static boolean isVoipActivated(Context context)
