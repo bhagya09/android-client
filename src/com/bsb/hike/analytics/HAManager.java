@@ -712,13 +712,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsNonUIEvent(String eventKey, String numberType, String msisdn, String status, String source)
+	public void stickyCallerAnalyticsNonUIEvent(String eventType, String numberType, String msisdn, String status, String source)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.NUMBER_TYPE, numberType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.STATUS, status);
@@ -732,13 +732,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType)
+	public void stickyCallerAnalyticsUIEvent(String eventType, String msisdn, String source, String callType)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);
