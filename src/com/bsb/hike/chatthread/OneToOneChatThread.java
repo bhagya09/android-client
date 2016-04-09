@@ -3687,7 +3687,6 @@ import java.util.Map;
 		}
 	}
 
-<<<<<<< HEAD
 	private void inflateAddFriendButtonIfNeeded()
 	{
 		if (!Utils.isFavToFriendsMigrationAllowed())
@@ -4048,11 +4047,12 @@ import java.util.Map;
 		}
 
 		return json;
-=======
+	}
+
 	@Override
-	protected void initKeyboardOffBoarding() {
-		if(!mConversation.isBlocked())
+	protected void initKeyboardOffBoarding()
+	{
+		if (!mConversation.isBlocked())
 			super.initKeyboardOffBoarding();
->>>>>>> ef78227620905752c6fd5bb20e4fee3b55fc05ed
 	}
 }
