@@ -1520,7 +1520,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 					}
 					Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-					Utils.createShortcut(getActivity(), conv);
+					Utils.createShortcut(getActivity(), conv, true);
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
@@ -1753,7 +1753,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-		Utils.createShortcut(getActivity(), conv);
+		Utils.createShortcut(getActivity(), conv, true);
 	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)

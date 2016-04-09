@@ -62,6 +62,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -97,6 +98,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -113,6 +115,7 @@ import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -2834,6 +2837,18 @@ public class MqttMessagesManager
                 InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
+		if(data.has(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE))
+		{
+			boolean notifyDiskUsage = data.optBoolean(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE, false);
+			if(notifyDiskUsage)
+			{
+				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
+				{
+					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
+					StorageSpecUtils.processDirectoryList(dirList);
+				}
+			}
+		}
 		if (data.has(HikeConstants.BADGECOUNTER))
 		{
 			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
@@ -3042,9 +3057,46 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISK_CACHE_SIZE, diskCacheSize);
 		}
 
+		if(data.has(HikeConstants.Shortcut.UPDATE))
+		{
+			updateShortCut(data);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
+	}
+
+	private void updateShortCut(final JSONObject data) throws  JSONException
+	{
+		String msisdn = data.getString(HikeConstants.MSISDN);
+
+		if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+		{
+			return;
+		}
+
+		final ConvInfo info;
+		if (BotUtils.isBot(msisdn))
+		{
+			info = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		}
+		else
+		{
+			info = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(ContactManager.getInstance().getName(msisdn)).build();
+		}
+
+		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Utils.createShortcut(context, info, data.optBoolean(HikeConstants.TOAST, false));
+				}
+			});
+		}
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException
