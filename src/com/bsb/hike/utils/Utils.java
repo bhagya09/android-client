@@ -4004,7 +4004,7 @@ public class Utils
 		return !convMessage.isSent() && convMessage.getState() == State.RECEIVED_UNREAD && convMessage.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE;
 	}
 
-	public static void createShortcut(Activity activity, ConvInfo conv)
+	public static void createShortcut(Context activity, ConvInfo conv)
 	{
 		Intent shortcutIntent;
 		Intent intent = new Intent();

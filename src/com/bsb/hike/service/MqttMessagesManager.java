@@ -62,6 +62,7 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -3022,9 +3023,23 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISK_CACHE_SIZE, diskCacheSize);
 		}
 
+		if(data.has(HikeConstants.Shortcut.UPDATE))
+		{
+			updateShortCut(data);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
+	}
+
+	private void updateShortCut(JSONObject data) throws  JSONException
+	{
+		String msisdn = data.getString(HikeConstants.MSISDN);
+		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
+		{
+			Utils.createShortcut(context, new ConvInfo.ConvInfoBuilder(msisdn).build());
+		}
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException
