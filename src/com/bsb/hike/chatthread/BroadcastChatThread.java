@@ -120,7 +120,7 @@ public class BroadcastChatThread extends OneToNChatThread
 			openProfileScreen();
 			break;
 		case R.string.add_shortcut:
-			Utils.createShortcut(activity, oneToNConversation.getConvInfo());
+			Utils.createShortcut(activity, oneToNConversation.getConvInfo(), true);
 			break;
 		default:
 		}

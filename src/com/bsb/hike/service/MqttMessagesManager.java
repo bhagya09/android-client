@@ -115,6 +115,7 @@ import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -3059,7 +3060,7 @@ public class MqttMessagesManager
 				@Override
 				public void run()
 				{
-					Utils.createShortcut(context, info);
+					Utils.createShortcut(context, info, data.optBoolean(HikeConstants.TOAST, false));
 				}
 			});
 		}
