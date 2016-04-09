@@ -5,6 +5,7 @@
     android:installLocation="auto"
     android:versionCode="1646"
     android:versionName="4.2.0.82.19.internal_release" >
+
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
