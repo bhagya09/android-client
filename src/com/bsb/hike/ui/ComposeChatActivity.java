@@ -73,6 +73,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -1195,13 +1196,13 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 			{
 				if(getIntent().hasExtra(HikeConstants.Extras.HIKE_DIRECT_MODE))
 				{
-					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false);
+					Intent in=IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, false, false, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 					in.putExtra(HikeConstants.Extras.HIKE_DIRECT_MODE, true);
 					startActivity(in);
 				}
 				else
 				{
-					Utils.startChatThread(this, contactInfo);
+					Utils.startChatThread(this, contactInfo, ChatThreadActivity.ChatThreadOpenSources.NEW_COMPOSE);
 				}
 				finish();
 			}
@@ -1966,7 +1967,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else
 				{
-					intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false);
+					intent = IntentFactory.createChatThreadIntentFromContactInfo(this, arrayList.get(0), true, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 				}
 			}
 			else
@@ -2109,7 +2110,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else
 				{
 					// forwarding to 1 is special case , we want to create conversation if does not exist and land to recipient
-					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false);
+					intent = IntentFactory.createChatThreadIntentFromMsisdn(this, arrayList.get(0).getMsisdn(), false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 					intent.putExtras(presentIntent);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
@@ -2147,12 +2148,12 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 						}
 						else
 						{
-							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
+							intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 						}
 					}
 					else
 					{
-						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false);
+						intent = IntentFactory.createChatThreadIntentFromMsisdn(this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 					}
 
 				}
@@ -2224,6 +2225,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 									{
 										Intent intent = new Intent(ComposeChatActivity.this, TimelineActivity.class);
 										intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+										intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.COMPOSE_CHAT);
 										startActivity(intent);
 										finish();
 										return;
@@ -2261,7 +2263,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 										Intent intent = null;
 										if (!TextUtils.isEmpty(id))
 										{
-											intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, id, false, false);
+											intent = IntentFactory.createChatThreadIntentFromMsisdn(ComposeChatActivity.this, id, false, false, ChatThreadActivity.ChatThreadOpenSources.FORWARD);
 										}
 										else
 										{

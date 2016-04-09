@@ -50,6 +50,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -409,7 +410,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						if (mActivity.get() != null && mActivity.get() instanceof ProfileActivity)
 						{
 							Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-									ContactManager.getInstance().getContact(headerMsisdn, true, false), false, false);
+									ContactManager.getInstance().getContact(headerMsisdn, true, false), false, false,
+									ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 							startActivity(intent);
 						}
 					}
@@ -1125,7 +1127,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 					startActivity(intent);
 					JSONObject metadataSU = new JSONObject();
 					try
@@ -1395,7 +1397,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(),
-					statusMessage.getMsisdn()), false, false);
+					statusMessage.getMsisdn()), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

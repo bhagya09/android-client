@@ -28,6 +28,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -199,7 +200,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 		}
 		else
 		{
-			Utils.startChatThread(getActivity(), contactInfo);
+			Utils.startChatThread(getActivity(), contactInfo, ChatThreadActivity.ChatThreadOpenSources.FRIENDS_SCREEN);
 			getActivity().finish();
 		}
 	}

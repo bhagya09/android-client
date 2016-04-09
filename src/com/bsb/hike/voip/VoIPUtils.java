@@ -48,6 +48,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class VoIPUtils {
 
@@ -343,7 +344,7 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = null;

@@ -26,6 +26,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -2173,7 +2174,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openChatThread(ContactInfo contactInfo)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		//Add anything else which is need to the intent
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, false))
@@ -2186,7 +2187,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onProfileSmallLeftBtnClick(View v)
 	{
 		Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.ADD_PARTICIPANT);
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 

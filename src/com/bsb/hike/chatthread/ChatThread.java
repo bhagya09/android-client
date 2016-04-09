@@ -184,6 +184,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -2900,8 +2901,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 				activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 			}
 		}
+
+		recordChatThreadOpen();
 	}
-	
+
 	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
 	{
 		@Override
@@ -6925,6 +6928,85 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected boolean shouldEnableEmailChat()
 	{
 		return (!isMessageListEmpty());
+	}
+
+	protected void recordChatThreadOpen()
+	{
+		JSONObject json = getChatThreadOpenJSON();
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	protected JSONObject getChatThreadOpenJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CHAT_OPEN);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
+			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			return json;
+
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
+		}
+	}
+
+	private String getChatThreadOpenSource(int source)
+	{
+		switch (source)
+		{
+		case ChatThreadOpenSources.NOTIF :
+			return "notif";
+		case ChatThreadOpenSources.CONV_FRAGMENT:
+			return "conv_fragment";
+		case ChatThreadOpenSources.NEW_COMPOSE:
+			return "new_compose";
+		case ChatThreadOpenSources.SHORTCUT:
+			return "shortcut";
+		case ChatThreadOpenSources.FORWARD:
+			return "forward";
+		case ChatThreadOpenSources.EMPTY_STATE_CONV_FRAGMENT:
+			return "emptystateConvFragment";
+		case ChatThreadOpenSources.FRIENDS_SCREEN:
+			return "friends_screen";
+		case ChatThreadOpenSources.UNSAVED_CONTACT_CLICK:
+			return "unsaved_contact_click";
+		case ChatThreadOpenSources.FILE_SHARING:
+			return "file_fwd";
+		case ChatThreadOpenSources.PROFILE_SCREEN:
+			return "profile_screen";
+		case ChatThreadOpenSources.OFFLINE:
+			return "offline_chat";
+		case ChatThreadOpenSources.STICKEY_CALLER:
+			return "sticky_caller";
+		case ChatThreadOpenSources.VOIP:
+			return "voip_source";
+		case ChatThreadOpenSources.LIKES_DIALOG:
+			return "likes_dialog";
+		case ChatThreadOpenSources.TIMELINE:
+			return "timeline";
+		case ChatThreadOpenSources.NEW_GROUP:
+			return "new_group_create";
+		case ChatThreadOpenSources.MICRO_APP:
+			return "micro_app";
+		default:
+			return "unknown";
+		}
+
 	}
 
 }
