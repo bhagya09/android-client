@@ -3033,16 +3033,16 @@ public class MqttMessagesManager
 
 	}
 
-	private void updateShortCut(JSONObject data) throws  JSONException
+	private void updateShortCut(final JSONObject data) throws  JSONException
 	{
 		String msisdn = data.getString(HikeConstants.MSISDN);
-			
-        if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+
+		if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 		{
 			return;
 		}
 
-		ConvInfo info;
+		final ConvInfo info;
 		if (BotUtils.isBot(msisdn))
 		{
 			info = BotUtils.getBotInfoForBotMsisdn(msisdn);
@@ -3054,7 +3054,14 @@ public class MqttMessagesManager
 
 		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
 		{
-			Utils.createShortcut(context, info);
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Utils.createShortcut(context, info);
+				}
+			});
 		}
 	}
 
