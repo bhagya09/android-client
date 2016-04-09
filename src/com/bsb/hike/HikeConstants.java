@@ -771,6 +771,15 @@ public class HikeConstants
 
 	public static final String CALL_TYPE = "call_type";
 
+	public class Shortcut
+	{
+		public static final String UPDATE = "shtct";
+
+		public static final String CREATE = "cr";
+
+		public static final String DELETE = "dl";
+	}
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";

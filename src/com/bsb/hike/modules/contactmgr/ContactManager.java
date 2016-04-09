@@ -266,6 +266,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			name = transientCache.getName(msisdn);
 		}
+		if (null == name)
+		{
+			// fetch from db if not found
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				GroupDetails grpDetails = getGroupDetails(msisdn);
+				if (grpDetails != null)
+				{
+					name = grpDetails.getGroupName();
+				}
+			}
+			else
+			{
+				ContactInfo contact = getContact(msisdn, true, false);
+				if (contact != null)
+				{
+					name = contact.getName();
+				}
+			}
+		}
 		if (null == name && !returnNullIfNotFound)
 			return msisdn;
 		return name;
