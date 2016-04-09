@@ -769,6 +769,17 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
+	public static final String CALL_TYPE = "call_type";
+
+	public class Shortcut
+	{
+		public static final String UPDATE = "shtct";
+
+		public static final String CREATE = "cr";
+
+		public static final String DELETE = "dl";
+	}
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -3166,6 +3177,8 @@ public class HikeConstants
 
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String ACCOUNT_LOG_ANALYTICS = "actl";
+
 	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
@@ -4046,7 +4059,6 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
-
 	public static class BackupRestore
 	{
 		public static final String OS = "os";
@@ -4081,6 +4093,23 @@ public class HikeConstants
 	public static final String FTUE_FRIENDS_COUNT = "friends_ftue_count";
 
 	public static final String FRIENDS_SYSTEM_MESSAGE = "frn_sys_msg";
+
+	public static final class SPACE_MANAGER
+	{
+		public static final String NOTIFY_DISK_SPACE_USAGE = "nspusg";
+
+		public static final String DISK_SPACE_INFO = "spcinf";
+
+		public static final String MAP_DIRECTORY = "mapdir";
+
+		public static final String DIRECTORY_LIST = "dirlist";
+
+		public static final String DIRECTORY_PATH = "dir_p";
+
+		public static final String DIRECTORY_SIZE = "dir_s";
+
+		public static final String DIRECTORY_TYPE = "dir_t";
+	}
 
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
