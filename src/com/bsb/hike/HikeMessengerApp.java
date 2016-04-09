@@ -98,8 +98,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String DEFAULT_SETTINGS_PREF = "com.bsb.hike_preferences";
 
-	public static final String DEFAULT_SETTINGS_PREF_NO_DOT = "com_bsb_hike_preferences";
-
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
 
 	public static final String VOIP_SETTINGS = "voipsettings";

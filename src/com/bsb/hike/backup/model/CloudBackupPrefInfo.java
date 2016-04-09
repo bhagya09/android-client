@@ -10,7 +10,6 @@ import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 
 /**
@@ -48,14 +47,7 @@ public class CloudBackupPrefInfo
 	public CloudBackupPrefInfo(@NonNull String argKeyName, @HikeSharedPreferenceUtil.SharedPrefFile String argPrefFile, @PrefDataType int argDataType, @NonNull Object argDefault)
 	{
 		keyName = argKeyName;
-		if(argPrefFile == HikeMessengerApp.DEFAULT_SETTINGS_PREF)
-		{
-			prefName = HikeMessengerApp.DEFAULT_SETTINGS_PREF_NO_DOT;
-		}
-		else
-		{
-			prefName = argPrefFile;
-		}
+		prefName = argPrefFile;
 		dataType = argDataType;
 		defaultValue = argDefault;
 	}
@@ -63,15 +55,7 @@ public class CloudBackupPrefInfo
 	public CloudBackupPrefInfo(@NonNull String argSettingsName, @NonNull String argPrefName, @NonNull JSONObject argValueJSON) throws JSONException
 	{
 		keyName = argSettingsName;
-		if(argPrefName == HikeMessengerApp.DEFAULT_SETTINGS_PREF_NO_DOT)
-		{
-			prefName = HikeMessengerApp.DEFAULT_SETTINGS_PREF;
-		}
-		else
-		{
-			prefName = argPrefName;
-		}
-
+		prefName = argPrefName;
 		restoreValue = argValueJSON.getString(HikeConstants.BackupRestore.VALUE);
 
 		int lDataType = argValueJSON.optInt(HikeConstants.BackupRestore.DATA_TYPE);
