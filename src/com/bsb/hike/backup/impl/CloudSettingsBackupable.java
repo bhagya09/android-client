@@ -1,10 +1,6 @@
 package com.bsb.hike.backup.impl;
 
-import java.util.ArrayList;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -19,8 +15,14 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Responsible for creating and uploading settings backup JSON. Created by atul on 31/03/16.
@@ -28,6 +30,8 @@ import com.bsb.hike.utils.Utils;
 public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IRequestListener
 {
 	private ArrayList<CloudBackupPrefInfo> prefInfoList;
+
+	private final String TAG = CloudSettingsBackupable.class.getSimpleName();
 
 	@Override
 	public boolean doPreTask()
@@ -101,6 +105,7 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		JSONObject backupJSON = null;
 		try
 		{
+			Logger.d(TAG, "Begin backup data serialization");
 			// Get backup data in JSON
 			backupJSON = serialize();
 		}
@@ -113,10 +118,12 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 
 		if (backupJSON == null)
 		{
+			Logger.wtf(TAG, "Backup data null?");
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, null);
 			return;
 		}
 
+		Logger.d(TAG, "Begin server upload");
 		// Upload to server
 		HttpRequests.uploadUserSettings(this, 2, 1000, backupJSON).execute();
 	}
@@ -150,6 +157,9 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 
 			// Lets add setting key/values
 			prefObject.put(settingName, prefInfo.serialize());
+
+			if(BuildConfig.DEBUG)
+			Logger.d(TAG, "Backup key - " + settingName + " val- " + prefInfo.serialize().toString());
 		}
 
 		prefsBackupJson.put(HikeConstants.BackupRestore.DATA, dataObject);
@@ -166,6 +176,8 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 	@Override
 	public void onRequestFailure(HttpException httpException)
 	{
+		Logger.d(TAG, "Upload failed");
+
 		// PubSub
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, httpException);
 
@@ -178,6 +190,7 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 	{
 		if (Utils.isResponseValid((JSONObject) result.getBody().getContent()))
 		{
+			Logger.d(TAG, "Upload successful");
 			// Save backup timestamp
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_TS_PREF, System.currentTimeMillis());
 			prefInfoList.clear();

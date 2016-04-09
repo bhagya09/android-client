@@ -1,11 +1,5 @@
 package com.bsb.hike.backup.impl;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -17,7 +11,14 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by atul on 05/04/16.
@@ -28,6 +29,8 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 	private JSONObject mSettingsJSON;
 
 	private ArrayList<CloudBackupPrefInfo> prefInfoList;
+
+	private final String TAG = CloudSettingsRestorable.class.getSimpleName();
 
 	public void setBackupDataJSON(String settingsJSON) throws JSONException
 	{
@@ -47,10 +50,13 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 		// Is restore JSON available? If not, GET it first then re-run.
 		if (mSettingsJSON == null)
 		{
+			Logger.d(TAG, "Restore settings JSON null, fetching from server");
 			// Do HTTP GET
 			HttpRequests.downloadUserSettings(this, 2, 500).execute();
 			return; // Very important
 		}
+
+		Logger.d(TAG, "Restore settings JSON found, begin restore");
 
 		//Retrieve "setting"
 		JSONObject settingsJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.KEY_SETTING);
@@ -76,6 +82,7 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 					try
 					{
 						JSONObject settingInfoJSON = (JSONObject) prefGroupJSON.get(settingName); // JSON for corresponding setting name
+
 						prefInfoList.add(new CloudBackupPrefInfo(settingName, prefName, settingInfoJSON));
 					}
 					catch (JSONException e)
@@ -104,6 +111,7 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 			{
 				// Save into shared preferences
 				restoreSharedPreference(prefInfo);
+				Logger.d(TAG, "Restoring key - " + prefInfo.getKeyName() + " val:" + prefInfo.getRestoreValue());
 			}
 			else
 			{
