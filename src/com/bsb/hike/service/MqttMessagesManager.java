@@ -97,6 +97,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -2820,6 +2821,18 @@ public class MqttMessagesManager
 				Utils.setSharedPrefValue(context, HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, screenshot);
                 InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+		}
+		if(data.has(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE))
+		{
+			boolean notifyDiskUsage = data.optBoolean(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE, false);
+			if(notifyDiskUsage)
+			{
+				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
+				{
+					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
+					StorageSpecUtils.processDirectoryList(dirList);
+				}
 			}
 		}
 		if (data.has(HikeConstants.BADGECOUNTER))
