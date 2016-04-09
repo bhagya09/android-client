@@ -203,16 +203,19 @@ public class UserLogInfo {
 		}
 	}
 
-	public static class AccountLogPojo {
+	public static class AccountLogPojo
+	{
 		private String accountName;
 		private String accountType;
 
-		public AccountLogPojo(String accountName, String accountType) {
+		public AccountLogPojo(String accountName, String accountType)
+		{
 			this.accountName = accountName;
 			this.accountType = accountType;
 		}
 
-		public JSONObject toJSON() throws JSONException{
+		public JSONObject toJSON() throws JSONException
+		{
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.putOpt(ACCOUNT_NAME, this.accountName);
 			jsonObj.putOpt(ACCOUNT_TYPE,this.accountType);
@@ -220,13 +223,16 @@ public class UserLogInfo {
 		}
 	}
 
-	public static List<AccountLogPojo> getAccountLogs() {
+	public static List<AccountLogPojo> getAccountLogs()
+	{
 
 		List<AccountLogPojo> accountLogPojos = new ArrayList<AccountLogPojo>();
 
 		Account[] accountList = AccountManager.get(HikeMessengerApp.getInstance().getApplicationContext()).getAccounts();
-		if(accountList != null && accountList.length > 0) {
-			for (Account account : accountList) {
+		if(accountList != null && accountList.length > 0)
+		{
+			for (Account account : accountList)
+			{
 				accountLogPojos.add(new AccountLogPojo(account.name, account.type));
 				Logger.d(TAG, account.name + " : " + account.type + " : " + account.toString());
 
@@ -237,9 +243,11 @@ public class UserLogInfo {
 	}
 
 	public static JSONArray getJSONAccountArray(List<AccountLogPojo> accountLogList)
-			throws JSONException {
+			throws JSONException
+	{
 		JSONArray jsonArray = new JSONArray();
-		for (AccountLogPojo accountLog : accountLogList) {
+		for (AccountLogPojo accountLog : accountLogList)
+		{
 			jsonArray.put(accountLog.toJSON());
 		}
 		return jsonArray;
