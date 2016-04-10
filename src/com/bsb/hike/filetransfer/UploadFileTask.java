@@ -637,6 +637,7 @@ public class UploadFileTask extends FileTransferBase
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
 						deleteStateFile();
+						showToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
 					else if (httpException.getErrorCode() == HttpException.REASON_CODE_MALFORMED_URL)
 					{
