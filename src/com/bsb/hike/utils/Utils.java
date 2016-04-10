@@ -71,6 +71,7 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -4381,11 +4382,8 @@ public class Utils
 		context.startActivity(i);
 	}
 
-	public static void addToContacts(List<ContactInfoData> items, String name, Context context, Spinner accountSpinner)
+	public static void addToContacts(List<ContactInfoData> items, String name, Context context, AccountData accountData)
 	{
-
-		AccountData accountData = (AccountData) accountSpinner.getSelectedItem();
-
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		int rawContactInsertIndex = ops.size();
 
@@ -4437,6 +4435,12 @@ public class Utils
 			contactSaveSuccessful = false;
 		}
 		Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+	}
+
+	public static void addToContacts(List<ContactInfoData> items, String name, Context context, Spinner accountSpinner)
+	{
+		AccountData accountData = (AccountData) accountSpinner.getSelectedItem();
+		addToContacts(items, name, context, accountData);
 	}
 
 	public static int getNumColumnsForGallery(Resources resources, int sizeOfImage)
@@ -5829,7 +5833,7 @@ public class Utils
 			/*
 			 * Only showing the user's google accounts
 			 */
-			if (!"com.google".equals(type))
+			if (!AnalyticsConstants.ACCOUNT_TYPE_GOOGLE.equals(type))
 			{
 				continue;
 			}
