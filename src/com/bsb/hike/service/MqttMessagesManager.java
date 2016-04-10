@@ -21,10 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -55,9 +57,10 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
@@ -115,7 +118,6 @@ import com.bsb.hike.utils.ClearTypingNotification;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.HikeUiHandler;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -3062,6 +3064,11 @@ public class MqttMessagesManager
 			updateShortCut(data);
 		}
 
+		if(data.has(HikeConstants.CONTACT_UPDATE))
+		{
+			saveContacts(data);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
@@ -3097,6 +3104,43 @@ public class MqttMessagesManager
 				}
 			});
 		}
+	}
+
+	private void saveContacts(JSONObject data) throws JSONException
+	{
+		String newMsisdn = data.getString(HikeConstants.CONTACT_UPDATE);
+		String name = data.optString(HikeConstants.CONTACT_NAME, "");
+		String oldMsisdn = data.optString(HikeConstants.CONTACT_NUMBER_OLD, "");
+
+		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
+
+		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
+		PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+
+		if(contactIdPair == null)
+		{
+			if(changeMsisdn)
+			{
+				contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(newMsisdn));
+				contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+				if(contactIdPair != null)
+				{
+					return;
+				}
+			}
+			List<AccountData> accountDatas = Utils.getAccountList(context);
+			List<ContactInfoData> items = new ArrayList<ContactInfoData>();
+			items.add(new ContactInfoData(ContactInfoData.DataType.PHONE_NUMBER, newMsisdn, HikeConstants.HIKE_CUSTOM_PHONE_TYPE));
+			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0));
+		}
+		else
+		{
+			if(changeMsisdn)
+			{
+				Utils.updateContactWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), newMsisdn);
+			}
+		}
+
 	}
 
 	private void saveRewards(JSONObject jsonObj) throws JSONException
