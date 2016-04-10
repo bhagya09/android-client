@@ -780,6 +780,12 @@ public class HikeConstants
 		public static final String DELETE = "dl";
 	}
 
+	public static final String CONTACT_UPDATE = "cntct_no";
+
+	public static final String CONTACT_NAME = "cntct_nm";
+	
+	public static final String CONTACT_NUMBER_OLD = "cntct_no_old";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -4079,4 +4085,6 @@ public class HikeConstants
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
+
+	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 }
