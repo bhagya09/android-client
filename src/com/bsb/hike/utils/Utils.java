@@ -8230,4 +8230,107 @@ public class Utils
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
 	}
+	
+    private static String getCursorString(Cursor cursor, String columnName) {
+		int index = cursor.getColumnIndex(columnName);
+		if(index != -1) return cursor.getString(index);
+		return null;
+	}
+
+	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri) {
+		PairModified<String, String> returnContactIds = null;
+
+		String mRawContactId, mDataId;
+		Cursor mContactCursor = context.getContentResolver().query(contactUri, null, null, null, null);
+		Logger.v("Contact", "Got Contact Cursor");
+
+		try {
+			if (mContactCursor.moveToFirst()) {
+				String mContactId = getCursorString(mContactCursor,
+						ContactsContract.Contacts._ID);
+
+				Cursor mRawContactCursor = context.getContentResolver().query(
+						RawContacts.CONTENT_URI,
+						null,
+						Data.CONTACT_ID + " = ?",
+						new String[]{mContactId},
+						null);
+
+				Logger.v("RawContact", "Got RawContact Cursor");
+
+				try {
+					ArrayList<String> mRawContactIds = new ArrayList<String>();
+					while (mRawContactCursor.moveToNext()) {
+						String rawId = getCursorString(mRawContactCursor, RawContacts._ID);
+						Logger.v("RawContact", "ID: " + rawId);
+						mRawContactIds.add(rawId);
+					}
+
+					for (String rawId : mRawContactIds) {
+						// Make sure the "last checked" RawContactId is set locally for use in insert & update.
+						mRawContactId = rawId;
+						Cursor mDataCursor = context.getContentResolver().query(
+								Data.CONTENT_URI,
+								null,
+								Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ? AND " + Phone.TYPE + " = ? AND " + Phone.LABEL + " = ?",
+								new String[]{mRawContactId, Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_CUSTOM), HikeConstants.HIKE_CUSTOM_PHONE_TYPE},
+								null);
+
+						if (mDataCursor.getCount() > 0) {
+							mDataCursor.moveToFirst();
+							mDataId = getCursorString(mDataCursor, Data._ID);
+							Logger.v("Data", "Found data item with MIMETYPE and Phone.TYPE");
+							mDataCursor.close();
+							returnContactIds = new PairModified<>(mRawContactId, mDataId);
+							break;
+						} else {
+							Logger.v("Data", "Data doesn't contain MIMETYPE and Phone.TYPE");
+							mDataCursor.close();
+						}
+						returnContactIds = null;
+					}
+				} finally {
+					mRawContactCursor.close();
+				}
+			}
+		} catch (Exception e) {
+			Logger.w("UpdateContact", e.getMessage());
+			for (StackTraceElement ste : e.getStackTrace()) {
+				Logger.w("UpdateContact", "\t" + ste.toString());
+			}
+			throw new RuntimeException();
+		} finally {
+			mContactCursor.close();
+		}
+
+		return returnContactIds;
+	}
+
+	public static void updateContactWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String msisdn) {
+		try {
+			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
+					.withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[] {mDataId})
+					.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
+					.withValue(Phone.NUMBER, msisdn)
+					.withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
+					.withValue(Phone.LABEL, HikeConstants.HIKE_CUSTOM_PHONE_TYPE)
+					.build());
+			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+		} catch (Exception e) {
+			// Display warning
+			Logger.w("UpdateContact", e.getMessage());
+			for(StackTraceElement ste : e.getStackTrace()) {
+				Logger.w("UpdateContact", "\t" + ste.toString());
+			}
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, "Update failed", duration);
+			toast.show();
+		}
+	}
 }
+
+
