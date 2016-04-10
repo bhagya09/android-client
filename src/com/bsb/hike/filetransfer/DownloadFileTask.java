@@ -71,7 +71,7 @@ public class DownloadFileTask extends FileTransferBase
 			catch (JSONException e)
 			{
 				FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "JSONException", "DOWNLOAD_FAILED : " , e);
-				showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+				removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 				Logger.e("DownloadFileTask", "Json exception while creating hike file object : ", e);
 				return;
 			}
@@ -131,7 +131,6 @@ public class DownloadFileTask extends FileTransferBase
 			public void onRequestFailure(HttpException httpException)
 			{
 				doOnFailure(httpException);
-				FileTransferManager.getInstance(context).removeTask(msgId);
 			}
 		};
 	}
@@ -172,7 +171,8 @@ public class DownloadFileTask extends FileTransferBase
 		{
 			Logger.d(getClass().getSimpleName(), "FT failed");
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_RENAME_FILE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "READ_FAIL");
-			showToast(HikeConstants.FTResult.READ_FAIL);
+			removeTaskAndShowToast(HikeConstants.FTResult.READ_FAIL);
+			return;
 		}
 		else
 		{
@@ -209,17 +209,17 @@ public class DownloadFileTask extends FileTransferBase
 		if (ex instanceof FileNotFoundException)
 		{
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_3, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", ex);
-			showToast(HikeConstants.FTResult.NO_SD_CARD);
+			removeTaskAndShowToast(HikeConstants.FTResult.NO_SD_CARD);
 		}
 		else if (ex instanceof IOException && ex.getMessage().equals(FILE_TOO_LARGE_ERROR_MESSAGE))
 		{
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
-			showToast(HikeConstants.FTResult.FILE_TOO_LARGE);
+			removeTaskAndShowToast(HikeConstants.FTResult.FILE_TOO_LARGE);
 		}
 		else if (ex instanceof IOException && ex.getMessage().equals(CARD_UNMOUNT_ERROR))
 		{
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", ex);
-			showToast(HikeConstants.FTResult.CARD_UNMOUNT);
+			removeTaskAndShowToast(HikeConstants.FTResult.CARD_UNMOUNT);
 		}
 		else
 		{
@@ -228,37 +228,30 @@ public class DownloadFileTask extends FileTransferBase
 			{
 				case HttpException.REASON_CODE_NO_NETWORK:
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
-					showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+					removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					break;
 				case HttpException.REASON_CODE_CANCELLATION:
 					deleteTempFile();
 					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
-					showToast(HikeConstants.FTResult.CANCELLED);
+					removeTaskAndShowToast(HikeConstants.FTResult.CANCELLED);
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
 					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , ex);
-					showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+					removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					break;
 				default:
 					if (errorCode / 100 != 2)
 					{
-						showToast(HikeConstants.FTResult.SERVER_ERROR);
+						removeTaskAndShowToast(HikeConstants.FTResult.SERVER_ERROR);
 					}
 					else
 					{
-						showToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+						removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 					break;
 			}
 		}
-
-		if (mFile != null)
-		{
-			mFile.delete();
-		}
-		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-
 	}
 
 	private void deleteTempFile()
@@ -278,8 +271,9 @@ public class DownloadFileTask extends FileTransferBase
 		return fss != null ? fss : new FileSavedState();
 	}
 
-	private void showToast(final HikeConstants.FTResult result)
+	private void removeTaskAndShowToast(final HikeConstants.FTResult result)
 	{
+		FileTransferManager.getInstance(context).removeTask(msgId);
 		if (showToast) {
 			handler.post(new Runnable() {
 				@Override
@@ -316,5 +310,10 @@ public class DownloadFileTask extends FileTransferBase
 				}
 			});
 		}
+		if (mFile != null)
+		{
+			mFile.delete();
+		}
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 }
