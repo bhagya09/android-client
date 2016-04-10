@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
@@ -143,8 +142,6 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestProgressUpdate(float progress)
 			{
-				Log.d("FTMUploadFileTask2", "progress : " + progress);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 			}
 
 			@Override
