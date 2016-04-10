@@ -156,8 +156,9 @@ public class UploadFileTask extends FileTransferBase
 					return;
 				}
 
-				if (httpException.getErrorCode() % 100 > 0)
+				if (httpException.getErrorCode() / 100 > 0)
 				{
+					// do this in any failure response code returned by server
 					fileKey = null;
 					verifyMd5(false);
 				}
@@ -179,10 +180,10 @@ public class UploadFileTask extends FileTransferBase
 						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "READ_FAIL - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.READ_FAIL);
 					}
-					else if (FileTransferManager.UNABLE_TO_DOWNLOAD.equals(throwable.getMessage()))
+					else
 					{
-						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", httpException);
-						removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FK_VALIDATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "http", "UPLOAD_FAILED - ", httpException);
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
 				}
 				else
@@ -455,8 +456,9 @@ public class UploadFileTask extends FileTransferBase
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "All", "CANCELLED UPLOAD");
 					removeTaskAndShowToast(HikeConstants.FTResult.CANCELLED);
 				}
-				else if (httpException.getErrorCode() % 100 > 0)
+				else if (httpException.getErrorCode() / 100 > 0)
 				{
+					// do this in any failure response code returned by server
 					uploadFile(selectedFile);
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
@@ -481,6 +483,10 @@ public class UploadFileTask extends FileTransferBase
 					{
 						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "DOWNLOAD_FAILED - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
+					}
+					else
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
 				}
 			}
