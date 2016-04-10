@@ -155,7 +155,14 @@ public class UploadContactOrLocationTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				doOnFailure();
+				if (httpException.getErrorCode() == HttpException.REASON_CODE_CANCELLATION)
+				{
+					FileTransferManager.getInstance(context).removeTask(msgId);
+				}
+				else
+				{
+					doOnFailure();
+				}
 			}
 		};
 	}
