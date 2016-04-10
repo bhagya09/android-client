@@ -250,6 +250,7 @@ public class FileTransferManager
      */
 	public void downloadFile(File destinationFile, String fileKey, long msgId, HikeFileType hikeFileType, ConvMessage userContext, boolean showToast)
 	{
+		Logger.d(getClass().getSimpleName(), "Downloading file: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 		DownloadFileTask downloadFileTask;
 		if (isFileTaskExist(msgId))
 		{
@@ -301,6 +302,7 @@ public class FileTransferManager
 		}
 
 		downloadFileTask.download();
+		Logger.d(getClass().getSimpleName(), "Downloading file task started: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 	}
 
 	public void downloadApk(File destinationFile, String fileKey, HikeFileType hikeFileType)
