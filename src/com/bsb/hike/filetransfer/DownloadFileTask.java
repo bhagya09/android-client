@@ -177,16 +177,6 @@ public class DownloadFileTask extends FileTransferBase
 		else
 		{
 			Logger.d(getClass().getSimpleName(), "FT Completed");
-			try
-			{
-				// Added sleep to complete the progress.
-				// TODO Need to remove sleep and implement in a better way to achieve the progress UX.
-				Thread.sleep(300);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
 			HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 		}
 
