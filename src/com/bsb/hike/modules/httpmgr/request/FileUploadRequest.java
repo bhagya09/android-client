@@ -256,6 +256,7 @@ public class FileUploadRequest extends Request<JSONObject>
 					catch (Exception ex)
 					{
 						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
+						throw ex;
 					}
 					break;
 				}
