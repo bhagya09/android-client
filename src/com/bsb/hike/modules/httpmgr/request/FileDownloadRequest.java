@@ -36,6 +36,8 @@ public class FileDownloadRequest extends Request<File>
 
 	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
 
+	private long time = 0;
+
 	private FileDownloadRequest(Init<?> init)
 	{
 		super(init);
@@ -90,6 +92,7 @@ public class FileDownloadRequest extends Request<File>
 	@Override
 	public Response executeRequest(IClient client) throws Throwable
 	{
+		time = System.currentTimeMillis();
 		start = new File(filePath).length();
 		if (this.getState() == null)
 		{
@@ -135,10 +138,8 @@ public class FileDownloadRequest extends Request<File>
 				state.setTotalSize(totalSize);
 			}
 
-			long time = 0;
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				time = System.currentTimeMillis();
 				chunkSize = chunkSizePolicy.getChunkSize();
 				if (chunkSize <= 0)
 				{
@@ -194,6 +195,7 @@ public class FileDownloadRequest extends Request<File>
 				String contentRange = "bytes " + transferredSize + "-" + (transferredSize + byteRead) + "/" + totalSize;
 				int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
 				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, state.getFileKey(), isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
+				time = System.currentTimeMillis();
 				transferredSize += byteRead;
 				state.setTransferredSize(transferredSize);
 				FileSavedState fss = new FileSavedState(state);
