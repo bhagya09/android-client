@@ -54,8 +54,8 @@ public class HikeCloudSettingsManager implements HikePubSub.Listener
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_PENDING, true);
-		HikeSettingsCloudBackup settingsBackupable = new HikeSettingsCloudBackup();
-		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsBackupable);
+		HikeSettingsCloudBackup settingsCloudBackup = new HikeSettingsCloudBackup();
+		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsCloudBackup);
 	}
 
 	public void doRestore(String backupData)

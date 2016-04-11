@@ -8240,20 +8240,6 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
-	public static PackageInfo getHikePackageInfo()
-	{
-		PackageInfo pInfo = null;
-		try
-		{
-			pInfo = HikeMessengerApp.getInstance().getPackageManager().getPackageInfo(HikeMessengerApp.getInstance().getPackageName(), 0);
-		}
-		catch (NameNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		return pInfo;
-	}
-
 	public static void makeFavFriendsTransition()
 	{
 		if (isFavToFriendsMigrationAllowed())
