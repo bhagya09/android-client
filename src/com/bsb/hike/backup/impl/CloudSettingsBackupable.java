@@ -65,13 +65,18 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.VIBRATE_PREF_LIST, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, HikeMessengerApp
 				.getInstance().getString(R.string.vib_default)));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.TICK_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NOTIF_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, "HikeJingle"));
+
+		//Cannot take a backup since restore might happen on some device which does not have this ringtone
+//		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NOTIF_SOUND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, "HikeJingle"));
+
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STATUS_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STATUS_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_INT, 0));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.H2O_NOTIF_BOOLEAN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
-		prefInfoList.add(new CloudBackupPrefInfo(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_INT,
-				HikeConstants.LED_DEFAULT_WHITE_COLOR));
+
+//		Cannot take a backup of led color since restore might happen on some device which does not support current led color
+//		prefInfoList.add(new CloudBackupPrefInfo(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_INT,
+//				HikeConstants.LED_DEFAULT_WHITE_COLOR));
 
 		/*
 		 * Media Settings
