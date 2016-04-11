@@ -14,6 +14,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
@@ -145,7 +146,7 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 		prefsBackupJson.put(HikeConstants.BackupRestore.OS, HikeConstants.ANDROID);
 		prefsBackupJson.put(HikeConstants.BackupRestore.FROM, ContactManager.getInstance().getSelfMsisdn());
 		prefsBackupJson.put(HikeConstants.BackupRestore.TIMESTAMP, System.currentTimeMillis());
-		prefsBackupJson.put(HikeConstants.BackupRestore.VERSION, Utils.getHikePackageInfo().versionName);
+		prefsBackupJson.put(HikeConstants.BackupRestore.VERSION, AccountUtils.appVersion);
 
 		JSONObject dataObject = new JSONObject();
 

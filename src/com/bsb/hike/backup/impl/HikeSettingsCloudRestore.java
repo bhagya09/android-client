@@ -61,9 +61,19 @@ public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRe
 
 		//Retrieve "setting"
 		JSONObject settingsJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.KEY_SETTING);
+		if(settingsJSON == null)
+		{
+			sendFailedPubsub();
+			return;
+		}
 
 		// Retrieve "d"
 		JSONObject settingsDataJSON = settingsJSON.optJSONObject(HikeConstants.BackupRestore.DATA);
+		if(settingsDataJSON == null)
+		{
+			sendFailedPubsub();
+			return;
+		}
 
 		Iterator<String> iterPrefFile = settingsDataJSON.keys();
 
@@ -97,7 +107,8 @@ public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRe
 			catch (JSONException | ClassCastException e)
 			{
 				e.printStackTrace();
-				// Something went wrong! Its OK, skip and continue
+				sendFailedPubsub();
+				return;
 			}
 		}
 
@@ -123,6 +134,11 @@ public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRe
 
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS, null);
 
+	}
+
+	private void sendFailedPubsub()
+	{
+		HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED, null);
 	}
 
 	public void restoreSharedPreference(CloudBackupPrefInfo prefInfo)

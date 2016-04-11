@@ -1199,7 +1199,7 @@ public class HttpRequests
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
 				.setRequestListener(requestListener)
-				.setId(Integer.toString(payloadJSON.hashCode()))
+				.setId(Utils.StringToMD5(settingsJSON.toString()))
 				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
 				.post(jsonBody)
 				.build();
@@ -1210,12 +1210,15 @@ public class HttpRequests
 	public static RequestToken downloadUserSettings(IRequestListener requestListener,
 												  int retryCount, int delayBeforeRetry)
 	{
+		//Since user settings will always be common. Define constant local var as id
+		String downloadSettingsID = "dnwloadSettings";
+
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
 				.setRequestListener(requestListener)
+				.setId(downloadSettingsID)
 				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
 				.build();
-//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
 
