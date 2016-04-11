@@ -1891,6 +1891,8 @@ public class HikeConstants
 
 		public static final String ENABLE_PHOTOS = "ph_en";
 
+		public static final String ENABLE_CLOUD_SETTING_BACKUP = "rux_stg_bkup";
+
 		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
 
 		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";

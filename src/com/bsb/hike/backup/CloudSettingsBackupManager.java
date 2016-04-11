@@ -12,6 +12,7 @@ import com.bsb.hike.backup.impl.CloudSettingsBackupable;
 import com.bsb.hike.backup.impl.CloudSettingsRestorable;
 import com.bsb.hike.backup.tasks.BackupRestoreExecutorTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by atul on 06/04/16.
@@ -46,6 +47,12 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 
 	public void doBackup()
 	{
+		if(!Utils.isSettingsBackupEnabled())
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, null);
+			return;
+		}
+
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_PENDING, true);
 		CloudSettingsBackupable settingsBackupable = new CloudSettingsBackupable();
 		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsBackupable);
@@ -53,6 +60,12 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 
 	public void doRestore(String backupData)
 	{
+		if(!Utils.isSettingsBackupEnabled())
+		{
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED, null);
+			return;
+		}
+
 		CloudSettingsRestorable settingsRestorable = new CloudSettingsRestorable();
 
 		if (!TextUtils.isEmpty(backupData))

@@ -52,6 +52,8 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
 
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
+
 		// HikeMessengerApp.DEFAULT_SETTINGS_PREF
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_NOTIFICATION_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STEALTH_INDICATOR_ENABLED, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));

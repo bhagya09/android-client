@@ -8362,4 +8362,14 @@ public class Utils
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
 	}
+
+	public static boolean isSettingsBackupEnabled()
+	{
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
+
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, true);
+	}
 }
