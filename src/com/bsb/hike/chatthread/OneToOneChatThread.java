@@ -3890,9 +3890,18 @@ import java.util.Map;
 	{
 		addFriendView.setVisibility(View.VISIBLE);
 
-		Button addFriendBtn = (Button) addFriendView;
+		addFriendView.setOnClickListener(this);
 
-		setupAddFriendButton(addFriendBtn);
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		String btnText = getString(R.string.ADD_FRIEND);
+
+		if (mContactInfo.isFriendRequestReceivedForMe())
+		{
+			btnText = getString(R.string.ACCEPT_REQUEST);
+		}
+
+		addFriendTv.setText(btnText);
 	}
 
 	private void setupAddFriendFTUETipViews(View addFriendView)
