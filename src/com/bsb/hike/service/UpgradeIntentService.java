@@ -124,6 +124,9 @@ public class UpgradeIntentService extends IntentService
         if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false)
         {
             scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
+            Editor editor = prefs.edit();
+            editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+            editor.commit();
         }
 
 		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
