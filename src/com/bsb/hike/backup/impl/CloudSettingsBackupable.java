@@ -92,6 +92,7 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 		 * Privacy Settings
 		 */
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.PROFILE_PIC_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LAST_SEEN_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL,true));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LAST_SEEN_PREF_LIST, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_STRING, HikeMessengerApp
 				.getInstance().getString(R.string.privacy_my_contacts)));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.SSL_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
