@@ -4102,4 +4102,21 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final class AddFriendSources
+	{
+		public static final String CHAT_FTUE = "chat_ftue_screen";
+
+		public static final String CHAT_ADD_FRIEND = "chat_add_friend_Screen";
+
+		public static final String FRIENDS_SCREEN = "friends_screen";
+
+		public static final String PROFILE_SCREEN = "profile_screen";
+
+		public static final String TIMELINE_FTUE_SCREEN = "timeline_ftue_screen";
+
+		public static final String FORWARD_SCREEN = "fwd_screen";
+
+		public static final String UNKNOWN = "unknown";
+	}
 }

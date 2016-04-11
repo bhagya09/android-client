@@ -1589,7 +1589,7 @@ import java.util.Map;
 			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
-			addFavorite();
+			addFavorite(false);
 			break;
 		case R.string.scan_free_hike:
 			if (item.text.equals(getString(R.string.scan_free_hike)))
@@ -3317,7 +3317,7 @@ import java.util.Map;
 	/*
 	 * Adding user as favorite
 	 */
-	private void addFavorite()
+	private void addFavorite(boolean fromFtueBtn)
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
 		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
@@ -3325,7 +3325,7 @@ import java.util.Map;
 			favoriteType = FavoriteType.FRIEND;
 		}
 		mContactInfo.setFavoriteType(favoriteType);
-		Utils.addFavorite(activity, mContactInfo, false);
+		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
@@ -3745,11 +3745,8 @@ import java.util.Map;
 	}
 
 	private void handleAddFavoriteButtonClick(int viewResId)
-	{
-		addFavorite();
-
-		// Record Analytics Event
-		recordAddFavoriteButtonClick(viewResId);
+	{				//From FTUE?
+		addFavorite(viewResId == R.id.add_friend_button);
 
 		//If now we can show the last seen, we should
 		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
@@ -4009,30 +4006,6 @@ import java.util.Map;
 		}
 
 		super.blockUser(object, isBlocked);
-	}
-
-	private void recordAddFavoriteButtonClick(int viewResId)
-	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-			json.put(AnalyticsConstants.V2.GENUS, viewResId == R.id.add_friend_button ? "req_acc" : "req_sent");
-			json.put(AnalyticsConstants.V2.SPECIES, viewResId == R.id.add_friend_button ? "ftue" : "non_ftue");
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-
-			HAManager.getInstance().recordV2(json);
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
 	}
 
 	@Override

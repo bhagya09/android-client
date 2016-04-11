@@ -1515,7 +1515,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 							@Override
 							public void positiveClicked(HikeDialog hikeDialog)
 							{
-								Utils.toggleFavorite(mContext, profileContactInfo, false);
+								Utils.toggleFavorite(mContext, profileContactInfo, false, HikeConstants.AddFriendSources.UNKNOWN);
 								if (hikeDialog != null && hikeDialog.isShowing())
 								{
 									hikeDialog.dismiss();
@@ -1599,7 +1599,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (addFav && (contact.getFavoriteType()!=null && contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
 				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
-				Utils.toggleFavorite(mContext, contact, true);
+				Utils.toggleFavorite(mContext, contact, true, HikeConstants.AddFriendSources.TIMELINE_FTUE_SCREEN);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, true);
 			}
 			removeFTUEItemIfExists(FTUE_CARD_FAV);

@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
@@ -1652,7 +1653,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			return;
 		}
 
-		Utils.addFavorite(context, contactInfo, false);
+		Utils.addFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.FRIENDS_SCREEN);
 	}
 
 	@Override
@@ -1717,7 +1718,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
-			Utils.addFavorite(context, contactInfo, true);
+			Utils.addFavorite(context, contactInfo, true, HikeConstants.AddFriendSources.FRIENDS_SCREEN);
 
 			ContactInfo contactInfo2 = new ContactInfo(contactInfo);
 			
@@ -1747,6 +1748,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		HikeMessengerApp.getPubSub().publish(favoriteType == FavoriteType.FRIEND ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.REJECT_FRIEND_REQUEST, favoriteAdded);
 
 		removeFromGroup(contactInfo, FRIEND_INDEX);
+		if (accept)
+		{
+			HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), HikeConstants.AddFriendSources.FRIENDS_SCREEN, false); //req_acc
+		}
 	}
 
 	@Override

@@ -4653,9 +4653,9 @@ public class Utils
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
 	}
 
-	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)
+	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact, String addFavSource)
 	{
-		toggleFavorite(context, contactInfo, isFtueContact);
+		toggleFavorite(context, contactInfo, isFtueContact, addFavSource);
 		if (!contactInfo.isOnhike() || HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, false))
 		{
 			return;
@@ -4692,9 +4692,10 @@ public class Utils
 		}
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
 		FavoriteType favoriteType;
+		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
@@ -4702,8 +4703,11 @@ public class Utils
 		else
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
+			isRequestSent = true;
 			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
+
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 

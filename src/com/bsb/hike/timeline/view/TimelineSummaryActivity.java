@@ -822,7 +822,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					@Override
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false);
+						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false, HikeConstants.AddFriendSources.UNKNOWN);
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();

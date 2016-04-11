@@ -1907,7 +1907,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
-			Utils.addFavorite(this, contactInfo, false);
+			Utils.addFavorite(this, contactInfo, false, HikeConstants.AddFriendSources.PROFILE_SCREEN);
 		}
 		else
 		{
