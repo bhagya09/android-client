@@ -23,13 +23,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Responsible for creating and uploading settings backup JSON. Created by atul on 31/03/16.
  */
 public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IRequestListener
 {
-	private ArrayList<CloudBackupPrefInfo> prefInfoList;
+	private List<CloudBackupPrefInfo> prefInfoList;
 
 	private final String TAG = HikeSettingsCloudBackup.class.getSimpleName();
 

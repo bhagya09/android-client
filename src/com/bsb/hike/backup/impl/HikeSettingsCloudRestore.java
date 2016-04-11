@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by atul on 05/04/16.
@@ -28,7 +29,7 @@ public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRe
 
 	private JSONObject mSettingsJSON;
 
-	private ArrayList<CloudBackupPrefInfo> prefInfoList;
+	private List<CloudBackupPrefInfo> prefInfoList;
 
 	private final String TAG = HikeSettingsCloudRestore.class.getSimpleName();
 

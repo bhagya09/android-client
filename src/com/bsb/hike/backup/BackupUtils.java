@@ -222,7 +222,8 @@ public class BackupUtils
 
 	public static boolean isSharedPrefFile(String prefName)
 	{
-		if (HikeMessengerApp.ACCOUNT_SETTINGS.equals(prefName) || HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF.equals(prefName)
+		if (HikeMessengerApp.ACCOUNT_SETTINGS.equals(prefName)
+				|| HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF.equals(prefName)
 				|| HikeMessengerApp.DEFAULT_SETTINGS_PREF.equals(prefName))
 		{
 			return true;
