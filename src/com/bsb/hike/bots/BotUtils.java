@@ -464,6 +464,10 @@ public class BotUtils
 					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
 					currentBotVersionCode = currentBotInfo.getVersion();
 				}
+				else
+				{
+					currentBotInfo = botInfo;
+				}
 
 				// Get received cbot version details for comparison
 				if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
