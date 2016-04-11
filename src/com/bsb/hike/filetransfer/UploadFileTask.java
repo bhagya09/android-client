@@ -581,6 +581,14 @@ public class UploadFileTask extends FileTransferBase
 							Logger.e(TAG, "Error occurred while using json after upload file succeeded", e);
 						}
 					}
+					else
+					{
+						String sessionId = getFileSavedState().getSessionId();
+						if (!TextUtils.isEmpty(sessionId))
+						{
+							saveSessionId(sessionId);
+						}
+					}
 				}
 
 				@Override
@@ -719,11 +727,37 @@ public class UploadFileTask extends FileTransferBase
 		}
 	}
 
+	protected void saveSessionId(String sessionId)
+	{
+		if (isMultiMsg)
+		{
+			for (ConvMessage msg : messageList)
+			{
+				saveSessionId(getFileSavedState(), msg.getMsgID(), sessionId);
+			}
+		}
+		else
+		{
+			saveSessionId(getFileSavedState(), msgId, sessionId);
+		}
+	}
+
+	protected void saveSessionId(FileSavedState state, long msgId, String sessionId)
+	{
+		if (state == null)
+		{
+			state = new FileSavedState();
+		}
+		state.setFTState(FTState.ERROR);
+		state.setSessionId(sessionId);
+		HttpManager.getInstance().saveRequestStateInDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId), state);
+	}
+
 	protected void saveNoNetworkState(String fileKey)
 	{
 		if (isMultiMsg)
 		{
-			for (ConvMessage msg:messageList)
+			for (ConvMessage msg : messageList)
 			{
 				saveNoNetworkState(fileKey, msg.getMsgID());
 			}
@@ -789,6 +823,19 @@ public class UploadFileTask extends FileTransferBase
 
 	private void removeTaskAndShowToast(final HikeConstants.FTResult result)
 	{
+		if (isMultiMsg)
+		{
+			FileSavedState fss = HttpManager.getInstance().getRequestStateFromDB(HttpRequestConstants.getUploadFileBaseUrl(), String.valueOf(msgId));
+			if (fss != null)
+			{
+				String sessionId = fss.getSessionId();
+				if (!TextUtils.isEmpty(sessionId))
+				{
+					saveSessionId(sessionId);
+				}
+			}
+		}
+
 		if (userContext != null)
 		{
 			removeTask();
