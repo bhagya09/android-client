@@ -942,7 +942,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage())
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey());
+			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 		}
 

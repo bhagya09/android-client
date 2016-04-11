@@ -1,7 +1,10 @@
 package com.bsb.hike.modules.httpmgr.request;
 
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
@@ -13,6 +16,7 @@ import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +44,8 @@ public class FileUploadRequest extends Request<JSONObject>
 	private String fileType;
 
 	private IGetChunkSize chunkSizePolicy;
+
+	private final int DEFAULT_CHUNK_SIZE = 4 * 1024;
 
 	private FileUploadRequest(Init<?> init)
 	{
@@ -160,6 +167,18 @@ public class FileUploadRequest extends Request<JSONObject>
 				chunkSize = chunkSize / 5;
 			}
 
+			/*
+			 * Safe check for the case where chunk size equals zero while calculating based on network and device memory. https://hike.fogbugz.com/default.asp?42482
+			 */
+			if (chunkSize <= 0)
+			{
+				FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.UPLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");
+				chunkSize = DEFAULT_CHUNK_SIZE;
+			}
+
+			if (chunkSize > length)
+				chunkSize = (int) length;
+
 			// calculate start and end for range header using mStart and chunkSize
 			int start = mStart;
 			int end = length;
@@ -177,8 +196,10 @@ public class FileUploadRequest extends Request<JSONObject>
 			getState().setSessionId(X_SESSION_ID);
 			getState().setFTState(FTState.IN_PROGRESS);
 			publishProgress((float) bytesTransferred / length);
+			long time = 0;
 			while (end < length)
 			{
+				time = System.currentTimeMillis();
 				FileSavedState st = getState();
 				LogFull.d("ft state in while loop file upload : " + st.getFTState().name());
 				if (st.getFTState() != FTState.IN_PROGRESS)
@@ -235,10 +256,10 @@ public class FileUploadRequest extends Request<JSONObject>
 					catch (Exception ex)
 					{
 						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
+						throw ex;
 					}
 					break;
 				}
-
 				// update start and end for range header
 				start += chunkSize;
 
@@ -263,6 +284,19 @@ public class FileUploadRequest extends Request<JSONObject>
 				{
 					end--;
 					chunkSize = end - start + 1;
+				}
+
+				if (response != null)
+				{
+					int statusCode = response.getStatusCode();
+					boolean isCompleted = statusCode == HttpURLConnection.HTTP_OK;
+					int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
+					if (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_CREATED)
+					{
+						String fileExtension = Utils.getFileExtension(filePath);
+						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
+					}
 				}
 
 				fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
