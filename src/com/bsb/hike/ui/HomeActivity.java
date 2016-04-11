@@ -65,6 +65,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.CloudSettingsBackupManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
@@ -325,6 +326,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
+
+		CloudSettingsBackupManager.getInstance().doRestore(null);
     }
 	
 	@Override
