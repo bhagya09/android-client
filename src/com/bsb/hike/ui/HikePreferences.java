@@ -1126,7 +1126,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					int finalColor = Color.parseColor(newValue.toString().toLowerCase());
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, finalColor);
 				}
-				return true;
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -1164,7 +1163,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				e.printStackTrace();
 			}
-			return true;
 		}
 		else if(HikeConstants.LOCAL_LANGUAGE_PREF.equals(preference.getKey()))
 		{
@@ -1180,7 +1178,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					restartHomeActivity();
 				}
 			}
-			return true;
 		}
 		else if(HikeConstants.LAST_SEEN_PREF_LIST.equals(preference.getKey()))
 		{
@@ -1227,7 +1224,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			{
 				e.printStackTrace();
 			}
-			return true;
 		}
 		else if (newValue instanceof Boolean)
 		{
