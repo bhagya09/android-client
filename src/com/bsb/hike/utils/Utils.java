@@ -8351,7 +8351,7 @@ public class Utils
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
 	}
-	
+
     private static String getCursorString(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if(index != -1) return cursor.getString(index);

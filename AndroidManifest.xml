@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1651"
-    android:versionName="4.2.5.82.103" >
+    android:versionCode="1639"
+    android:versionName="4.2.0.82.33.6.rmv_kbd" >
 
-   <uses-sdk
+    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
         tools:overrideLibrary = "android.support.customtabs"/>
