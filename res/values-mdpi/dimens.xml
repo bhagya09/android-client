@@ -31,4 +31,6 @@
     <dimen name="gallery_selected_grid_height">110dp</dimen>
     <dimen name="slide_to_cancel_arrow_width">24dp</dimen>
     <dimen name="slide_to_cancel_margin">28dp</dimen>
+
+    <dimen name="db_dialog_width">282dp</dimen>
 </resources>

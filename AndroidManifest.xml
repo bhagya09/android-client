@@ -136,6 +136,7 @@
             </intent-filter>
         </service>
         <service android:name=".service.UpgradeIntentService" />
+        <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -307,6 +308,10 @@
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"
@@ -539,6 +544,8 @@
 
         <service android:name=".service.SimpleWakefulService" >
         </service>
+
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
 
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>

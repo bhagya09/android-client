@@ -127,11 +127,6 @@ public class ProductContentModel implements Parcelable
 		return pid;
 	}
 
-	public String getAppVersion()
-	{
-		return mmContentModel.cardObj.getAppVersion();
-	}
-
 	public String getLayoutId()
 	{
 		return mmContentModel.cardObj.getLayoutId();

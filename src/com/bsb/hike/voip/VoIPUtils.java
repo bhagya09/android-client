@@ -48,6 +48,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class VoIPUtils {
 
@@ -343,7 +344,7 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = null;
@@ -774,15 +775,17 @@ public class VoIPUtils {
 		return packetData;
 	}
 
-	public static VoIPDataPacket getPacketFromUDPData(byte[] data) {
-		VoIPDataPacket dp = null;
+	public static VoIPDataPacket getPacketFromUDPData(byte[] data, int dataLength) {
+		VoIPDataPacket dp;
 		byte prefix = data[0];
-		byte[] packetData = new byte[data.length - 1];
-		System.arraycopy(data, 1, packetData, 0, packetData.length);
 
 		if (prefix == VoIPConstants.PP_PROTOCOL_BUFFER) {
-			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(data, dataLength);
 		} else {
+			// This code path should no longer be used, except when communicating with a very old
+			// client.
+			byte[] packetData = new byte[dataLength - 1];
+			System.arraycopy(data, 1, packetData, 0, packetData.length);
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			dp.setData(packetData);
 			if (prefix == VoIPConstants.PP_ENCRYPTED_VOICE_PACKET)

@@ -50,6 +50,8 @@ public class MessagingBotConfiguration extends BotConfiguration
 		public static byte VIEW_PROFILE = 11;
 
 		public static byte SEARCH = 23;
+
+		public static byte HELP = 26;
 	}
 
 
@@ -228,4 +230,10 @@ public class MessagingBotConfiguration extends BotConfiguration
 
 		return isBitSet(SHOW_KPT_EXIT_UI);
 	}
+
+	public boolean isHelpInOverflowMenuEnabled()
+	{
+		return isBitSet(OverflowMenu.HELP);
+	}
+	
 }

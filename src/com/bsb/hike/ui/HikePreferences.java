@@ -76,6 +76,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bsb.hike.view.IconPreference;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -1440,13 +1441,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
 							break;
 						case FAVORITES:
-							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_favorites_key);
-							ls_summary = getApplicationContext().getString(R.string.ls_favorites_summary);
+							selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+							ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
 							break;
 						case MY_CONTACTS:
 							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
-							ls_summary = getApplicationContext().getString(R.string.ls_my_contacts_summary);
+							ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
 							break;
 					}
@@ -1483,8 +1484,37 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.blue_hike);
-		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		//Need to set the title differently if fav to friends migration is open
+		if (!TextUtils.isEmpty(lp.getEntry()) && Utils.isFavToFriendsMigrationAllowed() && lp.getEntry().equals(getString(R.string.privacy_favorites_key)))
+		{
+			lp.setTitle(lp.getTitle() + ": " + getString(R.string.privacy_friends_key));
+		}
+		else
+		{
+			lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		}
 		lp.setNegativeButtonText(R.string.CANCEL);
+
+		// Need to show the entry values differently in case friends experiment is on
+		String[] listPreferenceValues = new String[] { getString(R.string.privacy_everyone_key), getString(R.string.privacy_my_contacts_key), getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key), getString(R.string.privacy_nobody_key)};
+
+		lp.setEntries(listPreferenceValues);
+
+
+		IconPreference favPref = (IconPreference) getPreferenceScreen().findPreference(HikeConstants.FAV_LIST_PREF);
+
+		if (favPref != null)
+		{
+			favPref.setTitle(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key));
+			favPref.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.frn_list_summary : R.string.fav_list_summary));
+		}
+
+		SwitchPreferenceCompat profilePicPrefs = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
+
+		if (profilePicPrefs != null)
+		{
+			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
+		}
 	}
 
 	private String getLSSummaryText()
@@ -1503,10 +1533,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				summaryTxt = getApplicationContext().getString(R.string.ls_everyone_summary);
 				break;
 			case FAVORITES:
-				summaryTxt = getApplicationContext().getString(R.string.ls_favorites_summary);
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
 				break;
 			case MY_CONTACTS:
-				summaryTxt = getApplicationContext().getString(R.string.ls_my_contacts_summary);
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
 				break;
 		}
 		return summaryTxt;

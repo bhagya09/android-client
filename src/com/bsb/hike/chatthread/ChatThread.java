@@ -18,6 +18,7 @@ import java.util.concurrent.FutureTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -59,6 +60,7 @@ import android.text.style.StyleSpan;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -105,6 +107,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -191,7 +194,7 @@ import com.bsb.hike.view.CustomFontEditText.BackKeyListener;
 import com.bsb.hike.view.CustomLinearLayout;
 import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
-import android.view.HapticFeedbackConstants;
+
 
 /**
  * @generated
@@ -200,7 +203,7 @@ import android.view.HapticFeedbackConstants;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback
 {
 
 	private static boolean useWTRevamped;
@@ -286,7 +289,9 @@ import android.view.HapticFeedbackConstants;
 	
 	protected static final int MESSAGE_SENT = 39;
 
-	protected static final int FILE_OPENED = 40;
+	protected static final int OPEN_PICKER = 40;
+
+	protected static final int FILE_OPENED = 41;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
@@ -386,6 +391,8 @@ import android.view.HapticFeedbackConstants;
 	private boolean shouldKeyboardPopupShow;
 
 	protected KeyboardOffBoarding keyboardOffBoarding;
+	
+	public static final int RESULT_CODE_STICKER_SHOP_ACTIVITY = 100;
 
 	Callable<Conversation> callable=new Callable<Conversation>() {
 		@Override
@@ -408,7 +415,6 @@ import android.view.HapticFeedbackConstants;
 			case StickerManager.STICKERS_DOWNLOADED:
 				if (mStickerPicker != null)
 				{
-					mStickerPicker.notifyDataSetChanged();
 					mStickerPicker.setRefreshStickers(true);
 				}
 				break;
@@ -556,6 +562,10 @@ import android.view.HapticFeedbackConstants;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+		case OPEN_PICKER:
+			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
+			StickerManager.getInstance().setShowLastCategory(false);
+			stickerClicked();
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -870,7 +880,7 @@ import android.view.HapticFeedbackConstants;
 	private void initStickerPicker()
 	{
 		
-		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this));
+		mStickerPicker = mStickerPicker != null ? mStickerPicker : (new StickerPicker(activity, this, this));
 	}
 
 	private void initEmoticonPicker()
@@ -927,7 +937,7 @@ import android.view.HapticFeedbackConstants;
 			switch (overFlowMenuItem.id)
 			{
 			case R.string.search:
-				overFlowMenuItem.enabled = !isMessageListEmpty && !mConversation.isBlocked();
+				overFlowMenuItem.enabled = shouldEnableSearch();
 				if (!sharedPreference.getData(HikeMessengerApp.CT_SEARCH_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ic_overflow_item_indicator_search;
@@ -939,8 +949,10 @@ import android.view.HapticFeedbackConstants;
 				break;
 
 			case R.string.clear_chat:
+				overFlowMenuItem.enabled = shouldEnableClearChat();
+				break;
 			case R.string.email_chat:
-				overFlowMenuItem.enabled = !isMessageListEmpty;
+				overFlowMenuItem.enabled = shouldEnableEmailChat();
 				break;
 			case R.string.hide_chat:
 				overFlowMenuItem.text = getString(StealthModeManager.getInstance().isActive() ?
@@ -1085,7 +1097,10 @@ import android.view.HapticFeedbackConstants;
 				}
 			}
 			break;
-		case HikeConstants.PLATFORM_REQUEST:
+			case RESULT_CODE_STICKER_SHOP_ACTIVITY:
+				uiHandler.sendEmptyMessage(OPEN_PICKER);
+				break;
+			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
@@ -1245,12 +1260,6 @@ import android.view.HapticFeedbackConstants;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			if (mShareablePopupLayout.isBusyInOperations())
-			{//  previous task is running don't accept this event
-				return;
-			}
-			setEmoticonButtonSelected(false);
-			setStickerButtonSelected(true);
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:
@@ -1393,6 +1402,12 @@ import android.view.HapticFeedbackConstants;
 
 	protected void stickerClicked()
 	{
+		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
+			return;
+		}
+		setEmoticonButtonSelected(false);
+		setStickerButtonSelected(true);
+
 		Long time = System.currentTimeMillis();
 		initStickerPicker();
 		
@@ -2578,8 +2593,10 @@ import android.view.HapticFeedbackConstants;
 		{
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
+
+		recordChatThreadOpen();
 	}
-	
+
 	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
 	{
 		@Override
@@ -2899,12 +2916,7 @@ import android.view.HapticFeedbackConstants;
 						String stickerId = msgExtrasJson.getString(StickerManager.FWD_STICKER_ID);
 						Sticker sticker = new Sticker(categoryId, stickerId);
 						sendSticker(sticker, StickerManager.FROM_FORWARD);
-						boolean isDis = sticker.isDisabled(sticker, activity.getApplicationContext());
-						// add this sticker to recents if this sticker is not disabled
-						if (!isDis)
-						{
-							StickerManager.getInstance().addRecentSticker(sticker);
-						}
+
 						/*
 						 * Making sure the sticker is not forwarded again on orientation change
 						 */
@@ -4128,7 +4140,7 @@ import android.view.HapticFeedbackConstants;
 		{
 			if (isActivityVisible)
 			{
-				ChatThreadUtils.publishReadByForMessage(message, mConversationDb, msisdn,channelSelector);
+				publishReadByForMessage(message, msisdn, channelSelector);
 
 				if(message.getPrivateData() != null && message.getPrivateData().getTrackID() != null)
 				{
@@ -4154,7 +4166,7 @@ import android.view.HapticFeedbackConstants;
 
 		}
 	}
-	
+
 	protected boolean onMessageDelivered(Object object)
 	{
 		Pair<String, Long> pair = (Pair<String, Long>) object;
@@ -5274,7 +5286,7 @@ import android.view.HapticFeedbackConstants;
 	 * if true then we pass {@link ConvMessage} list and mark msgs read in db for only these convMessages
 	 * if no read msg is found then we don't know how many msgs should be marked as read , in this case we have to fetch messages from db and then update the same
 	 */
-	private void setMessagesRead()
+	protected void setMessagesRead()
 	{
 		List<ConvMessage> unreadConvMessages = new ArrayList<>();
 		boolean readMessageExists = false;
@@ -6146,7 +6158,7 @@ import android.view.HapticFeedbackConstants;
 		}
 	}
 	
-	private void blockUser(Object object, boolean isBlocked)
+	protected void blockUser(Object object, boolean isBlocked)
 	{
 		String mMsisdn = (String) object;
 
@@ -6288,10 +6300,13 @@ import android.view.HapticFeedbackConstants;
 	{
 		intentDataHash = savedInstanceState.getInt(HikeConstants.CONSUMED_FORWARDED_DATA, 0);
 	}
-	
+
 	public void connectedToMsisdn(String connectedDevice)
 	{
-		
+		if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(false);
+        }
 	}
 	
 	public void wifiP2PScanResults(WifiP2pDeviceList peerList)
@@ -6306,7 +6321,10 @@ import android.view.HapticFeedbackConstants;
 
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        if(stickerTagWatcher != null)
+        {
+            stickerTagWatcher.refreshUndownloadedStickerWatcher(true);
+        }
 	}
 	
 	public void changeChannel(Boolean setOfflineChannel,Boolean removeListener)
@@ -6399,6 +6417,14 @@ import android.view.HapticFeedbackConstants;
 
 	}
 
+	@Override
+	public void shopClicked()
+	{
+		HAManager.getInstance().record(HikeConstants.LogEvent.STKR_SHOP_BTN_CLICKED, AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH);
+		Intent i = IntentFactory.getStickerShopIntent(activity);
+		activity.startActivityForResult(i, RESULT_CODE_STICKER_SHOP_ACTIVITY);
+	}
+
 	public  static class FetchConversationAsyncTask extends AsyncTask<Void,Void,Void>
 	{
 
@@ -6426,4 +6452,109 @@ import android.view.HapticFeedbackConstants;
 	{
 		return activity.getResources().getConfiguration().orientation;
 	}
+
+	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
+	{
+		ChatThreadUtils.publishReadByForMessage(message, HikeConversationsDatabase.getInstance(), msisdn,channelSelector);
+	}
+
+	protected boolean shouldEnableSearch()
+	{
+		return (!isMessageListEmpty() && !mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableHikeKeyboard()
+	{
+		return (!mConversation.isBlocked());
+	}
+
+	protected boolean shouldEnableClearChat()
+	{
+		return (!isMessageListEmpty());
+	}
+
+	protected boolean shouldEnableEmailChat()
+	{
+		return (!isMessageListEmpty());
+	}
+
+	protected void recordChatThreadOpen()
+	{
+		JSONObject json = getChatThreadOpenJSON();
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	protected JSONObject getChatThreadOpenJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CHAT_OPEN);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, getChatThreadOpenSource(activity.getIntent().getIntExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadOpenSources.UNKNOWN)));
+			json.put(AnalyticsConstants.V2.FORM, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+
+			return json;
+
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
+		}
+	}
+
+	private String getChatThreadOpenSource(int source)
+	{
+		switch (source)
+		{
+		case ChatThreadOpenSources.NOTIF :
+			return "notif";
+		case ChatThreadOpenSources.CONV_FRAGMENT:
+			return "conv_fragment";
+		case ChatThreadOpenSources.NEW_COMPOSE:
+			return "new_compose";
+		case ChatThreadOpenSources.SHORTCUT:
+			return "shortcut";
+		case ChatThreadOpenSources.FORWARD:
+			return "forward";
+		case ChatThreadOpenSources.EMPTY_STATE_CONV_FRAGMENT:
+			return "emptystateConvFragment";
+		case ChatThreadOpenSources.FRIENDS_SCREEN:
+			return "friends_screen";
+		case ChatThreadOpenSources.UNSAVED_CONTACT_CLICK:
+			return "unsaved_contact_click";
+		case ChatThreadOpenSources.FILE_SHARING:
+			return "file_fwd";
+		case ChatThreadOpenSources.PROFILE_SCREEN:
+			return "profile_screen";
+		case ChatThreadOpenSources.OFFLINE:
+			return "offline_chat";
+		case ChatThreadOpenSources.STICKEY_CALLER:
+			return "sticky_caller";
+		case ChatThreadOpenSources.VOIP:
+			return "voip_source";
+		case ChatThreadOpenSources.LIKES_DIALOG:
+			return "likes_dialog";
+		case ChatThreadOpenSources.TIMELINE:
+			return "timeline";
+		case ChatThreadOpenSources.NEW_GROUP:
+			return "new_group_create";
+		case ChatThreadOpenSources.MICRO_APP:
+			return "micro_app";
+		default:
+			return "unknown";
+		}
+
+	}
+
 }
