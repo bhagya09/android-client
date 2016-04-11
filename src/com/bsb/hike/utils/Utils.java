@@ -8271,6 +8271,7 @@ public class Utils
 					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
 				Editor settingEditor = settings.edit();
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
 				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
@@ -8292,14 +8293,16 @@ public class Utils
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
-					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+					&& !currentValue.equals(context.getString(R.string.privacy_everyone))) {
+
+				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
 				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_my_contacts));
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_my_contacts));
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+				int slectedPrivacyId = Integer.parseInt(oldLsValue);
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 2);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); //Resetting the flag, so that when the packet might be sent again, it is able to alter the prefs
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}

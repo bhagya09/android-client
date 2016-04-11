@@ -4119,4 +4119,6 @@ public class HikeConstants
 
 		public static final String UNKNOWN = "unknown";
 	}
+
+	public static final String LAST_SEEN_TEMP_PREF = "ls_temp";
 }
