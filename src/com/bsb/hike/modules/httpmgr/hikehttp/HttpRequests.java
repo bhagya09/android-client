@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -1177,6 +1178,45 @@ public class HttpRequests
 		}
 
 
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	{
+
+		JSONObject settingsJSON = new JSONObject();
+		try
+		{
+			settingsJSON.put(HikeConstants.BackupRestore.KEY_SETTINGS, payloadJSON);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		JsonBody jsonBody = new JsonBody(settingsJSON);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
+				.setRequestListener(requestListener)
+				.setId(Integer.toString(payloadJSON.hashCode()))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.post(jsonBody)
+				.build();
+//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken downloadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
+				.setRequestListener(requestListener)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.build();
+//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
 	}
 
 }

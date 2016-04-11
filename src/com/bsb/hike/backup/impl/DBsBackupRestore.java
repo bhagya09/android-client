@@ -1,6 +1,7 @@
-package com.bsb.hike.backup;
+package com.bsb.hike.backup.impl;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -25,7 +26,7 @@ public class DBsBackupRestore implements BackupableRestorable
 
 	private DB usersDB;
 
-	DBsBackupRestore(String backupToken)
+	public DBsBackupRestore(String backupToken)
 	{
 		this.backupToken = backupToken;
 		init();

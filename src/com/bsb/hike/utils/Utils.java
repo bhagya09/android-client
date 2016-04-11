@@ -78,6 +78,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -8239,6 +8240,20 @@ public class Utils
 		HikeMessengerApp.getInstance().getApplicationContext().sendBroadcast(new Intent(MqttConstants.MQTT_CONNECTION_CHECK_ACTION).putExtra("connect", true));
 	}
 
+	public static PackageInfo getHikePackageInfo()
+	{
+		PackageInfo pInfo = null;
+		try
+		{
+			pInfo = HikeMessengerApp.getInstance().getPackageManager().getPackageInfo(HikeMessengerApp.getInstance().getPackageName(), 0);
+		}
+		catch (NameNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return pInfo;
+	}
+
 	public static void makeFavFriendsTransition()
 	{
 		if (isFavToFriendsMigrationAllowed())
@@ -8346,5 +8361,15 @@ public class Utils
 		boolean exists = !TextUtils.isEmpty(getExternalFilesDirPath(null));
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
+	}
+
+	public static boolean isSettingsBackupEnabled()
+	{
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
+			return false;
+		}
+
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, true);
 	}
 }

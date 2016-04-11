@@ -116,8 +116,6 @@ public class UploadFileTask extends FileTransferBase
 
 	private HttpContext httpContext = HttpClientContext.create();
 
-	private String caption;
-
 	private int okHttpResCode;
 
 	private String okHttpRes;

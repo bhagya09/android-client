@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -926,9 +927,18 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private OnClickListener timelinePostDetailsListener = new OnClickListener()
 	{
+		private long lastClickTime = 0;
+
 		@Override
 		public void onClick(View v)
 		{
+			if (SystemClock.elapsedRealtime() - lastClickTime < 1000)
+			{
+				return;
+			}
+
+			lastClickTime = SystemClock.elapsedRealtime();
+
 			if (mActivity.get() != null)
 			{
 				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity.get(), v, mContext.getString(R.string.timeline_transition_anim));
