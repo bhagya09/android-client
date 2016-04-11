@@ -32,6 +32,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
+import com.bsb.hike.backup.CloudSettingsBackupManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
@@ -120,7 +121,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS
 	};
 
 	public class StateValue
@@ -744,6 +745,22 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				return Boolean.FALSE;
 			}
 		}
+
+		try
+		{
+			// Fetch user settings from server
+			publishProgress(new StateValue(State.RESTORING_CLOUD_SETTINGS, null));
+			synchronized (this)
+			{
+				this.wait();
+			}
+		}
+		catch (InterruptedException iex)
+		{
+			iex.printStackTrace();
+			Logger.e("SignupTask","Interrupted while waiting for returning user's setting restore");
+		}
+
 		Logger.d("SignupTask", "Publishing Token_Created");
 
 		/* tell the service to start listening for new messages */
