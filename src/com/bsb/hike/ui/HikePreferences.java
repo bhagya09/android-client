@@ -14,7 +14,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.backup.CloudSettingsBackupManager;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.backup.AccountBackupRestore;
@@ -648,7 +648,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if(isSettingChanged)
 		{
 			isSettingChanged = false;
-			CloudSettingsBackupManager.getInstance().doBackup();
+			HikeCloudSettingsManager.getInstance().doBackup();
 		}
 	}
 

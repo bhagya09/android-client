@@ -32,7 +32,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
-import com.bsb.hike.backup.CloudSettingsBackupManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;

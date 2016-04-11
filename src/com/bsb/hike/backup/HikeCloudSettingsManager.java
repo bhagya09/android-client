@@ -8,8 +8,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
-import com.bsb.hike.backup.impl.CloudSettingsBackupable;
-import com.bsb.hike.backup.impl.CloudSettingsRestorable;
+import com.bsb.hike.backup.impl.HikeSettingsCloudBackup;
+import com.bsb.hike.backup.impl.HikeSettingsCloudRestore;
 import com.bsb.hike.backup.tasks.BackupRestoreExecutorTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
@@ -17,20 +17,20 @@ import com.bsb.hike.utils.Utils;
 /**
  * Created by atul on 06/04/16.
  */
-public class CloudSettingsBackupManager implements HikePubSub.Listener
+public class HikeCloudSettingsManager implements HikePubSub.Listener
 {
 
-	private volatile static CloudSettingsBackupManager mInstance;
+	private volatile static HikeCloudSettingsManager mInstance;
 
-	public static CloudSettingsBackupManager getInstance()
+	public static HikeCloudSettingsManager getInstance()
 	{
 		if (mInstance == null)
 		{
-			synchronized (CloudSettingsBackupManager.class)
+			synchronized (HikeCloudSettingsManager.class)
 			{
 				if (mInstance == null)
 				{
-					mInstance = new CloudSettingsBackupManager();
+					mInstance = new HikeCloudSettingsManager();
 				}
 			}
 		}
@@ -40,7 +40,7 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 	String[] pubsubListeners = { HikePubSub.CLOUD_SETTINGS_BACKUP_SUCESS, HikePubSub.CLOUD_SETTINGS_BACKUP_FAILED, HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED,
 			HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS };
 
-	private CloudSettingsBackupManager()
+	private HikeCloudSettingsManager()
 	{
 		HikeMessengerApp.getPubSub().addListeners(this, pubsubListeners);
 	}
@@ -54,7 +54,7 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 		}
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.RUX_BACKUP_PENDING, true);
-		CloudSettingsBackupable settingsBackupable = new CloudSettingsBackupable();
+		HikeSettingsCloudBackup settingsBackupable = new HikeSettingsCloudBackup();
 		new BackupRestoreExecutorTask<BackupRestoreTaskLifecycle>().execute(settingsBackupable);
 	}
 
@@ -74,7 +74,7 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 	 */
 	public void doRestoreSkipEnableCheck(String backupData)
 	{
-		CloudSettingsRestorable settingsRestorable = new CloudSettingsRestorable();
+		HikeSettingsCloudRestore settingsRestorable = new HikeSettingsCloudRestore();
 
 		if (!TextUtils.isEmpty(backupData))
 		{

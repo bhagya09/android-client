@@ -43,7 +43,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.backup.CloudSettingsBackupManager;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -2272,7 +2272,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		case RESTORING_CLOUD_SETTINGS:
 			// Fetch user settings from server
-			CloudSettingsBackupManager.getInstance().doRestoreSkipEnableCheck(null);
+			HikeCloudSettingsManager.getInstance().doRestoreSkipEnableCheck(null);
 			break;
 		}
 		setListeners();

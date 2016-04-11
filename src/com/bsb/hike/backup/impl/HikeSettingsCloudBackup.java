@@ -27,11 +27,11 @@ import java.util.ArrayList;
 /**
  * Responsible for creating and uploading settings backup JSON. Created by atul on 31/03/16.
  */
-public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IRequestListener
+public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IRequestListener
 {
 	private ArrayList<CloudBackupPrefInfo> prefInfoList;
 
-	private final String TAG = CloudSettingsBackupable.class.getSimpleName();
+	private final String TAG = HikeSettingsCloudBackup.class.getSimpleName();
 
 	@Override
 	public boolean doPreTask()
@@ -178,7 +178,7 @@ public class CloudSettingsBackupable implements BackupRestoreTaskLifecycle, IReq
 	@Override
 	public void doPostTask()
 	{
-		// Since this Backupable instance makes a HTTP POST. We do destructor activities in listener registered with the call.
+		// Since this Backupable instance makes a HTTP POST.  We notify app using Pubsub.
 	}
 
 	@Override

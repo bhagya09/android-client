@@ -23,14 +23,14 @@ import java.util.Iterator;
 /**
  * Created by atul on 05/04/16.
  */
-public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IRequestListener
+public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRequestListener
 {
 
 	private JSONObject mSettingsJSON;
 
 	private ArrayList<CloudBackupPrefInfo> prefInfoList;
 
-	private final String TAG = CloudSettingsRestorable.class.getSimpleName();
+	private final String TAG = HikeSettingsCloudRestore.class.getSimpleName();
 
 	public void setBackupDataJSON(String settingsJSON) throws JSONException
 	{
@@ -165,7 +165,7 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 	@Override
 	public void doPostTask()
 	{
-
+		// Since this task makes a HTTP call. We notify app using Pubsub.
 	}
 
 	@Override
@@ -194,6 +194,6 @@ public class CloudSettingsRestorable implements BackupRestoreTaskLifecycle, IReq
 	@Override
 	public void onRequestProgressUpdate(float progress)
 	{
-
+		// Do nothing
 	}
 }
