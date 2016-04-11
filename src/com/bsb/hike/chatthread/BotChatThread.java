@@ -510,4 +510,10 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		return false;
 	}
+
+	@Override
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
+		return; //Do nothing
+	}
 }

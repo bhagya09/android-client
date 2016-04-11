@@ -4036,6 +4036,13 @@ import java.util.Map;
 	{
 		JSONObject json = super.getChatThreadOpenJSON();
 
+		addFavoriteTypeTypeFromContactInfo(json);
+
+		return json;
+	}
+
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
 		try
 		{
 			json.put(AnalyticsConstants.V2.GENUS, mContactInfo.getFavoriteType().toString());
@@ -4046,7 +4053,6 @@ import java.util.Map;
 			e.printStackTrace();
 		}
 
-		return json;
 	}
 
 	@Override
