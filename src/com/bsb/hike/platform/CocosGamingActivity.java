@@ -175,12 +175,15 @@ public class CocosGamingActivity extends Cocos2dxActivity
 					{
 						e.printStackTrace();
 					}
-					String appName = json.optString(HikeConstants.NAME);
-					cocosEnginePath = platform_content_dir + appName + "/libcocos2d.so";
+                    String appName = json.optString(HikeConstants.NAME);
+                    cocosEnginePath = platform_content_dir + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
+				    File cocosEngineFile = new File(cocosEnginePath);
+                    if(!(cocosEngineFile.exists()))
+                        cocosEnginePath = PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName + PlatformContentConstants.GAME_ENGINE_SO_FILE;
 
-				}
+                }
 			}
-			cocosGamePath = getAppBasePath() + "libcocos2dcpp.so";
+			cocosGamePath = getAppBasePath() + PlatformContentConstants.GAME_SO_FILE;
 		}
 
 		loadSoFile(cocosEnginePath, true);
@@ -401,15 +404,14 @@ public class CocosGamingActivity extends Cocos2dxActivity
 	 */
 	public static String getExternalPath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
+        String path = nonMessagingBotMetadata.getBotFilePath();
 		return path + File.separator + "assets/";
 	}
 
 	public String getAppBasePath()
 	{
-		String path = platform_content_dir + nonMessagingBotMetadata.getAppName();
-
-		return path + File.separator;
+        String path = nonMessagingBotMetadata.getBotFilePath();
+        return path + File.separator;
 	}
 
 	/**

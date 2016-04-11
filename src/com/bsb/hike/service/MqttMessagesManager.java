@@ -21,10 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -55,12 +57,15 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
+import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -79,7 +84,6 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -97,6 +101,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -163,6 +168,8 @@ public class MqttMessagesManager
 	private static int lastNotifPacket;
 
 	private static final String DP_DOWNLOAD_TAG = "dp_download";
+
+    private String TAG = "MqttMessagesManager";
 
 	private MqttMessagesManager(Context context)
 	{
@@ -674,14 +681,13 @@ public class MqttMessagesManager
 
 		// Logs for Msg Reliability
 		MsgRelLogManager.logMsgRelEvent(convMessage, MsgRelEventType.RECEIVER_MQTT_RECVS_SENT_MSG);
-
 		if (ContactManager.getInstance().isBlocked(convMessage.getMsisdn()))
 		{
 			// discard message since the conversation is blocked
 			return;
 		}
 
-		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
+        if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT)
 		{
 			downloadZipForPlatformMessage(convMessage);
 		}
@@ -690,7 +696,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 
-	}
+ 	}
 
 	private void saveMessage(ConvMessage convMessage)
 	{
@@ -741,8 +747,9 @@ public class MqttMessagesManager
 
 	private void downloadZipForPlatformMessage(final ConvMessage convMessage)
 	{
-		PlatformContentRequest rqst = PlatformContentRequest.make(PlatformContentModel.make(convMessage.webMetadata.JSONtoString()),
-				new PlatformContentListener<PlatformContentModel>()
+
+		PlatformContentRequest rqst = PlatformContentRequest.make(
+				PlatformContentModel.make(convMessage.webMetadata.JSONtoString()), new PlatformContentListener<PlatformContentModel>()
 				{
 
 					@Override
@@ -752,11 +759,11 @@ public class MqttMessagesManager
 					}
 
 					@Override
-					public void onEventOccured(int uniqueId, PlatformContent.EventCode event)
+					public void onEventOccured(int uniqueId,PlatformContent.EventCode event)
 					{
 						if (event == PlatformContent.EventCode.DOWNLOADING || event == PlatformContent.EventCode.LOADED)
 						{
-							// do nothing
+							//do nothing
 							return;
 						}
 						else if (event == PlatformContent.EventCode.ALREADY_DOWNLOADED)
@@ -771,9 +778,19 @@ public class MqttMessagesManager
 					}
 				});
 
-		PlatformZipDownloader downloader = new PlatformZipDownloader(rqst, false);
-		if (!downloader.isMicroAppExist())
+		// Stop the flow and return from here in case any exception occurred and contentData becomes null
+		if(rqst.getContentData() == null)
+			return;
+
+		//  Parameters to call if micro app already exists method for this case
+		String mAppName = rqst.getContentData().cardObj.getAppName();
+		int mAppVersionCode = rqst.getContentData().cardObj.getmAppVersionCode();
+		byte botType = rqst.getBotType();
+		String msisdn = rqst.getContentData().getMsisdn();
+
+		if (!PlatformUtils.isMicroAppExist(mAppName,mAppVersionCode,msisdn,botType))
 		{
+			PlatformZipDownloader downloader = new PlatformZipDownloader.Builder().setArgRequest(rqst).setIsTemplatingEnabled(false).createPlatformZipDownloader();
 			downloader.downloadAndUnzip();
 		}
 		else
@@ -781,6 +798,7 @@ public class MqttMessagesManager
 			saveMessage(convMessage);
 		}
 	}
+
 
 	private void saveMessageBulk(JSONObject jsonObj) throws JSONException
 	{
@@ -1633,6 +1651,12 @@ public class MqttMessagesManager
 		if (favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1640,6 +1664,12 @@ public class MqttMessagesManager
 			if (count >= 0)
 			{
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
+			}
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 			}
 		}
 
@@ -1955,9 +1985,9 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS))
 		{
 			JSONArray botsTobeAdded = data.getJSONArray(HikeConstants.MqttMessageTypes.CREATE_MULTIPLE_BOTS);
-			for (int i = 0; i < botsTobeAdded.length(); i++)
-			{
-				BotUtils.createBot((JSONObject) botsTobeAdded.get(i));
+			for (int i = 0; i< botsTobeAdded.length(); i++){
+				BotUtils.createBot((JSONObject) botsTobeAdded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext())));
+
 			}
 		}
 		if (data.has(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP))
@@ -1965,7 +1995,21 @@ public class MqttMessagesManager
 			JSONArray microAppsTobeRemoved = data.getJSONArray(HikeConstants.MqttMessageTypes.REMOVE_MICRO_APP);
 			for (int i = 0; i < microAppsTobeRemoved.length(); i++)
 			{
-				BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+				// First check dmapp packet json structure and based on the packet structure call respective method to delete from versioning directory or older micro app path
+                JSONObject jsonObject = (JSONObject) microAppsTobeRemoved.get(i);
+
+				if(jsonObject.has(HikePlatformConstants.APP_NAME))
+                {
+                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                {
+                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                }
+                else
+                {
+                    Logger.e(TAG, "Stopping mapps delete flow as wrong packet structure is being sent for dmapp");
+                }
 			}
 		}
 		if (data.has(HikeConstants.MqttMessageTypes.NOTIFY_MICRO_APP_STATUS))
@@ -1990,7 +2034,7 @@ public class MqttMessagesManager
 			JSONArray appsToBeDownloaded = data.getJSONArray(HikeConstants.MqttMessageTypes.MICROAPP_DOWNLOAD);
 			for (int i = 0; i < appsToBeDownloaded.length(); i++)
 			{
-				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i));
+				PlatformUtils.downloadZipFromPacket((JSONObject) appsToBeDownloaded.get(i),Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context)));
 			}
 		}
 		if (data.has(HikeConstants.GET_BULK_LAST_SEEN))
@@ -2272,6 +2316,36 @@ public class MqttMessagesManager
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KEYBOARD_CONFIGURATION, kc);
 			}
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_SERVER_SWITCH))
+		{
+			boolean showExitUI = data.getBoolean(HikeConstants.KPT_EXIT_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_SERVER_TEXT);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_TEXT, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_HEADING))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_HEADING);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_HEADING, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_PHONE_BUTTON))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_PHONE_BUTTON);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_PHONE_BUTTON, text);
+		}
+
+		if (data.has(HikeConstants.KPT_EXIT_GOOGLE_BUTTON))
+		{
+			String text = data.getString(HikeConstants.KPT_EXIT_GOOGLE_BUTTON);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_GOOGLE_BUTTON, text);
 		}
 
 		if (data.has(HikeConstants.SUPER_COMPRESSED_IMG_SIZE))
@@ -2710,16 +2784,6 @@ public class MqttMessagesManager
 			boolean useApacheClient = data.getBoolean(HikeConstants.FT_USE_APACHE_HTTP_CLIENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_USE_APACHE_HTTP_CLIENT, useApacheClient);
 		}
-		if (data.has(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED, data.optBoolean(HikeConstants.CHANGE_KEYBOARD_CHAT_ENABLED));
-		}
-		if (data.has(HikeConstants.RESET_CHAT_KEY_TIP))
-		{
-			boolean bool = data.getBoolean(HikeConstants.RESET_CHAT_KEY_TIP);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_1_DONE, bool);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CT_OVRFLW_KEYBOARD_TIP_2_DONE, bool);
-		}
 		if (data.has(HikeConstants.NEW_CHAT_RED_DOT))
 		{
 			boolean shouldShowRedDot = data.optBoolean(HikeConstants.NEW_CHAT_RED_DOT);
@@ -2775,6 +2839,18 @@ public class MqttMessagesManager
                 InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
+		if(data.has(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE))
+		{
+			boolean notifyDiskUsage = data.optBoolean(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE, false);
+			if(notifyDiskUsage)
+			{
+				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
+				{
+					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
+					StorageSpecUtils.processDirectoryList(dirList);
+				}
+			}
+		}
 		if (data.has(HikeConstants.BADGECOUNTER))
 		{
 			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
@@ -2802,15 +2878,6 @@ public class MqttMessagesManager
 		{
 			Utils.setLocalizationEnable(data.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 		}
-		if (data.has(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED, data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED));
-			KptKeyboardManager.getInstance().getKptSettings().setAutoCorrectionState(data.optBoolean(HikeConstants.AUTOCORRECT_KEYBOARD_ENABLED) ? 0 : 1);
-		}
-		if (data.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-		{
-			Utils.setCustomKeyboardEnable(data.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
-		}
 		if (data.has(HikeConstants.HTTP_NETWORK_CHECK_CALL))
 		{
 			boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
@@ -2821,6 +2888,11 @@ public class MqttMessagesManager
 		{
 			boolean enable = data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.CUSTOM_TABS, enable);
+		}
+		if(data.has(HikePlatformConstants.NEW_AUTH_ENABLE))
+		{
+			boolean enable=data.getBoolean(HikePlatformConstants.NEW_AUTH_ENABLE);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikePlatformConstants.NEW_AUTH_ENABLE, enable);
 		}
 		if (data.has(HikeConstants.WHITE_SCREEN_FIX))
 		{
@@ -2869,6 +2941,7 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_PACK_CDN_THRESHOLD, stickerPackCdnThreshold);
 		}
 
+
 		if (data.has(HikeConstants.ENABLE_AB_SYNC_CHANGE))
 		{
 			boolean enableABSyncChange = data.getBoolean(HikeConstants.ENABLE_AB_SYNC_CHANGE);
@@ -2900,10 +2973,34 @@ public class MqttMessagesManager
 			ContactUtils.triggerSyncContacts(context);
 		}
 
-		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS))
-		{
+		if (data.has(HikeConstants.NET_BLOCKED_STATE_ANALYTICS)) {
 			boolean enableAnalytics = data.getBoolean(HikeConstants.NET_BLOCKED_STATE_ANALYTICS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, enableAnalytics);
+		}
+		if (data.has(HikeConstants.ADD_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.ADD_URL);
+				PlatformUtils.insertUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+		}
+		if (data.has(HikeConstants.DELETE_URL))
+		{
+			try
+			{
+				JSONArray array = data.getJSONArray(HikeConstants.DELETE_URL);
+				PlatformUtils.deleteUrl(array);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), e.toString());
+			}
+
 		}
 
 		if(data.has(HikeConstants.SHOW_STICKER_PREVIEW))
@@ -2924,6 +3021,32 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
 
+		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
+		{
+			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
+			Utils.makeFavFriendsTransition();
+		}
+
+		if (data.has(HikeConstants.IS_NEW_USER))
+		{
+			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_NEW_USER, isNewUser);
+		}
+
+		if (data.has(HikeConstants.FTUE_FRIENDS_COUNT))
+		{
+			int newFriendsFtueCount = data.getInt(HikeConstants.FTUE_FRIENDS_COUNT);
+			if (newFriendsFtueCount > 0) //Saving only a positive value
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, newFriendsFtueCount);
+			}
+		}
+		if(data.has(HikePlatformConstants.FLUSH_DOWNLOAD_TABLE))
+		{
+			HikeContentDatabase.getInstance().flushPlatformDownloadStateTable();
+		}
+
 		if (data.has(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE))
 		{
 			int numRowsInitiallyVisible = data.getInt(HikeConstants.NUM_ROWS_INITIALLY_VISIBLE);
@@ -2936,8 +3059,87 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISK_CACHE_SIZE, diskCacheSize);
 		}
 
+		if(data.has(HikeConstants.Shortcut.UPDATE))
+		{
+			updateShortCut(data);
+		}
+
+		if(data.has(HikeConstants.CONTACT_UPDATE))
+		{
+			saveContacts(data);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
+
+	}
+
+	private void updateShortCut(final JSONObject data) throws  JSONException
+	{
+		String msisdn = data.getString(HikeConstants.MSISDN);
+
+		if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+		{
+			return;
+		}
+
+		final ConvInfo info;
+		if (BotUtils.isBot(msisdn))
+		{
+			info = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		}
+		else
+		{
+			info = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(ContactManager.getInstance().getName(msisdn)).build();
+		}
+
+		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Utils.createShortcut(context, info, data.optBoolean(HikeConstants.TOAST, false));
+				}
+			});
+		}
+	}
+
+	private void saveContacts(JSONObject data) throws JSONException
+	{
+		String newMsisdn = data.getString(HikeConstants.CONTACT_UPDATE);
+		String name = data.optString(HikeConstants.CONTACT_NAME, "");
+		String oldMsisdn = data.optString(HikeConstants.CONTACT_NUMBER_OLD, "");
+
+		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
+
+		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
+		PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+
+		if(contactIdPair == null)
+		{
+			if(changeMsisdn)
+			{
+				contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(newMsisdn));
+				contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+				if(contactIdPair != null)
+				{
+					return;
+				}
+			}
+			List<AccountData> accountDatas = Utils.getAccountList(context);
+			List<ContactInfoData> items = new ArrayList<ContactInfoData>();
+			items.add(new ContactInfoData(ContactInfoData.DataType.PHONE_NUMBER, newMsisdn, HikeConstants.HIKE_CUSTOM_PHONE_TYPE));
+			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0));
+		}
+		else
+		{
+			if(changeMsisdn)
+			{
+				Utils.updateContactWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), newMsisdn);
+			}
+		}
 
 	}
 
@@ -3043,8 +3245,13 @@ public class MqttMessagesManager
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
 		 * Also if the user is blocked, we ignore the message.
+		 *
+		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
-		if (statusMessage.getStatusMessageType() == null || conMgr.isBlocked(statusMessage.getMsisdn()))
+		if (statusMessage.getStatusMessageType() == null
+				|| conMgr.isBlocked(statusMessage.getMsisdn())
+				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				)
 		{
 			return;
 		}
@@ -4398,9 +4605,47 @@ public class MqttMessagesManager
 		{
 			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
 		}
+		else if(HikeConstants.MqttMessageTypes.PLATFORM_INFRA_CONFIG.equals(type))
+		{
+			saveInfraConfig(jsonObj);
+		}
+
 		else if (HikeConstants.TOAST.equals(type))
 		{
 			showToast(jsonObj);
+		}
+	}
+	
+	private void saveInfraConfig(JSONObject jsonObj)
+	{
+		if (jsonObj.has(HikeConstants.DATA))
+		{
+			try
+			{
+				JSONObject dJson = jsonObj.getJSONObject(HikeConstants.DATA);
+				
+				JSONArray configArray = dJson.getJSONArray(HikeConstants.URLS);
+				for (int i = 0; i < configArray.length(); i++)
+				{
+					JSONObject chatBgJson = configArray.optJSONObject(i);
+
+					if (chatBgJson == null)
+					{
+						continue;
+					}
+
+					String url = chatBgJson.optString(HikeConstants.URL);
+					String key = chatBgJson.optString(HikeConstants.KEY);
+					int life = chatBgJson.optInt(HikeConstants.LIFE);
+					convDb.insertURL(key, url, life);
+
+				}
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

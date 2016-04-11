@@ -48,6 +48,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -304,6 +305,11 @@ public class ChatThreadUtils
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
+		{
+			return false; // We do not want to show the last seen in this case if the user is not 2way friend
+		}
+
 		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);

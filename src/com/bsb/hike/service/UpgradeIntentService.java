@@ -11,9 +11,12 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.io.File;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -117,6 +120,12 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+        // Schedule versioning migration if its not done already
+        if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false)
+        {
+            scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
+        }
+
 		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
 		{
 			if(upgradeForStickerTable())
@@ -171,6 +180,20 @@ public class UpgradeIntentService extends IntentService
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
 	}
+
+
+    /**
+     * Used to schedule the alarm for migration of old running micro apps in the content directory
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
+    {
+        // Do the migration tasks only if migration has not been done already and old directory content code exists on device
+        if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR).exists())
+        {
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+        }
+    }
 
 	private boolean upgradeForStickerTable()
 	{

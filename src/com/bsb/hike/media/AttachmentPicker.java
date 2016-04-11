@@ -302,7 +302,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, type);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG2);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, type);

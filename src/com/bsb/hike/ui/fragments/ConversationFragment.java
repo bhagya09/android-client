@@ -63,6 +63,8 @@ import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -1025,7 +1027,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				{
 					//Starting Chathread
 					Intent in = IntentFactory.createChatThreadIntentFromMsisdn(getActivity(),
-							OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false);
+							OfflineUtils.fetchMsisdnFromRequestPkt(HikeSharedPreferenceUtil.getInstance().getData(OfflineConstants.DIRECT_REQUEST_DATA, "")), false, false, ChatThreadActivity.ChatThreadOpenSources.OFFLINE);
 					in.putExtra(OfflineConstants.START_CONNECT_FUNCTION, true);
 					getActivity().startActivity(in);							
 				}
@@ -1108,7 +1110,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			BotInfo botInfo = (BotInfo) convInfo;
 			if (botInfo.isMessagingBot())
 			{
-				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
+				Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo,
+						ChatThreadActivity.ChatThreadOpenSources.CONV_FRAGMENT);
 				startActivity(intent);
 			}
 			else
@@ -1145,7 +1148,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		}
 		else
 		{
-			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo);
+			Intent intent = IntentFactory.createChatThreadIntentFromConversation(getActivity(), convInfo, ChatThreadActivity.ChatThreadOpenSources.CONV_FRAGMENT);
 			startActivity(intent);
 		}
 
@@ -1517,7 +1520,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 						BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 					}
 					Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-					Utils.createShortcut(getActivity(), conv);
+					Utils.createShortcut(getActivity(), conv, true);
 				}
 				else if (getString(R.string.delete_chat).equals(option))
 				{
@@ -1750,7 +1753,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			BotConversation.analyticsForBots(conv, HikePlatformConstants.BOT_ADD_SHORTCUT, AnalyticsConstants.CLICK_EVENT);
 		}
 		Utils.logEvent(getActivity(), HikeConstants.LogEvent.ADD_SHORTCUT);
-		Utils.createShortcut(getActivity(), conv);
+		Utils.createShortcut(getActivity(), conv, true);
 	}
 
 	protected void onDeleteBotClicked(final ConvInfo conv, final boolean shouldBlock)

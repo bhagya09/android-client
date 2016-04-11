@@ -167,7 +167,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
-	private  long time;
+	private long time;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
 	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
@@ -795,7 +795,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 			@Override
-			public void onComplete(PlatformContentModel content)
+			public void onComplete(final PlatformContentModel content)
 			{
 				if(null != webView && null != content)
 				{
@@ -812,7 +812,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					}
 
 					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
-					webView.loadMicroAppData(content.getFormedData());
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.loadMicroAppData(content.getFormedData());
+                        }
+                    });
 				}
 			}
 		});
@@ -1530,6 +1535,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
 			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
+		}else if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_VIA_MENU))
+		{
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_VIA_MENU));
 		}
 	}
 

@@ -2,13 +2,12 @@ package com.bsb.hike.modules.stickersearch;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.localisation.FontManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.google.gson.Gson;
-import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -381,16 +380,16 @@ public class StickerLanguagesManager {
 
     public List<String> getUnsupportedLanguagesCollection()
     {
-        List<KPTAddonItem> unsupportedItems = KptKeyboardManager.getInstance().getUnsupportedLanguagesList();
+        List<String> unsupportedItems = FontManager.getInstance().getUnsupportedLanguageList();
         if(Utils.isEmpty(unsupportedItems))
         {
             return null;
         }
 
         List<String> unsupportedLanguages = new ArrayList<>(unsupportedItems.size());
-        for(KPTAddonItem addOnItem : unsupportedItems)
+        for(String locale : unsupportedItems)
         {
-            unsupportedLanguages.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(addOnItem.getlocaleName())));
+            unsupportedLanguages.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(locale)));
         }
 
         return unsupportedLanguages;
@@ -398,11 +397,10 @@ public class StickerLanguagesManager {
 
     public void addKptSupportedLanguages()
     {
-        ArrayList<String> kptList = new ArrayList<String>( KptKeyboardManager.getInstance().getSupportedLanguagesList().size());
-
-        for(KPTAddonItem item : KptKeyboardManager.getInstance().getSupportedLanguagesList())
+        ArrayList<String> kptList = new ArrayList<String>(FontManager.getInstance().getSupportedLanguageList().size());
+        for(String locale : FontManager.getInstance().getSupportedLanguageList())
         {
-            kptList.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(item.getlocaleName())));
+            kptList.add(StickerSearchUtils.getISOCodeFromLocale(new Locale(locale)));
         }
 
         Logger.d(TAG, "kpt list of languages : " + kptList);

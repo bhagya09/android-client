@@ -1,5 +1,26 @@
 package com.bsb.hike;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +54,6 @@ import com.bsb.hike.modules.diskcache.Cache;
 import com.bsb.hike.modules.diskcache.InternalCache;
 import com.bsb.hike.modules.httpmgr.HttpManager;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.notifications.HikeNotificationUtils;
@@ -48,7 +68,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
-import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
 import com.bsb.hike.ui.CustomTabsHelper;
@@ -62,31 +81,8 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
-import com.kpt.adaptxt.beta.core.coreservice.KPTCoreEngineImpl;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import io.fabric.sdk.android.Fabric;
+
 
 //https://github.com/ACRA/acra/wiki/Backends
 @ReportsCrashes(customReportContent = { ReportField.APP_VERSION_CODE, ReportField.APP_VERSION_NAME, ReportField.PHONE_MODEL, ReportField.BRAND, ReportField.PRODUCT,
@@ -127,6 +123,10 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String PLATFORM_UID_SETTING = "platformUID";
 
 	public static final String PLATFORM_TOKEN_SETTING = "platformToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN = "platformAuthToken";
+	
+	public static final String PLATFORM_AUTH_TOKEN_EXPIRY = "platformAuthTokenExpiry";
 
 	public static final String ANONYMOUS_NAME_SETTING = "anonymousName";
 
@@ -534,6 +534,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String KEYBOARD_HEIGHT_LANDSCAPE = "keyboardHeightLand";
 
+	public static final String FAVORITES_TO_FRIENDS_TRANSITION_STATE = "favToFriendsTransState";
+
 	public static CurrentState currentState = CurrentState.CLOSED;
 
 	// Constants for sticker search=========================================================================================[[
@@ -636,6 +638,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static int bottomNavBarHeightPortrait = 0;
 
 	public static int bottomNavBarWidthLandscape = 0;
+
+    public static ConcurrentHashMap<String,Integer> hikeMappInfo = new ConcurrentHashMap<>();
 
 	private static InternalCache diskCache;
 
@@ -766,10 +770,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		super.onCreate();
 		_instance = this;
 
-		Logger.d("KptDebug","HikeMessApp onCreate Start.time: " + System.currentTimeMillis());
 		long time = System.currentTimeMillis();
 		Utils.enableNetworkListner(this);
-		KPTCoreEngineImpl.atxAssestCopyFromAppInfo(this, getFilesDir().getAbsolutePath(), getAssets());
 		SharedPreferences settings = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 		msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, null);
@@ -853,7 +855,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0 || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -969,7 +971,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
-		Logger.d("KptDebug","HikeMessApp onCreate End.time: " + System.currentTimeMillis());
 		PlatformUtils.resumeLoggingLocationIfRequired();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 		CustomTabsHelper.getPackageNameToUse(this);
@@ -1016,6 +1017,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		initContactManager();
 		BotUtils.initBots();
+		//Check if any pending platform packet is waiting for download.
+		PlatformUtils.retryPendingDownloadsIfAny(Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(getApplicationContext())));
 		/*
 		 * Fetching all stealth contacts on app creation so that the conversation cannot be opened through the shortcut or share screen.
 		 */
@@ -1026,6 +1029,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+
+        // Set default path as internal storage on production host
+        PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
 
 		PlatformContent.init(prefs.getBoolean(HikeMessengerApp.PRODUCTION, true));
 
@@ -1047,6 +1053,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		{
 			HikeSharedPreferenceUtil.getInstance().removeData(StickyCaller.CALLER_Y_PARAMS_OLD);
 		}
+
 		initCrashReportingTool();
 	}
 
@@ -1198,6 +1205,21 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR);
 		Utils.makeNoMediaFile(folder, true);
 
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_WEB_MICRO_APPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_ONE_TIME_POPUPS);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_GAMES);
+        Utils.makeNoMediaFile(folder, true);
+
+        folder = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.HIKE_MICRO_APPS + PlatformContentConstants.HIKE_MAPPS);
+        Utils.makeNoMediaFile(folder, true);
+
 	}
 
 	public static HikePubSub getPubSub()
@@ -1304,35 +1326,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		return kc == HikeConstants.KEYBOARD_CONFIGURATION_NEW;
 	}
 
-	public static boolean isSystemKeyboard()
-	{
-		return (!isCustomKeyboardUsable() || HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, true));
-	}
-
-	public static boolean isCustomKeyboardUsable()
-	{
-		Logger.d("KptDebug", "isCustomKeyboardUsable value get.time: " + System.currentTimeMillis());
-		return (
-				// server switches
-				isCustomKeyboardEnabled()
-					// If custom(kpt) keyboard is not supported, it should not be used.
-					&& isCustomKeyboardSupported());
-	}
-
-	public static boolean isCustomKeyboardSupported()
-	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_SUPPORTED, true);
-	}
-
-	public static boolean isCustomKeyboardEnabled()
-	{
-		return (
-				// server switch
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_KEYBOARD_ENABLED, true)
-					// If localization is disabled in the app. Custom Keyboard is not to be used.
-					&& isLocalisationEnabled());
-	}
-
 	public static boolean isLocalisationEnabled()
 	{
 		// server switch
@@ -1342,10 +1335,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	private void setupAppLocalization()
 	{
 		setupLocalLanguage();
-		// initialized keyboard manager only if its enabled.
-		Logger.d("KptDebug","call to keyboard manager.time: " + System.currentTimeMillis());
-		if (isCustomKeyboardEnabled())
-			KptKeyboardManager.getInstance();
 		LocalLanguageUtils.handleHikeSupportedListOrderChange(this);
 	}
 
@@ -1370,6 +1359,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		MultiDex.install(this);
 	}
 
+
     private void setAnalyticsSendAlarm()
     {
         if(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, false))
@@ -1388,4 +1378,5 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
     }
+
 }
