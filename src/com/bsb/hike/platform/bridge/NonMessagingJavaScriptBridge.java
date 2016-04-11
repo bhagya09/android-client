@@ -1086,7 +1086,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		if (weakActivity.get() != null)
 		{
-			Utils.createShortcut(weakActivity.get(), mBotInfo);
+			Utils.createShortcut(weakActivity.get(), mBotInfo, true);
 		}
 	}
 

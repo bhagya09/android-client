@@ -378,7 +378,7 @@ public class HikeNotificationMsgStack implements Listener
 
 					if (mNotificationIntent == null)
 					{
-						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+						mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 					}
 					// Adding the notif tracker to bot notifications
 					mNotificationIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_NOTIF);
@@ -386,7 +386,7 @@ public class HikeNotificationMsgStack implements Listener
 				else
 				{
 					// Single msisdn, mixed notification types
-					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false);
+					mNotificationIntent = IntentFactory.createChatThreadIntentFromMsisdn(mContext, lastAddedMsisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 				}
 			}
 

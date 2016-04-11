@@ -26,6 +26,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -754,7 +755,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
-						friendItem.setTitle(R.string.remove_from_favorites);
+						friendItem.setTitle(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites);
 					}
 					else
 					{
@@ -920,7 +921,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
 
 			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			}
+			else
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			}
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);
@@ -945,13 +953,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					// Show add/not now screen.
 					req_layout.setVisibility(View.VISIBLE);
+					if (Utils.isFavToFriendsMigrationAllowed())
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.INVISIBLE);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.voip_accept);
+					}
 				}
 				
 				else if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED && !contactInfo.isUnknownContact())
 				{	
 					fav_layout.setVisibility(View.VISIBLE);  //Simply show add to fav view if contact is unsaved
 					extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-					extraInfo.setText(getResources().getString(R.string.add_fav));
+					extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 					smallIcon.setImageResource(R.drawable.ic_add_friend);
 				}
 				
@@ -960,6 +973,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)
 						{
 							dual_layout.setVisibility(View.VISIBLE);
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 						}
 						else
 						{
@@ -981,13 +995,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						{
 							// Show dual layout
 							dual_layout.setVisibility(View.VISIBLE);
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 						}
 						else
 						{
 							dual_layout.setVisibility(View.GONE);
 							fav_layout.setVisibility(View.VISIBLE);
 							extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-							extraInfo.setText(getResources().getString(R.string.add_fav));
+							extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
 							smallIcon.setImageResource(R.drawable.ic_add_friend);
 						}
 					}
@@ -1099,7 +1114,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if(status != null)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() == FavoriteType.FRIEND)
+			|| status == null)
+		{
+			status = StatusMessage.getJoinedHikeStatus(contactInfo);
+			setStatusText(status, subText, name);
+		}
+		else
 		{
 			if (status.hasMood())  //Adding mood image for status
 			{
@@ -1111,11 +1132,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				statusMood.setVisibility(View.GONE);
 			}
 			subText.setText(smileyParser.addSmileySpans(status.getText(), true));
-			return;
 		}
-		
-		status = StatusMessage.getJoinedHikeStatus(contactInfo);
-		setStatusText(status, subText, name);
 	}
 	
 	private void setStatusText(StatusMessage status,final TextView subText, TextView name)
@@ -1128,21 +1145,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			subText.setVisibility(View.INVISIBLE);
 			Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up_hike_joined);
 			name.startAnimation(animation);
-			animation.setAnimationListener(new AnimationListener()
-			{
+			animation.setAnimationListener(new AnimationListener() {
 				@Override
-				public void onAnimationStart(Animation animation)
-				{
+				public void onAnimationStart(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationRepeat(Animation animation)
-				{
+				public void onAnimationRepeat(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationEnd(Animation animation)
-				{
+				public void onAnimationEnd(Animation animation) {
 					subText.setVisibility(View.VISIBLE);
 				}
 			});
@@ -1204,8 +1217,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND) && (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
-				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED) && (contactInfo.isOnhike());
+		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED)
+				&& (contactInfo.isOnhike());
 	}
 
 	private void setupGroupAndBroadcastProfileScreen()
@@ -1992,7 +2007,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openChatThread(ContactInfo contactInfo)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		//Add anything else which is need to the intent
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, false))
@@ -2005,7 +2020,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onProfileSmallLeftBtnClick(View v)
 	{
 		Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.ADD_PARTICIPANT);
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 
@@ -3494,6 +3509,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
+		if (Utils.isNotMyOneWayFriend(contactInfo)) //If Not one way friend, no need to initiate Voip
+		{
+			String messageToDisplay = getString(R.string.voip_friend_error, contactInfo.getFirstNameAndSurname());
+			Toast.makeText(this, messageToDisplay, Toast.LENGTH_LONG).show();
+			return;
+		}
+
 		Utils.onCallClicked(this, mLocalMSISDN, VoIPUtils.CallSource.PROFILE_ACTIVITY);
 	}
 	

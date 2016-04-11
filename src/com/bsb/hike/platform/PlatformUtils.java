@@ -58,6 +58,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -401,7 +402,8 @@ public class PlatformUtils
 					Logger.e(TAG, "Msisdn is missing in the packet");
 					return;
 				}
-				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"));
+				Intent in = IntentFactory.getIntentForAnyChatThread(context, msisdn, mmObject.optBoolean("isBot"),
+						ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 				if (in != null)
 				{
 					context.startActivity(in);

@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1646"
-    android:versionName="4.2.0.82.19.internal_release" >
+    android:versionCode="1651"
+    android:versionName="4.2.5.82.103" >
+
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
@@ -135,6 +136,7 @@
             </intent-filter>
         </service>
         <service android:name=".service.UpgradeIntentService" />
+        <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"

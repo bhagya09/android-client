@@ -21,10 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -55,13 +57,15 @@ import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
-import com.bsb.hike.models.*;
+import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.ContactInfoData;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
@@ -97,6 +101,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
@@ -1646,6 +1651,12 @@ public class MqttMessagesManager
 		if (favoriteType == favoriteType.FRIEND)
 		{
 			incrementUnseenStatusCount();
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+			}
 		}
 		else if (favoriteType == favoriteType.REQUEST_RECEIVED && currentType != favoriteType.REQUEST_RECEIVED)
 		{
@@ -1653,6 +1664,12 @@ public class MqttMessagesManager
 			if (count >= 0)
 			{
 				Utils.incrementOrDecrementFriendRequestCount(settings, 1);
+			}
+
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, HikeMessengerApp.getInstance().getString(R.string.friend_req_inline_msg_received, contactInfo.getFirstNameAndSurname()), true, State.RECEIVED_UNREAD);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 			}
 		}
 
@@ -2822,6 +2839,18 @@ public class MqttMessagesManager
                 InterceptUtils.registerOrUnregisterScreenshotObserver();
 			}
 		}
+		if(data.has(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE))
+		{
+			boolean notifyDiskUsage = data.optBoolean(HikeConstants.SPACE_MANAGER.NOTIFY_DISK_SPACE_USAGE, false);
+			if(notifyDiskUsage)
+			{
+				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
+				{
+					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
+					StorageSpecUtils.processDirectoryList(dirList);
+				}
+			}
+		}
 		if (data.has(HikeConstants.BADGECOUNTER))
 		{
 			boolean enableBadgeCount = data.getBoolean(HikeConstants.BADGECOUNTER);
@@ -2992,6 +3021,27 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
 
+		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
+		{
+			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, fav_to_friends_switch);
+			Utils.makeFavFriendsTransition();
+		}
+
+		if (data.has(HikeConstants.IS_NEW_USER))
+		{
+			boolean isNewUser = data.getBoolean(HikeConstants.IS_NEW_USER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_NEW_USER, isNewUser);
+		}
+
+		if (data.has(HikeConstants.FTUE_FRIENDS_COUNT))
+		{
+			int newFriendsFtueCount = data.getInt(HikeConstants.FTUE_FRIENDS_COUNT);
+			if (newFriendsFtueCount > 0) //Saving only a positive value
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, newFriendsFtueCount);
+			}
+		}
 		if(data.has(HikePlatformConstants.FLUSH_DOWNLOAD_TABLE))
 		{
 			HikeContentDatabase.getInstance().flushPlatformDownloadStateTable();
@@ -3009,8 +3059,87 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISK_CACHE_SIZE, diskCacheSize);
 		}
 
+		if(data.has(HikeConstants.Shortcut.UPDATE))
+		{
+			updateShortCut(data);
+		}
+
+		if(data.has(HikeConstants.CONTACT_UPDATE))
+		{
+			saveContacts(data);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
+
+	}
+
+	private void updateShortCut(final JSONObject data) throws  JSONException
+	{
+		String msisdn = data.getString(HikeConstants.MSISDN);
+
+		if(StealthModeManager.getInstance().isStealthMsisdn(msisdn))
+		{
+			return;
+		}
+
+		final ConvInfo info;
+		if (BotUtils.isBot(msisdn))
+		{
+			info = BotUtils.getBotInfoForBotMsisdn(msisdn);
+		}
+		else
+		{
+			info = new ConvInfo.ConvInfoBuilder(msisdn).setConvName(ContactManager.getInstance().getName(msisdn)).build();
+		}
+
+		if (data.getString(HikeConstants.Shortcut.UPDATE).equals(HikeConstants.Shortcut.CREATE))
+		{
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					Utils.createShortcut(context, info, data.optBoolean(HikeConstants.TOAST, false));
+				}
+			});
+		}
+	}
+
+	private void saveContacts(JSONObject data) throws JSONException
+	{
+		String newMsisdn = data.getString(HikeConstants.CONTACT_UPDATE);
+		String name = data.optString(HikeConstants.CONTACT_NAME, "");
+		String oldMsisdn = data.optString(HikeConstants.CONTACT_NUMBER_OLD, "");
+
+		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
+
+		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
+		PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+
+		if(contactIdPair == null)
+		{
+			if(changeMsisdn)
+			{
+				contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(newMsisdn));
+				contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+				if(contactIdPair != null)
+				{
+					return;
+				}
+			}
+			List<AccountData> accountDatas = Utils.getAccountList(context);
+			List<ContactInfoData> items = new ArrayList<ContactInfoData>();
+			items.add(new ContactInfoData(ContactInfoData.DataType.PHONE_NUMBER, newMsisdn, HikeConstants.HIKE_CUSTOM_PHONE_TYPE));
+			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0));
+		}
+		else
+		{
+			if(changeMsisdn)
+			{
+				Utils.updateContactWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), newMsisdn);
+			}
+		}
 
 	}
 
@@ -3116,8 +3245,13 @@ public class MqttMessagesManager
 		 * This would be true for unsupported status message types. We should not be doing anything if we get one.
 		 * 
 		 * Also if the user is blocked, we ignore the message.
+		 *
+		 * Ignore if user is not two way friend. This is just for 2 way friends A/B testing.
 		 */
-		if (statusMessage.getStatusMessageType() == null || conMgr.isBlocked(statusMessage.getMsisdn()))
+		if (statusMessage.getStatusMessageType() == null
+				|| conMgr.isBlocked(statusMessage.getMsisdn())
+				|| (Utils.isFavToFriendsMigrationAllowed() && !conMgr.isTwoWayFriend(statusMessage.getMsisdn()))
+				)
 		{
 			return;
 		}
