@@ -61,6 +61,12 @@ public class ChatThreadUtils
 {
 	private static final String TAG = "ChatThreadUtils";
 
+	public static boolean isWT1RevampEnabled(Context context)
+	{
+		boolean conferenceEnabled = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
+		return conferenceEnabled;
+	}
+
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
 		if (view == null)

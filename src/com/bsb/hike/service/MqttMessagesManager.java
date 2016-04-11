@@ -2926,6 +2926,11 @@ public class MqttMessagesManager
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
+		if (data.has(HikeConstants.WT_1_REVAMP_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
+			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 		
