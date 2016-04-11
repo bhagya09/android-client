@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.IChannelSelector;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -33,6 +35,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AttachmentPicker extends OverFlowMenuLayout
 {
@@ -223,6 +228,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				{
 					Logger.e(TAG, "intent is null !!");
 				}
+
+				sendClickAnalytics(getType(item.id)); // recording the event on item click at Attachment Picker
 			}
 		});
 		return viewToShow;
@@ -278,5 +285,67 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	private String getString(int id)
 	{
 		return context.getString(id);
+	}
+
+	private void sendClickAnalytics(String type)
+	{
+		JSONObject json = getClickJSON(type);
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	private JSONObject getClickJSON(String type)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, type);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, type);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance()
+					.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+
+			return json;
+
+		}
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
+		}
+	}
+
+	/**
+	 * method to get the type of key for the click event
+	 * @param code
+	 * @return a string representing the key of the event
+	 */
+	private String getType(int code)
+	{
+		switch(code)
+		{
+			case CAMERA:
+				return AnalyticsConstants.CAMERA_ICON_CLICK;
+			case VIDEO:
+				return AnalyticsConstants.VIDEO_ICON_CLICK;
+			case AUDIO:
+				return AnalyticsConstants.AUDIO_ICON_CLICK;
+			case LOCATION:
+				return AnalyticsConstants.LOCATION_ICON_CLICK;
+			case CONTACT:
+				return AnalyticsConstants.CONTACT_ICON_CLICK;
+			case FILE:
+				return AnalyticsConstants.FILE_ICON_CLICK;
+			case GALLERY:
+				return AnalyticsConstants.GALLERY_ICON_CLICK;
+			case APPS:
+				return AnalyticsConstants.APPS_ICON_CLICK;
+		}
+		return new String();
 	}
 }

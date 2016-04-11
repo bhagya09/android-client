@@ -1807,6 +1807,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		int xOffset = -(int) (276 * Utils.densityMultiplier);
 		int yOffset = -(int) (0.5 * Utils.densityMultiplier);
 		attachmentPicker.show(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, xOffset, yOffset, activity.findViewById(R.id.attachment_anchor), PopupWindow.INPUT_METHOD_NOT_NEEDED);
+		recordAttachmentPickerClick(); // recording the click event on attachment picker
 	}
 
 	/**
@@ -6964,5 +6965,38 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 	protected int getCurrentOrientation()
 	{
 		return activity.getResources().getConfiguration().orientation;
+	}
+
+	private void recordAttachmentPickerClick()
+	{
+		JSONObject json = getAttachmentPickerClickJSON();
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	private JSONObject getAttachmentPickerClickJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ATTACHMENT_PICKER_CLICK);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ATTACHMENT_PICKER_CLICK);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().
+					getData(HikeMessengerApp.MSISDN_SETTING, ""));
+
+			return json;
+
+		}
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
+		}
 	}
 }
