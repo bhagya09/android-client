@@ -62,6 +62,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	public static final int APPS = 321;
 
+	public static final int ATTACHMENT_PICKER = -1;
+
 	private boolean startRespectiveActivities;
 
 	private Activity activity;
@@ -289,34 +291,10 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	private void sendClickAnalytics(String type)
 	{
-		JSONObject json = getClickJSON(type);
+		JSONObject json = Utils.getMediaClickJSON(type, type);
 		if (json != null)
 		{
 			HAManager.getInstance().recordV2(json);
-		}
-	}
-
-	private JSONObject getClickJSON(String type)
-	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, type);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, type);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance()
-					.getData(HikeMessengerApp.MSISDN_SETTING, ""));
-
-			return json;
-
-		}
-		catch (JSONException e)
-		{
-			e.toString();
-			return null;
 		}
 	}
 
@@ -345,7 +323,16 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				return AnalyticsConstants.GALLERY_ICON_CLICK;
 			case APPS:
 				return AnalyticsConstants.APPS_ICON_CLICK;
+			default:
+				return AnalyticsConstants.ATTACHMENT_PICKER_CLICK;
 		}
-		return new String();
 	}
+
+	@Override
+	public void show(int width, int height, int xOffset, int yOffset, View anchor, int inputMethodMode)
+	{
+		sendClickAnalytics(getType(ATTACHMENT_PICKER)); // recording the showing of attachment picker
+		super.show(width, height, xOffset, yOffset, anchor, inputMethodMode);
+	}
+
 }
