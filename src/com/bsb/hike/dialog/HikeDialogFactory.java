@@ -36,6 +36,7 @@ import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
@@ -1172,7 +1173,7 @@ public class HikeDialogFactory
 				else
 				{
 
-					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false);
+					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false, ChatThreadActivity.ChatThreadOpenSources.LIKES_DIALOG);
 					// Add anything else to the intent
 					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -1,6 +1,13 @@
 package com.bsb.hike.ui;
 
 
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -58,6 +65,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -67,6 +77,7 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.FtueContactsData;
@@ -82,6 +93,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -102,13 +114,7 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -137,7 +143,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog, dbCorruptDialog;
+	private Dialog progDialog, dbCorruptDialog, restoreProgDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -179,7 +185,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -823,6 +829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
+					intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.HOME_ACTIVITY);
 					startActivity(intent);
 				}
 			});
@@ -1787,6 +1794,29 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
+		}else if (HikePubSub.BOT_CREATED.equals(type))
+		{
+			if(object == null || ! (object instanceof Pair) || !(Boolean)((Pair) object).second)
+			{
+				return;
+			}
+			 final BotInfo info = ((BotInfo) ((Pair) object).first);
+			if(info == null)
+			{
+				return;
+			}
+			 if(!info.isConvPresent()&&info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
+			 {
+				 runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
+							addBotItem(optionsList,info);
+						}
+					});
+			 }
 		}
 	}
 
@@ -2032,7 +2062,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
+		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
+
 		addEmailLogItem(optionsList);
+		
+		addBotItems(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -2090,6 +2124,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
+					break;
+				
+                case R.string.wallet_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
 				case R.string.timeline:
@@ -2159,6 +2199,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					sendAnalyticsTakePicture();
 					break;
+
+				case -100: // Dummy commit for QA Testing.
+					// TODO : Revert this before build goes live.
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
+					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
+					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
+					break;
 					
 				}
 
@@ -2209,6 +2256,21 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
+	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
+	{
+		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		}
+
+	}
+	
+	private void addBotItems(List<OverFlowMenuItem> overFlowMenuItems)
+	{
+
+		BotUtils.addAllMicroAppMenu(overFlowMenuItems, BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU, getApplicationContext());
+	}
+	
 	private void addEmailLogItem(List<OverFlowMenuItem> overFlowMenuItems)
 	{
 		if (AppConfig.SHOW_SEND_LOGS_OPTION)
@@ -2216,7 +2278,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.send_logs), 0, 0, R.string.send_logs));
 		}
 	}
-
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
@@ -2483,6 +2544,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
+		if (restoreProgDialog != null)
+		{
+			restoreProgDialog.dismiss();
+			restoreProgDialog = null;
+		}
+
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2514,7 +2581,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private void showRestoreInProcessDialog()
 	{
-		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		restoreProgDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
 		showingBlockingDialog = true;
 	}
 

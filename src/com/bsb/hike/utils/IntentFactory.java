@@ -44,6 +44,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.spaceManager.StorageSpecIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.ApkSelectionActivity;
@@ -70,6 +71,7 @@ import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -610,7 +612,7 @@ public class IntentFactory
 		return callIntent;
 	}
 
-	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard, boolean newGroup)
+	public static Intent createChatThreadIntentFromMsisdn(Context context, String msisdnOrGroupId, boolean openKeyBoard, boolean newGroup, int source)
 	{
 		Intent intent = new Intent();
 
@@ -620,20 +622,21 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.SHOW_KEYBOARD, openKeyBoard);
 		intent.putExtra(HikeConstants.Extras.NEW_GROUP, newGroup);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		return intent;
 	}
 
-	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard, boolean newGroup)
+	public static Intent createChatThreadIntentFromContactInfo(Context context, ContactInfo contactInfo, boolean openKeyBoard, boolean newGroup, int source)
 	{
 		// If the contact info was made using a group conversation, then the
 		// Group ID is in the contact ID
 		boolean isGroupConv = OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn());
-		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard, newGroup);
+		return createChatThreadIntentFromMsisdn(context, isGroupConv ? contactInfo.getId() : contactInfo.getMsisdn(), openKeyBoard, newGroup, source);
 	}
 
-	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation)
+	public static Intent createChatThreadIntentFromConversation(Context context, ConvInfo conversation, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
 		if (conversation.getConversationName() != null)
@@ -648,6 +651,7 @@ public class IntentFactory
 		String whichChatThread = ChatThreadUtils.getChatThreadType(conversation.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, whichChatThread);
 		intent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		intent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, source);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
 	}
@@ -1468,11 +1472,11 @@ public class IntentFactory
 		}
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, mBotInfo.getMsisdn(), false, false, ChatThreadActivity.ChatThreadOpenSources.MICRO_APP);
 		}
 	}
 	
-	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot)
+	public static Intent getIntentForAnyChatThread(Context context, String msisdn, boolean isBot, int source)
 	{
 		if (isBot)
 		{
@@ -1480,7 +1484,7 @@ public class IntentFactory
 		}
 		else
 		{
-			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
+			return IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, source);
 		}
 
 	}
@@ -1501,6 +1505,13 @@ public class IntentFactory
 			intent = IntentFactory.getNonMessagingBotIntent(msisdn, mContext);
 		}
 		return intent;
+	}
+
+	public static void openPackPreviewIntent(Context context, String catId)
+	{
+		Intent intent = new Intent(context, PackPreviewActivity.class);
+		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		context.startActivity(intent);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)
@@ -1575,5 +1586,24 @@ public class IntentFactory
 
 		Intent msgIntent = new Intent(context, UpgradeIntentService.class);
 		context.startService(msgIntent);
+	}
+
+	/**
+	 * Method creates an intent with provided action and extras to launch {@link StorageSpecIntentService}
+	 * @param action
+	 * @param dirPath
+	 * @param shouldMapContainedFiles
+	 */
+	public static void startStorageSpecIntent(String action, String dirPath, boolean shouldMapContainedFiles)
+	{
+		Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
+		Intent storageSpecIntent = new Intent(hikeAppContext, StorageSpecIntentService.class);
+		storageSpecIntent.setAction(action);
+		storageSpecIntent.putExtra(HikeConstants.SPACE_MANAGER.MAP_DIRECTORY, shouldMapContainedFiles);
+		if(!TextUtils.isEmpty(dirPath))
+		{
+			storageSpecIntent.putExtra(HikeConstants.SPACE_MANAGER.DIRECTORY_PATH, dirPath);
+		}
+		hikeAppContext.startService(storageSpecIntent);
 	}
 }

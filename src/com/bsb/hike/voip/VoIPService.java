@@ -1682,10 +1682,14 @@ public class VoIPService extends Service implements Listener
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 						dp.setData(pcmData);
 						dp.setVoice(speechDetected);
-						if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
-							processedRecordedSamples.add(dp);
-						else
-							Logger.w(tag, "Recorded buffers queue is full.");
+						if (!hostingConference()) {
+							client.addSampleToEncode(dp);
+						} else {
+							if (processedRecordedSamples.size() < VoIPConstants.MAX_SAMPLES_BUFFER)
+								processedRecordedSamples.add(dp);
+							else
+								Logger.w(tag, "Recorded buffers queue is full.");
+						}
 					}
 				}
 			}
@@ -1847,7 +1851,7 @@ public class VoIPService extends Service implements Listener
 							}
 						}
 
-						// Buffer underrun protection
+						// Local playback with buffer underrun protection.
 						try {
 							if (finalDecodedSample == null) {
 								// Logger.d(logTag, "Decoded samples underrun. Adding silence.");
@@ -1866,6 +1870,8 @@ public class VoIPService extends Service implements Listener
 							Logger.e(tag, "InterruptedException while adding playback sample: " + e.toString());
 						}
 
+
+						// Conference broadcast.
 						// If we are in conference, then add our own recorded signal as well.
 						// Broadcast this signal to all clients, except for the ones that are speaking.
 						// If someone is speaking, we need to send them a custom stream without their voice signal.
@@ -1905,18 +1911,8 @@ public class VoIPService extends Service implements Listener
 									client.addSampleToEncode(clientDp); 
 								}
 							}
-						} else {
-							// We are in a one-to-one call, 
-							// so just send our recorded stream to the other client.
-							VoIPDataPacket dp = processedRecordedSamples.poll();
-							VoIPClient client = getClient();
-							if (dp != null && client != null)
-								client.addSampleToEncode(dp);
-						}
-
-						if (hostingConference())
 							clientSample.clear();
-
+						}
 					} else {
 						Logger.d(tag, "Shutting down decoded samples poller.");
 						scheduledFuture.cancel(true);

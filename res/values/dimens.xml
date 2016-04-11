@@ -147,4 +147,6 @@
 	<dimen name="walkie_mic_size">50dp</dimen>
 	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
 	<dimen name="slide_to_cancel_margin">30dp</dimen>
+	<dimen name="sticker_mini_loader">38dp</dimen>
+	<dimen name="four_dp_corner_radius">4dp</dimen>
 </resources>
