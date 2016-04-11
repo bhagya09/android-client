@@ -202,6 +202,9 @@ import android.view.HapticFeedbackConstants;
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
 		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks
 {
+
+	private static boolean useWTRevamped;
+
 	private static final String TAG = ChatThread.class.getSimpleName();
 
 	protected static final int FETCH_CONV = 1;
@@ -601,6 +604,7 @@ import android.view.HapticFeedbackConstants;
 	{
 		this.activity = activity;
 		this.msisdn = msisdn;
+		useWTRevamped = ChatThreadUtils.isWT1RevampEnabled(activity.getApplicationContext());
 	}
 
 	/**
@@ -1184,6 +1188,10 @@ import android.view.HapticFeedbackConstants;
 	public void setContentView()
 	{
 		activity.setContentView(getContentView());
+		if(!useWTRevamped) {
+			activity.findViewById(R.id.send_message).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.send_message_audio).setVisibility(View.GONE);
+		}
 		initView();
 	}
 
@@ -1299,10 +1307,16 @@ import android.view.HapticFeedbackConstants;
 
 	protected void sendButtonClicked()
 	{
-		sendMessageForStickerRecommendLearning();
-		sendMessage();
-		dismissStickerRecommendationPopup();
-		dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+		{
+			audioRecordClicked();
+		} else
+		{
+			sendMessageForStickerRecommendLearning();
+			sendMessage();
+			dismissStickerRecommendationPopup();
+			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+		}
 	}
 
 	/**
@@ -1365,6 +1379,11 @@ import android.view.HapticFeedbackConstants;
 		{
 			stickerTagWatcher.markStickerRecommendationIgnoreAndSendAnalytics();
 		}
+	}
+
+	protected void audioRecordClicked()
+	{
+		showAudioRecordView();
 	}
 
 	protected void showAudioRecordView()
