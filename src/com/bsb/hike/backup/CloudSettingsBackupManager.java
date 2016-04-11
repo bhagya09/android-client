@@ -66,6 +66,14 @@ public class CloudSettingsBackupManager implements HikePubSub.Listener
 			return;
 		}
 
+		doRestoreSkipEnableCheck(backupData);
+	}
+
+	/**
+	 *In sign-up flow, do a GET call no matter if the feature is enabled or not
+	 */
+	public void doRestoreSkipEnableCheck(String backupData)
+	{
 		CloudSettingsRestorable settingsRestorable = new CloudSettingsRestorable();
 
 		if (!TextUtils.isEmpty(backupData))
