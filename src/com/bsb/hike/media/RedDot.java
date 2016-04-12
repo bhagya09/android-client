@@ -56,7 +56,7 @@ public class RedDot extends View {
                 isIncr = true;
             }
         } else {
-            alpha += dt / 900.0f;
+            alpha += dt / 100.0f;
             if (alpha >= 1) {
                 alpha = 1;
                 isIncr = false;
