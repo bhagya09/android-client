@@ -1233,4 +1233,16 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
+
+	public static RequestToken getBytesFromServer(URL url, String sessionId, IRequestListener listener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.addHeader(new Header("X-SESSION-ID", sessionId))
+				.setAsynchronous(false)
+				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
+				.setRequestListener(listener)
+				.build();
+		return requestToken;
+	}
 }

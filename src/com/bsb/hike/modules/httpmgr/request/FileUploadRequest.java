@@ -7,7 +7,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
-import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -52,6 +51,8 @@ public class FileUploadRequest extends Request<JSONObject>
 	private Response response;
 
 	private HttpException exception;
+
+	private int bytesUploaded;
 
 	private FileUploadRequest(Init<?> init)
 	{
@@ -141,7 +142,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			else
 			{
 				// make an http call to get bytes uploaded from server using session id
-				mStart = getBytesUploadedFromServer(client);
+				mStart = getBytesUploadedFromServer();
 			}
 		}
 
@@ -343,36 +344,53 @@ public class FileUploadRequest extends Request<JSONObject>
 			}
 		};
 	}
-	private int getBytesUploadedFromServer(IClient client) throws Throwable
+
+	private int getBytesUploadedFromServer() throws Throwable
 	{
-		int bytesUploaded = 0;
-		ByteArrayRequest req = new ByteArrayRequest.Builder()
-				.setUrl(this.getUrl())
-				.addHeader(new Header("X-SESSION-ID", X_SESSION_ID))
-				.setAsynchronous(false)
-				.buildRequest();
-
-		DefaultHeaders.applyDefaultHeaders(req);
-
-		try
+		RequestToken requestToken = HttpRequests.getBytesFromServer(this.getUrl(), X_SESSION_ID, new IRequestListener()
 		{
-			Response res = client.execute(req);
-			byte[] byteArray = (byte[]) res.getBody().getContent();
-			if (byteArray != null)
+			@Override
+			public void onRequestFailure(HttpException httpException)
 			{
-				String resString = new String(byteArray);
-				bytesUploaded = Integer.parseInt(resString) + 1;
-				if (bytesUploaded <= 0)
+				exception = httpException;
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				try
 				{
-					X_SESSION_ID = UUID.randomUUID().toString();
-					bytesUploaded = 0;
+					byte[] byteArray = (byte[]) result.getBody().getContent();
+					if (byteArray != null)
+					{
+						String resString = new String(byteArray);
+						bytesUploaded = Integer.parseInt(resString) + 1;
+						if (bytesUploaded <= 0)
+						{
+							X_SESSION_ID = UUID.randomUUID().toString();
+							bytesUploaded = 0;
+						}
+					}
+				}
+				catch (NumberFormatException ex)
+				{
+					Logger.e(getClass().getSimpleName(), "NumberFormatException while getting bytes uploaded from server : ", ex);
 				}
 			}
-		}
-		catch (NumberFormatException ex)
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+		});
+		requestToken.execute();
+
+		if (exception != null)
 		{
-			Logger.e(getClass().getSimpleName(), "NumberFormatException while getting bytes uploaded from server : ", ex);
+			throw exception;
 		}
+
 		return bytesUploaded;
 	}
 
