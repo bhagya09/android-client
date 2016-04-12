@@ -59,6 +59,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -2642,15 +2643,22 @@ public class PlatformUtils
 
 	public static String getFileUploadJson(Intent data)
 	{
-		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
 
-		if(TextUtils.isEmpty(filepath))
+		if (TextUtils.isEmpty(filepath))
 		{
-			Logger.e("FileUpload","Invalid file Path");
+			// Could be from crop activity
+			filepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+		}
+
+		if (TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload", "Invalid file Path");
 			return "";
 		}
 		else
 		{
+			filepath = filepath.toLowerCase();
 			Logger.d("FileUpload", "Path of selected file :" + filepath);
 			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
 			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
@@ -2670,6 +2678,7 @@ public class PlatformUtils
 			}
 
 		}
+
 	}
 
 	/**
