@@ -1616,6 +1616,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		else if (mAdapter.getChatThemeId() != themeId)
 		{
+			removeChatThemeFromCache();
 			Logger.i(TAG, "update ui for theme " + themeId);
 			if (mAdapter.getChatThemeId() == ChatThemeManager.getInstance().defaultChatThemeId)
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
