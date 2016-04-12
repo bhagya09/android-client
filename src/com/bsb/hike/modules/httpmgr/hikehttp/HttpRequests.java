@@ -354,18 +354,6 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken kptLanguageDictionaryZipDownloadRequest(String filePath, String url, IRequestListener requestListener)
-	{
-		RequestToken requestToken = new FileRequest.Builder()
-				.setUrl(url)
-				.setFile(filePath)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
-
 	public static RequestToken getPlatformFetchRequest(String url, IRequestListener requestListener, List<Header> headers)
 	{
 		RequestToken requestToken = new JSONArrayRequest.Builder()
@@ -1161,6 +1149,34 @@ public class HttpRequests
 		return requestToken;
 
 	}
+	public static RequestToken platformPostRequest(String url, JSONObject json,List<Header> headers, IRequestListener requestListener)
+	{
+		if(json==null)
+		{
+			RequestToken requestToken = new StringRequest.Builder()
+					.setUrl(url)
+					.setRequestType(Request.REQUEST_TYPE_SHORT)
+					.addHeader(headers)
+					.setRequestListener(requestListener)
+					.build();
 
+			return requestToken;
+		}
+		else
+		{
+			JsonBody body = new JsonBody(json);
+			RequestToken requestToken = new StringRequest.Builder()
+					.setUrl(url)
+					.setRequestType(Request.REQUEST_TYPE_SHORT)
+					.addHeader(PlatformUtils.getHeaders())
+					.setRequestListener(requestListener)
+					.post(body)
+					.build();
+
+			return requestToken;
+		}
+
+
+	}
 
 }

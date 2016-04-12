@@ -190,5 +190,26 @@ public class HikeAnalyticsEvent
 			e.printStackTrace();
 		}
 	}
-	
+
+	public static void analyticsForUserProfileOpen(String userMsisdn, String source)
+	{
+		try
+		{
+			JSONObject analyticsObj = new JSONObject();
+			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			analyticsObj.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);
+			analyticsObj.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			analyticsObj.put(AnalyticsConstants.V2.GENUS, source);
+			analyticsObj.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
+
+			HAManager.getInstance().recordV2(analyticsObj);
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

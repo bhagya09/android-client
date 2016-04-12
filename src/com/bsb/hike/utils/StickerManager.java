@@ -304,9 +304,15 @@ public class StickerManager
 	{
 		stickerCategoriesMap = Collections.synchronizedMap(new LinkedHashMap<String, StickerCategory>());
 		context = HikeMessengerApp.getInstance();
-		String externalDir = Utils.getExternalFilesDirPath(null);
-		stickerExternalDir = Utils.doesExternalDirExists() ?  (externalDir + HikeConstants.STICKERS_ROOT) : null;
+		stickerExternalDir = getStickerExternalDirFilePath();
 		logStickerFolderError();
+	}
+
+	private String getStickerExternalDirFilePath()
+	{
+		String externalDir = Utils.getExternalFilesDirPath(null);
+		String stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
+		return stickerExternalDir;
 	}
 
 	public void doInitialSetup()
@@ -3205,6 +3211,11 @@ public class StickerManager
 
 	public boolean isStickerFolderError()
 	{
+		if(TextUtils.isEmpty(stickerExternalDir))
+		{
+			stickerExternalDir = getStickerExternalDirFilePath();
+		}
+
 		return TextUtils.isEmpty(stickerExternalDir);
 	}
 

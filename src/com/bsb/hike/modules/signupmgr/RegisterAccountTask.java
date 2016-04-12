@@ -98,10 +98,6 @@ public class RegisterAccountTask
 				{
 					Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
 				}
-				if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-				{
-					Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
-				}
 
 
 				Logger.d("HTTP", "Successfully created account. response:" + response);

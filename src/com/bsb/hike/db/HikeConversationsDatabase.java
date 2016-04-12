@@ -1,5 +1,25 @@
 package com.bsb.hike.db;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -332,10 +352,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0,"//bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0, " //by default ... its hould be 0 as not any trigger point
+				+ HIKE_CONTENT.CLIENT_ID + " TEXT, "  
+				+ HIKE_CONTENT.CLIENT_HASH + " TEXT "  
 				+ ")";
 		db.execSQL(sql);
-
 		sql = getActionsTableCreateQuery();
 		db.execSQL(sql);
 		
@@ -351,6 +373,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		
 		db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 		db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
+
+		sql = getURLTableCreateStatement();
+		db.execSQL(sql);
 
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
@@ -388,6 +413,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
+		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
 	}
 
@@ -953,10 +979,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
 				db.execSQL(sqlIndex);
 			}
+		
 		}
 
-        if(oldVersion < 49)
+		if(oldVersion < 49)
         {
+			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0";
+			db.execSQL(alter);
+
+			String sql = getURLTableCreateStatement();
+			db.execSQL(sql);
+
+			sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+			db.execSQL(sql);
+			
+			sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.CLIENT_ID + " TEXT";
+			db.execSQL(sql);
+			
+			sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.CLIENT_HASH + " TEXT";
+			db.execSQL(sql);
+
             if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.CATEGORY_DESCRIPTION))
 			{
 				String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.CATEGORY_DESCRIPTION + " TEXT";
@@ -1018,7 +1060,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(alter4);
 			}
 
-			String sql = getStickerTableCreateQuery();
+			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
@@ -3196,8 +3238,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
+		values.put(HIKE_CONTENT.BOT_TRIGGER_POINT, botInfo.getTriggerPointFormenu());
+		values.put(HIKE_CONTENT.CLIENT_ID, botInfo.getClientId());
+		values.put(HIKE_CONTENT.CLIENT_HASH, botInfo.getClientHash());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -8292,6 +8336,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
 
+    /**
+     * Utility method to Update the config data in BotTable
+     *
+     * @param msisdn
+     * @param metadata
+     */
+    public void updateBotMetaData(String botMsisdn, String metadata)
+    {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONVERSATION_METADATA, metadata);
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+    }
+
 	/**
 	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
 	 * multiple entries. It is having key as the timestamp and value as the notifData given at certain time.
@@ -8485,8 +8542,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8521,6 +8577,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 			int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+			int triggerIdx = c.getColumnIndex(HIKE_CONTENT.BOT_TRIGGER_POINT);
+			int clientIdIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_ID);
+			int clientHashIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_HASH);
 
 			if (c.moveToFirst())
 			{
@@ -8534,8 +8593,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
+				int trigger = c.getInt(triggerIdx);
+				String clientId = c.getString(clientIdIdx);
+				String clientHash = c.getString(clientHashIdx);
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setTriggerPoint(trigger).setClientid(clientId).setClientHash(clientHash).build();
+               
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
@@ -8566,6 +8629,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 		int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 		int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+		int triggerIdx = c.getColumnIndex(HIKE_CONTENT.BOT_TRIGGER_POINT);
+		int clientIdIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_ID);
+		int clientHashIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_HASH);
 
 		String name = c.getString(nameIdx);
 		int config = c.getInt(configurationIdx);
@@ -8577,8 +8643,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String notifData = c.getString(notifDataIdx);
 		String helperData = c.getString(helperDataIdx);
 		int version = c.getInt(versionIdx);
+		int trigger = c.getInt(triggerIdx);
+		String clientId = c.getString(clientIdIdx);
+		String clientHash = c.getString(clientHashIdx);
+	   int mAppVersionCode = 0;
+        // Keeping default bot type as web micro apps
+        byte nmBotType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+		// Get mAppVersionCode from the metadata to store in Bot Info Object
+		if (!TextUtils.isEmpty(metadata))
+		{
+			try
+			{
+				JSONObject mdJsonObject = new JSONObject(metadata);
+
+				if (mdJsonObject != null)
+				{
+                    String nonMessagingBotType = mdJsonObject.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE);
+
+                    if(!TextUtils.isEmpty(nonMessagingBotType) && nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE))
+                        nmBotType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					if (cardObjectJson != null)
+						mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+        
 		BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setMAppVersionCode(mAppVersionCode).setBotType(nmBotType).setTriggerPoint(trigger).setClientid(clientId).setClientHash(clientHash).build();
 
 		botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		return botInfo;
@@ -8889,7 +8987,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-				DatabaseUtils.sqlEscapeString(objectType));
+                DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -9133,7 +9231,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
 
-
 	/**
 	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.
 	 * @param msgHash
@@ -9292,6 +9389,76 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return -1;
 	}
+	//Sql statement to maintain Infra URL table
+
+	private String getURLTableCreateStatement()
+	{
+		return CREATE_TABLE + DBConstants.URL_TABLE
+				+ " ("
+				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
+				+ DBConstants.URL + " TEXT , "        //URL THAT IS RELATED TO THIS KEY.
+				+ DBConstants.LIFE + " INTEGER"       //This column specifies if the particular service access token is short lived(0) or long lived(1).
+				+  ")";
+	}
+	// Function to insert URL in URL table in an encrypted manner
+
+	public long insertURL(String urlKey, String url, int life)
+	{
+		try
+		{
+			java.net.URL u = new java.net.URL(url);
+		}
+		catch (MalformedURLException e)
+		{
+			return -1;
+		}
+		try
+		{
+
+			ContentValues values = new ContentValues();
+			values.put(DBConstants.URL_KEY, urlKey);
+			values.put(DBConstants.URL, Utils.encrypt(url));
+			values.put(DBConstants.LIFE, life);
+			return mDb.insertWithOnConflict(DBConstants.URL_TABLE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+		}
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Error in Inserting URL " + e.toString());
+			return -1;
+		}
+	}
+
+	// Function to get URL and returns decrypted URL
+
+	public Cursor getURL(String urlKey)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL, DBConstants.LIFE }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
+
+			if (!c.moveToFirst())
+			{
+				return null;
+			}
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.e(getClass().getSimpleName(), "Exception in getURL", e);
+		}
+	
+		return c;
+
+
+	}
+
+	public void deleteURL(String urlKey)
+	{
+		mDb.delete(DBConstants.URL_TABLE, DBConstants.URL_KEY + "=?", new String[]{urlKey});
+	}
+
 
 	public void markAllCategoriesAsDownloaded()
 	{

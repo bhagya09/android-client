@@ -433,7 +433,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					throw new IllegalArgumentException("You are not sending msisdn, and yet you expect to send files ?");
 				}
 
-				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false);
+				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false, ChatThreadActivity.ChatThreadOpenSources.FILE_SHARING);
 				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
 				Utils.executeAsyncTask(fileTransferTask);
 
