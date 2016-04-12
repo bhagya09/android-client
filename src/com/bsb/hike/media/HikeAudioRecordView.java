@@ -74,7 +74,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private LinearLayout slideToCancel;
     private ImageView rectBgrnd;
     private ViewStub waverMic;
-    private float walkieSize;
     private PopupWindow popup_l;
     private int DELETE_TRIGGER_DELTA; //Delta for which the delete/cancel option appears
     private int DELETE_REVERT_TRIGGER_DELTA; //Delta for which the delete/cancel option disappears back
@@ -98,7 +97,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
         DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
-        walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
         DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.80);
     }
 
