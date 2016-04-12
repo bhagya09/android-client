@@ -1630,10 +1630,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	private void removeChatThemeFromCache()
 	{
-		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatTheme().bgId() + getOrientationPrefix()) != null)
+		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatThemeId() + getOrientationPrefix()) != null)
 		{
 			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
-			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatTheme().bgId());
+			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatThemeId());
 		}
 	}
 

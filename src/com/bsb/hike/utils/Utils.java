@@ -8066,16 +8066,6 @@ public class Utils
 		}
 	}
 
-<<<<<<< HEAD
-	public static String repeatString(String repeat, int repeatCount)
-	{
-		StringBuilder repeatedString = new StringBuilder();
-
-		for(int i=0;i<repeatCount;i++)
-			repeatedString.append(repeat);
-
-		return repeatedString.toString();
-=======
 	public static boolean kptDictionaryDownloaded(Context context) {
 
 		File hikeDir = context.getExternalFilesDir(null);
@@ -8468,7 +8458,15 @@ public class Utils
 			Toast toast = Toast.makeText(context, "Update failed", duration);
 			toast.show();
 		}
->>>>>>> fd73dfaa4d214837ce076389e77f584ef28e6ce1
+	}
+
+	public static String repeatString(String repeat, int repeatCount) {
+		StringBuilder repeatedString = new StringBuilder();
+
+		for (int i = 0; i < repeatCount; i++)
+			repeatedString.append(repeat);
+
+		return repeatedString.toString();
 	}
 }
 
