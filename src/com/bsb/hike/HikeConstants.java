@@ -1382,6 +1382,8 @@ public class HikeConstants
 
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
+	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
@@ -2648,6 +2650,9 @@ public class HikeConstants
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
 		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
+
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
+
 	}
 
 	public static final class Toast

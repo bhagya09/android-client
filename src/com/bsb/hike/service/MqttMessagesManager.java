@@ -2883,7 +2883,6 @@ public class MqttMessagesManager
 			boolean enable = data.getBoolean(HikeConstants.HTTP_NETWORK_CHECK_CALL);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HTTP_NETWORK_CHECK_CALL, enable);
 		}
-
 		if (data.has(HikePlatformConstants.CUSTOM_TABS))
 		{
 			boolean enable = data.getBoolean(HikePlatformConstants.CUSTOM_TABS);
@@ -3020,7 +3019,11 @@ public class MqttMessagesManager
 			int journalModeIndex = data.getInt(HikeConstants.JOURNAL_MODE_INDEX);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.JOURNAL_MODE_INDEX, journalModeIndex);
 		}
-
+		if (data.has(HikeConstants.WT_1_REVAMP_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
+			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
