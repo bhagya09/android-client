@@ -18,7 +18,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -342,7 +345,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 break;
             case DO_CANCEL_ANIMATION:
                 recorderImg.setVisibility(View.INVISIBLE);
-                rectBgrnd.startAnimation(HikeAnimationFactory.getScaleInAnimation(0));
+                rectBgrnd.startAnimation(getCrossDissapearScaleInAnimation());
                 break;
             case DO_SCATTER_ANIMATION:
                 rectBgrnd.setVisibility(View.INVISIBLE);
