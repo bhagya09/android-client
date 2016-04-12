@@ -4063,7 +4063,6 @@ import java.util.Map;
 			/**
 			 * If the view was initially gone, we animate the label view in order to make lastSeenView visible
 			 */
-			{
 				Animation animation = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_anim);
 				tipView.startAnimation(animation);
 
@@ -4086,7 +4085,6 @@ import java.util.Map;
 						friendsFtueAnimationShown = true;
 					}
 				});
-			}
 		}
 	}
 }
