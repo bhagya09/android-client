@@ -41,7 +41,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -464,10 +463,6 @@ public class BotUtils
 					currentBotInfoMAppVersionCode = currentBotInfo.getMAppVersionCode();
 					currentBotVersionCode = currentBotInfo.getVersion();
 				}
-				else
-				{
-					currentBotInfo = botInfo;
-				}
 
 				// Get received cbot version details for comparison
 				if (jsonObj.has(HikePlatformConstants.BOT_VERSION))
@@ -479,8 +474,14 @@ public class BotUtils
 				if (cardObjectJson != null)
 					mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE, -1);
 
-				if (mAppVersionCode == -1 || mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
-						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode))
+				// Ignore the packet and send invalid bot analytics if packet does not contain mAppVersionCode field
+                if(mAppVersionCode == -1)
+                {
+                    PlatformUtils.invalidDataBotAnalytics(botInfo);
+                    return;
+                }
+                else if (currentBotInfo != null && (mAppVersionCode < currentBotInfoMAppVersionCode || botVersionCode < currentBotVersionCode
+						|| (mAppVersionCode == currentBotInfoMAppVersionCode && botVersionCode == currentBotVersionCode)))
 				{
                     /**
                      * If we are rejecting packet but enableBot is set as true for the same, we need to honour that scenario

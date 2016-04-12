@@ -68,11 +68,11 @@ public class BotChatThread extends OneToOneChatThread
 		super.initView();
 		if (!configuration.isInputEnabled())
 		{
-			activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
+			activity.findViewById(R.id.bottom_panel).setVisibility(View.GONE);
 		}
 		else
 		{
-			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
 
 		}
 	}
@@ -509,5 +509,11 @@ public class BotChatThread extends OneToOneChatThread
 	protected boolean isNotMyOneWayFriend()
 	{
 		return false;
+	}
+
+	@Override
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
+		return; //Do nothing
 	}
 }
