@@ -73,8 +73,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private ViewStub waverMic;
     private float walkieSize;
     private PopupWindow popup_l;
-    private int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
-    private int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
+    private int DELETE_TRIGGER_DELTA; //Delta for which the delete/cancel option appears
+    private int DELETE_REVERT_TRIGGER_DELTA; //Delta for which the delete/cancel option disappears back
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
@@ -94,9 +94,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         } else {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
-        LOWER_TRIGGER_DELTA = (int) (screenWidth * 0.80);//we change the recording img to delete
+        DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
         walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
-        HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);
+        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.80);
     }
 
     View inflatedLayoutView ;
@@ -216,8 +216,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             case MotionEvent.ACTION_MOVE:
                 if (recorderState == IDLE) return false;
                 Log.d(TAG, " action move occurred event.getX():: " + event.getX() + " :view get x:" + view.getX());
-                float x = event.getX();
-                x = x + view.getX();
+                float x = event.getX() + view.getX();
                 if (startedDraggingX != -1) {
                     float dist = (x - startedDraggingX);
                     float alpha = 1.0f + dist / distCanMove;
@@ -229,7 +228,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     slideToCancel.setAlpha(alpha);
                     if(dist <= 0.0f) recorderImg.setTranslationX(dist);
                 } else {
-                    if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
+                    if (event.getX() <= DELETE_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
                     if (distCanMove <= 0) {
                         distCanMove = DrawUtils.dp(80);
@@ -238,26 +237,23 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     }
                 }
                 float rawX = event.getRawX();
-                if (rawX <= LOWER_TRIGGER_DELTA) {
-                    if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, "  move slided in left direction: will call cancel now");
-                        slideLeftComplete();
-                        return true;
-                    } else {
-
-                        if(rectBgrnd.getVisibility() != View.VISIBLE) {
-                            rectBgrnd.setVisibility(View.VISIBLE);
-                            rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
-                        }
-                    }
-                } else {
+                if (rawX > DELETE_REVERT_TRIGGER_DELTA)
+                {
                     rectBgrnd.setVisibility(View.INVISIBLE);
+                }
+                else if (rawX <= DELETE_TRIGGER_DELTA)
+                {
+                    if(rectBgrnd.getVisibility() != View.VISIBLE) {
+                        rectBgrnd.setVisibility(View.VISIBLE);
+                        rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (recorderState == IDLE) return false;
                 startedDraggingX = -1;
-                if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
+                if (rectBgrnd .getVisibility() == View.VISIBLE)
+                {
                     Log.d(TAG, "   slided in left direction: will call cancel now" );
                     slideLeftComplete();
                     return true;
