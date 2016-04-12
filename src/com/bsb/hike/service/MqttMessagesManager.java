@@ -98,7 +98,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
-import com.bsb.hike.spaceManager.StorageSpecUtils;
+import com.bsb.hike.spaceManager.SpaceManagerUtils;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -2931,7 +2931,7 @@ public class MqttMessagesManager
 				if(data.has(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST))
 				{
 					JSONArray dirList = data.getJSONArray(HikeConstants.SPACE_MANAGER.DIRECTORY_LIST);
-					StorageSpecUtils.processDirectoryList(dirList);
+					SpaceManagerUtils.processDirectoryList(dirList);
 				}
 			}
 		}

@@ -23,7 +23,7 @@ import java.util.Map;
  * Provides directory/file size as requested via packet from server.
  *
  */
-public class StorageSpecUtils
+public class SpaceManagerUtils
 {
     private static final String HIKE_STORAGE_INTERNAL = "internal";
 

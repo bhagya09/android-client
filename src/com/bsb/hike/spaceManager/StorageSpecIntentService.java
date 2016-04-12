@@ -1,11 +1,8 @@
 package com.bsb.hike.spaceManager;
 
-import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.customClasses.HikeIntentService;
 
@@ -64,21 +61,21 @@ public class StorageSpecIntentService extends HikeIntentService
 
     private void customDirectoryAnalytics(String dirPath, boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordDirectoryAnalytics(dirPath, shouldMapContainedFiles);
+        SpaceManagerUtils.recordDirectoryAnalytics(dirPath, shouldMapContainedFiles);
     }
 
     private void internalStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordInternalHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordInternalHikeDirAnalytics(shouldMapContainedFiles);
     }
 
     private void externalStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordExternalHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordExternalHikeDirAnalytics(shouldMapContainedFiles);
     }
 
     private void sharedStorageAnalytics(boolean shouldMapContainedFiles)
     {
-        StorageSpecUtils.recordSharedHikeDirAnalytics(shouldMapContainedFiles);
+        SpaceManagerUtils.recordSharedHikeDirAnalytics(shouldMapContainedFiles);
     }
 }
