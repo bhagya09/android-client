@@ -217,6 +217,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
+
+	private boolean wasHomeScreenRestored = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -1510,8 +1512,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 								showCorruptDBRestoreDialog();
 							}
 
-							invalidateOptionsMenu();
-							initialiseHomeScreen(null);
+							reInitHomeScreen();
 						}
 					});
 				}
@@ -2589,8 +2590,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		app.connectToService();
 
 		// Set up the home screen
-		invalidateOptionsMenu();
-		initialiseHomeScreen(null);
+		wasHomeScreenRestored = false;
+		reInitHomeScreen();
 	}
 
 	private void showRestoreInProcessDialog()
@@ -2619,4 +2620,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showCorruptDBRestoreDialog();
 		}
 	}
+
+	private void reInitHomeScreen()
+	{
+		if (wasHomeScreenRestored) //This flag will prevent the homescreen from doing all the heavy work again if it has already been initialized
+		{
+			return;
+		}
+
+		wasHomeScreenRestored = true;
+
+		initialiseHomeScreen(null);
+		invalidateOptionsMenu();
+	}
+
 }
