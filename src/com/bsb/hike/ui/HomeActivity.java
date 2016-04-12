@@ -727,7 +727,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try
 		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
@@ -1251,9 +1250,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onBackPressed()
 	{
-		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
-		// Instead the activity was exiting.
-		// The following change checks if search mode is still there, and take s action accordingly
+		// The following change checks if search mode is still there, and takes action accordingly
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			searchMenuItem.collapseActionView();
