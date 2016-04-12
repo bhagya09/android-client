@@ -66,6 +66,7 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -3533,6 +3534,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		/**
 		 * Other click cases
 		 */
+
+		// Eating the click event when the WT recording is in progress
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+			boolean isWTShowing = ((ChatThreadActivity)mActivity).isWalkieTalkieShowing();
+			if(isWTShowing) return;
+		}
 		ConvMessage convMessage = (ConvMessage) v.getTag();
 		if (convMessage == null)
 		{

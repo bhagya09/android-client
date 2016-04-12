@@ -380,7 +380,11 @@ import java.util.Map;
 				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
-		
+
+		if(item.getItemId() != android.R.id.home) {
+			if(isWalkieTalkieShowing()) return true;
+		}
+
 		switch (item.getItemId())
 		{
 			case R.id.voip_call:
@@ -4036,6 +4040,13 @@ import java.util.Map;
 	{
 		JSONObject json = super.getChatThreadOpenJSON();
 
+		addFavoriteTypeTypeFromContactInfo(json);
+
+		return json;
+	}
+
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
 		try
 		{
 			json.put(AnalyticsConstants.V2.GENUS, mContactInfo.getFavoriteType().toString());
@@ -4046,7 +4057,6 @@ import java.util.Map;
 			e.printStackTrace();
 		}
 
-		return json;
 	}
 
 	@Override
