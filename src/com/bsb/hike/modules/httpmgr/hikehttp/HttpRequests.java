@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1215,6 +1216,21 @@ public class HttpRequests
 				.put(body)
 				.build();
 		requestToken.getRequestInterceptors().addFirst("uploadContactOrLocationPreProcess", interceptor);
+		return requestToken;
+	}
+
+	public static RequestToken uploadChunk(URL url, byte[] fileBytes, String BOUNDARY, List<Header> headers, String id, IRequestListener listener)
+	{
+		ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + BOUNDARY, fileBytes);
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.post(body)
+				.setId(id)
+				.setHeaders(headers)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
+				.setAsynchronous(false)
+				.build();
 		return requestToken;
 	}
 }

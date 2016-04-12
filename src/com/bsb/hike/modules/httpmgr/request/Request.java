@@ -254,6 +254,11 @@ public abstract class Request<T> implements IRequestFacade
 		return md5Id;
 	}
 
+	public String getCustomId()
+	{
+		return defaultId;
+	}
+
 	/**
 	 * Returns the analytics key for this request
 	 * 

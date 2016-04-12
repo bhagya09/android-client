@@ -12,8 +12,10 @@ import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
-import com.bsb.hike.modules.httpmgr.request.requestbody.ByteArrayBody;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -46,6 +48,10 @@ public class FileUploadRequest extends Request<JSONObject>
 	private IGetChunkSize chunkSizePolicy;
 
 	private final int DEFAULT_CHUNK_SIZE = 4 * 1024;
+
+	private Response response;
+
+	private HttpException exception;
 
 	private FileUploadRequest(Init<?> init)
 	{
@@ -192,7 +198,6 @@ public class FileUploadRequest extends Request<JSONObject>
 			// main data of file to be uploaded will be added in below while loop
 			byte[] fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
 
-			Response response = null;
 			getState().setSessionId(X_SESSION_ID);
 			getState().setFTState(FTState.IN_PROGRESS);
 			publishProgress((float) bytesTransferred / length);
@@ -213,20 +218,19 @@ public class FileUploadRequest extends Request<JSONObject>
 					break;
 				}
 
-				ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + BOUNDARY, fileBytes);
 				String contentRange = "bytes " + start + "-" + end + "/" + length;
 				List<Header> headers = getFileUploadHeaders(srcFile, contentRange);
-				headers.addAll(getHeaders()); // getting headers from main file upload request
+				headers.addAll(getHeaders());
 
-				ByteArrayRequest request = new ByteArrayRequest.Builder()
-						.setUrl(this.getUrl())
-						.post(body)
-						.setHeaders(headers)
-						.setAsynchronous(false)
-						.buildRequest();
+				response = null;
+				exception = null;
+				RequestToken token = HttpRequests.uploadChunk(this.getUrl(), fileBytes, BOUNDARY, headers, getCustomId() + contentRange, getUploadChunkRequestListener());
+				token.execute();
 
-				DefaultHeaders.applyDefaultHeaders(request);
-				response = client.execute(request);
+				if (exception != null)
+				{
+					throw exception;
+				}
 
 				if (end == (length - 1) && response != null)
 				{
@@ -265,7 +269,6 @@ public class FileUploadRequest extends Request<JSONObject>
 
 				// update state in state file
 				bytesTransferred += chunkSize;
-				// this.setState(new FileSavedState(FTState.IN_PROGRESS, (long) length, bytesTransferred, X_SESSION_ID, null, 0));
 				this.getState().setTransferredSize(bytesTransferred);
 				FileSavedState fss = new FileSavedState(getState());
 				fss.setFTState(FTState.ERROR);
@@ -321,6 +324,25 @@ public class FileUploadRequest extends Request<JSONObject>
 		}
 	}
 
+	private IRequestListener getUploadChunkRequestListener()
+	{
+		return new IRequestListener() {
+			@Override
+			public void onRequestFailure(HttpException httpException) {
+				exception = httpException;
+			}
+
+			@Override
+			public void onRequestSuccess(Response result) {
+				response = result.clone();
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress) {
+
+			}
+		};
+	}
 	private int getBytesUploadedFromServer(IClient client) throws Throwable
 	{
 		int bytesUploaded = 0;
