@@ -41,7 +41,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Button;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -3756,7 +3755,7 @@ import java.util.Map;
 			checkAndStartLastSeenTask();
 		}
 
-		removeAddFriendViews();
+		removeAddFriendViews(viewResId == R.id.add_friend_ftue_button);
 
 		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
 	}
@@ -3835,22 +3834,29 @@ import java.util.Map;
 				hideLastSeenText();
 			}
 
-			// Definitely show the compose container
-			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
-
-			// If add Friend View was previously there, now is a good time to hide it
-			if (activity.findViewById(R.id.add_friend_view) != null)
+			View addFriendView = activity.findViewById(R.id.add_friend_view);
+			// Check if there's any anim going on for the ftue view
+			if (!isThereAnyAnimationOnFriendsFtue(addFriendView))
 			{
-				activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+				addFriendView.setVisibility(View.GONE);
 			}
 		}
 	}
 
-	private void removeAddFriendViews()
+	private void removeAddFriendViews(boolean isFtueView)
 	{
-		activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+		if (isFtueView)
+		{
+			animateAndHideFriendsFtueTip();
+		}
 
-		activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+		else
+		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+		}
 		
 		decrementFriendsFTUECountIfNeeded();
 	}
@@ -4086,5 +4092,55 @@ import java.util.Map;
 					}
 				});
 		}
+	}
+
+	private void animateAndHideFriendsFtueTip()
+	{
+		final View ftueView = activity.findViewById(R.id.add_friend_view);
+
+		final View tipView = ftueView.findViewById(R.id.ftue_friends_tips);
+
+		final View bottomView = ftueView.findViewById(R.id.add_friend_ftue_button);
+
+		Animation fadeOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_fade_out);
+
+		final Animation alphaOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_alpha_out);
+
+		tipView.setAnimation(fadeOutAnim);
+		tipView.startAnimation(fadeOutAnim);
+
+		fadeOutAnim.setAnimationListener(new AnimationListener()
+		{
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				bottomView.startAnimation(alphaOutAnim);
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				ftueView.setVisibility(View.GONE);
+				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			}
+	
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+		});
+	}
+
+	private boolean isThereAnyAnimationOnFriendsFtue(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView == null || tipView.getAnimation() == null || tipView.getAnimation().hasEnded())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

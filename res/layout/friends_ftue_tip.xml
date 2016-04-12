@@ -48,17 +48,19 @@
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="#14000000"/>
-
     <LinearLayout
         android:id="@+id/add_friend_ftue_button"
         android:layout_width="match_parent"
-        android:layout_height="49dp"
+        android:layout_height="49.5dp"
         android:background="@color/white"
+        android:orientation="vertical"
         android:gravity="center">
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#14000000"/>
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/add_friend_button_tv"
