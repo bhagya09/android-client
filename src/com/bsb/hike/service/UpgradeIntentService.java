@@ -40,7 +40,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 
 			// fire the pubsub event to let the HomeActivity class know that the
@@ -55,7 +54,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
 		
@@ -66,7 +64,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
 		
@@ -76,7 +73,6 @@ public class UpgradeIntentService extends IntentService
 			{
 				Editor editor = prefs.edit();
 				editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -86,7 +82,6 @@ public class UpgradeIntentService extends IntentService
 			upgradeForStickerShopVersion1();
 			Editor editor = prefs.edit();
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
 		
@@ -96,7 +91,6 @@ public class UpgradeIntentService extends IntentService
 			{
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -109,7 +103,6 @@ public class UpgradeIntentService extends IntentService
 				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -133,11 +126,15 @@ public class UpgradeIntentService extends IntentService
 				Logger.v(TAG, "Upgrade for sticker table was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
                 StickerManager.getInstance().doInitialSetup();
 			}
 		}
+
+        // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+        Editor editor = prefs.edit();
+        editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+        editor.apply();
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);

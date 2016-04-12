@@ -780,6 +780,12 @@ public class HikeConstants
 		public static final String DELETE = "dl";
 	}
 
+	public static final String CONTACT_UPDATE = "cntct_no";
+
+	public static final String CONTACT_NAME = "cntct_nm";
+	
+	public static final String CONTACT_NUMBER_OLD = "cntct_no_old";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -1375,6 +1381,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 
 	public static final String VOIP_RATINGS_LEFT = "vrl";
+
+	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
 	public static final class ChatHead
 	{
@@ -2644,6 +2652,9 @@ public class HikeConstants
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
 		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
+
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
+
 	}
 
 	public static final class Toast
@@ -4116,4 +4127,6 @@ public class HikeConstants
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
+
+	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 }
