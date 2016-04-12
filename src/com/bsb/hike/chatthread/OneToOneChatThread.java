@@ -2741,7 +2741,7 @@ import java.util.Map;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
 			break;
-		case R.id.add_friend_button:
+		case R.id.add_friend_view:
 		case R.id.add_friend_ftue_button:
 			handleAddFavoriteButtonClick(v.getId());
 			break;
