@@ -304,7 +304,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         doVibration(50);
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
-        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(500).setListener(getAnimationListener()).start();
+        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(10)).setDuration(200).setListener(getAnimationListener()).start();
         sendAnalyticsUserCancelledRecording();
     }
 
