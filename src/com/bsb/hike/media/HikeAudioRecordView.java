@@ -18,7 +18,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -71,10 +74,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private LinearLayout slideToCancel;
     private ImageView rectBgrnd;
     private ViewStub waverMic;
-    private float walkieSize;
     private PopupWindow popup_l;
-    private int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
-    private int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
+    private int DELETE_TRIGGER_DELTA; //Delta for which the delete/cancel option appears
+    private int DELETE_REVERT_TRIGGER_DELTA; //Delta for which the delete/cancel option disappears back
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
@@ -94,9 +96,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         } else {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
-        LOWER_TRIGGER_DELTA = (int) (screenWidth * 0.80);//we change the recording img to delete
-        walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
-        HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);
+        DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
+        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.80);
     }
 
     View inflatedLayoutView ;
@@ -216,8 +217,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             case MotionEvent.ACTION_MOVE:
                 if (recorderState == IDLE) return false;
                 Log.d(TAG, " action move occurred event.getX():: " + event.getX() + " :view get x:" + view.getX());
-                float x = event.getX();
-                x = x + view.getX();
+                float x = event.getX() + view.getX();
                 if (startedDraggingX != -1) {
                     float dist = (x - startedDraggingX);
                     float alpha = 1.0f + dist / distCanMove;
@@ -229,7 +229,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     slideToCancel.setAlpha(alpha);
                     if(dist <= 0.0f) recorderImg.setTranslationX(dist);
                 } else {
-                    if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
+                    if (event.getX() <= DELETE_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
                     if (distCanMove <= 0) {
                         distCanMove = DrawUtils.dp(80);
@@ -238,26 +238,23 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     }
                 }
                 float rawX = event.getRawX();
-                if (rawX <= LOWER_TRIGGER_DELTA) {
-                    if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, "  move slided in left direction: will call cancel now");
-                        slideLeftComplete();
-                        return true;
-                    } else {
-
-                        if(rectBgrnd.getVisibility() != View.VISIBLE) {
-                            rectBgrnd.setVisibility(View.VISIBLE);
-                            rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
-                        }
-                    }
-                } else {
+                if (rawX > DELETE_REVERT_TRIGGER_DELTA)
+                {
                     rectBgrnd.setVisibility(View.INVISIBLE);
+                }
+                else if (rawX <= DELETE_TRIGGER_DELTA)
+                {
+                    if(rectBgrnd.getVisibility() != View.VISIBLE) {
+                        rectBgrnd.setVisibility(View.VISIBLE);
+                        rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (recorderState == IDLE) return false;
                 startedDraggingX = -1;
-                if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
+                if (rectBgrnd .getVisibility() == View.VISIBLE)
+                {
                     Log.d(TAG, "   slided in left direction: will call cancel now" );
                     slideLeftComplete();
                     return true;
@@ -308,7 +305,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         doVibration(50);
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
-        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(9)).setDuration(500).setListener(getAnimationListener()).start();
+        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(9)).setDuration(200).setListener(getAnimationListener()).start();
         sendAnalyticsUserCancelledRecording();
     }
 
@@ -346,7 +343,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 break;
             case DO_CANCEL_ANIMATION:
                 recorderImg.setVisibility(View.INVISIBLE);
-                rectBgrnd.startAnimation(HikeAnimationFactory.getScaleInAnimation(0));
+                rectBgrnd.startAnimation(getCrossDissapearScaleInAnimation());
                 break;
             case DO_SCATTER_ANIMATION:
                 rectBgrnd.setVisibility(View.INVISIBLE);
@@ -361,14 +358,28 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
+    public static Animation getCrossDissapearScaleInAnimation()
+    {
+        AnimationSet animSet = new AnimationSet(true);
+        float a = 1f;
+        float pivotX = 0.5f;
+        float pivotY = 0.75f;
+
+        Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+        anim0.setDuration(200);
+        animSet.addAnimation(anim0);
+
+        return anim0;
+    }
+
     private void postCancelTask() {
         Message message = Message.obtain();
         message.what = DO_CANCEL_ANIMATION;
-        mHandler.sendMessageDelayed(message, 500);
+        mHandler.sendMessage(message);
 
         Message message1 = Message.obtain();
         message1.what = DO_SCATTER_ANIMATION;
-        mHandler.sendMessageDelayed(message1,700);
+        mHandler.sendMessageDelayed(message1,200);
     }
 
     private void postCancelMessage(){

@@ -144,7 +144,6 @@
 	<dimen name="mapp_download_dialog_icon_margin">36dp</dimen>
 	<dimen name="mapp_download_dialog_icon_margin_land">26dp</dimen>
 	<dimen name="keyboard_exit_ui">268dp</dimen>
-	<dimen name="walkie_mic_size">50dp</dimen>
 	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
 	<dimen name="slide_to_cancel_margin">30dp</dimen>
 	<dimen name="sticker_mini_loader">38dp</dimen>
