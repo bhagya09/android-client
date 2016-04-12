@@ -221,6 +221,8 @@ import java.util.Map;
 	private boolean gpsDialogShown = false;
 
 	private boolean shouldinitialteConnectionFragment=false;
+
+	boolean friendsFtueAnimationShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -2739,7 +2741,6 @@ import java.util.Map;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
 			break;
-		case R.id.add_friend_view:
 		case R.id.add_friend_button:
 			handleAddFavoriteButtonClick(v.getId());
 			break;
@@ -3894,6 +3895,34 @@ import java.util.Map;
 
 		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
 
+		setupAddFriendTextView(addFriendTv);
+
+	}
+
+	private void setupAddFriendFTUETipViews(View addFriendView)
+	{
+		addFriendView.setVisibility(View.VISIBLE);
+
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		addFriendView.findViewById(R.id.add_friend_button).setOnClickListener(this);
+
+		TextView ftueSubText = (TextView) addFriendView.findViewById(R.id.ftue_friends_subtitle);
+
+		ftueSubText.setText(activity.getString(R.string.friends_ftue_subtext, mContactInfo.getFirstName()));
+
+		setupAddFriendTextView(addFriendTv);
+
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (!friendsFtueAnimationShown)
+		{
+			animateFriendsFTUETip(tipView);
+		}
+	}
+
+	private void setupAddFriendTextView(TextView addFriendTv)
+	{
 		String btnText = getString(R.string.ADD_FRIEND);
 
 		if (mContactInfo.isFriendRequestReceivedForMe())
@@ -3902,33 +3931,6 @@ import java.util.Map;
 		}
 
 		addFriendTv.setText(btnText);
-	}
-
-	private void setupAddFriendFTUETipViews(View addFriendView)
-	{
-		addFriendView.setVisibility(View.VISIBLE);
-
-		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
-
-		TextView ftueSubText = (TextView) addFriendView.findViewById(R.id.ftue_friends_subtitle);
-
-		ftueSubText.setText(activity.getString(R.string.friends_ftue_subtext, mContactInfo.getFirstName()));
-
-		setupAddFriendButton(addFriendBtn);
-	}
-
-	private void setupAddFriendButton(Button addFriendBtn)
-	{
-		addFriendBtn.setOnClickListener(this);
-
-		String btnText = getString(R.string.ADD_FRIEND);
-
-		if (mContactInfo.isFriendRequestReceivedForMe())
-		{
-			btnText = getString(R.string.ACCEPT_REQUEST);
-		}
-
-		addFriendBtn.setText(btnText);
 	}
 
 	private void decrementFriendsFTUECountIfNeeded()
@@ -4046,5 +4048,44 @@ import java.util.Map;
 	{
 		if (!mConversation.isBlocked())
 			super.initKeyboardOffBoarding();
+	}
+
+	private void animateFriendsFTUETip(final View tipView)
+	{
+		if (tipView == null)
+		{
+			return;
+		}
+
+		if (tipView.getVisibility() == View.INVISIBLE)
+		{
+			/**
+			 * If the view was initially gone, we animate the label view in order to make lastSeenView visible
+			 */
+			{
+				Animation animation = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_anim);
+				tipView.startAnimation(animation);
+
+				animation.setAnimationListener(new AnimationListener()
+				{
+					@Override
+					public void onAnimationStart(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation)
+					{
+						tipView.setVisibility(View.VISIBLE);
+						friendsFtueAnimationShown = true;
+					}
+				});
+			}
+		}
 	}
 }
