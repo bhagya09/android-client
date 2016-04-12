@@ -1122,7 +1122,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() == FavoriteType.FRIEND)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() != FavoriteType.FRIEND)
 			|| status == null)
 		{
 			status = StatusMessage.getJoinedHikeStatus(contactInfo);
