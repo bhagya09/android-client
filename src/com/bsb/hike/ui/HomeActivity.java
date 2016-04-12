@@ -2132,6 +2132,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
+                case R.string.recharge_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
+					break;
+					
 				case R.string.timeline:
 					try
 					{
@@ -2261,6 +2267,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		}else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
 		}
 
 	}
