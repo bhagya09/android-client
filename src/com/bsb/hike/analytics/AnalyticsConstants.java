@@ -255,7 +255,7 @@ public class AnalyticsConstants
 
 		public static final String FAMILY = "fa";
 
-		public static final String GENUS = "f";
+		public static final String GENUS = "g";
 
 		public static final String SPECIES = "s";
 
