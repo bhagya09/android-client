@@ -357,14 +357,28 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
+    public static Animation getCrossDissapearScaleInAnimation()
+    {
+        AnimationSet animSet = new AnimationSet(true);
+        float a = 1f;
+        float pivotX = 0.5f;
+        float pivotY = 0.75f;
+
+        Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+        anim0.setDuration(200);
+        animSet.addAnimation(anim0);
+
+        return anim0;
+    }
+
     private void postCancelTask() {
         Message message = Message.obtain();
         message.what = DO_CANCEL_ANIMATION;
-        mHandler.sendMessageDelayed(message, 500);
+        mHandler.sendMessage(message);
 
         Message message1 = Message.obtain();
         message1.what = DO_SCATTER_ANIMATION;
-        mHandler.sendMessageDelayed(message1,700);
+        mHandler.sendMessageDelayed(message1,200);
     }
 
     private void postCancelMessage(){
