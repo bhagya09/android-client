@@ -54,7 +54,7 @@
         android:background="#14000000"/>
 
     <LinearLayout
-        android:id="@+id/add_friend_button"
+        android:id="@+id/add_friend_ftue_button"
         android:layout_width="match_parent"
         android:layout_height="49dp"
         android:background="@color/white"

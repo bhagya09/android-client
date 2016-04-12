@@ -2742,6 +2742,7 @@ import java.util.Map;
 			handleNetworkCardClick(false);
 			break;
 		case R.id.add_friend_button:
+		case R.id.add_friend_ftue_button:
 			handleAddFavoriteButtonClick(v.getId());
 			break;
 		default:
@@ -3747,7 +3748,7 @@ import java.util.Map;
 
 	private void handleAddFavoriteButtonClick(int viewResId)
 	{				//From FTUE?
-		addFavorite(viewResId == R.id.add_friend_button);
+		addFavorite(viewResId == R.id.add_friend_ftue_button);
 
 		//If now we can show the last seen, we should
 		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
@@ -3905,7 +3906,7 @@ import java.util.Map;
 
 		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
 
-		addFriendView.findViewById(R.id.add_friend_button).setOnClickListener(this);
+		addFriendView.findViewById(R.id.add_friend_ftue_button).setOnClickListener(this);
 
 		TextView ftueSubText = (TextView) addFriendView.findViewById(R.id.ftue_friends_subtitle);
 
