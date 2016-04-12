@@ -112,6 +112,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.lang.ref.WeakReference;
@@ -2512,6 +2513,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+
+        //reset dticker tables to default sticker set
+        StickerManager.getInstance().resetStickerTablesToDefault();
+
 		app.connectToService();
 
 		// Set up the home screen
