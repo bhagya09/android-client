@@ -17,6 +17,8 @@ public class AnalyticsConstants
 	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
+	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
+	public static final int DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD = 10; //10 events approx size: 1.5 KB, good enough to gzip and upload
 
 	/** Default maximum size per file in kilobytes */ 
 	public static long MAX_FILE_SIZE = 200; // 200KB
@@ -209,6 +211,8 @@ public class AnalyticsConstants
 
 	public static String MESSAGES_COUNT = "msg_count";
 
+    public static String CLICK_COUNT = "clk_count";
+
 	public static String TIME_TAKEN = "time";
 
 	public static String UPGRADE_EVENT = "upgrade";
@@ -223,6 +227,61 @@ public class AnalyticsConstants
 	public static String EVENT_USER_GOOGLE_ACCOUNTS = "evUsrGoogleAccs";
 
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
+	public static String FORWARD = "forward";
+	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+
+	public static String DOWNLOAD_PAUSED = "download_paused";
+	public static String DOWNLOAD_RESUMED = "download_resumed";
+	public static String PLATFORM_NOTIFICATION = "platform_notification";
+	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
+	public static String TTL_EXPIRED = "ttlExpired";
+
+	//Constants for v2 (Normalized Taxonomy)
+	public static final class V2
+	{
+		public static final String VERSION = "ver";
+
+		public static final String VERSION_VALUE = "v2";
+
+		public static final String UNIQUE_KEY = "uk";
+
+		public static final String KINGDOM = "k";
+
+		public static final String PHYLUM = "p";
+
+		public static final String CLASS = "c";
+
+		public static final String ORDER = "o";
+
+		public static final String FAMILY = "fa";
+
+		public static final String GENUS = "g";
+
+		public static final String SPECIES = "s";
+
+		public static final String VARIETY = "v";
+
+		public static final String FORM = "f";
+
+		public static final String VAL_STR = "vs";
+
+		public static final String VAL_INT = "vi";
+
+		public static final String RECORD_ID = "r";
+
+		public static final String FROM_USER = "fu";
+
+		public static final String DEVICE_ID = "di";
+
+		public static final String REC_ID = "ri";
+
+		public static final String TO_USER = "tu";
+
+		public static final String USER_STATE = "us";
+
+		public static final String TS = "ts";
+	}
+
 	// Edit picture flags and events
 	public static final class ProfileImageActions
 	{	
@@ -475,7 +534,30 @@ public class AnalyticsConstants
 		public static final String DISABLE_TEXT = "dsblTxt";
 
 	}
-	
+
+	public static final class AutoApkEvents
+	{
+		public static final String RECEIVED_INITIAL_PING = "atapk_chk1";
+
+		public static final String MAKING_SERVER_HTTP_REQUEST = "atapk_rsp1";
+
+		public static final String SIZE_VALIDITY = "atapk_sz_vld";
+
+		public static final String UPDATE_VALIDITY = "atapk_up_vld";
+
+		public static final String NETWORK_VALIDITY = "atapk_nw_vld";
+
+		public static final String SERVER_RESPONSE_HTTP = "atapk_cnf";
+
+		public static final String RESUMING_DOWNLOAD = "atapk_resm";
+
+		public static final String INITIATING_DOWNLOAD = "atapk_init";
+
+		public static final String DOWNLOAD_COMPLETION = "atapk_cplt";
+
+		public static final String FILE_VALIDITY = "atapk_fl_vld";
+
+	}
 	
 	public static final class StickyCallerEvents
 	{
@@ -535,6 +617,8 @@ public class AnalyticsConstants
 		
 		public static final String CLOSE_BUTTON = "close";
 
+		public static final String CLOSE_SWIPE = "cls_swp";
+
 		public static final String CARD = "crd";
 
 		public static final String SAVE_CONTACT = "svCntct";
@@ -548,7 +632,24 @@ public class AnalyticsConstants
 		public static final String WRONG_JSON = "wrngJsn";
 
 		public static final String SMS_CARD_SETTINGS_TOGGLE = "smsStgTgl";
-		
+
+		public static final String AFTER_INCOMING_UNKNOWN = "aftInc";
+
+		public static final String AFTER_OUTGOING_UNKNOWN = "aftOut";
+
+		public static final String BLOCK = "blk";
+
+		public static final String BLOCK_LIST = "blkLst";
+
+		public static final String POSITIVE_CLICKED = "pos";
+
+		public static final String NEGATIVE_CLICKED = "neg";
+
+		public static final String BLOCK_DIALOG = "blkDlg";
+
+		public static final String UNBLOCK_DIALOG = "unblkDlg";
+
+
 	}
 	
 	public static String EVENT_SOURCE = "sr";
@@ -573,6 +674,10 @@ public class AnalyticsConstants
 	
 	public static final String BOT_NOTIF_TRACKER = "bno";
 	
+	public static final String BOT_VIA_MENU = "bvmenu";
+	
+	public static final String BOT_VIA_HOME_MENU = "home_menu";
+	
 	public static final String BOT_OPEN_SOURCE_DISC = "bot_discovery";
 	
 	public static final String BOT_OPEN_SOURCE_NOTIF = "bot_notif";
@@ -596,6 +701,8 @@ public class AnalyticsConstants
 	public static final String LOG_FIELD_1 = "fld1";
 
 	public static final String LOG_FIELD_2 = "fld2";
+
+    public static final String LOG_FIELD_3 = "fld3";
 
 	public static final String LOG_FIELD_4 = "fld4";
 	
@@ -628,6 +735,83 @@ public class AnalyticsConstants
 	public static final String DISCOVERY_BOT_TAP = "bd_tap";
 
 	public static final String USER_LOCATION = "location";
-	
+
+    public static final String PLATFORM_CONTENT_DIRECTORY = "platform_content_directory";
+
+    public static final String HIKE_MICRO_APPS_DIRECTORY = "hike_micro_apps_directory";
+
+    public static final String HIKE_WEB_MICRO_APPS_DIRECTORY = "hike_web_micro_apps_directory";
+
+    public static final String GAMES_DIRECTORY = "games_directory";
+
+    public static final String MAPPS_DIRECTORY = "mapps_directory";
+
+    public static final String POPUP_DIRECTORY = "popup_directory";
+
 	public static final String DATABASE_ERROR = "db_error";
+
+	public static final String DATABASE_AREA = "db";
+
+	public static final String SQLITE_PROPERTY = "sqlite_prop";
+
+	public static final class InterceptEvents
+	{
+		public static final String INTERCEPTS = "intrcpt";
+
+		public static final String INTERCPET_NOTIF_EVENT = "incNtf";
+
+		public static final String INTERCEPT_ACTION = "incActn";
+
+		public static final String INTERCEPT_SCREENSHOT = "incScrn";
+
+		public static final String INTERCEPT_IMAGE = "incImg";
+
+		public static final String INTERCEPT_VIDEO = "incVid";
+
+		public static final String INTERCEPT_NOTIF_CREATED = "incNtfCr";
+
+		public static final String INTERCEPT_SHARE_CLICKED = "incShrClk";
+
+		public static final String INTERCEPT_SET_DP_CLICKED = "incDPClk";
+
+		public static final String INTERCEPT_IMAGE_CLICKED = "incImgClk";
+
+		public static final String INTERCEPT_SETTING_TURNED_ON = "incStgOn";
+
+		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
+
+		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+	}
+
+    public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
+
+    public static final String MICROAPP_DISK_CONSUMPTION = "microapp_disk_consumption";
+
+    public static final String APP_UPDATE_TRIGGER = "app_updated";
+
+    public static final String MICROAPPS_MIGRATION_SUCCESS_TRIGGER = "microapps_migration_success";
+
+	public static String ANALYTICS_EXTRA = "analyticsExtra";
+
+	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
+
+	public static final String JUST_OPENED = "justOpened";
+	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
+	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
+
+	public static final String ACT_LOG_2 = "act_log2";
+
+	public static final String CHAT_OPEN = "chat_open";
+
+	public static final String ADD_FRIEND = "add_friend";
+
+	public static final String USER_TL_OPEN = "user_TL_open";
+
+    public static final String MIGRATION_FAILURE_ANALYTICS = "migration_failure";
+	public static final String PLATFORM_RICH_NOTIFS = "platformRichNotifs";
+	public static final String BITMAP_DOWNLOAD_SUCCESS = "success";
+	public static final String BITMAP_DOWNLOAD_UNSUCESSFULL = "fail";
+	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
+	public static final String REQUEST_FAILURE = "requestFailure";
+
 }

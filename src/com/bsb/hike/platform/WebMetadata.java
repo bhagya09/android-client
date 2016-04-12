@@ -220,4 +220,15 @@ public class WebMetadata
 	{
 		this.parentMsisdn = parentMsisdn;
 	}
+
+    public void setCardobj(JSONObject cardobj)
+    {
+        this.cardobj = cardobj;
+    }
+
+    public JSONObject getCardobj()
+    {
+        return cardobj;
+    }
+
 }

@@ -31,7 +31,7 @@ public class BootService extends BroadcastReceiver
 			return;
 		}		
 		
-		if(!Utils.isUserSignedUp(ctx.getApplicationContext(), false))
+		if(!Utils.shouldConnectToMQTT())
 		{
 			return;
 		}

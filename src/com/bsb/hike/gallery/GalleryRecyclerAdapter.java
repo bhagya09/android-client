@@ -80,17 +80,20 @@ public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 			holder.galleryName.setVisibility(View.GONE);
 			holder.galleryCount.setVisibility(View.GONE);
 		}
+
 		if (galleryItem != null)
 		{
 			if (galleryItem.getType() == GalleryItem.CUSTOM)
 			{
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_INSIDE);
+				holder.contentLayout.removeAllViews();
 				holder.contentLayout.addView(LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(
 						Utils.getLayoutIdFromName(galleryItem.getLayoutIDName()), null));
 				holder.contentLayout.setVisibility(View.VISIBLE);
 			}
 			else
 			{
+				holder.galleryThumb.setImageDrawable(null);
 				galleryImageLoader.loadImage(GalleryImageLoader.GALLERY_KEY_PREFIX + galleryItem.getFilePath(), holder.galleryThumb, isListFlinging);
 				holder.galleryThumb.setScaleType(ScaleType.CENTER_CROP);
 				holder.contentLayout.setVisibility(View.GONE);
@@ -121,6 +124,8 @@ public class GalleryRecyclerAdapter extends Adapter<GalleryViewHolder> {
 		holder.selected.setBackgroundResource(selectedScreen ? R.drawable.gallery_item_selected_selector : R.drawable.gallery_item_selector);
 		LayoutParams layoutParams = new LayoutParams(sizeOfImage, sizeOfImage);
 		holder.galleryThumb.setLayoutParams(layoutParams);
+
+		holder.contentLayout.setLayoutParams(layoutParams);
 
 		return holder;
 	}

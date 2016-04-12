@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1603"
-    android:versionName="4.2.0.7.internal_release" >
+    android:versionCode="1652"
+    android:versionName="4.2.5.9.sticker_sprint_18_3_16" >
 
-    <uses-sdk
+   <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
         tools:overrideLibrary = "android.support.customtabs"/>
@@ -136,6 +136,7 @@
             </intent-filter>
         </service>
         <service android:name=".service.UpgradeIntentService" />
+        <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -171,6 +172,11 @@
             android:name=".ui.AddFriendsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".ui.BlockCallerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
         </activity>
         <activity
             android:name=".ui.WelcomeActivity"
@@ -231,6 +237,7 @@
         </activity>
         <activity
             android:name=".cropimage.HikeCropActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Home.PhotoEditor" />
         
         <activity
@@ -248,8 +255,6 @@
         <activity
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
-        </activity>
-        <activity android:name=".ui.LanguageSettingsActivity" >
         </activity>
         <activity android:name=".ui.SettingsActivity" 
                   android:configChanges="orientation|screenSize">            
@@ -277,6 +282,12 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".ui.ProfilePicActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Home.PhotoEditor" >
+        </activity>
+        <activity
             android:name=".ui.GalleryActivity"
             android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
@@ -284,6 +295,8 @@
             android:theme="@style/AppTheme.Home.PhotoEditor" >
         </activity>
         <activity android:name=".ui.GallerySelectionViewer"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait">
         </activity>
         <activity android:name=".ui.CountrySelectActivity" >
@@ -295,6 +308,10 @@
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"
@@ -528,6 +545,8 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
+
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
         
@@ -561,6 +580,36 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.bsb.hike.PERS_NOTIF_URL_INTENT" />
+            </intent-filter>
+        </receiver>
+
+    <meta-data
+            android:name="io.fabric.ApiKey"
+
+            android:value="${crashlyticsApiKey}" />
+        <receiver
+            android:name="com.bsb.hike.triggers.ImageAndVideoInterceptReceiver">
+            <intent-filter >
+                <action android:name="com.android.camera.NEW_PICTURE"/>
+                <action android:name="android.hardware.action.NEW_PICTURE"/>
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="android.hardware.action.NEW_VIDEO"/>
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.bsb.hike.triggers.InterceptNotifClickReceiver">
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_NON_DWLD_SHARE_INTENT" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_SET_DP_INTENT" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
             </intent-filter>
         </receiver>
 

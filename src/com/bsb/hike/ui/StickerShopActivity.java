@@ -18,6 +18,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.productpopup.DialogPojo;
 import com.bsb.hike.productpopup.HikeDialogFragment;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -26,6 +28,7 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 
 public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
@@ -42,7 +45,6 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		setupActionBar();
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
 
-	
 	}
 
 	@Override
@@ -105,8 +107,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
 				
-				Intent i = new Intent(StickerShopActivity.this, StickerSettingsActivity.class);
-				startActivity(i);
+				IntentFactory.openStickerSettingsActivity(StickerShopActivity.this);
+
 			}
 		});
 
@@ -118,6 +120,10 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 	@Override
 	public void onBackPressed()
 	{
+		if (getCallingActivity() != null)
+		{
+			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
+		}
 		// TODO Auto-generated method stub
 		finish();
 	}

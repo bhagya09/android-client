@@ -1,121 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:atx="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-<RelativeLayout 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="20dp"
+	android:layout_marginBottom="20dp"
     android:orientation="horizontal"
     android:paddingLeft="50dp"
-    android:paddingRight="50dp" >
+    android:paddingRight="50dp">
 
-    <FrameLayout
-        android:id="@+id/avatar"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="33dp"
-        android:layout_marginTop="28dp" >
-
-        <com.bsb.hike.view.RoundedImageView
-            android:id="@+id/group_profile_image"
-            style="@style/RoundedStyle"
+        <FrameLayout
+            android:id="@+id/avatar"
             android:layout_width="96dp"
             android:layout_height="96dp"
-            android:contentDescription="@string/content_des_add_photo_gallery_create_group"
-            android:src="@drawable/ic_default_avatar_group" />
+            android:layout_centerVertical="true"
+            android:layout_marginRight="33dp"
+            android:layout_marginTop="28dp">
 
-        <ImageView
-            android:id="@+id/change_image"
+            <com.bsb.hike.view.RoundedImageView
+                android:id="@+id/group_profile_image"
+                style="@style/RoundedStyle"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:contentDescription="@string/content_des_add_photo_gallery_create_group"
+                android:src="@drawable/ic_default_avatar_group" />
+
+            <ImageView
+                android:id="@+id/change_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:background="@null"
+                android:contentDescription="@string/content_des_add_photo_camera_create_group"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/group_contextual_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:background="@null"
-            android:contentDescription="@string/content_des_add_photo_camera_create_group"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:src="@drawable/ic_new_group_image" />
-    </FrameLayout>
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/avatar"
+            android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/group_contextual_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/avatar"
-        android:orientation="vertical" >
+            <com.bsb.hike.view.CustomFontEditText
+                android:id="@+id/group_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_country_picker_selector"
+                android:hint="@string/name_group"
+                android:maxLength="@integer/max_length_group_name"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:singleLine="true"
+                android:textSize="18sp" />
 
-        <com.bsb.hike.view.CustomFontEditText
-            android:id="@+id/group_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/bg_country_picker_selector"
-            android:imeOptions="actionDone"
-            android:hint="@string/name_group"
-            android:maxLength="@integer/max_length_group_name"
-            atx:charInputMaxLength="@integer/max_length_group_name"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:singleLine="true"
-            android:textSize="18sp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:onClick="onGSCheckboxClicked"
+                android:orientation="horizontal"
+                android:paddingBottom="20dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="20dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:onClick="onGSCheckboxClicked"
-            android:orientation="horizontal"
-            android:paddingBottom="20dp"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingTop="20dp" >
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/groups_massegesTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/group_setting_option_only_admin"
+                    android:textSize="16sp"
+                    android:textStyle="normal" />
+
+                <CheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:button="@drawable/hike_list_item_checkbox"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="0.5dp"
+                android:alpha="0.08"
+                android:background="#000000" />
 
             <com.bsb.hike.view.CustomFontTextView
-                android:id="@+id/groups_massegesTextView"
+                android:id="@+id/group_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="@string/group_setting_option_only_admin"
-                android:textSize="16sp"
-                android:textStyle="normal" />
-
-            <CheckBox
-                android:id="@+id/checkBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:button="@drawable/hike_list_item_checkbox"
-                android:clickable="false"
-                android:focusable="false" />
-        </RelativeLayout>
-
-        <View   	    
-         android:layout_width="fill_parent"
-         android:layout_height="0.5dp"
-         android:alpha="0.08"
-         android:background="#000000"/>
-        
-        <com.bsb.hike.view.CustomFontTextView
-            android:id="@+id/group_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:gravity="center"
-            android:drawableLeft="@drawable/ic_chat_theme_info"
-            android:drawablePadding="4dp"
-            android:padding="4dp"
-            android:text="@string/group_participant_info"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-</RelativeLayout>
-
-<include layout="@layout/kpt_keyboard_viewholder" />
+                android:layout_marginTop="36dp"
+                android:drawableLeft="@drawable/ic_chat_theme_info"
+                android:drawablePadding="4dp"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="@string/group_participant_info"
+                android:textSize="12sp" />
+        </LinearLayout>
 
 </RelativeLayout>

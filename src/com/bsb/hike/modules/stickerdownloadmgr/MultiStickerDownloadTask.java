@@ -10,7 +10,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
-import com.bsb.hike.modules.httpmgr.request.RequestConstants;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.request.requestbody.JsonBody;
@@ -209,15 +208,20 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					Logger.d(TAG, "Reached end? " + reachedEnd);
 					Logger.d(TAG, "Sticker count: " + totalNumber);
 
+
+
 					if (categoryData.has(HikeConstants.STICKERS))
 					{
 						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
+
+                        StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
 						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
 							String stickerId = keys.next();
 							JSONObject stickerData = stickers.getJSONObject(stickerId);
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
+
 							existingStickerNumber++;
 
 							try
@@ -225,7 +229,6 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
 								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-								
 							}
 							catch (FileNotFoundException e)
 							{
@@ -236,7 +239,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								Logger.w(TAG, e);
 							}
 						}
-						StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.POST);
+						StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -381,6 +384,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			b.putBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE, true);
 		}
 		StickerManager.getInstance().stickersDownloadFailed(b);
+		StickerManager.getInstance().logStickerDownloadError(HikeConstants.STICKER_PACK);
 	}
 
 	@Override

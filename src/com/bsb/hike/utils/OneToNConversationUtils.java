@@ -26,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -89,7 +90,11 @@ public class OneToNConversationUtils
 						participantAddedMessage = context.getString(
 								R.string.created_group_text, highlight);
 					}else{
-						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
+						if (highlight.equals(context.getString(R.string.you))) {
+							participantAddedMessage = String.format(context.getString(R.string.you_added_as_group_member), adder);
+						} else {
+							participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
+						}
 					}
 				
 				}
@@ -112,7 +117,11 @@ public class OneToNConversationUtils
 								adder = contact.getFirstNameAndSurname();
 							}
 						}
-						participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
+						if (highlight.equals(context.getString(R.string.you))) {
+							participantAddedMessage = String.format(context.getString(R.string.you_added_as_group_member), adder);
+						} else {
+							participantAddedMessage = String.format(context.getString(R.string.group_member_added), adder, highlight);
+						}
 					}
 				}
 			}
@@ -373,7 +382,8 @@ public class OneToNConversationUtils
 			}
 
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv,
+					ChatThreadActivity.ChatThreadOpenSources.NEW_GROUP);
 			activity.startActivity(intent);
 			activity.finish();
 
@@ -525,7 +535,7 @@ public class OneToNConversationUtils
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
 			
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, conversationContactInfo, true, newOneToNConv);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, conversationContactInfo, true, newOneToNConv, ChatThreadActivity.ChatThreadOpenSources.NEW_GROUP);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			mContext.startActivity(intent);
 

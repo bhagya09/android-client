@@ -291,6 +291,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			break;
 		case CONVERSATION_NAME_CHANGED:
 			setLabel(oneToNConversation.getConversationName());
+			setAvatar();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in Group ChatThread. Calling super class' handleUIMessage");

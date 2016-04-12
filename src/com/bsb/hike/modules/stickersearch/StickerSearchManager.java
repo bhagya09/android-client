@@ -1,14 +1,5 @@
 package com.bsb.hike.modules.stickersearch;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Set;
-
-import org.json.JSONObject;
-
 import android.content.Intent;
 import android.util.Pair;
 
@@ -17,6 +8,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickersForcedDownloadTask;
 import com.bsb.hike.modules.stickersearch.listeners.IStickerSearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -31,15 +23,26 @@ import com.bsb.hike.modules.stickersearch.tasks.NewMessageSentTask;
 import com.bsb.hike.modules.stickersearch.tasks.RebalancingTask;
 import com.bsb.hike.modules.stickersearch.tasks.RemoveDeletedStickerTagsTask;
 import com.bsb.hike.modules.stickersearch.tasks.SingleCharacterHighlightTask;
+import com.bsb.hike.modules.stickersearch.tasks.StickerEventsLoadTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchSetupTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerSearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.StickerTagInsertTask;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Set;
 
 public class StickerSearchManager
 {
@@ -399,12 +402,22 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		downloadStickerTags(firstTime, state, null, languagesSet);
+		downloadStickerTags(firstTime, state, languagesSet,null);
+	}
+
+	/**
+	 * This will trigger events loading. This will run loading task on background thread. All caller should call this method instead of directly calling
+	 * StickerSearchDataController:loadStickerEvents() to avoid loading on UI thread.
+	 */
+	public void loadStickerEvents()
+	{
+		StickerEventsLoadTask stickerEventsLoadTask = new StickerEventsLoadTask();
+		searchEngine.runOnQueryThread(stickerEventsLoadTask);
 	}
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> stickerSet,  Set<String> languagesSet)
 	{
-		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, stickerSet, languagesSet);
+		InitiateStickerTagDownloadTask stickerTagDownloadTask = new InitiateStickerTagDownloadTask(firstTime, state, languagesSet,stickerSet);
 		searchEngine.runOnQueryThread(stickerTagDownloadTask);
 	}
 
@@ -418,6 +431,13 @@ public class StickerSearchManager
 	{
 		StickerSearchSetupTask stickerSearchSetupTask = new StickerSearchSetupTask();
 		searchEngine.runOnQueryThread(stickerSearchSetupTask);
+
+		// Load events, if sticker recommendation is running.
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_RECOMMEND_PREF, true))
+		{
+			loadStickerEvents();
+		}
 	}
 
 	public void removeDeletedStickerTags(Set<String> infoSet, int removalType)
@@ -499,15 +519,8 @@ public class StickerSearchManager
 			scheduleTime += 24 * 60 * 60 * 1000; // Next day at given time
 		}
 
-		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION_BALANCING, true,
-				getRebalancingAlarmIntent(), true);
-	}
-
-	private Intent getRebalancingAlarmIntent()
-	{
-		Intent intent = new Intent();
-		intent.putExtra(HikeAlarmManager.INTENT_EXTRA_DELETE_FROM_DATABASE, false);
-		return intent;
+		HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION, true,
+                IntentFactory.getPersistantAlarmIntent(), true);
 	}
 
 	public void startRebalancing(Intent intent)
@@ -768,5 +781,11 @@ public class StickerSearchManager
 		this.tapOnHighlightWordClicksPerLanguageMap = null;
 
 		_instance = null;
+	}
+
+	public void downloadForcedStickers()
+	{
+		StickersForcedDownloadTask stickersForcedDownloadTask= new StickersForcedDownloadTask(StickerLanguagesManager.getInstance().getLanguageSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE));
+		stickersForcedDownloadTask.execute();
 	}
 }

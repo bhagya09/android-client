@@ -24,6 +24,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.util.Linkify;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -312,11 +313,12 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 
 	private void setSenderDetails(int position)
 	{
-		senderName.setText(getSenderName(position));
+		senderName.setText(sharedMediaItems.get(position).getCaption());
 		long timeStamp = sharedMediaItems.get(position).getTimeStamp();
 		String date = Utils.getFormattedDate(getActivity(), timeStamp);
 		String time = Utils.getFormattedTime(false, getActivity(), timeStamp);
-		itemTimeStamp.setText(date+", "+time);
+		itemTimeStamp.setText(getSenderName(position)+", "+date+", "+time);
+		Linkify.addLinks(senderName, Linkify.ALL);
 	}
 
 	private String getSenderName(int position)
@@ -541,6 +543,24 @@ public class PhotoViewerFragment extends Fragment implements OnPageChangeListene
 			{
 				//if list is empty close the fragment
 				finish();
+			} else {
+                               updateMenuOptions();
+                        }
+		}
+	}
+
+        /* AND-3736: updating menu when a shared media is deleted from viewer,
+          this is done because onPageSelected is not called a item is removed */
+	private void updateMenuOptions() {
+		if (menu != null && getCurrentSelectedItem()!=null)
+		{
+			if (isEditEnabled  && getCurrentSelectedItem().getHikeFileType().compareTo(HikeFileType.IMAGE) == 0)
+			{
+				menu.findItem(R.id.edit_pic).setVisible(true);
+			}
+			else
+			{
+				menu.findItem(R.id.edit_pic).setVisible(false);
 			}
 		}
 	}

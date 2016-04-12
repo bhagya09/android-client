@@ -42,13 +42,13 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
 import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
-import com.bsb.hike.models.HikeFile.HikeFileType;
-import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.MovingList;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -61,6 +61,12 @@ import com.bsb.hike.utils.Utils;
 public class ChatThreadUtils
 {
 	private static final String TAG = "ChatThreadUtils";
+
+	public static boolean isWT1RevampEnabled(Context context)
+	{
+		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
+		return wtRevamp;
+	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
@@ -193,8 +199,13 @@ public class ChatThreadUtils
 	
 	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType)
 	{
+		uploadFile(context, msisdn, filePath, fileType, isConvOnHike, attachmentType,null);
+	}
+
+	protected static void uploadFile(Context context, String msisdn, String filePath, HikeFileType fileType, boolean isConvOnHike, int attachmentType, String caption)
+	{
 		Logger.i(TAG, "upload file , filepath " + filePath + " filetype " + fileType);
-		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType);
+		initialiseFileTransfer(context, msisdn, filePath, null, fileType, null, false, -1, false, isConvOnHike, attachmentType,caption);
 	}
 	
 	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, boolean convOnHike, int attachmentType)
@@ -213,8 +224,24 @@ public class ChatThreadUtils
 		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType);
 	}
 
+	protected static void initiateFileTransferFromIntentData(Context context, String msisdn, String fileType, String filePath, String fileKey, boolean isRecording,
+															 long recordingDuration, boolean convOnHike, int attachmentType, String caption)
+	{
+		HikeFileType hikeFileType = HikeFileType.fromString(fileType, isRecording);
+
+		Logger.d(TAG, "Forwarding file- Type:" + fileType + " Path: " + filePath);
+
+		Logger.d("Suyash", "ChThUtil : isCloudMediaUri" + Utils.isPicasaUri(filePath));
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, true, convOnHike, attachmentType,caption);
+	}
+
 	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
-			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+												 long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType)
+	{
+		initialiseFileTransfer(context, msisdn, filePath, fileKey, hikeFileType, fileType, isRecording, recordingDuration, isForwardingFile, convOnHike, attachmentType, null);
+	}
+	protected static void initialiseFileTransfer(Context context, String msisdn, String filePath, String fileKey, HikeFileType hikeFileType, String fileType, boolean isRecording,
+			long recordingDuration, boolean isForwardingFile, boolean convOnHike, int attachmentType, String caption)
 	{
 		clearTempData(context);
 
@@ -242,7 +269,8 @@ public class ChatThreadUtils
 				.setForwardMsg(isForwardingFile)
 				.setRecipientOnHike(convOnHike)
 				.setRecordingDuration(recordingDuration)
-				.setAttachement(attachmentType);
+				.setAttachement(attachmentType)
+				.setCaption(caption);
 		mBuilder.build();
 				
 	}
@@ -257,6 +285,7 @@ public class ChatThreadUtils
 		}
 		String filePath = intent.getStringExtra(HikeConstants.Extras.FILE_PATH);
 		String fileType = intent.getStringExtra(HikeConstants.Extras.FILE_TYPE);
+		String caption = intent.getStringExtra(HikeConstants.CAPTION);
 		int attachmentType = FTAnalyticEvents.FILE_ATTACHEMENT;
 
 		boolean isRecording = false;
@@ -276,12 +305,17 @@ public class ChatThreadUtils
 		}
 		else
 		{
-			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType);
+			ChatThreadUtils.initiateFileTransferFromIntentData(context, msisdn, fileType, filePath, fileKey, isRecording, recordingDuration, isConvOnHike, attachmentType,caption);
 		}
 	}
 
 	protected static boolean shouldShowLastSeen(String msisdn, Context context, boolean convOnHike, boolean isBlocked)
 	{
+		if (Utils.isFavToFriendsMigrationAllowed() && !ContactManager.getInstance().isTwoWayFriend(msisdn))
+		{
+			return false; // We do not want to show the last seen in this case if the user is not 2way friend
+		}
+
 		if (convOnHike && !isBlocked && !BotUtils.isBot(msisdn) && !OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
 			return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.LAST_SEEN_PREF, true);

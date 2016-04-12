@@ -63,7 +63,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private Fragment fragment;
 
-	private Fragment fragmentFtue;
+	private StickerRecommendationFtueFragment fragmentFtue;
 
 	private int count;
 
@@ -72,6 +72,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private boolean shownStickerRecommendFtueTip;
 
 	private boolean shownStickerRecommendFtue;
+
+    private int undownloadedStickerToDisplayCount;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
@@ -89,6 +91,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
+        refreshUndownloadedStickerWatcher(StickerManager.getInstance().isMiniStickersEnabled());
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
 
@@ -244,7 +247,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 
-				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
+				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList, undownloadedStickerToDisplayCount);
 
 				if (shouldShowFtue(result)) // no available stickers present show ftue
 				{
@@ -431,7 +434,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	@Override
 	public void onSettingsClicked()
 	{
-		IntentFactory.openSettingChat(activity);
+		IntentFactory.openStickerSettingsActivity(activity);
 		StickerManager.getInstance().sendRecommendationPanelSettingsButtonClickAnalytics();
 	}
 
@@ -610,5 +613,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 		
 		return colorSpanPool;
+	}
+
+	public void refreshUndownloadedStickerWatcher(boolean loadMini)
+	{
+		this.undownloadedStickerToDisplayCount = StickerSearchUtils.getUndownloadedStickerToDisplayCount();
+
+		if (fragmentFtue != null)
+		{
+			fragmentFtue.setupStickerLoader(loadMini);
+		}
 	}
 }

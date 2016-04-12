@@ -44,8 +44,14 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     @Override
     public void execute() {
         RequestToken requestToken = HttpRequests.getAnalyticsUploadRequestToken(getRequestListener(),
-                getRequestInterceptor(),MAX_RETRY_COUNT, DELAY_BEFORE_RETRY);
+                getRequestInterceptor(), getRequestId(), MAX_RETRY_COUNT, DELAY_BEFORE_RETRY);
         requestToken.execute();
+    }
+
+    private String getRequestId() {
+        String requestId = mFileToUpload.substring(mFileToUpload.lastIndexOf("/") + 1);
+        Logger.d(AnalyticsConstants.ANALYTICS_TAG, "requestId: " + requestId);
+        return requestId;
     }
 
     @Override
@@ -58,6 +64,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         if (mIsSessionComplete) {
             AnalyticsSender.getInstance(mContext).scheduleNextAlarm();
         }
+        HAManager.getInstance().resetAnalyticsEventsUploadCount();
     }
 
     @Override

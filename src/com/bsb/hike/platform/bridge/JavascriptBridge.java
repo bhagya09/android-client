@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,16 +35,18 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -58,6 +61,8 @@ import com.bsb.hike.platform.NativeBridge;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
+import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.ComposeChatActivity;
@@ -69,7 +74,11 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.ShareUtils;
+import com.bsb.hike.utils.Sim;
+import com.bsb.hike.utils.Telephony;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.JsonArray;
+import com.squareup.okhttp.Headers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +88,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 /**
  * API bridge that connects the javascript to the Native environment. Make the instance of this class and add it as the JavaScript interface of the Card WebView.
@@ -109,7 +120,14 @@ public abstract class JavascriptBridge
 	
 	protected static final int CLOSE_WEB_VIEW = 3;
 
+	protected static final int SHARE_EXTERNAL = 5;
+
 	boolean sendIntentData = false;
+
+	protected static final int MAX_COUNT =2;
+
+	//Hashmap of URL vs Count
+	HashMap<String,Integer> platformRequest=new HashMap<String,Integer>();
 	
 	public JavascriptBridge(Activity activity, CustomWebView mWebView)
 	{
@@ -159,6 +177,11 @@ public abstract class JavascriptBridge
 			}
 			
 			break;
+			case SHARE_EXTERNAL :
+				JSONObject json = (JSONObject)msg.obj;
+				String title = json.optString("title");
+				String caption = json.optString("caption");
+				PlatformUtils.share(title,caption,weakActivity.get(),mWebView);
 
 		default:
 			break;
@@ -334,68 +357,18 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void share(String text, String caption)
 	{
-		FileOutputStream fos = null;
-		File cardShareImageFile = null;
-		Activity mContext = weakActivity.get();
-		if(mContext!=null)
+		JSONObject json = new JSONObject();
+		try
 		{
-			try
-			{
-				if (TextUtils.isEmpty(text))
-				{
-					text = mContext.getString(R.string.cardShareHeading); // fallback
-				}
-
-				cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-				fos = new FileOutputStream(cardShareImageFile);
-				View share = LayoutInflater.from(mContext).inflate(com.bsb.hike.R.layout.web_card_share, null);
-				// set card image
-				ImageView image = (ImageView) share.findViewById(com.bsb.hike.R.id.image);
-				Bitmap b = Utils.viewToBitmap(mWebView);
-				image.setImageBitmap(b);
-
-				// set heading here
-				TextView heading = (TextView) share.findViewById(R.id.heading);
-				heading.setText(text);
-
-				// set description text
-				TextView tv = (TextView) share.findViewById(com.bsb.hike.R.id.description);
-				tv.setText(Html.fromHtml(mContext.getString(com.bsb.hike.R.string.cardShareDescription)));
-
-				Bitmap shB = Utils.undrawnViewToBitmap(share);
-				Logger.i(tag, " width height of layout to share " + share.getWidth() + " , " + share.getHeight());
-				shB.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-				fos.flush();
-				Logger.i(tag, "share webview card " + cardShareImageFile.getAbsolutePath());
-				IntentFactory.startShareImageIntent("image/jpeg", "file://" + cardShareImageFile.getAbsolutePath(),
-						TextUtils.isEmpty(caption) ? mContext.getString(com.bsb.hike.R.string.cardShareCaption) : caption);
-			}
-
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				showToast(mContext.getString(com.bsb.hike.R.string.error_card_sharing));
-			}
-			finally
-			{
-				if (fos != null)
-				{
-					try
-					{
-						fos.close();
-					}
-					catch (IOException e)
-					{
-						// Do nothing
-						e.printStackTrace();
-					}
-				}
-			}
-			if (cardShareImageFile != null && cardShareImageFile.exists())
-			{
-				cardShareImageFile.deleteOnExit();
-			}
+			json.put("text", text);
+			json.put("caption", caption);
+			sendMessageToUiThread(SHARE_EXTERNAL, json);
 		}
+		catch (JSONException e)
+		{
+			Logger.e(tag, "Error in share");
+		}
+
 	}
 
 	/**
@@ -468,8 +441,6 @@ public abstract class JavascriptBridge
 			}
 		}
 	}
-
-	;
 
 	public static void expand(final View v, final int targetHeight)
 	{
@@ -591,13 +562,11 @@ public abstract class JavascriptBridge
     @JavascriptInterface
     public void startContactChooserForMsisdnFilter(String id,String requestJson) {
         Activity activity = weakActivity.get();
-        String msisdns = "";
         String title = "";
 
         if(!TextUtils.isEmpty(requestJson)) {
             try {
                 JSONObject json = new JSONObject(requestJson);
-                msisdns = json.getString(HikeConstants.Extras.LIST);
                 title = json.getString(HikeConstants.Extras.TITLE);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -606,24 +575,16 @@ public abstract class JavascriptBridge
 
         if (activity != null) {
 
-            if (TextUtils.isEmpty(msisdns)) {
-                Intent intent = new Intent(activity, ComposeChatActivity.class);
-                intent.putExtra(HikeConstants.Extras.EDIT, true);
-                intent.putExtra(REQUEST_CODE, ComposeChatActivity.PICK_CONTACT_SINGLE_MODE);
-                intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
-                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
-                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
-            } else {
-                Intent intent = IntentFactory.getFavouritesIntent(activity);
-                intent.putExtra(tag, JavascriptBridge.this.hashCode());
-                intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
-                intent.putExtra(HikeConstants.Extras.MSISDN, msisdns);
-                intent.putExtra(HikeConstants.Extras.TITLE, title);
-                intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
-                activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
-            }
+        	Intent intent = new Intent(activity, ComposeChatActivity.class);
+            intent.putExtra(HikeConstants.Extras.EDIT, true);
+            intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PAYMENT_MODE);
+            intent.putExtra(HikeConstants.Extras.IS_CONTACT_CHOOSER_FILTER_INTENT,true);
+            intent.putExtra(HikeConstants.Extras.FUNCTION_ID,id);
+            intent.putExtra(HikeConstants.Extras.TITLE, title);
+            activity.startActivityForResult(intent, HikeConstants.PLATFORM_MSISDN_FILTER_DISPLAY_REQUEST);
         }
     }
+   
 
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -677,38 +638,11 @@ public abstract class JavascriptBridge
 	}
 	
 	private void handlePickFileResult(int resultCode, Intent data)
-	{	
-		if(resultCode == Activity.RESULT_OK)
+	{
+		if (resultCode == Activity.RESULT_OK)
 		{
-			String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();	
-			
-			if(TextUtils.isEmpty(filepath))
-				{
-				Logger.e("FileUpload","Invalid file Path");
-				return;
-				}
-			else
-			{
-			Logger.d("FileUpload", "Path of selected file :" + filepath);
-			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
-			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
-			Logger.d("FileUpload", "mime type  of selected file :" + mimeType);
-			JSONObject json = new JSONObject();
-			try
-			{
-				json.put("filePath", filepath);
-				json.put("mimeType", mimeType);
-				json.put("filesize",  (new File(filepath)).length());
-				String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
-				Logger.d("FileUpload",  " Choose File >>calling callbacktoJS "+ id);
-				callbackToJS(id, json.toString());
-			}
-			catch (JSONException e)
-			{
-				Logger.e("FileUpload", "Unable to send in Json");
-			}
-			
-		}
+			String id = data.getStringExtra(HikeConstants.CALLBACK_ID);
+			callbackToJS(id,PlatformUtils.getFileUploadJson(data));
 		}
 	}
 
@@ -753,14 +687,14 @@ public abstract class JavascriptBridge
 					if (Utils.isKitkatOrHigher())
 					{
 						Logger.d(tag, "Inside call back to js with id " + id);
-						mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')", new ValueCallback<String>()
+						try
 						{
-							@Override
-							public void onReceiveValue(String value)
-							{
-								Logger.d("JavascriptBridge",value);
-							}
-						});
+							mWebView.evaluateJavascript("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')",null);
+						}
+						catch (IllegalStateException e)
+						{
+							mWebView.loadUrl("javascript:callbackFromNative" + "('" + id + "','" + getEncodedDataForJS(value) + "')"); // On some Custom ROMs and Nokia phones depite being on API greater than 19 this function is not available.This API not supported on Android 4.3 and earlier\n\tat android.webkit.WebViewClassic.evaluateJavaScript(WebViewClassic.java:2674)\n\tat
+						}
 					}
 					else
 					{
@@ -921,14 +855,31 @@ public abstract class JavascriptBridge
 		{
 			jsonObj.put(HikeConstants.MSISDN, msisdn);
 			jsonObj.put(HikePlatformConstants.PLATFORM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_UID_SETTING, null));
-			jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
+			if(!HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.NEW_AUTH_ENABLE, false)){
+				jsonObj.put(HikePlatformConstants.PLATFORM_TOKEN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null));
+			}
 			jsonObj.put(HikePlatformConstants.APP_VERSION, AccountUtils.getAppVersion());
+			if(msisdn.equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE)){
+				Telephony telephonyInfo = Telephony.getInstance(HikeMessengerApp.getInstance().getApplicationContext());
+				   Sim[] sims= telephonyInfo.getSims();
+					JSONArray array = new JSONArray();
+					for(int i =0; i<sims.length; i++){
+						if(sims[i]!=null){
+						  array.put(sims[i].toJSONString());
+						}else{
+							 array.put(null);
+						}
+					}
+				
+			    jsonObj.put(HikePlatformConstants.SIM_OPERATORS,array);
+			}
 		}
 		catch (JSONException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 	
 	protected String getEncodedDataForJS(String data) {
@@ -1010,6 +961,8 @@ public abstract class JavascriptBridge
 		}
 
 	}
+
+
 
 	/**
 	 * Platform Bridge Version 3
@@ -1488,7 +1441,8 @@ public abstract class JavascriptBridge
 		botInfo.setUnreadCount(0);
 
 	}
-	/**
+
+    /**
 	 * Platform Version 9
 	 * This function is made  to know whether a microapp exists.
 	 * @param id: the id of the function that native will call to call the js .
@@ -1497,9 +1451,27 @@ public abstract class JavascriptBridge
 	@JavascriptInterface
 	public void isMicroappExist(String id, String mapp)
 	{
-		File file = new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + mapp);
-		if (file.exists())
+        // Check for is Micro App exists in all of the directories path that are being used after the versioning release
+		String microAppUnzipDirectoryPath = PlatformUtils.getMicroAppContentRootFolder();
+        File fileInMappsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_MAPPS + mapp);
+        File fileInGamesDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + mapp);
+        File fileNameInGamesAfterMigrationCheck = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_GAMES + PlatformContentConstants.HIKE_DIR_NAME.toLowerCase() + mapp);
+        File fileInHikeWebMicroAppsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_WEB_MICRO_APPS + mapp);
+        File fileInHikePopupsDirectory = new File(microAppUnzipDirectoryPath + PlatformContentConstants.HIKE_ONE_TIME_POPUPS + mapp);
+        File fileInOldContentDirectory = new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + mapp);
+
+        if (fileInMappsDirectory.exists())
 			callbackToJS(id, "true");
+        else if(fileInGamesDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileNameInGamesAfterMigrationCheck.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikeWebMicroAppsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInHikePopupsDirectory.exists())
+            callbackToJS(id, "true");
+        else if(fileInOldContentDirectory.exists())
+            callbackToJS(id, "true");
 		else
 			callbackToJS(id, "false");
 	}
@@ -1514,5 +1486,4 @@ public abstract class JavascriptBridge
 	{
 
 	}
-
 }

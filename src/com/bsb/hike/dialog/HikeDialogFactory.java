@@ -1,8 +1,5 @@
 package com.bsb.hike.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,16 +26,17 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.AccountAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
@@ -53,6 +51,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HikeDialogFactory
 {
@@ -128,8 +129,6 @@ public class HikeDialogFactory
 	
 	public static final int GROUP_ADD_MEMBER_SETTINGS = 40;
 	
-	public static final int MULTI_ADMIN_DIALOG = 41;
-
 	public static final int UNDO_MULTI_EDIT_CHANGES_DIALOG = 42;
 	
 	public static final int ADD_TO_FAV_DIALOG = 43;
@@ -142,7 +141,15 @@ public class HikeDialogFactory
 	
 	public static final int MAPP_DOWNLOAD_DIALOG = 47;
 
-	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 45;
+	public static final int CALLER_BLOCK_CONTACT_DIALOG = 48;
+
+	public static final int CALLER_UNBLOCK_CONTACT_DIALOG = 49;
+
+	public static final int DELETE_STICKER_PACK_DIALOG = 50;
+
+	public static final int DELETE_GROUP_CONVERSATION_DIALOG= 51;
+
+	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
@@ -159,9 +166,6 @@ public class HikeDialogFactory
 			
 		case ADD_TO_FAV_DIALOG:
 			return showAddToFavoriteDialog(dialogId, context, listener, data);
-			
-		case MULTI_ADMIN_DIALOG:
-			return showMultiAdminDialog(dialogId, context, listener, data);
 			
 		case RESET_STEALTH_DIALOG:
 			return showStealthResetDialog(dialogId, context, listener, data);
@@ -212,7 +216,8 @@ public class HikeDialogFactory
 		case DELETE_BLOCK:
 		case DELETE_NON_MESSAGING_BOT:
 		case UNDO_MULTI_EDIT_CHANGES_DIALOG:
-		case ACCESSIBILITY_DIALOG:	
+		case ACCESSIBILITY_DIALOG:
+		case DELETE_STICKER_PACK_DIALOG:
 			return showDeleteMessagesDialog(dialogId, context, listener, data);
 			
 		case GPS_DIALOG:
@@ -235,10 +240,37 @@ public class HikeDialogFactory
 			return showMicroAppDialog(dialogId,context,listener,data);
 		case MAPP_DOWNLOAD_DIALOG:
 			return showMicroappDownloadDialog(dialogId, context, listener, data);
+		case CALLER_BLOCK_CONTACT_DIALOG:
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			return showBlockContactDialog(context, dialogId, listener, data);
+
+		case DB_CORRUPT_RESTORE_DIALOG:
+			return showDBCorruptDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
-	
+
+	private static HikeDialog showBlockContactDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog blockConfirmDialog = new CustomAlertDialog(context, dialogId);
+		switch (dialogId)
+		{
+		case CALLER_BLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.block_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.block_contact));
+			break;
+		case CALLER_UNBLOCK_CONTACT_DIALOG:
+			blockConfirmDialog.setMessage(String.format(context.getString(R.string.unblock_contact_sure), (String) data[0]));
+			blockConfirmDialog.setTitle(context.getString(R.string.unblock_contact));
+			break;
+		}
+		blockConfirmDialog.setPositiveButton(R.string.dialog_btn_yes, listener);
+		blockConfirmDialog.setNegativeButton(R.string.dialog_btn_no, listener);
+		blockConfirmDialog.setCancelable(true);
+		blockConfirmDialog.show();
+		return blockConfirmDialog;
+	}
+
 	public static <T> HikeDialog showDialog(Context context, int dialogId, T data1, HikeDialogListener listener, Object... data2)
 	{
 		switch (dialogId)
@@ -364,33 +396,6 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
-	private static HikeDialog showMultiAdminDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
-	{
-		final HikeDialog hikeDialog = new HikeDialog(context, R.style.Theme_CustomDialog, dialogId);
-		hikeDialog.setContentView(R.layout.multiadmin_popup);
-		hikeDialog.setCancelable(true);
-		View yes = hikeDialog.findViewById(R.id.gotItButton);
-		OnClickListener clickListener = new OnClickListener()
-		{
-
-			@Override
-			public void onClick(View arg0)
-			{
-				switch (arg0.getId())
-				{
-				case R.id.gotItButton:
-					hikeDialog.dismiss();
-					listener.positiveClicked(hikeDialog);
-					break;
-				
-				}
-
-			}
-		};
-		yes.setOnClickListener(clickListener);
-		hikeDialog.show();
-		return hikeDialog;
-	}
 	private static HikeDialog showStealthResetDialog(int dialogId, Context context, final HikeDialogListener listener, Object... data)
 	{
 		final HikeDialog hikeDialog = new HikeDialog(context, dialogId);
@@ -942,7 +947,13 @@ public class HikeDialogFactory
 			deleteConfirmDialog.setPositiveButton(R.string.OK, listener);
 			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
 			break;
-			
+
+		case DELETE_STICKER_PACK_DIALOG:
+			deleteConfirmDialog.setTitle(context.getString(R.string.delete) + " " + data[0]);
+			deleteConfirmDialog.setMessage(R.string.delete_pack_question);
+			deleteConfirmDialog.setPositiveButton(R.string.DELETE, listener);
+			deleteConfirmDialog.setNegativeButton(R.string.CANCEL, listener);
+			break;
 		}
 		deleteConfirmDialog.show();
 		
@@ -1162,7 +1173,7 @@ public class HikeDialogFactory
 				else
 				{
 
-					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false);
+					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(context, ContactManager.getInstance().getContact(currentMsisdn, true, true), false, false, ChatThreadActivity.ChatThreadOpenSources.LIKES_DIALOG);
 					// Add anything else to the intent
 					intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1228,4 +1239,19 @@ public class HikeDialogFactory
 
 		return dialog;
 	}
+
+	private static HikeDialog showDBCorruptDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId, R.layout.db_corrupt_dialog);
+
+		dialog.setTitle(context.getString(R.string.restore_chat_title));
+		dialog.setMessage(context.getString(R.string.restore_chat_body));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
+		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
+
+		dialog.show();
+		return dialog;
+	}
+
 }

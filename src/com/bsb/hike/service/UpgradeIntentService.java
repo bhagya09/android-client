@@ -10,12 +10,13 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
-import com.bsb.hike.modules.kpt.KptUtils;
+import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+
+import java.io.File;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -39,7 +40,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 
 			// fire the pubsub event to let the HomeActivity class know that the
@@ -54,7 +54,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
 		
@@ -65,7 +64,6 @@ public class UpgradeIntentService extends IntentService
 			// migration !
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
 		}
 		
@@ -75,7 +73,6 @@ public class UpgradeIntentService extends IntentService
 			{
 				Editor editor = prefs.edit();
 				editor.putInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -85,9 +82,7 @@ public class UpgradeIntentService extends IntentService
 			upgradeForStickerShopVersion1();
 			Editor editor = prefs.edit();
 			editor.putInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 2);
-			editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 			editor.commit();
-			StickerManager.getInstance().doInitialSetup();
 		}
 		
 		if (prefs.getInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 1) == 1)
@@ -96,7 +91,6 @@ public class UpgradeIntentService extends IntentService
 			{
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_SERVER_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -109,7 +103,6 @@ public class UpgradeIntentService extends IntentService
 				Logger.v(TAG, "Upgrade Sorting Id Field was successful");
 				Editor editor = prefs.edit();
 				editor.putInt(HikeMessengerApp.UPGRADE_SORTING_ID_FIELD, 2);
-				editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
 				editor.commit();
 			}
 		}
@@ -119,6 +112,29 @@ public class UpgradeIntentService extends IntentService
 				LocalLanguageUtils.requestLanguageOrderListFromServer();
 			}
 		}
+
+        // Schedule versioning migration if its not done already
+        if(prefs.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false)
+        {
+            scheduleHikeMicroAppsMigrationAlarm(getBaseContext());
+        }
+
+		if(prefs.getInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1) == 1)
+		{
+			if(upgradeForStickerTable())
+			{
+				Logger.v(TAG, "Upgrade for sticker table was successful");
+				Editor editor = prefs.edit();
+				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
+				editor.commit();
+                StickerManager.getInstance().doInitialSetup();
+			}
+		}
+
+        // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+        Editor editor = prefs.edit();
+        editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
+        editor.apply();
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
@@ -160,5 +176,24 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForSortingIdField()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForSortingIdField();
+	}
+
+
+    /**
+     * Used to schedule the alarm for migration of old running micro apps in the content directory
+     */
+    private void scheduleHikeMicroAppsMigrationAlarm(Context context)
+    {
+        // Do the migration tasks only if migration has not been done already and old directory content code exists on device
+        if(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR).exists())
+        {
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+        }
+    }
+
+	private boolean upgradeForStickerTable()
+	{
+		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
 }

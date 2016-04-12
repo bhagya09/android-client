@@ -1,11 +1,11 @@
 package com.bsb.hike.modules.httpmgr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.utils.AccountUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to add default headers to the request like user-agent and cookie etc
@@ -19,6 +19,8 @@ public final class DefaultHeaders
 	public static final String CACHE_CONTROL = "Cache-Control";
 	
 	public static final String NO_TRANSFORM = "no-transform";
+
+	public static final String RETRY_HEADER = "retry-header";
 	
 	private static <T> List<Header> getDefaultHeaders(Request<T> request)
 	{
@@ -36,7 +38,25 @@ public final class DefaultHeaders
 		{
 			headers.add(new Header(CACHE_CONTROL, NO_TRANSFORM));
 		}
+
+		addRetryHeader(request);
+
 		return headers;
+	}
+
+	private static void addRetryHeader(Request request)
+	{
+		if (request == null)
+		{
+			return;
+		}
+
+		int retryCount = 1;
+		if (request.getRetryPolicy() != null)
+		{
+			retryCount = request.getRetryPolicy().getRetryIndex() + 1;
+		}
+		request.replaceOrAddHeader(RETRY_HEADER, String.valueOf(retryCount));
 	}
 
 	public static <T> void applyDefaultHeaders(Request<T> request)

@@ -198,7 +198,7 @@ public class PhoneSpecUtils
 	/**
 	 * returns the busy, free and total SDcard memory
 	 */
-	private static Map<String,Long> getSDCardMem()
+	public static Map<String,Long> getSDCardMem()
 	{
 		try
 		{
