@@ -1,11 +1,14 @@
 package com.bsb.hike.chatthemes;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -33,7 +36,11 @@ public class ChatThemeManager
 	private ChatThemeDrawableHelper mDrawableHelper;
 
 	// Maintains the Map of Chatthemes
-	private HashMap<String, HikeChatTheme> mChatThemesList;
+	private ConcurrentHashMap<String, HikeChatTheme> mChatThemesList;
+
+	public String defaultChatThemeId = "0";
+
+	public HikeChatTheme defaultChatTheme = new HikeChatTheme();
 
 	private String TAG = "ChatThemeManager";
 
@@ -62,6 +69,10 @@ public class ChatThemeManager
 		mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
 		mDrawableHelper = new ChatThemeDrawableHelper();
 		mAssetHelper = new ChatThemeAssetHelper();
+
+		// initialising the default theme
+		defaultChatTheme.setThemeId(defaultChatThemeId);
+		mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
 	}
 
 	public ChatThemeAssetHelper getAssetHelper()
@@ -74,7 +85,7 @@ public class ChatThemeManager
 		return mDrawableHelper;
 	}
 
-	private HikeChatTheme getTheme(String themeId)
+	public HikeChatTheme getTheme(String themeId)
 	{
 		return mChatThemesList.get(themeId);
 	}
@@ -89,6 +100,9 @@ public class ChatThemeManager
 	 */
 	public boolean isThemeAvailable(String themeId)
 	{
+		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId)) // the default theme is always available
+			return true;
+
 		if(themeId == null || !mChatThemesList.containsKey(themeId))
 			return false;
 
@@ -107,7 +121,11 @@ public class ChatThemeManager
 	 */
 	public String[] getMissingAssetsForTheme(String themeId)
 	{
-		return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
+		if(!isThemeAvailable(themeId) && mChatThemesList.containsKey(themeId)) // the second check is to avoid any null pointer exception at the getTheme call
+		{
+			return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
+		}
+		return new String[0];
 	}
 
 	public void downloadAssetsForTheme(String themeId)
@@ -190,78 +208,34 @@ public class ChatThemeManager
 
 	}
 
-	/**
-	 * method which returns the storage directory for saving chat theme assets. inspired by similar method in StickerManager
-	 * @return the path of the directory
-	 */
-	public String getThemeAssetStoragePath()
+	public String[] getAvailableThemeIds()
 	{
-		/*
-		 * We give a higher priority to external storage. If we find an exisiting directory in the external storage, we will return its path. Otherwise if there is an exisiting
-		 * directory in internal storage, we return its path.
-		 *
-		 * If the directory is not available in both cases, we return the external storage's path if external storage is available. Else we return the internal storage's path.
-		 */
-		boolean externalAvailable = false;
-		Utils.ExternalStorageState st = Utils.getExternalStorageState();
-		Logger.d(TAG, "External Storage state : " + st.name());
-		if (st == Utils.ExternalStorageState.WRITEABLE)
+		ArrayList<String> availableThemes = new ArrayList<>();
+
+		for(String themeId : mChatThemesList.keySet())
 		{
-			externalAvailable = true;
-			String themeDirPath = getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
-			Logger.d(TAG, "Theme dir path : " + themeDirPath);
-			if (themeDirPath == null)
+			if(isThemeAvailable(themeId))
 			{
-				return null;
-			}
-
-			File themeDir = new File(themeDirPath);
-
-			if (themeDir.exists())
-			{
-				Logger.d(TAG, "Theme Dir exists ... so returning");
-				return themeDir.getPath();
+				availableThemes.add(themeId);
 			}
 		}
-		if (externalAvailable)
-		{
-			Logger.d(TAG, "Returning external storage dir.");
-			return getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
-		}
-		else
-		{
-			return null;
-		}
+
+		Collections.sort(availableThemes); // sorting the themes on the basis of themeId currently.
+		return availableThemes.toArray(new String[availableThemes.size()]);
 	}
 
 	/**
-	 * creates a new directory in the external memory for saving chat theme
-	 * @param context
-	 * @return returns path to the external memory directory
+	 * method to get a drawable given a themeId and an asset index. In case of any problem, it returns a default asset.
+	 * @param themeId
+	 * @param assetIndex
+	 * @return a drawable corresponding to the asset
 	 */
-	private String getExternalThemeDirectory(Context context)
+	public Drawable getDrawableForTheme(String themeId, byte assetIndex)
 	{
-		File dir = context.getExternalFilesDir(null);
-		if (dir == null)
+		if(themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId) || !ChatThemeManager.getInstance().isThemeAvailable(themeId))
 		{
-			return null;
+			return mDrawableHelper.getDefaultDrawable(assetIndex);
 		}
-		String themePath = dir.getPath() + File.separator + HikeChatThemeConstants.CHAT_THEMES_ROOT;
-		dir = new File(themePath);
-
-		if(dir.isDirectory())
-		{
-			return themePath;
-		}
-		else
-		{
-			boolean created = dir.mkdir();
-			if(created)
-			{
-				return themePath;
-			}
-		}
-		return null;
+		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
 	}
-
 }

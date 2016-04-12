@@ -120,4 +120,15 @@ public class HikeChatTheme
 		return ((this.assetDownloadStatus & assetStatus) > 0);
 	}
 
+	public boolean isTiled()
+	{
+		// if a theme is tiled, the first bit of themeType is set
+		return (themeType & 1) > 0;
+	}
+
+	public boolean isAnimated()
+	{
+		//if a theme is animated, the second bit of themeType is set
+		return (themeType & 2) > 0;
+	}
 }

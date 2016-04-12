@@ -118,7 +118,7 @@ public class HikeSharedFilesActivity extends HikeAppStateBaseFragmentActivity
 		requestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.gallery);
-		statusBarColorID=R.color.black;
+		statusBarColorValue=getResources().getColor(R.color.black);
 		selectedSharedFileItems = new HashSet<Long>();
 		sharedFilesList = null;
 

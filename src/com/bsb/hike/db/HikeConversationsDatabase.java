@@ -2,6 +2,7 @@ package com.bsb.hike.db;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +35,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.models.*;
@@ -6014,7 +6016,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.insertWithOnConflict(DBConstants.ChatThemes.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
-	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
+	public Pair<String, Long> getChatThemeIdAndTimestamp(String msisdn)
 	{
 		Cursor c = null;
 		try
@@ -6023,10 +6025,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					null);
 			if (c.moveToFirst())
 			{
-				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID)));
+				String chatThemeId = c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID));
 				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.TIMESTAMP));
 
-				return new Pair<ChatTheme, Long>(chatTheme, timeStamp);
+				return new Pair<String, Long>(chatThemeId, timeStamp);
 			}
 			return null;
 		}
@@ -6039,27 +6041,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public ChatTheme getChatThemeForMsisdn(String msisdn)
+	public String getChatThemeIdForMsisdn(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.ChatThemes.THEME_COL_BG_ID}, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.ChatThemes.CHAT_BG_TABLE, new String[] { DBConstants.ChatThemes.THEME_COL_BG_ID, ChatThemes.PREV_THEME_ID_COL}, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 			if (c.moveToFirst())
 			{
 				try
 				{
-					return ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID)));
+					String currentThemeId = c.getString(c.getColumnIndex(DBConstants.ChatThemes.THEME_COL_BG_ID));
+					String prevThemeId = c.getString(c.getColumnIndex(ChatThemes.PREV_THEME_ID_COL));
+					if(ChatThemeManager.getInstance().isThemeAvailable(currentThemeId))
+					{
+						return currentThemeId;
+					}
+					else
+					{
+						return prevThemeId;
+					}
 				}
 				catch (IllegalArgumentException e)
 				{
 					/*
 					 * For invalid theme id, we return the default id.
 					 */
-					return ChatTheme.DEFAULT;
+					return ChatThemeManager.getInstance().defaultChatThemeId;
 				}
 			}
-			return ChatTheme.DEFAULT;
+			return ChatThemeManager.getInstance().defaultChatThemeId;
 		}
 		finally
 		{
@@ -6107,8 +6118,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					continue;
 				}
 
-				ChatTheme chatTheme = null;
-
 				try
 				{
 					/*
@@ -6119,7 +6128,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						throw new IllegalArgumentException();
 					}
 
-					chatTheme = ChatTheme.getThemeFromId(bgId);
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -6131,7 +6139,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 				insertStatement.executeInsert();
 
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
+				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(msisdn, bgId));
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -9239,10 +9247,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 			updatePrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
 
-		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG) == null)
 			updatePrepStmt.bindNull(6);
 		else
-			updatePrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
+			updatePrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG));
 
 		if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
 			updatePrepStmt.bindNull(7);
@@ -9284,10 +9292,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		else
 			updatePrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
 
-		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+		if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
 			updatePrepStmt.bindNull(15);
 		else
-			updatePrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR));
+			updatePrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
 
 		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
 		updatePrepStmt.bindLong(17, System.currentTimeMillis());
@@ -9320,10 +9328,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else
 				insertPrepStmt.bindString(5, saveTheme.getAssetId(ASSET_INDEX_CHAT_BUBBLE_BG));
 
-			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG) == null)
 				insertPrepStmt.bindNull(6);
 			else
-				insertPrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
+				insertPrepStmt.bindString(6, saveTheme.getAssetId(ASSET_INDEX_ACTION_BAR_BG));
 
 			if(saveTheme.getAssetId(ASSET_INDEX_INLINE_STATUS_MSG_BG) == null)
 				insertPrepStmt.bindNull(7);
@@ -9365,10 +9373,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			else
 				insertPrepStmt.bindString(14, saveTheme.getAssetId(ASSET_INDEX_THUMBNAIL));
 
-			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR) == null)
+			if(saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG) == null)
 				insertPrepStmt.bindNull(15);
 			else
-				insertPrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_COLOR));
+				insertPrepStmt.bindString(15, saveTheme.getAssetId(ASSET_INDEX_STATUS_BAR_BG));
 
 			insertPrepStmt.bindLong(16, saveTheme.getThemeType());
 			insertPrepStmt.bindLong(17, System.currentTimeMillis());
@@ -9492,9 +9500,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @return a map of chat theme objects each of which represents a row in the theme table with key as the unique theme id
 	 * and value as the HikeChatTheme object
 	 */
-	public HashMap<String, HikeChatTheme> getAllChatThemes()
+	public ConcurrentHashMap<String, HikeChatTheme> getAllChatThemes()
 	{
-		HashMap<String, HikeChatTheme> themes = new HashMap<>();
+		ConcurrentHashMap<String, HikeChatTheme> themes = new ConcurrentHashMap<>();
 
 		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE;
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
@@ -9502,7 +9510,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			if (themeListCursor.moveToFirst())
 			{
-				//loading all themes (theme id and assets) from the database to the memory
+				//loading all themes (theme id and assets) from the datsabase to the memory
 				while (!themeListCursor.isAfterLast())
 				{
 					HikeChatTheme chatTheme = makeChatThemeFromDbRow(themeListCursor);
@@ -9596,14 +9604,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		chatTheme.setAsset(ASSET_INDEX_BG_PORTRAIT, portraitBg);
 		chatTheme.setAsset(ASSET_INDEX_BUBBLE_COLOR, bubble);
 		chatTheme.setAsset(ASSET_INDEX_CHAT_BUBBLE_BG, bubbleBg);
-		chatTheme.setAsset(ASSET_INDEX_STATUS_BAR_BG, header);
+		chatTheme.setAsset(ASSET_INDEX_ACTION_BAR_BG, header);
 		chatTheme.setAsset(ASSET_INDEX_INLINE_STATUS_MSG_BG, inlineBackground);
 		chatTheme.setAsset(ASSET_INDEX_MULTISELECT_CHAT_BUBBLE_BG, multiSelBubble);
 		chatTheme.setAsset(ASSET_INDEX_OFFLINE_MESSAGE_BG, offMsg);
 		chatTheme.setAsset(ASSET_INDEX_SENT_NUDGE_BG, sendNudge);
 		chatTheme.setAsset(ASSET_INDEX_RECEIVED_NUDGE_BG, recNudge);
 		chatTheme.setAsset(ASSET_INDEX_SMS_TOGGLE_BG, smsBackground);
-		chatTheme.setAsset(ASSET_INDEX_STATUS_BAR_COLOR, statusBarCol);
+		chatTheme.setAsset(ASSET_INDEX_STATUS_BAR_BG, statusBarCol);
 		chatTheme.setAsset(ASSET_INDEX_THUMBNAIL, thumbnail);
 		chatTheme.setThemeType(type);
 		chatTheme.setMetadata(meta);
@@ -9615,9 +9623,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * method to load all assets from the db to memory
 	 * @return a map of assets with the key as the UUID of the asset
 	 */
-	public HashMap<String, HikeChatThemeAsset> getAllChatThemeAssets()
+	public ConcurrentHashMap<String, HikeChatThemeAsset> getAllChatThemeAssets()
 	{
-		HashMap<String, HikeChatThemeAsset> assetMap = new HashMap<>();
+		ConcurrentHashMap<String, HikeChatThemeAsset> assetMap = new ConcurrentHashMap<>();
 
 		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_ASSET_TABLE;
 		Cursor assetListCursor = mDb.rawQuery(getThemesQuery, null);

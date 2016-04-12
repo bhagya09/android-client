@@ -505,8 +505,8 @@ public class MqttMessagesManager
 						throw new IllegalArgumentException();
 					}
 
-					ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
-					convDb.setChatBackground(groupId, chatTheme.bgId(), 0);
+					String chatThemeId = bgId;
+					convDb.setChatBackground(groupId, bgId, 0);
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -3281,7 +3281,7 @@ public class MqttMessagesManager
 		}
 		String id = isGroupConversation ? to : from;
 
-		Pair<ChatTheme, Long> chatThemedata = convDb.getChatThemeAndTimestamp(id);
+		Pair<String, Long> chatThemedata = convDb.getChatThemeIdAndTimestamp(id);
 
 		if (chatThemedata != null)
 		{
@@ -3298,7 +3298,7 @@ public class MqttMessagesManager
 				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 				String bgId = data.optString(HikeConstants.BG_ID);
 
-				if (bgId.equals(chatThemedata.first.bgId()))
+				if (bgId.equals(chatThemedata.first))
 				{
 					/*
 					 * Duplicate theme.
@@ -3321,10 +3321,10 @@ public class MqttMessagesManager
 				throw new IllegalArgumentException();
 			}
 
-			ChatTheme chatTheme = ChatTheme.getThemeFromId(bgId);
+			String chatThemeId = bgId;
 			convDb.setChatBackground(id, bgId, timestamp);
 
-			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(id, chatTheme));
+			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
 
 			saveStatusMsg(jsonObj, id);
 		}

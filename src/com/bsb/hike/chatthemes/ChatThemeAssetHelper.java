@@ -2,6 +2,7 @@ package com.bsb.hike.chatthemes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -18,7 +19,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 	private String TAG = "ChatThemeAssetHelper";
 
 	// maintains the hashset of all recorded downloaded and non-downloaded assets
-	private HashMap<String, HikeChatThemeAsset> mAssets;
+	private ConcurrentHashMap<String, HikeChatThemeAsset> mAssets;
 
 	private String[] mPubSubListeners = { HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_FAILURE };
 
