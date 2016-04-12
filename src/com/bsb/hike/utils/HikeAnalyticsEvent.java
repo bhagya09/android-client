@@ -196,7 +196,7 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject analyticsObj = new JSONObject();
-			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
@@ -219,7 +219,7 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
