@@ -150,5 +150,5 @@
 	<dimen name="sticker_mini_loader">38dp</dimen>
 	<dimen name="four_dp_corner_radius">4dp</dimen>
 	<dimen name="friends_ftue_tip_margin">60dp</dimen>
-	
+
 </resources>

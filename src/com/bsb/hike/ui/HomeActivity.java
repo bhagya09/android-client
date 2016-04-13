@@ -218,8 +218,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private boolean wasFragmentRemoved = false;
 
-	private boolean wasHomeScreenRestored = false;
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -1487,36 +1485,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
-			new Thread(new Runnable()
+			runOnUiThread(new Runnable()
 			{
+				@SuppressLint("NewApi")
 				@Override
 				public void run()
 				{
-					runOnUiThread(new Runnable()
+					HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+
+					showingBlockingDialog = false;
+					if (progDialog != null)
 					{
-						@SuppressLint("NewApi")
-						@Override
-						public void run()
-						{
-							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+						progDialog.dismiss();
+						progDialog = null;
+					}
 
-							showingBlockingDialog = false;
-							if (progDialog != null)
-							{
-								progDialog.dismiss();
-								progDialog = null;
-							}
+					if (restoreProgDialog != null)
+					{
+						restoreProgDialog.dismiss();
+						restoreProgDialog = null;
+					}
 
-							if (Utils.isDBCorrupt())
-							{
-								showCorruptDBRestoreDialog();
-							}
+					if (Utils.isDBCorrupt())
+					{
+						showCorruptDBRestoreDialog();
+					}
 
-							reInitHomeScreen();
-						}
-					});
+					invalidateOptionsMenu();
+					initialiseHomeScreen(null);
 				}
-			}).start();
+			});
 		}
 		else if (HikePubSub.SMS_SYNC_COMPLETE.equals(type) || HikePubSub.SMS_SYNC_FAIL.equals(type))
 		{
@@ -2559,12 +2557,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
-		if (restoreProgDialog != null)
-		{
-			restoreProgDialog.dismiss();
-			restoreProgDialog = null;
-		}
-
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2589,9 +2581,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		// Set up the home screen
-		wasHomeScreenRestored = false;
-		reInitHomeScreen();
+		// Set up the home screen. First check if we are running upgrade intent service or not.
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false))
+		{
+			if (restoreProgDialog != null)
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
+
+			invalidateOptionsMenu();
+			initialiseHomeScreen(null);
+		}
 	}
 
 	private void showRestoreInProcessDialog()
@@ -2619,19 +2621,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 			showCorruptDBRestoreDialog();
 		}
-	}
-
-	private void reInitHomeScreen()
-	{
-		if (wasHomeScreenRestored) //This flag will prevent the homescreen from doing all the heavy work again if it has already been initialized
-		{
-			return;
-		}
-
-		wasHomeScreenRestored = true;
-
-		initialiseHomeScreen(null);
-		invalidateOptionsMenu();
 	}
 
 }
