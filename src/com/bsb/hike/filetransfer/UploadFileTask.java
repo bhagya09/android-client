@@ -197,6 +197,11 @@ public class UploadFileTask extends FileTransferBase
 
 	public void validateFileKey()
 	{
+		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+		{
+			return;
+		}
+
 		if (TextUtils.isEmpty(fileKey))
 		{
 			HikeFile hikeFile = userContext.getMetadata().getHikeFiles().get(0);
@@ -439,6 +444,11 @@ public class UploadFileTask extends FileTransferBase
 
 	public void verifyMd5(final boolean isFileKeyValid)
 	{
+		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+		{
+			return;
+		}
+
 		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
@@ -559,6 +569,11 @@ public class UploadFileTask extends FileTransferBase
 
 	public void uploadFile(File sourceFile)
 	{
+		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
+		{
+			return;
+		}
+
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
 			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, new IRequestListener()
