@@ -956,7 +956,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					if (Utils.isFavToFriendsMigrationAllowed())
 					{
 						req_layout.findViewById(R.id.no).setVisibility(View.GONE);
-						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.voip_accept);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
 					}
 					else
 					{
