@@ -26,6 +26,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -381,7 +382,8 @@ public class OneToNConversationUtils
 			}
 
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(activity, conversationContactInfo, true, newOneToNConv,
+					ChatThreadActivity.ChatThreadOpenSources.NEW_GROUP);
 			activity.startActivity(intent);
 			activity.finish();
 
@@ -533,7 +535,7 @@ public class OneToNConversationUtils
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_SENT, msg);
 			
 			ContactInfo conversationContactInfo = new ContactInfo(oneToNConvId, oneToNConvId, oneToNConvId, oneToNConvId);
-			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, conversationContactInfo, true, newOneToNConv);
+			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, conversationContactInfo, true, newOneToNConv, ChatThreadActivity.ChatThreadOpenSources.NEW_GROUP);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			mContext.startActivity(intent);
 

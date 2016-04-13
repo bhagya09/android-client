@@ -229,8 +229,12 @@ public class AnalyticsConstants
 	public static String USER_GOOGLE_ACCOUNTS = "usrGoogleAccs";
 	public static String FORWARD = "forward";
 	public static String BOT_CONTENT_SHARED = "bot_content_shared";
+
+	public static String DOWNLOAD_PAUSED = "download_paused";
+	public static String DOWNLOAD_RESUMED = "download_resumed";
 	public static String PLATFORM_NOTIFICATION = "platform_notification";
 	public static String PLATFORM_RICH_NOTIF = "platform_rich_notif";
+	public static String TTL_EXPIRED = "ttlExpired";
 
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2
@@ -251,7 +255,7 @@ public class AnalyticsConstants
 
 		public static final String FAMILY = "fa";
 
-		public static final String GENUS = "f";
+		public static final String GENUS = "g";
 
 		public static final String SPECIES = "s";
 
@@ -670,6 +674,10 @@ public class AnalyticsConstants
 	
 	public static final String BOT_NOTIF_TRACKER = "bno";
 	
+	public static final String BOT_VIA_MENU = "bvmenu";
+	
+	public static final String BOT_VIA_HOME_MENU = "home_menu";
+	
 	public static final String BOT_OPEN_SOURCE_DISC = "bot_discovery";
 	
 	public static final String BOT_OPEN_SOURCE_NOTIF = "bot_notif";
@@ -728,6 +736,18 @@ public class AnalyticsConstants
 
 	public static final String USER_LOCATION = "location";
 
+    public static final String PLATFORM_CONTENT_DIRECTORY = "platform_content_directory";
+
+    public static final String HIKE_MICRO_APPS_DIRECTORY = "hike_micro_apps_directory";
+
+    public static final String HIKE_WEB_MICRO_APPS_DIRECTORY = "hike_web_micro_apps_directory";
+
+    public static final String GAMES_DIRECTORY = "games_directory";
+
+    public static final String MAPPS_DIRECTORY = "mapps_directory";
+
+    public static final String POPUP_DIRECTORY = "popup_directory";
+
 	public static final String DATABASE_ERROR = "db_error";
 
 	public static final String DATABASE_AREA = "db";
@@ -769,6 +789,8 @@ public class AnalyticsConstants
 
     public static final String APP_UPDATE_TRIGGER = "app_updated";
 
+    public static final String MICROAPPS_MIGRATION_SUCCESS_TRIGGER = "microapps_migration_success";
+
 	public static String ANALYTICS_EXTRA = "analyticsExtra";
 
 	public static String CHROME_CUSTOM_TABS = "chromeCustomTabs";
@@ -777,9 +799,31 @@ public class AnalyticsConstants
 	public static final String CHROME_TABS_SUPPORTED = "chromeTabsSupported";
 	public static final String CHROME_TABS_UNSUPPORTED = "chromeTabsUnSupported";
 
+	public static final String ACT_LOG_2 = "act_log2";
+
+	public static final String CHAT_OPEN = "chat_open";
+
+	public static final String ADD_FRIEND = "add_friend";
+
+	public static final String USER_TL_OPEN = "user_TL_open";
+
+    public static final String MIGRATION_FAILURE_ANALYTICS = "migration_failure";
 	public static final String PLATFORM_RICH_NOTIFS = "platformRichNotifs";
 	public static final String BITMAP_DOWNLOAD_SUCCESS = "success";
 	public static final String BITMAP_DOWNLOAD_UNSUCESSFULL = "fail";
 	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
 	public static final String REQUEST_FAILURE = "requestFailure";
+
+
+	public static final String CAMERA_ICON_CLICK = "camicon";
+	public static final String AUDIO_ICON_CLICK  = "audicon";
+	public static final String VIDEO_ICON_CLICK  = "vidicon";
+	public static final String LOCATION_ICON_CLICK = "locicon";
+	public static final String FILE_ICON_CLICK = "fileicon";
+	public static final String GALLERY_ICON_CLICK = "galicon";
+	public static final String APPS_ICON_CLICK = "appsicon";
+	public static final String CONTACT_ICON_CLICK = "cntcticon";
+
+	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
+
 }

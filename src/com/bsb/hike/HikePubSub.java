@@ -459,10 +459,6 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String PLATFORM_CARD_EVENT_SENT = "platformCardEventSent";
 
-	public static final String KPT_LANGUAGES_UPDATED = "kptLangUpdated";
-
-	public static final String KPT_LANGUAGES_INSTALLATION_FINISHED = "kptLangInstFin";
-
 	public static final String LOCAL_LANGUAGE_CHANGED = "localLangChange";
 	
 	public static final String LOCATION_AVAILABLE = "locationAvailable";
@@ -479,9 +475,9 @@ public class HikePubSub extends Handler implements Runnable
 	
 	public static final String BOT_CREATED = "botCreated";
 
-	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
+    public static final String MAPP_CREATED = "mappCreated";
 
-	public static final String KEYBOARD_SWITCHED = "keyboardSwitched";
+	public static final String SHOW_NEW_CHAT_RED_DOT = "showNewChatRedDot";
 
 	public static final String BADGE_COUNT_CHANGED = "badgeCountChanged";
 
@@ -523,7 +519,11 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String OPEN_COMPOSE_CHAT_SCREEN = "openComposeChatScreen";
 
+	public static final String FILE_OPENED = "fileOpened";
+
 	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
 	private final Thread mThread;
 
