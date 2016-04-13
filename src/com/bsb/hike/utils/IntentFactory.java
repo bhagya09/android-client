@@ -52,6 +52,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.UpgradeIntentService;
+import com.bsb.hike.spaceManager.ManageSpaceActivity;
 import com.bsb.hike.spaceManager.StorageSpecIntentService;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
@@ -110,6 +111,12 @@ public class IntentFactory
 		Intent intent = new Intent(context, HikePreferences.class);
 		intent.putExtra(HikeConstants.Extras.PREF, R.xml.notification_preferences);
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.notifications);
+		context.startActivity(intent);
+	}
+
+	public static void openSettingManageSpace(Context context)
+	{
+		Intent intent = new Intent(context, ManageSpaceActivity.class);
 		context.startActivity(intent);
 	}
 	public static Intent shareFunctionality(Intent intent, ConvMessage message, MessagesAdapter mAdapter, int shareableMessagesCount,Context context)
