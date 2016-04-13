@@ -112,6 +112,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import java.lang.ref.WeakReference;
@@ -2132,6 +2133,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
+                case R.string.recharge_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
+					break;
+					
 				case R.string.timeline:
 					try
 					{
@@ -2261,6 +2268,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		}else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
 		}
 
 	}
@@ -2512,6 +2522,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+
+        //reset dticker tables to default sticker set
+        StickerManager.getInstance().resetStickerTablesToDefault();
+
 		app.connectToService();
 
 		// Set up the home screen

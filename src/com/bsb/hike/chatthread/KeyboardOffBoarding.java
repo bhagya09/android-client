@@ -14,6 +14,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -87,6 +88,15 @@ public class KeyboardOffBoarding
 		String googleBtnTxt = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.KPT_EXIT_GOOGLE_BUTTON, null);
 		if (googleBtnTxt != null) {
 			((TextView)(rootView.findViewById(R.id.btn_google_keyboard))).setText(googleBtnTxt);
+		}
+
+		String language = LocalLanguageUtils.getApplicationLocalLanguageLocale();
+		if (language.equals("kn") || language.equals("ta") || language.equals("ml")) {
+
+			TextView body = (TextView)(rootView.findViewById(R.id.kpt_exit_text));
+			TextView headingView = (TextView)(rootView.findViewById(R.id.kpt_exit_heading));
+			body.setTextSize(14);
+			headingView.setTextSize(18);
 		}
 	}
 
