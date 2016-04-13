@@ -1365,8 +1365,8 @@ public class PlatformUtils
 							}
 						}
 					}
-					dir.delete();
 				}
+                dir.delete();
 			}
 			else
 			{
