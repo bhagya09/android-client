@@ -138,6 +138,9 @@ public class FileTransferBase
 
 	public void cancel()
 	{
-		requestToken.cancel();
+		if (requestToken != null)
+		{
+			requestToken.cancel();
+		}
 	}
 }
