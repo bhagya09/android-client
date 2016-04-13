@@ -826,4 +826,6 @@ public class AnalyticsConstants
 
 	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
 
+	public static final String WT_CLICKED_TOUCHED = "wticon";
+
 }
