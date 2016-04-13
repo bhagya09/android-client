@@ -419,6 +419,7 @@ public class FileTransferManager
 			FileTransferBase obj = fileTaskMap.get(msgId);
 			if (obj != null)
 			{
+				fileTaskMap.remove(msgId);
 				obj.cancel();
 			}
 			Logger.d(getClass().getSimpleName(), "deleting state file" + msgId);
