@@ -4339,6 +4339,9 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+		case HikePubSub.CLEAR_CONVERSATION:
+			FileTransferManager.getInstance(activity).clearConversation(msisdn);
+			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
 			//TODO Proper handling in next release. It is safe to comment this out for now.
 			//onGeneralEventStateChange(object);
@@ -4578,7 +4581,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE,HikePubSub.CLEAR_CONVERSATION};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -5584,7 +5587,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 		{
 			mMessageMap.clear();
 		}
-
+		
 		mAdapter.notifyDataSetChanged();
 		Logger.d(TAG, "Clearing conversation");
 	}

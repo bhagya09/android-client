@@ -95,6 +95,7 @@ public class RequestExecuter
 			chain.proceed();
 		} catch (Exception ex) {
 			listener.onResponse(null, new HttpException(ex)); // sending failure
+			return;
 		}
 		/**
 		 * This is to handle the case in which one of interceptor in the pipeline do not chain.proceed() then we have to clear request and response objects and also remove this
