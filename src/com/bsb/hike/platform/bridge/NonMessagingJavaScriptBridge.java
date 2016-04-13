@@ -1619,6 +1619,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
      * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
      * Call this function to get the mAppVersionCode for asked msisdn.
      * @param id: the id of the function that native will call to call the js .
+     * @param msisdn: the msisdn of the bot for which micro app version code is required.
      * returns -1 if bot not exists
      */
     @JavascriptInterface
@@ -1634,6 +1635,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
         callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
 
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked appName.
+     * @param id: the id of the function that native will call to call the js .
+     * @param appName: the appName of the sdk that you require version code for.
+     * returns -1 if caller of the method is not a special bot
+     */
+    @JavascriptInterface
+    public void getSDKVersionCode(String id, String appName)
+    {
+        if (!BotUtils.isSpecialBot(mBotInfo))
+        {
+            callbackToJS(id,"-1");
+            return;
+        }
+
+        int gameEngineMappVersionCode = 0;
+
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            gameEngineMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
+
+        callbackToJS(id, String.valueOf(gameEngineMappVersionCode));
     }
 
 

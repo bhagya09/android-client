@@ -1344,26 +1344,29 @@ public class PlatformUtils
 			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
 			{
 				String[] children = dir.list();
-				for (int i = 0; i < children.length; i++)
+				if (children != null && children.length>0)
 				{
-					File temp = new File(dir, children[i]);
-					if (temp.isDirectory())
+					for (int i = 0; i < children.length; i++)
 					{
-						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
-						deleteOp(temp);
-					}
-					else
-					{
-						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
-						boolean b = temp.delete();
-						if (!b)
+						File temp = new File(dir, children[i]);
+						if (temp.isDirectory())
 						{
-							Logger.d("DeleteRecursive", "DELETE FAIL");
-							return false;
+							Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+							deleteOp(temp);
+						}
+						else
+						{
+							Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+							boolean b = temp.delete();
+							if (!b)
+							{
+								Logger.d("DeleteRecursive", "DELETE FAIL");
+								return false;
+							}
 						}
 					}
 				}
-				dir.delete();
+                dir.delete();
 			}
 			else
 			{
