@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1652"
-    android:versionName="4.2.5.9.sticker_sprint_18_3_16" >
+    android:versionCode="1655"
+    android:versionName="4.2.5.82.105" >
 
    <uses-sdk
         android:minSdkVersion="14"
