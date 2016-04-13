@@ -631,13 +631,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
         if(!showFilteredContacts)
         {
-            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
             updateFriendsList(friendsSection, true, true);
         }
 
         if (isHikeContactsPresent())
 		{
-			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
+			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn_upper_case : R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
 		}
 		if (showSMSContacts)
@@ -1419,7 +1419,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						lastSeen.setVisibility(View.VISIBLE);
 						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							lastSeen.setText(context.getString(R.string.sent_you_friend_req));
+						}
+						else
+						{
+							lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						}
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1430,11 +1437,16 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						acceptBtn.setOnClickListener(acceptOnClickListener);
 						rejectBtn.setOnClickListener(rejectOnClickListener);
 
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							rejectBtn.setVisibility(View.GONE);
+						}
+
 					}
 					else if (viewType == ViewType.FTUE_CONTACT)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(R.string.ftue_favorite_subtext);
+						lastSeen.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.ftue_frn_subtext : R.string.ftue_favorite_subtext);
 
 						TextView addBtn = viewHolder.addBtn;
 

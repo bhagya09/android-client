@@ -51,6 +51,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
 {
@@ -536,6 +537,11 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
 				// Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null)
+				{
+					bundle.putAll(extras);
+				}
 				intent.putExtras(bundle);
 
 				if (hasDelegateActivities())

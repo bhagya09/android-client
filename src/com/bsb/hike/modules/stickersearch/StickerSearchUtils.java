@@ -9,9 +9,12 @@ import android.widget.TextView;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.Sticker;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+import com.bsb.hike.offline.OfflineController;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,25 +82,44 @@ public class StickerSearchUtils
 	/**
 	 * 
 	 * @param stickerList
-	 * @return a pair of boolean and sticker list where boolean represents whether first sticker in original list is available or not. if boolean is true it return list containing
-	 *         available stickers only and original sticker list if boolean is false
+	 * @return a pair of boolean and sticker list where boolean represents whether all stickers in original list are available or not. if boolean is true it return list containing
+	 *         allowed stickers only and original sticker list if boolean is false
 	 */
-	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList)
+	public static Pair<Boolean, List<Sticker>> shouldShowStickerFtue(List<Sticker> stickerList, int undownloadedStickersToDisplay)
 	{
-		Sticker sticker = stickerList.get(0);
-		if (!sticker.getStickerCurrentAvailability())
+
+		boolean result = false;
+
+		if ((undownloadedStickersToDisplay == 0))
 		{
-			return new Pair<Boolean, List<Sticker>>(false, stickerList);
+			result = stickerList.get(0).isStickerAvailable();
+		}
+		else
+		{
+			for (int i = 0; i < stickerList.size(); i++)
+			{
+				Sticker sticker = stickerList.get(i);
+				result = result || sticker.isStickerAvailable();
+			}
 		}
 
-		return new Pair<Boolean, List<Sticker>>(true, getAvailableStickerList(stickerList));
+		if (result)
+		{
+			return new Pair<Boolean, List<Sticker>>(result, getAllowedStickerList(stickerList, undownloadedStickersToDisplay));
+		}
+		else
+		{
+			return new Pair<Boolean, List<Sticker>>(result, stickerList);
+		}
+
 	}
 
-	private static List<Sticker> getAvailableStickerList(List<Sticker> stickerList)
+	private static List<Sticker> getAllowedStickerList(List<Sticker> stickerList, int allowedUndownloadedLimit)
 	{
-		int length = stickerList.size();
+		int length = stickerList.size(), count = 0;
 
 		List<Sticker> resultList = new ArrayList<Sticker>(length);
+		List<Sticker> undownloadedList = new ArrayList<Sticker>();
 
 		for (int i = 0; i < length; i++)
 		{
@@ -106,20 +128,36 @@ public class StickerSearchUtils
 			{
 				resultList.add(sticker);
 			}
+			else if (count < allowedUndownloadedLimit)
+			{
+				if (sticker.isMiniStickerAvailable())
+				{
+					resultList.add(sticker);
+				}
+				else
+				{
+					undownloadedList.add(sticker);
+				}
+				count++;
+			}
+			else
+			{
+				Logger.i(TAG, "Undownloaded sticker found but not shown : " + sticker.getCategoryId() + " : " + sticker.getStickerId());
+			}
+		}
+
+		if (undownloadedList.size() > 0)
+		{
+			resultList.addAll(undownloadedList);
 		}
 
 		return resultList;
 	}
-
-    /***
-     * @return current keyboard language in ISO 639-2/T format
-     */
+	/***
+	 * @return current keyboard language in ISO 639-2/T format
+	 */
 	public static String getCurrentLanguageISOCode()
 	{
-		if (!HikeMessengerApp.isSystemKeyboard())
-		{
-			return StickerSearchUtils.getISOCodeFromLocale(new Locale(KptKeyboardManager.getInstance().getCurrentLanguageAddonItem().getlocaleName()));
-		}
 
 		try
 		{
@@ -140,6 +178,38 @@ public class StickerSearchUtils
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
 
+	public static int getTagCacheLimit(int tagType)
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		switch (tagType)
+		{
+		case StickerSearchConstants.STATE_FORCED_TAGS_DOWNLOAD:
+			return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_CACHE_LIMIT, StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT);
+		}
+
+		return StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT;
+	}
+
+	public static int getUndownloadedTagsStickersCount()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		return prefs.getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_TAG_COUNT, 0);
+	}
+
+	public static boolean tagCacheLimitReached(int tagType)
+	{
+		int cacheLimit = getTagCacheLimit(tagType);
+
+        if (cacheLimit == StickerSearchConstants.DEFAULT_STICKER_CACHE_LIMIT)
+		{
+			return false;
+		}
+
+		return getUndownloadedTagsStickersCount() - cacheLimit > 0;
+	}
+
 	public static String getISOCodeFromLocale(Locale locale)
 	{
 		try
@@ -152,4 +222,19 @@ public class StickerSearchUtils
 		}
 		return StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE;
 	}
+
+    /**
+     *
+     * @return server controlled limit if not connected via Hike Direct and user on wifi
+     */
+    public static int getUndownloadedStickerToDisplayCount()
+    {
+        if((Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()) == 1) && !OfflineController.getInstance().isConnected())
+        {
+            return HikeSharedPreferenceUtil.getInstance().getData(HikeStickerSearchBaseConstants.KEY_PREF_UNDOWNLOADED_VISIBLE_IN_RECO_COUNT, 0);
+        }
+
+        return  0;
+    }
+
 }

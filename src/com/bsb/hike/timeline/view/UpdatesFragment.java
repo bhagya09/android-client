@@ -65,6 +65,7 @@ import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
@@ -169,6 +170,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				mMsisdnArray.add(msisdn);
 			}
+
+			if (msisdnArray!= null && msisdnArray.length == 1)
+			{
+				//Send Analytics
+				HikeAnalyticsEvent.analyticsForUserProfileOpen(msisdnArray[0], "ProfileTap");
+			}
+
 		}
 		
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), mShowProfileHeader, mMsisdnArray)
@@ -431,7 +439,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			JSONObject viewsPayload = new JSONObject();
 			try
 			{
-				viewsPayload.put(HikeConstants.SU_ID_LIST, viewedJsonArray);
+				viewsPayload.put(HikeConstants.SU_ID, viewedJsonArray);
 				Logger.d("SendViewsAPI", "Payload"+viewsPayload.toString());
 				timelineCardsAdapter.getSUViewedSet().clear();
 				RequestToken sendViewsToken = HttpRequests.sendViewsLink(viewsPayload, new IRequestListener()
@@ -445,7 +453,15 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 					@Override
 					public void onRequestSuccess(Response result)
 					{
-						Logger.d("SendViewsAPI", "Success");
+						if (Utils.isResponseValid((JSONObject) result.getBody().getContent()))
+						{
+							Logger.d("SendViewsAPI", "Success");
+						}
+						else
+						{
+							Logger.d("SendViewsAPI", "Stat failed");
+						}
+
 					}
 
 					@Override

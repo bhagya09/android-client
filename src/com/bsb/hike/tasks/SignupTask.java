@@ -1,8 +1,20 @@
 package com.bsb.hike.tasks;
 
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
+import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -26,30 +38,19 @@ import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
 import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
+import com.crashlytics.android.Crashlytics;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -439,6 +440,11 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			msisdn = accountInfo.getMsisdn();
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
+			//Check for crash reporting tool
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			{
+				Crashlytics.setUserIdentifier(accountInfo.getUid());
+			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
 			if (!TextUtils.isEmpty(hikeUID) && !TextUtils.isEmpty(hikeToken))
@@ -517,44 +523,12 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			{
 				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				
-				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
-				{
-					boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
-					if (addressBookPosted == false)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-				}
-				else
-				{
-					JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
 
-					List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-					List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-					if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-					{
-						JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-						JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-						if (contactsArray != null)
-						{
-							Editor editor = settings.edit();
-							editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-							editor.commit();
-						}
-					}
-					// List<>
-					// TODO this exception should be raised from the postAddressBook
-					// code
-					if (addressbook == null)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-					Logger.d("SignupTask", "about to insert addressbook");
-					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
+				if (addressBookPosted == false)
+				{
+					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
+					return Boolean.FALSE;
 				}
 			}
 			catch (Exception e)
