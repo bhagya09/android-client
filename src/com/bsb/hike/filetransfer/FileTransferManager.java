@@ -24,6 +24,7 @@ import com.bsb.hike.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -436,6 +437,25 @@ public class FileTransferManager
 			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
 			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+		}
+	}
+
+	public void clearConversation(String msisdn)
+	{
+		for (Map.Entry<Long, FileTransferBase> taskEntry : fileTaskMap.entrySet())
+		{
+			long msgId = taskEntry.getKey();
+			FileTransferBase task = taskEntry.getValue();
+			Object context = task.getUserContext();
+			if (context instanceof ConvMessage)
+			{
+				ConvMessage msg = (ConvMessage) context;
+				if (msg.getMsisdn().equals(msisdn))
+				{
+					HikeFile hikeFile = msg.getMetadata().getHikeFiles().get(0);
+					cancelTask(msgId, hikeFile, msg.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
+				}
+			}
 		}
 	}
 

@@ -5585,6 +5585,7 @@ import com.kpt.adaptxt.beta.view.AdaptxtEditText;
 			mMessageMap.clear();
 		}
 
+		FileTransferManager.getInstance(activity).clearConversation(msisdn);
 		mAdapter.notifyDataSetChanged();
 		Logger.d(TAG, "Clearing conversation");
 	}
