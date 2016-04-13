@@ -1397,7 +1397,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	}
 
 	private void sendWTClickedAnalytic() {
-		JSONObject json = Utils.getMediaClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, AnalyticsConstants.WT_CLICKED_TOUCHED);
+		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, AnalyticsConstants.WT_CLICKED_TOUCHED);
 		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
