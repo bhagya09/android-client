@@ -1344,7 +1344,7 @@ public class PlatformUtils
 			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
 			{
 				String[] children = dir.list();
-				if (children != null)
+				if (children != null && children.length>0)
 				{
 					for (int i = 0; i < children.length; i++)
 					{
