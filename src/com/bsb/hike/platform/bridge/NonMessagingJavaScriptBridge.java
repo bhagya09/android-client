@@ -512,7 +512,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				String[] params = (String[]) msg.obj;
 				// checking for interceptUrl JSON String
-				if (params[2] != null)
+				if (params[3] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson
+				}
+				else if (params[2] != null)
 				{
 					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
 				}
@@ -566,7 +570,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		openFullPage(title, url, null);
+		openFullPage(title, url, null, "false");
 	}
 	
 	/**
@@ -1501,9 +1505,15 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *
 	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
 	 * 			    		 intercepted URL.
+	 * @param backToActivity TODO
 	 */
 	@JavascriptInterface
+	
 	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		openFullPage( title,  url,  interceptUrlJson,"false");
+	}
+	public void openFullPage(String title, String url, String interceptUrlJson, String backToActivity)
 	{
 		if (TextUtils.isEmpty(title))
 		{
@@ -1515,7 +1525,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson,backToActivity });
 		}
 	}
 
