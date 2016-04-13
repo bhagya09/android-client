@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="320dp"
+    android:layout_height="305dp"
     android:background="@color/signup_white">
 
     <ImageView
@@ -20,26 +20,27 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingTop="12dp" >
+    android:paddingTop="10dp">
     
     <ImageView
         android:layout_width="54.5dp"
         android:layout_height="58dp"
-        android:layout_margin="12dp"
+        android:layout_margin="10dp"
         android:background="@drawable/art_keyboard"/>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/kpt_exit_heading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="keyboard_shutdown_heading"
+        android:maxLines="2"
         android:gravity="center"
         android:text="@string/keyboard_shutdown_heading"
         android:textColor="#3d475b"
         android:textSize="20sp"
-        android:maxLines="2"
-        android:maxWidth="200dp"
+        android:maxWidth="250dp"
         android:textStyle="bold|italic"/>
 
     <com.bsb.hike.view.CustomFontTextView
@@ -50,7 +51,7 @@
         android:contentDescription="keyboard_shutdown_description"
         android:gravity="center"
         android:maxLines="3"
-        android:maxWidth="260dp"
+        android:maxWidth="280dp"
         android:text="@string/keyboard_shutdown_description"
         android:textColor="@color/settings_text_subheader_color"
         android:textSize="16sp" />
@@ -81,7 +82,9 @@
 
         <View
             android:layout_width="0.5dp"
-            android:layout_height="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp"
             android:layout_gravity="center|center_vertical"
             android:background="#14000000" />
 

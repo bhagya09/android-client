@@ -610,7 +610,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 							{
 								// In case of failure updating status
 								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
@@ -841,7 +841,7 @@ public class PlatformUtils
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
 					//Updating state in case of failure
-					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 					{
 
 						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
