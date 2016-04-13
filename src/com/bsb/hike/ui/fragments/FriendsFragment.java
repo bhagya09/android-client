@@ -28,6 +28,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -199,7 +200,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 		}
 		else
 		{
-			Utils.startChatThread(getActivity(), contactInfo);
+			Utils.startChatThread(getActivity(), contactInfo, ChatThreadActivity.ChatThreadOpenSources.FRIENDS_SCREEN);
 			getActivity().finish();
 		}
 	}
@@ -540,7 +541,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 
 		ArrayList<String> optionsList = new ArrayList<String>();
 
-		optionsList.add(getString(R.string.remove_from_favorites));
+		optionsList.add(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites));
 
 		final String[] options = new String[optionsList.size()];
 		optionsList.toArray(options);
@@ -555,7 +556,7 @@ public class FriendsFragment extends ListFragment implements Listener, OnItemLon
 			public void onClick(DialogInterface dialog, int which)
 			{
 				String option = options[which];
-				if (getString(R.string.remove_from_favorites).equals(option))
+				if (getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends :R.string.remove_from_favorites).equals(option))
 				{
 					Utils.checkAndUnfriendContact(contactInfo);
 				}

@@ -67,7 +67,7 @@ public class HttpRequestConstants
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
 	
-	public static final String BASE_SDK_STAGING = "stagingoauth.im.hike.in/o/oauth2/";
+	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
 	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
@@ -230,7 +230,17 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
 	}
+
+	public static String getForcedStickersUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+	}
 	
+	public static String stickerCategoryDetailsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -333,9 +343,24 @@ public class HttpRequestConstants
 
 	public static String authSDKBaseUrl()
 	{
-		return BASE_SDK;
+		return BASE_SDK_STAGING;
+	}
+	
+	
+	public static String authBaseUrl()
+	{
+		return BASE_SDK_STAGING+"authorize" + "?" ;
 	}
 
+	public static String registerBrandUrl()
+	{
+		return BASE_SDK_STAGING+"registerbrand";
+	}
+	
+	public static String clientIdUrl()
+	{
+		return BASE_SDK_STAGING+"createnewclientid";
+	}
 	public static String groupProfileBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/group/";
@@ -424,20 +449,6 @@ public class HttpRequestConstants
 		// TODO Add complete url here
 		return BASE_PLATFORM_URL;
 	}
-	
-	public static String getBotDownloadUrl()
-	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
-		
-		if (isProduction)
-		{
-			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
-		}
-		else
-		{
-			return HTTPS + QA_CONTENT + suffix ;
-		}
-	}
 
 	public static String getLanguageDictionaryBaseUrl()
 	{
@@ -483,7 +494,7 @@ public class HttpRequestConstants
 
 	public static String getMicroAppLoggingUrl(boolean isSuccess)
 	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+		String suffix = "/mapps/api" + BASE_V2 + "/apps/ack/" + (isSuccess ? "success" : "failure");
 
 		if (isProduction)
 		{
@@ -530,4 +541,21 @@ public class HttpRequestConstants
 	{
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
+
+    /*
+     * Async Method to fetch latest micro app from server for forward card case
+     */
+    public static String getBotDownloadUrlV2()
+    {
+        String suffix = "/mapps/api" + BASE_V2 + "/apps/install.json";
+
+        if (isProduction)
+        {
+            return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+        }
+        else
+        {
+            return HTTPS + QA_CONTENT + suffix ;
+        }
+    }
 }

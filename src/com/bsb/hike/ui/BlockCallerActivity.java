@@ -44,6 +44,8 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 
 	private View emptyView;
 
+	private String callType;
+
 	private Map<String, String> nameNumberMap = new HashMap<>();
 
 	@Override
@@ -61,9 +63,11 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 			if (savedInstanceState == null || !savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
 			{
 				msisdn = getIntent().getStringExtra(HikeConstants.MSISDN);
+				callType = getIntent().getStringExtra(HikeConstants.CALL_TYPE);
 				HikeDialogFactory.showDialog(this, HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG, this, getIntent().getStringExtra(HikeConstants.NAME));
 				getIntent().removeExtra(HikeConstants.MSISDN);
 				getIntent().removeExtra(HikeConstants.NAME);
+				getIntent().removeExtra(HikeConstants.CALL_TYPE);
 			}
 		}
 
@@ -84,7 +88,7 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.NEGATIVE_CLICKED, msisdn,
 				hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG ? AnalyticsConstants.StickyCallerEvents.BLOCK_DIALOG
 						: AnalyticsConstants.StickyCallerEvents.UNBLOCK_DIALOG,
-				null);
+				callType);
 	}
 
 	@Override
@@ -110,7 +114,7 @@ public class BlockCallerActivity extends HikeAppStateBaseFragmentActivity implem
 		HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.POSITIVE_CLICKED, msisdn,
 				hikeDialog.getId() == HikeDialogFactory.CALLER_BLOCK_CONTACT_DIALOG ? AnalyticsConstants.StickyCallerEvents.BLOCK_DIALOG
 						: AnalyticsConstants.StickyCallerEvents.UNBLOCK_DIALOG,
-				null);
+				callType);
 	}
 
 	@Override
