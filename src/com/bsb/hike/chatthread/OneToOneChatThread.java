@@ -3836,7 +3836,7 @@ import java.util.Map;
 
 			View addFriendView = activity.findViewById(R.id.add_friend_view);
 			// Check if there's any anim going on for the ftue view
-			if (!isThereAnyAnimationOnFriendsFtue(addFriendView))
+			if (addFriendView != null && !isThereAnyAnimationOnFriendsFtue(addFriendView))
 			{
 				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 				addFriendView.setVisibility(View.GONE);
