@@ -6,7 +6,6 @@
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
     
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
@@ -1076,7 +1075,7 @@
 
     <style name="WalkietalkieAnim" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/slide_in_right_fast</item>
-        <item name="android:windowExitAnimation">@anim/slide_out_right</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_right_fast</item>
     </style>
 
 </resources>

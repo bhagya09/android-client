@@ -406,6 +406,31 @@ public abstract class Request<T> implements IRequestFacade
 		}
 	}
 
+	public void replaceOrAddHeader(String name, String value)
+	{
+		if (TextUtils.isEmpty(name) || TextUtils.isEmpty(value))
+		{
+			return;
+		}
+
+		boolean exists = false;
+		for (Header header : headers)
+		{
+			if (header.getName().equals(name))
+			{
+				header.setValue(value);
+				exists = true;
+				break;
+			}
+		}
+
+		if (!exists)
+		{
+			Header header = new Header(name, value);
+			this.headers.add(header);
+		}
+	}
+
 	/**
 	 * Sets the body of the request
 	 * 
@@ -875,11 +900,6 @@ public abstract class Request<T> implements IRequestFacade
 	public String generateId()
 	{
 		String input = url + defaultId;
-		Collections.sort(headers);
-		for (Header header : headers)
-		{
-			input += header.getName() + header.getValue();
-		}
 		return HttpUtils.calculateMD5hash(input);
 	}
 	

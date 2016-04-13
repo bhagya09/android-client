@@ -4,7 +4,9 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.StickerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class DBsBackupRestore implements BackupableRestorable
 	{
 		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
 				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE },
+				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE,DBConstants.STICKER_TABLE },
 				backupToken)
 		{
 			@Override
@@ -45,6 +47,8 @@ public class DBsBackupRestore implements BackupableRestorable
 				{
 					HikeConversationsDatabase.getInstance().clearTable(table);
 				}
+
+                StickerManager.getInstance().postRestoreSetup();
 			}
 		};
 

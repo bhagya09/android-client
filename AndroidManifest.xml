@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1642"
-    android:versionName="4.2.0.83.4.walkie_talkie_enhancement" >
+    android:versionCode="1654"
+    android:versionName="4.2.5.82.22" >
 
-    <uses-sdk
+   <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
         tools:overrideLibrary = "android.support.customtabs"/>
@@ -136,6 +136,7 @@
             </intent-filter>
         </service>
         <service android:name=".service.UpgradeIntentService" />
+        <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -255,8 +256,6 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.LanguageSettingsActivity" >
-        </activity>
         <activity android:name=".ui.SettingsActivity" 
                   android:configChanges="orientation|screenSize">            
         </activity>
@@ -309,6 +308,10 @@
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"
@@ -541,6 +544,8 @@
 
         <service android:name=".service.SimpleWakefulService" >
         </service>
+
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
 
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>

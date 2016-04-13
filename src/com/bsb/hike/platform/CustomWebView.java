@@ -247,10 +247,22 @@ public class CustomWebView extends WebView
 
 		postJSRunnable = new Runnable() {
 			@Override
-			public void run() {
-				if (Utils.isKitkatOrHigher() && url.startsWith("javascript")) {
-					evaluateJavascript(Utils.appendTokenInURL(url), null);
-				} else {
+			public void run()
+			{
+				if (Utils.isKitkatOrHigher() && url.startsWith("javascript"))
+				{
+					try
+					{
+						evaluateJavascript(Utils.appendTokenInURL(url), null);
+					}
+					catch (IllegalStateException e)
+					{
+
+						CustomWebView.super.loadUrl(Utils.appendTokenInURL(url)); // On some Custom ROMs and Nokia phones depite being on API greater than 19 this function is not available.This API not supported on Android 4.3 and earlier\n\tat android.webkit.WebViewClassic.evaluateJavaScript(WebViewClassic.java:2674)\n\tat
+					}
+				}
+				else
+				{
 					CustomWebView.super.loadUrl(Utils.appendTokenInURL(url));
 				}
 			}
