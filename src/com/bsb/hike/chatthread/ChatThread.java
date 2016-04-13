@@ -1403,7 +1403,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	protected void showAudioRecordView()
 	{
-		audioRecordView.show();
+		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
+		if(!useWTRevamped) audioRecordView.show();
+		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
 	protected void stickerClicked()
