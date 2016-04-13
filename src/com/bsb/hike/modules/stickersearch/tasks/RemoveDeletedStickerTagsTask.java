@@ -1,9 +1,5 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import android.util.Pair;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -15,6 +11,10 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RemoveDeletedStickerTagsTask implements Runnable
 {
@@ -83,7 +83,7 @@ public class RemoveDeletedStickerTagsTask implements Runnable
 				{
 					for (Sticker sticker : stickerList)
 					{
-						stickerSet.add(StickerManager.getInstance().getStickerSetString(sticker));
+						stickerSet.add(sticker.getStickerCode());
 					}
 				}
 			}

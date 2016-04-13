@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.utils.JSONSerializable;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.utils.LastSeenComparator;
@@ -26,7 +27,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	@Override
 	public String toString()
 	{
-		return "ContactInfo [name=" + name + ", msisdn=" + msisdn + "]";
+		return "ContactInfo [id = " + id + " , name=" + name + ", msisdn=" + msisdn +  ", rawNum =" + phoneNum + "]";
 	}
 
 	private String name;
@@ -471,6 +472,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		this(id, msisdn, name, phoneNum, onhike, "", 0, false, 0, platformId);
 	}
 
+	public ContactInfo()
+	{
+		// Does nothing
+	}
+
 	public ContactInfo(ContactInfo contactInfo)
 	{
 		this(contactInfo.getId(), contactInfo.getMsisdn(), contactInfo.getName(), contactInfo.getPhoneNum(), contactInfo.isOnhike(), "", contactInfo.getLastMessaged(), contactInfo
@@ -621,4 +627,44 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		return BotUtils.isBot(msisdn);
 	}
+
+	public boolean isBlocked()
+	{
+		return ContactManager.getInstance().isBlocked(msisdn);
+	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isMyOneWayFriend()
+	{
+		FavoriteType favoriteType = this.getFavoriteType();
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isMyTwoWayFriend());
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isMyTwoWayFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.FRIEND;
+	}
+
+	public boolean isFriendRequestReceivedForMe()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED;
+	}
+
+	public boolean isNotMyFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
+	}
+
 }

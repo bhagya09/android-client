@@ -1,14 +1,11 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bsb.hike.AppConfig;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -19,7 +16,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
@@ -31,7 +28,7 @@ import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
-import com.bsb.hike.modules.kpt.KptKeyboardManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -42,6 +39,7 @@ import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.tasks.RingtoneFetcherTask;
 import com.bsb.hike.tasks.RingtoneFetcherTask.RingtoneFetchListener;
+import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAppStateBasePreferenceActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -51,14 +49,9 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.IconListPreference;
-import com.bsb.hike.view.IconPreference;
 import com.bsb.hike.view.NotificationToneListPreference;
 import com.bsb.hike.view.PreferenceWithSubText;
-import com.bsb.hike.view.SeekBarPreference;
 import com.bsb.hike.view.SwitchPreferenceCompat;
-import com.kpt.adaptxt.beta.AdaptxtSettings;
-import com.kpt.adaptxt.beta.KPTAdaptxtAddonSettings;
-import com.kpt.adaptxt.beta.KPTAddonItem;
 
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -76,12 +69,14 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.bsb.hike.view.IconPreference;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -105,10 +100,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean mIsResumed = false;
 	
-	KPTAdaptxtAddonSettings kptSettings;
-
-	List<KPTAddonItem> mInstalledLanguagesList;
-
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -139,16 +130,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			setBlockingTask((ActivityCallableTask) retained);
 			mTask.setActivity(this);
 		}
-       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.settings_localization || preferences == R.xml.kpt_advanced_preferences
-    		   || preferences == R.xml.keyboard_preferences || preferences == R.xml.text_correction_preferences)
+       if (preferences == R.xml.keyboard_settings_preferences && titleRes == R.string.language)
 		{
-			kptSettings = KptKeyboardManager.getInstance().getKptSettings();
 			saveKeyboardPref();
 		}
 
 		addClickPreferences();
 		addSwitchPreferences();
-		addSeekbarPreferences();
 		addAppLanguagePreference();
 
 		Preference deletePreference = getPreferenceScreen().findPreference(HikeConstants.DELETE_PREF);
@@ -164,6 +152,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addSMSCardEnablePref();
 				
 		addStealthPrefListeners();
+        addInterceptsPrefListeners();
 		
 		Preference videoCompressPreference = getPreferenceScreen().findPreference(HikeConstants.COMPRESS_VIDEO_CATEGORY);
 		if(videoCompressPreference != null && android.os.Build.VERSION.SDK_INT < 18)
@@ -193,103 +182,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 	
-	private void addSeekbarPreferences() {
-		addOnSeekbarChangeListeners(HikeConstants.LONG_PRESS_DUR_PREF,200);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VOL_PREF,1);
-		addOnSeekbarChangeListeners(HikeConstants.KEYPRESS_VIB_DUR_PREF, 1);
-	}
-
 	private void saveKeyboardPref()
 	{
-		if (!HikeMessengerApp.isCustomKeyboardUsable())
-		{
-			PreferenceCategory keyboardSettings = (PreferenceCategory) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_SETTING_PREF_CATEGORY);
-			if (keyboardSettings != null)
-			{
-				getPreferenceScreen().removePreference(keyboardSettings);
-				return;
-			}
-		}
-
-		Preference kbdPref = findPreference(HikeConstants.KEYBOARD_PREF);
-		if (kbdPref != null && kbdPref instanceof SwitchPreferenceCompat)
-		{
-			boolean val = HikeMessengerApp.isSystemKeyboard();
-			((SwitchPreferenceCompat) kbdPref).setChecked(!val);
-		}
-
 		ListPreference localLanguagePrf = (ListPreference) findPreference(HikeConstants.LOCAL_LANGUAGE_PREF);
 		if (localLanguagePrf != null && localLanguagePrf instanceof ListPreference)
 		{
 			localLanguagePrf.setValue(LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this).getDisplayName());
 		}
 
-		setKeyboardLangSummary();
-
-		setPrefValueFromKpt(HikeConstants.AUTO_CAPITALIZATION_PREF, kptSettings.getAutoCapitalizationState());
-		setPrefValueFromKpt(HikeConstants.AUTO_SPACING_PREF, kptSettings.getAutoSpacingState());
-		setPrefValueFromKpt(HikeConstants.GLIDE_PREF, kptSettings.getGlideState());
-		setPrefValueFromKpt(HikeConstants.SOUND_ON_KEYPRESS_PREF, kptSettings.getSoundOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.POPUP_ON_KEYPRESS_PREF, kptSettings.getPopupOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.VIBRATE_ON_KEYPRESS_PREF, kptSettings.getVibrateOnKeyPressState());
-		setPrefValueFromKpt(HikeConstants.AUTO_CORRECT_PREF, kptSettings.getAutoCorrectionState());
-		setPrefValueFromKpt(HikeConstants.DISPLAY_SUGGESTIONS_PREF, kptSettings.getDisplaySuggestionsState());
-		setPrefValueFromKpt(HikeConstants.PRIVATE_MODE_PREF, kptSettings.getPrivateModeState());
-		setPrefValueFromKpt(HikeConstants.DISPLAY_ACCENTS_PREF, kptSettings.getDisplayAccentsState());
-		setPrefValueFromKpt(HikeConstants.LONG_PRESS_DUR_PREF, kptSettings.getLongPressDuration());
-		setPrefValueFromKpt(HikeConstants.KEYPRESS_VOL_PREF, (int)kptSettings.getKeyPressSoundVolume());
-		setPrefValueFromKpt(HikeConstants.KEYPRESS_VIB_DUR_PREF, kptSettings.getKeyPressVibrationDuration());
 	}
 
-	private void setPrefValueFromKpt(String PreferenceName, int state)
-	{
-		Preference preference = findPreference(PreferenceName);
-		if (preference != null && preference instanceof SwitchPreferenceCompat)
-		{
-			boolean value = true;
-			switch (state)
-			{
-				case AdaptxtSettings.KPT_TRUE:
-					value = true;
-					break;
-				case AdaptxtSettings.KPT_FALSE:
-					value = false;
-					break;
-			}
-			((SwitchPreferenceCompat)preference).setChecked(value);
-		}
-		else if (preference != null && preference instanceof SeekBarPreference)
-		{
-			((SeekBarPreference)preference).setCurrentValue(state);
-		}
-	}
-	
-	private void setKeyboardLangSummary()
-	{
-		IconPreference kbdLanguagePref = (IconPreference) findPreference(HikeConstants.KEYBOARD_LANGUAGE_PREF);
-		if (kbdLanguagePref != null && kbdLanguagePref instanceof IconPreference)
-		{
-			String summary = new String();
-			ArrayList<KPTAddonItem> langList = KptKeyboardManager.getInstance().getInstalledLanguagesList();
-			for (KPTAddonItem item : langList)
-			{
-				if (KptKeyboardManager.getInstance().getDictionaryLanguageStatus(item) == KptKeyboardManager.LanguageDictionarySatus.INSTALLED_LOADED)
-				{
-					summary += item.getDisplayName();
-					summary += ", ";
-				}
-			}
-			summary = summary.substring(0, Math.max(summary.length() - 2, 0));
-			kbdLanguagePref.setSummary(summary);			
-		}
-	}
-	
 	private void addClickPreferences()
 	{
 		addOnPreferenceClickListeners(HikeConstants.DELETE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.BACKUP_PREF);
 		addOnPreferenceClickListeners(HikeConstants.UNLINK_PREF);
 		addOnPreferenceClickListeners(HikeConstants.STICKER_REORDER_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_DELETE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_HIDE_PREF);
+		addOnPreferenceClickListeners(HikeConstants.STICKER_UPDATE_PREF);
 		addOnPreferenceClickListeners(HikeConstants.BLOKED_LIST_PREF);
 		addOnPreferenceClickListeners(HikeConstants.SYSTEM_HEALTH_PREF);
 		addOnPreferenceClickListeners(HikeConstants.HELP_FAQS_PREF);
@@ -299,24 +210,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceClickListeners(HikeConstants.CHAT_BG_NOTIFICATION_PREF);
 		addOnPreferenceClickListeners(HikeConstants.NOTIF_SOUND_PREF);
 		addOnPreferenceClickListeners(HikeConstants.FAV_LIST_PREF);
-		addOnPreferenceClickListeners(HikeConstants.KEYBOARD_LANGUAGE_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_PRIMARY_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.TEXT_CORRECTION_PREF);
-		addKeyboardPreferenceClickListeners(HikeConstants.KEYBOARD_ADV_PREF);
-	}
-	
-	private void addKeyboardPreferenceClickListeners(String preferenceName)
-	{
-		Preference preference = getPreferenceScreen().findPreference(preferenceName);
-		if (preference != null)
-		{
-			Logger.d(getClass().getSimpleName(), preferenceName + " preference not null" + preference.getKey());
-			preference.setOnPreferenceClickListener(this);
-		}
-		else
-		{
-			Logger.d(getClass().getSimpleName(), preferenceName + " preference is null");
-		}
+		addOnPreferenceClickListeners(HikeConstants.CALLER_BLOKED_LIST_PREF);
 	}
 	
 	private void addSwitchPreferences()
@@ -326,32 +220,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addOnPreferenceChangeListeners(HikeConstants.DOUBLE_TAP_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.H2O_NOTIF_BOOLEAN_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF);
-		addKeyboardPreferenceChangeListener();
-		addOnPreferenceChangeListeners(HikeConstants.GLIDE_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_CORRECT_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_CAPITALIZATION_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.AUTO_SPACING_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_SUGGESTIONS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.PRIVATE_MODE_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.DISPLAY_ACCENTS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.POPUP_ON_KEYPRESS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.SOUND_ON_KEYPRESS_PREF);
-		addOnPreferenceChangeListeners(HikeConstants.VIBRATE_ON_KEYPRESS_PREF);
 		addOnPreferenceChangeListeners(HikeConstants.ACTIVATE_STICKY_CALLER_PREF);
 		addStickerRecommendPreferenceChangeListener();
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
 		addEnableKnownNumberCardPrefListener();
-	}
-	
-	private void addKeyboardPreferenceChangeListener()
-	{
-		final SwitchPreferenceCompat preference = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.KEYBOARD_PREF);
-		if (preference != null)
-		{
-			preference.shouldDisableDependents();
-			preference.setOnPreferenceChangeListener(this);
-		}
 	}
 	
 	private void addEnableKnownNumberCardPrefListener()
@@ -369,7 +242,49 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				getPreferenceScreen().removePreference(knownContactEnablePref);
 			}
 		}
-	}
+    }
+
+	private void addInterceptsPrefListeners()
+	{
+		final SwitchPreferenceCompat enableVideoIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT);
+		if (enableVideoIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_VIDEO_INTERCEPT, false))
+			{
+				enableVideoIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableVideoIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableScreenshotIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT);
+		if (enableScreenshotIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_SCREENSHOT_INTERCEPT, false))
+			{
+				enableScreenshotIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableScreenshotIntercept);
+			}
+		}
+
+		final SwitchPreferenceCompat enableImageIntercept = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT);
+		if (enableImageIntercept != null)
+		{
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.INTERCEPTS.SHOW_IMAGE_INTERCEPT, false))
+			{
+				enableImageIntercept.setOnPreferenceChangeListener(this);
+			}
+			else
+			{
+				getPreferenceScreen().removePreference(enableImageIntercept);
+			}
+		}
+    }
 	
 	private void addAppLanguagePreference()
 	{
@@ -530,8 +445,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference recommendationPref = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_PREF);
+				screen.removePreference(recommendationPref);
 			}
 		}
 	}
@@ -572,8 +488,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			else
 			{
-				PreferenceCategory stickerPreferenceCategory = (PreferenceCategory) findPreference(HikeConstants.STICKER_SETTINGS);
-				stickerPreferenceCategory.removePreference(stickerRecommendAutopopupPreference);
+				PreferenceScreen screen = getPreferenceScreen();
+				Preference autoPopUpPreference = getPreferenceManager().findPreference(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF);
+				screen.removePreference(autoPopUpPreference);
 			}
 		}
 	}
@@ -598,36 +515,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		if (preference != null)
 		{
 			preference.setOnPreferenceChangeListener(this);
-		}
-	}
-	
-	private void addOnSeekbarChangeListeners(String preferenceName, int min) {
-		final SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen()
-				.findPreference(preferenceName);
-		if (preference != null) {
-			preference.setMinimun(min);
-			preference.setOnPreferenceChangeListener(this);
-			setSeekbarPrefSummary(preferenceName, min);
-		}
-	}
-	
-	private void setSeekbarPrefSummary(String preferenceName, int min)
-	{
-		SeekBarPreference preference = (SeekBarPreference) getPreferenceScreen().findPreference(preferenceName);
-		if (preference != null)
-		{
-			if (preferenceName == HikeConstants.KEYPRESS_VOL_PREF)
-			{
-				preference.setSummary("Level " + kptSettings.getKeyPressSoundVolume());
-			}
-			else if (preferenceName == HikeConstants.KEYPRESS_VIB_DUR_PREF)
-			{
-				preference.setSummary(kptSettings.getKeyPressVibrationDuration() + " ms");
-			}
-			else if (preferenceName == HikeConstants.LONG_PRESS_DUR_PREF)
-			{
-				preference.setSummary(kptSettings.getLongPressDuration() + " ms");
-			}
 		}
 	}
 	
@@ -761,7 +648,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	protected void onResume() {
 		super.onResume();
 		mIsResumed = true;
-		setKeyboardLangSummary();
 	}
 	
 	@Override
@@ -888,6 +774,14 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			intent.putExtra(HikeConstants.Extras.BLOCKED_LIST, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
+		}
+		else if (HikeConstants.CALLER_BLOKED_LIST_PREF.equals(preference.getKey()))
+		{
+			Intent intent = new Intent(HikePreferences.this, BlockCallerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK_LIST, null,
+					AnalyticsConstants.StickyCallerEvents.CALLER_SETTINGS_BUTTON, null);
 		}
 		else if (HikeConstants.SYSTEM_HEALTH_PREF.equals(preference.getKey()))
 		{
@@ -1146,24 +1040,31 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		
 		else if(HikeConstants.STICKER_REORDER_PREF.equals(preference.getKey()))
 		{
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_REORDER_CLICKED);
 			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_REORDER_TASK);
 			startActivity(i);
 		}
-		else if (HikeConstants.KEYBOARD_LANGUAGE_PREF.equals(preference.getKey()))
+		else if(HikeConstants.STICKER_DELETE_PREF.equals(preference.getKey()))
 		{
-			IntentFactory.openKeyboardLanguageSetting(HikePreferences.this);
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_DELETE_CLICKED);
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_DELETE_TASK);
+			startActivity(i);
 		}
-		else if(HikeConstants.KEYBOARD_PRIMARY_PREF.equals(preference.getKey()))
+		else if(HikeConstants.STICKER_HIDE_PREF.equals(preference.getKey()))
 		{
-			startActivity(IntentFactory.getIntentForKeyboardPrimarySettings(HikePreferences.this));
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_HIDE_CLICKED);
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_HIDE_TASK);
+			startActivity(i);
 		}
-		else if(HikeConstants.TEXT_CORRECTION_PREF.equals(preference.getKey()))
+		else if(HikeConstants.STICKER_UPDATE_PREF.equals(preference.getKey()))
 		{
-			startActivity(IntentFactory.getIntentForTextCorrectionSettings(HikePreferences.this));
-		}
-		else if(HikeConstants.KEYBOARD_ADV_PREF.equals(preference.getKey()))
-		{
-			startActivity(IntentFactory.getIntentForKeyboardAdvSettings(HikePreferences.this));
+			StickerManager.getInstance().sendStickerSettingsEventAnalytics(HikeConstants.LogEvent.STICKER_SETTINGS_UPDATE_CLICKED);
+			Intent i = new Intent(HikePreferences.this, StickerSettingsActivity.class);
+			i.putExtra(HikeConstants.Extras.STICKER_SETTINGS_TASK, StickerSettingsTask.STICKER_UPDATE_TASK);
+			startActivity(i);
 		}
 		
 		return true;
@@ -1208,25 +1109,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			return false;
 		}
 
-		if (newValue instanceof Integer)
-		{
-			int value = (int) newValue;
-			if (HikeConstants.LONG_PRESS_DUR_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setLongPressDuration(value);
-				preference.setSummary(value + " ms");
-			}
-			else if (HikeConstants.KEYPRESS_VOL_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setKeyPressSoundVolume(value);
-				preference.setSummary("Level " + value);
-			}
-			else if (HikeConstants.KEYPRESS_VIB_DUR_PREF.equals(preference.getKey()))
-			{
-				kptSettings.setKeyPressVibrationDuration(value);
-				preference.setSummary(value + " ms");
-			}
-		}
 		else if (newValue instanceof Boolean)
 		{
 			boolean isChecked = (Boolean) newValue;
@@ -1430,50 +1312,55 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				} catch (JSONException e) {
 					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 				}
+			} else if(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_SCREENSHOT_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+				InterceptUtils.registerOrUnregisterScreenshotObserver();
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_IMAGE_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
+			}
+			else if(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT.equals(preference.getKey()))
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.INTERCEPTS.ENABLE_VIDEO_INTERCEPT, isChecked);
+				if(isChecked)
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_ON, true);
+				}
+				else
+				{
+					HAManager.getInstance().interceptAnalyticsEvent(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO,
+							AnalyticsConstants.InterceptEvents.INTERCEPT_SETTING_TURNED_OFF, true);
+				}
 			} else if (HikeConstants.STEALTH_NOTIFICATION_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
 			} else if (HikeConstants.STEALTH_INDICATOR_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
-			} else if (HikeConstants.KEYBOARD_PREF.equals(preference.getKey())) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SYSTEM_KEYBOARD_SELECTED, !isChecked);
-				trackAnalyticEvent(HikeConstants.LogEvent.HIKE_KEYBOARD_ON, HikeConstants.TOGGLE, isChecked);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.KEYBOARD_SWITCHED, null);
-				if (AppConfig.SHOW_LOGS)
-				{
-					Toast.makeText(getApplicationContext(), kptSettings.getKptSdkVersion(), Toast.LENGTH_SHORT).show();
-				}
-			} else if (HikeConstants.GLIDE_PREF.equals(preference.getKey())) {
-				kptSettings.setGlideState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.GLIDE_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_CORRECT_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoCorrectionState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CORRECT_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_CAPITALIZATION_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoCapitalizationState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_CAPITALIZATION_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.AUTO_SPACING_PREF.equals(preference.getKey())) {
-				kptSettings.setAutoSpacingState(isChecked ? AdaptxtSettings.KPT_TRUE : kptSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.AUTO_SPACING_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.DISPLAY_SUGGESTIONS_PREF.equals(preference.getKey())) {
-				kptSettings.setDisplaySuggestionsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.DISPLAY_SUGGESTION_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.PRIVATE_MODE_PREF.equals(preference.getKey())) {
-				kptSettings.setPrivateModeState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.PRIVATE_MODE_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.DISPLAY_ACCENTS_PREF.equals(preference.getKey())) {
-				kptSettings.setDisplayAccentsState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-			} else if (HikeConstants.POPUP_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setPopupOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_POPUP_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.SOUND_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setSoundOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_SOUND_ON, HikeConstants.TOGGLE, isChecked);
-			} else if (HikeConstants.VIBRATE_ON_KEYPRESS_PREF.equals(preference.getKey())) {
-				kptSettings.setVibrateOnKeyPressState(isChecked ? AdaptxtSettings.KPT_TRUE : AdaptxtSettings.KPT_FALSE);
-				trackAnalyticEvent(HikeConstants.LogEvent.KEYPRESS_VIBRATION_ON, HikeConstants.TOGGLE, isChecked);
-			}
+			} 
 		}
 		return true;
 	}
@@ -1554,13 +1441,13 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
 							break;
 						case FAVORITES:
-							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_favorites_key);
-							ls_summary = getApplicationContext().getString(R.string.ls_favorites_summary);
+							selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+							ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
 							break;
 						case MY_CONTACTS:
 							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
-							ls_summary = getApplicationContext().getString(R.string.ls_my_contacts_summary);
+							ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
 							HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
 							break;
 					}
@@ -1597,8 +1484,37 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(HikeConstants.HIGHLIGHT_NLS_PERF, true))
 			lp.setTitleColor(R.color.blue_hike);
-		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		//Need to set the title differently if fav to friends migration is open
+		if (!TextUtils.isEmpty(lp.getEntry()) && Utils.isFavToFriendsMigrationAllowed() && lp.getEntry().equals(getString(R.string.privacy_favorites_key)))
+		{
+			lp.setTitle(lp.getTitle() + ": " + getString(R.string.privacy_friends_key));
+		}
+		else
+		{
+			lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
+		}
 		lp.setNegativeButtonText(R.string.CANCEL);
+
+		// Need to show the entry values differently in case friends experiment is on
+		String[] listPreferenceValues = new String[] { getString(R.string.privacy_everyone_key), getString(R.string.privacy_my_contacts_key), getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key), getString(R.string.privacy_nobody_key)};
+
+		lp.setEntries(listPreferenceValues);
+
+
+		IconPreference favPref = (IconPreference) getPreferenceScreen().findPreference(HikeConstants.FAV_LIST_PREF);
+
+		if (favPref != null)
+		{
+			favPref.setTitle(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key));
+			favPref.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.frn_list_summary : R.string.fav_list_summary));
+		}
+
+		SwitchPreferenceCompat profilePicPrefs = (SwitchPreferenceCompat) getPreferenceScreen().findPreference(HikeConstants.PROFILE_PIC_PREF);
+
+		if (profilePicPrefs != null)
+		{
+			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
+		}
 	}
 
 	private String getLSSummaryText()
@@ -1617,10 +1533,10 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				summaryTxt = getApplicationContext().getString(R.string.ls_everyone_summary);
 				break;
 			case FAVORITES:
-				summaryTxt = getApplicationContext().getString(R.string.ls_favorites_summary);
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
 				break;
 			case MY_CONTACTS:
-				summaryTxt = getApplicationContext().getString(R.string.ls_my_contacts_summary);
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
 				break;
 		}
 		return summaryTxt;

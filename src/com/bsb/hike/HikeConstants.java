@@ -66,6 +66,8 @@ public class HikeConstants
 	public static final String SMS_MESSAGE = "sm";
 
 	public static final String PIN_MESSAGE = "pin";
+	
+	public static final String CAPTION = "cptn";
 
 	public static final String TIMESTAMP = "ts";
 
@@ -88,6 +90,18 @@ public class HikeConstants
 	public static final String ALL_INVITEE_JOINED_2 = "all_invitee_joined";
 
 	public static final String NAME = "name";
+
+	public static final String DOB = "dob";
+
+	public static final String YEAR = "year";
+
+	public static final String DAY = "day";
+
+	public static final String MONTH = "month";
+
+	public static final String MALE = "m";
+
+	public static final String FEMALE = "f";
 
 	public static final String MSISDN = "msisdn";
 
@@ -112,6 +126,18 @@ public class HikeConstants
 	public static final String NEW_USER = "nu";
 
 	public static final String EMAIL = "email";
+	
+	public static final String PRODUCT = "product";
+	
+	public static final String CLIENT_URL = "clienturl";
+	
+	public static final String CLIENT_IMAGE_URL = "imageurl";
+	
+	public static final String CLIENT_TYPE = "client_type";
+	
+	public static final String PACKAGE_NAME = "package_name";
+	
+	public static final String SHA1 = "sha1";
 
 	public static final String GENDER = "gender";
 
@@ -136,6 +162,8 @@ public class HikeConstants
 	public static final String FILES = "files";
 
 	public static final String CONTENT_TYPE = "ct";
+
+	public static final String ATTACHEMENT_SHARED_FROM = "atsrc";
 
 	public static final String THUMBNAIL = "tn";
 
@@ -263,24 +291,10 @@ public class HikeConstants
 
 	public static final String REQUEST_PENDING = "requestpending";
 
-	public static final String CUSTOM_KEYBOARD_LOCALE = "ckbd_locale";
-
 	public static final String DEVICE_LOCALE = "device_locale";
 
 	public static final String LOCALE = "locale";
 	
-	public static final String KEYBOARD_LANG_DWNLD_APP_FTUE = "app_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_KBD_FTUE = "kbd_ftue";
-	
-	public static final String KEYBOARD_LANG_DWNLD_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE_SOURCE = "kbd_lng_cg_src";
-	
-	public static final String KEYBOARD_LANG_CHANGE_SETTINGS = "settings";
-	
-	public static final String KEYBOARD_LANG_CHANGE_KBD = "kbd";
-
 	public static final String ENABLE_PUSH_BATCHING_STATUS_NOTIFICATIONS = "enablepushbatchingforsu";
 
 	public static final String PUSH_SU = "pushsu";
@@ -312,6 +326,8 @@ public class HikeConstants
 	public static final String STICKER_IDS = "stIds";
 
 	public static final String STICKER = "stk";
+	
+	public static final String STICKER_CATEGORY_ID = "stickerCategoryId";
 
 	public static final String RESOLUTION_ID = "resId";
 
@@ -346,8 +362,6 @@ public class HikeConstants
 	public static final String FOREGROUND = "fg";
 
 	public static final String BACKGROUND = "bg";
-
-	public static final String JUST_OPENED = "justOpened";
 
 	public static final String BULK_LAST_SEEN = "bulklastseen";
 
@@ -410,6 +424,18 @@ public class HikeConstants
 	public static final String FILE_SIZE = "fs";
 
 	public static final String DOWNLOAD = "dwnld";
+
+	public static final String CONNECTION_TYPE = "cnnctn";
+
+	public static final String DOWNLOAD_TIME = "dwnTm";
+
+	public static final String APK_SIZE_MULTIPLIER = "sm";
+
+	public static final String INSTALL_PROMPT_FREQUENCY = "ipf";
+
+	public static final String INSTALL_PROMPT_METHOD = "ipm";
+
+	public static final String INSTALL_PROMPT_INTERVAL = "ipi";
 
 	public static final String LOGEVENT_TAG = "mob";
 
@@ -517,6 +543,12 @@ public class HikeConstants
 
 	public static final String STICKER_REORDER_PREF = "stickerReOrderPref";
 
+	public static final String STICKER_DELETE_PREF = "stickerDeletePref";
+
+	public static final String STICKER_HIDE_PREF = "stickerHidePref";
+
+	public static final String STICKER_UPDATE_PREF = "stickerUpdatePref";
+
 	public static final String STICKER_RECOMMEND_PREF = "stickerRecommendPref";
 
 	public static final String STICKER_RECOMMEND_SETTING_OFF_TOAST = "srsofft";
@@ -536,6 +568,14 @@ public class HikeConstants
 	public static final String STEALTH_INDICATOR_ENABLED = "stealthIndicatorEnabled";
 	
 	public static final String STEALTH_INDICATOR_SHOW_REPEATED = "stealthIndicatorShowRepeated";
+
+	public static final String STEALTH_INDICATOR_ANIM_ON_RESUME = "stealthIndicatorAnimOnResume";
+
+	public static final int STEALTH_INDICATOR_RESUME_EXPIRED = -1;
+
+	public static final int STEALTH_INDICATOR_RESUME_ACTIVE = 1;
+
+	public static final int STEALTH_INDICATOR_RESUME_RESET = 0;
 	
 	public static final String STEALTH_INDICATOR_SHOW_ONCE = "stealthIndicatorShowOnce";
 
@@ -574,6 +614,12 @@ public class HikeConstants
 	public static final String HIKE_SERVICE = "hike";
 
 	public static final String HTTP_STATUS_ID = "?status_id=";
+
+	public static final String PACK_VISIBILITY = "packVisibility";
+
+	public static final String OLD_PACK_POSITION = "oldPackPosition";
+
+	public static final String NEW_PACK_POSITION = "newPackPosition";
 
 	// @GM
 	// public static final String AUTO_DOWNLOAD_IMAGE_PREF =
@@ -616,10 +662,6 @@ public class HikeConstants
 
 	public static final String DELETE_PREF = "deleteAccount";
 
-	// public static final String UNLINK_FB = "unlinkFacebook";
-
-	// public static final String UNLINK_TWITTER = "unlinkTwitter";
-
 	public static final String BLOKED_LIST_PREF = "blockedList";
 
 	public static final String FAV_LIST_PREF = "favoriteList";
@@ -642,55 +684,17 @@ public class HikeConstants
 
 	public static final String H2O_NOTIF_BOOLEAN_PREF = "hikeOfflineNotificationPref";
 
-	public static final String KEYBOARD_SETTING_PREF_CATEGORY = "keyboardSettingsCategory";
-
-	public static final String KEYBOARD_LANGUAGE_PREF = "kbdLanguagePref";
-
 	public static final String LOCAL_LANGUAGE_PREF = "appLanguagePref";
 
 	public static final String LOCALIZATION_FTUE_COMPLETE = "localizationFtueComplete";
 
-	public static final String KEYBOARD_PREF = "keyboardPref";
-	
-	public static final String GLIDE_PREF = "glidePref";
-	
-	public static final String KEYBOARD_PRIMARY_PREF = "keyboardPrimaryPref";
-
-	public static final String TEXT_CORRECTION_PREF = "textCorrectionPref";
-	
-	public static final String KEYBOARD_ADV_PREF = "advancedPref";
-	
-	public static final String KEYBOARD_ADV_PREF_SCREEN = "kptAdvancedPrefScreen";
-	
-	public static final String KEYBOARD_PRIMARY_PREF_SCREEN = "kptPrimaryPrefScreen";
-	
-	public static final String TEXT_CORRECTION_PREF_SCREEN = "textCorrectionPrefScreen";
-	
-	public static final String AUTO_CORRECT_PREF = "autoCorrectPref";
-	
-	public static final String AUTO_CAPITALIZATION_PREF = "autoCapsPref";
-	
-	public static final String AUTO_SPACING_PREF = "autoSpacingPref";
-	
-	public static final String DISPLAY_SUGGESTIONS_PREF = "dispSuggPref";
-	
-	public static final String PRIVATE_MODE_PREF = "privateModePref";
-	
-	public static final String DISPLAY_ACCENTS_PREF = "dispAccentsPref";
-	
-	public static final String POPUP_ON_KEYPRESS_PREF = "popupOnKeypressPref";
-	
-	public static final String SOUND_ON_KEYPRESS_PREF = "soundOnKeypressPref";
-	
-	public static final String VIBRATE_ON_KEYPRESS_PREF = "vibrateOnKeypressPref";
-	
-	public static final String KEYBOARD_LANGUAGE_CHANGE = "kbd_lng";
-	
 	public static final String LANGUAGE_DOWNLOAD_ERROR_CODE = "er_c";
 
 	public static final String UPGRADE_AVATAR_PROGRESS_USER = "upgradeAvtarProgressUser";
 
 	public static final String UPGRADING = "upgrading";
+
+    public static final String HIKE_CONTENT_MICROAPPS_MIGRATION = "hikeMicroAppsMigration";
 
 	public static final String UPGRADE_MSG_HASH_GROUP_READBY = "upgradeMsgHashGroupReadby";
 
@@ -759,6 +763,28 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+	public static String ADD_URL = "addUrl";
+	public static String DELETE_URL = "deleteUrl";
+
+
+	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
+
+	public static final String CALL_TYPE = "call_type";
+
+	public class Shortcut
+	{
+		public static final String UPDATE = "shtct";
+
+		public static final String CREATE = "cr";
+
+		public static final String DELETE = "dl";
+	}
+
+	public static final String CONTACT_UPDATE = "cntct_no";
+
+	public static final String CONTACT_NAME = "cntct_nm";
+	
+	public static final String CONTACT_NUMBER_OLD = "cntct_no_old";
 
 	public class InviteSection
 	{
@@ -1070,6 +1096,8 @@ public class HikeConstants
 
 	public static final int SHOW_CREDITS_AFTER_NUM = 10;
 
+	public static final String HIKE_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike";
+
 	public static final String HIKE_MEDIA_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Media";
 
 	public static final String HIKE_BACKUP_DIRECTORY_ROOT = Environment.getExternalStorageDirectory() + "/Hike/Backup";
@@ -1089,6 +1117,8 @@ public class HikeConstants
 	public static final String SENT_ROOT = "/sent";
 
 	public static final String STICKERS_ROOT = "/stickers";
+
+	public static final String DISK_CACHE_ROOT = "/diskcache";
 
 	public static final String LARGE_STICKER_FOLDER_NAME = "stickers_l";
 
@@ -1300,6 +1330,7 @@ public class HikeConstants
 	public static final String STATUS_BAR_BLUE = "blue";
 
 	public static final String STATUS_BAR_TRANSPARENT = "transparent";
+	public static final String STATUS_BAR_TIMELINE = "timeline";
 
 	public static final int MAX_MEDIA_ITEMS_TO_LOAD_INITIALLY = 51;
 
@@ -1331,17 +1362,11 @@ public class HikeConstants
 
 	public static final String VOIP_RELAY_SERVER_PORT = "rsport";
 
-	public static final String VOIP_QUALITY_TEST_ACCEPTABLE_PACKET_LOSS = "apl";
-
-	public static final String VOIP_QUALITY_TEST_SIMULATED_CALL_DURATION = "scd";
-
 	public static final String VOIP_AEC_ENABLED = "aec";
 
 	public static final String VOIP_CONFERENCING_ENABLED = "conf";
 
 	public static final String VOIP_GROUP_CALL_ENABLED = "gccall";
-
-	public static final String VOIP_NETWORK_TEST_ENABLED = "vnt";
 
 	public static final String VOIP_AEC_CPU_NR = "cpunr";
 
@@ -1356,6 +1381,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 
 	public static final String VOIP_RATINGS_LEFT = "vrl";
+
+	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
 	public static final class ChatHead
 	{
@@ -1807,6 +1834,7 @@ public class HikeConstants
 		public static final String CLEARED_OUT = "extrasClearedOut";
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
+		public static final String SHOW_TIMELINE = "showTimeline";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -1913,6 +1941,8 @@ public class HikeConstants
 		
 		public static final String IS_MICROAPP_SHOWCASE_INTENT = "microappShowcaseIntent";
 
+		public static final String STICKER_SETTINGS_TASK = "stickerSettingsTask";
+
         public static final String IS_CONTACT_CHOOSER_FILTER_INTENT = "contactChooserFilterIntent";
 
         public static final String LIST = "list";
@@ -1922,6 +1952,7 @@ public class HikeConstants
         public static final String FUNCTION_ID = "function_id";
 
         public static final String RESULT_CODE = "result_code";
+
     }
 
 	public static final class LogEvent
@@ -2224,6 +2255,10 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String EMOTICON_BTN_CLICKED = "eBnc";
+
+        public static final String EMOTICON_SENT = "eSnt";
+
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
@@ -2248,9 +2283,11 @@ public class HikeConstants
 
 		public static final String STICKER_RECOMMENDATION_REBALANCING_SUMMERIZATION = "srRS";
 
-		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
+		public static final String STICKER_FOLDER_ERROR = "stFEr";
 
-		public static final String SEEN_REORDERING_TIP = "seenReorderingTip";
+		public static final String STICKER_ERROR = "stEr";
+
+		public static final String PACK_DATA_ANALYTIC_EVENT = "pckD";
 
 		public static final String UPDATE_ALL_CONFIRM_CLICKED = "updateAllConfirmClicked";
 
@@ -2275,6 +2312,28 @@ public class HikeConstants
 		public static final String LS_NOBODY_CLICKED = "psLS_N";
 
 		public static final String MANAGE_FAV_LIST_SETTING = "psMFav";
+
+		public static final String STICKER_SETTINGS_REORDER_CLICKED = "ssReorderClick";
+
+		public static final String STICKER_SETTINGS_DELETE_CLICKED = "ssDeleteClick";
+
+		public static final String STICKER_SETTINGS_HIDE_CLICKED = "ssHideClick";
+
+		public static final String STICKER_SETTINGS_UPDATE_CLICKED = "ssUpdateClick";
+
+		public static final String STICKER_PACK_HIDE = "stPkHide";
+
+		public static final String PACK_DELETE_CLICKED = "pkDelClick";
+
+		public static final String DELETE_POSITIVE_CLICKED = "delPosClick";
+
+		public static final String DELETE_NEGATIVE_CLICKED = "delNegClick";
+
+		public static final String PACK_DELETE_SUCCESS = "pkDelSuccess";
+
+		public static final String STICKER_PACK_UPDATE = "stPkUpdate";
+
+		public static final String STICKER_PACK_REORDERED = "stPkReorder";
 
 		/*
 		 * Settings screen <screen> = settingsS <event> = notifNUJEnabled, notifH2OEnabled, notifNUJDisabled, notifH2ODisabled
@@ -2480,6 +2539,31 @@ public class HikeConstants
 
 		public static final String PHOTOS_UNABLE_TO_LOAD = "phImgNotLoad";
 
+		public static final String TAP_EDIT = "photo_filter";
+
+		public static final String TAP_CROP = "photo_crop";
+
+		public static final String TAP_CROP_ACCEPT = "photo_crop_ac";
+
+		public static final String TAP_DELETE = "photo_dlt";
+
+		public static final String TAP_ROTATE = "photo_rotate";
+
+		public static final String EDIT_SEND = "edit_send";
+
+		public static final String EDIT_SEND_FILTER = "flt";
+
+		public static final String EDIT_SEND_NO_FILTER = "no_flt";
+
+		public static final String MULSEL_SEND = "mlsel_send";
+
+		public static final String MULSEL_IS_SHARE = "is_share";
+
+		public static final String MULSEL_TIMELINE_SEL = "tl_sel";
+
+		public static final String MULSEL_CONTACT_SEL = "conv_sel";
+
+
 		// Broadcast
 		public static final String NEW_BROADCAST_VIA_OVERFLOW = "nbcOf";
 
@@ -2545,73 +2629,29 @@ public class HikeConstants
 		
 		public static final String TIMELINE_OVERFLOW_OPTION_FAV = "fav";
 
-		public static final String AUTO_CAPITALIZATION_ON = "auto_cap";
-		
-		public static final String AUTO_SPACING_ON = "auto_spc";
-		
-		public static final String GLIDE_ON = "glide";
-		
-		public static final String KEYPRESS_SOUND_ON = "key_sound";
-		
-		public static final String KEYPRESS_POPUP_ON = "key_popup";
-		
-		public static final String KEYPRESS_VIBRATION_ON = "key_vib";
-		
-		public static final String AUTO_CORRECT_ON = "auto_crct";
-		
-		public static final String DISPLAY_SUGGESTION_ON = "disp_sug";
-		
-		public static final String PRIVATE_MODE_ON = "prvt_mod";
-		
-		public static final String HIKE_KEYBOARD_ON = "hike_kbd";
-		
-		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_EVENT = "kbd_lng_dl";
-		
-		public static final String KEYBOARD_LANGUAGE_DOWNLOAD_ERROR = "kbd_lng_dl_err";
-		
-		public static final String LANGUAGE_DOWNLOADING = "lng";
-		
-		public static final String KEYBOARD_LANGUAGE_CHANGED_EVENT = "kbd_lng_cng";
-		
-		public static final String APP_LANGUAGE_FTUE = "app_language_ftue";
-		
-		public static final String KEYBOARD_FTUE_INITIATED = "kbd_ftue_init";
-		
-		public static final String KEYBOARD_FTUE_CLOSE_BUTTON = "kbd_ftue_clos";
-		
-		public static final String KEYBOARD_FTUE_CHOOSE_LANGUAGE_BUTTON = "kbd_ftue_chg_lng";
-		
-		public static final String KEYBOARD_FTUE_CLOSE_LANG_SELECTION = "kbd_ftue_clos_lang";
-		
-		public static final String KEYBOARD_FTUE_INSTALL_SELECTED_LANGUAGES = "kbd_ftue_inst";
-
-		public static final String KEYBOARD_FTUE_COMPLETES = "kbd_ftue_comp";
-		
-		public static final String KPT = "kpt";
-
-		public static final String KEYBOARD_INIT_ERROR = "kbd_init_err";
-
-		public static final String LANGUAGE_DOWNLOAD_SOURCE = "lng_dl_src";
-
-		public static final String KEYBOARD_LANGUAGE_UNLOADED_EVENT = "lng_ul";
-		
-		public static final String KEYBOARD_LANGUAGE_LOADED_EVENT = "lng_l";
-		
-		public static final String KEYBOARD_LANGUAGE_UNSUPPORTED_EVENT = "lng_uns";
-
 		public static final String APP_LANGUAGE_DIALOG_OPEN_EVENT = "app_lng_dlg";
 		
 		public static final String APP_LANGUAGE_FTUE_SHOWN_EVENT = "app_lng_ftue";
-		
-		public static final String KEYBOARD_FTUE_LANG_LIST_SCREEN = "kbd_ftue_sc_2";
-		
-		public static final String KEYBOARD_FTUE_SWIPE_SCREEN = "kbd_ftue_sc_3";
 		
 		public static final String APP_LANGUAGE_CHANGED_EVENT = "ap_l_chg";
 
 		public static final Object APP_FTUE_DONE_BTN = "ap_ft_d";
 
 		public static final String HIKE_DIRECT_OVRFL_CLK = "hike_dir";
+
+		public static final String NET_INFO_MOBILE = "mobile";
+
+		public static final String NET_INFO_WIFI = "wifi";
+
+		public static final String NET_INFO = "none";
+
+		public static final String KEYBOARD_EXIT_UI_CLOSE_BUTTON = "kec";
+
+		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
+
+		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
+
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
 
 	}
 
@@ -2626,6 +2666,8 @@ public class HikeConstants
 	
 	public static final class MqttMessageTypes
 	{
+		public static final String AUTO_APK = "atapk";
+		
 		public static final String MESSAGE_READ = "mr";
 
 		public static final String NEW_MESSAGE_READ = "nmr";
@@ -2844,6 +2886,8 @@ public class HikeConstants
 		public static final String TIMELINE_PREFFERED_CONTACTS = "tlpc";
 		
 		public static final String HIKE_DIRECT_ANALYTICS = "hdle";
+		
+		public static final String PLATFORM_INFRA_CONFIG = "infc";
 	}
 
 	public static final class GeneralEventMessagesTypes
@@ -3058,6 +3102,8 @@ public class HikeConstants
 	public static final int MAX_PIN_CONTENT_LINES_IN_HISTORY = 10;
 
 	public static final String URL = "url";
+	
+	public static final String URLS = "urls";
 
 	public static final String MEDIA_POSITION = "position";
 
@@ -3120,6 +3166,8 @@ public class HikeConstants
 
 	public static final String DELIMETER = ":";
 
+    public static final String SEPARATOR_ = "_";
+
 	public static final String HIKE_EXTRAS_NAME = "hike_extras_name";
 
 	public static final String HIKE_EXTRAS_URL = "hike_extras_url";
@@ -3140,11 +3188,23 @@ public class HikeConstants
 
 	public static final String SESSION_LOG_TRACKING = "stl";
 
+	public static final String ACCOUNT_LOG_ANALYTICS = "actl";
+
 	public static final String PHONE_SPEC = "pl";
 
 	public static final String SHOP = "shop";
 
 	public static final String BADGE = "badge";
+	
+	public static final String DESCRIPTION = "desc";
+
+	public static final String STICKER_LIST = "sticker_list";
+
+	public static final String SIMILAR_PACKS = "similar_packs";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT = "copyright";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -3265,6 +3325,8 @@ public class HikeConstants
 
 		public static final int MAX_IMAGE_DIMEN = 1240;
 
+		public static final int MODIFIED_MAX_IMAGE_DIMEN = 1540;
+
 		public static final String HOME_ON_BACK_PRESS = "from_dp_upload";
 
 		public static final int DEFAULT_IMAGE_SAVE_QUALITY = 80;
@@ -3288,6 +3350,9 @@ public class HikeConstants
 
 	public static int DEFAULT_AVATARS[] = { R.drawable.avatar_bubblegum, R.drawable.avatar_apricot, R.drawable.avatar_carnation, R.drawable.avatar_light_gold,
 			R.drawable.avatar_sky_blue };
+
+	public static int DEFAULT_AVATAR_BG_COLORID[] = { R.color.avatar_color_apricot, R.color.avatar_color_bubblegum, R.color.avatar_color_carnation,
+			R.color.avatar_color_light_gold, R.color.avatar_color_sky_blue };
 
 	public static String DEFAULT_AVATAR_KEYS[] = { "avatar_buggle_gum", "avatar_apricot", "avatar_carnation", "avatar_light_gold", "avatar_sky_blue" };
 
@@ -3393,7 +3458,15 @@ public class HikeConstants
 
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
-	public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
+	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
+
+	public static final String KPT_EXIT_SERVER_TEXT = "kest";
+
+	public static final String KPT_EXIT_HEADING = "keh";
+
+	public static final String KPT_EXIT_PHONE_BUTTON = "kepb";
+
+	public static final String KPT_EXIT_GOOGLE_BUTTON = "kegb";
 
 	public static final String GET = "get";
 
@@ -3404,6 +3477,8 @@ public class HikeConstants
 	public static final String PRIVACY_SETTINGS_CATEGORY = "privacySettingsCategory";
 
 	public static final String KEY = "key";
+	
+	public static final String LIFE = "life";
 
 	public static final String VALUE = "val";
 
@@ -3452,6 +3527,8 @@ public class HikeConstants
 	public static final String SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY = "def_img_q";
 
 	public static final String IMAGE_PATHS = "image-paths";
+
+	public static final String EDITED_IMAGE_PATHS = "edited-image-paths";
 
 	public static final String OFFLINE_MESSAGE_REQUEST = "omr";
 
@@ -3516,6 +3593,35 @@ public class HikeConstants
 
 		public static final String ACTION_KEYBOARD_CLOSED = "com.bsb.hike.action.keyboardclosed";
 	}
+	
+	public static class MicroApp_Msisdn
+	{
+		public static final String HIKE_RECHARGE = "+hikerecharge+";
+		
+		public static final String HIKE_WALLET = "+hikewallet+";
+
+	}
+	
+
+
+	public static class AutoApkDownload
+	{
+		public static final String NEW_APK_VERSION = "new_apk_version";
+
+		public static final String UPDATE_FROM_DOWNLOADED_APK = "update_from_downloaded_apk";
+
+		public static final String NEW_APK_SIZE = "new_apk_size";
+
+		public static final String NEW_APK_JSON = "HFAPK";
+
+		public static final String DOWNLOAD_APK_URL = "download_url";
+
+		public static final String DOWNLOAD_APK_VERSION = "version";
+
+		public static final String NEW_APK_TIP_JSON = "new_apk_tip_json";
+
+		public static final String DOWNLOAD_APK_SIZE = "apk_size";
+	}
 
 	public static final String KEYBOARD_HEIGHT = "keyBoardHeight";
 
@@ -3540,6 +3646,8 @@ public class HikeConstants
 	public static final String STICKER_AUTO_RECOMMENDATION_CONTINUOUS_REJECTION_COUNT_TILL_NOW = "sarcrct"; // integer
 
 	public static final String STICKER_AUTO_RECOMMENDATION_REJECTION_PATTERN_COUNT_TILL_NOW = "sarrpct"; // integer
+
+	public static final String STICKER_UNDOWNLOADED_TAG_TRIGGER = "sudtt";
 
 	public static final String CHAT_SEARCH_ENABLED = "cts_e";
 
@@ -3721,6 +3829,8 @@ public class HikeConstants
 
 	public static final String CALLER_SHARED_PREF = "caller_shared_pref";
 
+	public static final String IS_BLOCK = "is_block";
+
 	public static final String BOT_TABLE_REFRESH = "btr";
 	
 	public static final String BOTS = HikePlatformConstants.BOTS;
@@ -3765,40 +3875,22 @@ public class HikeConstants
 
 	public static final String LOCALIZATION_ENABLED = "local_e";
 
-	public static final String CUSTOM_KEYBOARD_ENABLED = "custom_key_e";
-
-	// Added for switching the Change Keyboard Option in chat thread
-	public static final String CHANGE_KEYBOARD_CHAT_ENABLED = "ckc_e";
-
-	public static final String AUTOCORRECT_KEYBOARD_ENABLED="atk_e";
-	
 	// ============================================================================================= LOCALIZATION SWITCHES
 
 
 	public static final String LANG_LIST_ORDER = "lang_list";
 
-	// Analytics Event key for Change Keyboard ,because externalized string was converted to phone language and analytics key was changin
-	public static final String SYSTEM_KEYBOARD = "System Keyboard";
-
-	public static final String HIKE_KEYBOARD = "Hike Keyboard";
-
 	public static final String PHONE_LANGUAGE = "ph_l";
 
 	public static final String APP_LANGUAGE = "ap_l";
 	
-	public static final String KEYBOARD_LANGUAGE = "z";
-
 	public static final String LANG_ARRAY = "lan_array";
 
 	public static final String UNSUPPORTED_LANG_TOAST_SHOWN = "uns_lang_toast_shown";
 
-	public static final String CT_OVRFLW_KEYBOARD_TIP_1_DONE = "ct_ovrflw_keyboard_tip_1_done";
+	public static final String CALLER_BLOKED_LIST_SYNCHED = "caller_block_list_synched";
 
-	public static final String CT_OVRFLW_KEYBOARD_TIP_2_DONE = "ct_ovrflw_keyboard_tip_2_done";
-
-	public static final String CT_OVRFLW_KEYBOARD_CLICKED = "ct_ovrflw_keyboard_clicked";
-
-	public static final String CUSTOM_KEYBOARD_SUPPORTED = "custom_key_supported";
+	public static final String CALLER_BLOKED_LIST_SYNCHED_SIGNUP = "caller_block_list_synched_signup";
 
 	public static final String APP_LANGUAGE_CHANGE_SOURCE = "ap_l_s";
 
@@ -3817,16 +3909,197 @@ public class HikeConstants
 	public static final String CHAT_OPENING_BENCHMARK = "chatOpeningBenchmark";
 	
 	public static final String CHAT_SCROLL_FETCH_MESSAGES_FROM_DB_BENCHMARK = "chatScrollMsgDBBenchmark";
-	
+
 	public static final String APP_OPENING_BENCHMARK = "appOpeningBenchmark";
+
+	public static final String STICKER_FORCE_DOWNLOAD = "f_download";
+
+	public static final String FORCED_RECENTS_PRESENT = "forced_recents";
+
+	public static final String FORCED_RECENTS_LIST = "forced_recents_list";
+
+    public static final String COMPOSE_SCREEN_OPENING_BENCHMARK = "composeOpeningBenchmark";
 
 	public static final String SINGLE_STICKER_CDN = "sscdn";
 
 	public static final String STICKER_PACK_CDN = "spcdn";
 
 	public static final String STICKER_PACK_CDN_THRESHOLD = "spcdnth";
+
+	public static final int MIN_DISK_CACHE_SIZE = 5 * 1024 * 1024; // 5MB
+
+	public static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
+
+	public static final String MINI_STICKER_ENABLED = "m_stk_st";
+
+	public static final String UNDOWNLOADED_DATA = "ud_d";
+
+	public static final String ENABLE_AB_SYNC_CHANGE = "ab_sync_change";
+
+	public static final String ENABLE_AB_SYNC_DEBUGING = "ab_sync_debug";
+
+	public static final String NET_BLOCKED_STATE_ANALYTICS = "net_block_state";
+
+	public static final String HIDE_DELETED_CONTACTS = "h_d_c";
 	
-	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
+	public static final String RESET_CHAT_KEY_TIP="reset_chat_key_tip";
+
+	public static final String OPEN_COMPOSE_CHAT_ONE_TIME_TRIGGER = "openComposeChatOnSignup";
 
 	public static final String MAX_RETRY_COUNT_MAPPS = "maxRetryMapps";
+
+	public static final String DISPLAY_MINI_IN_CT = "d_m_ct";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String STICKER_TYPE = "type";
+
+    public static final String STICKER_IMAGE = "image";
+
+    public static final String MINI_STICKER_IMAGE = "mini_image";
+
+    public static final String TAGS = "tags";
+
+    public static final String RECENTS = "recents";
+
+    public static final String getMetadata = "md";
+
+    public static final String START = "start";
+
+    public static final String END = "end";
+
+    public static final String RANK = "rank";
+
+    public static final int MAX_DISK_CACHE_KEY_LENGTH = 115;
+
+    public static final String MINI_KEY_PREFIX = "mini_";
+
+	public static final String STICKER_SIZE = "stkr_size";
+
+	public static final String CRASH_REPORTING_TOOL="cpt";
+
+	public static final String ACRA="a";
+
+	public static final String CRASHLYTICS="c";
+
+	public static final class INTERCEPTS
+	{
+		public static final String ENABLE_INTERCEPTS = "enbl_intercepts";
+
+		public static final String SHOW_INTERCEPTS = "show_intercepts";
+
+		public static final String IMAGE = "image";
+
+		public static final String VIDEO = "video";
+
+		public static final String SCREENSHOTS = "sshot";
+
+		public static final String SHOW_IMAGE_INTERCEPT = "show_image_intrcpt";
+
+		public static final String SHOW_VIDEO_INTERCEPT = "show_video_intrcpt";
+
+		public static final String SHOW_SCREENSHOT_INTERCEPT = "show_screenshot_intrcpt";
+
+		public static final String ENABLE_IMAGE_INTERCEPT = "enableImageIntercept";
+
+		public static final String ENABLE_VIDEO_INTERCEPT = "enableVideoIntercept";
+
+		public static final String ENABLE_SCREENSHOT_INTERCEPT = "enableScreenshotIntercept";
+
+		public static final String INTERCEPT_LOG = "intercept_log";
+
+		public static final String INTENT_EXTRA_URI = "intentExtraUri";
+
+		public static final String INTENT_EXTRA_TYPE = "intentExtraType";
+
+		public static final String PREV_MEDIA_URI = "prev_media_uri";
+
+	}
+
+	public static final long ONE_DAY_MILLS = 24 * 60 * 60 * 1000L;
+
+	public static final String SINGLE_STICKER= "sst";
+
+	public static final String STICKER_PACK = "spc";
+
+	public static final String LOG_EMOTICON_USAGE_SWITCH = "l_e_s";
+
+	public static final class KPTConstants {
+
+		public static final String KPT_LANGUAGE_DIR_NAME = "lang-dict";
+
+		public static final String KPT_LANGUAGE_DIR_ROOT = "/" + KPT_LANGUAGE_DIR_NAME;
+
+		public static final String SYSTEM_KEYBOARD_SELECTED = "systemKeyboardSelected";
+
+	}
+
+	public static final String SHOW_STICKER_PREVIEW = "show_sticker_preview";
+
+	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
+
+	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
+
+	public static final int DEFAULT_ACTIVITY_OPEN = 10;
+
+	public static final String ACTIVITY_LATENT_AREA="scrlat";
+
+	public static final String ORIENTATION_PORTRAIT="_p" ;
+
+	public static final String ORIENTATION_LANDSCAPE="_l";
+
+	public static final String SERVER_NAME_SETTING = "serverName";
+
+	public static final String SERVER_GENDER_SETTING = "serverGender";
+
+	public static final String SERVER_BIRTHDAY_DAY = "serverBirthdayDay";
+
+	public static final String SERVER_BIRTHDAY_MONTH = "serverBirthdayMonth";
+
+	public static final String SERVER_BIRTHDAY_YEAR = "serverBirthdayYear";
+
+	public static final String DB_CORRUPT = "db_corrupt";
+
+	public static final String JOURNAL_MODE = "journal_mode";
+
+	public static final String SQLITE_VERSION = "sqlite_ver";
+
+	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
+
+	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
+
+	public static final String IS_NEW_USER = "is_new_user";
+
+	public static final int DEFAULT_FRIENDS_FTUE_COUNT = 5;
+
+	public static final String FTUE_FRIENDS_COUNT = "friends_ftue_count";
+
+	public static final String FRIENDS_SYSTEM_MESSAGE = "frn_sys_msg";
+
+	public static final class SPACE_MANAGER
+	{
+		public static final String NOTIFY_DISK_SPACE_USAGE = "nspusg";
+
+		public static final String DISK_SPACE_INFO = "spcinf";
+
+		public static final String MAP_DIRECTORY = "mapdir";
+
+		public static final String DIRECTORY_LIST = "dirlist";
+
+		public static final String DIRECTORY_PATH = "dir_p";
+
+		public static final String DIRECTORY_SIZE = "dir_s";
+
+		public static final String DIRECTORY_TYPE = "dir_t";
+	}
+
+	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
+
+	public static final String DISK_CACHE_SIZE = "disk_cache_size";
+
+	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 }

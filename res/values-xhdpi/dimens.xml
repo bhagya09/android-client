@@ -19,4 +19,9 @@
 	<dimen name="welcome_artwork_padding">0dp</dimen>
 	<dimen name="welcome_with_love_top">30dp</dimen>
 	<dimen name="sticker_settings_tip_margin">60dp</dimen>
+
+	<dimen name="slide_to_cancel_arrow_width">36dp</dimen>
+	<dimen name="slide_to_cancel_margin">30dp</dimen>
+
+	<dimen name="db_dialog_width">352dp</dimen>
 </resources>

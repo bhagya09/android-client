@@ -1,7 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -32,6 +30,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
@@ -50,6 +49,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
@@ -116,16 +117,11 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_media), R.string.settings_media, R.drawable.ic_auto_download_media_settings));
 		
 		items.add(new SettingsDisplayPojo(getString(R.string.settings_chat), R.string.settings_chat, R.drawable.ic_settings_chat));
+		items.add(new SettingsDisplayPojo(getString(R.string.settings_sticker), R.string.settings_sticker, R.drawable.ic_settings_sticker));
+
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{
-			if (HikeMessengerApp.isCustomKeyboardUsable())
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
-			}
-			else
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
-			}
+			items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
 		}
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
@@ -381,7 +377,10 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openSettingChat(this);
 				break;
 
-			case R.string.settings_localization:
+			case R.string.settings_sticker:
+				IntentFactory.openStickerSettingsActivity(this);
+				break;
+
             case R.string.language:
 				IntentFactory.openSettingLocalization(this);
 				break;
@@ -450,7 +449,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
 		if (drawable == null)
 		{
-			drawable = HikeMessengerApp.getLruCache().getDefaultAvatar(contactInfo.getMsisdn(), false);
+			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());
 		}
 		profileImgView.setImageDrawable(drawable);
 		
@@ -542,13 +541,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		{
 			runOnUiThread(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
 					String name = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).getString(HikeMessengerApp.NAME_SETTING, contactInfo.getNameOrMsisdn());
 					contactInfo.setName(name);
 					setNameInHeader(nameView);
+					addProfileImgInHeader();
 				}
 			});
 		}

@@ -16,18 +16,17 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
@@ -50,14 +49,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.tasks.DownloadImageTask;
 import com.bsb.hike.tasks.DownloadImageTask.ImageDownloadResult;
-import com.bsb.hike.tasks.HikeHTTPTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.GalleryActivity;
-import com.bsb.hike.ui.PictureEditer;
+import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.fragments.ImageViewerFragment;
-import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ImageViewerFragment.DisplayPictureEditListener;
+import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment.ShareLinkFragmentListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -151,38 +149,21 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			return;
 		}
 
-		boolean editPic = Utils.isPhotosEditEnabled();
-		
-		Intent galleryPickerIntent = null; 
-		
-		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS|GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+		int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
 
-		if (editPic)
+		if(isPersonal)
 		{
-			galleryFlags = galleryFlags | GalleryActivity.GALLERY_EDIT_SELECTED_IMAGE|GalleryActivity.GALLERY_COMPRESS_EDITED_IMAGE;
-			if (!isPersonal)
-			{
-				galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,getNewProfileImagePath(useTimestamp));
-				startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
-			}
-			else
-			{
-				galleryFlags = galleryFlags | GalleryActivity.GALLERY_FOR_PROFILE_PIC_UPDATE;
-				galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this,galleryFlags,null);
-				startActivity(galleryPickerIntent);
-			}
+			Intent galleryPickerIntent = IntentFactory.getProfilePicUpdateIntent(ChangeProfileImageBaseActivity.this, galleryFlags);
+			startActivity(galleryPickerIntent);
 		}
 		else
 		{
-			galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE;
-			galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(ChangeProfileImageBaseActivity.this, galleryFlags,getNewProfileImagePath(useTimestamp));
-			galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-			startActivityForResult(galleryPickerIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(ChangeProfileImageBaseActivity.this, galleryFlags, getNewProfileImagePath(true),compression, true);
+			startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.PHOTOS_REQUEST_CODE);
 		}
-
 	}
-	
+
 	protected String getNewProfileImagePath(boolean useTimestamp)
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -203,7 +184,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	protected void  onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 
@@ -245,17 +226,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			}
 			if (!isPicasaImage)
 			{
-				if(Utils.isPhotosEditEnabled())
-				{
-					startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, path, true, getNewProfileImagePath(true), true));
+					Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
+					profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, path);
+					startActivity(profilePicIntent);
 					finish();
-				}
-				else
-				{
-					CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-					Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, path, getNewProfileImagePath(true), compression);
-					startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
-				}
 			}
 			else
 			{
@@ -279,17 +253,10 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 						else
 						{
-							if(Utils.isPhotosEditEnabled())
-							{
-								startActivity(IntentFactory.getPictureEditorActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), true, getNewProfileImagePath(true), true));
-								finish();
-							}
-							else
-							{
-								CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(80);
-								Intent cropIntent = IntentFactory.getCropActivityIntent(ChangeProfileImageBaseActivity.this, destFile.getAbsolutePath(), getNewProfileImagePath(true), compression);
-								startActivityForResult(cropIntent, HikeConstants.CROP_RESULT);
-							}
+							Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
+							profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, destFile.getAbsolutePath());
+							startActivity(profilePicIntent);
+							finish();
 						}
 					}
 				});

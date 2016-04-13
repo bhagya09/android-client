@@ -12,10 +12,6 @@
  */
 package org.eclipse.paho.client.mqttv3;
 
-import org.eclipse.paho.client.mqttv3.internal.ClientComms;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -34,6 +30,10 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.eclipse.paho.client.mqttv3.internal.ClientComms;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
@@ -71,25 +71,53 @@ class AlarmPingSender implements MqttPingSender {
 		this.alarmReceiver = new AlarmReceiver();
 	}
 
+
 	@Override
 	public void start() {
 		String action = MqttConstants.PING_SENDER
 				+ comms.getClient().getClientId();
-		Logger.d(TAG, "Register alarmreceiver to MqttService"+ action);
-		app.registerReceiver(alarmReceiver, new IntentFilter(action));
+		Logger.d(TAG, "Register alarmreceiver to MqttService" + action);
+		/**
+		 * Catching Security exception and logging it to analytics to it.
+		 */
+		try {
+			app.registerReceiver(alarmReceiver, new IntentFilter(action));
 
-		pendingIntent = PendingIntent.getBroadcast(app, 0, new Intent(
-				action), PendingIntent.FLAG_UPDATE_CURRENT);
-		
-		schedule(comms.getKeepAlive());
-		hasStarted = true;
+			pendingIntent = PendingIntent.getBroadcast(app, 0, new Intent(
+					action), PendingIntent.FLAG_UPDATE_CURRENT);
+
+			schedule(comms.getKeepAlive());
+			hasStarted = true;
+		} catch (SecurityException e) {
+			Logger.e(TAG, "Security Exception while registering Alarm Broadcast Receiver");
+
+			HAManager.getInstance().logDevEvent(MqttConstants.CONNECTION_PROD_AREA, MqttConstants.EXCEPTION_DEV_AREA + "_100", getExceptionJSONObject(e));
+		}
 	}
+
+	private JSONObject getExceptionJSONObject(Exception e) {
+
+
+		JSONObject infoJson = new JSONObject();
+		try {
+			infoJson.put(AnalyticsConstants.ERROR_TRACE, Utils.getStackTrace(e));
+			infoJson.put(AnalyticsConstants.REASON_CODE, "SecurityExceptionAlarmPing");
+
+
+		} catch (JSONException jsonEx) {
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:", jsonEx);
+		}
+		return infoJson;
+	}
+
 
 	@Override
 	public void stop() {
 		// Cancel Alarm.
 		AlarmManager alarmManager = (AlarmManager) app
 				.getSystemService(Service.ALARM_SERVICE);
+		//pending intent can be null if we get a security exception in onstart-->defensive check
+		if(pendingIntent!=null)
 		alarmManager.cancel(pendingIntent);
 
 		Logger.d(TAG, "Unregister alarmreceiver to MqttService"+comms.getClient().getClientId());
@@ -105,6 +133,12 @@ class AlarmPingSender implements MqttPingSender {
 
 	@Override
 	public void schedule(long delayInMilliseconds) {
+// Defensinve check as we can get a security exception in start Method .
+		if(pendingIntent==null)
+		{
+			Logger.d(TAG,"Pending intent is null");
+			return;
+		}
 		long nextAlarmInMilliseconds = System.currentTimeMillis()
 				+ delayInMilliseconds;
 		Logger.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);

@@ -2,6 +2,7 @@ package com.bsb.hike.timeline.adapter;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.LoaderManager;
@@ -49,6 +51,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -114,7 +117,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 	private ProfileImageLoader profileLoader;
 
 	protected AlertDialog alertDialog;
-	
+
+	private HashSet<String> mSUViewedSet = new HashSet<String>();
+
 	class ViewHolder extends RecyclerView.ViewHolder
 	{
 		ImageView avatar;
@@ -165,6 +170,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		View cardView;
 
+		TextView ftueBottomText;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -212,6 +219,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				avatar = (ImageView) convertView.findViewById(R.id.avatar);
 				ftueShow = convertView.findViewById(R.id.ftue_show);
 				cancelFTUE = (ImageView) convertView.findViewById(R.id.remove_ftue);
+				ftueBottomText = (TextView) convertView.findViewById(R.id.addfavtext);
 				break;
 			case USER_PROFILE_HEADER:
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
@@ -403,7 +411,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 						if (mActivity.get() != null && mActivity.get() instanceof ProfileActivity)
 						{
 							Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-									ContactManager.getInstance().getContact(headerMsisdn, true, false), false, false);
+									ContactManager.getInstance().getContact(headerMsisdn, true, false), false, false,
+									ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 							startActivity(intent);
 						}
 					}
@@ -440,6 +449,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 		ActionsDataModel likesData = TimelineActionsManager.getInstance().getActionsData().getActions(statusMessage.getMappedId(), ActionTypes.LIKE, ActivityObjectTypes.STATUS_UPDATE);
 
 		statusMessage.setActionsData(likesData);
+
+		if(!TextUtils.isEmpty(statusMessage.getMappedId()))
+		{
+			mSUViewedSet.add(statusMessage.getMappedId());
+		}
 
 		switch (viewType)
 		{
@@ -488,6 +502,9 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			//Due to view reusage
 			viewHolder.parent.setOnClickListener(null);
 			viewHolder.parent.setOnLongClickListener(null);
+
+			viewHolder.cardView.setOnClickListener(null);
+			viewHolder.cardView.setOnLongClickListener(null);
 
 			switch (statusMessage.getStatusMessageType())
 			{
@@ -782,6 +799,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			setAvatar(contact.getMsisdn(), viewHolder.avatar);
 			viewHolder.ftueShow.setTag(viewType);
 			viewHolder.ftueShow.setOnClickListener(ftueListItemClickListener);
+			viewHolder.ftueBottomText.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.timeline_add_as_frn : R.string.timeline_add_as_fav);
 			int imageSize = mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 			profileLoader = new ProfileImageLoader(mContext, contact.getMsisdn(), viewHolder.largeProfilePic, imageSize, false, true);
 			profileLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
@@ -909,9 +927,18 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 	private OnClickListener timelinePostDetailsListener = new OnClickListener()
 	{
+		private long lastClickTime = 0;
+
 		@Override
 		public void onClick(View v)
 		{
+			if (SystemClock.elapsedRealtime() - lastClickTime < 1000)
+			{
+				return;
+			}
+
+			lastClickTime = SystemClock.elapsedRealtime();
+
 			if (mActivity.get() != null)
 			{
 				ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(mActivity.get(), v, mContext.getString(R.string.timeline_transition_anim));
@@ -1110,7 +1137,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				if (mActivity.get() != null)
 				{
 					Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mActivity.get(),
-							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+							ContactManager.getInstance().getContact(mStatusMessage.getMsisdn(),true,true), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 					startActivity(intent);
 					JSONObject metadataSU = new JSONObject();
 					try
@@ -1380,7 +1407,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			}
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(mContext, new ContactInfo(null, statusMessage.getMsisdn(), statusMessage.getNotNullName(),
-					statusMessage.getMsisdn()), false, false);
+					statusMessage.getMsisdn()), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1709,6 +1736,11 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				});
 			}
 		}
+	}
+
+	public HashSet<String> getSUViewedSet()
+	{
+		return mSUViewedSet;
 	}
 
 	public void onDestroy()

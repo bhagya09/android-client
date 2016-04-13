@@ -38,6 +38,8 @@ public class FTAnalyticEvents
 
 	public static final String FT_ATTACHEMENT_TYPE = "at";
 
+	public static final String FT_ATTACHEMENT_SHARED_AS = "atsrc";
+
 	public static final String FT_STATUS = "s";
 
 	private static final String VIDEO_INPUT_RESOLUTION = "inputRes";
@@ -177,8 +179,6 @@ public class FTAnalyticEvents
 
 	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
 
-	public static final String UNABLE_TO_CREATE_LANG_DIC_DIR = "unable_to_create_lang_dic_dir";
-
 	public static final String BAD_RESUME_LENGTH = "bad_resume_len";
 
 	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
@@ -290,7 +290,7 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs)
 	{
 		try
 		{
@@ -301,6 +301,9 @@ public class FTAnalyticEvents
 			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
+			if(!TextUtils.isEmpty(attachmentShardeAs)) {
+				metadata.put(FT_ATTACHEMENT_SHARED_AS, attachmentShardeAs);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.FILE_TRANSFER, EventPriority.HIGH, metadata, HikeConstants.LogEvent.FILE_TRANSFER_STATUS);			
 		}
 		catch (JSONException e)
