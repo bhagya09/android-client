@@ -7157,6 +7157,11 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
+	public static int getDeviceDensityDPI()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().densityDpi;
+	}
+
 	public static String getStackTrace(Throwable ex) {
 		if (ex == null) {
 			return "";

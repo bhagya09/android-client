@@ -7,6 +7,7 @@ import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +27,9 @@ public class BackupMetadata {
     public static final String TIMESTAMP = "ts";
     public static final String VERSION = "version";
     public static final String MSISDN = "msisdn";
+    public static final String DENSITY_DPI = "dpi";
 
+    private int mDensityDPI;
     private Context mContext;
 
     private int mAppVersion;
@@ -43,6 +46,7 @@ public class BackupMetadata {
             mAppVersion = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
             mMsisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, "");
             mBackupTimeStamp = System.currentTimeMillis();
+            mDensityDPI = Utils.getDeviceDensityDPI();
         } catch (PackageManager.NameNotFoundException e) {
             Logger.e(LOGTAG, "Failed to read app version", e);
             mAppVersion = BuildConfig.VERSION_CODE;
@@ -72,6 +76,10 @@ public class BackupMetadata {
             if (dataJson.has(TIMESTAMP)) {
                 mBackupTimeStamp = dataJson.getLong(TIMESTAMP);
             }
+
+            if (dataJson.has(DENSITY_DPI)) {
+                mDensityDPI = dataJson.getInt(DENSITY_DPI);
+            }
         } catch (JSONException e) {
             Logger.e(LOGTAG, "Failed to construct BackupMetadata Object", e);
         }
@@ -88,6 +96,7 @@ public class BackupMetadata {
             dataJson.put(VERSION, mAppVersion);
             dataJson.put(MSISDN, mMsisdn);
             dataJson.put(TIMESTAMP, mBackupTimeStamp);
+            dataJson.put(DENSITY_DPI, mDensityDPI);
         }  catch (JSONException e) {
             Logger.e(LOGTAG, "Failed to construct dataJson", e);
         } finally {
