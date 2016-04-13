@@ -832,4 +832,5 @@ public class AnalyticsConstants
 
 	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
 
+	public static final String WT_CLICKED_TOUCHED = "wticon";
 }
