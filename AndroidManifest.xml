@@ -123,6 +123,7 @@
         android:largeHeap="true"
         android:logo="@drawable/hike_logo_top_bar"
         tools:replace="android:name,android:allowBackup"
+        android:manageSpaceActivity=".spaceManager.ManageSpaceActivity"
         android:theme="@style/AppTheme" >
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -435,6 +436,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".spaceManager.ManageSpaceActivity"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+         
         <receiver
             android:name=".service.BootService"
             android:enabled="true" >
