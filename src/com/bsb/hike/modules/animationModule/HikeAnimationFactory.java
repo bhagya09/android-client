@@ -37,6 +37,44 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
+	public static Animation getScaleFadeRingAnimation(int initialOffset)
+	{
+		AnimationSet animSet = new AnimationSet(true);
+		float a = 1f;
+		float pivotX = 0.5f;
+		float pivotY = 0.5f;
+
+		Animation anim0 = new ScaleAnimation(a, 0.50f, a,0.50f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+		anim0.setStartOffset(initialOffset);
+		anim0.setDuration(1000);
+		anim0.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(anim0);
+
+		Animation fade = new AlphaAnimation(1, 0);
+		fade.setInterpolator(new AccelerateInterpolator(2f));
+		fade.setStartOffset(1500);
+		fade.setDuration(500);
+		fade.setRepeatCount(Animation.INFINITE);
+		animSet.addAnimation(fade);
+
+		return animSet;
+	}
+
+	public static Animation getScaleInAnimation(int initialOffset)
+	{
+		AnimationSet animSet = new AnimationSet(true);
+		float a = 1f;
+		float pivotX = 0.5f;
+		float pivotY = 0.75f;
+
+		Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+		anim0.setStartOffset(initialOffset);
+		anim0.setDuration(200);
+		animSet.addAnimation(anim0);
+
+		return anim0;
+	}
+
 	public static AnimationSet getHikeActionBarLogoAnimation(Context context)
 	{
 		anim_repeat_count = 2;
@@ -85,6 +123,12 @@ public class HikeAnimationFactory
 				animation.start();
 			}
 		});
+		return animSet;
+	}
+
+	public static Animation getStickerPreviewFtueAnimation(Context context)
+	{
+		final AnimationSet animSet = (AnimationSet) AnimationUtils.loadAnimation(context, R.anim.pack_preview_shop_ftue_anim);
 		return animSet;
 	}
 }

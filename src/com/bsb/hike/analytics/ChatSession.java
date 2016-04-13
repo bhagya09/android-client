@@ -7,7 +7,7 @@ public class ChatSession
 {
 	private String msisdn;
 	
-	private long chatSessionTotalTime;
+	private long chatSessionTime;
 	
 	private long sessionStartingTimeStamp;
 	
@@ -19,7 +19,7 @@ public class ChatSession
 		
 		startChatSession();
 
-		chatSessionTotalTime = -1;
+        chatSessionTime = -1;
 	}
 
 	public void startChatSession()
@@ -28,16 +28,16 @@ public class ChatSession
 		sessionEnded = false;
 	}
 	
-	public long getChatSessionTotalTime()
+	public long getChatSessionTime()
 	{
-		return chatSessionTotalTime;
+		return chatSessionTime;
 	}
 	
 	private void updateChatSessionTotalTime()
 	{
 		long timeSpent = (System.currentTimeMillis() - sessionStartingTimeStamp);
 		
-		this.chatSessionTotalTime += timeSpent;
+		this.chatSessionTime += timeSpent;
 		
 		Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Chat Session Time Spent -- " + timeSpent);
 	}

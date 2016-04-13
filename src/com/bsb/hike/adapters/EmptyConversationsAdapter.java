@@ -37,6 +37,7 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.WhichScreen;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationItem>
 {
@@ -318,7 +319,7 @@ public class EmptyConversationsAdapter extends ArrayAdapter<EmptyConversationIte
 		{
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
-			Utils.startChatThread(context, contactInfo);
+			Utils.startChatThread(context, contactInfo, ChatThreadActivity.ChatThreadOpenSources.EMPTY_STATE_CONV_FRAGMENT);
 			
 			try
 			{

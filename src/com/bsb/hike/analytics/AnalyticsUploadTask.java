@@ -62,6 +62,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         if (mIsSessionComplete) {
             AnalyticsSender.getInstance(mContext).scheduleNextAlarm();
         }
+        HAManager.getInstance().resetAnalyticsEventsUploadCount();
     }
 
     @Override

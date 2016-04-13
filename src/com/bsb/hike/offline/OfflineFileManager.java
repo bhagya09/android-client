@@ -24,6 +24,7 @@ import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.offline.OfflineConstants.MessageType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.hike.transporter.utils.Logger;
@@ -230,53 +231,51 @@ public class OfflineFileManager
 		currentReceivingFiles.clear();
 		currentSendingFiles.clear();
 	}
-	
+
 	public void onFileCompleted(ConvMessage message, File file)
 	{
 		JSONObject messageJSON = message.serialize();
-		File tempSticker = file;
-		String filePath = null;
-		if (OfflineUtils.isStickerMessage(messageJSON)) 
+		if (OfflineUtils.isStickerMessage(messageJSON))
 		{
-			String stpath = OfflineUtils.getStickerPath(messageJSON);
-			//stPath can be null AND-5028
-			if (!android.text.TextUtils.isEmpty(stpath))
+			Sticker sticker = OfflineUtils.getSticker(messageJSON);
+			File tempSticker = file;
+			String filePath=null;
+			File stickerImage = null;
+			if (sticker != null && !sticker.isStickerAvailable())
 			{
-
-				File stickerImage = new File(stpath);
-				if (!stickerImage.exists())
+				try
 				{
-					try
-					{
-						filePath = OfflineUtils.createStkDirectory(messageJSON);
-						if (filePath != null)
-						{
-							stickerImage = new File(filePath);
-						}
-					}
-					catch (JSONException e)
-					{
-						e.printStackTrace();
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
+					filePath = OfflineUtils.createStkDirectory(messageJSON);
 					if (filePath != null)
-						tempSticker.renameTo(stickerImage);
-
+					{
+						stickerImage = new File(filePath);
+					}
 				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
+				if (filePath != null && stickerImage != null)
+				{
+					tempSticker.renameTo(stickerImage);
+				}
+
 			}
-			else 
+			else
 			{
 				// delete file
 				if (tempSticker != null && tempSticker.exists())
 					tempSticker.delete();
 			}
-			
+
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
-		} 
-		else 
+		}
+		else
 		{
 			File tempFile = file;
 			File hikePath=new File(OfflineUtils.getFilePathFromJSON(messageJSON));

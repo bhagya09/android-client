@@ -9,20 +9,12 @@ import com.bsb.hike.R;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.tasks.DeleteAccountTask;
 import com.bsb.hike.tasks.DeleteAccountTask.DeleteAccountListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.view.CustomFontTextView;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -31,15 +23,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener, AdaptxtKeyboordVisibilityStatusListner,
-		OnClickListener
+public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements DeleteAccountListener
 {
 	private CustomFontTextView countryName;
 	
@@ -59,50 +48,17 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 
 	private HashMap<String, String> languageMap = new HashMap<String, String>();
 	
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-
-	protected int keyboardHeight;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.delete_account_confirmation);
 		
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-		
 		initViewComponents();
-		if (!systemKeyboard)
-		{
-			initCustomKeyboard();
-		}
 		setupActionBar();
 		handleOrientationChanegs();
 	}
 
-	private void initCustomKeyboard()
-	{
-		View keyboardView = findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(DeleteAccount.this, keyboardView, KPTConstants.SINGLE_LINE_EDITOR, kptEditTextEventListener, DeleteAccount.this);
-		mCustomKeyboard.registerEditText(R.id.et_enter_num);
-		mCustomKeyboard.registerEditText(R.id.country_picker);
-		mCustomKeyboard.registerEditText(R.id.selected_country_name);
-		mCustomKeyboard.init(phoneNum);
-		phoneNum.setOnClickListener(this);
-		countryCode.setOnClickListener(this);
-	}
-
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			hideKeyboard();
-		}
-	};
-	
 	private void handleOrientationChanegs()
 	{
 
@@ -312,128 +268,13 @@ public class DeleteAccount extends HikeAppStateBaseFragmentActivity implements D
 		{
 			task.setActivity(null);
 		}
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.et_enter_num, R.id.country_picker);
 		super.onDestroy();
 	}
 	
 	@Override
-	protected void onPause()
-	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard, countryCode, phoneNum);
-		KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
-		super.onPause();
-	}
-	
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-		KptUtils.resumeKeyboard(mCustomKeyboard);
-	}
-
-	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			hideKeyboard();
-			return;
-		}
 		finish();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-
-		if(item.getItemId()==android.R.id.home)
-		{
-			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-			{
-				hideKeyboard();
-			}
-			onBackPressed();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-	private void hideKeyboard()
-	{
-		mCustomKeyboard.showCustomKeyboard(countryCode, false);
-		mCustomKeyboard.showCustomKeyboard(phoneNum, false);
-		KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
-	}
-
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
-	{
-		if (kptVisible)
-		{
-			keyboardHeight = height;
-			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, height);
-		}
-		else
-		{
-			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, 0);
-		}
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(DeleteAccount.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(DeleteAccount.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void onClick(View v)
-	{
-		switch (v.getId())
-		{
-		case R.id.et_enter_num:
-			mCustomKeyboard.showCustomKeyboard(phoneNum, true);
-			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-			break;
-			
-		case R.id.country_picker:
-			mCustomKeyboard.showCustomKeyboard(countryCode, true);
-			KptUtils.updatePadding(DeleteAccount.this, R.id.parent_layout, (keyboardHeight == 0) ? mCustomKeyboard.getKeyBoardAndCVHeight() : keyboardHeight);
-			break;
-			
-		default:
-			break;
-		}
-	}
-
-	@Override
-	public void dismissRemoveDialog()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 }
