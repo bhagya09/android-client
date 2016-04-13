@@ -998,6 +998,7 @@ public class ConversationsAdapter extends BaseAdapter
 					&& (message.getTypingNotification() == null)
 					&& convInfo.getUnreadCount() > 0
 					&& !message.isSent()
+					&& (message.getParticipantInfoState() != ParticipantInfoState.FRIEND_REQUSET_STATUS)
 					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
 							.getUnreadCount() > 0))
 			{
@@ -1030,6 +1031,7 @@ public class ConversationsAdapter extends BaseAdapter
 					&& (message.getTypingNotification() == null)
 					&& convInfo.getUnreadCount() > 0
 					&& !message.isSent()
+					&& (message.getParticipantInfoState() != ParticipantInfoState.FRIEND_REQUSET_STATUS)
 					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
 					.getUnreadCount() > 0) || (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE &&
 							message.getMetadata() != null && convInfo.getUnreadCount() > 0))

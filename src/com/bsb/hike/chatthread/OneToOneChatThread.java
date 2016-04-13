@@ -3330,7 +3330,7 @@ import java.util.Map;
 
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.SENT_UNCONFIRMED);
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 	}
