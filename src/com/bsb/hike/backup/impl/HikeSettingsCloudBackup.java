@@ -106,6 +106,10 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 				.getInstance().getString(R.string.privacy_my_contacts)));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.SSL_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, false));
 
+		/*
+		 *SMS Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.FREE_SMS_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
 		return true;
 	}
 
