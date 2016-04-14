@@ -455,6 +455,7 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+				FTAnalyticEvents.sendQuickUploadEvent(0);
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
 					saveNoNetworkState(fileKey);
@@ -497,6 +498,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else
 					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_QUICK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception QUICK UPLOAD_FAILED - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
 				}
@@ -505,6 +507,7 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				FTAnalyticEvents.sendQuickUploadEvent(1);
 				JSONObject responseJson = new JSONObject();
 				try
 				{
