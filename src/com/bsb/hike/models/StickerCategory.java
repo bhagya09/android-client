@@ -55,7 +55,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	private int totalStickers;
 	
 	private int categorySize;
-	
+
+	private int prefOrder;
+
+	private int updationTime;
+
 	public static final int NONE = 0;
 	
 	public static final int UPDATE = 1;
@@ -93,6 +97,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.state = builder.state;
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
+		this.prefOrder = builder.prefOrder;
+		this.updationTime = updationTime;
 		ensureSaneDefaults();
 	}
 
@@ -146,6 +152,10 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		private String copyRightString;
 
+		private int prefOrder;
+
+		private int	updationTime;
+
 		private int state;
 
 		protected abstract S self();
@@ -187,6 +197,16 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		public S setIsVisible(boolean isVisible) {
 			this.isVisible = isVisible;
+			return self();
+		}
+
+		public S setPrefOrder(int prefOrder) {
+			this.prefOrder = prefOrder;
+			return self();
+		}
+
+		public S setUpdationTime(int updationTime) {
+			this.updationTime = updationTime;
 			return self();
 		}
 
@@ -319,6 +339,16 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public String getCategoryName()
 	{
 		return categoryName;
+	}
+
+	public int getPrefOrder()
+	{
+		return prefOrder;
+	}
+
+	public int getUpdationTime()
+	{
+		return updationTime;
 	}
 
 	public void setCategoryName(String categoryName)
@@ -478,6 +508,16 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public String getCopyRightString()
 	{
 		return copyRightString;
+	}
+
+	public void setPrefOrder(int prefOredr)
+	{
+		this.prefOrder = prefOredr;
+	}
+
+	public void setUpdationTime(int updationTime)
+	{
+		this.updationTime = updationTime;
 	}
 
 	public void setCopyRightString(String copyRightString)
