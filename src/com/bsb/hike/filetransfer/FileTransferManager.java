@@ -6,9 +6,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -20,6 +22,9 @@ import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -433,10 +438,10 @@ public class FileTransferManager
 					tempDownloadedFile.delete();
 
 			}
-			// TODO
-			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
-			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
+			String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			deleteLogFile(msgId, mFile);
 		}
 	}
 
@@ -693,5 +698,41 @@ public class FileTransferManager
 			}
 		}
 		return 0;
+	}
+
+	public File getAnalyticFile(File file, long  msgId)
+	{
+		return new File(FTUtils.getHikeTempDir(context), file.getName() + ".log." + msgId);
+	}
+
+	public void logTaskCompletedAnalytics(long msgId, Object userContext, boolean isDownloadTask)
+	{
+		HikeFile hikefile;
+		if (userContext == null)
+		{
+			try
+			{
+				JSONObject jo = new JSONObject(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_JSON, "{}"));
+				hikefile = new HikeFile(jo, false);
+			}
+			catch (JSONException je)
+			{
+				hikefile = null;
+				Logger.d("DownloadUrl", "JSONExcpetion after file Completion");
+			}
+		}
+		else
+		{
+			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
+		}
+		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
+		String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
+		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
+		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
+		{
+			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
+					((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileTypeString());
+		}
+		deleteLogFile(msgId, hikefile.getFile());
 	}
 }

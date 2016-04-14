@@ -366,12 +366,6 @@ public class UploadFileTask extends FileTransferBase
 		fileName = hikeFile.getFileName();
 		fileType = hikeFile.getFileTypeString();
 		hikeFileType = hikeFile.getHikeFileType();
-
-		ConvMessage msg = userContext;
-		// todo analytics
-		// File lofFile = FileTransferManager.getInstance(context).getAnalyticFile(msg.getMetadata().getHikeFiles().get(0).getFile(), msg.getMsgID());
-		// this.analyticEvents = FTAnalyticEvents.getAnalyticEvents(lofFile);
-		Logger.d(getClass().getSimpleName(), "Upload state bin file :: " + fileName + ".bin." + userContext.getMsgID());
 	}
 
 	public void startFileUploadProcess()
@@ -454,6 +448,7 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+				FTAnalyticEvents.sendQuickUploadEvent(0);
 				if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 				{
 					saveNoNetworkState(fileKey);
@@ -496,6 +491,7 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else
 					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.UPLOAD_QUICK_AREA, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Exception QUICK UPLOAD_FAILED - ", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}
 				}
@@ -504,6 +500,7 @@ public class UploadFileTask extends FileTransferBase
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				FTAnalyticEvents.sendQuickUploadEvent(1);
 				JSONObject responseJson = new JSONObject();
 				try
 				{
@@ -740,6 +737,8 @@ public class UploadFileTask extends FileTransferBase
 			removeTask();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
+
+		FileTransferManager.getInstance(context).logTaskCompletedAnalytics(msgId, userContext, false);
 	}
 
 	protected void saveSessionId(String sessionId)

@@ -196,6 +196,8 @@ public class DownloadFileTask extends FileTransferBase
 		}
 		FileTransferManager.getInstance(context).removeTask(msgId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+
+		FileTransferManager.getInstance(context).logTaskCompletedAnalytics(msgId, userContext, true);
 	}
 
 	private void sendCrcLog(String md5)
@@ -211,12 +213,12 @@ public class DownloadFileTask extends FileTransferBase
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_3, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", ex);
 			removeTaskAndShowToast(HikeConstants.FTResult.NO_SD_CARD);
 		}
-		else if (ex instanceof IOException && ex.getMessage().equals(FILE_TOO_LARGE_ERROR_MESSAGE))
+		else if (ex instanceof IOException && FILE_TOO_LARGE_ERROR_MESSAGE.equals(ex.getMessage()))
 		{
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
 			removeTaskAndShowToast(HikeConstants.FTResult.FILE_TOO_LARGE);
 		}
-		else if (ex instanceof IOException && ex.getMessage().equals(CARD_UNMOUNT_ERROR))
+		else if (ex instanceof IOException && CARD_UNMOUNT_ERROR.equals(ex.getMessage()))
 		{
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", ex);
 			removeTaskAndShowToast(HikeConstants.FTResult.CARD_UNMOUNT);
@@ -243,10 +245,12 @@ public class DownloadFileTask extends FileTransferBase
 				default:
 					if (errorCode / 100 != 2)
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_2, errorCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
 						removeTaskAndShowToast(HikeConstants.FTResult.SERVER_ERROR);
 					}
 					else
 					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 					break;
