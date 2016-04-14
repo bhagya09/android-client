@@ -613,6 +613,9 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.hike.abtest.UpdateExperimentService"
+            android:exported="false" />
 </application>
 
 </manifest>
