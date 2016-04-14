@@ -12,6 +12,7 @@ import android.content.SharedPreferences.Editor;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -67,6 +68,29 @@ public class UpgradeIntentService extends IntentService
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
 			editor.commit();
+		}
+
+		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		{
+			boolean isMoveSuccessful = moveStickerAssetsToExternal();
+			if(!isMoveSuccessful)
+			{
+				// Move wasn't successful.
+				// 1. Wipe StickerTable
+				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+
+				// 2. Delete old sticker folder (if present)
+				try
+				{
+					Utils.delete(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					Logger.e(TAG, "Exception while deleting existing stickers folder", e);
+				}
+
+			}
 		}
 
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
@@ -130,18 +154,6 @@ public class UpgradeIntentService extends IntentService
 				editor.putInt(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 2);
 				editor.commit();
                 StickerManager.getInstance().doInitialSetup();
-			}
-		}
-
-		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
-		{
-			boolean isMoveSuccessful = moveStickerAssetsToExternal();
-			if(!isMoveSuccessful)
-			{
-				// Move wasn't successful.
-				// 1. Wipe StickerTable
-				// 2. Delete old sticker folder (if present)
-
 			}
 		}
 
