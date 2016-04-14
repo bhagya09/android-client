@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1654"
-    android:versionName="4.2.5.82.22.2.walkie_talkie_enhancement" >
+    android:versionName="4.2.5.82.22.3.walkie_talkie_enhancement" >
 
    <uses-sdk
         android:minSdkVersion="14"
