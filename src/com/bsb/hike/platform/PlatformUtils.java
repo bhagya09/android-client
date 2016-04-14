@@ -2504,10 +2504,7 @@ public class PlatformUtils
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
 							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
-							if(type == HikePlatformConstants.PlatformTypes.CBOT)
-							{
-								sendCbotFailDueToTTL(name);
-							}
+							sendFailDueToTTL(name);
 							continue;
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
@@ -2685,7 +2682,7 @@ public class PlatformUtils
 	 * analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1460011903528,"fld1":"pushkar11","ek":"micro_app","fld2":"+pushkar11+","event":"ttlExpired"},"cts":1460011966846,"tag":"plf"},"t":"le_android"}
 	 * @param name
 	 */
-	public static void sendCbotFailDueToTTL(String name)
+	public static void sendFailDueToTTL(String name)
 	{
 		JSONObject json = new JSONObject();
 		try
