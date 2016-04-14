@@ -514,7 +514,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				// checking for interceptUrl JSON String
 				if (params[3] != null)
 				{
-					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson,back
 				}
 				else if (params[2] != null)
 				{
@@ -1521,7 +1521,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else if (TextUtils.isEmpty(interceptUrlJson))
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null, null });
 		}
 		else
 		{
