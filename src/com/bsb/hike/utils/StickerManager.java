@@ -377,6 +377,8 @@ public class StickerManager
 
 		cachingStickersOnStart();
 
+        retryInsertForStickers();
+
 		doUpgradeTasks();
 	}
 
@@ -430,11 +432,12 @@ public class StickerManager
 					String[] stickerIds = smallCatDir.list();
 					for (String stickerId : stickerIds)
 					{
-						removeStickerFromCustomCategory(new Sticker(removedCategoryId, stickerId));
-                        			if(!forceRemoveCategory)
-                        			{
-                        				removedSet.add(getStickerSetString(stickerId, removedCategoryId));
-                        			}
+                        Sticker sticker = new Sticker(removedCategoryId, stickerId);
+						removeStickerFromCustomCategory(sticker);
+                        if(!forceRemoveCategory)
+                        {
+                            removedSet.add(sticker.getStickerCode());
+                        }
 					}
 				}
 				Utils.deleteFile(bigCatDir);
@@ -2007,13 +2010,6 @@ public class StickerManager
 		}
 	}
 
-	public String getStickerSetString(String stkId, String catId)
-	{
-
-		//ToDo remove this
-		return (new Sticker(catId,stkId)).getStickerCode();
-	}
-
 	public Sticker getStickerFromSetString(String info)
 	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
@@ -2043,10 +2039,10 @@ public class StickerManager
 		return pair;
 	}
 
-	public void saveInStickerTagSet(String stickerId, String categoryId)
+	public void saveInStickerTagSet(Sticker sticker)
 	{
 		Set<String> stickerSet = new HashSet<>(1);
-		stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+		stickerSet.add(sticker.getStickerCode());
 
 		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, false);
 	}
@@ -3053,6 +3049,11 @@ public class StickerManager
 	public void saveSticker(List<Sticker> stickers, StickerConstants.StickerType stickerType)
 	{
 		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers, stickerType);
+
+        for(Sticker sticker : stickers)
+        {
+            removeFromTableStickerSet(sticker);
+        }
 	}
 
 	public void deactivateSticker(Sticker sticker)
@@ -3337,4 +3338,39 @@ public class StickerManager
 	{
 		return showLastCategory;
 	}
+
+    public void saveInTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.add(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void removeFromTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.remove(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void retryInsertForStickers()
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+
+        if(Utils.isEmpty(stickerSet))
+        {
+            return;
+        }
+
+        List<Sticker> stickers = new ArrayList<>(stickerSet.size());
+
+        for(String stickerCode : stickerSet)
+        {
+            stickers.add(getStickerFromSetString(stickerCode));
+        }
+
+        saveSticker(stickers, StickerConstants.StickerType.LARGE);
+
+    }
+
 }
