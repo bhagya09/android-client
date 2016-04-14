@@ -211,7 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Add to Fav"
-                android:src="@drawable/ic_add_friend_small"
+                android:src="@drawable/ic_add_fav_small"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="8dp" />
 

@@ -1466,7 +1466,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				if (viewType == ViewType.NOT_FRIEND_HIKE)
 				{
 					ImageView addFriend = viewHolder.addFriend;
-
+					viewHolder.addFriend.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite );
 					addFriend.setTag(contactInfo);
 					addFriend.setOnClickListener(this);
 				}
