@@ -4707,6 +4707,12 @@ public class Utils
 			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
 
+		//2-way friendship established. Get Historical updates here!
+		if (favoriteType == FavoriteType.FRIEND)
+		{
+			fetchHistoricalUpdates(contactInfo.getMsisdn());
+		}
+
 		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
@@ -8488,6 +8494,35 @@ public class Utils
 		{
 			e.toString();
 			return null;
+		}
+	}
+
+	private static void fetchHistoricalUpdates(String msisdn)
+	{
+		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+		});
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
 		}
 	}
 }

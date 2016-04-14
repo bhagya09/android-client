@@ -3325,8 +3325,9 @@ import java.util.Map;
 		{
 			favoriteType = FavoriteType.FRIEND;
 		}
-		mContactInfo.setFavoriteType(favoriteType);
+
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
+		mContactInfo.setFavoriteType(favoriteType);
 
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
