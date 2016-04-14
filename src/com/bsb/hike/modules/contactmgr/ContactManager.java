@@ -1489,6 +1489,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		persistenceCache.updateDefaultGroupName(groupId);
 	}
 
+	/**
+	 * This method removes all group participants when a Group Chat is ended
+	 *
+	 * @param groupId
+     */
+	public void removeAllGroupParticipants(String groupId)
+	{
+		List<PairModified<GroupParticipant, String>> groupParticipants = getGroupParticipants(groupId, false, false);
+		List<String> msisdns = new ArrayList<>(groupParticipants.size());
+
+		for(PairModified<GroupParticipant, String> participant : groupParticipants ) {
+			msisdns.add(participant.getFirst().getContactInfo().getMsisdn());
+		}
+
+		removeGroupParticipant(groupId, msisdns);
+	}
+
 	public void removeGroup(String groupId)
 	{
 		transientCache.removeGroup(groupId);
