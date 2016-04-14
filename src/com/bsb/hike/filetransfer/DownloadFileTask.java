@@ -213,12 +213,12 @@ public class DownloadFileTask extends FileTransferBase
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_1_3, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "NO_SD_CARD : ", ex);
 			removeTaskAndShowToast(HikeConstants.FTResult.NO_SD_CARD);
 		}
-		else if (ex instanceof IOException && ex.getMessage().equals(FILE_TOO_LARGE_ERROR_MESSAGE))
+		else if (ex instanceof IOException && FILE_TOO_LARGE_ERROR_MESSAGE.equals(ex.getMessage()))
 		{
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_MEM_CHECK, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "FILE_TOO_LARGE");
 			removeTaskAndShowToast(HikeConstants.FTResult.FILE_TOO_LARGE);
 		}
-		else if (ex instanceof IOException && ex.getMessage().equals(CARD_UNMOUNT_ERROR))
+		else if (ex instanceof IOException && CARD_UNMOUNT_ERROR.equals(ex.getMessage()))
 		{
 			FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_DATA_WRITE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "file", "CARD_UNMOUNT : ", ex);
 			removeTaskAndShowToast(HikeConstants.FTResult.CARD_UNMOUNT);
