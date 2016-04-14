@@ -919,6 +919,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             // Put apps JsonObject in the final json
             json.put(HikePlatformConstants.APPS, appsJsonObject);
             json.put(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+            json.put(HikeConstants.SOURCE, HikePlatformConstants.CARD_FORWARD);
         }
         catch (JSONException e)
         {

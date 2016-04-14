@@ -2,7 +2,7 @@ package com.bsb.hike.modules.httpmgr.engine;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkClient;
+import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -23,7 +23,7 @@ public class RequestRunner
 
 	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
-		defaultClient = new OkClient(options);
+		defaultClient = new OkUrlClient(options);
 		this.engine = engine;
 		this.requestListenerNotifier = requestListenerNotifier;
 	}
