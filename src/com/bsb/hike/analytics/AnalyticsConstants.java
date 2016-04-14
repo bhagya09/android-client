@@ -801,6 +801,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_LOG_2 = "act_log2";
 
+	public static final String ACT_CORE_LOGS = "act_core";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -813,5 +815,17 @@ public class AnalyticsConstants
 	public static final String BITMAP_DOWNLOAD_UNSUCESSFULL = "fail";
 	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
 	public static final String REQUEST_FAILURE = "requestFailure";
+
+
+	public static final String CAMERA_ICON_CLICK = "camicon";
+	public static final String AUDIO_ICON_CLICK  = "audicon";
+	public static final String VIDEO_ICON_CLICK  = "vidicon";
+	public static final String LOCATION_ICON_CLICK = "locicon";
+	public static final String FILE_ICON_CLICK = "fileicon";
+	public static final String GALLERY_ICON_CLICK = "galicon";
+	public static final String APPS_ICON_CLICK = "appsicon";
+	public static final String CONTACT_ICON_CLICK = "cntcticon";
+
+	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
 
 }

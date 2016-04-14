@@ -52,10 +52,6 @@ public class AccountRestoreAsyncTask extends AsyncTask<Void, Void, Integer>
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.BLOCK_NOTIFICATIONS,
 					false); // UnBlock any possible notifs as well
 
-			//Fix for HS-83
-			// Resetting Sticker categories here
-			StickerManager.getInstance().postDbCorruptionSetup();
-
 			Utils.connectToMQTT();
 		}
 
