@@ -110,6 +110,10 @@ public class UserLogInfo {
 	
 	private final static byte RUNNING_PROCESS_BIT = 0;
 	private final static byte FOREGROUND_TASK_BIT = 1;
+
+	public static final int NO_OF_RETRIES = 3;
+	public static final int RETRY_DELAY = 2000;
+	public static final int MULIPLIER = 1;
 	
 	private static int flags;
 	

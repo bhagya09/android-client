@@ -32,6 +32,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -683,6 +684,7 @@ public class HttpRequests
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
 				.post(body)
+				.setRetryPolicy(new BasicRetryPolicy(UserLogInfo.NO_OF_RETRIES, UserLogInfo.RETRY_DELAY, UserLogInfo.MULIPLIER))
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
