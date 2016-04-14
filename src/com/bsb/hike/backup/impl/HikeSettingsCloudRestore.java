@@ -60,7 +60,7 @@ public class HikeSettingsCloudRestore implements BackupRestoreTaskLifecycle, IRe
 		Logger.d(TAG, "Restore settings JSON found, begin restore");
 
 		//Retrieve "setting"
-		JSONObject settingsJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.KEY_SETTING);
+		JSONObject settingsJSON = mSettingsJSON.optJSONObject(HikeConstants.BackupRestore.KEY_SETTINGS);
 		if(settingsJSON == null)
 		{
 			sendFailedPubsub();
