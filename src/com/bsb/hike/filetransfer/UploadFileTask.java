@@ -75,6 +75,8 @@ public class UploadFileTask extends FileTransferBase
 
 	private String vidCompressionRequired = "0";
 
+	private FTAnalyticEvents analyticEvents;
+
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
 		super(ctx, null, -1, null);
@@ -368,9 +370,8 @@ public class UploadFileTask extends FileTransferBase
 		hikeFileType = hikeFile.getHikeFileType();
 
 		ConvMessage msg = userContext;
-		// todo analytics
-		// File lofFile = FileTransferManager.getInstance(context).getAnalyticFile(msg.getMetadata().getHikeFiles().get(0).getFile(), msg.getMsgID());
-		// this.analyticEvents = FTAnalyticEvents.getAnalyticEvents(lofFile);
+		File lofFile = FileTransferManager.getInstance(context).getAnalyticFile(msg.getMetadata().getHikeFiles().get(0).getFile(), msg.getMsgID());
+		this.analyticEvents = FTAnalyticEvents.getAnalyticEvents(lofFile);
 		Logger.d(getClass().getSimpleName(), "Upload state bin file :: " + fileName + ".bin." + userContext.getMsgID());
 	}
 

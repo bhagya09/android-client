@@ -113,6 +113,7 @@ public class FileUploadRequest extends Request<JSONObject>
 		int length = (int) srcFile.length();
 		if (length < 1)
 		{
+			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_OPERATION, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing FileNotFoundException because File size less than 1 byte");
 			throw new FileNotFoundException("File size less than 1 byte");
 		}
 
@@ -216,7 +217,8 @@ public class FileUploadRequest extends Request<JSONObject>
 				if (bytesRead == -1)
 				{
 					raf.close();
-					break;
+					FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_FILE_READ, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "file", "Throwing IOException in partial read. files ended");
+					throw new IOException("Exception in partial read. files ended");
 				}
 
 				String contentRange = "bytes " + start + "-" + end + "/" + length;
@@ -241,7 +243,20 @@ public class FileUploadRequest extends Request<JSONObject>
 					try
 					{
 						byte[] bytes = (byte[]) response.getBody().getContent();
-						JSONObject responseJson = new JSONObject(new String(bytes));
+						String responseString = new String(bytes);
+						JSONObject responseJson = null;
+						try
+						{
+							responseJson = new JSONObject(responseString);
+						}
+						catch(JSONException e)
+						{
+							FTAnalyticEvents.logDevException(FTAnalyticEvents.JSON_PARSING_ISSUE, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "Parsing response json received from server",
+									"Response = " + responseString, e);
+							raf.close();
+							throw e;
+						}
+
 						getState().setResponseJson(responseJson);
 						publishProgress((float) bytesTransferred / length);
 						try
@@ -300,6 +315,7 @@ public class FileUploadRequest extends Request<JSONObject>
 						String fileExtension = Utils.getFileExtension(filePath);
 						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
+						LogFull.d("content range  : " + contentRange + " time taken : " + time);
 					}
 				}
 
