@@ -740,6 +740,8 @@ public class UploadFileTask extends FileTransferBase
 			removeTask();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		}
+
+		FileTransferManager.getInstance(context).logTaskCompletedAnalytics(msgId, userContext, false);
 	}
 
 	protected void saveSessionId(String sessionId)

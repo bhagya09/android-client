@@ -196,6 +196,8 @@ public class DownloadFileTask extends FileTransferBase
 		}
 		FileTransferManager.getInstance(context).removeTask(msgId);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+
+		FileTransferManager.getInstance(context).logTaskCompletedAnalytics(msgId, userContext, true);
 	}
 
 	private void sendCrcLog(String md5)
