@@ -317,21 +317,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
         recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(9)).setDuration(200).setListener(getAnimationListener()).start();
-        sendAnalyticsUserCancelledRecording();
-    }
-
-    private void sendAnalyticsUserCancelledRecording()
-    {
-        try
-        {
-            JSONObject json = new JSONObject();
-            json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
-            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     static final int CANCEL_RECORDING = 1;

@@ -2340,6 +2340,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "Audio Recorded failed");
 		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
 			showRecordingErrorTip(R.string.recording_help_text);
+		} else if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER){
+			sendAnalyticsUserCancelledRecording();
+		}
+	}
+
+	private void sendAnalyticsUserCancelledRecording() {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
