@@ -1393,6 +1393,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
+		sendWTClickedAnalytic();
+	}
+
+	private void sendWTClickedAnalytic() {
+		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, AnalyticsConstants.WT_CLICKED_TOUCHED);
+		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
 	protected void showAudioRecordView()
@@ -3774,6 +3780,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:
 						walkieView.update(v, event);
