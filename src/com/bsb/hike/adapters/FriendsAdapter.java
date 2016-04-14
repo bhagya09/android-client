@@ -1502,7 +1502,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_favorite), null, null, null);
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
