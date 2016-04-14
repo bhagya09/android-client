@@ -6323,16 +6323,22 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.PROTIP_TABLE, DBConstants.ID + "< ?", new String[] { Long.toString(id) });
 	}
 
-	public void setChatBackground(String msisdn, String bgId, long timeStamp)
+	public void setChatBackground(String msisdn, String newBgId, long timeStamp)
 	{
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
-		values.put(DBConstants.ChatThemes.THEME_COL_BG_ID, bgId);
+		values.put(DBConstants.ChatThemes.THEME_COL_BG_ID, newBgId);
+		values.put(ChatThemes.PREV_THEME_ID_COL, getChatThemeIdForMsisdn(msisdn));
 		values.put(DBConstants.TIMESTAMP, timeStamp);
 
 		mDb.insertWithOnConflict(DBConstants.ChatThemes.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
+	/**
+	 * this method returns the currentTheme for the chat irrespective of whether it is downloaded or not
+	 * @param msisdn
+	 * @return
+	 */
 	public Pair<String, Long> getChatThemeIdAndTimestamp(String msisdn)
 	{
 		Cursor c = null;
@@ -6358,6 +6364,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * the method returns the currentTheme for the chat if the assets for it are downloaded.
+	 * else, returns the most recent chat theme for this chat which is completely downloaded
+	 * @param msisdn
+	 * @return
+	 */
 	public String getChatThemeIdForMsisdn(String msisdn)
 	{
 		Cursor c = null;
