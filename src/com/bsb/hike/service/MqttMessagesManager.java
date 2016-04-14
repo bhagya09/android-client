@@ -671,7 +671,6 @@ public class MqttMessagesManager
 		if (this.convDb.toggleGroupDeadOrAlive(groupId, false) > 0)
 		{
 			this.convDb.changeGroupSettings(groupId, 0, 0, new ContentValues());
-			ContactManager.getInstance().removeAllGroupParticipants(groupId);
 			saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 		}
 	}
