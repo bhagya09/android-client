@@ -433,10 +433,10 @@ public class FileTransferManager
 					tempDownloadedFile.delete();
 
 			}
-			// TODO
-			//FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
-			//String network = analyticEvent.mNetwork + "/" + getNetworkTypeString();
-			//analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
+			String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			deleteLogFile(msgId, mFile);
 		}
 	}
 
@@ -693,5 +693,10 @@ public class FileTransferManager
 			}
 		}
 		return 0;
+	}
+
+	public File getAnalyticFile(File file, long  msgId)
+	{
+		return new File(FTUtils.getHikeTempDir(context), file.getName() + ".log." + msgId);
 	}
 }
