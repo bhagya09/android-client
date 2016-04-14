@@ -104,7 +104,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         micPositionMaxSlide = micPositionMaxSlide - screenWidth;
 
         DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
-        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.80);
+        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.72); //CE-434
     }
 
     View inflatedLayoutView ;
