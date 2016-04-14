@@ -291,7 +291,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	private void sendClickAnalytics(String type)
 	{
-		JSONObject json = Utils.getMediaClickJSON(type, type);
+		JSONObject json = Utils.getCoreChatClickJSON(type, type);
 		if (json != null)
 		{
 			HAManager.getInstance().recordV2(json);
@@ -331,7 +331,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	@Override
 	public void show(int width, int height, int xOffset, int yOffset, View anchor, int inputMethodMode)
 	{
-		sendClickAnalytics(getType(ATTACHMENT_PICKER)); // recording the showing of attachment picker
+		sendClickAnalytics(AnalyticsConstants.ATTACHMENT_PICKER_CLICK); // recording the showing of attachment picker
 		super.show(width, height, xOffset, yOffset, anchor, inputMethodMode);
 	}
 
