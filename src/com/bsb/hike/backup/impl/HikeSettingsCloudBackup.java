@@ -8,6 +8,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.backup.iface.BackupRestoreTaskLifecycle;
 import com.bsb.hike.backup.model.CloudBackupPrefInfo;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -110,6 +111,13 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 		 *SMS Settings
 		 */
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.FREE_SMS_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+
+		/*
+		 * Language Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LOCAL_LANGUAGE_PREF, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_STRING, LocalLanguage.PhoneLangauge.getLocale()));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LOCALIZATION_FTUE_COMPLETE, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
+
 		return true;
 	}
 
