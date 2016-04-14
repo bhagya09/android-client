@@ -89,13 +89,20 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         updateTriggerLevels();
     }
 
+    float micPositionMaxSlide;
     private void updateTriggerLevels(){
+        micPositionMaxSlide = DrawUtils.dp(24);
         int screenWidth;
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             screenWidth = DrawUtils.displayMetrics.heightPixels;
+            if(HikeMessengerApp.bottomNavBarWidthLandscape != 0){
+                micPositionMaxSlide = HikeMessengerApp.bottomNavBarWidthLandscape/2 - DrawUtils.dp(1);
+            }
         } else {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
+        micPositionMaxSlide = micPositionMaxSlide - screenWidth;
+
         DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
         DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.80);
     }
@@ -227,7 +234,11 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         alpha = 0;
                     }
                     slideToCancel.setAlpha(alpha);
-                    if(dist <= 0.0f) recorderImg.setTranslationX(dist);
+                    //CE-435: Preventing user from sliding beyond the X
+                    float maxLeftSlidePossible = micPositionMaxSlide - rectBgrnd.getX();
+                    if (dist <= 0.0f && dist >= maxLeftSlidePossible) {
+                        recorderImg.setTranslationX(dist);
+                    }
                 } else {
                     if (event.getX() <= DELETE_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
