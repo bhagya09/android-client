@@ -801,6 +801,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_LOG_2 = "act_log2";
 
+	public static final String ACT_USERS = "act_users";
+
 	public static final String ACT_CORE_LOGS = "act_core";
 
 	public static final String CHAT_OPEN = "chat_open";
