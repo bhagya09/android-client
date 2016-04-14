@@ -70,6 +70,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -671,6 +672,26 @@ public class MqttMessagesManager
 		if (this.convDb.toggleGroupDeadOrAlive(groupId, false) > 0)
 		{
 			this.convDb.changeGroupSettings(groupId, 0, 0, new ContentValues());
+
+			List<PairModified<GroupParticipant, String>> groupParticipants = ContactManager.getInstance().getGroupParticipants(groupId, false, false);
+
+			for(PairModified<GroupParticipant, String> participant : groupParticipants )
+			{
+
+				ContactInfo contactInfo = participant.getFirst().getContactInfo();
+				if(contactInfo != null)
+				{
+
+					String msisdn = contactInfo.getMsisdn();
+
+					if (msisdn != null && this.convDb.setParticipantLeft(groupId, msisdn) > 0)
+					{
+						ContactManager.getInstance().removeGroupParticipant(groupId, msisdn);
+					}
+				}
+
+			}
+
 			saveStatusMsg(jsonObj, jsonObj.getString(HikeConstants.TO));
 		}
 	}
