@@ -830,4 +830,6 @@ public class AnalyticsConstants
 
 	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
 
+	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
+
 }
