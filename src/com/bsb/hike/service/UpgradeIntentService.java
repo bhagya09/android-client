@@ -1,13 +1,13 @@
 package com.bsb.hike.service;
 
 import java.io.File;
-import java.io.IOException;
 
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -72,27 +72,7 @@ public class UpgradeIntentService extends IntentService
 
 		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
 		{
-			boolean isMoveSuccessful = moveStickerAssetsToExternal();
-			if(!isMoveSuccessful)
-			{
-				// Move wasn't successful.
-				// 1. Wipe StickerTable
-				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-				// 2. Delete old sticker folder (if present)
-				try
-				{
-					Utils.delete(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-					Logger.e(TAG, "Exception while deleting existing stickers folder", e);
-				}
-
-			}
-
-			// Set operation done. GGWP
+			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 
@@ -223,48 +203,6 @@ public class UpgradeIntentService extends IntentService
 	private boolean upgradeForStickerTable()
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
-	}
-
-	/**
-	 * Move stickers from 0/Android/data/com.bsb.hike/stickers to 0/Hike/stickers
-	 * 
-	 * @return true, if move operation was successful
-	 */
-	private boolean moveStickerAssetsToExternal()
-	{
-		boolean result = true;
-
-		// Check if "from" destination exists
-		String stickerExtPath = StickerManager.getInstance().getOldStickerExternalDirFilePath();
-		if (stickerExtPath != null)// Path is not null
-		{
-			// "from"
-			File stickerExtFile = new File(stickerExtPath);
-
-			// "to"
-			File hikeStickerFolder = new File(StickerManager.getInstance().getStickerExternalDirFilePath());
-
-			// Copy to! We do not need to check size since we are merely renaming file paths on same mount
-			result = result && Utils.moveDirectoryByRename(stickerExtFile, hikeStickerFolder);
-
-			// Delete from!! Clean-up
-			try
-			{
-				Utils.delete(stickerExtFile);
-			}
-			catch (IOException e)
-			{
-				Logger.e(TAG, "Exception while cleaning up existing stickers folder", e);
-				e.printStackTrace();
-				// Its ok. Continue.
-			}
-		}
-		else
-		{
-			result = false;
-		}
-
-		return result;
 	}
 
 }

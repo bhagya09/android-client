@@ -8508,12 +8508,15 @@ public class Utils
 	{
 		boolean result = true;
 
-		if(oldRootDir == null || oldRootDir.listFiles() == null)
+		// param check
+		if(oldRootDir == null
+				|| newRootDir == null
+				|| oldRootDir.listFiles() == null)
 		{
 			return false;
 		}
 
-		if (result && !newRootDir.exists())
+		if (!newRootDir.exists())
 		{
 			result = result && newRootDir.mkdirs();
 		}
@@ -8537,7 +8540,11 @@ public class Utils
 					result = result && f.renameTo(newFile);
 				}
 			}
+
+			// Delete residual dirs
+			Utils.deleteFile(oldRootDir);
 		}
+
 
 		return result;
 	}

@@ -22,6 +22,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.CustomStickerCategory;
@@ -3345,5 +3346,55 @@ public class StickerManager
 	public boolean getShowLastCategory()
 	{
 		return showLastCategory;
+	}
+
+	/**
+	 *	Migrate sticker assets to different directory
+	 *
+	 * 1. Move sticker assets
+	 *
+	 * 2. Update sticker file path in sticker table (Note: New path updated to directory returned by getStickerExternalDirFilePath}
+	 */
+	public void migrateStickerAssets(String fromPath, String toPath)
+	{
+		boolean isMoved = moveStickersFolder(fromPath, toPath);
+		if (isMoved)
+		{
+			// Assets migrated successfully
+			// Update stickers path
+			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
+			{
+				doInitialSetup();
+			}
+		}
+		else
+		{
+			// Move wasn't successful.
+			// 1. Wipe StickerTable
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+
+			// 2. Delete old sticker folder (if present)
+			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+		}
+	}
+
+	/**
+	 * Move stickers from 0/Android/data/com.bsb.hike/stickers to 0/Hike/stickers
+	 * 
+	 * @param fromPath
+	 * @param toPath
+	 * @return true, is the operation was successful
+	 */
+	private boolean moveStickersFolder(String fromPath, String toPath)
+	{
+		if (!TextUtils.isEmpty(fromPath) && !TextUtils.isEmpty(toPath))// Paths are not null
+		{
+			// Copy to! We do not need to check size since we are merely renaming file paths on same mount
+			return Utils.moveDirectoryByRename(new File(fromPath), new File(toPath));
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
