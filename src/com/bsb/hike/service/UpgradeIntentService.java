@@ -91,6 +91,9 @@ public class UpgradeIntentService extends IntentService
 				}
 
 			}
+
+			// Set operation done. GGWP
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
@@ -255,9 +258,6 @@ public class UpgradeIntentService extends IntentService
 				e.printStackTrace();
 				// Its ok. Continue.
 			}
-
-			// Set operation done. GGWP
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 		else
 		{
