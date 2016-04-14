@@ -1,5 +1,8 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+import java.io.IOException;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +18,7 @@ import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-
-import java.io.File;
+import com.bsb.hike.utils.Utils;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -66,7 +68,7 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
 			editor.commit();
 		}
-		
+
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
 		{
 			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
@@ -131,6 +133,18 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		{
+			boolean isMoveSuccessful = moveStickerAssetsToExternal();
+			if(!isMoveSuccessful)
+			{
+				// Move wasn't successful.
+				// 1. Wipe StickerTable
+				// 2. Delete old sticker folder (if present)
+
+			}
+		}
+
         // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
@@ -138,13 +152,12 @@ public class UpgradeIntentService extends IntentService
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+
 	}
 
 	public UpgradeIntentService()
 	{
-
 		super(TAG);
-
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
@@ -196,4 +209,50 @@ public class UpgradeIntentService extends IntentService
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
+
+	/**
+	 * Move stickers from 0/Android/data/com.bsb.hike/stickers to 0/Hike/stickers
+	 * 
+	 * @return true, if move operation was successful
+	 */
+	private boolean moveStickerAssetsToExternal()
+	{
+		boolean result = true;
+
+		// Check if "from" destination exists
+		String stickerExtPath = StickerManager.getInstance().getOldStickerExternalDirFilePath();
+		if (stickerExtPath != null)// Path is not null
+		{
+			// "from"
+			File stickerExtFile = new File(stickerExtPath);
+
+			// "to"
+			File hikeStickerFolder = new File(StickerManager.getInstance().getStickerExternalDirFilePath());
+
+			// Copy to! We do not need to check size since we are merely renaming file paths on same mount
+			result = result && Utils.moveDirectoryByRename(stickerExtFile, hikeStickerFolder);
+
+			// Delete from!! Clean-up
+			try
+			{
+				Utils.delete(stickerExtFile);
+			}
+			catch (IOException e)
+			{
+				Logger.e(TAG, "Exception while cleaning up existing stickers folder", e);
+				e.printStackTrace();
+				// Its ok. Continue.
+			}
+
+			// Set operation done. GGWP
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
+		}
+		else
+		{
+			result = false;
+		}
+
+		return result;
+	}
+
 }

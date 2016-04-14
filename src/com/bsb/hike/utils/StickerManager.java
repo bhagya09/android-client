@@ -308,10 +308,19 @@ public class StickerManager
 		logStickerFolderError();
 	}
 
-	private String getStickerExternalDirFilePath()
+	/**
+	 * DO NOT USE.
+     */
+	public String getOldStickerExternalDirFilePath()
 	{
 		String externalDir = Utils.getExternalFilesDirPath(null);
-		String stickerExternalDir = (externalDir == null ? null : externalDir + HikeConstants.STICKERS_ROOT);
+		String stickerExternalDir = (externalDir == null ? null : externalDir + "/stickers"); // hard-code path to remove dependency on constant
+		return stickerExternalDir;
+	}
+
+	public String getStickerExternalDirFilePath()
+	{
+		String stickerExternalDir = HikeConstants.HIKE_DIRECTORY_ROOT + HikeConstants.STICKERS_ROOT;
 		return stickerExternalDir;
 	}
 

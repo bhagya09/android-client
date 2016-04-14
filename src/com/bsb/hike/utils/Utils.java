@@ -70,7 +70,6 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,7 +78,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -8497,6 +8495,53 @@ public class Utils
 			return null;
 		}
 	}
+
+	/**
+	 * This does a rename of entire folder (recursive) to new path.
+	 * Use this if old and new paths are on same mount point since its practically instantaneous.
+	 * 
+	 * @param oldRootDir
+	 * @param newRootDir
+	 * @return true, if the operation was successful
+	 */
+	public static boolean moveDirectoryByRename(File oldRootDir, File newRootDir)
+	{
+		boolean result = true;
+
+		if(oldRootDir == null || oldRootDir.listFiles() == null)
+		{
+			return false;
+		}
+
+		if (result && !newRootDir.exists())
+		{
+			result = result && newRootDir.mkdirs();
+		}
+
+		if (result)
+		{
+			for (File f : oldRootDir.listFiles())
+			{
+				if (f.isDirectory())
+				{
+					File newDir = new File(newRootDir, f.getName());
+					result = result && moveDirectoryByRename(f, newDir);
+				}
+				else
+				{
+					File newFile = new File(newRootDir, f.getName());
+					if (newFile.exists())
+					{
+						result = result && newFile.delete();
+					}
+					result = result && f.renameTo(newFile);
+				}
+			}
+		}
+
+		return result;
+	}
+
 }
 
 
