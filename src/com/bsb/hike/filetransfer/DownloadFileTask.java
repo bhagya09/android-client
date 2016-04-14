@@ -243,10 +243,12 @@ public class DownloadFileTask extends FileTransferBase
 				default:
 					if (errorCode / 100 != 2)
 					{
+						FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_2, errorCode, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "SERVER_ERROR");
 						removeTaskAndShowToast(HikeConstants.FTResult.SERVER_ERROR);
 					}
 					else
 					{
+						FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_UNKNOWN_ERROR, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "all", "DOWNLOAD_FAILED", httpException);
 						removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
 					}
 					break;
