@@ -54,6 +54,8 @@ public class FileUploadRequest extends Request<JSONObject>
 
 	private int bytesUploaded;
 
+	private long time;
+
 	private FileUploadRequest(Init<?> init)
 	{
 		super(init);
@@ -203,10 +205,8 @@ public class FileUploadRequest extends Request<JSONObject>
 			getState().setSessionId(X_SESSION_ID);
 			getState().setFTState(FTState.IN_PROGRESS);
 			publishProgress((float) bytesTransferred / length);
-			long time = 0;
 			while (end < length)
 			{
-				time = System.currentTimeMillis();
 				FileSavedState st = getState();
 				LogFull.d("ft state in while loop file upload : " + st.getFTState().name());
 				if (st.getFTState() != FTState.IN_PROGRESS)
@@ -227,6 +227,8 @@ public class FileUploadRequest extends Request<JSONObject>
 
 				response = null;
 				exception = null;
+				time = System.currentTimeMillis();
+
 				RequestToken token = HttpRequests.uploadChunk(this.getUrl(), fileBytes, BOUNDARY, headers, getCustomId() + contentRange, getUploadChunkRequestListener());
 				token.execute();
 
@@ -347,6 +349,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			@Override
 			public void onRequestFailure(HttpException httpException) {
 				exception = httpException;
+				time = System.currentTimeMillis();
 			}
 
 			@Override
