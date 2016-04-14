@@ -67,13 +67,12 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
 			return;
 		}
-		requestId = getRequestId();
 		download();
 	}
 
 	private void download()
 	{
-		requestToken = multiStickerDownloadRequest(requestId, getRequestInterceptor(), getRequestListener());
+		requestToken = multiStickerDownloadRequest(getRequestId(), getRequestInterceptor(), getRequestListener());
 
 		if (requestToken.isRequestRunning()) // duplicate check
 		{
@@ -297,7 +296,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private String getRequestId()
 	{
-		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId());
+		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId() + "\\" + existingStickerNumber);
 	}
 
 	/**
