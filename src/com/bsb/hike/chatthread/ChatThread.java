@@ -1445,7 +1445,14 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
-	
+
+	protected void closeWTTip() {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
+	}
+
 	public void showStickerRecommendTip()
 	{
 		mTips.showStickerRecommendFtueTip();
@@ -3757,6 +3764,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
+				boolean isWTShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+				if (isWTShown) {
+					if (event.getAction() == MotionEvent.ACTION_UP) closeWTTip();
+					return true;
+				}
+
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
