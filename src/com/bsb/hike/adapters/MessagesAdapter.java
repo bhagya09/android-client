@@ -4059,14 +4059,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			catch (IllegalArgumentException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IllegalStateException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
+
+				File tempFile = new File(hikeFile.getFilePath());
+				boolean doesFileExist = (tempFile != null) ? tempFile.exists(): false;
+				if(!doesFileExist) {
+					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 
@@ -4227,7 +4236,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				return;
 			}
 			String btnFileKey = (String) fileBtn.getTag();
-			if (!fileKey.equals(btnFileKey))
+			if (fileKey != null && !fileKey.equals(btnFileKey))
 			{
 				return;
 			}
@@ -4252,6 +4261,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (durationTxt == null || durationProgress == null || fileKey == null || mediaPlayer == null)
 			{
+				if(durationTxt != null){
+					durationTxt.setText("N/A");
+				}
 				return;
 			}
 			String txtFileKey = (String) durationTxt.getTag();
