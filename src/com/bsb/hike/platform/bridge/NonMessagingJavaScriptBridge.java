@@ -514,7 +514,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 				// checking for interceptUrl JSON String
 				if (params[3] != null)
 				{
-					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson,back
 				}
 				else if (params[2] != null)
 				{
@@ -1494,6 +1494,29 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	{
 		openFullPage( title,  url,  interceptUrlJson,"false");
 	}
+	/**
+	 * Platform bridge Version 11
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 * @param backToActivity : "true"/"false"-- Depends whether on back press, activity wants to kill itself or not
+	 */
+	@JavascriptInterface
+	
 	public void openFullPage(String title, String url, String interceptUrlJson, String backToActivity)
 	{
 		if (TextUtils.isEmpty(title))
@@ -1502,7 +1525,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else if (TextUtils.isEmpty(interceptUrlJson))
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null, null });
 		}
 		else
 		{
