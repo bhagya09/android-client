@@ -215,6 +215,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
             jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, mBotInfo.getMAppVersionCode());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
+			jsonObject.put(HikeMessengerApp.PRODUCTION,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION,true);
 
 			if (!TextUtils.isEmpty(extraData))
 			{
