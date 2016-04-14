@@ -365,7 +365,7 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 			/**
 			 * Incrementing numActivePeople by + 1 to add self
 			 */
-			int id = numActivePeople == 0 ? R.string.you: R.string.num_members;
+			int id = numActivePeople == 0 ? R.string.num_member: R.string.num_members;
 			memberCountTextView.setText(activity.getResources().getString(id, (numActivePeople + 1)));
 			memberCountTextView.setSelected(true);
 		}
