@@ -752,7 +752,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if (hideSuggestions)
 		{
-			if (showAddFriendView && friendsList.isEmpty())
+			if (!Utils.isFavToFriendsMigrationAllowed() && showAddFriendView && friendsList.isEmpty())
 			{
 				if (TextUtils.isEmpty(queryText))
 				{
