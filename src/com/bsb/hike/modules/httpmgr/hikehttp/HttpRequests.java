@@ -215,7 +215,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setId(requestId)
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
@@ -228,7 +228,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setId(requestId)
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
@@ -241,7 +241,7 @@ public class HttpRequests
 				.setUrl(url)
 				.setId(requestId)
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
