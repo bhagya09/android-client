@@ -282,15 +282,6 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	public static int getAudioSource(boolean speakerPhone) {
-		int source = MediaRecorder.AudioSource.MIC;
-		
-		if (speakerPhone == true)
-			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
-		
-		return source;
-	}
-
 	/**
 	 * Whether to show the ratings popup or not. It is controlled by -
 	 * 1. There is a upper limit on how many times we can ask a user to rate. This is hard coded
