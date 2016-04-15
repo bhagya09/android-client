@@ -8472,7 +8472,7 @@ public class Utils
 			json.put(AnalyticsConstants.V2.ORDER, order);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance()
-					.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+					.getData(HikeMessengerApp.UID_SETTING, ""));
 
 			return json;
 

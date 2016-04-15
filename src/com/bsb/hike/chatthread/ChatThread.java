@@ -1614,7 +1614,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_BACKGROUND_TRIAL);
 			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
 			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
-			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, ""));
 			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
 			HAManager.getInstance().recordV2(metadata);
 		} catch (JSONException e)
