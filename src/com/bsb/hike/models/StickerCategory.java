@@ -58,6 +58,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private int prefOrder;
 
+	private  boolean isDisabled;
+
 	private int updationTime;
 
 	public static final int NONE = 0;
@@ -98,7 +100,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
 		this.prefOrder = builder.prefOrder;
-		this.updationTime = updationTime;
+		this.updationTime = builder.updationTime;
+		this.isDisabled = builder.isDisabled;
 		ensureSaneDefaults();
 	}
 
@@ -154,6 +157,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		private int prefOrder;
 
+		private boolean isDisabled;
+
 		private int	updationTime;
 
 		private int state;
@@ -202,6 +207,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		public S setPrefOrder(int prefOrder) {
 			this.prefOrder = prefOrder;
+			return self();
+		}
+
+		public S setIsDiabled(boolean isDisabled) {
+			this.isDisabled = isDisabled;
 			return self();
 		}
 
@@ -344,6 +354,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public int getPrefOrder()
 	{
 		return prefOrder;
+	}
+
+	public boolean isDisabled()
+	{
+		return isDisabled;
 	}
 
 	public int getUpdationTime()
@@ -510,9 +525,14 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return copyRightString;
 	}
 
-	public void setPrefOrder(int prefOredr)
+	public void setPrefOrder(int prefOrder)
 	{
-		this.prefOrder = prefOredr;
+		this.prefOrder = prefOrder;
+	}
+
+	public void setIsDisabled(boolean isDisabled)
+	{
+		this.isDisabled = isDisabled;
 	}
 
 	public void setUpdationTime(int updationTime)
