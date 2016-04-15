@@ -512,7 +512,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			{
 				String[] params = (String[]) msg.obj;
 				// checking for interceptUrl JSON String
-				if (params[2] != null)
+				if (params[3] != null)
+				{
+					mCallback.openFullPageWithTitle(params[1], params[0], params[2], params[3]); // Url, title, interceptUrlJson,back
+				}
+				else if (params[2] != null)
 				{
 					mCallback.openFullPageWithTitle(params[1], params[0], params[2]); // Url, title, interceptUrlJson
 				}
@@ -566,7 +570,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@Override
 	public void openFullPage(final String title, final String url)
 	{
-		openFullPage(title, url, null);
+		openFullPage(title, url, null, "false");
 	}
 	
 	/**
@@ -1460,25 +1464,6 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				Context weakActivityRef = weakActivity.get();
-				if (weakActivityRef != null) {
-					int galleryFlags;
-					if (Boolean.valueOf(displayCameraItem)) {
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-					} else {
-						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
-					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
-					((WebViewActivity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
-				}
-			}
-		});
-		Logger.d("FileUpload","input Id chooseFile is "+ id);
 		PlatformHelper.chooseFile(id,displayCameraItem,weakActivity.get());
 	}
 
@@ -1501,9 +1486,38 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	 *
 	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
 	 * 			    		 intercepted URL.
+	 * @param backToActivity TODO
 	 */
 	@JavascriptInterface
+	
 	public void openFullPage(String title, String url, String interceptUrlJson)
+	{
+		openFullPage( title,  url,  interceptUrlJson,"false");
+	}
+	/**
+	 * Platform bridge Version 11
+	 * Call this function to open a full page webView within hike. Calling this function will create full page with action bar
+	 * color specified by server, js injected to remove unwanted features from the full page, and URLs defined by the interceptUrlJson
+	 * will be intercepted when they start loading.
+	 * @param title
+	 *            : the title on the action bar.
+	 * @param url
+	 *            : the url that will be loaded.
+	 * @param interceptUrlJson
+	 * 			  : the JSON String that contains the interception URL and type.
+	 * 			    If a loading url contains the String value of the "url" field, it will be intercepted.
+	 * 			    eg - {"icpt_url":[{"url":"ndtv","type":1},{"url":"techinsider.com","type":1}]}
+	 * 			    URL http://www.ndtv.com/news?txId=1234&authId=12345&key1=val1&key2=val2
+	 * 			    will be intercepted and parameter String ?txId=1234&authId=12345&key1=val1&key2=val2 will be returned to the microapp
+	 * 			    in the urlIntercepted method.
+	 *
+	 * 			    Type 1 : Closes the current WebView and opens the microapp that invoked it, with the URL parameters from the
+	 * 			    		 intercepted URL.
+	 * @param backToActivity : "true"/"false"-- Depends whether on back press, activity wants to kill itself or not
+	 */
+	@JavascriptInterface
+	
+	public void openFullPage(String title, String url, String interceptUrlJson, String backToActivity)
 	{
 		if (TextUtils.isEmpty(title))
 		{
@@ -1511,11 +1525,11 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		}
 		else if (TextUtils.isEmpty(interceptUrlJson))
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, null, null });
 		}
 		else
 		{
-			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson });
+			sendMessageToUiThread(OPEN_FULL_PAGE_WITH_TITLE, new String[] { title, url, interceptUrlJson,backToActivity });
 		}
 	}
 
@@ -1609,6 +1623,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
      * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
      * Call this function to get the mAppVersionCode for asked msisdn.
      * @param id: the id of the function that native will call to call the js .
+     * @param msisdn: the msisdn of the bot for which micro app version code is required.
      * returns -1 if bot not exists
      */
     @JavascriptInterface
@@ -1624,6 +1639,31 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 
         callbackToJS(id, String.valueOf(botInfo.getMAppVersionCode()));
 
+    }
+
+    /**
+     * Platform Version 11
+     * This function is made for the special Shared bot that has the information about some other bots as well, and acts as a channel for them.
+     * Call this function to get the mAppVersionCode for asked appName.
+     * @param id: the id of the function that native will call to call the js .
+     * @param appName: the appName of the sdk that you require version code for.
+     * returns -1 if caller of the method is not a special bot
+     */
+    @JavascriptInterface
+    public void getSDKVersionCode(String id, String appName)
+    {
+        if (!BotUtils.isSpecialBot(mBotInfo))
+        {
+            callbackToJS(id,"-1");
+            return;
+        }
+
+        int gameEngineMappVersionCode = 0;
+
+        if(HikeMessengerApp.hikeMappInfo.containsKey(appName))
+            gameEngineMappVersionCode = HikeMessengerApp.hikeMappInfo.get(appName);
+
+        callbackToJS(id, String.valueOf(gameEngineMappVersionCode));
     }
 
 

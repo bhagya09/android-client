@@ -1393,6 +1393,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
+		sendWTClickedAnalytic();
+	}
+
+	private void sendWTClickedAnalytic() {
+		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, AnalyticsConstants.WT_CLICKED_TOUCHED);
+		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
 	protected void showAudioRecordView()
@@ -1575,7 +1581,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	public void themeClicked(ChatTheme theme)
 	{
 		Logger.i(TAG, "theme clicked " + theme);
-
+		postTrialsAnalytic(theme.bgId());
 		updateUIAsPerTheme(theme);
 	}
 
@@ -1597,6 +1603,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			updateUIAsPerTheme(chatTheme);
 			currentTheme = chatTheme;
 			sendChatThemeMessage();
+		}
+	}
+
+	private void postTrialsAnalytic(String themeId){
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_USERS);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_BACKGROUND_TRIAL);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
+			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
+			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
+			HAManager.getInstance().recordV2(metadata);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
@@ -3757,6 +3779,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:
 						walkieView.update(v, event);

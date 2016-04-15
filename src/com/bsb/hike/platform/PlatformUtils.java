@@ -59,6 +59,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -610,7 +611,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 							{
 								// In case of failure updating status
 								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
@@ -841,7 +842,7 @@ public class PlatformUtils
                         HikeMessengerApp.getPubSub().publish(HikePubSub.MAPP_CREATED, mAppCreatedSuccessfullyPair);
                     }
 					//Updating state in case of failure
-					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.equals(event.toString())))
+					if (autoResume && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
 					{
 
 						updatePlatformDownloadState(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode(),
@@ -1344,26 +1345,29 @@ public class PlatformUtils
 			if (dir.isDirectory())// This checks if the call is made to delete a particular file (eg. "index.html") or an entire sub-folder
 			{
 				String[] children = dir.list();
-				for (int i = 0; i < children.length; i++)
+				if (children != null && children.length>0)
 				{
-					File temp = new File(dir, children[i]);
-					if (temp.isDirectory())
+					for (int i = 0; i < children.length; i++)
 					{
-						Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
-						deleteOp(temp);
-					}
-					else
-					{
-						Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
-						boolean b = temp.delete();
-						if (!b)
+						File temp = new File(dir, children[i]);
+						if (temp.isDirectory())
 						{
-							Logger.d("DeleteRecursive", "DELETE FAIL");
-							return false;
+							Logger.d("DeleteRecursive", "Recursive Call" + temp.getPath());
+							deleteOp(temp);
+						}
+						else
+						{
+							Logger.d("DeleteRecursive", "Delete File" + temp.getPath());
+							boolean b = temp.delete();
+							if (!b)
+							{
+								Logger.d("DeleteRecursive", "DELETE FAIL");
+								return false;
+							}
 						}
 					}
 				}
-				dir.delete();
+                dir.delete();
 			}
 			else
 			{
@@ -2503,10 +2507,7 @@ public class PlatformUtils
 						{
 							int mAppVersionCode = c.getInt(c.getColumnIndex(HikePlatformConstants.MAPP_VERSION_CODE));
 							removeFromPlatformDownloadStateTable(name, mAppVersionCode);
-							if(type == HikePlatformConstants.PlatformTypes.CBOT)
-							{
-								sendCbotFailDueToTTL(name);
-							}
+							sendFailDueToTTL(name);
 							continue;
 						}
 						if(prefNetwork < currentNetwork) // Pausing a request if  the network is downgraded.
@@ -2642,15 +2643,22 @@ public class PlatformUtils
 
 	public static String getFileUploadJson(Intent data)
 	{
-		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE).toLowerCase();
+		String filepath = data.getStringExtra(HikeConstants.Extras.GALLERY_SELECTION_SINGLE);
 
-		if(TextUtils.isEmpty(filepath))
+		if (TextUtils.isEmpty(filepath))
 		{
-			Logger.e("FileUpload","Invalid file Path");
+			// Could be from crop activity
+			filepath = data.getStringExtra(HikeCropActivity.CROPPED_IMAGE_PATH);
+		}
+
+		if (TextUtils.isEmpty(filepath))
+		{
+			Logger.e("FileUpload", "Invalid file Path");
 			return "";
 		}
 		else
 		{
+			filepath = filepath.toLowerCase();
 			Logger.d("FileUpload", "Path of selected file :" + filepath);
 			String fileExtension = MimeTypeMap.getFileExtensionFromUrl(filepath).toLowerCase();
 			String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase()); // fixed size type extension
@@ -2670,13 +2678,14 @@ public class PlatformUtils
 			}
 
 		}
+
 	}
 
 	/**
 	 * analytics json : {"d":{"ep":"HIGH","st":"filetransfer","et":"nonUiEvent","md":{"sid":1460011903528,"fld1":"pushkar11","ek":"micro_app","fld2":"+pushkar11+","event":"ttlExpired"},"cts":1460011966846,"tag":"plf"},"t":"le_android"}
 	 * @param name
 	 */
-	public static void sendCbotFailDueToTTL(String name)
+	public static void sendFailDueToTTL(String name)
 	{
 		JSONObject json = new JSONObject();
 		try
