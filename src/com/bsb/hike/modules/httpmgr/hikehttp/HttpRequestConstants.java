@@ -61,6 +61,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_STICKER = "/stickers";
 
+	private static final String BASE_SHOP = "/shop";
+
 	private static final String BASE_INVITE = "/invite";
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
@@ -208,7 +210,23 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
 	}
-	
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_metadata";
+	}
+
+	public static String stickerShopUpdateCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
 	public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";

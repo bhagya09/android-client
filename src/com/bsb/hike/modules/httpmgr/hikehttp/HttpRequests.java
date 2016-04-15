@@ -87,9 +87,12 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpP
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryFetchPrefOrderUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopUpdateCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
@@ -195,6 +198,45 @@ public class HttpRequests
 		String url = stickerShopDownloadUrl() + "?offset=" + offset + "&resId=" + Utils.getResolutionId() + "&lang=" + StickerSearchUtils.getISOCodeFromLocale(Utils.getCurrentLanguageLocale());
 		url = Utils.isEmpty(unsupportedLanguages) ? url : (url + "&unknown_langs=" + StickerLanguagesManager.getInstance().listToString(unsupportedLanguages));
 
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken fetchAllCategoriesData(String requestId, int offset, int pageSize, IRequestListener requestListener)
+	{
+		String url = stickerShopFetchCategoryUrl() + "?offset=" + offset  + "&pagesize=" + pageSize;
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken updateAllCategoriesData(String requestId, long timestamp, int offset, IRequestListener requestListener)
+	{
+		String url = stickerShopUpdateCategoryUrl() + "?ts="+ timestamp+ "&offset=" + offset;
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener)
+	{
+		String url = stickerCategoryFetchPrefOrderUrl();
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)
