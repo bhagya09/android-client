@@ -641,15 +641,7 @@ public class HttpRequests
     {
         if(json==null)
         {
-            RequestToken requestToken = new StringRequest.Builder()
-                    .setUrl(url)
-                    .setRequestType(Request.REQUEST_TYPE_SHORT)
-                    .addHeader(PlatformUtils.getHeaders())
-                    .setRequestListener(requestListener)
-                    .setId(id)
-                    .build();
-
-            return requestToken;
+            return null;
         }
         else
         {
@@ -659,6 +651,7 @@ public class HttpRequests
                     .setRequestType(Request.REQUEST_TYPE_SHORT)
                     .addHeader(PlatformUtils.getHeaders())
                     .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
                     .post(body)
                     .setId(id)
                     .build();

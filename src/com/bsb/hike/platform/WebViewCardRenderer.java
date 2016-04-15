@@ -1007,7 +1007,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
             }
         },appName);
 
-        if (!token.isRequestRunning())
+        if (token != null && !token.isRequestRunning())
         {
             ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
