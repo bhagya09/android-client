@@ -48,7 +48,6 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
-import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
@@ -926,18 +925,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			Editor editor = preferenceManager.edit();
 			editor.putBoolean(HikeConstants.STATUS_BOOLEAN_PREF, preferenceManager.getInt(HikeConstants.STATUS_PREF, 0) == 0);
 			editor.commit();
-		}
-
-		if(!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.BackupRestore.KEY_DELETED_OLD_STICKERS, true))
-		{
-			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					StickerManager.getInstance().deleteOldStickers();
-				}
-			});
 		}
 
 		if (Utils.isKitkatOrHigher() && !HikeSharedPreferenceUtil.getInstance().getData(HAS_UNSET_SMS_PREFS_ON_KITKAT_UPGRAGE, false))
