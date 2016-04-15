@@ -3417,8 +3417,9 @@ public class MqttMessagesManager
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
-					StickerManager.getInstance().removeSticker(new Sticker(categoryId, stickerIds.getString(i)));
-					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
+                    Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
+					StickerManager.getInstance().removeSticker(sticker);
+					removedStickerSet.add(sticker.getStickerCode());
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);

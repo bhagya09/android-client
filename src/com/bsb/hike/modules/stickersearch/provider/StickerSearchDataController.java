@@ -119,13 +119,14 @@ public enum StickerSearchDataController
 			while (stickers.hasNext())
 			{
 				String stickerId = stickers.next();
+                Sticker sticker = new Sticker(packId,stickerId);
 				if (Utils.isBlank(stickerId))
 				{
 					Logger.e(TAG, "setupStickerSearchWizard(), Invalid sticker id inside pack: " + packId);
 					continue;
 				}
 
-				String stickerInfo = StickerManager.getInstance().getStickerSetString(stickerId, packId);
+				String stickerInfo = sticker.getStickerCode();
 				receivedStickers.add(stickerInfo);
 
 				JSONObject stickerData = stickersData.optJSONObject(stickerId);
