@@ -70,13 +70,13 @@ public class UpgradeIntentService extends IntentService
 			editor.commit();
 		}
 
-		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils.doesExternalDirExists())
 		{
 			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 
-		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false))
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false)) && Utils.doesExternalDirExists())
 		{
 			if(BackupUtils.getBackupMetadata() == null // Backup metadata not present
 					|| BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI()) // Different DPI
@@ -90,7 +90,7 @@ public class UpgradeIntentService extends IntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, true);
 		}
 
-		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false))
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false)) && Utils.doesExternalDirExists()) // Since we are going to write to backup
 		{
 			try
 			{
