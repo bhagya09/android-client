@@ -3206,6 +3206,8 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
+	public static final String PACK_STATE = "pack_state";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
