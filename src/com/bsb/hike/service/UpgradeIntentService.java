@@ -7,19 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -74,6 +72,20 @@ public class UpgradeIntentService extends IntentService
 		{
 			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
+		}
+
+		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false))
+		{
+			try
+			{
+				BackupUtils.backupUserData();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, true);
+			}
+			catch (Exception e)
+			{
+				Logger.e(TAG, "Exception while writing user data backup");
+				e.printStackTrace();
+			}
 		}
 
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
