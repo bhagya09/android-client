@@ -4102,4 +4102,6 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final String SHOW_RECOMMENDED_PACKS = "shw_rec_pcks";
 }
