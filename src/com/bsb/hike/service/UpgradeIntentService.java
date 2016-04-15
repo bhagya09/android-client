@@ -85,7 +85,7 @@ public class UpgradeIntentService extends IntentService
 				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
 
 				// 2. Delete sticker folder (different DPI)
-				Utils.deleteFile(new File(StickerManager.getInstance().getStickerExternalDirFilePath()));
+				StickerManager.getInstance().deleteStickers();
 			}
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, true);
 		}
