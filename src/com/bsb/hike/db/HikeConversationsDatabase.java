@@ -7739,12 +7739,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues = new ContentValues();
 				contentValues.put(DBConstants.STICKER_CATEGORY_PREF_ORDER, i);
 				count = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { array.getString(i) });
+			/*
+			    code is for entering the rows if already not present
 				if (count == 0)
 				{
 					contentValues.put(DBConstants._ID, array.getString(i));
 					count = mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
 				}
-				updatedRows += count;
+			*/	updatedRows += count;
 			}
 			mDb.setTransactionSuccessful();
 			return updatedRows;
