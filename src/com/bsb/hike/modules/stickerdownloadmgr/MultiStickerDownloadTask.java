@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -67,13 +68,12 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			doOnFailure(new HttpException(REASON_CODE_OUT_OF_SPACE));
 			return;
 		}
-		requestId = getRequestId();
 		download();
 	}
 
 	private void download()
 	{
-		requestToken = multiStickerDownloadRequest(requestId, getRequestInterceptor(), getRequestListener());
+		requestToken = multiStickerDownloadRequest(getRequestId(), getRequestInterceptor(), getRequestListener());
 
 		if (requestToken.isRequestRunning()) // duplicate check
 		{
@@ -214,11 +214,10 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 					{
 						JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-                        StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
-
 						for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 						{
 							String stickerId = keys.next();
+                            Sticker sticker = new Sticker(categoryId,stickerId);
 							JSONObject stickerData = stickers.getJSONObject(stickerId);
 							String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
@@ -228,7 +227,8 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 							{
 								byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 								StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
-								StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+								StickerManager.getInstance().saveInStickerTagSet(sticker);
+                                StickerManager.getInstance().saveInTableStickerSet(sticker);
 							}
 							catch (FileNotFoundException e)
 							{
@@ -239,7 +239,10 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 								Logger.w(TAG, e);
 							}
 						}
-						StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
+
+                        StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
+                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -297,7 +300,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private String getRequestId()
 	{
-		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId());
+		return (StickerRequestType.MULTIPLE.getLabel() + "\\" + category.getCategoryId() + "\\" + existingStickerNumber);
 	}
 
 	/**

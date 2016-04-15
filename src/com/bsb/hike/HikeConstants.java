@@ -2259,6 +2259,12 @@ public class HikeConstants
 
         public static final String EMOTICON_SENT = "eSnt";
 
+        public static final String EMOTICON_DATA = "eD";
+
+        public static final String EMOTICON_NAME = "eName";
+
+        public static final String EMOTICON_COUNT = "eCnt";
+
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
@@ -4121,4 +4127,6 @@ public class HikeConstants
 	}
 
 	public static final String LAST_SEEN_TEMP_PREF = "ls_temp";
+
+    public static final String STICKER_DOWNLOAD_ATTEMPTED_SET = "s_d_f_s";
 }

@@ -208,11 +208,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
 
-                        StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
-
 						if(saveMiniSticker(sticker, stickerImage))
 						{
-
+                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 							doOnSuccess(sticker);
 						}
 						else
@@ -222,12 +220,12 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					}
 					else
 					{
-						StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
-
 						boolean failed = !saveFullSticker(stickerImage, stickerData);
 
                         if (!failed)
                         {
+                            StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
                             getStickerTags(data);
 
                             StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
@@ -322,7 +320,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private void getStickerTags(JSONObject data)
 	{
-		StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+		StickerManager.getInstance().saveInStickerTagSet(new Sticker(categoryId, stickerId));
 
 		if (imageOnly)
 		{

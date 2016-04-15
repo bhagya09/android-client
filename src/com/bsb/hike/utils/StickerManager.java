@@ -377,6 +377,8 @@ public class StickerManager
 
 		cachingStickersOnStart();
 
+        retryInsertForStickers();
+
 		doUpgradeTasks();
 	}
 
@@ -430,11 +432,12 @@ public class StickerManager
 					String[] stickerIds = smallCatDir.list();
 					for (String stickerId : stickerIds)
 					{
-						removeStickerFromCustomCategory(new Sticker(removedCategoryId, stickerId));
-                        			if(!forceRemoveCategory)
-                        			{
-                        				removedSet.add(getStickerSetString(stickerId, removedCategoryId));
-                        			}
+                        Sticker sticker = new Sticker(removedCategoryId, stickerId);
+						removeStickerFromCustomCategory(sticker);
+                        if(!forceRemoveCategory)
+                        {
+                            removedSet.add(sticker.getStickerCode());
+                        }
 					}
 				}
 				Utils.deleteFile(bigCatDir);
@@ -2007,13 +2010,6 @@ public class StickerManager
 		}
 	}
 
-	public String getStickerSetString(String stkId, String catId)
-	{
-
-		//ToDo remove this
-		return (new Sticker(catId,stkId)).getStickerCode();
-	}
-
 	public Sticker getStickerFromSetString(String info)
 	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
@@ -2043,10 +2039,10 @@ public class StickerManager
 		return pair;
 	}
 
-	public void saveInStickerTagSet(String stickerId, String categoryId)
+	public void saveInStickerTagSet(Sticker sticker)
 	{
 		Set<String> stickerSet = new HashSet<>(1);
-		stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+		stickerSet.add(sticker.getStickerCode());
 
 		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, false);
 	}
@@ -2259,34 +2255,38 @@ public class StickerManager
 
 
     /**
-     * JSON packet sent structure
+     * JSON Structure example
+     {
+         "md":{
+             "eD":[
+                 {
+                 "eName":"X-(",
+                 "eCnt":11
+                 },
+                 {
+                 "eName":":\")",
+                 "eCnt":4
+                 },
+                 {
+                 "eName":"=)",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":":-P",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":"^.^",
+                 "eCnt":6
+                 }
+                ],
+             "ek":"eSnt"
+         }
+     }
      *
-     * For a single time with 10 emoticons used
-     * Sending in batches of N = 8 due string length on parsing from server
-
-     Packet1
-     {
-     "ek":"eSnt",
-     "Tag_0":":'-(_5",
-     "Tag_1":":-P_1",
-     "Tag_2":":D_3",
-     "Tag_3":"T_T_1",
-     "Tag_4":":?-(_3",
-     "Tag_5":"(stop)_2",
-     "Tag_6":"(sweat)_2",
-     "Tag_7":":-(_1",
-     "sid":1460486840551
-     }
-
-     Packet2
-     {
-     "ek":"eSnt",
-     "Tag_0":":-D_1",
-     "Tag_1":":-|_2",
-     "sid":1460486840551
-     }
-
      */
+
+
 	public void sendEmoticonUsageAnalytics()
 	{
 		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
@@ -2301,22 +2301,28 @@ public class StickerManager
 			JSONObject emojiList = new JSONObject(emoticonsSent);
 			Iterator<String> emoticons = emojiList.keys();
 
+			JSONObject metadata = new JSONObject();
+			JSONArray emojiUsage = new JSONArray();
 			while (emoticons.hasNext())
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
-				int i = 0;
-				for (i = 0; i < 8 && emoticons.hasNext(); i++)
-				{
-					String emoji = emoticons.next();
-					int count = emojiList.getInt(emoji);
-					metadata.put(HikeConstants.TAG + HikeConstants.SEPARATOR_ + Integer.toString(i), emoji + HikeConstants.SEPARATOR_ + count);
-				}
+				JSONObject emoji = new JSONObject();
 
-				if (i > 0)
-				{
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				}
+				String emojiName = emoticons.next();
+				int count = emojiList.getInt(emojiName);
+
+				emoji.put(HikeConstants.LogEvent.EMOTICON_NAME, emojiName);
+				emoji.put(HikeConstants.LogEvent.EMOTICON_COUNT, count);
+
+				emojiUsage.put(emoji);
+
+			}
+
+			if (emojiUsage.length() > 0)
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
+				metadata.put(HikeConstants.LogEvent.EMOTICON_DATA, emojiUsage);
+
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 			}
 
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
@@ -3053,6 +3059,11 @@ public class StickerManager
 	public void saveSticker(List<Sticker> stickers, StickerConstants.StickerType stickerType)
 	{
 		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers, stickerType);
+
+        for(Sticker sticker : stickers)
+        {
+            removeFromTableStickerSet(sticker);
+        }
 	}
 
 	public void deactivateSticker(Sticker sticker)
@@ -3337,4 +3348,39 @@ public class StickerManager
 	{
 		return showLastCategory;
 	}
+
+    public void saveInTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.add(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void removeFromTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.remove(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void retryInsertForStickers()
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+
+        if(Utils.isEmpty(stickerSet))
+        {
+            return;
+        }
+
+        List<Sticker> stickers = new ArrayList<>(stickerSet.size());
+
+        for(String stickerCode : stickerSet)
+        {
+            stickers.add(getStickerFromSetString(stickerCode));
+        }
+
+        saveSticker(stickers, StickerConstants.StickerType.LARGE);
+
+    }
+
 }

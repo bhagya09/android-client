@@ -365,6 +365,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onResume();
 		isForeground = true;
+		Utils.showSoftKeyboard(StatusUpdate.this, statusTxt);
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
