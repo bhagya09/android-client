@@ -4653,9 +4653,9 @@ public class Utils
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
 	}
 
-	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)
+	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact, String addFavSource)
 	{
-		toggleFavorite(context, contactInfo, isFtueContact);
+		toggleFavorite(context, contactInfo, isFtueContact, addFavSource);
 		if (!contactInfo.isOnhike() || HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, false))
 		{
 			return;
@@ -4692,9 +4692,10 @@ public class Utils
 		}
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
 		FavoriteType favoriteType;
+		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
@@ -4702,8 +4703,17 @@ public class Utils
 		else
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
+			isRequestSent = true;
 			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
+
+		//2-way friendship established. Get Historical updates here!
+		if (favoriteType == FavoriteType.FRIEND)
+		{
+			fetchHistoricalUpdates(contactInfo.getMsisdn());
+		}
+
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
@@ -8267,6 +8277,7 @@ public class Utils
 					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
 				Editor settingEditor = settings.edit();
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
 				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
@@ -8288,14 +8299,16 @@ public class Utils
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
-					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+					&& !currentValue.equals(context.getString(R.string.privacy_everyone))) {
+
+				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
 				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_my_contacts));
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_my_contacts));
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+				int slectedPrivacyId = Integer.parseInt(oldLsValue);
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 2);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); //Resetting the flag, so that when the packet might be sent again, it is able to alter the prefs
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -8478,6 +8491,35 @@ public class Utils
 		{
 			e.toString();
 			return null;
+		}
+	}
+
+	private static void fetchHistoricalUpdates(String msisdn)
+	{
+		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+		});
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
 		}
 	}
 }
