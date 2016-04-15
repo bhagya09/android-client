@@ -3374,7 +3374,21 @@ public class StickerManager
 			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
 
 			// 2. Delete old sticker folder (if present)
-			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+			deleteOldStickers();
+		}
+	}
+
+	public void deleteOldStickers()
+	{
+		String oldFilePath = StickerManager.getInstance().getOldStickerExternalDirFilePath();
+		if(!TextUtils.isEmpty(oldFilePath))
+		{
+			Utils.deleteFile(new File(oldFilePath));
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_DELETED_OLD_STICKERS, true);
+		}
+		else
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_DELETED_OLD_STICKERS, false);
 		}
 	}
 

@@ -4099,6 +4099,8 @@ public class HikeConstants
 		public static final String KEY_SAVE_DEVICE_DPI = "saveDPI";
 
 		public static final String KEY_VERIFY_STICKER_DPI = "verifyStckrDPI";
+
+		public static final String KEY_DELETED_OLD_STICKERS = "delOldStckr";
 	}
 
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
