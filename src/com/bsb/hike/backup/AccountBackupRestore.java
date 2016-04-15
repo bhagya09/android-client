@@ -274,15 +274,6 @@ public class AccountBackupRestore
 			}
 		}
 
-		if(backupMetadata.getDensityDPI() != Utils.getDeviceDensityDPI())
-		{
-			// 1. Wipe StickerTable
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-			// 2. Delete sticker folder (different DPI)
-			Utils.deleteFile(new File(StickerManager.getInstance().getStickerExternalDirFilePath()));
-		}
-
 		time = System.currentTimeMillis() - time;
 		Logger.d(LOGTAG, "Restore " + successState + " in " + time / 1000 + "." + time % 1000 + "s");
 		recordLog(RESTORE_EVENT_KEY, successState == STATE_RESTORE_SUCCESS, time);
