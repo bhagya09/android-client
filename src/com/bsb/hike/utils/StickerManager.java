@@ -386,6 +386,15 @@ public class StickerManager
 		cachingStickersOnStart();
 
 		doUpgradeTasks();
+
+		FetchAllCategoriesDownloadTask fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask();
+		fetchAllCategoriesDownloadTask.execute();
+
+		UpdateAllCategoryDownloadTask updateAllCategoryDownloadTask = new UpdateAllCategoryDownloadTask();
+		updateAllCategoryDownloadTask.execute();
+
+		CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask = new CategoryOrderPrefDownloadTask();
+		categoryOrderPrefDownloadTask.execute();
 	}
 
 
