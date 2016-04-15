@@ -74,7 +74,10 @@ public class StickerConstants
 		SINGLE_TAG(8, "sit"),
 		CATEGORY_DETAIL(9, "scd"),
 		MINI(10, "mini"),
-		FORCED(11, "forced");
+		FORCED(11, "forced"),
+		FETCH_CATEGORY(12, "ftch"),
+		UPDATE_CATEGORY(13, "updtCt"),
+		UPDATE_ORDER(14, "updtOdr");
 
 		private final int type;
 		private final String label;

@@ -3214,6 +3214,8 @@ public class HikeConstants
 
 	public static final String UPDATE_ORDER_SERVER_TIMESTAMP = "updateOrderServerTimeStamp";
 
+	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
