@@ -116,4 +116,9 @@ public class BackupMetadata {
     {
         return mMsisdn;
     }
+
+    public int getDensityDPI()
+    {
+        return mDensityDPI;
+    }
 }

@@ -1,22 +1,25 @@
 package com.bsb.hike.service;
 
+import java.io.File;
+
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-
-import java.io.File;
+import com.bsb.hike.utils.Utils;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -66,7 +69,13 @@ public class UpgradeIntentService extends IntentService
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
 			editor.commit();
 		}
-		
+
+		if(!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false))
+		{
+			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
+		}
+
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
 		{
 			if(StickerManager.moveHardcodedStickersToSdcard(getApplicationContext()))
@@ -138,13 +147,12 @@ public class UpgradeIntentService extends IntentService
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
+
 	}
 
 	public UpgradeIntentService()
 	{
-
 		super(TAG);
-
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
@@ -196,4 +204,5 @@ public class UpgradeIntentService extends IntentService
 	{
 		return HikeConversationsDatabase.getInstance().upgradeForStickerTable();
 	}
+
 }

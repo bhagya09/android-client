@@ -28,9 +28,11 @@ import com.bsb.hike.backup.impl.PrefBackupRestore;
 import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -294,6 +296,15 @@ public class AccountBackupRestore
 			{
 				state.restorePrefs(mContext);
 			}
+		}
+
+		if(backupMetadata.getDensityDPI() != Utils.getDeviceDensityDPI())
+		{
+			// 1. Wipe StickerTable
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+
+			// 2. Delete sticker folder (different DPI)
+			Utils.deleteFile(new File(StickerManager.getInstance().getStickerExternalDirFilePath()));
 		}
 
 		time = System.currentTimeMillis() - time;

@@ -69,6 +69,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
@@ -138,11 +139,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			saveKeyboardPref();
 		}
 
-		int prefCount = getPreferenceScreen().getPreferenceCount();
-		for(int i = 0; i<prefCount;i++)
-		{
-			getPreferenceScreen().getPreference(i).setOnPreferenceChangeListener(this);
-		}
+		setOnChangeForAllPref(getPreferenceScreen());
 
 		addClickPreferences();
 		addSwitchPreferences();
@@ -172,6 +169,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		tryToSetupSMSPreferencesScreen();
 		setupToolBar(titleRes);
 
+	}
+
+	private void setOnChangeForAllPref(PreferenceGroup prefGroup)
+	{
+		int prefCount = prefGroup.getPreferenceCount();
+		for(int i = 0; i<prefCount;i++)
+		{
+			Preference prefs = prefGroup.getPreference(i);
+			if(prefs instanceof PreferenceGroup)
+			{
+				setOnChangeForAllPref((PreferenceGroup) prefs);
+			}
+			else
+			{
+				prefs.setOnPreferenceChangeListener(this);
+			}
+		}
 	}
 	
 	private void addSMSCardEnablePref()

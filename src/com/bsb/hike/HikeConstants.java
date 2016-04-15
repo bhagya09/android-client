@@ -4094,7 +4094,7 @@ public class HikeConstants
 
 		public static final String KEY_SETTINGS = "settings";
 
-		public static final String KEY_SETTING = "setting";
+		public static final String KEY_MOVED_STICKER_EXTERNAL = "movdstckrext";
 	}
 
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
