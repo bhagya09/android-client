@@ -440,7 +440,7 @@ public class PlatformHelper
 					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, newSentFile == null ? null : newSentFile.getAbsolutePath());
 					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
 
-					((WebViewActivity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+					((Activity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
 				}
 			}
 		});

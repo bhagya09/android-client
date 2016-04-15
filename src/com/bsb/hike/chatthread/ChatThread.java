@@ -562,10 +562,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+			break;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -1581,7 +1583,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	public void themeClicked(ChatTheme theme)
 	{
 		Logger.i(TAG, "theme clicked " + theme);
-
+		postTrialsAnalytic(theme.bgId());
 		updateUIAsPerTheme(theme);
 	}
 
@@ -1603,6 +1605,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			updateUIAsPerTheme(chatTheme);
 			currentTheme = chatTheme;
 			sendChatThemeMessage();
+		}
+	}
+
+	private void postTrialsAnalytic(String themeId){
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_USERS);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_BACKGROUND_TRIAL);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
+			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
+			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
+			HAManager.getInstance().recordV2(metadata);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 

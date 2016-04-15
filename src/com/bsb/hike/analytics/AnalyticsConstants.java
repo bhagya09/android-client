@@ -239,7 +239,11 @@ public class AnalyticsConstants
 	//Constants for v2 (Normalized Taxonomy)
 	public static final class V2
 	{
-		public static final String VERSION = "ver";
+		/*package*/ static final String VERSION = "ver";
+
+		/*package*/ static final String RECORD_ID = "r";
+
+		/*package*/ static final String CTS = "cts";
 
 		public static final String VERSION_VALUE = "v2";
 
@@ -267,8 +271,6 @@ public class AnalyticsConstants
 
 		public static final String VAL_INT = "vi";
 
-		public static final String RECORD_ID = "r";
-
 		public static final String FROM_USER = "fu";
 
 		public static final String DEVICE_ID = "di";
@@ -280,6 +282,7 @@ public class AnalyticsConstants
 		public static final String USER_STATE = "us";
 
 		public static final String TS = "ts";
+
 	}
 
 	// Edit picture flags and events
@@ -801,6 +804,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_LOG_2 = "act_log2";
 
+	public static final String ACT_USERS = "act_users";
+
 	public static final String ACT_CORE_LOGS = "act_core";
 
 	public static final String CHAT_OPEN = "chat_open";
@@ -827,6 +832,8 @@ public class AnalyticsConstants
 	public static final String CONTACT_ICON_CLICK = "cntcticon";
 
 	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
+
+	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
 
 	public static final String WT_CLICKED_TOUCHED = "wticon";
 
