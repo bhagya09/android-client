@@ -3072,6 +3072,12 @@ public class MqttMessagesManager
 			saveContacts(data);
 		}
 
+		if(data.has(HikeConstants.SHOW_RECOMMENDED_PACKS))
+		{
+			boolean showRecommendedPacks = data.getBoolean(HikeConstants.SHOW_RECOMMENDED_PACKS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
+		}
+
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
