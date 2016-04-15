@@ -2000,11 +2000,11 @@ public class MqttMessagesManager
 
 				if(jsonObject.has(HikePlatformConstants.APP_NAME))
                 {
-                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                    BotUtils.removeMicroAppByAppName((JSONObject) microAppsTobeRemoved.get(i));
                 }
-                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                if(jsonObject.has(HikePlatformConstants.MSISDN))
                 {
-                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                    BotUtils.removeMicroAppFromVersioningPathByMsisdn((JSONObject) microAppsTobeRemoved.get(i));
                 }
                 else
                 {

@@ -638,6 +638,31 @@ public class HttpRequests
 
 	}
 
+    public static RequestToken forwardCardsMISPostRequest(String url, JSONObject json, IRequestListener requestListener, String id)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(url)
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .setId(id)
+                    .build();
+
+            return requestToken;
+        }
+
+
+    }
+
 	public static RequestToken microAppGetRequest(String url, IRequestListener requestListener)
 	{
 
