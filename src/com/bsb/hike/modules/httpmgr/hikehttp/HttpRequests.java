@@ -52,6 +52,7 @@ import java.util.List;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDKBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetIdDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.chatThemeAssetsDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
@@ -110,6 +111,18 @@ public class HttpRequests
 		IRequestBody body = new JsonBody(data);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(chatThemeAssetsDownloadBase() + "?resId=" + Utils.getResolutionId())
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH).build();
+		return requestToken;
+	}
+
+	public static RequestToken downloadChatThemeAssetId(JSONObject data, IRequestListener requestListener)
+	{
+		IRequestBody body = new JsonBody(data);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(chatThemeAssetIdDownloadBase() + "?resId=" + Utils.getResolutionId() + "&platform=1")
 				.post(body)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)

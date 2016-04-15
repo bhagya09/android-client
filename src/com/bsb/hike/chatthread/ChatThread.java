@@ -108,6 +108,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatthemes.ChatThemeDrawableHelper;
 import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.DownloadAssetIdTask;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
@@ -1618,7 +1619,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			removeChatThemeFromCache();
 			Logger.i(TAG, "update ui for theme " + themeId);
-			if (mAdapter.getChatThemeId() == ChatThemeManager.getInstance().defaultChatThemeId)
+			if (mAdapter.getChatThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
 			else if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 				setChatBackground(R.color.chat_thread_default_bg);

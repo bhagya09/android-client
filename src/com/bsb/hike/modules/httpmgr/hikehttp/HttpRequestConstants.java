@@ -196,6 +196,11 @@ public class HttpRequestConstants
 		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
 	}
 
+	public static String chatThemeAssetIdDownloadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/prop";
+	}
+
 	public static String singleStickerDownloadBase()
 	{
 		return BASE_STICKERS_URL + BASE_V3 + BASE_STICKER;

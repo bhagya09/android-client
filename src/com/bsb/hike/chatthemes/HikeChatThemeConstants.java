@@ -127,7 +127,7 @@ public class HikeChatThemeConstants
 
 	public static final String JSON_SIGNAL_THEME_OFFLINE_MSG_BG = "offline_message_color";
 
-	public static final String JSON_SIGNAL_THEME_STATUS_BAR_BG = "status_bar_color";
+	public static final String JSON_SIGNAL_THEME_STATUS_BAR_BG = "status_bar";
 
 	public static final String JSON_SIGNAL_THEME_SMS_TOGGLE_BG = "sms_bg";
 
@@ -149,6 +149,13 @@ public class HikeChatThemeConstants
 	// JSON Constants
 	public static final String JSON_DWNLD_ASSET_ID = "asset_ids";
 
+	public static final String JSON_DWNLD_THEME_ID = "theme_ids";
+
 	public static final String CHAT_THEMES_ROOT = "chatThemes";
 
+	public static final String CHAT_THEME_ID_DOWNLOADING = "1";
+
+	public static final String CHAT_THEME_ID_NOT_DOWNLOADED = "0";
+
+	public static final String CHAT_THEME_ID_DOWNLOADED = "2";
 }

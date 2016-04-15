@@ -27,6 +27,8 @@ import com.bsb.hike.chatthread.BackPressListener;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.utils.Logger;
 
+import java.util.ArrayList;
+
 public class ThemePicker implements BackPressListener, OnDismissListener, OnClickListener
 {
 
@@ -58,7 +60,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 
-	private String[] availableThemes;
+	private ArrayList<String> availableThemes;
 	
 	public ThemePicker(AppCompatActivity sherlockFragmentActivity, ThemePickerListener listener, String currentThemeId)
 	{
@@ -162,11 +164,11 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
 			{
 				gridAdapter.notifyDataSetChanged();
-				if (availableThemes[position] != userSelection)
+				if (availableThemes.get(position) != userSelection)
 				{
-					listener.themeClicked(availableThemes[position]);
+					listener.themeClicked(availableThemes.get(position));
 				}
-				userSelection = availableThemes[position];
+				userSelection = availableThemes.get(position);
 			}
 		});
 
@@ -329,23 +331,45 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
-		((ArrayAdapter<String>) grid.getAdapter()).notifyDataSetChanged();
+		((ArrayAdapter<String>) grid.getAdapter()).clear();
+		((ArrayAdapter<String>) grid.getAdapter()).addAll(availableThemes);
 	}
 	
 	public void setOrientation(int orientation)
 	{
-		if(orientation != currentConfig)
+		if(orientation != currentConfig || dataChanged())
 		{
 			this.currentConfig = orientation;
 			refreshViews();
 		}
+
 	}
 
-	public int getThemePosition(String[] themeIds, String searchTheme)
+	public boolean dataChanged()
 	{
-		for(int i=0;i<themeIds.length;i++)
+		ArrayList<String> candidateThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
+		if(availableThemes.size() != candidateThemes.size())
 		{
-			if(themeIds[i].equals(searchTheme))
+			availableThemes = candidateThemes;
+			return true;
+		}
+
+		for(int i=0;i<availableThemes.size(); i++)
+		{
+			if(!availableThemes.get(i).equals(candidateThemes.get(i)))
+			{
+				availableThemes = candidateThemes;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int getThemePosition(ArrayList<String> themeIds, String searchTheme)
+	{
+		for(int i=0;i<themeIds.size();i++)
+		{
+			if(themeIds.get(i).equals(searchTheme))
 			{
 				return i;
 			}
