@@ -605,11 +605,13 @@ public class VoIPUtils {
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL) ||
-						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
+						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE) ||
+						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CUSTOM_MESSAGE))
 				{
 					Intent i = new Intent(context, VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, subType);
 					i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+					i.putExtra(VoIPConstants.Extras.CUSTOM_MESSAGE, jsonObj.getString(HikeConstants.MESSAGE)); // TODO: Verify!
 					context.startService(i);
 				}
 			}

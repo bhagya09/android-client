@@ -494,6 +494,21 @@ public class VoIPService extends Service implements Listener
 			}
 		}
 
+		// Server returned a custom error
+		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CUSTOM_MESSAGE)) {
+			Logger.w(tag, "Server returned a custom error.");
+			VoIPClient cl = getClient(msisdn);
+			if (cl != null) {
+				// Send message to voip activity
+				Bundle bundle = new Bundle();
+				bundle.putString(VoIPConstants.MSISDN, msisdn);
+				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
+				bundle.putString(VoIPConstants.CUSTOM_MESSAGE, intent.getStringExtra(VoIPConstants.Extras.CUSTOM_MESSAGE));
+				sendMessageToActivity(VoIPConstants.MSG_CUSTOM_ERROR_FROM_SERVER, bundle);
+				cl.hangUp();
+			}
+		}
+
 		// Recipient is already in a call
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL)) {
 			Logger.w(tag, msisdn + " is currently busy.");
