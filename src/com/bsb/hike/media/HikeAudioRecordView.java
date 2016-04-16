@@ -141,7 +141,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         popup_l.setTouchInterceptor(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                popup_l.dismiss();
                 return true;
             }
         });
