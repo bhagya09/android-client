@@ -3362,6 +3362,7 @@ public class StickerManager
 		{
 			// Assets migrated successfully
 			// Update stickers path
+			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				doInitialSetup();
