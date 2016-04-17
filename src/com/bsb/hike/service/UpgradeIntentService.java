@@ -136,7 +136,7 @@ public class UpgradeIntentService extends IntentService
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
 				.doesExternalDirExists())
 		{
-			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
+			StickerManager.getInstance().migrateStickersForEnablingBackup();
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 
