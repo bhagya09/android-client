@@ -784,7 +784,7 @@ public class StickerManager
 				return;
 
 			long t1 = System.currentTimeMillis();
-			String extDir = StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(catId);
+			String extDir = getStickerCategoryDirPath(catId);
 			File dir = new File(extDir);
 			if (!dir.exists() && !dir.mkdirs())
 			{
