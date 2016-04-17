@@ -1,7 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +18,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.io.File;
 
 public class UpgradeIntentService extends IntentService
 {
@@ -68,40 +68,6 @@ public class UpgradeIntentService extends IntentService
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, 2);
 			editor.commit();
-		}
-
-		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils.doesExternalDirExists())
-		{
-			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
-		}
-
-		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false)) && Utils.doesExternalDirExists())
-		{
-			if(BackupUtils.getBackupMetadata() == null // Backup metadata not present
-					|| BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI()) // Different DPI
-			{
-				// 1. Wipe StickerTable
-				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-				// 2. Delete sticker folder (different DPI)
-				StickerManager.getInstance().deleteStickers();
-			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, true);
-		}
-
-		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false)) && Utils.doesExternalDirExists()) // Since we are going to write to backup
-		{
-			try
-			{
-				BackupUtils.backupUserData();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, true);
-			}
-			catch (Exception e)
-			{
-				Logger.e(TAG, "Exception while writing user data backup");
-				e.printStackTrace();
-			}
 		}
 
 		if (prefs.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1)
@@ -168,7 +134,43 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-        // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false)) && Utils
+				.doesExternalDirExists())
+		{
+			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
+		}
+
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false)) && Utils.doesExternalDirExists())
+		{
+			if(BackupUtils.getBackupMetadata() == null // Backup metadata not present
+					|| BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI()) // Different DPI
+			{
+				// 1. Wipe StickerTable
+				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+
+				// 2. Delete sticker folder (different DPI)
+				StickerManager.getInstance().deleteStickers();
+			}
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, true);
+		}
+
+		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false)) && Utils.doesExternalDirExists()) // Since we are going to write to backup
+		{
+			try
+			{
+				BackupUtils.backupUserData();
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, true);
+			}
+			catch (Exception e)
+			{
+				Logger.e(TAG, "Exception while writing user data backup");
+				e.printStackTrace();
+			}
+		}
+
+
+		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
         editor.apply();
