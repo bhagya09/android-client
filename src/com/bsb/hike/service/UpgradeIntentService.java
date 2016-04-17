@@ -10,7 +10,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.backup.BackupUtils;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
@@ -139,20 +138,6 @@ public class UpgradeIntentService extends IntentService
 		{
 			StickerManager.getInstance().migrateStickerAssets(StickerManager.getInstance().getOldStickerExternalDirFilePath(), StickerManager.getInstance().getStickerExternalDirFilePath());
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
-		}
-
-		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false)) && Utils.doesExternalDirExists())
-		{
-			if(BackupUtils.getBackupMetadata() == null // Backup metadata not present
-					|| BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI()) // Different DPI
-			{
-				// 1. Wipe StickerTable
-				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-				// 2. Delete sticker folder (different DPI)
-				StickerManager.getInstance().deleteStickers();
-			}
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, true);
 		}
 
 		if((!prefs.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false)) && Utils.doesExternalDirExists()) // Since we are going to write to backup
