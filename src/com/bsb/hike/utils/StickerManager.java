@@ -3348,7 +3348,7 @@ public class StickerManager
 		{
 			stickersSet.add(s.getStickerCode());
 		}
-		StickerSearchManager.getInstance().downloadStickerTags(false, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
     }
 
 
