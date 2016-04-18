@@ -554,7 +554,7 @@ public class PlatformZipDownloader
 					long totalLength = 0;
 					for (Header header : result.getHeaders())
 					{
-						if (header != null &&"Content-Range".equals(header.getName()))
+						if (header != null && HikeConstants.CONTENT_RANGE.equals(header.getName()))
 						{
 								range = header.getValue();
 								break;
