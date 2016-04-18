@@ -687,6 +687,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			prepareLayoutForPostSignup(null);
 			mTask.addUserInput(null);
 			BotUtils.initBots();
+			StickerManager.getInstance().handleDifferentDpi();
 			return;
 		}
 		if (invalidNum != null)

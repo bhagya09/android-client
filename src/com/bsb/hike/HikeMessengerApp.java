@@ -868,7 +868,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_SAVE_DEVICE_DPI, false) == false
-				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_VERIFY_STICKER_DPI, false) == false
 				|| TEST)
 		{
 			startUpdgradeIntent();
