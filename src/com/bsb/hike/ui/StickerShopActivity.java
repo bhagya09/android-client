@@ -6,12 +6,15 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
-
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
@@ -33,99 +36,121 @@ import com.bsb.hike.utils.Logger;
 
 public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 {
-	private StickerShopFragment stickerShopFragment;
+    private StickerShopFragment stickerShopFragment;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
-		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sticker_shop_parent);
-		setupShopFragment(savedInstanceState);
-		setupActionBar();
-		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
+    private StickerShopSearchFragment stickerShopSearchFragment;
 
-	}
+    private MenuItem shopSearchMenuItem;
 
-	@Override
-	public void onPause()
-	{
-		// TODO Auto-generated method stub
-		super.onPause();
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.sticker_shop_parent);
+        setupShopFragment(savedInstanceState);
+        setupActionBar();
+        showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
 
-	@Override
-	public void onResume()
-	{
-		super.onResume();
-	}
+    }
 
-	@Override
-	public void onDestroy()
-	{
-		// TODO Auto-generated method stub
-		super.onDestroy();
-	}
+    private void setupShopFragment(Bundle savedInstanceState)
+    {
+        if (savedInstanceState != null)
+        {
+            return;
+        }
+        stickerShopFragment = StickerShopFragment.newInstance();
 
-	private void setupShopFragment(Bundle savedInstanceState)
-	{
-		if (savedInstanceState != null)
-		{
-			return;
-		}
-		stickerShopFragment = StickerShopFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopFragment).commit();
 
-		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopFragment).commit();
+    }
 
-	}
+    public void setupActionBar()
+    {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
 
-	public void setupActionBar()
-	{
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        View backContainer = actionBarView.findViewById(R.id.back);
+        TextView title = (TextView) actionBarView.findViewById(R.id.title);
+        title.setText(R.string.sticker_shop);
 
-		View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
+        actionBar.setCustomView(actionBarView);
+    }
 
-		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.sticker_shop_menu, menu);
 
-		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText(R.string.sticker_shop);
+        shopSearchMenuItem = menu.findItem(R.id.shop_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(shopSearchMenuItem);
+        searchView.setOnQueryTextListener(onQueryTextListener);
+        searchView.setQueryHint(getString(R.string.shop_search));
+        searchView.clearFocus();
+        MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        
+        return true;
+    }
 
-		stickerSettingsBtn.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				try
-				{
-					JSONObject metadata = new JSONObject();
-					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_SETTING_BTN_CLICKED);
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				}
-				catch(JSONException e)
-				{
-					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-				}
-				
-				IntentFactory.openStickerSettingsActivity(StickerShopActivity.this);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case R.id.shop_settings:
+                try
+                {
+                    JSONObject metadata = new JSONObject();
+                    metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.STICKER_SETTING_BTN_CLICKED);
+                    HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
+                }
+                catch (JSONException e)
+                {
+                    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+                }
 
-			}
-		});
+                IntentFactory.openStickerSettingsActivity(StickerShopActivity.this);
+                break;
 
-		actionBar.setCustomView(actionBarView);
-		Toolbar parent=(Toolbar)actionBarView.getParent();
-		parent.setContentInsetsAbsolute(0,0);
-	}
+        }
 
-	@Override
-	public void onBackPressed()
-	{
-		if (getCallingActivity() != null)
-		{
-			setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
-		}
-		// TODO Auto-generated method stub
-		finish();
-	}
+        return super.onOptionsItemSelected(item);
+    }
 
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener()
+    {
+        @Override
+        public boolean onQueryTextSubmit(String query)
+        {
+            Utils.hideSoftKeyboard(getApplicationContext(), shopSearchMenuItem.getActionView());
+            stickerShopSearchFragment.onQueryTextSubmit(query);
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText)
+        {
+            return false;
+        }
+    };
+
+    @Override
+    public void onBackPressed()
+    {
+
+        if (isStartedForResult())
+        {
+            setResult(ChatThread.RESULT_CODE_STICKER_SHOP_ACTIVITY);
+        }
+
+        if (shopSearchMenuItem != null && shopSearchMenuItem.isActionViewExpanded())
+        {
+            shopSearchMenuItem.collapseActionView();
+        }
+
+        super.onBackPressed();
+
+    }
 }

@@ -3,7 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
-        android:id="@+id/open_settings"
+        android:id="@+id/shop_search"
+        android:icon="@drawable/ic_top_bar_search"
+        app:showAsAction="always|collapseActionView"
+        android:title="@string/shop_search"
+        app:actionLayout="@layout/search_layout"
+        >
+    </item>
+
+    <item
+        android:id="@+id/shop_settings"
         android:icon="@drawable/ic_sticker_settings"
         app:showAsAction="always"
         android:title="@string/my_stickers"/>
