@@ -1990,7 +1990,8 @@ public class VoIPClient  {
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&
 				!isSpeaking()) {
-			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size());
+			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size()
+			+ ", want: " + minimumDecodedQueueSize);
 			return null;
 		}
 
@@ -2099,7 +2100,7 @@ public class VoIPClient  {
 
 		if (minimumDecodedQueueSize != newQueueSize) {
 			minimumDecodedQueueSize = newQueueSize;
-			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
+//			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
 		}
 	}
 	
