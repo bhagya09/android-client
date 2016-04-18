@@ -3161,7 +3161,8 @@ public class MqttMessagesManager
 		else
 		{
 			Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(oldMsisdn));
-			PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+			String oldName = data.optString("cntct_nm_old","");
+			PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri, oldName);
 			if(contactIdPair != null)
 			{
 				Utils.updateNameWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), TextUtils.isEmpty(name) ? oldMsisdn : name);
