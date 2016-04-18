@@ -173,6 +173,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
+    private Runnable ringAnimRunnable1, ringAnimRunnable2;
     /**
      * Used to start mic wave animation
      *
@@ -180,8 +181,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
      */
     private void startPulsatingDotAnimation(View view) {
         mHandler.postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1000);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1750);
+        mHandler.postDelayed(ringAnimRunnable1 = getPulsatingRunnable(view, R.id.ring2), 1000);
+        mHandler.postDelayed(ringAnimRunnable2 = getPulsatingRunnable(view, R.id.ring2), 1750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
@@ -715,9 +716,18 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
-            ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
-            ringView.setVisibility(View.INVISIBLE);
+            clearRingAnim();
         }
+    }
+
+    private void clearRingAnim(){
+        ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
+        ringView.clearAnimation();
+        ringView.setVisibility(View.GONE);
+        mHandler.removeCallbacks(ringAnimRunnable1);
+        ringAnimRunnable1 = null;
+        mHandler.removeCallbacks(ringAnimRunnable2);
+        ringAnimRunnable2 = null;
     }
 
     private class UpdateRecordingDuration implements Runnable {

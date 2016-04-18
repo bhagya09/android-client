@@ -1419,6 +1419,6 @@
     <string name="open_google_keyboard">ഗൂഗിൾ കീബോർഡ്‌ </string>
 
     <string name="slide_to_cancel">ഒഴിവാക്കാൻ സ്ലൈഡ്</string>
-    <string name="recording_help_text">റെക്കോഡിന് അമർത്തുക, അയക്കാൻ വിടുക</string>
+    <string name="recording_help_text">പരമാവധി ദൈർഘ്യം രേഖപ്പെടുത്തിയിട്ടുണ്ട്</string>
     <string name="max_duration_recorded">പരമാവധി ദൈർഘ്യത്തിൽ റെക്കോർഡിംഗ് ചെയ്തു</string>
 </resources>
