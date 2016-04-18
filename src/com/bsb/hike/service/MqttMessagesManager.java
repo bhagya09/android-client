@@ -3172,7 +3172,7 @@ public class MqttMessagesManager
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			List<ContactInfo> contactinfos = null;
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 			{
 				contactinfos = ContactManager.getInstance().getContacts(this.context);
 			}
