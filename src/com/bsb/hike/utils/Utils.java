@@ -8522,6 +8522,31 @@ public class Utils
 			token.execute();
 		}
 	}
+
+	/**
+	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
+	 */
+	public static void validateDirectory(String dirPath)
+	{
+		File rootDir = new File(dirPath);
+		/*
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
+		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
+		 * Caused mainly by app like clean master, native memory optimization etc.
+		 */
+		if(rootDir != null && rootDir.exists())
+		{
+			if(!rootDir.isDirectory() && rootDir.isFile())
+			{
+				int count = 0;
+				File mFile = new File(dirPath + "_" + count);
+				while (mFile.exists()) {
+					mFile = new File(dirPath + "_" + ++count);
+				}
+				rootDir.renameTo(mFile);
+			}
+		}
+	}
 }
 
 
