@@ -846,7 +846,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
-		if(!TextUtils.isEmpty(isBackToActivity) &&  isBackToActivity.equalsIgnoreCase("true")){
+		if(isBackToActivity != null && isBackToActivity.equalsIgnoreCase("true")){
 			this.finish();
 			return;
 		}

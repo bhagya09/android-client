@@ -1405,7 +1405,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	protected void showAudioRecordView()
 	{
-		audioRecordView.show();
+		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
+		if(!useWTRevamped) audioRecordView.show();
+		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
 	protected void stickerClicked()
@@ -1445,7 +1447,14 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
-	
+
+	protected void closeWTTip() {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
+	}
+
 	public void showStickerRecommendTip()
 	{
 		mTips.showStickerRecommendFtueTip();
@@ -2332,6 +2341,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "Audio Recorded failed");
 		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
 			showRecordingErrorTip(R.string.recording_help_text);
+		} else if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER){
+			sendAnalyticsUserCancelledRecording();
+		}
+	}
+
+	private void sendAnalyticsUserCancelledRecording() {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -3773,6 +3794,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
+				boolean isWTShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+				if (isWTShown) {
+					if (event.getAction() == MotionEvent.ACTION_UP) closeWTTip();
+					return true;
+				}
+
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);

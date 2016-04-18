@@ -1421,4 +1421,8 @@
     <string name="keyboard_shutdown_description">तुम्ही तुमच्या फोनच्या कीबोर्डने नेहमी चॅट करू शकता किंवा प्लेस्टोअरमधून अन्य कीबोर्ड डाउनलोड करू शकता</string>
     <string name="open_phone_keyboard">फोन कीबोर्ड</string>
     <string name="open_google_keyboard">गूगल कीबोर्ड</string>
+
+    <string name="slide_to_cancel">रद्द साठी स्लाईड करा</string>
+    <string name="recording_help_text"> रेकॉर्ड करण्यासाठी टॅप धरून ठेवा</string>
+    <string name="max_duration_recorded">जास्तीत जास्त कालावधीसाठी रेकॉर्डिंग केले</string>
 </resources>
