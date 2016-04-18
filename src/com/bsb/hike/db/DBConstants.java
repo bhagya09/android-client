@@ -14,6 +14,8 @@ public interface DBConstants
 
 	public static final String CONVERSATIONS_TABLE = "conversations";
 
+	public static final String RECEIPTS_TABLE = "receipts";
+
 	public static final String MESSAGES_TABLE = "messages";
 
 	public static final String USERS_DATABASE_NAME = "hikeusers";
@@ -295,6 +297,16 @@ public interface DBConstants
 	public static final int DEFAULT_ACTIVE_STATE = 1;
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
+
+	//Receipts Table
+	public static final String READ_TIMESTAMP="read_timestamp";
+
+	public static final String DELIVERY_TIMESTAMP="delivery_timestamp";
+
+	public static final String PLAYED_TIMESTAMP="played_timestamp";
+
+	public static final String RECEIVER_MSISDN="rcv_msdn";
+
 
 	public static interface HIKE_CONV_DB
 	{
