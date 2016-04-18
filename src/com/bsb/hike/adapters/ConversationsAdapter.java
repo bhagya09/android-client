@@ -1054,12 +1054,20 @@ public class ConversationsAdapter extends BaseAdapter
 			messageView.setLayoutParams(lp);
 		}
 
+		/**
+		 * Fix begins for HS-365
+		 */
+		if (message.getParticipantInfoState() == ParticipantInfoState.FRIEND_REQUSET_STATUS)
+		{
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
+		}
 		
-		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
+		else if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
 		{
 			/* set NUX waiting or unread messages to BLUE */
 			messageView.setTextColor(context.getResources().getColor(R.color.unread_message));
 		}
+
 		else
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
