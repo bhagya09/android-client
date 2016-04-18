@@ -97,7 +97,7 @@ public class CustomStickerCategory extends StickerCategory
 
 	public void loadStickers()
 	{
-		stickerSet = getSortedListForCategory(getCategoryId(), StickerManager.getInstance().getStickerCategoryDirPath(getCategoryId()));
+		stickerSet = getSortedListForCategory(getCategoryId(), StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(getCategoryId()));
 		if (getCategoryId().equals(StickerManager.RECENT))
 		{
 			if(stickerSet.isEmpty())
