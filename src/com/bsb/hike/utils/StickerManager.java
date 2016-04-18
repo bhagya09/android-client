@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.bsb.hike.backup.BackupUtils;
 
 public class StickerManager
 {
@@ -3404,6 +3405,17 @@ public class StickerManager
 		else
 		{
 			return false;
+		}
+	}
+
+	public void handleDifferentDpi()
+	{
+		if (BackupUtils.getBackupMetadata() == null || BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI())
+		{
+			// 1. Flush Sticker Table
+			// 2. Remove Sticker Assets. They are no longer useful
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+			deleteStickers();
 		}
 	}
 }
