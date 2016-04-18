@@ -3363,9 +3363,28 @@ public class StickerManager
 	 *
 	 * 2. Update sticker file path in sticker table (Note: New path updated to directory returned by getStickerExternalDirFilePath}
 	 */
-	public boolean migrateStickerAssets(String fromPath, String toPath)
+	public void migrateStickerAssets(String fromPath, String toPath)
 	{
-		return moveStickersFolder(fromPath, toPath);
+		boolean isMoved = moveStickersFolder(fromPath, toPath);
+		if (isMoved)
+		{
+			// Assets migrated successfully
+			// Update stickers path
+			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
+			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
+			{
+				doInitialSetup();
+			}
+		}
+		else
+		{
+			// Move wasn't successful.
+			// 1. Wipe StickerTable
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+
+			// 2. Delete old sticker folder (if present)
+			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+		}
 	}
 
 	/**
@@ -3387,61 +3406,4 @@ public class StickerManager
 			return false;
 		}
 	}
-
-	/**
-	 * This method does the following to enable migration :
-	 * 1. It migrates sticker assets from Android/com.bsb.hike/ to sdcard/0/Hike/
-	 * 2. It migrates recents.bin file from /data/data/com.bsb.hike/files/stickers/recents to sdcard/0/Hike/stickers/recents
-	 */
-	public void migrateStickersForEnablingBackup()
-	{
-		boolean result = migrateStickerAssets(getOldStickerExternalDirFilePath(), getStickerExternalDirFilePath());
-		result = result && migrateRecentsFile();
-
-		if (result)
-		{
-			// Assets migrated successfully
-			// Update stickers path
-			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
-			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
-			{
-				doInitialSetup();
-			}
-		}
-		else
-		{
-			// Move wasn't successful.
-			// 1. Wipe StickerTable
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-			// 2. Delete old sticker folder (if present)
-			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
-
-			Utils.deleteFile(new File(getOldRecentsFilePath()));
-		}
-
-	}
-
-	/**
-	 * Warning : DO NOT EVER USE THIS
-	 */
-	private boolean migrateRecentsFile()
-	{
-		return moveStickersFolder(getOldRecentsFilePath(), getNewRecentsFilePath());
-	}
-
-	private String getOldRecentsFilePath()
-	{
-		String oldRecentsDirPath = StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(StickerManager.RECENT);
-
-		File oldRecentsFile = new File(oldRecentsDirPath, StickerManager.RECENT + ".bin");
-
-		return oldRecentsFile.getAbsolutePath();
-	}
-
-	private String getNewRecentsFilePath()
-	{
-		return getStickerExternalDirFilePath() + File.separator + StickerManager.RECENT + File.separator + StickerManager.RECENT + ".bin";
-	}
-
 }
