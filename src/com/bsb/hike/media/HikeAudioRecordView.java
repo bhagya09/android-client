@@ -77,6 +77,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private PopupWindow popup_l;
     private int DELETE_TRIGGER_DELTA; //Delta for which the delete/cancel option appears
     private int DELETE_REVERT_TRIGGER_DELTA; //Delta for which the delete/cancel option disappears back
+    private float recBgrndXPos;
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
@@ -156,6 +157,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
         if(recorderImg != null)
             startPulsatingDotAnimation(recorderImg);
+        recBgrndXPos  = rectBgrnd.getX() + DrawUtils.dp(9);
     }
 
 
@@ -166,6 +168,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 @Override
                 public void onInflate(ViewStub stub, View inflated) {
                     recorderImg = inflated;
+                    recorderImg.setDrawingCacheEnabled(true);
                 }
             });
 
@@ -251,6 +254,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 float rawX = event.getRawX();
                 if (rawX > DELETE_REVERT_TRIGGER_DELTA)
                 {
+                    if(rectBgrnd.getVisibility() == View.VISIBLE)
                     rectBgrnd.setVisibility(View.INVISIBLE);
                 }
                 else if (rawX <= DELETE_TRIGGER_DELTA)
@@ -266,8 +270,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 startedDraggingX = -1;
                 if (rectBgrnd .getVisibility() == View.VISIBLE)
                 {
-                    Log.d(TAG, "   slided in left direction: will call cancel now" );
                     slideLeftComplete();
+                    Log.d(TAG, "   slided in left direction done");
                     return true;
                 }
                 if (stopRecordingAudio()) {
@@ -312,11 +316,11 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     }
 
     private void slideLeftComplete() {
+        recorderImg.animate().x(recBgrndXPos).setDuration(200).setListener(getAnimationListener()).start();
         recorderState = CANCELLED;
-        doVibration(50);
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
-        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(9)).setDuration(200).setListener(getAnimationListener()).start();
+        doVibration(50);
     }
 
     static final int CANCEL_RECORDING = 1;
