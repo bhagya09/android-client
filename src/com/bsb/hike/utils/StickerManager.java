@@ -3304,7 +3304,7 @@ public class StickerManager
 		this.showLastCategory = showLastCategory;
 	}
 	
-	public void postDbCorruptionSetup()
+	public void resetStickerTablesToDefault()
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
 		mThread.startHandlerThread();
@@ -3323,7 +3323,15 @@ public class StickerManager
 			}
 		}, 0);
 
-	}
+    }
+
+    public void postRestoreSetup()
+    {
+        HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
+        HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false);
+    }
+
 
 	public boolean getShowLastCategory()
 	{

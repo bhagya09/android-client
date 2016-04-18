@@ -48,16 +48,7 @@ public class DBsBackupRestore implements BackupableRestorable
 					HikeConversationsDatabase.getInstance().clearTable(table);
 				}
 
-                /**
-                 * Resetting upgrade pref for the excluded tables
-                 * These prefs insure that upgrade intent actions are taken for these tables
-                 *
-                 */
-
-
-                HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
-                HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
-                HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false);
+                StickerManager.getInstance().postRestoreSetup();
 			}
 		};
 

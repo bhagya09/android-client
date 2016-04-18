@@ -8351,7 +8351,7 @@ public class Utils
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
 	}
-	
+
     private static String getCursorString(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if(index != -1) return cursor.getString(index);
@@ -8450,6 +8450,37 @@ public class Utils
 			int duration = Toast.LENGTH_SHORT;
 			Toast toast = Toast.makeText(context, "Update failed", duration);
 			toast.show();
+		}
+	}
+
+	/**
+	 * method to get a JSON for media click events. It assumes that the events for media differ only
+	 * in uniqueKey and order column
+	 * @param uniqueKey
+	 * @param order
+	 * @return
+	 */
+	public static JSONObject getMediaClickJSON(String uniqueKey, String order)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance()
+					.getData(HikeMessengerApp.MSISDN_SETTING, ""));
+
+			return json;
+
+		}
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
 		}
 	}
 }
