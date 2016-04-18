@@ -18,6 +18,8 @@ import java.util.List;
 
 public class StickerCategory implements Serializable, Comparable<StickerCategory>
 {
+    private int uniqueId;
+
 	private String categoryId;
 
 	private String categoryName;
@@ -577,6 +579,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		if (getClass() != obj.getClass())
 			return false;
 		StickerCategory other = (StickerCategory) obj;
+        Logger.e("aktt",this.categoryId+ "== " +other.getCategoryId());
 		if (categoryId == null)
 		{
 			if (other.categoryId != null)
@@ -698,7 +701,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		else
 			setDownloadedStickersCount(0);
 	}
-	
+
+	public int getUniqueId()
+	{
+		return 0;
+	}
+
 	public void setDownloadedStickersCount(int count)
 	{
 		this.downloadedStickersCount = count;

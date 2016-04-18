@@ -4,7 +4,6 @@ package com.bsb.hike.ui;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -13,7 +12,6 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -22,17 +20,13 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThread;
-import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.productpopup.DialogPojo;
-import com.bsb.hike.productpopup.HikeDialogFragment;
-import com.bsb.hike.productpopup.IActivityPopup;
-import com.bsb.hike.productpopup.ProductContentModel;
-import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerShopFragment;
+import com.bsb.hike.ui.fragments.StickerShopSearchFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 {
@@ -48,6 +42,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sticker_shop_parent);
         setupShopFragment(savedInstanceState);
+        setupShopSearchFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
 
@@ -61,7 +56,42 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         }
         stickerShopFragment = StickerShopFragment.newInstance();
 
-        getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopFragment).commit();
+        showShopFragment();
+
+    }
+
+    private void setupShopSearchFragment()
+    {
+        stickerShopSearchFragment = StickerShopSearchFragment.newInstance();
+    }
+
+    private void showSearchFragment()
+    {
+        if(stickerShopSearchFragment == null)
+        {
+            setupShopSearchFragment();
+        }
+        else if(stickerShopSearchFragment.isAdded())
+        {
+            return;
+        }
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.sticker_shop_parent, stickerShopSearchFragment).addToBackStack(null).commit();
+
+    }
+
+    private void showShopFragment()
+    {
+        if(stickerShopFragment == null )
+        {
+            setupShopFragment(null);
+        }
+        else if(stickerShopFragment.isAdded())
+        {
+            return;
+        }
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.sticker_shop_parent, stickerShopFragment).commit();
 
     }
 
@@ -90,7 +120,22 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         searchView.setQueryHint(getString(R.string.shop_search));
         searchView.clearFocus();
         MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        
+        MenuItemCompat.setOnActionExpandListener(shopSearchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                menu.findItem(R.id.shop_settings).setVisible(false);
+                showSearchFragment();
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                menu.findItem(R.id.shop_settings).setVisible(true);
+                Logger.i("aktt", "onMenuItemActionCollapse");
+                return true;
+            }
+        });
+
         return true;
     }
 
