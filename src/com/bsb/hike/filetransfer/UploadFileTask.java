@@ -659,6 +659,7 @@ public class UploadFileTask extends FileTransferBase
 			}, getUploadFileInterceptor(), new FileTransferChunkSizePolicy(context));
 		}
 		requestToken.execute();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 	}
 
 	private void handleSuccessJSON(JSONObject responseJson) throws JSONException
