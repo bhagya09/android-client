@@ -36,6 +36,8 @@ public class RequestToken
 		if (!isRequestRunning())
 		{
 			HttpManager.getInstance().addRequest(request);
+			if (fss != null)
+				fss.setFTState(FTState.INITIALIZED);
 		}
 		else
 		{
