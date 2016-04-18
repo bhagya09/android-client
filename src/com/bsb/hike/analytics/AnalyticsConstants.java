@@ -801,6 +801,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_LOG_2 = "act_log2";
 
+	public static final String ACT_USERS = "act_users";
+
 	public static final String ACT_CORE_LOGS = "act_core";
 
 	public static final String CHAT_OPEN = "chat_open";
@@ -828,4 +830,7 @@ public class AnalyticsConstants
 
 	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
 
+	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
+
+	public static final String WT_CLICKED_TOUCHED = "wticon";
 }
