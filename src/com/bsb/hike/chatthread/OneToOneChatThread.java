@@ -167,6 +167,8 @@ import java.util.Map;
 	private static final int SHOW_OVERFLOW_MENU = 119;
 
 	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
+
+	private static final int HIDE_FRIENDS_VIEW = 121;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -937,6 +939,10 @@ import java.util.Map;
 			break;
 		case UPDATE_ADD_FRIEND_VIEWS:
 			updateAddFriendViews((Boolean) msg.obj);
+			break;
+		case HIDE_FRIENDS_VIEW:
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -3837,10 +3843,9 @@ import java.util.Map;
 
 			View addFriendView = activity.findViewById(R.id.add_friend_view);
 			// Check if there's any anim going on for the ftue view
-			if (addFriendView != null && !isThereAnyAnimationOnFriendsFtue(addFriendView))
+			if (addFriendView != null)
 			{
-				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
-				addFriendView.setVisibility(View.GONE);
+				sendUIMessage(HIDE_FRIENDS_VIEW, isThereAnyAnimationOnFriendsFtue(addFriendView) ? 400 : 0, null); //400 msec is the animation duration for FTUE tip, so scheduling it after 400 msec
 			}
 		}
 	}
