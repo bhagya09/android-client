@@ -484,7 +484,7 @@ public class VoIPService extends Service implements Listener
 
 		// Server returned a custom error
 		if (action.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CUSTOM_MESSAGE)) {
-			Logger.w(tag, "Server returned a custom error.");
+			Logger.w(tag, "Server returned a custom error: " + intent.getStringExtra(VoIPConstants.Extras.CUSTOM_MESSAGE));
 			VoIPClient cl = getClient(msisdn);
 			if (cl != null) {
 				// Send message to voip activity

@@ -602,7 +602,11 @@ public class VoIPUtils {
 					Intent i = new Intent(context, VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, subType);
 					i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
-					i.putExtra(VoIPConstants.Extras.CUSTOM_MESSAGE, jsonObj.getString(HikeConstants.MESSAGE)); // TODO: Verify!
+
+					// Parse the custom error message that _might_ be included
+					if (jsonObj.has(HikeConstants.DATA) && jsonObj.getJSONObject(HikeConstants.DATA).has(HikeConstants.CUSTOM_MESSAGE))
+						i.putExtra(VoIPConstants.Extras.CUSTOM_MESSAGE, jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.CUSTOM_MESSAGE));
+
 					context.startService(i);
 				}
 			}

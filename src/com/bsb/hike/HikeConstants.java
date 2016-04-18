@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
