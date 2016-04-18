@@ -4040,11 +4040,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	
 	private void onEnterToSendSettingsChanged()
 	{
-		activity.runOnUiThread(new Runnable()
-		{
+		activity.runOnUiThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				defineEnterAction();
 			}
 		});
@@ -5621,6 +5619,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		ArrayList<Long> selectedMsgIds;
 		switch (menuItem.getItemId())
 		{
+			case R.id.message_info:
+				if(selectedMessagesMap.size()==1){
+					ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
+					if(convMessage.isSent()){
+						activity.startActivity(IntentFactory.messageInfoIntent(convMessage,activity,msisdn));
+					}
+				}
+				return true;
+
+
 		case R.id.delete_msgs:
 			ArrayList<Long> selectedMsgIdsToDelete = new ArrayList<Long>(mAdapter.getSelectedMessageIds());
 			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.DELETE_MESSAGES_DIALOG, this, mAdapter.getSelectedCount(),

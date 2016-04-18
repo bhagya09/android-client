@@ -51,6 +51,7 @@ import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
+import com.bsb.hike.messageinfo.MessageInfo;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ConvMessageComparator;
@@ -216,7 +217,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ) ";
 
 		db.execSQL(sql);
-
+		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.RECEIPTS_TABLE
+			+ " ( "
+			+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
+			+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
+			+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
+			+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
+			+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
+			+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
+			+ " ) ";
+		db.execSQL(sql);
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
 		db.execSQL(sql);
 
@@ -1327,6 +1337,30 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return messageIdsToBeUpdated;
 	}
+	public void setAllDeliveredMessageReceiptsReadforMsisdn(String msisdn,ArrayList<Long> messageIdsTobeUpdated,long timestamp){
+		if(messageIdsTobeUpdated==null||messageIdsTobeUpdated.isEmpty()){
+			return ;
+		}
+		String initialWhereClause = DBConstants.MESSAGE_ID + " in " + Utils.valuesToCommaSepratedString(messageIdsTobeUpdated);
+		initialWhereClause = initialWhereClause
+			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.READ_TIMESTAMP, timestamp);
+		int numRows = mDb.update(DBConstants.RECEIPTS_TABLE, contentValues, initialWhereClause, null);
+
+	}
+	public void setReceiptsReadByGroupMsisdn(String msisdn,ArrayList<Long> messageIdsTobeUpdated,long timestamp){
+		if(messageIdsTobeUpdated==null||messageIdsTobeUpdated.isEmpty()){
+			return ;
+		}
+		String initialWhereClause = DBConstants.MESSAGE_ID + " in " + Utils.valuesToCommaSepratedString(messageIdsTobeUpdated);
+		initialWhereClause = initialWhereClause
+			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.READ_TIMESTAMP,timestamp);
+		int numRows = mDb.update(DBConstants.RECEIPTS_TABLE, contentValues, initialWhereClause, null);
+
+	}
 
 	/**
 	 *
@@ -1641,7 +1675,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			setMessageState(msisdn, pair.getSecond(), State.SENT_DELIVERED.ordinal());
 		}
 	}
+	 public long executeMessageDeliveryReceipt(ContentValues contentValues){
+		return mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 
+	 }
 	public int executeUpdateMessageStatusStatement(String updateStatement, int status, String msisdn)
 	{
 		int minStatusOrdinal;
@@ -3462,7 +3499,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		return getConversation(msisdn, limit, false);
 	}
-	
+
 	public ConvMessage getLastMessage(String msisdn)
 	{
 		/*
@@ -3600,7 +3637,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			}
 		}
 	}
+	public HashSet<MessageInfo> getMessageInfo(long messageId){
+		Cursor c=null;
+		HashSet<MessageInfo> set=new HashSet<MessageInfo>();
+		try{
+			String selection = DBConstants.MESSAGE_ID + "=?";
+			String[] whereArgs = new String[] { Long.toString(messageId)};
+			c = mDb.query(DBConstants.RECEIPTS_TABLE, new String[] { DBConstants.RECEIVER_MSISDN, DBConstants.READ_TIMESTAMP, DBConstants.DELIVERY_TIMESTAMP }, selection, whereArgs, null,
+				null, null);
 
+			final int msisdnColumn = c.getColumnIndex(DBConstants.RECEIVER_MSISDN);
+			final int readTimestampColumn = c.getColumnIndex(DBConstants.READ_TIMESTAMP);
+			final int deliveryTimestampColumn = c.getColumnIndex(DBConstants.DELIVERY_TIMESTAMP);
+			while(c.moveToNext()){
+				String msisdn = c.getString(msisdnColumn);
+				long read_timestamp = c.getLong(readTimestampColumn);
+				long delivery_timestamp = c.getLong(deliveryTimestampColumn);
+				set.add(new MessageInfo(msisdn,read_timestamp,delivery_timestamp));
+			}
+		}catch (Exception e){}
+		finally {
+			if(c!=null)
+				c.close();
+		}
+		return set;
+	}
 	public ConversationMsisdns getConversationMsisdns()
 	{
 		Cursor c = null;
