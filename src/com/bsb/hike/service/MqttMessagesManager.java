@@ -69,6 +69,7 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -3069,7 +3070,11 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.CONTACT_UPDATE))
 		{
-			saveContacts(data);
+			saveContacts(data, false);
+		}
+		else if (data.has(HikeConstants.CONTACT_NUMBER_OLD))
+		{
+			saveContacts(data, true);
 		}
 
 		if(data.has(HikeConstants.SHOW_RECOMMENDED_PACKS))
@@ -3115,11 +3120,14 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void saveContacts(JSONObject data) throws JSONException
+	private void saveContacts(JSONObject data, boolean makeAnEditCall) throws JSONException
 	{
-		String newMsisdn = data.getString(HikeConstants.CONTACT_UPDATE);
+		String newMsisdn = data.optString(HikeConstants.CONTACT_UPDATE,"");
 		String name = data.optString(HikeConstants.CONTACT_NAME, "");
 		String oldMsisdn = data.optString(HikeConstants.CONTACT_NUMBER_OLD, "");
+
+		if(!makeAnEditCall)
+		{
 
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
@@ -3147,6 +3155,16 @@ public class MqttMessagesManager
 			if(changeMsisdn)
 			{
 				Utils.updateContactWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), newMsisdn);
+			}
+		}
+		}
+		else
+		{
+			Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(oldMsisdn));
+			PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri);
+			if(contactIdPair != null)
+			{
+				Utils.updateNameWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), TextUtils.isEmpty(name) ? oldMsisdn : name);
 			}
 		}
 

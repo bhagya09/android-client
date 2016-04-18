@@ -8467,6 +8467,37 @@ public class Utils
 	}
 
 	/**
+	 *
+	 * @param context
+	 * @param mRawContactId
+	 * @param mDataId
+     * @param msisdn
+     */
+	public static void updateNameWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String name) {
+		try {
+			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
+					.withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[] {mDataId})
+					.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
+					.withValue(StructuredName.DISPLAY_NAME, name)
+					.build());
+			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+		} catch (Exception e) {
+			// Display warning
+			Logger.w("UpdateContact", e.getMessage());
+			for(StackTraceElement ste : e.getStackTrace()) {
+				Logger.w("UpdateContact", "\t" + ste.toString());
+			}
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, "Update failed", duration);
+			toast.show();
+		}
+	}
+
+	/**
 	 * method to get a JSON for media click events. It assumes that the events for media differ only
 	 * in uniqueKey and order column
 	 * @param uniqueKey
