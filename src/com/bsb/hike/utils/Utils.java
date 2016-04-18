@@ -4382,7 +4382,7 @@ public class Utils
 		context.startActivity(i);
 	}
 
-	public static void addToContacts(List<ContactInfoData> items, String name, Context context, AccountData accountData)
+	public static void addToContacts(List<ContactInfoData> items, String name, Context context, AccountData accountData, boolean showToast)
 	{
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		int rawContactInsertIndex = ops.size();
@@ -4434,13 +4434,16 @@ public class Utils
 			e.printStackTrace();
 			contactSaveSuccessful = false;
 		}
-		Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+		if(showToast)
+		{
+			Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static void addToContacts(List<ContactInfoData> items, String name, Context context, Spinner accountSpinner)
 	{
 		AccountData accountData = (AccountData) accountSpinner.getSelectedItem();
-		addToContacts(items, name, context, accountData);
+		addToContacts(items, name, context, accountData, true);
 	}
 
 	public static int getNumColumnsForGallery(Resources resources, int sizeOfImage)

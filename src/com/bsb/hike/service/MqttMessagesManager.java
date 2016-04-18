@@ -3148,7 +3148,7 @@ public class MqttMessagesManager
 			List<AccountData> accountDatas = Utils.getAccountList(context);
 			List<ContactInfoData> items = new ArrayList<ContactInfoData>();
 			items.add(new ContactInfoData(ContactInfoData.DataType.PHONE_NUMBER, newMsisdn, HikeConstants.HIKE_CUSTOM_PHONE_TYPE));
-			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0));
+			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0), false);
 		}
 		else
 		{
