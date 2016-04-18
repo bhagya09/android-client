@@ -45,6 +45,7 @@ import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -296,6 +297,10 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 		if(!isEventConsumed)
 		{
+			if(!TextUtils.isEmpty(mInterimImagePath))
+			{
+				Utils.deleteFile(new File(mInterimImagePath));
+			}
 			super.onBackPressed();
 		}
 	}

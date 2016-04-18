@@ -60,6 +60,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.MotionEvent;
 
+import java.io.File;
+
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener, View.OnTouchListener
 {
 
@@ -874,6 +876,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+
+		if(!enableCompression && mActivityTask.task == null)
+		{
+			Utils.deleteFile(new File(mImagePath));
+		}
+
 		super.onDestroy();
 		
 	}
