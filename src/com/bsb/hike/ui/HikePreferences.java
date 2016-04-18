@@ -1713,6 +1713,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 		}
 
+		Preference profilePicPref = getPreferenceScreen().findPreference(HikeConstants.STATUS_BOOLEAN_PREF);
+		if (profilePicPref != null)
+		{
+			profilePicPref.setSummary(Utils.isFavToFriendsMigrationAllowed() ? R.string.mute_status_notification_subtext_frn : R.string.mute_status_notification_subtext);
+		}
+
 		ledPref.setTitle(ledPref.getTitle() + ": " + ledPref.getEntry());
 		ledPref.setNegativeButtonText(R.string.CANCEL);
 	}

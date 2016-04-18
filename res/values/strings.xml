@@ -1585,4 +1585,5 @@
     <string name="recharge_menu">Recharge</string>
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
+    <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
 </resources>
