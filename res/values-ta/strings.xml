@@ -1417,4 +1417,8 @@
     <string name="keyboard_shutdown_description">நீங்கள் போன் கிபோர்ட்-இல்  சாட் செய்யலாம் அல்லது ப்ளே ஸ்டோரில் இருந்து டவுன்லோட் செய்யவும் </string>
     <string name="open_phone_keyboard">போன் கிபோர்ட்</string>
     <string name="open_google_keyboard">கூகுள் கிபோர்ட்</string>
+
+    <string name="slide_to_cancel">ஸ்லைடு செய்தால் கேன்செல்</string>
+    <string name="recording_help_text">ரெக்கார்டு செய்ய டாப் செய், அனுப்புவதற்கு விடு</string>
+    <string name="max_duration_recorded">அதிக காலத்திற்கு ரெக்கார்டிங் செய்தாயிற்று</string>
 </resources>

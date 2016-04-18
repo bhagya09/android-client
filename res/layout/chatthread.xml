@@ -324,6 +324,15 @@
 
                         </LinearLayout>
 
+                        <ViewStub
+                            android:id="@+id/pulsatingDotViewStub_WT"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignTop="@id/send_msg_audio"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="20dp"
+                            android:layout="@layout/pulsating_dot" />
+
                         <ImageButton
                             android:id="@+id/sticker_btn"
                             android:layout_width="49dp"
