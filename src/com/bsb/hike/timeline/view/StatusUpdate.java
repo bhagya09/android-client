@@ -64,7 +64,6 @@ import java.io.File;
 
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener, View.OnTouchListener
 {
-
 	private BitmapFactory.Options options;
 
 	private String mPrefillCaption;
