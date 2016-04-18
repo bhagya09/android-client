@@ -552,17 +552,12 @@ public class PlatformZipDownloader
 				{
 					String range = "";
 					long totalLength = 0;
-					if (result == null)
-						return;
 					for (Header header : result.getHeaders())
 					{
-						if ("Content-Range".equals(header.getName()))
+						if (header != null &&"Content-Range".equals(header.getName()))
 						{
-							if (header != null)
-							{
 								range = header.getValue();
 								break;
-							}
 						}
 					}
 					try
@@ -572,6 +567,8 @@ public class PlatformZipDownloader
 					catch (Exception e)
 					{
 						Logger.e(getClass().getCanonicalName(), e.toString());
+						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+						onRequestFailure(exception);
 					}
 					if (zipFileLength != totalLength)
 					{
