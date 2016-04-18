@@ -3160,6 +3160,10 @@ public class MqttMessagesManager
 		}
 		else
 		{
+			if(TextUtils.isEmpty(oldMsisdn))
+			{
+				return;
+			}
 			Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(oldMsisdn));
 			String oldName = data.optString("cntct_nm_old","");
 			PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri, oldName);
