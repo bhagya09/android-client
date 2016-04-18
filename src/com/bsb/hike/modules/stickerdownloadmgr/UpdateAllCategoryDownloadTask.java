@@ -19,7 +19,7 @@ import org.json.JSONObject;
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class UpdateAllCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class UpdateAllCategoryDownloadTask implements IHikeHTTPTask
 {
 
 	private static final String UPDATE_ALL_CATEGORIES_TAG = "UpdateAllCategoryDownloadTask";
@@ -93,18 +93,6 @@ public class UpdateAllCategoryDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
 	@Override
 	public void cancel()
-	{
-
-	}
-
-	@Override
-	public void doOnSuccess(Object result)
-	{
-
-	}
-
-	@Override
-	public void doOnFailure(HttpException exception)
 	{
 
 	}
