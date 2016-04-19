@@ -118,6 +118,13 @@ public class HikeSettingsCloudBackup implements BackupRestoreTaskLifecycle, IReq
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LOCAL_LANGUAGE_PREF, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_STRING, LocalLanguage.PhoneLangauge.getLocale()));
 		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.LOCALIZATION_FTUE_COMPLETE, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, false));
 
+		/*
+		 * Stickers Settings
+		 */
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STICKER_RECOMMEND_PREF, HikeMessengerApp.ACCOUNT_SETTINGS, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STICKER_RECOMMEND_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+		prefInfoList.add(new CloudBackupPrefInfo(HikeConstants.STICKER_RECOMMEND_AUTOPOPUP_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF, CloudBackupPrefInfo.TYPE_BOOL, true));
+
 		return true;
 	}
 
