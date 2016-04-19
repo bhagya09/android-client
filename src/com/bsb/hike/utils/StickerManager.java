@@ -29,9 +29,8 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
@@ -1560,13 +1559,13 @@ public class StickerManager
 		singleStickerDownloadTask.execute();
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, JSONObject bodyJson)
 	{
 		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
-		initialiseDownloadStickerPackTask(category, source, downloadType, context);
+		initialiseDownloadStickerPackTask(category, downloadType, bodyJson);
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, DownloadType downloadType, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if (stickerCategoriesMap.containsKey(category.getCategoryId()))
 		{
@@ -1575,7 +1574,7 @@ public class StickerManager
 		if (category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
-			makePackDownloadCall(category, source, downloadType);
+			makePackDownloadCall(category, downloadType, bodyJson);
 		}
 		else if (category.getDownloadedStickersCount() >= category.getTotalStickers())
 		{
@@ -1585,18 +1584,18 @@ public class StickerManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
 
-	private void makePackDownloadCall(StickerCategory category, DownloadSource source, DownloadType downloadType)
+	private void makePackDownloadCall(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if ((category.getTotalStickers() <= 0 || category.getDownloadedStickersCount() > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN_THRESHOLD,
 				StickerConstants.DEFAULT_STICKER_THRESHOLD_FOR_CDN))
 				|| !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN, true))
 		{
-			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
+			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, bodyJson);
 			multiStickerDownloadTask.execute();
 		}
 		else
 		{
-			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, source);
+			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, bodyJson);
 			multiStickerImageDownloadTask.execute();
 		}
 	}
@@ -2959,34 +2958,6 @@ public class StickerManager
 		return stickerSet;
 	}
 
-	public void sendResponseTimeAnalytics(Response response, String methodType)
-	{
-		try
-		{
-			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
-			{
-				return;
-			}
-
-			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
-					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
-
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.EVENT_KEY, HttpAnalyticsLogger.processRequestUrl(response.getUrl()));
-			metadata.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
-			metadata.put(HttpAnalyticsConstants.HTTP_METHOD_TYPE, methodType);
-			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
-			HAManager.getInstance().record(HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata,
-					HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "json exception in logging sticker response time", e);
-		}
-	}
-
 	public List<Sticker> getStickerListFromString(String categoryId, String stickerListString)
 	{
 		List<Sticker> stickerList = null;
@@ -3383,4 +3354,107 @@ public class StickerManager
 
     }
 
+
+	public void sendPackPreviewOpenAnalytics(String categoryId, StickerConstants.PackPreviewClickSource packPreviewClickSource)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource.getValue());
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception in logging analytics for pack preview open");
+		}
+	}
+
+	public void sendViewAllClickAnalytics(String categoryId)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.VIEW_ALL);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.VIEW_ALL);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception in logging analytics for pack preview open");
+		}
+	}
+
+	public void sendResponseTimeAnalytics(Response response, String methodType, String categoryId, String stickerId)
+	{
+		try
+		{
+			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
+			{
+				return;
+			}
+
+			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
+					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
+
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_DOWNLOAD_TIME);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, methodType);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.VARIETY, timeTaken);
+			json.put(AnalyticsConstants.V2.FORM, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.VAL_STR, ContactManager.getInstance().getSelfMsisdn());
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.GENUS, stickerId);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "json exception in logging sticker response time", e);
+		}
+	}
+
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource)
+	{
+		return getPackDownloadBodyJson(downloadSource, -1, false);
+	}
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource, int position, boolean viewAllClicked)
+	{
+		try {
+
+			JSONObject body = new JSONObject();
+			body.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			body.put(HikeConstants.DOWNLOAD_SOURCE, downloadSource.getValue());
+			body.put(HikeConstants.POSITION, position);
+			body.put(HikeConstants.VIEW_ALL_CLICKED, viewAllClicked ? 1 : 0);
+
+			return body;
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "error in making body for pack download");
+		}
+
+		return null;
+	}
 }
