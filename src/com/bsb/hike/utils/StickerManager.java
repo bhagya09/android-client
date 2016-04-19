@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.bsb.hike.backup.BackupUtils;
 
 public class StickerManager
 {
@@ -272,6 +273,8 @@ public class StickerManager
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
+
+	public static final String FETCH_CATEGORIES_METADATA = "fetchCatMd";
 
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
@@ -1489,6 +1492,7 @@ public class StickerManager
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKERS_SIZE_DOWNLOADED, false))
 		{
+			tryToDownloadStickerDataForAllCategories();   //This case can be hit post account restore, where the initial SignupUpgradeCall might have been made.
 			return;
 		}
 
@@ -3340,8 +3344,18 @@ public class StickerManager
         HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false);
-    }
 
+		// Download Tags for whatever stickers are present now
+		Set<String> stickersSet = new HashSet<>();
+		for (Sticker s : getAllStickers())
+		{
+			stickersSet.add(s.getStickerCode());
+		}
+		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+		
+		resetCategoryMetadataFetchPreference();
+		tryToDownloadStickerDataForAllCategories();
+    }
 
 	public boolean getShowLastCategory()
 	{
@@ -3362,6 +3376,7 @@ public class StickerManager
 		{
 			// Assets migrated successfully
 			// Update stickers path
+			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				doInitialSetup();
@@ -3397,4 +3412,52 @@ public class StickerManager
 			return false;
 		}
 	}
+
+	public void handleDifferentDpi()
+	{
+		if (BackupUtils.getBackupMetadata() == null || BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI())
+		{
+			// 1. Flush Sticker Table
+			// 2. Remove Sticker Assets. They are no longer useful
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+			deleteStickers();
+		}
+	}
+
+	public JSONArray getAllCategoriesFromDbAsJsonArray()
+	{
+		JSONArray jsonArray = new JSONArray();
+
+		Collection<StickerCategory> catList = HikeConversationsDatabase.getInstance().getAllStickerCategories();
+
+		if (!Utils.isEmpty(catList))
+		{
+
+			for (StickerCategory category : catList)
+			{
+				String categoryId = category.getCategoryId();
+				if (!category.isCustom())
+				{
+					jsonArray.put(categoryId);
+				}
+			}
+		}
+
+		return jsonArray;
+	}
+
+	private void resetCategoryMetadataFetchPreference()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.FETCH_CATEGORIES_METADATA, true);
+	}
+
+	private void tryToDownloadStickerDataForAllCategories()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.FETCH_CATEGORIES_METADATA, false))
+		{
+			StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllCategoriesFromDbAsJsonArray());
+			stickerSignupUpgradeDownloadTask.execute();
+		}
+	}
+
 }
