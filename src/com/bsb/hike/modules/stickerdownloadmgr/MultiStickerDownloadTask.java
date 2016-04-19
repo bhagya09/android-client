@@ -240,7 +240,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
                         StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
+                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK, categoryId, null);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);

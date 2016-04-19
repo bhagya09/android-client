@@ -2959,34 +2959,6 @@ public class StickerManager
 		return stickerSet;
 	}
 
-	public void sendResponseTimeAnalytics(Response response, String methodType)
-	{
-		try
-		{
-			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
-			{
-				return;
-			}
-
-			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
-					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
-
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.EVENT_KEY, HttpAnalyticsLogger.processRequestUrl(response.getUrl()));
-			metadata.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
-			metadata.put(HttpAnalyticsConstants.HTTP_METHOD_TYPE, methodType);
-			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
-			HAManager.getInstance().record(HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata,
-					HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "json exception in logging sticker response time", e);
-		}
-	}
-
 	public List<Sticker> getStickerListFromString(String categoryId, String stickerListString)
 	{
 		List<Sticker> stickerList = null;
@@ -3382,6 +3354,43 @@ public class StickerManager
         saveSticker(stickers, StickerConstants.StickerType.LARGE);
 
     }
+
+
+	public void sendResponseTimeAnalytics(Response response, String methodType, String categoryId, String stickerId)
+	{
+		try
+		{
+			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
+			{
+				return;
+			}
+
+			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
+					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
+
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_DOWNLOAD_TIME);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, methodType);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.VARIETY, timeTaken);
+			json.put(AnalyticsConstants.V2.FORM, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.VAL_STR, ContactManager.getInstance().getSelfMsisdn());
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.GENUS, stickerId);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "json exception in logging sticker response time", e);
+		}
+	}
 
 
 	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource)

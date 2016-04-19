@@ -251,7 +251,7 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
                     StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-					StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK_CDN);
+					StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK_CDN, categoryId, null);
 				}
 
 				requestCompleted(requestToken, false);
