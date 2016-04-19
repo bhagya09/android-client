@@ -59,7 +59,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     private static final long MIN_DURATION = 1000;
     private Activity mActivity;
-    private byte recorderState;
+    private byte recorderState = IDLE;
     private long recordStartTime, recordedTime;
     private MediaRecorder recorder;
     private File selectedFile;
@@ -339,7 +339,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     void handleUIMessage(android.os.Message msg) {
         switch (msg.what) {
             case CANCEL_RECORDING:
-                cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER);
+                cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER, true);
                 break;
             case DO_CANCEL_ANIMATION:
                 recorderImg.setVisibility(View.INVISIBLE);
@@ -586,8 +586,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         recordingHandler.post(updateRecordingDuration);
     }
 
-    private void cancelAndDeleteAudio(int cause) {
-        if(recorderState != CANCELLED) doVibration(50);
+    private void cancelAndDeleteAudio(int cause, boolean doVibration) {
+        if(recorderState != CANCELLED && doVibration) doVibration(50);
         stopRecorder();
         recordingError(false);
         listener.audioRecordCancelled(cause);
@@ -602,8 +602,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Utils.unblockOrientationChange(mActivity);
         stopUpdateTimeAndRecorder();
-        dismissAudioRecordView();
         recorderState = IDLE;
+        dismissAudioRecordView();
     }
 
     public void stopRecorderAndShowError() {
@@ -688,9 +688,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
-    public void cancelAndDismissAudio() {
+    public void cancelAndDismissAudio(boolean doVibration) {
         if(recorderState != IDLE && recorderState != CANCELLED){
-            cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT);
+            cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT, doVibration);
         }
 
         if (popup_l != null && popup_l.isShowing())
@@ -703,7 +703,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     @Override
     public void onDismiss() {
-        if (recorderState != IDLE) cancelAndDismissAudio();
+        if (recorderState != IDLE) cancelAndDismissAudio(true);
         resetAndClearAnim();
         recorderState = IDLE;
     }

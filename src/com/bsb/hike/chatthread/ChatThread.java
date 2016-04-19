@@ -1252,8 +1252,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onClick(View v)
 	{
+		if(v.getId() == R.id.msg_compose){
+			inProcessOfShowingPopup = true;
+		}
 		// Eat/Discard the click event when the WT recording is in progress
-		if(isWalkieTalkieShowing()) return;
+		if(isWalkieTalkieShowing()) {
+			if(inProcessOfShowingPopup) dismissWalkieTalkie();
+			return;
+		}
+
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
@@ -1267,6 +1274,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			{// previous task is running don't accept this event
 				return;
 			}
+			inProcessOfShowingPopup = true;
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1413,6 +1421,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
 		}
+		inProcessOfShowingPopup = true;
 		setEmoticonButtonSelected(false);
 		setStickerButtonSelected(true);
 
@@ -1421,7 +1430,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 		closeStickerTip();
 		StickerManager.getInstance().logStickerButtonPressAnalytics();
-		
+
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
+
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
@@ -1430,6 +1443,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			if (!retryToInflateStickers())
 			{
+				inProcessOfShowingPopup = false;
 				setStickerButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
@@ -1502,12 +1516,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
 			{
 				setEmoticonButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+				inProcessOfShowingPopup = false;
 			}
 		}
 
@@ -3790,6 +3808,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				return mShareablePopupLayout.onEditTextTouch(v, event);
 			}
 			case R.id.send_message_audio:
+				if(inProcessOfShowingPopup) return true;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
@@ -4493,6 +4512,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
+			inProcessOfShowingPopup = true;
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 
@@ -4612,7 +4632,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
 	private boolean dismissWalkieTalkie(){
 		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
+			walkieView.cancelAndDismissAudio(false);
 			return true;
 		}
 		return false;
@@ -6076,6 +6096,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onShown()
 	{
+		inProcessOfShowingPopup = false;
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
 		 */
@@ -6096,6 +6117,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	public void onHidden()
 	{
 	}
+
+	private boolean inProcessOfShowingPopup = false;
 
 	public void dismissResidualAcitonMode()
 	{
