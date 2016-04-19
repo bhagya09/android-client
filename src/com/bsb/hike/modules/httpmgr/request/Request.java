@@ -207,20 +207,27 @@ public abstract class Request<T> implements IRequestFacade
 	{
 		if (state == null)
 		{
-			HttpRequestState st = HttpRequestStateDB.getInstance().getRequestState(this.getId());
-			if (st == null)
-			{
-				state = new FileSavedState(FTState.INITIALIZED, 0, 0, 0);
-			}
-			else
-			{
-				LogFull.d("getting state from db");
-				JSONObject md = st.getMetadata();
-				state = FileSavedState.getFileSavedStateFromJSON(md);
-				LogFull.d("getting state from db file upload request ft state : "+state.getFTState().name());
-			}
+			state = getStateFromDB();
 		}
 		return state;
+	}
+
+	protected FileSavedState getStateFromDB()
+	{
+		FileSavedState fss;
+		HttpRequestState st = HttpRequestStateDB.getInstance().getRequestState(this.getId());
+		if (st == null)
+		{
+			fss = new FileSavedState(FTState.INITIALIZED, 0, 0, 0);
+		}
+		else
+		{
+			LogFull.d("getting state from db");
+			JSONObject md = st.getMetadata();
+			fss = FileSavedState.getFileSavedStateFromJSON(md);
+			LogFull.d("getting state from db file upload request ft state : "+fss.getFTState().name());
+		}
+		return fss;
 	}
 
 	public int getChunkSize()

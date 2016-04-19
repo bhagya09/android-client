@@ -308,6 +308,7 @@ public class FileTransferManager
 		}
 
 		downloadFileTask.download();
+		HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
 		Logger.d(getClass().getSimpleName(), "Downloading file task started: " + " NAME: " + destinationFile.getName() + " KEY: " + fileKey + "MSG ID: " + msgId);
 	}
 

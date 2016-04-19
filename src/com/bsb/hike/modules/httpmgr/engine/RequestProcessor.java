@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RequestProcessor
 {
-	private static Map<String, Request<?>> requestMap;
+	private static ConcurrentHashMap<String, Request<?>> requestMap;
 
 	private RequestRunner requestRunner;
 
@@ -39,7 +39,7 @@ public class RequestProcessor
 	 * @param options
 	 *            {@link ClientOptions} options to be used for executing this request
 	 */
-	public synchronized void addRequest(final Request<?> request, ClientOptions options)
+	public void addRequest(final Request<?> request, ClientOptions options)
 	{
 		if(request.isWrongRequest())
 		{
@@ -48,9 +48,9 @@ public class RequestProcessor
 		}
 
 		String requestId = request.getId();
-		
-		Request<?> req = requestMap.get(requestId);
-		if (null != req)
+
+		Request<?> req = requestMap.putIfAbsent(requestId, request);
+		if (req != null)
 		{
 			LogFull.i(request.toString() + " already exists");
 			req.addRequestListeners(request.getRequestListeners());
@@ -58,7 +58,6 @@ public class RequestProcessor
 		else
 		{
 			LogFull.d("adding " + request.toString() + " to request map");
-			requestMap.put(requestId, request);
 			IRequestCancellationListener listener = new IRequestCancellationListener()
 			{
 				@Override

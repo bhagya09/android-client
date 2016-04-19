@@ -121,8 +121,7 @@ public class FileUploadRequest extends Request<JSONObject>
 
 		// check if state file exists
 		// if not exists create new state file
-		FileSavedState fileSavedState = getState();
-		fileSavedState.setTotalSize(length);
+		FileSavedState fileSavedState = getStateFromDB();
 		int mStart = 0; // mStart represents the number of bytes already uploaded
 
 		if (fileSavedState.getFTState().equals(FTState.INITIALIZED))
@@ -203,6 +202,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			byte[] fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
 
 			getState().setSessionId(X_SESSION_ID);
+			getState().setTotalSize(length);
 			getState().setFTState(FTState.IN_PROGRESS);
 			publishProgress((float) bytesTransferred / length);
 			while (end < length)
