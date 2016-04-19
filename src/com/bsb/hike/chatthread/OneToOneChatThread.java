@@ -41,7 +41,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Button;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -168,6 +167,8 @@ import java.util.Map;
 	private static final int SHOW_OVERFLOW_MENU = 119;
 
 	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
+
+	private static final int HIDE_FRIENDS_VIEW = 121;
 	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
@@ -221,6 +222,8 @@ import java.util.Map;
 	private boolean gpsDialogShown = false;
 
 	private boolean shouldinitialteConnectionFragment=false;
+
+	boolean friendsFtueAnimationShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -937,6 +940,10 @@ import java.util.Map;
 		case UPDATE_ADD_FRIEND_VIEWS:
 			updateAddFriendViews((Boolean) msg.obj);
 			break;
+		case HIDE_FRIENDS_VIEW:
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
 			super.handleUIMessage(msg);
@@ -1589,7 +1596,7 @@ import java.util.Map;
 			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
-			addFavorite();
+			addFavorite(false);
 			break;
 		case R.string.scan_free_hike:
 			if (item.text.equals(getString(R.string.scan_free_hike)))
@@ -2740,7 +2747,7 @@ import java.util.Map;
 			handleNetworkCardClick(false);
 			break;
 		case R.id.add_friend_view:
-		case R.id.add_friend_button:
+		case R.id.add_friend_ftue_button:
 			handleAddFavoriteButtonClick(v.getId());
 			break;
 		default:
@@ -3317,19 +3324,20 @@ import java.util.Map;
 	/*
 	 * Adding user as favorite
 	 */
-	private void addFavorite()
+	private void addFavorite(boolean fromFtueBtn)
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
 		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
 		}
+
+		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 		mContactInfo.setFavoriteType(favoriteType);
-		Utils.addFavorite(activity, mContactInfo, false);
 
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.SENT_UNCONFIRMED);
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
 			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 		}
 	}
@@ -3745,11 +3753,8 @@ import java.util.Map;
 	}
 
 	private void handleAddFavoriteButtonClick(int viewResId)
-	{
-		addFavorite();
-
-		// Record Analytics Event
-		recordAddFavoriteButtonClick(viewResId);
+	{				//From FTUE?
+		addFavorite(viewResId == R.id.add_friend_ftue_button);
 
 		//If now we can show the last seen, we should
 		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
@@ -3757,7 +3762,7 @@ import java.util.Map;
 			checkAndStartLastSeenTask();
 		}
 
-		removeAddFriendViews();
+		removeAddFriendViews(viewResId == R.id.add_friend_ftue_button);
 
 		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
 	}
@@ -3836,22 +3841,28 @@ import java.util.Map;
 				hideLastSeenText();
 			}
 
-			// Definitely show the compose container
-			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
-
-			// If add Friend View was previously there, now is a good time to hide it
-			if (activity.findViewById(R.id.add_friend_view) != null)
+			View addFriendView = activity.findViewById(R.id.add_friend_view);
+			// Check if there's any anim going on for the ftue view
+			if (addFriendView != null)
 			{
-				activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+				sendUIMessage(HIDE_FRIENDS_VIEW, isThereAnyAnimationOnFriendsFtue(addFriendView) ? 400 : 0, null); //400 msec is the animation duration for FTUE tip, so scheduling it after 400 msec
 			}
 		}
 	}
 
-	private void removeAddFriendViews()
+	private void removeAddFriendViews(boolean isFtueView)
 	{
-		activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+		if (isFtueView)
+		{
+			animateAndHideFriendsFtueTip();
+		}
 
-		activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+		else
+		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+		}
 		
 		decrementFriendsFTUECountIfNeeded();
 	}
@@ -3893,28 +3904,38 @@ import java.util.Map;
 	{
 		addFriendView.setVisibility(View.VISIBLE);
 
-		Button addFriendBtn = (Button) addFriendView;
+		addFriendView.setOnClickListener(this);
 
-		setupAddFriendButton(addFriendBtn);
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		setupAddFriendTextView(addFriendTv);
+
 	}
 
 	private void setupAddFriendFTUETipViews(View addFriendView)
 	{
 		addFriendView.setVisibility(View.VISIBLE);
 
-		Button addFriendBtn = (Button) addFriendView.findViewById(R.id.add_friend_button);
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		addFriendView.findViewById(R.id.add_friend_ftue_button).setOnClickListener(this);
 
 		TextView ftueSubText = (TextView) addFriendView.findViewById(R.id.ftue_friends_subtitle);
 
 		ftueSubText.setText(activity.getString(R.string.friends_ftue_subtext, mContactInfo.getFirstName()));
 
-		setupAddFriendButton(addFriendBtn);
+		setupAddFriendTextView(addFriendTv);
+
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (!friendsFtueAnimationShown)
+		{
+			animateFriendsFTUETip(tipView);
+		}
 	}
 
-	private void setupAddFriendButton(Button addFriendBtn)
+	private void setupAddFriendTextView(TextView addFriendTv)
 	{
-		addFriendBtn.setOnClickListener(this);
-
 		String btnText = getString(R.string.ADD_FRIEND);
 
 		if (mContactInfo.isFriendRequestReceivedForMe())
@@ -3922,7 +3943,7 @@ import java.util.Map;
 			btnText = getString(R.string.ACCEPT_REQUEST);
 		}
 
-		addFriendBtn.setText(btnText);
+		addFriendTv.setText(btnText);
 	}
 
 	private void decrementFriendsFTUECountIfNeeded()
@@ -4011,30 +4032,6 @@ import java.util.Map;
 		super.blockUser(object, isBlocked);
 	}
 
-	private void recordAddFavoriteButtonClick(int viewResId)
-	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
-			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-			json.put(AnalyticsConstants.V2.GENUS, viewResId == R.id.add_friend_button ? "req_acc" : "req_sent");
-			json.put(AnalyticsConstants.V2.SPECIES, viewResId == R.id.add_friend_button ? "ftue" : "non_ftue");
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-
-			HAManager.getInstance().recordV2(json);
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
-	}
-
 	@Override
 	protected JSONObject getChatThreadOpenJSON()
 	{
@@ -4064,5 +4061,92 @@ import java.util.Map;
 	{
 		if (!mConversation.isBlocked())
 			super.initKeyboardOffBoarding();
+	}
+
+	private void animateFriendsFTUETip(final View tipView)
+	{
+		if (tipView == null)
+		{
+			return;
+		}
+
+		if (tipView.getVisibility() == View.INVISIBLE)
+		{
+			/**
+			 * If the view was initially gone, we animate the label view in order to make lastSeenView visible
+			 */
+				Animation animation = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_anim);
+				tipView.startAnimation(animation);
+
+				animation.setAnimationListener(new AnimationListener()
+				{
+					@Override
+					public void onAnimationStart(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation)
+					{
+						tipView.setVisibility(View.VISIBLE);
+						friendsFtueAnimationShown = true;
+					}
+				});
+		}
+	}
+
+	private void animateAndHideFriendsFtueTip()
+	{
+		final View ftueView = activity.findViewById(R.id.add_friend_view);
+
+		final View tipView = ftueView.findViewById(R.id.ftue_friends_tips);
+
+		final View bottomView = ftueView.findViewById(R.id.add_friend_ftue_button);
+
+		Animation fadeOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_fade_out);
+
+		final Animation alphaOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_alpha_out);
+
+		tipView.setAnimation(fadeOutAnim);
+		tipView.startAnimation(fadeOutAnim);
+
+		fadeOutAnim.setAnimationListener(new AnimationListener()
+		{
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				bottomView.startAnimation(alphaOutAnim);
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				ftueView.setVisibility(View.GONE);
+				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			}
+	
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+		});
+	}
+
+	private boolean isThereAnyAnimationOnFriendsFtue(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView == null || tipView.getAnimation() == null || tipView.getAnimation().hasEnded())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }
