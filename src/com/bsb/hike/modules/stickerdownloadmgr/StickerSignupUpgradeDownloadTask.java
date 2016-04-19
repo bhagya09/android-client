@@ -1,12 +1,5 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerSignupUpgradeRequest;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -22,8 +15,14 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
+
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_OUT_OF_SPACE;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.StickerSignupUpgradeRequest;
 
 public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
@@ -166,6 +165,7 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 		JSONArray resultData = (JSONArray) result;
 		StickerManager.getInstance().updateStickerCategoriesMetadata(resultData);
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.FETCH_CATEGORIES_METADATA, false); //Set the pref as done
 	}
 
 	@Override
