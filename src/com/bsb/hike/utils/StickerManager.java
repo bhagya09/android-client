@@ -3349,6 +3349,10 @@ public class StickerManager
 			stickersSet.add(s.getStickerCode());
 		}
 		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
+
+		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(
+				getAllCategoriesFromDbAsJsonArray());
+		stickerSignupUpgradeDownloadTask.execute();
     }
 
 
@@ -3417,5 +3421,27 @@ public class StickerManager
 			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
 			deleteStickers();
 		}
+	}
+
+	public JSONArray getAllCategoriesFromDbAsJsonArray()
+	{
+		JSONArray jsonArray = new JSONArray();
+
+		Collection<StickerCategory> catList = HikeConversationsDatabase.getInstance().getAllStickerCategories();
+
+		if (!Utils.isEmpty(catList))
+		{
+
+			for (StickerCategory category : catList)
+			{
+				String categoryId = category.getCategoryId();
+				if (!category.isCustom())
+				{
+					jsonArray.put(categoryId);
+				}
+			}
+		}
+
+		return jsonArray;
 	}
 }
