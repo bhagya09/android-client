@@ -3076,7 +3076,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		else if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
-			if (progress < 100)
+			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
