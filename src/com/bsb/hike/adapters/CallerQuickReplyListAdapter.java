@@ -10,7 +10,6 @@ import android.widget.TextView;
 import com.bsb.hike.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CallerQuickReplyListAdapter extends BaseAdapter {
 
@@ -18,10 +17,10 @@ public class CallerQuickReplyListAdapter extends BaseAdapter {
     private ArrayList<String> quickReplyList;
     private LayoutInflater mInflater ;
 
-    public CallerQuickReplyListAdapter(Context mContext, String[] quickReplyList)
+    public CallerQuickReplyListAdapter(Context mContext, ArrayList<String> quickReplyList)
     {
         this.mContext = mContext;
-        this.quickReplyList = new ArrayList<String>(Arrays.asList(quickReplyList));
+        this.quickReplyList = quickReplyList;
         this.mInflater = LayoutInflater.from(mContext);
     }
 

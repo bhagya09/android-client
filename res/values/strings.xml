@@ -1585,4 +1585,5 @@
     <string name="caller_spam">SPAM</string>
     <string name="custom_quick_reply">WRITE YOUR OWN</string>
     <string name="save_unknown_contact">SAVE</string>
+    <string name="spam_call_fail">Could not mark user as spam</string>
 </resources>

@@ -812,6 +812,10 @@ public class HikeConstants
 
 	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
 
+	public static final String IS_USER_CHAT_SPAMMED_BY_YOU = "chat_spam_by you";
+
+	public static final String CHAT_SPAM_COUNT = "chat_spam_count";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";
@@ -1859,13 +1863,9 @@ public class HikeConstants
 
 		public static final String SHOW_TIMELINE = "showTimeline";
 
-		public static final String CALLER_QUICK_REPLY_NUM = "caller_quick_reply_num";
-
 		public static final String CALLER_QUICK_REPLY_MSG = "caller_quick_reply_msg";
 
-		public static final String CALLER_QUICK_REPLY_NAME = "caller_quick_reply_name";
-
-		public static final String CALLER_QUICK_REPLY_LOC = "caller_quick_reply_loc";
+		public static final String CALLER_CONTENT_MODEL = "caller_content_model";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes

@@ -270,6 +270,9 @@ import java.util.Map;
 	{
 		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
 		{
+			//Provide content to caller View inside Unknown contact overlay
+			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
+
 			//Showing Caller View inside unknown contact overlay
 			if(mContactInfo != null && mContactInfo.isUnknownContact())
 			{
@@ -279,9 +282,6 @@ import java.util.Map;
 					cm.setBlockAddHeader(true);
 					messages.add(0, cm);
 				}
-
-				//Provide content to caller View inside Unknown contact overlay
-				CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
 
 				if(mAdapter != null && callerContentModel != null)
 				{
@@ -295,7 +295,7 @@ import java.util.Map;
 			if(intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG))
 			{
 				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
-				String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
+				String msisdn = callerContentModel.getMsisdn(); //intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
 				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
 				sendMessage(convMessage);
 			}
@@ -601,7 +601,7 @@ import java.util.Map;
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED,
-				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE};
+				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, HikePubSub.USER_MARKED_AS_SPAM};
 		return oneToOneListeners;
 	}
 
@@ -780,6 +780,9 @@ import java.util.Map;
 		case HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE:
 			updateMsgOriginType((Pair<Long, Integer>) object);
 			break;
+		case HikePubSub.USER_MARKED_AS_SPAM:
+			onUserMarkedAsSpam();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -832,6 +835,11 @@ import java.util.Map;
 		}
 		
 		this.mContactInfo.setFavoriteType(favoriteType);		
+	}
+
+	private void onUserMarkedAsSpam()
+	{
+		mAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -2750,9 +2758,15 @@ import java.util.Map;
 			handleNetworkCardClick(false);
 			break;
 		case R.id.spam_unknown_contact:
-			HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String)v.getTag(),
-					AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
-			ChatHeadUtils.makeHttpCallToMarkUserAsSpam((String)v.getTag());
+			if (null != v.getTag())
+			{
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String) v.getTag(),
+						AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
+				ChatHeadUtils.makeHttpCallToMarkUserAsSpam(activity.getApplicationContext(), (String) v.getTag());
+
+				//TODO REmove me...only for testing
+				ContactManager.getInstance().markAsSpam(msisdn);
+			}
 			break;
 		default:
 			super.onClick(v);

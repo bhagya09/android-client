@@ -108,7 +108,6 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
-import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -2555,13 +2554,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					addButton.setTag(R.string.mute);
 					addButton.setText(conversation.isMuted() ? R.string.unmute : R.string.mute);
 					convertView.setTag(R.string.mute);
-					convertView.findViewById(R.id.spam_unknown_contact).setVisibility(View.GONE);
-					convertView.findViewById(R.id.spam_unknown_contact_divider).setVisibility(View.GONE);
 				}
 				else
 				{
 					addButton.setTag(R.string.save_unknown_contact);
 				}
+
+				if(conversation instanceof BotConversation || ContactManager.getInstance().isSpammed(conversation.getMsisdn()))
+				{
+					convertView.findViewById(R.id.spam_unknown_contact).setVisibility(View.GONE);
+					convertView.findViewById(R.id.spam_unknown_contact_divider).setVisibility(View.GONE);
+				}
+
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.spam_unknown_contact).setTag(conversation.getMsisdn());

@@ -6,7 +6,7 @@ public interface DBConstants
 {
 	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
 
-	public static final int USERS_DATABASE_VERSION = 18;
+	public static final int USERS_DATABASE_VERSION = 19;
 
 	public static final String HAS_CUSTOM_PHOTO = "hascustomphoto";
 
@@ -444,6 +444,8 @@ public interface DBConstants
 		public static final String SPAM_COUNT = "spam_count";
 
 		public static final String IS_SYNCED = "is_synced";
+
+		public static final String CALLER_METADATA = "md";
 
 		// hike caller detail table ends here
 

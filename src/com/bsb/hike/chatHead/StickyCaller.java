@@ -45,6 +45,10 @@ import com.bsb.hike.voip.VoIPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+
 public class StickyCaller {
 	private static final String TAG = "StickyCaller";
 
@@ -676,7 +680,8 @@ public class StickyCaller {
 		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_quick_reply_layout, null);
 		final ListView defaultQuickReplyListView = (ListView)stickyCallerView.findViewById(R.id.caller_quick_reply_list);
-		BaseAdapter adapter = new CallerQuickReplyListAdapter(context, context.getResources().getStringArray(R.array.caller_quick_reply_items));
+		HashSet<String> set = (HashSet<String>)HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.CALLER_QUICK_REPLY_SET, new HashSet<String>(Arrays.asList(context.getResources().getStringArray(R.array.caller_quick_reply_items))));
+		BaseAdapter adapter = new CallerQuickReplyListAdapter(context, new ArrayList<String>(set));
 		defaultQuickReplyListView.setAdapter(adapter);
 		defaultQuickReplyListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -843,6 +848,7 @@ public class StickyCaller {
 							VoIPUtils.CallSource.HIKE_STICKY_CALLER);
 				}
 				break;
+			/*  When "Free SMS" button is clicked on caller card */
 			case R.id.caller_free_message:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.FREE_SMS_BUTTON, getPhoneNumberFromTag(v), AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				if (v.getTag() != null)
@@ -871,6 +877,7 @@ public class StickyCaller {
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CLOSE_BUTTON, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
+			/*  When cross button is clicked on Quick reply card */
 			case R.id.qr_caller_close_button:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.QUICK_REPLY_CLOSE_BUTTON, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
@@ -891,6 +898,7 @@ public class StickyCaller {
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 
 				break;
+			/*  When "Write your own" button is clicked on Quick reply card */
 			case R.id.caller_free_layout:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CUSTOM_QUICK_REPLY_BUTTON, getPhoneNumberFromTag(v),
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));

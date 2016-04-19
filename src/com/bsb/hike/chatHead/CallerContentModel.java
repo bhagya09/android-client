@@ -1,10 +1,11 @@
 package com.bsb.hike.chatHead;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
-
 
 /**
  * @author ashishagarwal
@@ -13,7 +14,7 @@ import com.google.gson.annotations.Expose;
  * 
  */
 
-public class CallerContentModel
+public class CallerContentModel implements Parcelable
 {
 
 	final private String FIRST_NAME = "first_name";
@@ -41,18 +42,25 @@ public class CallerContentModel
 
 	private boolean is_block;
 
-    private long updation_time, creation_time;
+	private long updation_time, creation_time;
+
+	@Expose
+	private int chat_spam_type;
+
+	private CallerMetadata callerMetadata;
 
 	public CallerContentModel()
 	{
 
 	}
 
-	public CallerContentModel(String location, String msisdn, String full_name)
+	public CallerContentModel(String msisdn, String name, String location, int chatSpamType, CallerMetadata callerMetadata)
 	{
-		this.location = location;
 		this.msisdn = msisdn;
-		this.full_name = full_name;
+		this.full_name = name;
+		this.location = location;
+		this.chat_spam_type = chatSpamType;
+		this.callerMetadata = callerMetadata;
 	}
 
 	private String getLastName()
@@ -109,7 +117,6 @@ public class CallerContentModel
 		return name;
 	}
 
-
 	public String getLocation()
 	{
 		return location;
@@ -119,7 +126,7 @@ public class CallerContentModel
 	{
 		return is_on_hike;
 	}
-	
+
 	public String getMsisdn()
 	{
 		return msisdn;
@@ -204,4 +211,62 @@ public class CallerContentModel
 	{
 		return creation_time;
 	}
+
+	public CallerMetadata getCallerMetadata()
+	{
+		return callerMetadata;
+	}
+
+	public void setCallerMetadata(String callerMetadataString)
+	{
+		this.callerMetadata = new CallerMetadata(callerMetadataString);
+	}
+
+	public int getChatSpamType()
+	{
+		return chat_spam_type;
+	}
+
+	public void setChatSpamType(int chatSpamType)
+	{
+		this.chat_spam_type = chatSpamType;
+	}
+
+	@Override
+	public int describeContents()
+	{
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags)
+	{
+		dest.writeString(getFullName());
+		dest.writeString(getMsisdn());
+		dest.writeString(getLocation());
+		dest.writeInt(is_on_hike ? 1 : 0);
+		dest.writeString(getCallerMetadata().toString());
+	}
+
+	public CallerContentModel(Parcel source)
+	{
+		this.full_name = source.readString();
+		this.msisdn = source.readString();
+		this.location = source.readString();
+		this.is_on_hike = (source.readInt() == 0) ? false : true;
+		this.callerMetadata = new CallerMetadata(source.readString());
+	}
+
+	public static final Parcelable.Creator CREATOR = new Parcelable.Creator()
+	{
+		public CallerContentModel createFromParcel(Parcel in)
+		{
+			return new CallerContentModel(in);
+		}
+
+		public CallerContentModel[] newArray(int size)
+		{
+			return new CallerContentModel[size];
+		}
+	};
 }

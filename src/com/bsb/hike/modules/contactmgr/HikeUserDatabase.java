@@ -1,25 +1,5 @@
 package com.bsb.hike.modules.contactmgr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -38,17 +18,17 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
-import com.bsb.hike.db.DbException;
 import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
+import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
@@ -56,6 +36,26 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class HikeUserDatabase extends SQLiteOpenHelper
 {
@@ -306,6 +306,12 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			db.execSQL(getHikeCallerTable());
 		}
 
+		if (oldVersion < 19)
+		{
+			String alter = "ALTER TABLE " + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " ADD COLUMN " + DBConstants.HIKE_USER.CALLER_METADATA + " TEXT";
+			db.execSQL(alter);
+		}
+
 	}
 
 	public void clearTable(String tableName)
@@ -316,9 +322,22 @@ class HikeUserDatabase extends SQLiteOpenHelper
 	private String getHikeCallerTable()
 	{
 
-		String hikeCallerTable = DBConstants.CREATE_TABLE + DBConstants.HIKE_USER.HIKE_CALLER_TABLE + " (" + BaseColumns._ID + " INTEGER , " + DBConstants.MSISDN + " TEXT PRIMARY KEY , " + DBConstants.NAME
-				+ " TEXT NOT NULL, " + DBConstants.HIKE_USER.LOCATION + " TEXT, " + DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, " + DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
-				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0," + DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, " + DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, " + DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1 "+ ")";
+		String hikeCallerTable = DBConstants.CREATE_TABLE
+				+ DBConstants.HIKE_USER.HIKE_CALLER_TABLE
+				+ " ("
+				+ BaseColumns._ID + " INTEGER , "
+				+ DBConstants.MSISDN + " TEXT PRIMARY KEY , "
+				+ DBConstants.NAME + " TEXT NOT NULL, "
+				+ DBConstants.HIKE_USER.LOCATION + " TEXT, "
+				+ DBConstants.HIKE_USER.IS_ON_HIKE + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_SPAM + " INTEGER DEFAULT 0, "
+				+ DBConstants.HIKE_USER.IS_BLOCK + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.SPAM_COUNT + " INTEGER DEFAULT 0,"
+				+ DBConstants.HIKE_USER.CREATION_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.ON_HIKE_TIME + " INTEGER, "
+				+ DBConstants.HIKE_USER.IS_SYNCED + " INTEGER DEFAULT 1, "
+				+ DBConstants.HIKE_USER.CALLER_METADATA + " TEXT "
+				+ ")";
 
 		return hikeCallerTable;
 	}
@@ -347,7 +366,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.CREATION_TIME)) : 0);
 			callerContentModel.setUpdationTime(
 					!cursor.isNull(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) ? cursor.getLong(cursor.getColumnIndex(DBConstants.HIKE_USER.ON_HIKE_TIME)) : 0);
-
+			callerContentModel.setCallerMetadata(cursor.getString(cursor.getColumnIndex(DBConstants.HIKE_USER.CALLER_METADATA)));
 			return callerContentModel;
 		}
 		catch (Exception e)

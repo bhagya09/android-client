@@ -1135,13 +1135,17 @@ public class HttpRequests
 			body = new JsonBody(json);
 		}
 
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(HttpRequestConstants.getUrlForMarkingUserAsSpam())
-				.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_SHORT)
-				.post(body)
-				.build();
+		RequestToken requestToken = null;
+
+		if (body != null)
+		{
+			requestToken = new JSONObjectRequest.Builder()
+					.setUrl(HttpRequestConstants.getUrlForMarkingUserAsSpam())
+					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
+					.post(body).build();
+		}
+
 		return requestToken;
 	}
 }

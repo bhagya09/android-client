@@ -1,18 +1,5 @@
 package com.bsb.hike.chatHead;
 
-import java.lang.reflect.Field;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -36,6 +23,7 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -1079,7 +1067,7 @@ public class ChatHeadUtils
 		});
 	}
 
-	public static void makeHttpCallToMarkUserAsSpam(String msisdn)
+	public static void makeHttpCallToMarkUserAsSpam(final Context context, final String msisdn)
 	{
 		JSONObject spamUserJSONObject = new JSONObject();
 		try
@@ -1095,12 +1083,14 @@ public class ChatHeadUtils
 
 			@Override
 			public void onRequestFailure(HttpException httpException) {
-
+				Toast.makeText(context, R.string.spam_call_fail, Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
-			public void onRequestSuccess(Response result) {
-
+			public void onRequestSuccess(Response result)
+			{
+				ContactManager.getInstance().markAsSpam(msisdn);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.USER_MARKED_AS_SPAM, null);
 			}
 
 			@Override
@@ -1117,7 +1107,7 @@ public class ChatHeadUtils
 		}
 		else
 		{
-			Logger.d(TAG, "As mImageLoaderFragment already there, so not starting new one");
+			Logger.d(TAG, "As mark as spam task already running, so not starting new one");
 		}
 	}
 
@@ -1126,12 +1116,7 @@ public class ChatHeadUtils
 		CallerContentModel callerContentModel = null;
 		if(intent != null)
 		{
-			String name = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NAME);
-			String location = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_LOC);
-			String msisdn = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
-			boolean isOnHike = intent.getBooleanExtra(HikeConstants.Extras.ON_HIKE, false);
-			callerContentModel = new CallerContentModel(location, msisdn, name);
-			callerContentModel.setIsOnHike(isOnHike);
+			callerContentModel = intent.getParcelableExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL);
 		}
 		return callerContentModel;
 	}
