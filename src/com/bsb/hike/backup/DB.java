@@ -48,7 +48,7 @@ public class DB implements BackupableRestorable {
     public boolean preBackupSetup() throws Exception
     {
         // Checking whether db was previously corrupted, or is in a corrupt state at the present moment
-        if (Utils.isDBCorrupt() || BackupUtils.isDBCorrupt(dbName))
+        if (Utils.isDBCorrupt())
             return false;
         return true;
     }
