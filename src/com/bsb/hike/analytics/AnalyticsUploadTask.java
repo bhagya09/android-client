@@ -45,7 +45,8 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     public void execute() {
         RequestToken requestToken = HttpRequests.getAnalyticsUploadRequestToken(getRequestListener(),
                 getRequestInterceptor(), getRequestId(), MAX_RETRY_COUNT, DELAY_BEFORE_RETRY);
-        requestToken.execute();
+        //Double checking.. Execute request if not already running.
+        if(!requestToken.isRequestRunning()) requestToken.execute();
     }
 
     private String getRequestId() {
@@ -63,16 +64,15 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     public void doOnSuccess(Object result) {
         if (mIsSessionComplete) {
             AnalyticsSender.getInstance(mContext).scheduleNextAlarm();
+            HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(false);
         }
         HAManager.getInstance().resetAnalyticsEventsUploadCount();
     }
 
     @Override
     public void doOnFailure(HttpException exception) {
-        HAManager instance = HAManager.getInstance();
-
-        if(!instance.isSendAnalyticsDataWhenConnected()) {
-            instance.setIsSendAnalyticsDataWhenConnected(true);
+        if(!HAManager.getInstance().isSendAnalyticsDataWhenConnected()) {
+            HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(true);
         }
     }
 
