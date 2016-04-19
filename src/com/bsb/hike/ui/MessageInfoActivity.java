@@ -36,6 +36,7 @@ import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implements HikePubSub.Listener
@@ -236,8 +237,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			readS=info.getReadTimestamp()==0? " ":"Read at "+Utils.getFormattedTime(false,mContext,info.getReadTimestamp());
 			deliverS=info.getDeliveredTimestamp()==0? " ":"Delivered at "+Utils.getFormattedTime(false,mContext,info.getDeliveredTimestamp());
 			text=text +info.getReceiverMsisdn()+" "+readS+" "+deliverS+" \n";
-
+			Logger.d("MessageInfo"," setting text as "+text);
 		}
+
 		messageInfoTextView.setText(text);
 	}
 }

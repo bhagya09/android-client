@@ -1073,7 +1073,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
+
         }
+		if(oldVersion<50){
+
+			//Adding Receipts Table
+
+			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.RECEIPTS_TABLE
+				+ " ( "
+				+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
+				+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
+				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
+				+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
+				+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
+				+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
+				+ " ) ";
+			db.execSQL(sql);
+		}
 	}
 
 	public void reinitializeDB()
