@@ -107,6 +107,24 @@ public class StickerConstants
 		}
 	};
 
+
+	public enum PackPreviewClickSource
+	{
+		SHOP("shop"), RECOMMENDATION("reco"), NOTIFICATION("notif"), BANNER("banner");
+
+		private String value;
+
+		PackPreviewClickSource(String value)
+		{
+			this.value = value;
+		}
+
+		public String getValue()
+		{
+			return value;
+		}
+	}
+
 	public static final int DEFAULT_STICKER_THRESHOLD_FOR_CDN = 5;
 
 	public static final long DEFAULT_TTL_MINI_STICKERS = 1 * 24 * 60 * 60 * 1000; // 1 day

@@ -29,9 +29,8 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
@@ -3354,6 +3353,28 @@ public class StickerManager
         saveSticker(stickers, StickerConstants.StickerType.LARGE);
 
     }
+
+
+	public void sendPackPreviewOpenAnalytics(String categoryId, StickerConstants.PackPreviewClickSource packPreviewClickSource)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource.getValue());
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception in logging analytics for pack preview open");
+		}
+	}
 
 
 	public void sendResponseTimeAnalytics(Response response, String methodType, String categoryId, String stickerId)

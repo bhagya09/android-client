@@ -846,6 +846,8 @@ public class AnalyticsConstants
 
 	public static final String TIME_LINE_OPEN = "TL_open";
 
+	public static final String PACK_PREVIEW = "pckPrvw";
+
 	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
 
 }
