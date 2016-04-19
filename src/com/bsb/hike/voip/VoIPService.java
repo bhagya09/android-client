@@ -488,12 +488,19 @@ public class VoIPService extends Service implements Listener
 			VoIPClient cl = getClient(msisdn);
 			if (cl != null) {
 				// Send message to voip activity
-				Bundle bundle = new Bundle();
+				final Bundle bundle = new Bundle();
 				bundle.putString(VoIPConstants.MSISDN, msisdn);
 				bundle.putString(VoIPConstants.PARTNER_NAME, cl.getName());
 				bundle.putString(VoIPConstants.CUSTOM_MESSAGE, intent.getStringExtra(VoIPConstants.Extras.CUSTOM_MESSAGE));
-				sendMessageToActivity(VoIPConstants.MSG_CUSTOM_ERROR_FROM_SERVER, bundle);
-				cl.hangUp();
+
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						sendMessageToActivity(VoIPConstants.MSG_CUSTOM_ERROR_FROM_SERVER, bundle);
+						removeFromClients(msisdn);
+					}
+				} , VoIPConstants.SERVICE_To_ACTIVITY_ERR_MESSAGE_DELAY);
+
 			}
 		}
 
