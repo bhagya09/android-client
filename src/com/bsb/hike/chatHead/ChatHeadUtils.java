@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -1089,8 +1088,8 @@ public class ChatHeadUtils
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				ContactManager.getInstance().markAsSpam(msisdn);
-				HikeMessengerApp.getPubSub().publish(HikePubSub.USER_MARKED_AS_SPAM, null);
+				//ContactManager.getInstance().markAsSpam(msisdn);
+				//HikeMessengerApp.getPubSub().publish(HikePubSub.USER_MARKED_AS_SPAM, null);
 			}
 
 			@Override

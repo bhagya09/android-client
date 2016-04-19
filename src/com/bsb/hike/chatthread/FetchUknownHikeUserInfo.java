@@ -3,8 +3,6 @@ package com.bsb.hike.chatthread;
 import android.content.Context;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
@@ -58,7 +56,7 @@ public class FetchUknownHikeUserInfo
 				{
 					ContactManager.getInstance().insertIntoCallerTable(callerContentModel, true, true);
 				}
-                HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
+                //HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
 			}
 
 			@Override

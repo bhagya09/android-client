@@ -283,11 +283,18 @@ import java.util.Map;
 					messages.add(0, cm);
 				}
 
-				if(mAdapter != null && callerContentModel != null)
+				if(callerContentModel.getCallerMetadata() != null)
 				{
 					mConversation.setOnHike(callerContentModel.getIsOnHike());
-					mAdapter.setCallerContentModel(callerContentModel);
-					mAdapter.notifyDataSetChanged();
+					if(mAdapter != null)
+					{
+						mAdapter.setCallerContentModel(callerContentModel);
+						mAdapter.notifyDataSetChanged();
+					}
+				}
+				else
+				{
+						
 				}
 			}
 
@@ -601,7 +608,7 @@ import java.util.Map;
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED,
-				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, HikePubSub.USER_MARKED_AS_SPAM};
+				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE};//, HikePubSub.USER_MARKED_AS_SPAM};
 		return oneToOneListeners;
 	}
 
@@ -780,9 +787,9 @@ import java.util.Map;
 		case HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE:
 			updateMsgOriginType((Pair<Long, Integer>) object);
 			break;
-		case HikePubSub.USER_MARKED_AS_SPAM:
-			onUserMarkedAsSpam();
-			break;
+//		case HikePubSub.USER_MARKED_AS_SPAM:
+//			onUserMarkedAsSpam();
+//			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -2757,17 +2764,17 @@ import java.util.Map;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
 			break;
-		case R.id.spam_unknown_contact:
-			if (null != v.getTag())
-			{
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String) v.getTag(),
-						AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
-				ChatHeadUtils.makeHttpCallToMarkUserAsSpam(activity.getApplicationContext(), (String) v.getTag());
-
-				//TODO REmove me...only for testing
-				ContactManager.getInstance().markAsSpam(msisdn);
-			}
-			break;
+//		case R.id.spam_unknown_contact:
+//			if (null != v.getTag())
+//			{
+//				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String) v.getTag(),
+//						AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
+//				ChatHeadUtils.makeHttpCallToMarkUserAsSpam(activity.getApplicationContext(), (String) v.getTag());
+//
+//				//TODO REmove me...only for testing
+//				ContactManager.getInstance().markAsSpam(msisdn);
+//			}
+//			break;
 		default:
 			super.onClick(v);
 		}

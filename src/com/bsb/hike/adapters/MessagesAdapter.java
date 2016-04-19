@@ -2560,26 +2560,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					addButton.setTag(R.string.save_unknown_contact);
 				}
 
-				if(conversation instanceof BotConversation || ContactManager.getInstance().isSpammed(conversation.getMsisdn()))
-				{
-					convertView.findViewById(R.id.spam_unknown_contact).setVisibility(View.GONE);
-					convertView.findViewById(R.id.spam_unknown_contact_divider).setVisibility(View.GONE);
-				}
-
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
-				convertView.findViewById(R.id.spam_unknown_contact).setTag(conversation.getMsisdn());
-				convertView.findViewById(R.id.spam_unknown_contact).setOnClickListener(mOnClickListener);
 
 				//To Show Caller View in case user opens 1-1 chat via caller "free sms" button click on hike caller card
 				if(callerContentModel != null)
 				{
 					//visible
-					convertView.findViewById(R.id.caller_reply_view).setVisibility(View.VISIBLE);
+					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 					
 					//set UI (Name and Location)
-					((CustomFontTextView)convertView.findViewById(R.id.caller_name)).setText(callerContentModel.getFullName());
-					((CustomFontTextView)convertView.findViewById(R.id.caller_location)).setText(callerContentModel.getLocation());
+					((CustomFontTextView)convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+					((CustomFontTextView)convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
 
 				}
 

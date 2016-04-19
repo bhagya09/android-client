@@ -334,5 +334,7 @@
     <color name="crop_actionbar_bg">#0f0f0f</color>
     <color name="block_contact">#C70000</color>
     <color name="default_update_tip_bg">#04c687</color>
+    <color name="unknown_user_info_ct">#FFFFFF</color>
+    <color name="unknown_user_info_ct_bg">#676460</color>
 </resources>
 	

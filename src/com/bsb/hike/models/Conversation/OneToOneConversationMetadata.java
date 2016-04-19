@@ -1,7 +1,5 @@
 package com.bsb.hike.models.Conversation;
 
-import com.bsb.hike.HikeConstants;
-
 import org.json.JSONException;
 
 public class OneToOneConversationMetadata  extends ConversationMetadata
@@ -16,7 +14,7 @@ public class OneToOneConversationMetadata  extends ConversationMetadata
         super(jsonString);
         if (jsonString == null)
         {
-            setShowUnknownUserInfo(HikeConstants.SHOW_USER_IN_INSIDE_CHAT_VIA_UNKNOWN_USER, true);
+            //setShowUnknownUserInfo(HikeConstants.SHOW_USER_IN_INSIDE_CHAT_VIA_UNKNOWN_USER, true);
         }
     }
 }
