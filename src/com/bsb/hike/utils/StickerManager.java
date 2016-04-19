@@ -274,6 +274,8 @@ public class StickerManager
 
 	public static String stickerExternalDir;
 
+	public static final String FETCH_CATEGORIES_METADATA = "fetchCatMd";
+
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override
@@ -1490,6 +1492,7 @@ public class StickerManager
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKERS_SIZE_DOWNLOADED, false))
 		{
+			tryToDownloadStickerDataForAllCategories();   //This case can be hit post account restore, where the initial SignupUpgradeCall might have been made.
 			return;
 		}
 
@@ -3349,12 +3352,10 @@ public class StickerManager
 			stickersSet.add(s.getStickerCode());
 		}
 		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
-
-		StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(
-				getAllCategoriesFromDbAsJsonArray());
-		stickerSignupUpgradeDownloadTask.execute();
+		
+		resetCategoryMetadataFetchPreference();
+		tryToDownloadStickerDataForAllCategories();
     }
-
 
 	public boolean getShowLastCategory()
 	{
@@ -3444,4 +3445,19 @@ public class StickerManager
 
 		return jsonArray;
 	}
+
+	private void resetCategoryMetadataFetchPreference()
+	{
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.FETCH_CATEGORIES_METADATA, true);
+	}
+
+	private void tryToDownloadStickerDataForAllCategories()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.FETCH_CATEGORIES_METADATA, false))
+		{
+			StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllCategoriesFromDbAsJsonArray());
+			stickerSignupUpgradeDownloadTask.execute();
+		}
+	}
+
 }
