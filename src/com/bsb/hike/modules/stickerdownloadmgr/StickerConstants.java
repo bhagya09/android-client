@@ -54,6 +54,18 @@ public class StickerConstants
 			return value;
 		}
 
+		public static DownloadSource fromValue(int value) throws IllegalArgumentException
+		{
+			try
+			{
+				return DownloadSource.values()[value];
+			}
+			catch (ArrayIndexOutOfBoundsException e)
+			{
+				throw new IllegalArgumentException("Unknown enum value :" + value);
+			}
+		}
+
 	}
 
 	public enum HttpRequestType

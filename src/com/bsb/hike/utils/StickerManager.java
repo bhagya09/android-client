@@ -1560,13 +1560,13 @@ public class StickerManager
 		singleStickerDownloadTask.execute();
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, JSONObject bodyJson)
 	{
 		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
-		initialiseDownloadStickerPackTask(category, source, downloadType, context);
+		initialiseDownloadStickerPackTask(category, downloadType, bodyJson);
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, DownloadType downloadType, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if (stickerCategoriesMap.containsKey(category.getCategoryId()))
 		{
@@ -1575,7 +1575,7 @@ public class StickerManager
 		if (category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
-			makePackDownloadCall(category, source, downloadType);
+			makePackDownloadCall(category, downloadType, bodyJson);
 		}
 		else if (category.getDownloadedStickersCount() >= category.getTotalStickers())
 		{
@@ -1585,18 +1585,18 @@ public class StickerManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
 
-	private void makePackDownloadCall(StickerCategory category, DownloadSource source, DownloadType downloadType)
+	private void makePackDownloadCall(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if ((category.getTotalStickers() <= 0 || category.getDownloadedStickersCount() > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN_THRESHOLD,
 				StickerConstants.DEFAULT_STICKER_THRESHOLD_FOR_CDN))
 				|| !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN, true))
 		{
-			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
+			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, bodyJson);
 			multiStickerDownloadTask.execute();
 		}
 		else
 		{
-			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, source);
+			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, bodyJson);
 			multiStickerImageDownloadTask.execute();
 		}
 	}
@@ -3383,4 +3383,29 @@ public class StickerManager
 
     }
 
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource)
+	{
+		return getPackDownloadBodyJson(downloadSource, -1, false);
+	}
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource, int position, boolean viewAllClicked)
+	{
+		try {
+
+			JSONObject body = new JSONObject();
+			body.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			body.put(HikeConstants.DOWNLOAD_SOURCE, downloadSource.getValue());
+			body.put(HikeConstants.POSITION, position);
+			body.put(HikeConstants.VIEW_ALL_CLICKED, viewAllClicked ? 1 : 0);
+
+			return body;
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "error in making body for pack download");
+		}
+
+		return null;
+	}
 }

@@ -1507,10 +1507,11 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId)
+	public static void openPackPreviewIntent(Context context, String catId, int position)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
 	}
 
