@@ -650,6 +650,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		viewAllButton.setVisibility(View.GONE);
 		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
 		mAdapter.notifyDataSetChanged();
+		StickerManager.getInstance().sendViewAllClickAnalytics(stickerCategory.getCategoryId());
 	}
 
 	private void loadingFailedClicked()

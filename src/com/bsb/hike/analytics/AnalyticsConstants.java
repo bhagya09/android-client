@@ -848,6 +848,8 @@ public class AnalyticsConstants
 
 	public static final String PACK_PREVIEW = "pckPrvw";
 
+	public static final String VIEW_ALL = "viewAll";
+
 	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
 
 }
