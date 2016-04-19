@@ -51,7 +51,7 @@
         android:contentDescription="keyboard_shutdown_description"
         android:gravity="center"
         android:maxLines="3"
-        android:maxWidth="280dp"
+        android:maxWidth="290dp"
         android:text="@string/keyboard_shutdown_description"
         android:textColor="@color/settings_text_subheader_color"
         android:textSize="16sp" />
