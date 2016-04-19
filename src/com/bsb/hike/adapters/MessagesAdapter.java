@@ -4130,6 +4130,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationProgress = null;
 
 			unregisterProximitySensor();
+			unregisterHeadserReceiver();
 			audioManager.setMode(initialAudioMode);
 		}
 
@@ -4261,7 +4262,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (durationTxt == null || durationProgress == null || fileKey == null || mediaPlayer == null)
 			{
-				if(durationTxt != null){
+				if(fileKey == null && durationTxt != null){ //CE-462 & CE-461
 					durationTxt.setText("N/A");
 				}
 				return;

@@ -535,4 +535,9 @@ public class HttpRequestConstants
 	public static String getAnalyticsUrl() {
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
+
+	public static String getHistoricalStatusUpdatesUrl()
+	{
+		return  BASE_URL + BASE_V1 + "hsu/";
+	}
 }

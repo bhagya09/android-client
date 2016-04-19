@@ -3,6 +3,7 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -223,11 +224,10 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 				{
 					JSONObject stickers = categoryData.getJSONObject(HikeConstants.STICKERS);
 
-                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
-
 					for (Iterator<String> keys = stickers.keys(); keys.hasNext();)
 					{
 						String stickerId = keys.next();
+                        Sticker sticker = new Sticker(categoryId,stickerId);
 						JSONObject stickerData = stickers.getJSONObject(stickerId);
 						String stickerImage = stickerData.getString(HikeConstants.IMAGE);
 
@@ -237,9 +237,9 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 						{
 							byte[] byteArray = StickerManager.getInstance().saveLargeStickers(largeStickerDir.getAbsolutePath(), stickerId, stickerImage);
 							StickerManager.getInstance().saveSmallStickers(smallStickerDir.getAbsolutePath(), stickerId, byteArray);
-
-							StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
-							stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+                            StickerManager.getInstance().saveInStickerTagSet(sticker);
+                            StickerManager.getInstance().saveInTableStickerSet(sticker);
+							stickerSet.add(sticker.getStickerCode());
 						}
 						catch (FileNotFoundException e)
 						{
@@ -250,6 +250,9 @@ public class MultiStickerImageDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 							Logger.w(TAG, e);
 						}
 					}
+
+                    StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
 					StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK_CDN);
 				}
 

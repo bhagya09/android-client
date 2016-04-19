@@ -30,7 +30,7 @@
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
                 android:background="@drawable/list_item"
-                android:src="@drawable/ic_invite_to_hike"
+                android:src="@drawable/ic_add_friend"
                 android:visibility="gone" />
             
         <CheckBox
