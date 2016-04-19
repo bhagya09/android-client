@@ -363,6 +363,7 @@ public class CocosGamingActivity extends Cocos2dxActivity
 		setIsGameRunning(false);
 		sendGameOpenAnalytics();
 		onHandlerDestroy();
+		Cocos2dxHelper.terminateProcess();
 		super.onDestroy();
 	}
 
