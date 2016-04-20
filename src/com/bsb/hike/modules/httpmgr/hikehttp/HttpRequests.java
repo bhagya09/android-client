@@ -1127,7 +1127,7 @@ public class HttpRequests
         return requestToken;
 	}
 
-	public static RequestToken setUserAsSpam(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	public static RequestToken toggleChatSpamUser(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
 	{
 		JsonBody body = null;
 		if (json != null)
@@ -1141,6 +1141,28 @@ public class HttpRequests
 		{
 			requestToken = new JSONObjectRequest.Builder()
 					.setUrl(HttpRequestConstants.getUrlForMarkingUserAsSpam())
+					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
+					.post(body).build();
+		}
+
+		return requestToken;
+	}
+
+	public static RequestToken fetchUnknownChatUserInfo(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	{
+		JsonBody body = null;
+		if (json != null)
+		{
+			body = new JsonBody(json);
+		}
+
+		RequestToken requestToken = null;
+
+		if (body != null)
+		{
+			requestToken = new JSONObjectRequest.Builder()
+					.setUrl(HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo())
 					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
 					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
 					.post(body).build();

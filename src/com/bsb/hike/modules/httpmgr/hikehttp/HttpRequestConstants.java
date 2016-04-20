@@ -93,7 +93,9 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
-	private static final String SPAM_USER = "/spam";
+	private static final String SPAM_USER = "/markspam";
+
+	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/userinfo";
 
 	public static synchronized void setUpBase()
 	{
@@ -518,6 +520,18 @@ public class HttpRequestConstants
 		else
 		{
 			return STAGING_HIKECALLER_API + SPAM_USER;
+		}
+	}
+
+	public static String getUrlForFetchingUnknownChatUserInfo()
+	{
+		if (isProduction)
+		{
+			return PRODUCTION_HIKECALLER_API+ FETCH_UNKNOWN_CHAT_USER_INFO;
+		}
+		else
+		{
+			return STAGING_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
 		}
 	}
 }
