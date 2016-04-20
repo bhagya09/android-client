@@ -31,6 +31,8 @@ public class GCMIntentService extends GCMBaseIntentService
 	public static final String DEV_TYPE = "dev_type";
 
 	public static final String DEV_TOKEN = "dev_token";
+
+	public static final String OLD_DEV_TOKEN = "old_dev_token";
 	
 	public static final String NOTIFICATION="notification";
 	

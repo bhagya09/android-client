@@ -132,6 +132,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 					requestBody.put(PreloadNotificationSchedular.INCENTIVE_ID, mprefs.getData(PreloadNotificationSchedular.INCENTIVE_ID, "-1"));
 					requestBody.put(GCMIntentService.DEV_TYPE, HikeConstants.ANDROID);
 					requestBody.put(GCMIntentService.DEV_TOKEN, regId);
+					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, regId);
 				}
 				catch (JSONException e)
 				{
@@ -155,7 +156,11 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 				requestBody = Utils.getPostDeviceDetails(context);
 				try
 				{
+					Logger.d("pa","new gcm ID is : " + regId);
 					requestBody.put(GCMIntentService.DEV_TOKEN, regId);
+					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, regId);
+
+					Logger.d("pa","old gcm ID is : " + regId);
 				}
 				catch (JSONException e)
 				{
