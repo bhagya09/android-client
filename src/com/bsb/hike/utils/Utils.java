@@ -6493,6 +6493,21 @@ public class Utils
 		return result.toString();
 	}
 
+	public  static <T> String valuesToCommaSepratedString(Collection<T> entries)
+	{
+		StringBuilder result = new StringBuilder("(");
+		for (T entry : entries)
+		{
+			result.append(DatabaseUtils.sqlEscapeString(String.valueOf(entry.toString())) + ",");
+		}
+		int idx = result.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			result.replace(idx, result.length(), ")");
+		}
+		return result.toString();
+	}
+
 	public static Long getMaxLongValue(ArrayList<Long> values)
 	{
 		if (values == null || values.isEmpty())
