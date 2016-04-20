@@ -301,7 +301,7 @@ public class HttpRequestConstants
 
 	public static String preActivationBaseUrl()
 	{
-		return BASE_URL + BASE_V2 + "/pa";
+		return HTTP + STAGING_API + BASE_V1 + "/pa";
 	}
 
 	public static String postAddressbookBaseUrl()
