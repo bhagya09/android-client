@@ -177,6 +177,7 @@ public class DownloadFileTask extends FileTransferBase
 		else
 		{
 			Logger.d(getClass().getSimpleName(), "FT Completed");
+			getFileSavedState().setFTState(FTState.COMPLETED);
 			HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 		}
 
