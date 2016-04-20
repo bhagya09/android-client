@@ -152,6 +152,8 @@ public class HikeDialogFactory
 
 	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
+	public static final int BLOCK_CHAT_CONFIRMATION_DIALOG = 53;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -250,6 +252,9 @@ public class HikeDialogFactory
 
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+
+		case BLOCK_CHAT_CONFIRMATION_DIALOG:
+			return showBlockChatConfirmationDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1285,4 +1290,17 @@ public class HikeDialogFactory
 		return dialog;
 	}
 
+	private static HikeDialog showBlockChatConfirmationDialog(Context context, int dialogId, HikeDialogListener listener, Object... data)
+	{
+		final CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+
+		dialog.setTitle(context.getString(R.string.block_dialog_title));
+		dialog.setMessage(context.getString(R.string.block_dialog_body));
+		dialog.setCancelable(false);
+		dialog.setCheckBox(context.getString(R.string.spam_info_in_dialog), null, true);
+		dialog.setPositiveButton(R.string.YES, listener);
+		dialog.setNegativeButton(R.string.CANCEL, listener);
+		dialog.show();
+		return dialog;
+	}
 }

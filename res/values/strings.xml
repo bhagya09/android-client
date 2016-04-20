@@ -1586,4 +1586,8 @@
     <string name="custom_quick_reply">WRITE YOUR OWN</string>
     <string name="save_unknown_contact">SAVE</string>
     <string name="spam_call_fail">Could not mark user as spam</string>
+    <string name="block_dialog_title">Block User</string>
+    <string name="block_dialog_body">Are you sure you want to block this user ?</string>
+    <string name="spam_info_in_dialog">Mark as spam and block</string>
+    <string name="unknown_user_spam_info"><![CDATA[ <font color="#ff8f8f">%1$d</font> and <font color="#ffffff"> Reported as Spam</font> ]]></string>
 </resources>
