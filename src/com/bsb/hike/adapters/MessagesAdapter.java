@@ -1142,7 +1142,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							wtHolder.action.setImageResource(R.drawable.ic_mic);
 						}
 						wtHolder.duration.setTag(hikeFile.getFileKey());
-						voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						//CE-261: Last played audio message shows incorrect time when mediaplayer is null
+						if (voiceMessagePlayer.mediaPlayer == null) {
+							Utils.setupFormattedTime(wtHolder.duration, hikeFile.getRecordingDuration());
+						} else {
+							voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						}
 						wtHolder.duration.setVisibility(View.VISIBLE);
 						wtHolder.progress.setVisibility(View.VISIBLE);
 					}
