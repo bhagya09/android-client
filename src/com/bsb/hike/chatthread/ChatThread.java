@@ -983,6 +983,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
+			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
+				sendLocationCancelledAnalytic();
+			}
 			return;
 		}
 		switch (requestCode)
@@ -2179,6 +2182,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		}
 
+	}
+
+	private void sendLocationCancelledAnalytic() {
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		Utils.recordCoreAnalyticsForShare(AnalyticsConstants.LOCATION_SHARING_CANCELLED, species,
+				msisdn, mConversation.isStealth());
 	}
 
 	protected void onShareLocation(Intent data)
