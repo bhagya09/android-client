@@ -219,7 +219,7 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ADD_FRIEND);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
