@@ -1534,8 +1534,8 @@
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
     <string name="keyboard_shutdown_heading">Upgrade Your Keyboard</string>
     <string name="keyboard_shutdown_description">We encourage you to try out the Google Indic keyboard from Play Store. It\'s really good :)</string>
-    <string name="open_phone_keyboard">Phone Keyboard</string>
-    <string name="open_google_keyboard">Google Keyboard</string>
+    <string name="open_phone_keyboard">PHONE KEYBOARD</string>
+    <string name="open_google_keyboard">GOOGLE KEYBOARD</string>
     <string name="max_duration_recorded">Recording done for Max duration</string>
     <string name="compose_chat_empty_contact_status_payment_mode">Tap to recharge</string>
     <string name="view_all">View All</string>
