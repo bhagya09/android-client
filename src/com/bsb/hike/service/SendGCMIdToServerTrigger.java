@@ -205,7 +205,17 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						 * 
 						 * 
 						 */
+						try {
+							String enKey = response.getString("pa_encryption_key");
+							String pa_uid = response.getString("pa_uid");
+							String pa_token = response.getString("pa_token");
 
+							Logger.d("pa","pa_encryption_key : " + enKey);
+							Logger.d("pa","pa_uid : " + pa_uid);
+							Logger.d("pa","pa_tokengit : " + pa_token);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
 						//Utils.disableNetworkListner(HikeMessengerApp.getInstance().getApplicationContext());
 					}
 					break;
