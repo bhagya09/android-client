@@ -816,6 +816,8 @@ public class HikeConstants
 
 	public static final String CHAT_SPAM_COUNT = "chat_spam_count";
 
+	public static final String SPAM = "spam";
+
 	public class InviteSection
 	{
 		public static final String INVITE_SECTION = "invite_section";

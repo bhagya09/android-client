@@ -82,7 +82,9 @@ public class ChatHeadUtils
 	private static OutgoingCallReceiver outgoingCallReceiver;
 	
 	private static ClipboardListener clipboardListener;
-	
+
+	public static final int NO_OF_HTTP_CALL_RETRY = 3;
+
 	public static final int HTTP_CALL_RETRY_DELAY = 2000;
 	
 	public static final int HTTP_CALL_RETRY_MULTIPLIER = 1;
@@ -1066,12 +1068,13 @@ public class ChatHeadUtils
 		});
 	}
 
-	public static void makeHttpCallToMarkUserAsSpam(final Context context, final String msisdn)
+	public static void makeHttpCallToSpamUnspamChatUser(final Context context, final String msisdn, final boolean markSpam)
 	{
 		JSONObject spamUserJSONObject = new JSONObject();
 		try
 		{
 			spamUserJSONObject.put(HikeConstants.MSISDN, msisdn);
+			spamUserJSONObject.put(HikeConstants.SPAM, markSpam);
 		}
 		catch (JSONException e)
 		{
@@ -1088,8 +1091,7 @@ public class ChatHeadUtils
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				//ContactManager.getInstance().markAsSpam(msisdn);
-				//HikeMessengerApp.getPubSub().publish(HikePubSub.USER_MARKED_AS_SPAM, null);
+				ContactManager.getInstance().toggleChatSpam(msisdn, markSpam);
 			}
 
 			@Override
@@ -1098,7 +1100,7 @@ public class ChatHeadUtils
 			}
 		};
 
-		RequestToken token = HttpRequests.setUserAsSpam(spamUserJSONObject, spamUserRequestListener, StickyCaller.ONE_RETRY,
+		RequestToken token = HttpRequests.toggleChatSpamUser(spamUserJSONObject, spamUserRequestListener, StickyCaller.ONE_RETRY,
 				HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER);
 		if(token != null && !token.isRequestRunning())
 		{
@@ -1116,6 +1118,20 @@ public class ChatHeadUtils
 		if(intent != null)
 		{
 			callerContentModel = intent.getParcelableExtra(HikeConstants.Extras.CALLER_CONTENT_MODEL);
+		}
+		return callerContentModel;
+	}
+
+	public static CallerContentModel getCallerContentModelFromResponse(JSONObject result)
+	{
+		CallerContentModel callerContentModel = null;
+		if(result != null)
+		{
+			callerContentModel = new CallerContentModel();
+			//callerContentModel.setFullName(result.optString(HikeConstants.));
+			//callerContentModel.setFullName(result.optString(HikeConstants.));
+			//callerContentModel.setFullName(result.optString(HikeConstants.));
+			//callerContentModel.setFullName(result.optString(HikeConstants.));
 		}
 		return callerContentModel;
 	}

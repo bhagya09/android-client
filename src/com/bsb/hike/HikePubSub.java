@@ -512,6 +512,8 @@ public class HikePubSub implements Runnable
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String UPDATE_UNKNOWN_USER_INFO_VIEW = "updateUnknownUserInfoView";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;

@@ -227,6 +227,7 @@ import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Unique;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
 import com.bsb.hike.modules.kpt.HikeAdaptxtKeyboardVisibilityStatusListner;
 import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
@@ -382,6 +383,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected static final int SCROLL_LISTENER_ATTACH = 38;
 	
 	protected static final int MESSAGE_SENT = 39;
+
+	protected static final int SPAM_UNSPAM_USER = 40;
 	
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 

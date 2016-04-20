@@ -1,5 +1,17 @@
 package com.bsb.hike.chatthread;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -13,6 +25,7 @@ import android.location.LocationManager;
 import android.media.AudioManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -52,10 +65,9 @@ import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.chatHead.StickyCaller;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
+import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.H20Dialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -98,26 +110,13 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
 
-import org.json.JSONArray;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
  * 
  * @generated
  */
 
-@SuppressLint("ResourceAsColor") public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener
-{
+@SuppressLint("ResourceAsColor") public class OneToOneChatThread extends ChatThread implements LastSeenFetchedCallback, ViewStub.OnInflateListener,OfflineConnectionRequestListener {
 	private static final String TAG = "oneonechatthread";
 
 	protected ContactInfo mContactInfo;
@@ -159,19 +158,23 @@ import java.util.Map;
 	private static final int ADD_UNDELIVERED_MESSAGE = 114;
 
 	private static final int SHOW_CALL_ICON = 115;
-	
+
 	private static final int OFFLINE_CONNECTED = 116;
-	
+
 	private static final int OFFLINE_DISCONNECTED = 117;
-	
+
 	private static final int START_OFFLINE_CONNECTION = 118;
-	
+
 	private static final int SHOW_OVERFLOW_MENU = 119;
-	
+
+	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
+
+	private static final int UPDATE_UNKNOWN_USER_INFO = 121;
+
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
-	
+
 	/* The waiting time in seconds before scheduling a H20 Tip */
 	private static final int DEFAULT_UNDELIVERED_WAIT_TIME = 60;
 
@@ -264,45 +267,37 @@ import java.util.Map;
 	 * Two things are Shown
 	 * 1. Caller View  inside unknown contact overlay
 	 * 2. Show quick reply message inside chat thread
+	 *
 	 * @param intent
 	 */
-	private void addQuickReplyMessage(Intent intent)
-	{
-		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
-		{
+	private void addQuickReplyMessage(Intent intent) {
+		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false)) {
 			//Provide content to caller View inside Unknown contact overlay
 			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
 
 			//Showing Caller View inside unknown contact overlay
-			if(mContactInfo != null && mContactInfo.isUnknownContact())
-			{
-				if(messages != null && messages.size() == 0)
-				{
+			if (mContactInfo != null && mContactInfo.isUnknownContact()) {
+				if (messages != null && messages.size() == 0) {
 					ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
 					cm.setBlockAddHeader(true);
 					messages.add(0, cm);
 				}
 
-				if(callerContentModel.getCallerMetadata() != null)
-				{
+				if (callerContentModel.getCallerMetadata() != null && !callerContentModel.getCallerMetadata().isEmpty()) {
 					mConversation.setOnHike(callerContentModel.getIsOnHike());
-					if(mAdapter != null)
-					{
+					if (mAdapter != null) {
 						mAdapter.setCallerContentModel(callerContentModel);
 						mAdapter.notifyDataSetChanged();
 					}
-				}
-				else
-				{
-						
+				} else {
+					FetchUknownHikeUserInfo.fetchHikeUserInfo(activity.getApplicationContext(), msisdn, false);
 				}
 			}
 
 			//Showing quick reply message inside CT
-			if(intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG))
-			{
+			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG)) {
 				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
-				String msisdn = callerContentModel.getMsisdn(); //intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_NUM);
+				String msisdn = callerContentModel.getMsisdn();
 				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
 				sendMessage(convMessage);
 			}
@@ -585,12 +580,45 @@ import java.util.Map;
 				messages.add(0, cm);
 				Logger.d(TAG, "Adding unknownContact Header to the chatThread");
 
-				if (mAdapter != null)
-				{
-					mAdapter.notifyDataSetChanged();
-				}
+				showUknownUserInfoView();
+//				if (mAdapter != null)
+//				{
+//					mAdapter.notifyDataSetChanged();
+//				}
 			}
 		}
+	}
+
+	/**
+	 * This shows Unknown User (Name, location)
+	 */
+	private void showUknownUserInfoView()
+	{
+		// Show user info view
+		new AsyncTask<Void, Void, CallerContentModel>()
+		{
+			@Override
+			protected CallerContentModel doInBackground(Void... voids)
+			{
+				// 1. get Data from DB
+				return ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn);
+			}
+
+			@Override
+			protected void onPostExecute(CallerContentModel callerContentModel)
+			{
+				if (callerContentModel == null)
+				{
+					// 2. if not in DB, then HTTP Call for user info + show loader(later on)
+					FetchUknownHikeUserInfo.fetchHikeUserInfo(activity.getApplicationContext(), msisdn, true);
+				}
+				else
+				{
+					// Update UI
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
+				}
+			}
+		}.execute();
 	}
 
 	@Override
@@ -608,7 +636,7 @@ import java.util.Map;
 				HikePubSub.CHANGED_MESSAGE_TYPE, HikePubSub.SHOW_SMS_SYNC_DIALOG, HikePubSub.SMS_SYNC_COMPLETE, HikePubSub.SMS_SYNC_FAIL, HikePubSub.SMS_SYNC_START,
 				HikePubSub.LAST_SEEN_TIME_UPDATED, HikePubSub.SEND_SMS_PREF_TOGGLED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 				HikePubSub.APP_FOREGROUNDED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST ,HikePubSub.OFFLINE_FILE_COMPLETED,
-				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE};//, HikePubSub.USER_MARKED_AS_SPAM};
+				HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE, HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW};
 		return oneToOneListeners;
 	}
 
@@ -787,9 +815,13 @@ import java.util.Map;
 		case HikePubSub.UPDATE_MESSAGE_ORIGIN_TYPE:
 			updateMsgOriginType((Pair<Long, Integer>) object);
 			break;
-//		case HikePubSub.USER_MARKED_AS_SPAM:
-//			onUserMarkedAsSpam();
-//			break;
+		case HikePubSub.UNBLOCK_USER:
+			super.onEventReceived(type, object);
+			sendUIMessage(SPAM_UNSPAM_USER, false);
+			break;
+		case HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW:
+			updateUnknownUserInfoChatView(object);
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
 			super.onEventReceived(type, object);
@@ -797,7 +829,11 @@ import java.util.Map;
 		}
 	}
 
-	
+	private void updateUnknownUserInfoChatView(Object object)
+	{
+		sendUIMessage(UPDATE_UNKNOWN_USER_INFO, object);
+	}
+
 	private void updateMsgOriginType(Pair<Long,Integer> pair)
 	{
 		ConvMessage convMessage = findMessageById(pair.first);
@@ -968,13 +1004,19 @@ import java.util.Map;
 			onOfflineDisconnection();
 			break;
 		case OFFLINE_CONNECTED:
-			onOfflineConnection((String)msg.obj);
+			onOfflineConnection((String) msg.obj);
 			break;
 		case START_OFFLINE_CONNECTION:  
-			startFreeHikeConversation((Boolean)msg.obj);
+			startFreeHikeConversation((Boolean) msg.obj);
 			break;
 		case SHOW_OVERFLOW_MENU:
 			showOverflowMenu();
+			break;
+		case SPAM_UNSPAM_USER:
+			spamUnspamUser((boolean) msg.obj);
+			break;
+		case UPDATE_UNKNOWN_USER_INFO:
+			updateUnknownUserInfoViews(msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -2745,7 +2787,7 @@ import java.util.Map;
 			break;
 			
 		case R.id.block_unknown_contact:
-			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+			onBlockClicked();
 			break;
 
 		case R.id.add_unknown_contact:
@@ -2764,17 +2806,6 @@ import java.util.Map;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
 			break;
-//		case R.id.spam_unknown_contact:
-//			if (null != v.getTag())
-//			{
-//				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.CHAT_THREAD_SPAM_BUTTON, (String) v.getTag(),
-//						AnalyticsConstants.StickyCallerEvents.CARD, AnalyticsConstants.StickyCallerEvents.QUICK_REPLY);
-//				ChatHeadUtils.makeHttpCallToMarkUserAsSpam(activity.getApplicationContext(), (String) v.getTag());
-//
-//				//TODO REmove me...only for testing
-//				ContactManager.getInstance().markAsSpam(msisdn);
-//			}
-//			break;
 		default:
 			super.onClick(v);
 		}
@@ -2821,7 +2852,7 @@ import java.util.Map;
 
 	public void startAnotherFreeHikeConnection(Boolean startAnimation)
 	{
-		sendUIMessage(START_OFFLINE_CONNECTION, 0,startAnimation);
+		sendUIMessage(START_OFFLINE_CONNECTION, 0, startAnimation);
 	}
 	
 	private void h20NextClick()
@@ -2832,7 +2863,12 @@ import java.util.Map;
 		initializeH20Mode();
 		setupH20TipViews();
 	}
-	
+
+	private void onBlockClicked()
+	{
+		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, null);
+	}
+
 	/**
 	 * Overriding this here since we need to intercept clicks for H20 overlay
 	 */
@@ -3024,6 +3060,15 @@ import java.util.Map;
 		case HikeDialogFactory.SMS_CLIENT_DIALOG:
 			dialog.dismiss();
 			onSMSClientDialogPositiveClick();
+			break;
+
+		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
+			dialog.dismiss();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.BLOCK_USER, msisdn);
+			if(((CustomAlertDialog)dialog).isChecked())
+			{
+				sendUIMessage(SPAM_UNSPAM_USER, true);
+			}
 			break;
 
 		default:
@@ -3692,5 +3737,28 @@ import java.util.Map;
 			shouldinitialteConnectionFragment = false;
 			startFreeHikeConversation(true);
 		}
+	}
+
+	private void spamUnspamUser(boolean isSpam)
+	{
+		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam);
+	}
+
+	private void updateUnknownUserInfoViews(Object object)
+	{
+		if (mAdapter != null)
+		{
+			// This is case When Http Call is failed and we have to dismissLoader
+			if (object == null)
+			{
+				mAdapter.dismissUserInfoLoader();
+			}
+			else
+			{
+				mAdapter.setCallerContentModel((CallerContentModel) object);
+				mAdapter.notifyDataSetChanged();
+			}
+		}
+
 	}
 }

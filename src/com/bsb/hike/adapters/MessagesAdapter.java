@@ -2558,24 +2558,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					addButton.setTag(R.string.save_unknown_contact);
+
+					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 				}
 
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
-
-				//To Show Caller View in case user opens 1-1 chat via caller "free sms" button click on hike caller card
-				if(callerContentModel != null)
-				{
-					//visible
-					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-					
-					//set UI (Name and Location)
-					((CustomFontTextView)convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
-					((CustomFontTextView)convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
-
-				}
-
 			}
+
+			updateUnknownChatUserView(convertView);
+
 			return convertView;
 
 		}
@@ -2594,6 +2586,36 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
 		return v;
+	}
+
+	// To Show User info View in cases
+	// 1. one to one conv with unknown user
+	// 2. user opens 1-1 chat via caller "free sms" button click on hike caller card
+	private void updateUnknownChatUserView(View convertView)
+	{
+		if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
+		{
+			// set UI (Name, Location, Spam)
+			((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+			((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
+			convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+			if (callerContentModel.getCallerMetadata() != null)
+			{
+				try
+				{
+					String spamCoutString = String.format(context.getString(R.string.unknown_user_spam_info), callerContentModel.getCallerMetadata().getChatSpamCountJson());
+					if (!TextUtils.isEmpty(spamCoutString))
+					{
+						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
+						((CustomFontTextView) convertView.findViewById(R.id.unknown_user_spam_info)).setText(spamCoutString);
+					}
+				}
+				catch (JSONException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void displayMessageIndicator(ConvMessage convMessage, ImageView broadcastIndicator, boolean showBlackIcon)
@@ -4657,5 +4679,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	public void setCallerContentModel(CallerContentModel callerContentModel)
 	{
 		this.callerContentModel = callerContentModel;
+	}
+
+	public void dismissUserInfoLoader()
+	{
+		View view = mListView.getChildAt(0);
+		if (view != null)
+		{
+			view.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+		}
 	}
 }

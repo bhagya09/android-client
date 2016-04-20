@@ -51,7 +51,7 @@ public class CallerMetadata {
         jsonObject.put(HikeConstants.CHAT_SPAM_COUNT, count);
     }
 
-    private int getChatSpamCountJson() throws JSONException
+    public int getChatSpamCountJson() throws JSONException
     {
         return jsonObject.optInt(HikeConstants.CHAT_SPAM_COUNT);
     }
@@ -61,9 +61,14 @@ public class CallerMetadata {
         jsonObject.put(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU, isSpamByMe);
     }
 
-    private int getIsUserSpammedByYou() throws JSONException
+    public int getIsUserSpammedByYou() throws JSONException
     {
         return jsonObject.optInt(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU);
+    }
+
+    public boolean isEmpty()
+    {
+        return jsonObject.length() > 0;
     }
 
 }
