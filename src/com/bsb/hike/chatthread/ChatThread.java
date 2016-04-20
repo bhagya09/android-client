@@ -1016,6 +1016,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			 */
 			if (data != null)
 			{
+				Logger.d("FileSelect", "Processing the request for file sharing.");
 				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
