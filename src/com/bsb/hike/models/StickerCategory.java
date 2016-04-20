@@ -60,7 +60,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private  boolean isDisabled;
 
-	private int updationTime;
+	private int packUpdationTime;
+
+	private int ucid;
+
+	private int previewUpdationTime;
+
 
 	public static final int NONE = 0;
 	
@@ -100,7 +105,10 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
 		this.prefOrder = builder.prefOrder;
-		this.updationTime = builder.updationTime;
+		this.packUpdationTime = builder.packUpdationTime;
+		this.ucid = builder.ucid;
+		this.previewUpdationTime = builder.previewUpdationTime;
+
 		this.isDisabled = builder.isDisabled;
 		ensureSaneDefaults();
 	}
@@ -159,7 +167,11 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		private boolean isDisabled;
 
-		private int	updationTime;
+		private int	packUpdationTime;
+
+		private int ucid;
+
+		private int	previewUpdationTime;
 
 		private int state;
 
@@ -215,8 +227,17 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			return self();
 		}
 
-		public S setUpdationTime(int updationTime) {
-			this.updationTime = updationTime;
+		public S setPackUpdationTime(int packUpdationTime) {
+			this.packUpdationTime = packUpdationTime;
+			return self();
+		}
+
+		public S setPreviewUpdationTime(int previewUpdationTime) {
+			this.previewUpdationTime = previewUpdationTime;
+			return self();
+		}
+		public S setUcid(int ucid) {
+			this.ucid = ucid;
 			return self();
 		}
 
@@ -361,9 +382,19 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return isDisabled;
 	}
 
-	public int getUpdationTime()
+	public int getPackUpdationTime()
 	{
-		return updationTime;
+		return packUpdationTime;
+	}
+
+	public int getUcid()
+	{
+		return ucid;
+	}
+
+	public int getPreviewUpdationTime()
+	{
+		return previewUpdationTime;
 	}
 
 	public void setCategoryName(String categoryName)
@@ -535,9 +566,19 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.isDisabled = isDisabled;
 	}
 
-	public void setUpdationTime(int updationTime)
+	public void setPackUpdationTime(int packUpdationTime)
 	{
-		this.updationTime = updationTime;
+		this.packUpdationTime = packUpdationTime;
+	}
+
+	public void setUcid(int ucid)
+	{
+		this.ucid = ucid;
+	}
+
+	public void setPreviewUpdationTime(int previewUpdationTime)
+	{
+		this.previewUpdationTime = previewUpdationTime;
 	}
 
 	public void setCopyRightString(String copyRightString)
