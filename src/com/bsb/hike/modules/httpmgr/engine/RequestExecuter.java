@@ -31,6 +31,7 @@ import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
@@ -235,14 +236,19 @@ public class RequestExecuter
 			/** Logging request for analytics */
 			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
+			long startTimeNs = System.nanoTime();
 			response = client.execute(request);
+			long timeTakenNs = System.nanoTime() - startTimeNs;
+
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-			
+
+			addResponseTimeHeader(response, timeTakenNs);
+
 			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
@@ -401,5 +407,10 @@ public class RequestExecuter
 				processRequest();
 			}
 		}
+	}
+
+	private void addResponseTimeHeader(Response response, long timeTakenNs)
+	{
+		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME, Long.toString(timeTakenNs));
 	}
 }

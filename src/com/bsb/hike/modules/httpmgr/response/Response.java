@@ -1,12 +1,14 @@
 package com.bsb.hike.modules.httpmgr.response;
 
-import java.util.List;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.Pipeline;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Encapsulates all of the information necessary to make an HTTP response , implements {@link IResponseFacade}
@@ -105,6 +107,28 @@ public class Response implements IResponseFacade
 		this.headers = null;
 		this.body = null;
 		this.responseInterceptors = null;
+	}
+
+	public void replaceOrAddHeader(String name, String value)
+	{
+		if (TextUtils.isEmpty(name) || TextUtils.isEmpty(value))
+		{
+			return;
+		}
+
+		headers = headers != null ? headers : new ArrayList<Header>(1);
+
+		Header header = HttpUtils.getHeader(headers, value);
+
+		if(header != null)
+		{
+			header.setValue(value);
+		}
+		else
+		{
+			header = new Header(name, value);
+			this.headers.add(header);
+		}
 	}
 
 	public static class Builder
