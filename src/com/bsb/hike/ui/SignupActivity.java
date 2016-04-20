@@ -1168,10 +1168,18 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		@Override
 		public void onSuccess(Response result) {
+			// This is NOT the main thread!
 			setcontactManagerIcon();
-			if (profileImageLoader != null) {
-				profileImageLoader.loadProfileImage(getSupportLoaderManager());
-			}
+			SignupActivity.this.mHandler.post(
+					new Runnable() {
+						@Override
+						public void run() {
+							if (profileImageLoader != null) {
+								profileImageLoader.loadProfileImage(getSupportLoaderManager());
+							}
+						}
+					}
+			);
 		}
 
 		@Override
