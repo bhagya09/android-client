@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -208,7 +209,7 @@ public class ChatThemeManager
 
 	}
 
-	public String[] getAvailableThemeIds()
+	public ArrayList<String> getAvailableThemeIds()
 	{
 		ArrayList<String> availableThemes = new ArrayList<>();
 
@@ -221,7 +222,7 @@ public class ChatThemeManager
 		}
 
 		Collections.sort(availableThemes); // sorting the themes on the basis of themeId currently.
-		return availableThemes.toArray(new String[availableThemes.size()]);
+		return availableThemes;
 	}
 
 	/**
@@ -237,5 +238,47 @@ public class ChatThemeManager
 			return mDrawableHelper.getDefaultDrawable(assetIndex);
 		}
 		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
+	}
+
+	public void downloadAssetIds(String[] themeIds)
+	{
+		ArrayList<String> downloadThemeIds = new ArrayList<String>();
+		for(String themeId : themeIds)
+		{
+			if(!mChatThemesList.containsKey(themeId))
+			{
+				HikeChatTheme theme = new HikeChatTheme();
+				theme.setThemeId(themeId);
+				theme.setMetadata(HikeChatThemeConstants.CHAT_THEME_ID_NOT_DOWNLOADED);
+				mChatThemesList.put(themeId, theme);
+			}
+
+			HikeChatTheme theme = getTheme(themeId);
+			String themeMetadata = theme.getMetadata();
+			if(themeMetadata != null && themeMetadata.equals(HikeChatThemeConstants.CHAT_THEME_ID_NOT_DOWNLOADED))
+			{
+				downloadThemeIds.add(themeId);
+			}
+		}
+		String[] downloadThemesArr = new String[downloadThemeIds.size()];
+		for(int i=0;i<downloadThemesArr.length;i++)
+		{
+			downloadThemesArr[i] = downloadThemeIds.get(i);
+		}
+
+		DownloadAssetIdTask downloadAssetIds;
+
+		if(downloadThemesArr.length > 0)
+		{
+			downloadAssetIds = new DownloadAssetIdTask(downloadThemesArr);
+			downloadAssetIds.execute();
+		}
+
+		ArrayList<HikeChatTheme> updateThemes = new ArrayList<>();
+		for(String themeId : themeIds)
+		{
+			updateThemes.add(mChatThemesList.get(themeId));
+		}
+		HikeConversationsDatabase.getInstance().saveChatThemes(updateThemes);
 	}
 }

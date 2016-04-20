@@ -176,6 +176,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 			}
 			//writing the downloaded assets into the tables in DB
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(downloadedThemeAssets);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, null);
 		}
 	}
 

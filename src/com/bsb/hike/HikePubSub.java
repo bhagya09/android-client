@@ -529,6 +529,9 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
+	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
+
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
