@@ -50,7 +50,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPalleteImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerPreviewImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerSignupUpgradeDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.UpdateAllCategoryDownloadTask;
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
@@ -387,14 +386,6 @@ public class StickerManager
 
 		doUpgradeTasks();
 
-		FetchAllCategoriesDownloadTask fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask();
-		fetchAllCategoriesDownloadTask.execute();
-
-		UpdateAllCategoryDownloadTask updateAllCategoryDownloadTask = new UpdateAllCategoryDownloadTask();
-		updateAllCategoryDownloadTask.execute();
-
-		CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask = new CategoryOrderPrefDownloadTask();
-		categoryOrderPrefDownloadTask.execute();
 	}
 
 
