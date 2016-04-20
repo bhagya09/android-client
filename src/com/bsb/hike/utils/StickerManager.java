@@ -74,6 +74,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -3401,14 +3402,12 @@ public class StickerManager
 		try
 		{
 			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.NETWORK_TIME))
 			{
 				return;
 			}
 
-			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
-					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
+			long timeTaken = TimeUnit.NANOSECONDS.toMillis(Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.NETWORK_TIME).getValue()));
 
 
 			JSONObject json = new JSONObject();
