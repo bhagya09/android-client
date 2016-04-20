@@ -71,6 +71,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
@@ -1327,7 +1328,8 @@ import java.util.Map;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 
 		// 1) user clicked sticker in Sticker Pallete i.e Sending Sticker
 		channelSelector.startMessageRelLogging(convMessage, MessageType.STICKER);

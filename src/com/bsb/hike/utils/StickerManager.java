@@ -267,6 +267,8 @@ public class StickerManager
 
 	public static final int INDEX_INFO_BOUND = 2;
 
+    public static final String STICKER_TYPE = "s_t";
+
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
@@ -2537,8 +2539,7 @@ public class StickerManager
 	/**
 	 * Send recommendation selection analytics
 	 */
-	public void sendRecommendationSelectionAnalytics(String source, String stickerId, String categoryId, int selectedIndex, int numTotal, int numVisible, String tappedWord,
-			String taggedPhrase)
+	public void sendRecommendationSelectionAnalytics(String source, Sticker sticker, int selectedIndex, int numTotal, int numVisible, String tappedWord, String taggedPhrase)
 	{
 		try
 		{
@@ -2548,10 +2549,10 @@ public class StickerManager
 			metadata.put(HikeConstants.ACCURACY, selectedIndex + STRING_DELIMETER + numTotal + STRING_DELIMETER + numVisible);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-			metadata.put(HikeConstants.STICKER_ID, stickerId);
-			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
+			metadata.put(HikeConstants.STICKER_ID, sticker.getStickerId());
+			metadata.put(HikeConstants.CATEGORY_ID, sticker.getCategoryId());
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
-
+            metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
