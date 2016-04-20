@@ -24,6 +24,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.CallerMetadata;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.DBConstants;
@@ -544,7 +545,15 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-
+	public void updateMdIntoCallerTable(CallerContentModel callerContentModel)
+	{
+		if (callerContentModel != null && callerContentModel.getMsisdn() != null && callerContentModel.getFullName() != null)
+		{
+			ContentValues contentValues = new ContentValues();
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
+			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{callerContentModel.getMsisdn()});
+		}
+	}
 
 	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock)
 	{
@@ -2861,5 +2870,45 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 		return HikePlatformConstants.FILE_DESCRIPTOR + imageFile.getAbsolutePath();
+	}
+
+	public void toggleChatSpamUser(String msisdn, boolean markSpam)
+	{
+		if (msisdn != null)
+		{
+			Cursor c = null;
+			CallerMetadata callerMetadata = null;
+			try
+			{
+
+				c = mReadDb.rawQuery("select " + DBConstants.HIKE_USER.CALLER_METADATA + " from "+DBConstants.HIKE_USER.HIKE_CALLER_TABLE +" where "+ DBConstants.MSISDN + "="+ msisdn, null);
+
+
+				while (c.moveToNext())
+				{
+					String metadata = c.getString(c.getColumnIndex(DBConstants.HIKE_USER.HIKE_CALLER_TABLE));
+					callerMetadata = new CallerMetadata(metadata);
+				}
+
+				if(callerMetadata != null)
+				{
+					callerMetadata.setIsUserSpammedByYou(markSpam == true ? 1 : 0);
+					ContentValues contentValues = new ContentValues();
+					contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerMetadata.toString());
+					int noOfRow = mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[] { msisdn });
+				}
+			}
+			catch (JSONException ex)
+			{
+				ex.printStackTrace();
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
 	}
 }
