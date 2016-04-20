@@ -3098,9 +3098,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
 					}
+					else if(progress == 100)
+					{
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+					}
 					else
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						if((progress + (int) (animatedProgress * 100)) > 100)
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
+						else
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
 					}
 				}
 			}

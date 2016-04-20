@@ -195,7 +195,7 @@ public class FileDownloadRequest extends Request<File>
 				String contentRange = "bytes " + transferredSize + "-" + (transferredSize + byteRead) + "/" + totalSize;
 				int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
 				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, state.getFileKey(), isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
-				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time));
+				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time) + "  , isCompleted - " + isCompleted);
 				time = System.currentTimeMillis();
 				transferredSize += byteRead;
 				state.setTransferredSize(transferredSize);

@@ -298,6 +298,7 @@ public class ChatThreadUtils
 			fileType = HikeConstants.VOICE_MESSAGE_CONTENT_TYPE;
 		}
 
+		Logger.d("FileSelect", "Sharing file path = " + filePath);
 		if (filePath == null)
 		{
 			Toast.makeText(context, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
