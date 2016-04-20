@@ -371,7 +371,14 @@ public class FileUploadRequest extends Request<JSONObject>
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				exception = httpException;
+				if (httpException.getErrorCode() / 100 > 0)
+				{
+					bytesUploaded = 0;
+				}
+				else
+				{
+					exception = httpException;
+				}
 			}
 
 			@Override
