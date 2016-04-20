@@ -226,13 +226,13 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 	/* Begin CE-487: FTUE red-dot of WT also appears on send message button
 	 * Listener for sending callback to the chatthread when we toggle between send msg & audio
 	 */
-	public interface SendBtnChangedListener
-	{
+	public interface SendBtnChangedListener {
 		public void onSendBtnChanged(boolean enabled);
 	}
 
 	private SendBtnChangedListener mSendBtnListener = null;
-	public void setSendBtnChangeListener(SendBtnChangedListener listener){
+
+	public void setSendBtnChangeListener(SendBtnChangedListener listener) {
 		mSendBtnListener = listener;
 	}
 	//End CE-487

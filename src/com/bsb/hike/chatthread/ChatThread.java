@@ -2736,17 +2736,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		mComposeViewWatcher.setBtnEnabled();
 		//Begin CE-487: FTUE red-dot of WT also appears on send message button
 		boolean isWTTipShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
-		if(useWTRevamped && isWTTipShown){
-			mComposeViewWatcher.setSendBtnChangeListener(new ComposeViewWatcher.SendBtnChangedListener() {
-				@Override
-				public void onSendBtnChanged(boolean enabled) {
-					if (enabled) {
-						mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
-					} else {
-						mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
-					}
-				}
-			});
+		if (useWTRevamped && isWTTipShown) {
+			mComposeViewWatcher.setSendBtnChangeListener(
+					new ComposeViewWatcher.SendBtnChangedListener() {
+						@Override
+						public void onSendBtnChanged(boolean enabled) {
+							if (enabled) {
+								mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							} else {
+								mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							}
+						}
+					});
 		}
 		//End CE-487
 		mComposeView.requestFocus();
