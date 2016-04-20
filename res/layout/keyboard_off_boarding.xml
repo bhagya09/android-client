@@ -1,32 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="314dp"
-    android:background="@color/signup_white">
-
-    <ImageView
-        android:id="@+id/close"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="image_close"
-        android:scaleType="center"
-        android:src="@drawable/ic_keyboard_popup_cross" />
-
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/keyboard_off_boarding"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="314dp"
+    android:background="@color/signup_white"
     android:gravity="center"
-    android:orientation="vertical"
-    android:paddingTop="10dp">
+    android:orientation="vertical">
     
     <ImageView
         android:layout_width="54.5dp"
         android:layout_height="58dp"
         android:layout_margin="10dp"
-        android:background="@drawable/art_keyboard"/>
+        android:background="@drawable/art_keyboard"
+        android:paddingTop="10dp"/>
 
     <com.bsb.hike.view.CustomFontTextView
         android:id="@+id/kpt_exit_heading"
@@ -103,4 +89,3 @@
     </LinearLayout>
 
 </LinearLayout>
-</RelativeLayout>

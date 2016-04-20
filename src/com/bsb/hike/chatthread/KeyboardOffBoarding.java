@@ -117,14 +117,6 @@ public class KeyboardOffBoarding
 				}
 			});
 
-			rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					destroy();
-					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
-				}
-			});
-
 			rootView.findViewById(R.id.btn_google_keyboard).setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
