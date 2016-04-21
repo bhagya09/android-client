@@ -4382,7 +4382,7 @@ public class Utils
 		context.startActivity(i);
 	}
 
-	public static void addToContacts(List<ContactInfoData> items, String name, Context context, AccountData accountData)
+	public static void addToContacts(List<ContactInfoData> items, String name, Context context, AccountData accountData, boolean showToast)
 	{
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 		int rawContactInsertIndex = ops.size();
@@ -4434,13 +4434,16 @@ public class Utils
 			e.printStackTrace();
 			contactSaveSuccessful = false;
 		}
-		Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+		if(showToast)
+		{
+			Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public static void addToContacts(List<ContactInfoData> items, String name, Context context, Spinner accountSpinner)
 	{
 		AccountData accountData = (AccountData) accountSpinner.getSelectedItem();
-		addToContacts(items, name, context, accountData);
+		addToContacts(items, name, context, accountData, true);
 	}
 
 	public static int getNumColumnsForGallery(Resources resources, int sizeOfImage)
@@ -4653,9 +4656,9 @@ public class Utils
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED, HikeConstants.BOTH_VALUE, msisdn, false, true));
 	}
 
-	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact)
+	public static void addFavorite(final Context context, final ContactInfo contactInfo, final boolean isFtueContact, String addFavSource)
 	{
-		toggleFavorite(context, contactInfo, isFtueContact);
+		toggleFavorite(context, contactInfo, isFtueContact, addFavSource);
 		if (!contactInfo.isOnhike() || HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, false))
 		{
 			return;
@@ -4692,9 +4695,10 @@ public class Utils
 		}
 	}
 
-	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact)
+	public static FavoriteType toggleFavorite(Context context, ContactInfo contactInfo, boolean isFtueContact, String addFavSource)
 	{
 		FavoriteType favoriteType;
+		boolean isRequestSent = false;
 		if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
@@ -4702,8 +4706,17 @@ public class Utils
 		else
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
+			isRequestSent = true;
 			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
 		}
+
+		//2-way friendship established. Get Historical updates here!
+		if (favoriteType == FavoriteType.FRIEND)
+		{
+			fetchHistoricalUpdates(contactInfo.getMsisdn());
+		}
+
+		HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), addFavSource, isRequestSent);
 
 		Pair<ContactInfo, FavoriteType> favoriteAdded;
 
@@ -8267,6 +8280,7 @@ public class Utils
 					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
 				Editor settingEditor = settings.edit();
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
 				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
@@ -8288,14 +8302,16 @@ public class Utils
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
-					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+					&& !currentValue.equals(context.getString(R.string.privacy_everyone))) {
+
+				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
 				Editor settingEditor = settings.edit();
-				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_my_contacts));
-				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_my_contacts));
+				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
+				int slectedPrivacyId = Integer.parseInt(oldLsValue);
 				try {
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 2);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); //Resetting the flag, so that when the packet might be sent again, it is able to alter the prefs
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -8357,6 +8373,77 @@ public class Utils
 		if(index != -1) return cursor.getString(index);
 		return null;
 	}
+
+
+	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri, String oldName) {
+		PairModified<String, String> returnContactIds = null;
+
+		String mRawContactId, mDataId;
+		Cursor mContactCursor = context.getContentResolver().query(contactUri, null, null, null, null);
+		Logger.v("Contact", "Got Contact Cursor");
+
+		try {
+			if (mContactCursor.moveToFirst()) {
+				String mContactId = getCursorString(mContactCursor,
+						ContactsContract.Contacts._ID);
+
+				Cursor mRawContactCursor = context.getContentResolver().query(
+						RawContacts.CONTENT_URI,
+						null,
+						Data.CONTACT_ID + " = ?",
+						new String[]{mContactId},
+						null);
+
+				Logger.v("RawContact", "Got RawContact Cursor");
+
+				try {
+					ArrayList<String> mRawContactIds = new ArrayList<String>();
+					while (mRawContactCursor.moveToNext()) {
+						String rawId = getCursorString(mRawContactCursor, RawContacts._ID);
+						Logger.v("RawContact", "ID: " + rawId);
+						mRawContactIds.add(rawId);
+					}
+
+					for (String rawId : mRawContactIds) {
+						// Make sure the "last checked" RawContactId is set locally for use in insert & update.
+						mRawContactId = rawId;
+						Cursor mDataCursor = context.getContentResolver().query(
+								Data.CONTENT_URI,
+								null,
+								Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ? AND " + StructuredName.DISPLAY_NAME + " = ?" ,
+								new String[]{mRawContactId, StructuredName.CONTENT_ITEM_TYPE, oldName},
+								null);
+
+						if (mDataCursor.getCount() > 0) {
+							mDataCursor.moveToFirst();
+							mDataId = getCursorString(mDataCursor, Data._ID);
+							Logger.v("Data", "Found data item with MIMETYPE and Phone.TYPE");
+							mDataCursor.close();
+							returnContactIds = new PairModified<>(mRawContactId, mDataId);
+							break;
+						} else {
+							Logger.v("Data", "Data doesn't contain MIMETYPE and Phone.TYPE");
+							mDataCursor.close();
+						}
+						returnContactIds = null;
+					}
+				} finally {
+					mRawContactCursor.close();
+				}
+			}
+		} catch (Exception e) {
+			Logger.w("UpdateContact", e.getMessage());
+			for (StackTraceElement ste : e.getStackTrace()) {
+				Logger.w("UpdateContact", "\t" + ste.toString());
+			}
+			throw new RuntimeException();
+		} finally {
+			mContactCursor.close();
+		}
+
+		return returnContactIds;
+	}
+
 
 	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri) {
 		PairModified<String, String> returnContactIds = null;
@@ -8454,6 +8541,37 @@ public class Utils
 	}
 
 	/**
+	 *
+	 * @param context
+	 * @param mRawContactId
+	 * @param mDataId
+     * @param msisdn
+     */
+	public static void updateNameWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String name) {
+		try {
+			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
+					.withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
+					.withSelection(Data._ID + " = ?", new String[] {mDataId})
+					.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
+					.withValue(StructuredName.DISPLAY_NAME, name)
+					.build());
+			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+
+		} catch (Exception e) {
+			// Display warning
+			Logger.w("UpdateContact", e.getMessage());
+			for(StackTraceElement ste : e.getStackTrace()) {
+				Logger.w("UpdateContact", "\t" + ste.toString());
+			}
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(context, "Update failed", duration);
+			toast.show();
+		}
+	}
+
+	/**
 	 * method to get a JSON for media click events. It assumes that the events for media differ only
 	 * in uniqueKey and order column
 	 * @param uniqueKey
@@ -8471,9 +8589,6 @@ public class Utils
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, order);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
-			json.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance()
-					.getData(HikeMessengerApp.MSISDN_SETTING, ""));
-
 			return json;
 
 		}
@@ -8481,6 +8596,83 @@ public class Utils
 		{
 			e.toString();
 			return null;
+		}
+	}
+
+
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,
+												   String toUser_msisdn, boolean isStealth) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK_TYPE,
+					Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			if (isStealth)
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void fetchHistoricalUpdates(String msisdn)
+	{
+		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+
+			}
+		});
+
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
+	}
+
+	/**
+	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
+	 */
+	public static void validateDirectory(String dirPath)
+	{
+		File rootDir = new File(dirPath);
+		/*
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
+		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
+		 * Caused mainly by app like clean master, native memory optimization etc.
+		 */
+		if(rootDir != null && rootDir.exists())
+		{
+			if(!rootDir.isDirectory() && rootDir.isFile())
+			{
+				int count = 0;
+				File mFile = new File(dirPath + "_" + count);
+				while (mFile.exists()) {
+					mFile = new File(dirPath + "_" + ++count);
+				}
+				rootDir.renameTo(mFile);
+			}
 		}
 	}
 }

@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.bsb.hike.R;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
@@ -95,7 +96,7 @@ public class RecommendedPacksFooterItem extends BasePackPreviewAdapterItem imple
 		}
 
 		StickerCategory stickerCategory = recommendedPacks.get(position);
-		IntentFactory.openPackPreviewIntent(mContext, stickerCategory.getCategoryId());
+		IntentFactory.openPackPreviewIntent(mContext, stickerCategory.getCategoryId(), position, StickerConstants.PackPreviewClickSource.RECOMMENDATION);
 		activity.finish();
 	}
 

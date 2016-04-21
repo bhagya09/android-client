@@ -3,8 +3,7 @@
     android:id="@+id/profile_header"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" 
-    xmlns:app="http://schemas.android.com/apk/res-auto" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -90,7 +89,7 @@
         android:id="@+id/remove_fav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="95dp"
+        android:layout_marginLeft="110dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginTop="-10dp"
@@ -106,18 +105,20 @@
             android:textColor="#666666"
             android:textSize="12sp" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp" >
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
 
             <com.bsb.hike.view.CustomFontButton
                 android:id="@+id/no"
                 android:layout_width="80dp"
                 android:layout_height="30dp"
+                android:layout_marginRight="7dp"
                 android:background="@drawable/bg_red_btn_selector"
-                android:onClick="onNoBtnClick"
                 android:contentDescription="No Button"
+                android:onClick="onNoBtnClick"
                 android:text="@string/not_now"
                 android:textColor="@color/other_list_selected"
                 android:textSize="12sp" />
@@ -126,15 +127,13 @@
                 android:id="@+id/yes"
                 android:layout_width="80dp"
                 android:layout_height="30dp"
-                android:layout_marginLeft="7dp"
-                android:layout_toRightOf="@id/no"
                 android:background="@drawable/bg_green_btn_selector"
                 android:contentDescription="Yes Button"
                 android:onClick="onYesBtnClick"
                 android:text="@string/add_btn"
                 android:textColor="@color/other_list_selected"
                 android:textSize="12sp" />
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
     </LinearLayout>
 
@@ -212,7 +211,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Add to Fav"
-                android:src="@drawable/ic_add_friend_small"
+                android:src="@drawable/ic_add_fav_small"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="8dp" />
 
