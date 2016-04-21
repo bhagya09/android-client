@@ -1,5 +1,34 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.modules.httpmgr.DefaultHeaders;
+import com.bsb.hike.modules.httpmgr.HttpUtils;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
+import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
+import com.bsb.hike.modules.httpmgr.client.IClient;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
+import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
+import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
+import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.request.RequestCall;
+import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.response.ResponseBody;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
+import com.bsb.hike.utils.Utils;
+
+import org.apache.http.conn.ConnectTimeoutException;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.UUID;
+
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
@@ -12,34 +41,6 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_S
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.UUID;
-
-import org.apache.http.conn.ConnectTimeoutException;
-
-import com.bsb.hike.filetransfer.FileTransferBase.FTState;
-import com.bsb.hike.modules.httpmgr.DefaultHeaders;
-import com.bsb.hike.modules.httpmgr.HttpUtils;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
-import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
-import com.bsb.hike.modules.httpmgr.log.LogFull;
-import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
-import com.bsb.hike.modules.httpmgr.request.Request;
-import com.bsb.hike.modules.httpmgr.request.RequestCall;
-import com.bsb.hike.modules.httpmgr.request.facade.RequestFacade;
-import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.httpmgr.response.ResponseBody;
-import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
-import com.bsb.hike.utils.Utils;
 
 /**
  * This class is responsible for submitting the {@link Request} to the {@link HttpEngine} for engine and decides whether to execute the request asynchronously or synchronously
@@ -239,14 +240,19 @@ public class RequestExecuter
 			/** Logging request for analytics */
 			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
+			long startTimeNs = System.nanoTime();
 			response = request.executeRequest(client);
+			long timeTakenNs = System.nanoTime() - startTimeNs;
+
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-			
+
+			addResponseTimeHeader(response, timeTakenNs);
+
 			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
@@ -415,5 +421,10 @@ public class RequestExecuter
 				processRequest();
 			}
 		}
+	}
+
+	private void addResponseTimeHeader(Response response, long timeTakenNs)
+	{
+		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME, Long.toString(timeTakenNs));
 	}
 }
