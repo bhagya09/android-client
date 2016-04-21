@@ -927,7 +927,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
         }
 
         // Code for micro app request to the server
-        RequestToken token = HttpRequests.microAppPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
+        RequestToken token = HttpRequests.forwardCardsMISPostRequest(HttpRequestConstants.getBotDownloadUrlV2(), json, new IRequestListener()
         {
             @Override
 			public void onRequestSuccess(Response result)
@@ -962,6 +962,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 								cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);
 								convMessage.webMetadata.setCardobj(cardObj);
+                                convMessage.webMetadata.setAppName(updatedAppName);
 
 								ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
 
@@ -1005,9 +1006,18 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 Logger.v(TAG, "Bot download request failure for " + appName);
                 showConnErrState(webViewHolder,convMessage,position);
             }
-        });
-        if (!token.isRequestRunning())
+        },appName + position);
+
+        if (token != null && !token.isRequestRunning())
         {
+            ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+
+            // In case view holders array list is null , initialize it with an empty array list
+            if (viewHolders == null)
+                viewHolders = new ArrayList<>();
+
+            viewHolders.add(webViewHolder);
+            webViewHolderMap.put(appName, viewHolders);
             token.execute();
         }
     }

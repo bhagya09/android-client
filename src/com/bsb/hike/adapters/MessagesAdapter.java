@@ -1137,7 +1137,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							wtHolder.action.setImageResource(R.drawable.ic_mic);
 						}
 						wtHolder.duration.setTag(hikeFile.getFileKey());
-						voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						//CE-261: Last played audio message shows incorrect time when mediaplayer is null
+						if (voiceMessagePlayer.mediaPlayer == null) {
+							Utils.setupFormattedTime(wtHolder.duration, hikeFile.getRecordingDuration());
+						} else {
+							voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						}
 						wtHolder.duration.setVisibility(View.VISIBLE);
 						wtHolder.progress.setVisibility(View.VISIBLE);
 					}
@@ -4130,6 +4135,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationProgress = null;
 
 			unregisterProximitySensor();
+			unregisterHeadserReceiver();
 			audioManager.setMode(initialAudioMode);
 		}
 
@@ -4261,7 +4267,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (durationTxt == null || durationProgress == null || fileKey == null || mediaPlayer == null)
 			{
-				if(durationTxt != null){
+				if(fileKey == null && durationTxt != null){ //CE-462 & CE-461
 					durationTxt.setText("N/A");
 				}
 				return;

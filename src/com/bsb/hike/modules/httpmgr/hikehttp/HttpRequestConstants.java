@@ -69,6 +69,12 @@ public class HttpRequestConstants
 	
 	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
 	
+	public static final String BASE_AUTH_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_PROD = "http://oauth.platform.hike.in/o/oauth2/";
+
+	private static String BASE_AUTH_SDK = HTTP + BASE_AUTH_SDK_PROD;
+	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
 	private static final String BASE_CREATE = "/create";
@@ -107,6 +113,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -115,8 +122,15 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
+	private static void changeBaseAuthUrl()
+	{
+		BASE_AUTH_SDK = "";
+		BASE_AUTH_SDK += (isSSL) ? HTTPS : HTTP;
+		BASE_AUTH_SDK += (isProduction) ? BASE_AUTH_SDK_PROD : BASE_AUTH_SDK_STAGING;
+	}
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
@@ -360,7 +374,7 @@ public class HttpRequestConstants
 	
 	public static String authBaseUrl()
 	{
-		return BASE_SDK_STAGING+"authorize" + "?" ;
+		return BASE_AUTH_SDK+"authorize" + "?" ;
 	}
 
 	public static String registerBrandUrl()
@@ -547,5 +561,10 @@ public class HttpRequestConstants
 
 	public static String getAnalyticsUrl() {
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
+	public static String getHistoricalStatusUpdatesUrl()
+	{
+		return  BASE_URL + BASE_V1 + "hsu/";
 	}
 }

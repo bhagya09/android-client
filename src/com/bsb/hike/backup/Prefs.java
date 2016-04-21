@@ -39,7 +39,7 @@ public class Prefs
 				.put(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, prefUtil.getData(HikeMessengerApp.SHOW_STEALTH_INFO_TIP, false))
 				.put(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, prefUtil.getData(HikeMessengerApp.STEALTH_PIN_AS_PASSWORD, false))
 				.put(HikeMessengerApp.CONV_DB_VERSION_PREF, prefUtil.getData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION))
-				.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, false));
+				.put(HikePlatformConstants.CUSTOM_TABS, prefUtil.getData(HikePlatformConstants.CUSTOM_TABS, true));
 
 		SharedPreferences settingUtils = PreferenceManager.getDefaultSharedPreferences(HikeMessengerApp.getInstance());
 
