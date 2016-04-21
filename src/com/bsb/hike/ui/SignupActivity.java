@@ -1076,6 +1076,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		defAvBgColor = bgColorArray.getColor(index, 0);
 
+		// Remove any pending image selected by user in previous attempt.
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+		// Remove any temporary image saved in the process;
+		Utils.removeTempProfileImage(msisdn);
+
 		if(mActivityState.profileBitmap == null && savedInstanceState != null)
 		{
 			mActivityState.profileBitmap = savedInstanceState.getParcelable(HikeConstants.Extras.BITMAP);
