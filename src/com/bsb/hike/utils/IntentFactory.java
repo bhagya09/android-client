@@ -107,11 +107,12 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.TITLE, R.string.notifications);
 		context.startActivity(intent);
 	}
-	public static Intent messageInfoIntent(ConvMessage convMessage,Context context,String msisdn){
+	public static Intent messageInfoIntent(Context context,long messageID){
 		Intent intent=new Intent(context, MessageInfoActivity.class);
-		intent.putExtra(HikeConstants.MESSAGE_ID,convMessage.getMsgID());
-		intent.putExtra(HikeConstants.MSISDN,msisdn);
+		intent.putExtra(HikeConstants.MESSAGE_ID,messageID);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		return intent;
+
 	}
 	public static Intent shareFunctionality(Intent intent, ConvMessage message, MessagesAdapter mAdapter, int shareableMessagesCount,Context context)
 	{   

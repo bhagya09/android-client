@@ -4185,7 +4185,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			// Adding file key for file transfer message in offline mode
 			if (msg.isOfflineMessage() && OfflineUtils.isFileTransferMessage(msg.serialize()))
 			{
-				Logger.d("BugRef","UPDATING FILE KEY FOR   .. msg id is "+ msgID);
+				Logger.d("BugRef", "UPDATING FILE KEY FOR   .. msg id is " + msgID);
 				if (TextUtils.isEmpty(msg.getMetadata().getHikeFiles().get(0).getFileKey()))
 				{
 					msg.getMetadata().getHikeFiles().get(0).setFileKey("OfflineFileKey" + System.currentTimeMillis() / 1000);
@@ -5208,7 +5208,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	{
 		return;
 	}
+	protected void openMessageInfoScreen(ConvMessage convMessage){
 
+		return ;
+	}
 	protected ChatTheme getCurrentlTheme()
 	{
 		return mAdapter.getChatTheme();
@@ -5623,7 +5626,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				if(selectedMessagesMap.size()==1){
 					ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
 					if(convMessage.isSent()){
-						activity.startActivity(IntentFactory.messageInfoIntent(convMessage,activity,msisdn));
+						openMessageInfoScreen(convMessage);
 					}
 				}
 				return true;

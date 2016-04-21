@@ -7,6 +7,7 @@ public class MessageInfo {
     String receiverMsisdn;
     long read_timestamp;
     long delivered_timestamp;
+    long played_timestamp;
 
     public MessageInfo(String receiverMsisdn,long read_timestamp,long delivered_timestamp){
       this.receiverMsisdn=receiverMsisdn;
@@ -22,6 +23,9 @@ public class MessageInfo {
     {
         return read_timestamp;
 
+    }
+    public long getPlayedTimestamp(){
+        return played_timestamp;
     }
     public String getReceiverMsisdn(){
         return receiverMsisdn;
