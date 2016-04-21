@@ -214,15 +214,10 @@ public class HttpRequestConstants
 
 	public static String stickerCategoryFetchPrefOrderUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_order";
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
 	}
 
 	public static String stickerShopFetchCategoryUrl()
-	{
-		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_metadata";
-	}
-
-	public static String stickerShopUpdateCategoryUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
 	}

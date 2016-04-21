@@ -44,6 +44,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.FetchAllCategoriesDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryMetadataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
@@ -385,6 +386,9 @@ public class StickerManager
 		cachingStickersOnStart();
 
 		doUpgradeTasks();
+
+		CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask= new CategoryOrderPrefDownloadTask();
+		categoryOrderPrefDownloadTask.execute();
 
 	}
 
@@ -1661,10 +1665,17 @@ public class StickerManager
 			}
 
 			if(jsonObj.has(HikeConstants.PACK_STATE)) {
-				boolean isDisabled = jsonObj.optBoolean(HikeConstants.PACK_STATE);
-				category.setIsDisabled(isDisabled);
+				int state = jsonObj.optInt(HikeConstants.PACK_STATE);
+				category.setIsDisabled(state == 1 ? false : true);
 			}
-
+			if(jsonObj.has(HikeConstants.TIMESTAMP)) {
+				int ts = jsonObj.optInt(HikeConstants.TIMESTAMP);
+				category.setPackUpdationTime(ts);
+			}
+			if(jsonObj.has(HikeConstants.UCID)) {
+				int ucid = jsonObj.optInt(HikeConstants.UCID);
+				category.setUcid(ucid);
+			}
 			return category;
 		}
 		catch(JSONException ex)
@@ -3349,5 +3360,18 @@ public class StickerManager
 	public boolean getShowLastCategory()
 	{
 		return showLastCategory;
+	}
+
+	public void refreshPacksMetadata()
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				StickerCategoryMetadataUpdateTask stickerCategoryMetadataUpdateTask = new StickerCategoryMetadataUpdateTask();
+				stickerCategoryMetadataUpdateTask.run();
+			}
+		});
 	}
 }

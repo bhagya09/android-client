@@ -763,6 +763,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -3206,9 +3207,7 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
-	public static final String PACK_STATE = "pack_state";
-
-	public static final String FETCH_CATEGORIES_TIMESTAMP = "fetchCategoriesTimeStamp";
+	public static final String PACK_STATE = "state";
 
 	public static final String UPDATE_CATEGORIES_TIMESTAMP = "updateCategoriesTimeStamp";
 
@@ -4112,4 +4111,11 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final String UPDATED_ALL_CATEGORIES = "updatedAllCategories";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
 }

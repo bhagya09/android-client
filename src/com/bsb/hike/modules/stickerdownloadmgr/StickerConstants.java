@@ -103,4 +103,13 @@ public class StickerConstants
 	public static final long DEFAULT_TTL_MINI_STICKERS = 1 * 24 * 60 * 60 * 1000; // 1 day
 
 	public static final short DEFAULT_PACK_PREVIEW_VIEW_ALL_VISIBLE_ROWS = 3;
+
+	public static final int NUMBER_OF_ROWS_FOR_ORDER = 100000;
+
+	public static final int PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA = 1000;
+
+	public static final int PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA = 200;
+
+	public static final int CATEGORIES_TO_FETCH_DATA = 10000;
+
 }

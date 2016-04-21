@@ -514,9 +514,19 @@ public interface DBConstants
 
 	public static final String COPYRIGHT_STRING = "copyRightString";
 
-	public static final String STICKER_CATEGORY_PREF_ORDER = "prefOrder";
+	public static final String STICKER_CATEGORY_PREF_ORDER_TABLE = "catPrefOrderTable";
 
-	public static final String UPDATED_TIME = "updatedTime";
+	public static final String UCID_INDEX = "ucidIndex";
+
+	public static final String ORDER = "prefOrder";
+
+	public static final String UCID = "ucid";
+
+	public static final String UPDATED_METADATA = "updatedMetadata";
+
+	public static final String UPDATED_METADATA_TIMESTAMP = "updatedMetadataTs";
+
+	public static final String UPDATED_PREVIEW_TIMESTAMP = "updatedPreviewTs";
 
 	public static final String IS_DISABLED = "is_disabled";
 
