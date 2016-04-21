@@ -92,7 +92,6 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.sticker
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopUpdateCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
@@ -208,12 +207,13 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken fetchAllCategoriesData(String requestId, int offset, int pageSize, IRequestListener requestListener)
+	public static RequestToken fetchAllCategoriesData(String requestId, JSONObject json, IRequestListener requestListener)
 	{
-		String url = stickerShopFetchCategoryUrl() + "?offset=" + offset  + "&pagesize=" + pageSize;
+		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
+				.setUrl(stickerShopFetchCategoryUrl())
 				.setId(requestId)
+				.post(body)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
@@ -221,22 +221,9 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken updateAllCategoriesData(String requestId, long timestamp, int offset, IRequestListener requestListener)
+	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
 	{
-		String url = stickerShopUpdateCategoryUrl() + "?ts="+ timestamp+ "&offset=" + offset;
-		RequestToken requestToken = new JSONObjectRequest.Builder()
-				.setUrl(url)
-				.setId(requestId)
-				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_HIGH)
-				.build();
-		return requestToken;
-	}
-
-	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener)
-	{
-		String url = stickerCategoryFetchPrefOrderUrl();
+		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" +catSize +"&offset="+ offset;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(url)
 				.setId(requestId)

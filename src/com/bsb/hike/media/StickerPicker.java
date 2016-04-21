@@ -32,9 +32,11 @@ import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.TabClickListener;
 import com.bsb.hike.chatthread.IShopIconClickedCallback;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryMetadataUpdateTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -331,6 +333,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 		case R.id.shop_icon:
 			// shop icon clicked
+			StickerManager.getInstance().refreshPacksMetadata();
 			shopIconClicked();
 			break;
 		case R.id.info_icon:
@@ -372,6 +375,7 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			onBackMainLayoutClick();
 			break;
 		case R.id.shop_icon_external:
+			StickerManager.getInstance().refreshPacksMetadata();
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadViewManager.foregroundAppName);
 			ChatHeadViewManager.getInstance(mContext).resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
 			break;

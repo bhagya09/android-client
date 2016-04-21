@@ -60,6 +60,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoryPrefOrder(orderArray);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_ORDER_TIMESTAMP, System.currentTimeMillis());
 				}
 				catch (Exception e)
@@ -83,7 +84,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 	{
 		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
 		{
-			token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener());
+			token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(), StickerConstants.NUMBER_OF_ROWS_FOR_ORDER, 0);
 			token.execute();
 		}
 	}

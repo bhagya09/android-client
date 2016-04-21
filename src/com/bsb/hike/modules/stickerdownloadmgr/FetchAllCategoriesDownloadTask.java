@@ -2,11 +2,11 @@ package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
-import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -14,7 +14,10 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by ashishagarwal on 15/04/16.
@@ -24,13 +27,41 @@ public class FetchAllCategoriesDownloadTask implements IHikeHTTPTask
 
 	private final String FETCH_ALL_CATEGORIES_TAG = "FetchAllCategoryDownloadTask";
 
-	private int PAGE_SIZE_FETCH_STICKER_CATEGORY_CALL = 200;
-
 	private RequestToken token;
 
-	public String getCategoryFetchRequestId(int offset)
+	private JSONObject reqJson;
+
+	private List<StickerCategory> list;
+
+	private String ucids;
+
+	public FetchAllCategoriesDownloadTask(List<StickerCategory> list)
 	{
-		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + offset;
+		this.list = list;
+		reqJson = new JSONObject();
+		JSONObject jsonObject;
+		JSONArray array = new JSONArray();
+		try
+		{
+			for (StickerCategory category : list)
+			{
+				ucids += category.getUcid();
+				jsonObject = new JSONObject();
+				jsonObject.put(category.getUcid() + "", category.getPackUpdationTime());
+				array.put(jsonObject);
+			}
+
+			reqJson.put(HikeConstants.UCIDS, array);
+		}
+		catch (Exception e)
+		{
+
+		}
+	}
+
+	public String getCategoryFetchRequestId()
+	{
+		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel()+ ucids;
 	}
 
 	private IRequestListener getRequestListener()
@@ -67,14 +98,7 @@ public class FetchAllCategoriesDownloadTask implements IHikeHTTPTask
 
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
-					if (jsonArray.length() == 0)
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_CATEGORIES_TIMESTAMP, System.currentTimeMillis());
-					}
-					else
-					{
-						download();
-					}
+					HikeConversationsDatabase.getInstance().categoryMetadataStatusUpdate(list);
 				}
 				catch (Exception e)
 				{
@@ -94,19 +118,16 @@ public class FetchAllCategoriesDownloadTask implements IHikeHTTPTask
 	@Override
 	public void execute()
 	{
-
-		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_CATEGORIES_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
-		{
 			download();
-		}
-
 	}
 
 	private void download()
 	{
-		int offset = HikeConversationsDatabase.getInstance().getRowsCountStickerCategoryTable();
-		token = HttpRequests.fetchAllCategoriesData(getCategoryFetchRequestId(offset), offset, PAGE_SIZE_FETCH_STICKER_CATEGORY_CALL, getRequestListener());
-		token.execute();
+		if (reqJson != null)
+		{
+			token = HttpRequests.fetchAllCategoriesData(getCategoryFetchRequestId(), reqJson, getRequestListener());
+			token.execute();
+		}
 	}
 
 	@Override
