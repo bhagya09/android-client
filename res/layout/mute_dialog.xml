@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="317dp">
+    
+    <LinearLayout
+        android:id="@+id/mute_title"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:layout_width="match_parent"
+            android:layout_height="26.5dp"
+            android:textSize="20sp"
+            android:textColor="@color/standard_black"
+            android:layout_marginLeft="24dp"
+            android:layout_marginTop="13dp"
+            android:text="@string/group_mute_dialog_title"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/mute_duration_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/mute_title">
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/mute_notif_and_btns"
+        android:layout_width="match_parent"
+        android:layout_height="104dp"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="30dp">
+
+            <CheckBox
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="26dp"
+                android:button="@drawable/hike_list_item_checkbox"/>
+            
+            <com.bsb.hike.view.CustomFontTextView
+                android:layout_width="match_parent"
+                android:layout_height="18.5dp"
+                android:layout_marginLeft="18dp"
+                android:layout_gravity="center_vertical"
+                android:textSize="14sp"
+                android:textColor="@color/show_notif_color"
+                android:text="@string/show_notif"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="18.5dp"
+            android:layout_marginBottom="19.5dp">
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/mute_dialog_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/popup_button_bg_selector"
+                android:clickable="true"
+                android:text="@string/OK"
+                android:textColor="@color/blue_hike"
+                android:textSize="14sp"
+                android:layout_marginRight="39dp"/>
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/mute_dialog_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/popup_button_bg_selector"
+                android:clickable="true"
+                android:layout_toLeftOf="@id/mute_dialog_ok"
+                android:text="@string/CANCEL"
+                android:textColor="@color/blue_hike"
+                android:textSize="14sp"
+                android:layout_marginRight="43dp"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
