@@ -258,6 +258,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONVERSATION_METADATA + " TEXT" // Extra info. JSON format
 				+ " )";
 		db.execSQL(sql);
+
+		sql = getChatPropertiesTableCreateStatement();
+		db.execSQL(sql);
+
+		sql = getChatPropertiesIndexCreateStatement();
+		db.execSQL(sql);
+
+		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_TABLE
+				+ " ("
+				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
+				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.BG_TIMESTAMP + " INTEGER" // Timestamp when this theme was changed.
+				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
+				+ DBConstants.MUTE_TIMESTAMP + " INTEGER" // Timestamp when this mute pref was changed.
+				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
+				+ DBConstants.MUTE_NOTIFICATION + "INTEGER DEFAULT 0" //
+				+ ")";
+		db.execSQL(sql);
+
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.GROUP_MEMBERS_TABLE
 				+ " ( "
 				+ DBConstants.GROUP_ID + " TEXT, " // The group id.
@@ -326,15 +345,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " )";
 		db.execSQL(sql);
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.FILE_THUMBNAIL_INDEX + " ON " + DBConstants.FILE_THUMBNAIL_TABLE + " (" + DBConstants.FILE_KEY + " )";
-		db.execSQL(sql);
-		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_BG_TABLE
-				+ " ("
-				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
-				+ DBConstants.TIMESTAMP + " INTEGER" // Timestamp when this them was changed.
-				+ ")";
-		db.execSQL(sql);
-		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
 
 		sql = getStickerShopTableCreateQuery();
@@ -1064,6 +1074,35 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(sql);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
+
+		if (oldVersion < 50)
+		{
+			String create = getChatPropertiesTableCreateStatement();
+			db.execSQL(create);
+
+			String index = getChatPropertiesIndexCreateStatement();
+			db.execSQL(index);
+
+			String insert = "INSERT INTO " + DBConstants.CHAT_PROPERTIES_TABLE
+							+ "( "
+							+ DBConstants.MSISDN + ", "
+							+ DBConstants.BG_ID + ", "
+							+ DBConstants.BG_TIMESTAMP
+							+ " ) SELECT "
+							+ DBConstants.MSISDN + ", "
+							+ DBConstants.BG_ID + ", "
+							+ DBConstants.TIMESTAMP
+							+ " FROM " + DBConstants.CHAT_BG_TABLE;
+
+			db.execSQL(insert);
+
+			String dropIndex = "DROP INDEX IF EXISTS " + DBConstants.CHAT_BG_INDEX;
+			db.execSQL(dropIndex);
+
+			String drop = "DROP TABLE IF EXISTS" + DBConstants.CHAT_BG_TABLE;
+			db.execSQL(drop);
+
+		}
 	}
 
 	public void reinitializeDB()
@@ -1148,6 +1187,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
 				+ ")";
+	}
+
+	private String getChatPropertiesTableCreateStatement()
+	{
+		return "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_TABLE
+				+ " ("
+				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
+				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.BG_TIMESTAMP + " INTEGER, " // Timestamp when this theme was changed.
+				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
+				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
+				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
+				+ DBConstants.MUTE_NOTIFICATION + "INTEGER DEFAULT 0" //
+				+ ")";
+	}
+
+	private String getChatPropertiesIndexCreateStatement()
+	{
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_INDEX + " ON " + DBConstants.CHAT_PROPERTIES_TABLE + " (" + DBConstants.MSISDN + ")";
 	}
 
 	private void dropAndRecreateStatusTable(SQLiteDatabase db)
