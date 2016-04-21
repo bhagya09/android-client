@@ -3920,6 +3920,12 @@ import java.util.Map;
 	{
 		addFriendView.setVisibility(View.VISIBLE);
 
+		if (isThereAnyAnimationOnFriendsFtue(addFriendView))
+		{
+			// Remove the anim. This is causing : https://hikeapp.atlassian.net/browse/HS-387
+			removeFriendsFtueAnim(addFriendView);
+		}
+
 		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
 
 		addFriendView.findViewById(R.id.add_friend_ftue_button).setOnClickListener(this);
@@ -4153,4 +4159,15 @@ import java.util.Map;
 
 		return true;
 	}
+
+	private void removeFriendsFtueAnim(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView.getAnimation() != null)
+		{
+			tipView.setAnimation(null);
+		}
+	}
+
 }
