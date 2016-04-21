@@ -288,8 +288,6 @@ public class AnalyticsConstants
 		public static final String NETWORK = "nw";
 
 		public static final String SOURCE = "src";
-		
-		public static final String NETWORK_TYPE = "nw";
 	}
 
 	// Edit picture flags and events
