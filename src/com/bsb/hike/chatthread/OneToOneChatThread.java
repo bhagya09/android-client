@@ -271,7 +271,8 @@ import com.bsb.hike.voip.VoIPUtils;
 	 * @param intent
 	 */
 	private void addQuickReplyMessage(Intent intent) {
-		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false)) {
+		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
+		{
 			//Provide content to caller View inside Unknown contact overlay
 			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
 
@@ -283,6 +284,7 @@ import com.bsb.hike.voip.VoIPUtils;
 					messages.add(0, cm);
 				}
 
+				//Show message Only When user is not blocked
 				if (callerContentModel.getCallerMetadata() != null && !callerContentModel.getCallerMetadata().isEmpty()) {
 					mConversation.setOnHike(callerContentModel.getIsOnHike());
 					if (mAdapter != null) {
@@ -294,8 +296,8 @@ import com.bsb.hike.voip.VoIPUtils;
 				}
 			}
 
-			//Showing quick reply message inside CT
-			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG)) {
+			//Showing quick reply message inside CT, only if user is not blocked
+			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG) && !mConversation.isBlocked()) {
 				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
 				String msisdn = callerContentModel.getMsisdn();
 				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);

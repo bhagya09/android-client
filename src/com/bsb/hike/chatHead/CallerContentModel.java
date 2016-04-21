@@ -245,7 +245,10 @@ public class CallerContentModel implements Parcelable
 		dest.writeString(getMsisdn());
 		dest.writeString(getLocation());
 		dest.writeInt(is_on_hike ? 1 : 0);
-		dest.writeString(getCallerMetadata().toString());
+		if(getCallerMetadata() != null)
+		{
+			dest.writeString(getCallerMetadata().toString());
+		}
 	}
 
 	public CallerContentModel(Parcel source)

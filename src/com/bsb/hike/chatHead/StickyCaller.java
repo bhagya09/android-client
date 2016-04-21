@@ -706,6 +706,9 @@ public class StickyCaller {
 			}
 		});
 
+		//Adding card movement from list view
+		defaultQuickReplyListView.setOnTouchListener(onTouchListener);
+
 		//Handling Close cross button
 		View callerCloseButton = stickyCallerView.findViewById(R.id.qr_caller_close_button);
 		callerCloseButton.setTag(number);
