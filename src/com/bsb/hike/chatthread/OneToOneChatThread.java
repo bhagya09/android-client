@@ -3332,6 +3332,8 @@ import java.util.Map;
 		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
+			Utils.incrementOrDecrementFriendRequestCount(HikeSharedPreferenceUtil.getInstance().getPref(), -1);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_COUNT_CHANGED, null);
 		}
 
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
