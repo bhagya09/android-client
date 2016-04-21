@@ -62,7 +62,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private int packUpdationTime;
 
-	private int ucid;
+	private int ucid = -1;
 
 	private int previewUpdationTime;
 
@@ -115,7 +115,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private void ensureSaneDefaults()
 	{
-		if(categoryId == null)
+		if(categoryId == null && ucid <0 )
 		{
 			throw new IllegalStateException("Category cannot be null");
 		}
