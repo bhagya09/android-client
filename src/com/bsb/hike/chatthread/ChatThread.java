@@ -562,10 +562,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+			break;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -983,6 +985,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
+			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
+				sendLocationCancelledAnalytic();
+			}
 			return;
 		}
 		switch (requestCode)
@@ -1404,7 +1409,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	protected void showAudioRecordView()
 	{
-		audioRecordView.show();
+		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
+		if(!useWTRevamped) audioRecordView.show();
+		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
 	protected void stickerClicked()
@@ -1444,7 +1451,14 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
-	
+
+	protected void closeWTTip() {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
+			showRecordingErrorTip(R.string.recording_help_text);
+		}
+	}
+
 	public void showStickerRecommendTip()
 	{
 		mTips.showStickerRecommendFtueTip();
@@ -2182,6 +2196,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	}
 
+	private void sendLocationCancelledAnalytic() {
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		Utils.recordCoreAnalyticsForShare(AnalyticsConstants.LOCATION_SHARING_CANCELLED, species,
+				msisdn, mConversation.isStealth());
+	}
+
 	protected void onShareLocation(Intent data)
 	{
 		if (data == null)
@@ -2332,6 +2352,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "Audio Recorded failed");
 		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
 			showRecordingErrorTip(R.string.recording_help_text);
+		} else if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER){
+			sendAnalyticsUserCancelledRecording();
+		}
+	}
+
+	private void sendAnalyticsUserCancelledRecording() {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -3773,6 +3805,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
+				boolean isWTShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+				if (isWTShown) {
+					if (event.getAction() == MotionEvent.ACTION_UP) closeWTTip();
+					return true;
+				}
+
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -5204,7 +5242,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 		sendMessage(convMessage);
 		
 	}
@@ -6519,7 +6557,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_OPEN);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
