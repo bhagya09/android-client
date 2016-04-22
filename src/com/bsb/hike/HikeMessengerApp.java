@@ -975,8 +975,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		PlatformUtils.resumeLoggingLocationIfRequired();
-		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 		CustomTabsHelper.getPackageNameToUse(this);
+		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
 	private void validateCriticalDirs()
@@ -1379,6 +1379,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
+
+    public static void clearDiskCache()
+    {
+        diskCache = null;
     }
 
 }
