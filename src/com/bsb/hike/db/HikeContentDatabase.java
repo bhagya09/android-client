@@ -1184,17 +1184,19 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	}
 
 	/**
-	 * Method to get list of all saved atomic tips ordered by tip priority
+	 * Method to get list of all saved atomic tips in ascending order of status and tip priority
 	 * @return
      */
 	public ArrayList<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
+		//first cleaning up table to remove expired tips
+		cleanAtomicTipsTable();
 		ArrayList<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try
 		{
-			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " ORDER BY " + TIP_PRIORITY + " ASC";
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " ORDER BY " + TIP_STATUS + " ASC, " +TIP_PRIORITY + " ASC";
 
 			c = mDB.rawQuery(query, null);
 
