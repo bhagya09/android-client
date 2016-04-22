@@ -447,6 +447,8 @@ public interface DBConstants
 
 		public static final String CALLER_METADATA = "md";
 
+		public static final String EXPIRY_TIME = "expiry_time";
+
 		// hike caller detail table ends here
 
 	}

@@ -2545,6 +2545,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		else if (viewType == ViewType.UNKNOWN_BLOCK_ADD)
 		{
 			Logger.i("chatthread", "getview of unknown header");
+			Logger.i("c_spam", "getview of unknown header");
 			if (convertView == null)
 			{
 				convertView = inflater.inflate(R.layout.block_add_unknown_contact_mute_bot, parent, false);
@@ -2560,6 +2561,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					addButton.setTag(R.string.save_unknown_contact);
 
 					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
+					Logger.i("c_spam", "visible........ user info view");
 				}
 
 				addButton.setOnClickListener(mOnClickListener);
@@ -2593,15 +2595,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	// 2. user opens 1-1 chat via caller "free sms" button click on hike caller card
 	private void updateUnknownChatUserView(View convertView)
 	{
-		if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
+		try
 		{
-			// set UI (Name, Location, Spam)
-			((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
-			((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
-			convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
-			if (callerContentModel.getCallerMetadata() != null)
+			if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
 			{
-				try
+				Logger.d("c_spam", "filling values in user_info view as callercontentmodel is " + callerContentModel);
+				// set UI (Name, Location, Spam)
+				convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
+				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
+				convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+				if (callerContentModel.getCallerMetadata() != null)
 				{
 					String spamCoutString = String.format(context.getString(R.string.unknown_user_spam_info), callerContentModel.getCallerMetadata().getChatSpamCountJson());
 					if (!TextUtils.isEmpty(spamCoutString))
@@ -2610,11 +2614,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						((CustomFontTextView) convertView.findViewById(R.id.unknown_user_spam_info)).setText(spamCoutString);
 					}
 				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-				}
 			}
+			else if (callerContentModel != null && callerContentModel.getExpiryTime() == 0)
+			{
+				Logger.d("c_spam", "making invisible user_info view as callercontentmodel is " + callerContentModel);
+				convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
@@ -4683,6 +4692,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	public void dismissUserInfoLoader()
 	{
+		Logger.d("c_spam", "dismissing unknown user info loader");
 		View view = mListView.getChildAt(0);
 		if (view != null)
 		{

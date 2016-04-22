@@ -42,7 +42,7 @@ public class CallerContentModel implements Parcelable
 
 	private boolean is_block;
 
-	private long updation_time, creation_time;
+	private long updation_time, creation_time, expiry_time;
 
 	@Expose
 	private int chat_spam_type;
@@ -245,6 +245,7 @@ public class CallerContentModel implements Parcelable
 		dest.writeString(getMsisdn());
 		dest.writeString(getLocation());
 		dest.writeInt(is_on_hike ? 1 : 0);
+		dest.writeLong(expiry_time);
 		if(getCallerMetadata() != null)
 		{
 			dest.writeString(getCallerMetadata().toString());
@@ -257,6 +258,7 @@ public class CallerContentModel implements Parcelable
 		this.msisdn = source.readString();
 		this.location = source.readString();
 		this.is_on_hike = (source.readInt() == 0) ? false : true;
+		this.expiry_time = source.readLong();
 		this.callerMetadata = new CallerMetadata(source.readString());
 	}
 
@@ -272,4 +274,27 @@ public class CallerContentModel implements Parcelable
 			return new CallerContentModel[size];
 		}
 	};
+
+	public void setExpiryTime(long expiry_time)
+	{
+		this.expiry_time = expiry_time;
+	}
+
+	public long getExpiryTime()
+	{
+		return expiry_time;
+	}
+
+	@Override
+	public String toString() {
+		return "CallerContentModel{" +
+				", location='" + location + '\'' +
+				", msisdn='" + msisdn + '\'' +
+				", is_on_hike=" + is_on_hike +
+				", full_name='" + full_name + '\'' +
+				", creation_time=" + creation_time +
+				", expiry_time=" + expiry_time +
+				", callerMetadata=" + callerMetadata +
+				'}';
+	}
 }

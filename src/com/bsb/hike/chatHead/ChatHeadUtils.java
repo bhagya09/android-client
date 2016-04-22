@@ -1068,7 +1068,7 @@ public class ChatHeadUtils
 		});
 	}
 
-	public static void makeHttpCallToSpamUnspamChatUser(final Context context, final String msisdn, final boolean markSpam)
+	public static void makeHttpCallToSpamUnspamChatUser(final Context context, final String msisdn, final int markSpam)
 	{
 		JSONObject spamUserJSONObject = new JSONObject();
 		try
@@ -1122,16 +1122,21 @@ public class ChatHeadUtils
 		return callerContentModel;
 	}
 
-	public static CallerContentModel getCallerContentModelFromResponse(JSONObject result)
+	public static CallerContentModel getUpdatedCallerContentModelFromResponse(CallerContentModel callerContentModel, JSONObject result)
 	{
-		CallerContentModel callerContentModel = null;
-		if(result != null)
+		try
 		{
-			callerContentModel = new CallerContentModel();
-			//callerContentModel.setFullName(result.optString(HikeConstants.));
-			//callerContentModel.setFullName(result.optString(HikeConstants.));
-			//callerContentModel.setFullName(result.optString(HikeConstants.));
-			//callerContentModel.setFullName(result.optString(HikeConstants.));
+			if(result != null)
+			{
+				CallerMetadata md = new CallerMetadata(null);
+				md.setIsUserSpammedByYou(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
+				md.setChatSpamCount(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
+				callerContentModel.setCallerMetadata(md.toString());
+			}
+		}
+		catch (JSONException ex)
+		{
+			ex.printStackTrace();
 		}
 		return callerContentModel;
 	}

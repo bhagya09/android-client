@@ -1,17 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONArray;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -109,6 +97,19 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -270,34 +271,46 @@ import com.bsb.hike.voip.VoIPUtils;
 	 *
 	 * @param intent
 	 */
-	private void addQuickReplyMessage(Intent intent) {
+	private void addQuickReplyMessage(Intent intent)
+	{
 		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
 		{
-			//Provide content to caller View inside Unknown contact overlay
-			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
-
-			//Showing Caller View inside unknown contact overlay
-			if (mContactInfo != null && mContactInfo.isUnknownContact()) {
-				if (messages != null && messages.size() == 0) {
-					ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
-					cm.setBlockAddHeader(true);
-					messages.add(0, cm);
-				}
-
-				//Show message Only When user is not blocked
-				if (callerContentModel.getCallerMetadata() != null && !callerContentModel.getCallerMetadata().isEmpty()) {
-					mConversation.setOnHike(callerContentModel.getIsOnHike());
-					if (mAdapter != null) {
-						mAdapter.setCallerContentModel(callerContentModel);
-						mAdapter.notifyDataSetChanged();
-					}
-				} else {
-					FetchUknownHikeUserInfo.fetchHikeUserInfo(activity.getApplicationContext(), msisdn, false);
-				}
+			if (mContactInfo == null && !mContactInfo.isUnknownContact())
+			{
+				intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
+				return;
 			}
 
-			//Showing quick reply message inside CT, only if user is not blocked
-			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG) && !mConversation.isBlocked()) {
+			// Showing Caller View inside unknown contact overlay
+			if (messages != null && messages.size() == 0)
+			{
+				ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
+				cm.setBlockAddHeader(true);
+				messages.add(0, cm);
+			}
+
+			// Provide content to caller View inside Unknown contact overlay
+			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
+			mConversation.setOnHike(callerContentModel.getIsOnHike());
+
+			if (callerContentModel.getExpiryTime() > System.currentTimeMillis())
+			{
+				if (mAdapter != null)
+				{
+					mAdapter.setCallerContentModel(callerContentModel);
+					mAdapter.notifyDataSetChanged();
+					Logger.d("c_spam", "C->C, info found in DB :- " + callerContentModel);
+				}
+			}
+			else
+			{
+				Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel +", so going for HTTP, with updationg old");
+				FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
+			}
+
+			// Showing quick reply message inside CT, only if user is not blocked
+			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG) && !mConversation.isBlocked())
+			{
 				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
 				String msisdn = callerContentModel.getMsisdn();
 				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
@@ -596,6 +609,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	 */
 	private void showUknownUserInfoView()
 	{
+		Logger.d("c_spam", "chat thread opened for unknown contact, going to find in DB");
 		// Show user info view
 		new AsyncTask<Void, Void, CallerContentModel>()
 		{
@@ -611,11 +625,19 @@ import com.bsb.hike.voip.VoIPUtils;
 			{
 				if (callerContentModel == null)
 				{
+					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +", so going for HTTP, new row");
 					// 2. if not in DB, then HTTP Call for user info + show loader(later on)
-					FetchUknownHikeUserInfo.fetchHikeUserInfo(activity.getApplicationContext(), msisdn, true);
+					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, null);
+				}
+				else if(callerContentModel.getExpiryTime() < System.currentTimeMillis())
+				{
+					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
+					// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
+					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
 				}
 				else
 				{
+					Logger.d("c_spam", "FOUND in DB, Firing pubsub " + HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW + " data:- " + callerContentModel);
 					// Update UI
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
 				}
@@ -3743,7 +3765,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private void spamUnspamUser(boolean isSpam)
 	{
-		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam);
+		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam == true ? 1 : 0);
 	}
 
 	private void updateUnknownUserInfoViews(Object object)
@@ -3753,13 +3775,15 @@ import com.bsb.hike.voip.VoIPUtils;
 			// This is case When Http Call is failed and we have to dismissLoader
 			if (object == null)
 			{
+				Logger.d("c_spam", "inside updateUnknownUserInfoViews, object is "+ object);
 				mAdapter.dismissUserInfoLoader();
 			}
 			else
 			{
+				Logger.d("c_spam", "inside updateUnknownUserInfoViews, CallerContentModel is "+ object);
 				mAdapter.setCallerContentModel((CallerContentModel) object);
-				mAdapter.notifyDataSetChanged();
 			}
+			mAdapter.notifyDataSetChanged();
 		}
 
 	}

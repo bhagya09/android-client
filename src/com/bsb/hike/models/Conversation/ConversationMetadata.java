@@ -10,7 +10,7 @@ import org.json.JSONObject;
  */
 public class ConversationMetadata {
 	
-	JSONObject jsonObject;
+	protected JSONObject jsonObject;
 	
 	/**
 	 * @param jsonString

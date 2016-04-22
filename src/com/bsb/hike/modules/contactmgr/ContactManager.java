@@ -3072,6 +3072,11 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData, setIsBlock);
 	}
 
+	public void insertIntoCallerTable(CallerContentModel callerContentModel, boolean isCompleteData, boolean setIsBlock, long creationTime)
+	{
+		HikeUserDatabase.getInstance().insertIntoCallerTable(callerContentModel, isCompleteData, setIsBlock, creationTime);
+	}
+
 	public void updateMdIntoCallerTable(CallerContentModel callerContentModel)
 	{
 		HikeUserDatabase.getInstance().updateMdIntoCallerTable(callerContentModel);
@@ -3110,7 +3115,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return selfMsisdn.equals(outsideMsisdn);
 	}
 
-	public void toggleChatSpam(String msisdn, boolean markSpam)
+	public void toggleChatSpam(String msisdn, int markSpam)
 	{
 		HikeUserDatabase.getInstance().toggleChatSpamUser(msisdn, markSpam);
 	}

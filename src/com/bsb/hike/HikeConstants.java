@@ -812,11 +812,15 @@ public class HikeConstants
 
 	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
 
-	public static final String IS_USER_CHAT_SPAMMED_BY_YOU = "chat_spam_by you";
+	public static final String IS_USER_CHAT_SPAMMED_BY_YOU = "marked_spam";
 
-	public static final String CHAT_SPAM_COUNT = "chat_spam_count";
+	public static final String CHAT_SPAM_COUNT = "spam_count";
 
 	public static final String SPAM = "spam";
+
+	public static final String SHOW_UNKNOWN_USER_INFO_INSIDE_ONE_TO_ONE_CHAT = "showUnknownUserInfo";
+
+	public static long NO_OF_MILISECONDS_IN_1_DAY = 24 * 60 * 60 * 1000;
 
 	public class InviteSection
 	{
@@ -4069,4 +4073,6 @@ public class HikeConstants
 	public static final String JOURNAL_MODE_INDEX = "journal_mode_idx";
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
+
+	public static final String LOCATION = "location";
 }
