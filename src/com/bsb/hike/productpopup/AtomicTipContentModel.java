@@ -37,7 +37,28 @@ public class AtomicTipContentModel
 
     private String jsonString;
 
+    private int tipStatus;
+
     private int hashCode = -1;
+
+    public enum AtomicTipStatus
+    {
+        UNSEEN(0),
+        SEEN(1),
+        DISMISSED(2);
+
+        private int value;
+
+        AtomicTipStatus(int val)
+        {
+            value = val;
+        }
+
+        public int getValue()
+        {
+            return value;
+        }
+    }
 
     private AtomicTipContentModel(JSONObject tipContentJSON)
     {
@@ -81,7 +102,7 @@ public class AtomicTipContentModel
         }
     }
 
-    public AtomicTipContentModel getAtomicTipContentModel(JSONObject tipContentData)
+    public static AtomicTipContentModel getAtomicTipContentModel(JSONObject tipContentData)
     {
         return new AtomicTipContentModel(tipContentData);
     }
@@ -164,5 +185,15 @@ public class AtomicTipContentModel
     public String getJsonString()
     {
         return jsonString;
+    }
+
+    public int getTipStatus()
+    {
+        return tipStatus;
+    }
+
+    public void setTipStatus(int status)
+    {
+        tipStatus = status;
     }
 }
