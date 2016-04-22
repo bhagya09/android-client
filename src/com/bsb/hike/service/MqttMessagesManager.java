@@ -101,6 +101,7 @@ import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
@@ -3977,6 +3978,10 @@ public class MqttMessagesManager
 			}
 
 		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.TIP))
+		{
+			saveAtomicTip(jsonObj);
+		}
 		else
 		{
 			// updatePopUpData
@@ -5055,6 +5060,33 @@ public class MqttMessagesManager
 			 * We only publish this event if we actually removed a typing notification
 			 */
 			this.pubSub.publish(HikePubSub.END_TYPING_CONVERSATION, typingNotification);
+		}
+	}
+
+	/**
+	 * Method to parse atomic tip packet
+	 * @param jsonObj
+     */
+	public void saveAtomicTip(JSONObject jsonObj)
+	{
+		Logger.d(getClass().getSimpleName(), "Parsing atomic tip packet");
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		if(data != null)
+		{
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH, false))
+				{
+					Logger.d(getClass().getSimpleName(), "Received atomic tip flush packet!");
+					AtomicTipManager.getInstance().flushTips();
+					return;
+				}
+			}
+			else
+			{
+				Logger.d(getClass().getSimpleName(), "Received new atomic tip packet, saving it!");
+				AtomicTipManager.getInstance().parseAtomicTipPacket(data);
+			}
 		}
 	}
 
