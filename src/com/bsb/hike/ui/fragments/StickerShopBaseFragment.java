@@ -47,7 +47,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
     protected long previousEventTime;
 	
-	Map<String, StickerCategory> stickerCategoriesMap;
+	protected Map<String, StickerCategory> stickerCategoriesMap;
 
     protected final int NOT_DOWNLOADING = 0;
 
@@ -57,7 +57,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
     protected int downloadState = NOT_DOWNLOADING;
 	
-	View loadingFooterView, downloadFailedFooterView, loadingEmptyState, loadingFailedEmptyState;
+	View loadingFooterView, downloadFailedFooterView, loadingEmptyState, loadingFailedEmptyState,searchFailedState;
 	
 	TextView loadingFailedEmptyStateMainText, loadingFailedEmptyStateSubText;
 
@@ -192,6 +192,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		View parent = inflater.inflate(R.layout.sticker_shop, null);
 		loadingEmptyState = parent.findViewById(R.id.loading_data);
 		loadingFailedEmptyState = parent.findViewById(R.id.loading_failed);
+        searchFailedState = parent.findViewById(R.id.search_failed);
 
 		return parent;
 	}
@@ -297,6 +298,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					listview.removeFooterView(loadingFooterView);
 					loadingEmptyState.setVisibility(View.GONE);
 					loadingFailedEmptyState.setVisibility(View.GONE);
+                    searchFailedState.setVisibility(View.GONE);
                     reloadAdapter();
 					downloadState = NOT_DOWNLOADING;
 				}
@@ -321,6 +323,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					if(currentCategoriesCount == 0)
 					{
 						loadingEmptyState.setVisibility(View.GONE);
+                        searchFailedState.setVisibility(View.GONE);
 						loadingFailedEmptyState.setVisibility(View.VISIBLE);
 						
 						if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)

@@ -36,13 +36,19 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
     private MenuItem shopSearchMenuItem;
 
+    private final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
+
+    public static final String SHOW_STICKER_SEARCH_FTUE = "s_s_ftue";
+
+    private RelativeLayout searchLayout;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sticker_shop_parent);
         setupShopFragment(savedInstanceState);
-        setupShopSearchFragment();
+        showShopFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
 
@@ -54,9 +60,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         {
             return;
         }
-        stickerShopFragment = StickerShopFragment.newInstance();
 
-        showShopFragment();
+        stickerShopFragment = StickerShopFragment.newInstance();
 
     }
 
@@ -71,7 +76,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         {
             setupShopSearchFragment();
         }
-        else if(stickerShopSearchFragment.isAdded())
+
+        if(stickerShopSearchFragment.isAdded())
         {
             return;
         }
@@ -86,7 +92,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         {
             setupShopFragment(null);
         }
-        else if(stickerShopFragment.isAdded())
+
+        if(stickerShopFragment.isAdded())
         {
             return;
         }
@@ -124,14 +131,14 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 menu.findItem(R.id.shop_settings).setVisible(false);
-                showSearchFragment();
+                stickerShopFragment.showBanner(false);
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 menu.findItem(R.id.shop_settings).setVisible(true);
-                Logger.i("aktt", "onMenuItemActionCollapse");
+                stickerShopFragment.showBanner(true);
                 return true;
             }
         });
@@ -170,6 +177,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         public boolean onQueryTextSubmit(String query)
         {
             Utils.hideSoftKeyboard(getApplicationContext(), shopSearchMenuItem.getActionView());
+            showSearchFragment();
             stickerShopSearchFragment.onQueryTextSubmit(query);
             return true;
         }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.v7.widget.SearchView;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.ListView;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.adapters.StickerShopAdapter;
 import com.bsb.hike.adapters.StickerShopSearchAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
@@ -47,73 +45,34 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void doInitialSetup()
 	{
-		FetchCursorTask fetchCursorTask = new FetchCursorTask();
-		fetchCursorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        initAdapterAndList();
+        HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
+        registerListener();
 	}
 
-    private class FetchCursorTask extends AsyncTask<Void, Void, List<StickerCategory>>
-	{
-		@Override
-		protected List<StickerCategory> doInBackground(Void... arg0)
-		{
-			if (!isAdded()) // not attached to any activity
-			{
-				return null;
-			}
-
-            searchedCategories = HikeConversationsDatabase.getInstance().getDefaultCategoriesForShopSearch();
-
-			return searchedCategories;
-		}
-
-		@Override
-		protected void onPreExecute()
-		{
-			getView().findViewById(R.id.loading_data).setVisibility(View.VISIBLE);
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(List<StickerCategory> categories)
-		{
-			if (categories == null || !isAdded())
-			{
-				return;
-			}
-			super.onPostExecute(categories);
-			View parent = getView();
-			if (parent != null && parent.findViewById(R.id.loading_data) != null)
-			{
-				parent.findViewById(R.id.loading_data).setVisibility(View.GONE);
-			}
-			initAdapterAndList(categories);
-			HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
-			registerListener();
-		}
-	}
-
-	private void initAdapterAndList(List<StickerCategory> categories)
+	private void initAdapterAndList()
 	{
 		listview = (ListView) getView().findViewById(android.R.id.list);
 		listview.setVisibility(View.VISIBLE);
 
-		stickerCategoriesMap = new HashMap<String, StickerCategory>();
+        stickerCategoriesMap = new HashMap<String, StickerCategory>();
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
-        //Tofix
-		mAdapter = new StickerShopSearchAdapter(getActivity(),categories,stickerOtherIconLoader);
+
+        //to fix
+		mAdapter = new StickerShopSearchAdapter(getActivity(),new ArrayList<StickerCategory>(),stickerCategoriesMap,stickerOtherIconLoader);
 
 		listview.setAdapter(mAdapter);
 		listview.setOnScrollListener(this);
 		listview.setOnItemClickListener(this);
 
-		if ((mAdapter == null) || mAdapter.getCount() == 0)
-		{
-			listview.setVisibility(View.GONE);
-		}
-		else
-		{
-			listview.setVisibility(View.VISIBLE);
-		}
+//		if ((mAdapter == null) || mAdapter.getCount() == 0)
+//		{
+//			listview.setVisibility(View.GONE);
+//		}
+//		else
+//		{
+//			listview.setVisibility(View.VISIBLE);
+//		}
 	}
 
 	@Override
@@ -150,33 +109,34 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
-		searchWatcher.onQueryTextSubmit(query);
-		return true;
+		//loadingEmptyState.setVisibility(View.VISIBLE);
+        return searchWatcher.onQueryTextSubmit(query);
 	}
 
 	@Override
 	public boolean onQueryTextChange(String query)
 	{
-		searchWatcher.onQueryTextChange(query);
-		return false;
+		return searchWatcher.onQueryTextChange(query);
 	}
 
 	@Override
 	public void onSearchCompleted(List<StickerCategory> categories)
 	{
+        loadingEmptyState.setVisibility(View.GONE);
+        searchFailedState.setVisibility(View.GONE);
         mAdapter.updateSearchresult(categories);
 	}
 
 	@Override
 	public void onNoCategoriesFound(String query)
 	{
-
+        searchFailedState.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 	{
-		if (position <= 0 || position > mAdapter.getCount())
+		if (position < 0 || position > mAdapter.getCount())
 		{
 			Logger.d(TAG, "position is less than 0. wrong item clicked");
 			return;
@@ -193,6 +153,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
         {
             return;
         }
+
         mAdapter.notifyDataSetChanged();
     }
 

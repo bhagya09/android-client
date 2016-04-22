@@ -252,4 +252,16 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
         mAdapter.notifyDataSetChanged();
     }
 
+    public void showBanner(boolean visible)
+    {
+        if(visible)
+        {
+            listview.addHeaderView(headerView);
+        }
+        else
+        {
+            listview.removeHeaderView(headerView);
+        }
+    }
+
 }
