@@ -74,6 +74,8 @@ public class AnalyticsConstants
 
 	public static String CLICK_EVENT = "click";
 
+	public static String HTTP_EVENT = "rel_http";
+
 	public static String VIEW_EVENT = "view";
 
 	public static String ERROR_EVENT = "error";
@@ -283,6 +285,9 @@ public class AnalyticsConstants
 
 		public static final String TS = "ts";
 
+		public static final String NETWORK = "nw";
+
+		public static final String SOURCE = "src";
 	}
 
 	// Edit picture flags and events
@@ -808,6 +813,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_CORE_LOGS = "act_core";
 
+	public static final String ACT_STICKER_LOGS = "act_stck";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -838,4 +845,11 @@ public class AnalyticsConstants
 	public static final String WT_CLICKED_TOUCHED = "wticon";
 
 	public static final String TIME_LINE_OPEN = "TL_open";
+
+	public static final String PACK_PREVIEW = "pckPrvw";
+
+	public static final String VIEW_ALL = "viewAll";
+
+	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
+
 }

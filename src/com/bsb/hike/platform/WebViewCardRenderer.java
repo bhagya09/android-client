@@ -962,6 +962,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
 								cardObj.put(HikePlatformConstants.APP_NAME, updatedAppName);
 								convMessage.webMetadata.setCardobj(cardObj);
+                                convMessage.webMetadata.setAppName(updatedAppName);
 
 								ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
 
@@ -1005,7 +1006,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 Logger.v(TAG, "Bot download request failure for " + appName);
                 showConnErrState(webViewHolder,convMessage,position);
             }
-        },appName);
+        },appName + position);
 
         if (token != null && !token.isRequestRunning())
         {

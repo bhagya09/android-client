@@ -44,7 +44,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private StickerConstants.DownloadType downloadType;
 
-	private DownloadSource source;
+	private JSONObject bodyJson;
 
 	private int existingStickerNumber = 0;
 
@@ -54,11 +54,11 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private RequestToken requestToken;
 
-	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, DownloadSource source)
+	public MultiStickerDownloadTask(StickerCategory category, StickerConstants.DownloadType downloadType, JSONObject bodyJson)
 	{
 		this.category = category;
 		this.downloadType = downloadType;
-		this.source = source;
+		this.bodyJson = bodyJson;
 	}
 
 	public void execute()
@@ -130,17 +130,15 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 				try
 				{
-					JSONObject request = new JSONObject();
-					request.put(StickerManager.CATEGORY_ID, category.getCategoryId());
-					request.put(HikeConstants.STICKER_IDS, existingStickerIds);
-					request.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
-					request.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
-					request.put(HikeConstants.DOWNLOAD_SOURCE, source.getValue());
-					request.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
+					bodyJson.put(StickerManager.CATEGORY_ID, category.getCategoryId());
+					bodyJson.put(HikeConstants.STICKER_IDS, existingStickerIds);
+					bodyJson.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+					bodyJson.put(HikeConstants.NUMBER_OF_STICKERS, getStickerDownloadSize());
+					bodyJson.put(HikeConstants.KEYBOARD_LIST, new JSONArray(StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE)));
 
-					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + request.toString());
+					Logger.d(TAG, "intercept(), Sticker Download Task Request: " + bodyJson.toString());
 
-					IRequestBody body = new JsonBody(request);
+					IRequestBody body = new JsonBody(bodyJson);
 					chain.getRequestFacade().setBody(body);
 					chain.proceed();
 				}
@@ -242,7 +240,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
                         StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
 
-                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK);
+                        StickerManager.getInstance().sendResponseTimeAnalytics(result, HikeConstants.STICKER_PACK, categoryId, null);
 					}
 
 					StickerLanguagesManager.getInstance().checkAndUpdateForbiddenList(data);
@@ -359,7 +357,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.PERCENTAGE, percentage);
 		StickerManager.getInstance().onStickersDownloadProgress(b);
 	}
@@ -369,7 +367,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	{
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		StickerManager.getInstance().sucessFullyDownloadedStickers(b);
 	}
@@ -380,7 +378,7 @@ public class MultiStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		Logger.e(TAG, "on failure, exception ", e);
 		Bundle b = new Bundle();
 		b.putSerializable(StickerManager.CATEGORY_ID, category.getCategoryId());
-		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, source);
+		b.putSerializable(HikeConstants.DOWNLOAD_SOURCE, DownloadSource.fromValue(bodyJson.optInt(HikeConstants.DOWNLOAD_SOURCE)));
 		b.putSerializable(StickerManager.STICKER_DOWNLOAD_TYPE, downloadType);
 		if (e != null && e instanceof HttpException && ((HttpException) e).getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
 		{

@@ -1532,8 +1532,8 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
-    <string name="keyboard_shutdown_heading">Removing support for Regional Keyboards</string>
-    <string name="keyboard_shutdown_description">You can always chat with your phone keyboard or download one from the playstore</string>
+    <string name="keyboard_shutdown_heading">Upgrade Your Keyboard</string>
+    <string name="keyboard_shutdown_description">We encourage you to try out the Google Indic keyboard from Play Store. It\'s really good :)</string>
     <string name="open_phone_keyboard">PHONE KEYBOARD</string>
     <string name="open_google_keyboard">GOOGLE KEYBOARD</string>
     <string name="max_duration_recorded">Recording done for Max duration</string>

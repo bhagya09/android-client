@@ -2563,6 +2563,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			if (restoreProgDialog != null) //Dismiss the rotator!
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
 			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
 			return;
