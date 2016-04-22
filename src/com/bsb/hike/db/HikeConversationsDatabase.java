@@ -1055,7 +1055,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         }
 		if (oldVersion < 50)
 		{
-			String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UCID + " INTEGER DEFAULT 0 UNIQUE";
+			String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UCID + " INTEGER DEFAULT 0";
 			String alter2 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UPDATED_PREVIEW_TIMESTAMP + " INTEGER DEFAULT 0";
 			String alter3 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.UPDATED_METADATA_TIMESTAMP + " INTEGER DEFAULT 0";
 			String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.IS_DISABLED + " INTEGER DEFAULT 0";
@@ -7616,7 +7616,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.UPDATE_AVAILABLE + " INTEGER DEFAULT 0," + DBConstants.IS_VISIBLE + " INTEGER DEFAULT 0,"
 				+ DBConstants.IS_CUSTOM + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_INDEX + " INTEGER," + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0,"
 				+ DBConstants.CATEGORY_DESCRIPTION + " TEXT," + DBConstants.STICKER_LIST + " TEXT, " + DBConstants.IS_DOWNLOADED + " INTEGER DEFAULT 0, " + DBConstants.SIMILAR_CATEGORIES + " TEXT, " + DBConstants.AUTHOR + " TEXT, " + DBConstants.COPYRIGHT_STRING + " TEXT, "
-				+ DBConstants.UCID + " INTEGER DEFAULT 0 UNIQUE," + DBConstants.UPDATED_METADATA_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.UPDATED_PREVIEW_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.IS_DISABLED + " INTEGER DEFAULT 0" + " )";
+				+ DBConstants.UCID + " INTEGER DEFAULT 0," + DBConstants.UPDATED_METADATA_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.UPDATED_PREVIEW_TIMESTAMP + " INTEGER  DEFAULT 0," + DBConstants.IS_DISABLED + " INTEGER DEFAULT 0" + " )";
 		return sql;
 	}
 
@@ -7826,6 +7826,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				if (insertInShopTable)
 				{
+					contentValues.remove(DBConstants.IS_DISABLED);
+					contentValues.remove(DBConstants.UPDATED_METADATA_TIMESTAMP);
 					contentValues.remove(DBConstants.UCID);
 					mDb.insertWithOnConflict(DBConstants.STICKER_SHOP_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 				}
