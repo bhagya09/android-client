@@ -19,6 +19,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,11 +43,14 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
-		boolean isMicroAppsSuccessfullyMigrated = true,isDPDirectoryMigrated = false,isGameEngineMigrated = false;
+        // keeping this variables as true bcoz there might be case in which user does not have any data that needs to be migrated
+		boolean isMicroAppsSuccessfullyMigrated = true;
+        boolean isDPDirectoryMigrated = true;
+        boolean isGameEngineMigrated = true;
 		HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
         String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
-        // Migrating static files (DP directory and game engine) here
+        // Migrating static files (DP directory) here
         try
         {
             if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR).exists())
@@ -54,28 +58,6 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
                 isDPDirectoryMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR),
                         new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.MICROAPPS_DP_DIR));
             }
-            else
-                isDPDirectoryMigrated = true;
-
-            if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.GAME_ENGINE_DIR).exists())
-            {
-                // If there's already a directory present in new path, there's a chance it might be partial one so deleting it before copying it again
-                if(new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, PlatformContentConstants.GAME_ENGINE_DIR)).exists())
-                {
-                    PlatformUtils.deleteDirectory(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, PlatformContentConstants.GAME_ENGINE_DIR));
-                }
-
-                isGameEngineMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.GAME_ENGINE_DIR),
-                        new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, PlatformContentConstants.GAME_ENGINE_DIR)));
-
-                // delete game engine from the old content code if it successfully got migrated
-                if(isGameEngineMigrated && !TextUtils.isEmpty(PlatformContentConstants.GAME_ENGINE_DIR))
-                    PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.GAME_ENGINE_DIR);
-            }
-            else
-                isGameEngineMigrated = true;
-
-
         }
         catch (IOException e)
         {
@@ -84,7 +66,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
         }
 
 		/*
-		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently present in BotTable
+		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently presenxt in BotTable
 		 */
 		for (Map.Entry<String, BotInfo> entry : HikeMessengerApp.hikeBotInfoMap.entrySet())
 		{
@@ -101,12 +83,45 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
                     // Keeping default bot type as web micro apps
                     byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
-					
-                    // For Native micro apps, set bot type to native apps mode
-					if (botMetadata.isNativeMode())
-					{
-						botType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
-					}
+
+                    // For Native micro apps, if game engine is not already migrated , migrate it as well
+                    if (botMetadata.isNativeMode())
+                    {
+                        botType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                        JSONArray mapps = botMetadata.getAsocmapp();
+                        if (mapps != null)
+                        {
+                            for (int i = 0; i < mapps.length(); i++)
+                            {
+                                JSONObject json = new JSONObject();
+                                try
+                                {
+                                    json = mapps.getJSONObject(i);
+                                }
+                                catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                String appName = json.optString(HikeConstants.NAME);
+                                if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName).exists())
+                                {
+                                    // If there's already a directory present in new path, there's a chance it might be partial one so deleting it before copying it again
+                                    if(new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)).exists())
+                                    {
+                                        PlatformUtils.deleteDirectory(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName));
+                                    }
+
+                                    isGameEngineMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName),
+                                            new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)));
+
+                                    // delete game engine from the old content code if it successfully got migrated
+                                    if(isGameEngineMigrated && !TextUtils.isEmpty(appName))
+                                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName);
+                                }
+                            }
+                        }
+                    }
 
                     String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, botName);
 
