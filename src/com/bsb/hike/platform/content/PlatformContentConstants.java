@@ -59,4 +59,7 @@ public class PlatformContentConstants
     public static final String MICROAPPS_DP_DIR = "DP";
 
     public static final String MICROAPPS_MACOSX_DIR = "__MACOSX";
+
+    public static final String GAME_ENGINE_DIR = "cocosEngine-7";
+
 }
