@@ -142,6 +142,8 @@ public class StickyCaller {
 
 	private static CallerContentModel quickReplyContentModel;
 
+	static MyCardTouchListener onTouchListener = new MyCardTouchListener(true);
+
 	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
@@ -227,61 +229,61 @@ public class StickyCaller {
 
 	}
 
-	static View.OnTouchListener onTouchListener = new View.OnTouchListener() {
-		int initialX, initialY;
-
-		float initialTouchX, initialTouchY;
-
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			VelocityTracker exitSpeedTracker = VelocityTracker.obtain();
-			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
-			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
-
-			switch (event.getAction()) {
-				case MotionEvent.ACTION_OUTSIDE:
-					removeCallerView();
-					break;
-				case MotionEvent.ACTION_DOWN:
-					initialX = callerParams.x;
-					initialY = callerParams.y;
-
-					if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
-						initialY = statusBarHeight - stickyCallerView.getHeight();
-					}
-					initialTouchX = event.getRawX();
-					initialTouchY = event.getRawY();
-					break;
-				case MotionEvent.ACTION_UP:
-					if (horizontalMovementDetected && stickyCallerView != null) {
-						exitSpeedTracker.computeCurrentVelocity(1000);
-						float exitSpeed = exitSpeedTracker.getXVelocity();
-						if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
-								&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2))) {
-							Logger.d("UmangK", "dismissing" + "0");
-							actionOnMotionUpEvent(0);
-						} else {
-							float Xmove = 0.0f;
-							if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2))) {
-								Xmove = stickyCallerView.getTranslationX();
-							}
-							Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
-							actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
-						}
-
-
-						horizontalMovementDetected = false;
-					}
-					verticalMovementDetected = false;
-
-					break;
-				case MotionEvent.ACTION_MOVE:
-					actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
-					break;
-			}
-			return true;
-		}
-	};
+//	static View.OnTouchListener onTouchListener = new View.OnTouchListener() {
+//		int initialX, initialY;
+//
+//		float initialTouchX, initialTouchY;
+//
+//		@Override
+//		public boolean onTouch(View v, MotionEvent event) {
+//			VelocityTracker exitSpeedTracker = VelocityTracker.obtain();
+//			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
+//			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
+//
+//			switch (event.getAction()) {
+//				case MotionEvent.ACTION_OUTSIDE:
+//					removeCallerView();
+//					break;
+//				case MotionEvent.ACTION_DOWN:
+//					initialX = callerParams.x;
+//					initialY = callerParams.y;
+//
+//					if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
+//						initialY = statusBarHeight - stickyCallerView.getHeight();
+//					}
+//					initialTouchX = event.getRawX();
+//					initialTouchY = event.getRawY();
+//					break;
+//				case MotionEvent.ACTION_UP:
+//					if (horizontalMovementDetected && stickyCallerView != null) {
+//						exitSpeedTracker.computeCurrentVelocity(1000);
+//						float exitSpeed = exitSpeedTracker.getXVelocity();
+//						if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
+//								&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2))) {
+//							Logger.d("UmangK", "dismissing" + "0");
+//							actionOnMotionUpEvent(0);
+//						} else {
+//							float Xmove = 0.0f;
+//							if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2))) {
+//								Xmove = stickyCallerView.getTranslationX();
+//							}
+//							Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+//							actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
+//						}
+//
+//
+//						horizontalMovementDetected = false;
+//					}
+//					verticalMovementDetected = false;
+//
+//					break;
+//				case MotionEvent.ACTION_MOVE:
+//					actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
+//					break;
+//			}
+//			return false;
+//		}
+//	};
 
 	private static String getNumberFromCard()
 	{
@@ -707,7 +709,7 @@ public class StickyCaller {
 		});
 
 		//Adding card movement from list view
-		defaultQuickReplyListView.setOnTouchListener(onTouchListener);
+		defaultQuickReplyListView.setOnTouchListener(new MyCardTouchListener(false));
 
 		//Handling Close cross button
 		View callerCloseButton = stickyCallerView.findViewById(R.id.qr_caller_close_button);
@@ -917,5 +919,69 @@ public class StickyCaller {
 			}
 		}
 	};
+
+	static class MyCardTouchListener implements View.OnTouchListener
+	{
+		boolean returnState = true;
+
+		int initialX, initialY;
+
+		float initialTouchX, initialTouchY;
+
+		MyCardTouchListener(boolean returnState)
+		{
+			this.returnState = returnState;
+		}
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			VelocityTracker exitSpeedTracker = VelocityTracker.obtain();
+			Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
+			statusBarHeight = Utils.getDeviceHeight() - ChatThreadUtils.getStatusBarHeight(ctx);
+
+			switch (event.getAction()) {
+				case MotionEvent.ACTION_OUTSIDE:
+					removeCallerView();
+					break;
+				case MotionEvent.ACTION_DOWN:
+					initialX = callerParams.x;
+					initialY = callerParams.y;
+
+					if (stickyCallerView != null && initialY > statusBarHeight - stickyCallerView.getHeight()) {
+						initialY = statusBarHeight - stickyCallerView.getHeight();
+					}
+					initialTouchX = event.getRawX();
+					initialTouchY = event.getRawY();
+					break;
+				case MotionEvent.ACTION_UP:
+					if (horizontalMovementDetected && stickyCallerView != null) {
+						exitSpeedTracker.computeCurrentVelocity(1000);
+						float exitSpeed = exitSpeedTracker.getXVelocity();
+						if ((Math.abs(exitSpeed) <= Utils.densityMultiplier * 400.0f || Math.abs(initialTouchX - event.getRawX()) <= Utils.densityMultiplier * 25.0f)
+								&& Math.abs(stickyCallerView.getTranslationX()) < ((float) (Utils.getDeviceWidth() / 2))) {
+							Logger.d("UmangK", "dismissing" + "0");
+							actionOnMotionUpEvent(0);
+						} else {
+							float Xmove = 0.0f;
+							if (Math.abs(stickyCallerView.getTranslationX()) >= ((float) (Utils.getDeviceWidth() / 2))) {
+								Xmove = stickyCallerView.getTranslationX();
+							}
+							Logger.d("UmangK", "" + ((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove)));
+							actionOnMotionUpEvent((int) Math.copySign((float) Utils.getDeviceWidth(), Xmove));
+						}
+
+
+						horizontalMovementDetected = false;
+					}
+					verticalMovementDetected = false;
+
+					break;
+				case MotionEvent.ACTION_MOVE:
+					actionMove(HikeMessengerApp.getInstance(), initialX, initialY, initialTouchX, initialTouchY, event);
+					break;
+			}
+			return returnState;
+		}
+	}
 
 }
