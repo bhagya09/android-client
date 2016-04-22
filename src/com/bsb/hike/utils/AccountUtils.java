@@ -10,15 +10,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLConnection;
 import java.nio.CharBuffer;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 
@@ -26,11 +24,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -46,7 +42,6 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -59,11 +54,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.accounts.NetworkErrorException;
-import android.content.Context;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -75,8 +65,6 @@ import com.bsb.hike.http.CustomSSLSocketFactory;
 import com.bsb.hike.http.GzipByteArrayEntity;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
-import com.bsb.hike.models.AccountInfo;
-import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 
 public class AccountUtils
@@ -116,9 +104,7 @@ public class AccountUtils
 
 	public static String baseV2 = HTTP_STRING + host + "/v2";
 
-	public static final String PRODUCTION_FT_HOST = "ft.im.hike.in";
-
-	public static String fileTransferHost = PRODUCTION_FT_HOST;
+	public static String fileTransferHost = HttpRequestConstants.FT_PRODUCTION_API;
 
 	public static String fileTransferBase = HTTP_STRING + fileTransferHost + ":" + Integer.toString(port) + "/v1";
 

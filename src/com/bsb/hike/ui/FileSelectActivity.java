@@ -216,6 +216,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
 			{
+				Logger.d("FileSelect", "Selected item.");
 				FileListItem item = items.get(i);
 				File file = item.getFile();
 				if (multiSelectMode)
@@ -274,6 +275,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 					}
 					else
 					{
+						Logger.d("FileSelect", "Process the slected file.");
 						if (!file.canRead())
 						{
 							showErrorBox(getString(R.string.access_error));
@@ -289,6 +291,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 						}
 						if (file.length() == 0)
 						{
+							Logger.d("FileSelect", "File size is 0.");
 							return;
 						}
 						Intent intent = getIntent();
