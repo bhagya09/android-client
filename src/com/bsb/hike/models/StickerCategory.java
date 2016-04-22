@@ -18,8 +18,6 @@ import java.util.List;
 
 public class StickerCategory implements Serializable, Comparable<StickerCategory>
 {
-    private int uniqueId;
-
 	private String categoryId;
 
 	private String categoryName;
@@ -57,6 +55,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	private int totalStickers;
 	
 	private int categorySize;
+
+    private int shopRank;
 	
 	public static final int NONE = 0;
 	
@@ -95,6 +95,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.state = builder.state;
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
+        this.shopRank = builder.shopRank;
 		ensureSaneDefaults();
 	}
 
@@ -149,6 +150,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		private String copyRightString;
 
 		private int state;
+
+        private int shopRank;
 
 		protected abstract S self();
 
@@ -252,6 +255,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			this.author = author;
 			return self();
 		}
+
+        public S setShopRank(int shopRank)
+        {
+            this.shopRank = shopRank;
+            return self();
+        }
 
 		public S setCopyRightString(String copyRightString)
 		{
@@ -579,7 +588,6 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		if (getClass() != obj.getClass())
 			return false;
 		StickerCategory other = (StickerCategory) obj;
-        Logger.e("aktt",this.categoryId+ "== " +other.getCategoryId());
 		if (categoryId == null)
 		{
 			if (other.categoryId != null)
@@ -702,9 +710,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			setDownloadedStickersCount(0);
 	}
 
-	public int getUniqueId()
+	public int getShopRank()
 	{
-		return 0;
+		return shopRank;
 	}
 
 	public void setDownloadedStickersCount(int count)

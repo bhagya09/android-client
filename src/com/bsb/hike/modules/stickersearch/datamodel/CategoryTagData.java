@@ -4,48 +4,43 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.internal.Util;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by akhiltripathi on 12/04/16.
  */
-public class CategoryTagData implements Comparable<CategoryTagData>
+public class CategoryTagData
 {
     private static final String TAG = CategoryTagData.class.getSimpleName();
 
     private final int CATEGORY_META_TAGS_COUNT = 3;
 
-    private String categoryID;
+    protected String categoryID;
 
-    private StickerCategory category;
-
-    private String language;
+    protected String language;
 
     private ArrayList<String> keywords;
 
-    private String theme;
+    protected String theme;
 
-    private String name;
+    protected String name;
 
-    private int forGender;
-
-    public StickerCategory getCategory() {
-        return category;
-    }
+    protected int forGender;
 
     public CategoryTagData(String categoryID)
     {
         this.categoryID = categoryID;
-        this.category = StickerManager.getInstance().getCategoryForId(categoryID);
     }
 
-    
 	public String getCategoryID()
 	{
 		return categoryID;
@@ -105,49 +100,74 @@ public class CategoryTagData implements Comparable<CategoryTagData>
     {
         String result = "";
 
-//        for(String keyword : keywords)
-//        {
-//            if(TextUtils.isEmpty(keyword))
-//            {
-//                continue;
-//            }
-//
-//            result += keyword + HikeConstants.DELIMETER;
-//        }
-//
-//        result = result.substring(0,result.length() - 1);
+        if(Utils.isEmpty(keywords))
+        {
+            return result;
+        }
+
+        for(String keyword : keywords)
+        {
+            if(TextUtils.isEmpty(keyword))
+            {
+                continue;
+            }
+
+            result += keyword + HikeConstants.DELIMETER;
+        }
+
+        result = result.substring(0,result.length() - 1);
 
         return result;
 
     }
 
-	public List<String> getTagList()
+    public void setKeywords(ArrayList<String> tags)
+    {
+        keywords = tags;
+    }
+
+	public String getTagList()
 	{
         int size = CATEGORY_META_TAGS_COUNT;
 
-        boolean hasKeywords = !Utils.isEmpty(keywords);
+		String result = this.getName();
+        result += StickerSearchConstants.STRING_SPACE + this.getTheme();
 
-        if(hasKeywords)
+        if(!Utils.isEmpty(keywords))
         {
-            size += keywords.size();
-        }
-
-		ArrayList<String> result = new ArrayList<String>(size);
-        result.add(this.getTheme());
-        result.add(this.getName());
-        result.add(this.getLanguage());
-
-        if(hasKeywords)
-        {
-            result.addAll(keywords);
+            for(String keyword : keywords)
+            {
+                result += StickerSearchConstants.STRING_SPACE + keyword;
+            }
         }
 
         return result;
 	}
 
     @Override
-    public int compareTo(CategoryTagData another)
-    {
-        return Integer.compare(this.category.getCategoryIndex(),another.getCategory().getCategoryIndex());
+    public String toString() {
+        return categoryID + " : name = " + name + "; language = "+language+"; theme = "+theme + "; gender = "+forGender + "; keys = "+getKeywordsSet();
     }
+
+	@Override
+	public boolean equals(Object o)
+	{
+        Logger.e("aktt","CTD equals()");
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		CategoryTagData that = (CategoryTagData) o;
+
+		return !(categoryID != null ? !categoryID.equals(that.categoryID) : that.categoryID != null);
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return categoryID != null ? categoryID.hashCode() : 0;
+	}
+
 }

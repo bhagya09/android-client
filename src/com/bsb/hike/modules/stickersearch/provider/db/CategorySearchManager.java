@@ -12,6 +12,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
+import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 
 /**
  * Created by akhiltripathi on 13/04/16.
@@ -130,18 +131,13 @@ public enum CategorySearchManager
             }
         }
 
-        for(CategoryTagData categoryTagData : keySet)
-        {
-            StickerCategory category = categoryTagData.getCategory();
-            if(category != null && !result.contains(category))
-            {
-                result.add(category);
-            }
-        }
-
         return result;
     }
 
-
+    public void insertCategoryTags(List<CategoryTagData> categoryTagData)
+    {
+        CategoryTagInsertTask categoryTagInsertTask = new CategoryTagInsertTask(categoryTagData);
+        categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
+    }
 
 }
