@@ -25,6 +25,8 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
@@ -529,6 +531,31 @@ public class HttpRequestConstants
         }
     }
 
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
+
+	public static String getAnalyticsUrl()
+	{
+		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */
@@ -545,10 +572,6 @@ public class HttpRequestConstants
             return HTTPS + QA_CONTENT + suffix ;
         }
     }
-
-	public static String getAnalyticsUrl() {
-		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
-	}
 
 	public static String getHistoricalStatusUpdatesUrl()
 	{

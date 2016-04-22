@@ -1021,6 +1021,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			 */
 			if (data != null)
 			{
+				Logger.d("FileSelect", "Processing the request for file sharing.");
 				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
@@ -4081,6 +4082,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+		case HikePubSub.CLEAR_CONVERSATION:
+			FileTransferManager.getInstance(activity).clearConversation(msisdn);
+			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
 			//TODO Proper handling in next release. It is safe to comment this out for now.
 			//onGeneralEventStateChange(object);
@@ -4323,7 +4327,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -5073,9 +5077,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				hikeFile.delete(activity.getApplicationContext());
 			}
             HikeConversationsDatabase.getInstance().reduceRefCount(key);
-			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
+			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), hikeFile, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
 			mAdapter.notifyDataSetChanged();
-
 		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
@@ -5298,7 +5301,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			mMessageMap.clear();
 		}
-
+		
 		mAdapter.notifyDataSetChanged();
 		Logger.d(TAG, "Clearing conversation");
 	}

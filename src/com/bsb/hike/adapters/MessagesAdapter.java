@@ -1032,7 +1032,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 				}
 			}
 			boolean showThumbnail = false;
@@ -3047,7 +3047,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
 	{
-		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
+		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile, isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
@@ -3081,7 +3081,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		else if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
-			if (progress < 100)
+			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
@@ -3096,11 +3096,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 					{
-						holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), progress, 300);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+					}
+					else if(progress == 100)
+					{
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
 					}
 					else
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						if((progress + (int) (animatedProgress * 100)) > 100)
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
+						else
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
 					}
 				}
 			}
@@ -3656,7 +3667,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), receivedFile);
+					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 
 					Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
 
