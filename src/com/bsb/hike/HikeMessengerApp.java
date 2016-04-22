@@ -1005,7 +1005,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	private void initCrashReportingTool()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 		{
 			Logger.d("HikeMessangerApp","Initializing Crashlytics");
 			Fabric.with(this, new Crashlytics());
