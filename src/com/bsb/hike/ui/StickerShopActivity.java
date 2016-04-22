@@ -8,10 +8,13 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
@@ -24,6 +27,7 @@ import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.ui.fragments.StickerShopSearchFragment;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -116,18 +120,18 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         actionBar.setCustomView(actionBarView);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.sticker_shop_menu, menu);
+	@Override
+	public boolean onCreateOptionsMenu(final Menu menu)
+	{
+		getMenuInflater().inflate(R.menu.sticker_shop_menu, menu);
 
-        shopSearchMenuItem = menu.findItem(R.id.shop_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(shopSearchMenuItem);
-        searchView.setOnQueryTextListener(onQueryTextListener);
-        searchView.setQueryHint(getString(R.string.shop_search));
-        searchView.clearFocus();
-        MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        MenuItemCompat.setOnActionExpandListener(shopSearchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+		shopSearchMenuItem = menu.findItem(R.id.shop_search);
+
+        searchLayout = (RelativeLayout) MenuItemCompat.getActionView(menu.findItem(R.id.shop_search));
+
+        setupSearchFTUE();
+
+		MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.shop_search), new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
                 menu.findItem(R.id.shop_settings).setVisible(false);
@@ -143,8 +147,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             }
         });
 
-        return true;
-    }
+		return true;
+	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -165,7 +169,6 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
                 IntentFactory.openStickerSettingsActivity(StickerShopActivity.this);
                 break;
-
         }
 
         return super.onOptionsItemSelected(item);
@@ -205,5 +208,79 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
         super.onBackPressed();
 
+    }
+
+	private void setupSearchFTUE()
+	{
+
+		int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(SHOW_STICKER_SEARCH_FTUE, DEFAULT_SEARCH_FTUE_LIMIT);
+        final ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
+		if (searchFtueShownCount <= 0)
+		{
+            searchIcon.setVisibility(View.GONE);
+            searchLayout.removeView(searchIcon);
+            setupSearchBar();
+            return;
+		}
+
+		HikeSharedPreferenceUtil.getInstance().saveData(SHOW_STICKER_SEARCH_FTUE, --searchFtueShownCount);
+
+
+		searchIcon.setImageResource(R.drawable.ic_search_white);
+		searchIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HikeSharedPreferenceUtil.getInstance().saveData(SHOW_STICKER_SEARCH_FTUE, 0);
+                v.clearAnimation();
+                v.setAnimation(null);
+                v.setVisibility(View.GONE);
+                setupSearchBar();
+                if (shopSearchMenuItem != null) {
+                    shopSearchMenuItem.expandActionView();
+                }
+            }
+        });
+
+		Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+		pulse.setRepeatCount(Animation.INFINITE);
+		pulse.setAnimationListener(new Animation.AnimationListener()
+		{
+            int count = 1;
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+                if(count++ % 2 !=0)
+                {
+                    searchLayout.setPressed(true);
+                    searchLayout.setPressed(false);
+                }
+			}
+		});
+
+		searchIcon.startAnimation(pulse);
+
+	}
+
+    private void setupSearchBar()
+    {
+        SearchView searchBar = (SearchView) searchLayout.findViewById(R.id.search_bar);
+        searchLayout.removeView(searchBar);
+        MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchBar), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        searchBar.setOnQueryTextListener(onQueryTextListener);
+        searchBar.setQueryHint(getString(R.string.shop_search));
+        shopSearchMenuItem.setIcon(R.drawable.ic_search_white);
+        searchBar.setVisibility(View.VISIBLE);
     }
 }

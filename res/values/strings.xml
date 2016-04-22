@@ -1581,4 +1581,6 @@
     <string name="ftue_frn_subtext">Add as a friend</string>
     <string name="profile_pic_display_info_frn">Show only to your Friends</string>
     <string name="shop_search">Search for Packs</string>
+    <string name="no_match_found">Oops! no match found</string>
+    <string name="search_again_hint">Try searching for something else</string>
 </resources>

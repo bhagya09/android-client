@@ -110,6 +110,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
+import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -3495,6 +3496,7 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.MINI_STICKER_ENABLED.equals(subType))
 		{
+            HikeSharedPreferenceUtil.getInstance().saveData(StickerShopActivity.SHOW_STICKER_SEARCH_FTUE, 2);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MINI_STICKER_ENABLED, data.optBoolean(HikeConstants.BADGE, false));
 		}
 		else if (HikeConstants.DISPLAY_MINI_IN_CT.equals(subType))

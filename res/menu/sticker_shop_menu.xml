@@ -4,12 +4,9 @@
 
     <item
         android:id="@+id/shop_search"
-        android:icon="@drawable/ic_top_bar_search"
-        app:showAsAction="always|collapseActionView"
+        app:showAsAction="always"
         android:title="@string/shop_search"
-        app:actionLayout="@layout/search_layout"
-        >
-    </item>
+        app:actionLayout="@layout/shop_search_layout"/>
 
     <item
         android:id="@+id/shop_settings"
