@@ -447,6 +447,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		// set profile picture
 		Drawable drawable = null;
+		// workaround for bug AND-461 , if msisdn is null we will show default avatar
 		if (contactInfo.getMsisdn() != null)
 		{
 			drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
