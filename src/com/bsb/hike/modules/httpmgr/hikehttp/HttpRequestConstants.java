@@ -93,9 +93,9 @@ public class HttpRequestConstants
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
 
-	private static final String SPAM_USER = "/markspam";
+	private static final String SPAM_USER = "/v1/spam/mark";
 
-	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/userinfo";
+	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/v1/spam/userinfo";
 
 	public static synchronized void setUpBase()
 	{

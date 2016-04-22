@@ -1149,23 +1149,19 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken fetchUnknownChatUserInfo(JSONObject json, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
+	//http://private-9fd63-chatspam.apiary-mock.com/v1/userinfo?msisdn=%2B918011284664&spaminfo=1
+	public static RequestToken fetchUnknownChatUserInfo(String msisdn, boolean newRow, IRequestListener requestListener, int noOfRetry, int retryDelay, float backOffMultiplier)
 	{
-		JsonBody body = null;
-		if (json != null)
-		{
-			body = new JsonBody(json);
-		}
-
 		RequestToken requestToken = null;
 
-		if (body != null)
-		{
+		if (msisdn != null) {
+			int spaminfo = newRow == true ? 1 : 0;
 			requestToken = new JSONObjectRequest.Builder()
-					.setUrl(HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo())
+					.setUrl(HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo() + "?msisdn=" + msisdn + "&spaminfo=" + spaminfo)
 					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
 					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
-					.post(body).build();
+					.get()
+					.build();
 		}
 
 		return requestToken;
