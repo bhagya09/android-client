@@ -27,6 +27,7 @@ import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.ChatTheme;
@@ -157,6 +158,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
                 + APP_PACKAGE + " TEXT" + ")";
         createAndIndexes[i++]= mAppTable;
 
+		//CREATE ATOMIC_TIP_TABLE
+		String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
+				+_ID +" INTEGER PRIMARY KEY ,"
+				+ TIP_DATA + " TEXT ,"
+				+ TIP_STATUS + " INTEGER,"
+				+ TIP_PRIORITY + " INTEGER,"
+				+ TIP_END_TIME + " INTEGER " + ")";
+		createAndIndexes[i++] = atomicTipTable;
+
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
 		
 		createAndIndexes[i++] = popupDB;
@@ -253,6 +263,17 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
+
+		if(oldVersion < 8)
+		{
+			String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
+					+_ID +" INTEGER PRIMARY KEY ,"
+					+ TIP_DATA + " TEXT ,"
+					+ TIP_STATUS + " INTEGER,"
+					+ TIP_PRIORITY + " INTEGER,"
+					+ TIP_END_TIME + " INTEGER " + ")";
+			queries.add(atomicTipTable);
+		}
 		
 		return queries.toArray(new String[]{});
 	}
@@ -1142,6 +1163,97 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		Logger.v("HikeContentDatabase", "Fluhsing Download state table");
 		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE, null, null);
+	}
+
+	/**
+	 * Method to insert atomic tips received via mqtt into Content DB.
+	 * @param tipContentModel
+	 * @param tipStatus
+     */
+	public void saveAtomicTip(AtomicTipContentModel tipContentModel, int tipStatus)
+	{
+		Logger.d(getClass().getSimpleName(), "Saving new atomic tip");
+		ContentValues cv = new ContentValues();
+		cv.put(_ID, tipContentModel.hashCode());
+		cv.put(TIP_DATA, tipContentModel.getJsonString());
+		cv.put(TIP_STATUS, tipStatus);
+		cv.put(TIP_PRIORITY, tipContentModel.getPriority());
+		cv.put(TIP_END_TIME, tipContentModel.getEndTime());
+		long row = mDB.insertWithOnConflict(ATOMIC_TIP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+		Logger.d(getClass().getSimpleName(), "Atomic Tip insertion success at row: " + row);
+	}
+
+	/**
+	 * Method to get list of all saved atomic tips ordered by tip priority
+	 * @return
+     */
+	public ArrayList<AtomicTipContentModel> getSavedAtomicTips()
+	{
+		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
+		ArrayList<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
+		Cursor c = null;
+		try
+		{
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " ORDER BY " + TIP_PRIORITY + " ASC";
+
+			c = mDB.rawQuery(query, null);
+
+			while (c.moveToNext())
+			{
+				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
+				int tipStatus = c.getInt(c.getColumnIndex(TIP_STATUS));
+				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
+				tipContentModel.setTipStatus(tipStatus);
+				atomicTipContentModels.add(tipContentModel);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.d(getClass().getSimpleName(), "Error while fetching Atomic Tips from Content DB");
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+		return atomicTipContentModels;
+	}
+
+	/**
+	 * Method to update status of an atomic tip
+	 * @param tipId
+	 * @param tipStatus
+     */
+	public void updateAtomicTipStatus(int tipId, int tipStatus)
+	{
+		Logger.d(getClass().getSimpleName(), "Updating atomic tip status");
+		ContentValues cv = new ContentValues();
+		cv.put(TIP_STATUS, tipStatus);
+		String whereClause = _ID + "=" + tipId;
+		mDB.update(ATOMIC_TIP_TABLE, cv, whereClause, null);
+	}
+
+	/**
+	 * Method to clean atomic tips table by deleting expired and dismissed tips.
+	 */
+	public void cleanAtomicTipsTable()
+	{
+		Logger.d(getClass().getSimpleName(), "Deleting expired and dismissed atomic tips from table.");
+		String expiredClause = TIP_END_TIME + "<" + System.currentTimeMillis();
+		String dismissedClause = " OR " + TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
+		mDB.delete(ATOMIC_TIP_TABLE, expiredClause + dismissedClause, null);
+	}
+
+	/**
+	 * Method to flush atomic tips table.
+	 */
+	public void flushAtomicTipTable()
+	{
+		Logger.d(getClass().getSimpleName(), "Flushing atomic tip table.");
+		mDB.delete(ATOMIC_TIP_TABLE, null, null);
 	}
 
 }
