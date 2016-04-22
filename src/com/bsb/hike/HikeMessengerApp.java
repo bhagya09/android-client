@@ -1381,4 +1381,9 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
     }
 
+    public static void clearDiskCache()
+    {
+        diskCache = null;
+    }
+
 }
