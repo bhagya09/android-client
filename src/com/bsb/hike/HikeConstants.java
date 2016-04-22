@@ -4096,7 +4096,14 @@ public class HikeConstants
 
 		public static final String DIRECTORY_TYPE = "dir_t";
 	}
+	public static final class MESSAGE_INFO{
+		public static final String MESSAGE_INFO_TYPE="mi_t";
+		public static final  int ONE_TO_ONE=1;
+		public static final int GROUP=2;
+		public static final int BROADCAST=3;
 
+
+	}
 	public static final String NUM_ROWS_INITIALLY_VISIBLE = "num_rows_iv";
 
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";

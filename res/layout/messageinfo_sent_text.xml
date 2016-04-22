@@ -4,19 +4,15 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:gravity="center_vertical|right"
-    android:minHeight="30dp"
+    android:minHeight="65dp"
     android:paddingBottom="4dp" >
 
-    <ViewStub
-        android:id="@+id/day_stub"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout="@layout/message_day_container" />
+
 
     <RelativeLayout
         android:id="@+id/message_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_alignParentRight="true"
         android:layout_below="@id/day_container"
         android:layout_marginBottom="3dp"
@@ -31,45 +27,13 @@
         <com.bsb.hike.view.CustomSendMessageTextView
             android:id="@+id/text"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:gravity="left"
             android:maxWidth="265dp"
             android:textColor="@color/chat_color"
             android:textSize="16sp" />
     </RelativeLayout>
 
-    <include
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/message_container"
-        android:layout_alignRight="@id/message_container"
-        android:layout_marginBottom="6dp"
-        android:layout_marginRight="14dp"
-        layout="@layout/message_time_status" />
 
-    <View
-        android:id="@+id/selected_state_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/message_container"
-        android:layout_below="@id/day_container"
-        android:layout_alignWithParentIfMissing="true" />
-
-    <ViewStub
-        android:id="@+id/message_info_stub"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/message_container"
-        android:layout="@layout/message_sent_info" />
-
-    <ViewStub
-        android:id="@+id/sdr_ftue_tip"
-        android:layout_width="218dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/message_container"
-        android:layout_marginRight="@dimen/chat_bubble_nudge_edge_spacing"
-        android:layout="@layout/sdr_tool_tip" />
 
 </RelativeLayout>
