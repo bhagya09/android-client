@@ -8611,8 +8611,8 @@ public class Utils
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
-			json.put(AnalyticsConstants.V2.NETWORK,
-					Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
 			if (isStealth)
 				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			if(!TextUtils.isEmpty(genus))
