@@ -3632,7 +3632,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
-
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
@@ -3681,6 +3683,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
+						if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
 					}
@@ -4696,5 +4701,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
+		sendImageVideoRelatedAnalytic(uniqueKey_Order, null);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus) {
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
+			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus);
+		}
 	}
 }

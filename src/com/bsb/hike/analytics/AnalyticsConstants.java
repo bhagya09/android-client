@@ -856,4 +856,10 @@ public class AnalyticsConstants
 
 	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
 
+	public static final String VIDEO_SENT = "sendVid";
+
+	public static final String VIDEO_UPLOAD_PAUSE_MANUALLY = "pauseVid";
+
+	public static final String VIDEO_RECEIVER_DOWNLOAD_MANUALLY = "vidDwnld";
+
 }
