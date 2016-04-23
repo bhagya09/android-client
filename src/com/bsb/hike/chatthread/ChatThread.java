@@ -986,7 +986,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
 			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
-				sendLocationCancelledAnalytic();
+				recordMediaShareAnalyticEvent(AnalyticsConstants.LOCATION_SHARING_CANCELLED);
 			}
 			return;
 		}
@@ -2174,6 +2174,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
+			recordMediaShareAnalyticEvent(AnalyticsConstants.VIDEO_SENT);
 			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
@@ -2196,10 +2197,13 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	}
 
-	private void sendLocationCancelledAnalytic() {
+	private void recordMediaShareAnalyticEvent(String uniqueKey_order){
+		recordMediaShareAnalyticEvent(uniqueKey_order, null);
+	}
+
+	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus){
 		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
-		Utils.recordCoreAnalyticsForShare(AnalyticsConstants.LOCATION_SHARING_CANCELLED, species,
-				msisdn, mConversation.isStealth());
+		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus);
 	}
 
 	protected void onShareLocation(Intent data)
