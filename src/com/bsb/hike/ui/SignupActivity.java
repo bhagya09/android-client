@@ -1358,7 +1358,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 				if (restoreStatus.equals(getString(R.string.restore_msisdn_error))) //If msisdn mismatch, set the title as Bummer!
 				{
-					restoreTitleTv.setText(getString(R.string.bummer));
+					restoreTitleTv.setText(getString(R.string.restore_failed));
 				}
 			}
 
@@ -1375,6 +1375,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				});
 
 				retry.setText(getString(R.string.upgrade_hike));
+				restoreTitleTv.setText(getString(R.string.restore_failed));
 			}
 
 			restoreProgress.setVisibility(View.INVISIBLE);
