@@ -180,6 +180,10 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						HikeConversationsDatabase.getInstance().updateBotMetaData(entry.getKey(), botMetadataJson);
 						entry.getValue().setMetadata(botMetadataJson);
 						mapForMigratedApps.put(entry.getKey(), true);
+
+                        // Delete micro app file if from the old content code if it successfully got migrated
+                        if(!TextUtils.isEmpty(microAppName))
+                            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microAppName);
 					}
 				}
 				catch (FileNotFoundException fnfe)
