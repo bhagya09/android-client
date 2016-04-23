@@ -860,4 +860,6 @@ public class AnalyticsConstants
 
 	public static final String VIDEO_UPLOAD_PAUSE_MANUALLY = "pauseVid";
 
+	public static final String VIDEO_RECEIVER_DOWNLOAD_MANUALLY = "vidDwnld";
+
 }

@@ -3683,6 +3683,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
+						if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
 					}
