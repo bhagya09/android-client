@@ -79,6 +79,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.bsb.hike.backup.BackupUtils;
+import com.bsb.hike.backup.model.BackupMetadata;
 
 public class StickerManager
 {
@@ -3399,12 +3400,23 @@ public class StickerManager
 
 	public void handleDifferentDpi()
 	{
-		if (BackupUtils.getBackupMetadata() == null || BackupUtils.getBackupMetadata().getDensityDPI() != Utils.getDeviceDensityDPI())
+		BackupMetadata metadata = BackupUtils.getBackupMetadata();
+
+		if (metadata != null)
 		{
-			// 1. Flush Sticker Table
-			// 2. Remove Sticker Assets. They are no longer useful
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-			deleteStickers();
+			if (metadata.getDensityDPI() == BackupMetadata.NO_DPI)
+			{
+				return; // No DPI presently recorded so return. Perhaps checking an old backup file
+			}
+
+			else if (metadata.getDensityDPI() != Utils.getDeviceDensityDPI())
+			{
+				// Genuine case of device change or alteration in densityDPI value
+				// 1. Flush Sticker Table
+				// 2. Remove Sticker Assets. They are no longer useful
+				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+				deleteStickers();
+			}
 		}
 	}
 
