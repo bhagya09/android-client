@@ -441,7 +441,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
 			//Check for crash reporting tool
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 			{
 				Crashlytics.setUserIdentifier(accountInfo.getUid());
 			}
