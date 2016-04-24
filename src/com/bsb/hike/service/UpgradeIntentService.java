@@ -213,6 +213,11 @@ public class UpgradeIntentService extends IntentService
             Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
             context.startService(migrationIntent);
         }
+        else
+        {
+            // As there is no older content directory there to migrate, setting the migration as successful so that it doesn't get triggered again
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
+        }
     }
 
 	private boolean upgradeForStickerTable()

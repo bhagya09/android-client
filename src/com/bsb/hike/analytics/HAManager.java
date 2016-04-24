@@ -293,6 +293,8 @@ public class HAManager
             {
                 eventJson.put(AnalyticsConstants.V2.VERSION, AnalyticsConstants.V2.VERSION_VALUE);
             }
+			eventJson.put(AnalyticsConstants.V2.CTS, Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis()));
+			eventJson.put(AnalyticsConstants.V2.RECORD_ID, fgSessionInstance.getSessionId());
 		} catch (JSONException e) {
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Error in Event Json, ignoring event...");
 			return;

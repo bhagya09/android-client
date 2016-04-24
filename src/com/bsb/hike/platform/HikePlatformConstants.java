@@ -424,4 +424,6 @@ public interface HikePlatformConstants
     String APP_NOT_FOUND = "appNotFound";
 
     String APP_STATUS = "app_status";
+
+    String BOT_DISCOVERY = "bot_discovery";
 }
