@@ -15,6 +15,7 @@ import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -23,6 +24,7 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
+import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -30,6 +32,8 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
 
 public class PlatformHelper
 {
@@ -325,7 +329,7 @@ public class PlatformHelper
 
 	}
 
-	public static void showPopup(String contentData, Activity activity)
+	public static void showPopup(String contentData, final Activity activity)
 	{
 		final HikeBaseActivity hikeBaseActivity;
 		if (TextUtils.isEmpty(contentData) || activity == null)
@@ -355,7 +359,13 @@ public class PlatformHelper
 				@Override
 				public void onSuccess(ProductContentModel productContentModel)
 				{
-					hikeBaseActivity.showPopupDialog(mmModel);
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							hikeBaseActivity.showPopupDialog(mmModel);
+						}
+					});
+
 				}
 
 				@Override
@@ -427,10 +437,16 @@ public class PlatformHelper
 					{
 						galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS;
 					}
-					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags,null);
-					galleryPickerIntent.putExtra(GalleryActivity.START_FOR_RESULT, true);
-					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID,id);
-					((Activity) weakActivityRef). startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
+					File newSentFile = Utils.createNewFile(HikeFile.HikeFileType.IMAGE, "", true);
+					if (newSentFile != null)
+					{
+						galleryFlags = galleryFlags | GalleryActivity.GALLERY_CROP_IMAGE; // This also gives an option to edit/rotate
+					}
+
+					Intent galleryPickerIntent = IntentFactory.getHikeGalleryPickerIntent(weakActivityRef, galleryFlags, newSentFile == null ? null : newSentFile.getAbsolutePath());
+					galleryPickerIntent.putExtra(HikeConstants.CALLBACK_ID, id);
+
+					((Activity) weakActivityRef).startActivityForResult(galleryPickerIntent, HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST);
 				}
 			}
 		});

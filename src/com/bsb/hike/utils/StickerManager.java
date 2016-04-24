@@ -30,9 +30,8 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.models.StickerPageAdapterItem;
+import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
-import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
@@ -76,6 +75,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.bsb.hike.backup.BackupUtils;
@@ -270,6 +270,8 @@ public class StickerManager
 
 	public static final int INDEX_INFO_BOUND = 2;
 
+    public static final String STICKER_TYPE = "s_t";
+
 	private final Map<String, StickerCategory> stickerCategoriesMap;
 
 	public static String stickerExternalDir;
@@ -390,6 +392,8 @@ public class StickerManager
 
 		cachingStickersOnStart();
 
+        retryInsertForStickers();
+
 		doUpgradeTasks();
 	}
 
@@ -443,11 +447,12 @@ public class StickerManager
 					String[] stickerIds = smallCatDir.list();
 					for (String stickerId : stickerIds)
 					{
-						removeStickerFromCustomCategory(new Sticker(removedCategoryId, stickerId));
-                        			if(!forceRemoveCategory)
-                        			{
-                        				removedSet.add(getStickerSetString(stickerId, removedCategoryId));
-                        			}
+                        Sticker sticker = new Sticker(removedCategoryId, stickerId);
+						removeStickerFromCustomCategory(sticker);
+                        if(!forceRemoveCategory)
+                        {
+                            removedSet.add(sticker.getStickerCode());
+                        }
 					}
 				}
 				Utils.deleteFile(bigCatDir);
@@ -1571,13 +1576,13 @@ public class StickerManager
 		singleStickerDownloadTask.execute();
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, JSONObject bodyJson)
 	{
 		DownloadType downloadType = category.isUpdateAvailable() ? DownloadType.UPDATE : DownloadType.MORE_STICKERS;
-		initialiseDownloadStickerPackTask(category, source, downloadType, context);
+		initialiseDownloadStickerPackTask(category, downloadType, bodyJson);
 	}
 
-	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadSource source, DownloadType downloadType, Context context)
+	public void initialiseDownloadStickerPackTask(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if (stickerCategoriesMap.containsKey(category.getCategoryId()))
 		{
@@ -1586,7 +1591,7 @@ public class StickerManager
 		if (category.getTotalStickers() == 0 || category.getDownloadedStickersCount() < category.getTotalStickers())
 		{
 			category.setState(StickerCategory.DOWNLOADING);
-			makePackDownloadCall(category, source, downloadType);
+			makePackDownloadCall(category, downloadType, bodyJson);
 		}
 		else if (category.getDownloadedStickersCount() >= category.getTotalStickers())
 		{
@@ -1596,18 +1601,18 @@ public class StickerManager
 		HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_CATEGORY_MAP_UPDATED, null);
 	}
 
-	private void makePackDownloadCall(StickerCategory category, DownloadSource source, DownloadType downloadType)
+	private void makePackDownloadCall(StickerCategory category, DownloadType downloadType, JSONObject bodyJson)
 	{
 		if ((category.getTotalStickers() <= 0 || category.getDownloadedStickersCount() > HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN_THRESHOLD,
 				StickerConstants.DEFAULT_STICKER_THRESHOLD_FOR_CDN))
 				|| !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_PACK_CDN, true))
 		{
-			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, source);
+			MultiStickerDownloadTask multiStickerDownloadTask = new MultiStickerDownloadTask(category, downloadType, bodyJson);
 			multiStickerDownloadTask.execute();
 		}
 		else
 		{
-			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, source);
+			MultiStickerImageDownloadTask multiStickerImageDownloadTask = new MultiStickerImageDownloadTask(category, downloadType, bodyJson);
 			multiStickerImageDownloadTask.execute();
 		}
 	}
@@ -2021,13 +2026,6 @@ public class StickerManager
 		}
 	}
 
-	public String getStickerSetString(String stkId, String catId)
-	{
-
-		//ToDo remove this
-		return (new Sticker(catId,stkId)).getStickerCode();
-	}
-
 	public Sticker getStickerFromSetString(String info)
 	{
 		Pair<String, String> pair = getStickerInfoFromSetString(info);
@@ -2057,10 +2055,10 @@ public class StickerManager
 		return pair;
 	}
 
-	public void saveInStickerTagSet(String stickerId, String categoryId)
+	public void saveInStickerTagSet(Sticker sticker)
 	{
 		Set<String> stickerSet = new HashSet<>(1);
-		stickerSet.add(StickerManager.getInstance().getStickerSetString(stickerId, categoryId));
+		stickerSet.add(sticker.getStickerCode());
 
 		StickerManager.getInstance().saveStickerSet(stickerSet, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, false);
 	}
@@ -2273,34 +2271,38 @@ public class StickerManager
 
 
     /**
-     * JSON packet sent structure
+     * JSON Structure example
+     {
+         "md":{
+             "eD":[
+                 {
+                 "eName":"X-(",
+                 "eCnt":11
+                 },
+                 {
+                 "eName":":\")",
+                 "eCnt":4
+                 },
+                 {
+                 "eName":"=)",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":":-P",
+                 "eCnt":3
+                 },
+                 {
+                 "eName":"^.^",
+                 "eCnt":6
+                 }
+                ],
+             "ek":"eSnt"
+         }
+     }
      *
-     * For a single time with 10 emoticons used
-     * Sending in batches of N = 8 due string length on parsing from server
-
-     Packet1
-     {
-     "ek":"eSnt",
-     "Tag_0":":'-(_5",
-     "Tag_1":":-P_1",
-     "Tag_2":":D_3",
-     "Tag_3":"T_T_1",
-     "Tag_4":":?-(_3",
-     "Tag_5":"(stop)_2",
-     "Tag_6":"(sweat)_2",
-     "Tag_7":":-(_1",
-     "sid":1460486840551
-     }
-
-     Packet2
-     {
-     "ek":"eSnt",
-     "Tag_0":":-D_1",
-     "Tag_1":":-|_2",
-     "sid":1460486840551
-     }
-
      */
+
+
 	public void sendEmoticonUsageAnalytics()
 	{
 		String emoticonsSent = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
@@ -2315,22 +2317,28 @@ public class StickerManager
 			JSONObject emojiList = new JSONObject(emoticonsSent);
 			Iterator<String> emoticons = emojiList.keys();
 
+			JSONObject metadata = new JSONObject();
+			JSONArray emojiUsage = new JSONArray();
 			while (emoticons.hasNext())
 			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
-				int i = 0;
-				for (i = 0; i < 8 && emoticons.hasNext(); i++)
-				{
-					String emoji = emoticons.next();
-					int count = emojiList.getInt(emoji);
-					metadata.put(HikeConstants.TAG + HikeConstants.SEPARATOR_ + Integer.toString(i), emoji + HikeConstants.SEPARATOR_ + count);
-				}
+				JSONObject emoji = new JSONObject();
 
-				if (i > 0)
-				{
-					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
-				}
+				String emojiName = emoticons.next();
+				int count = emojiList.getInt(emojiName);
+
+				emoji.put(HikeConstants.LogEvent.EMOTICON_NAME, emojiName);
+				emoji.put(HikeConstants.LogEvent.EMOTICON_COUNT, count);
+
+				emojiUsage.put(emoji);
+
+			}
+
+			if (emojiUsage.length() > 0)
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.EMOTICON_SENT);
+				metadata.put(HikeConstants.LogEvent.EMOTICON_DATA, emojiUsage);
+
+				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 			}
 
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.EMOTICONS_CLICKED_LIST, "");
@@ -2546,8 +2554,7 @@ public class StickerManager
 	/**
 	 * Send recommendation selection analytics
 	 */
-	public void sendRecommendationSelectionAnalytics(String source, String stickerId, String categoryId, int selectedIndex, int numTotal, int numVisible, String tappedWord,
-			String taggedPhrase)
+	public void sendRecommendationSelectionAnalytics(String source, Sticker sticker, int selectedIndex, int numTotal, int numVisible, String tappedWord, String taggedPhrase)
 	{
 		try
 		{
@@ -2557,10 +2564,10 @@ public class StickerManager
 			metadata.put(HikeConstants.ACCURACY, selectedIndex + STRING_DELIMETER + numTotal + STRING_DELIMETER + numVisible);
 			metadata.put(HikeConstants.TAGGED_PHRASE, taggedPhrase);
 			metadata.put(HikeConstants.TAP_WORD, tappedWord);
-			metadata.put(HikeConstants.STICKER_ID, stickerId);
-			metadata.put(HikeConstants.CATEGORY_ID, categoryId);
+			metadata.put(HikeConstants.STICKER_ID, sticker.getStickerId());
+			metadata.put(HikeConstants.CATEGORY_ID, sticker.getCategoryId());
 			metadata.put(HikeConstants.KEYBOARD_LIST, StickerSearchUtils.getCurrentLanguageISOCode());
-
+            metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 		}
 		catch (JSONException e)
@@ -2967,34 +2974,6 @@ public class StickerManager
 		return stickerSet;
 	}
 
-	public void sendResponseTimeAnalytics(Response response, String methodType)
-	{
-		try
-		{
-			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS)
-					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS))
-			{
-				return;
-			}
-
-			long timeTaken = Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_RECEIVED_MILLIS).getValue())
-					- Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.OKHTTP_SENT_MILLIS).getValue());
-
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.EVENT_KEY, HttpAnalyticsLogger.processRequestUrl(response.getUrl()));
-			metadata.put(AnalyticsConstants.TIME_TAKEN, timeTaken);
-			metadata.put(HttpAnalyticsConstants.HTTP_METHOD_TYPE, methodType);
-			metadata.put(AnalyticsConstants.CONNECTION_TYPE, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
-			HAManager.getInstance().record(HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE, AnalyticsConstants.NON_UI_EVENT, EventPriority.HIGH, metadata,
-					HttpAnalyticsConstants.HTTP_ANALYTICS_TYPE);
-		}
-		catch (JSONException e)
-		{
-			Logger.e(TAG, "json exception in logging sticker response time", e);
-		}
-	}
-
 	public List<Sticker> getStickerListFromString(String categoryId, String stickerListString)
 	{
 		List<Sticker> stickerList = null;
@@ -3067,6 +3046,11 @@ public class StickerManager
 	public void saveSticker(List<Sticker> stickers, StickerConstants.StickerType stickerType)
 	{
 		HikeConversationsDatabase.getInstance().insertStickersToDB(stickers, stickerType);
+
+        for(Sticker sticker : stickers)
+        {
+            removeFromTableStickerSet(sticker);
+        }
 	}
 
 	public void deactivateSticker(Sticker sticker)
@@ -3460,4 +3444,139 @@ public class StickerManager
 		}
 	}
 
+    public void saveInTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.add(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void removeFromTableStickerSet(Sticker sticker)
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+        stickerSet.remove(sticker.getStickerCode());
+        HikeSharedPreferenceUtil.getInstance().saveStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET, stickerSet);
+    }
+
+    public void retryInsertForStickers()
+    {
+        Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
+
+        if(Utils.isEmpty(stickerSet))
+        {
+            return;
+        }
+
+        List<Sticker> stickers = new ArrayList<>(stickerSet.size());
+
+        for(String stickerCode : stickerSet)
+        {
+            stickers.add(getStickerFromSetString(stickerCode));
+        }
+
+        saveSticker(stickers, StickerConstants.StickerType.LARGE);
+
+    }
+
+
+	public void sendPackPreviewOpenAnalytics(String categoryId, StickerConstants.PackPreviewClickSource packPreviewClickSource)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.PACK_PREVIEW);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource.getValue());
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception in logging analytics for pack preview open");
+		}
+	}
+
+	public void sendViewAllClickAnalytics(String categoryId)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.VIEW_ALL);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.VIEW_ALL);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "exception in logging analytics for pack preview open");
+		}
+	}
+
+	public void sendResponseTimeAnalytics(Response response, String methodType, String categoryId, String stickerId)
+	{
+		try
+		{
+			if (response == null || TextUtils.isEmpty(response.getUrl()) || Utils.isEmpty(response.getHeaders())
+					|| !HttpUtils.containsHeader(response.getHeaders(), HttpHeaderConstants.NETWORK_TIME))
+			{
+				return;
+			}
+
+			long timeTaken = TimeUnit.NANOSECONDS.toMillis(Long.valueOf(HttpUtils.getHeader(response.getHeaders(), HttpHeaderConstants.NETWORK_TIME).getValue()));
+
+
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.STICKER_DOWNLOAD_TIME);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.NON_UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, methodType);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.VARIETY, timeTaken);
+			json.put(AnalyticsConstants.V2.FORM, AnalyticsConstants.HTTP_EVENT);
+			json.put(AnalyticsConstants.V2.VAL_STR, ContactManager.getInstance().getSelfMsisdn());
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkType(HikeMessengerApp.getInstance().getApplicationContext()));
+			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
+			json.put(AnalyticsConstants.V2.GENUS, stickerId);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "json exception in logging sticker response time", e);
+		}
+	}
+
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource)
+	{
+		return getPackDownloadBodyJson(downloadSource, -1, false);
+	}
+
+	public JSONObject getPackDownloadBodyJson(DownloadSource downloadSource, int position, boolean viewAllClicked)
+	{
+		try {
+
+			JSONObject body = new JSONObject();
+			body.put(HikeConstants.RESOLUTION_ID, Utils.getResolutionId());
+			body.put(HikeConstants.DOWNLOAD_SOURCE, downloadSource.getValue());
+			body.put(HikeConstants.POSITION, position);
+			body.put(HikeConstants.VIEW_ALL_CLICKED, viewAllClicked ? 1 : 0);
+
+			return body;
+		}
+		catch (JSONException e)
+		{
+			Logger.e(TAG, "error in making body for pack download");
+		}
+
+		return null;
+	}
 }
