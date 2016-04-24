@@ -3340,6 +3340,7 @@ public class StickerManager
 		
 		resetCategoryMetadataFetchPreference();
 		tryToDownloadStickerDataForAllCategories();
+		handleDifferentDpi();
     }
 
 	public boolean getShowLastCategory()

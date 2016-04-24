@@ -705,7 +705,6 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					if (restoreStatus == STATE_RESTORE_SUCCESS)
 					{
 						BotUtils.postAccountRestoreSetup();
-						StickerManager.getInstance().handleDifferentDpi();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
 					}
 					else
