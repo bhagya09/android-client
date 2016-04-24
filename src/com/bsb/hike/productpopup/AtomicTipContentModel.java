@@ -17,6 +17,14 @@ public class AtomicTipContentModel
 
     private String bgColor;
 
+    private String bgImage;
+
+    private boolean isBgColor;
+
+    private String iconKey;
+
+    private String bgImgKey;
+
     private int priority;
 
     private long startTime;
@@ -65,14 +73,35 @@ public class AtomicTipContentModel
         this.header = tipContentJSON.optString(HikeConstants.HEADER, "");
         this.body = tipContentJSON.optString(HikeConstants.BODY, "");
         this.icon = tipContentJSON.optString(HikeConstants.ICON, "");
-        this.bgColor = tipContentJSON.optString(HikeConstants.BACKGROUND_COLOR,"");
         this.priority = tipContentJSON.optInt(HikeConstants.TIP_PRIORITY);
         this.startTime = tipContentJSON.optLong(ProductPopupsConstants.START_TIME, 0L);
         this.endTime = tipContentJSON.optLong(ProductPopupsConstants.END_TIME, 0L);
+        prcessBackground(tipContentJSON.optJSONObject(HikeConstants.BACKGROUND));
         processNotifItems(tipContentJSON.optJSONObject(HikeConstants.PLAY_NOTIFICATION));
         processTipCTA(tipContentJSON.optJSONObject(HikeConstants.TIP_CTA));
         this.jsonString = tipContentJSON.toString();
         this.hashCode();
+        iconKey = String.format(hashCode + "icon");
+        bgImgKey = String.format(hashCode + "bgimg");
+    }
+
+    private void prcessBackground(JSONObject tipBgData)
+    {
+        if(tipBgData == null)
+        {
+            return;
+        }
+
+        if(tipBgData.has(HikeConstants.BACKGROUND_COLOR))
+        {
+            this.bgColor = tipBgData.optString(HikeConstants.BACKGROUND_COLOR,"");
+            isBgColor = true;
+        }
+        else
+        {
+            isBgColor = false;
+            this.bgImage = tipBgData.optString(HikeConstants.IMAGE,"");
+        }
     }
 
     private void processNotifItems(JSONObject tipNotifData)
@@ -195,5 +224,25 @@ public class AtomicTipContentModel
     public void setTipStatus(int status)
     {
         tipStatus = status;
+    }
+
+    public String getBgImage()
+    {
+        return bgImage;
+    }
+
+    public boolean isBgColor()
+    {
+        return isBgColor;
+    }
+
+    public String getIconKey()
+    {
+        return iconKey;
+    }
+
+    public String getBgImgKey()
+    {
+        return bgImgKey;
     }
 }

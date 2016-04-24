@@ -161,10 +161,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		//CREATE ATOMIC_TIP_TABLE
 		String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
 				+_ID +" INTEGER PRIMARY KEY ,"
-				+ TIP_DATA + " TEXT ,"
+				+ TIP_DATA + " TEXT,"
 				+ TIP_STATUS + " INTEGER,"
 				+ TIP_PRIORITY + " INTEGER,"
-				+ TIP_END_TIME + " INTEGER " + ")";
+				+ TIP_END_TIME + " INTEGER" + ")";
 		createAndIndexes[i++] = atomicTipTable;
 
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
@@ -268,10 +268,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		{
 			String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
 					+_ID +" INTEGER PRIMARY KEY ,"
-					+ TIP_DATA + " TEXT ,"
+					+ TIP_DATA + " TEXT,"
 					+ TIP_STATUS + " INTEGER,"
 					+ TIP_PRIORITY + " INTEGER,"
-					+ TIP_END_TIME + " INTEGER " + ")";
+					+ TIP_END_TIME + " INTEGER" + ")";
 			queries.add(atomicTipTable);
 		}
 		
@@ -673,6 +673,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE,null,null);
 		ProductInfoManager.getInstance().deleteAllPopups();
 		deleteAllDomainsFromWhitelist();
+		flushAtomicTipTable();
 	}
 
 	/**
@@ -1180,7 +1181,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(TIP_PRIORITY, tipContentModel.getPriority());
 		cv.put(TIP_END_TIME, tipContentModel.getEndTime());
 		long row = mDB.insertWithOnConflict(ATOMIC_TIP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-		Logger.d(getClass().getSimpleName(), "Atomic Tip insertion success at row: " + row);
+		Logger.d(getClass().getSimpleName(), "Atomic Tip insertion success: " + row);
 	}
 
 	/**
@@ -1190,8 +1191,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public ArrayList<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
-		//first cleaning up table to remove expired tips
-		cleanAtomicTipsTable();
 		ArrayList<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try
@@ -1199,6 +1198,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " ORDER BY " + TIP_STATUS + " ASC, " +TIP_PRIORITY + " ASC";
 
 			c = mDB.rawQuery(query, null);
+
+			Logger.d("AtomicTip", "cursor size = "+c.getCount());
 
 			while (c.moveToNext())
 			{
@@ -1244,9 +1245,9 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public void cleanAtomicTipsTable()
 	{
 		Logger.d(getClass().getSimpleName(), "Deleting expired and dismissed atomic tips from table.");
-		String expiredClause = TIP_END_TIME + "<" + System.currentTimeMillis();
-		String dismissedClause = " OR " + TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
-		mDB.delete(ATOMIC_TIP_TABLE, expiredClause + dismissedClause, null);
+		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
+		int result = mDB.delete(ATOMIC_TIP_TABLE, dismissedClause, null);
+		Logger.d("AtomicTip", "cleaned rows: "+result);
 	}
 
 	/**
