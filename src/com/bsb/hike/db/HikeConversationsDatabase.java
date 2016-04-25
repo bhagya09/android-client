@@ -265,18 +265,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = getChatPropertiesIndexCreateStatement();
 		db.execSQL(sql);
 
-		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_TABLE
-				+ " ("
-				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
-				+ DBConstants.BG_TIMESTAMP + " INTEGER" // Timestamp when this theme was changed.
-				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
-				+ DBConstants.MUTE_TIMESTAMP + " INTEGER" // Timestamp when this mute pref was changed.
-				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
-				+ DBConstants.MUTE_NOTIFICATION + "INTEGER DEFAULT 0" //
-				+ ")";
-		db.execSQL(sql);
-
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.GROUP_MEMBERS_TABLE
 				+ " ( "
 				+ DBConstants.GROUP_ID + " TEXT, " // The group id.
