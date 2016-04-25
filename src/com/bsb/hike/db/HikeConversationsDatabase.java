@@ -5832,6 +5832,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+
 		return stickerDataMap;
 	}
 
@@ -5839,6 +5840,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		LinkedHashMap<String, StickerCategory> stickerDataMap = new LinkedHashMap<String, StickerCategory>(c.getCount());
 
+        int index = 1;
 		while (c.moveToNext())
 		{
 			try
@@ -5872,7 +5874,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setCategorySize(categorySize).setCategoryDesc(categoryDescription)
 							.setTotalStickers(totalStickers).setUpdateAvailable(updateAvailable).setIsVisible(isVisible).setIsCustom(isCustom).setIsAdded(true)
-							.setIsDownloaded(isDownloaded).setCatIndex(catIndex).setAllStickerListString(stickerListJSONString).setSimilarPacksString(similarPacksJSONString).setAuthor(author).setCopyRightString(copyRightString).build();
+							.setIsDownloaded(isDownloaded).setCatIndex(catIndex).setAllStickerListString(stickerListJSONString).setSimilarPacksString(similarPacksJSONString).setAuthor(author).setCopyRightString(copyRightString).setShopRank(index++).build();
 				}
 				stickerDataMap.put(categoryId, s);
 			}
@@ -7840,7 +7842,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         Cursor c = null;
         try
         {
-            c = mDb.query(DBConstants.STICKER_SHOP_TABLE, new String[] { DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE }, null, null,
+            c = mDb.query(DBConstants.STICKER_SHOP_TABLE, new String[]{DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE}, null, null,
                     null, null, null);
         }
         catch (Exception e)
@@ -7851,43 +7853,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public List<StickerCategory> getDefaultCategoriesForShopSearch()
+	public HashMap<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
 	{
-		Cursor c = null;
+		if(categories == null || categories.length == 0)
+        {
+            return null;
+        }
 
-		List<StickerCategory> result = null;
+        Cursor c = null;
+
+        HashMap<String,StickerCategory> result = null;
 
 		try
 		{
 			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE,
-                    new String[] { DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE },
-					DBConstants.IS_CUSTOM + " =? ",
-                    new String[] { Integer.toString(0) },
+                    null,
+                    DBConstants._ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
+                    categories,
                     null,
                     null,
-                    DBConstants.CATEGORY_INDEX);
+                    null);
 
-            result = new ArrayList<StickerCategory>(c.getCount());
+            result = parseStickerCategoriesCursor(c);
 
-			while (c.moveToNext())
-			{
-
-				String categoryId = c.getString(c.getColumnIndex(DBConstants._ID));
-				String categoryName = c.getString(c.getColumnIndex(DBConstants.CATEGORY_NAME));
-				int categorySize = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_SIZE));
-				int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
-
-				StickerCategory category = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setCategorySize(categorySize)
-						.setTotalStickers(totalStickers).build();
-
-				result.add(category);
-			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
+
 		return result;
 	}
 

@@ -6,13 +6,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.SearchEngine;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.CategorySearchData;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * Created by akhiltripathi on 13/04/16.
@@ -22,17 +29,26 @@ public enum CategorySearchManager
 
     INSTANCE;
 
+    public final String SEARCH_WEIGHTS = "srcW";
+
+    public final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
+
     public static final String TAG = CategorySearchManager.class.getSimpleName();
 
-    private static HashMap<String, TreeSet<CategoryTagData>> mCacheForShopSearchKeys = new HashMap<String, TreeSet<CategoryTagData>>();
+    private static HashMap<String, TreeSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, TreeSet<CategorySearchData>>();
+
+    private static HashMap<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+
+    private static HashMap<String, StickerCategory> mCacheForSearchedCategories = new HashMap<String, StickerCategory>();
 
     private SearchEngine categorySearchEngine = new SearchEngine();
+
+    private float[] weights;
 
     /* Get the instance of this class from outside */
     public static CategorySearchManager getInstance()
     {
         return INSTANCE;
-
     }
 
 	public SearchEngine getSearchEngine()
@@ -42,49 +58,17 @@ public enum CategorySearchManager
 
     public List<StickerCategory> searchForPacks(String query)
     {
+        TreeSet<CategorySearchData> resultCategories = getCategoriesForKey(query.toLowerCase());
 
-        Set<CategoryTagData> categoriesFromFullText = getCategoriesForKey(query);
-
-        String keys[] = query.split(StickerSearchConstants.DEFAULT_REGEX_SEPARATORS_LATIN, StickerSearchConstants.DEFAULT_SHOP_SEARCH_KEY_LIMIT);
-
-        Set<CategoryTagData> categoriesFromKeys = null;
-
-        if(keys.length > 1)
-        {
-            categoriesFromKeys = getCategoriesForKey(keys);
-        }
-
-        return getOrderedCategories(categoriesFromFullText,categoriesFromKeys);
+        return getOrderedCategories(resultCategories);
     }
 
-    public Set<CategoryTagData> getCategoriesForKey(String keys[])
+    private TreeSet<CategorySearchData> getCategoriesForKey(String key)
     {
-        List<Set<CategoryTagData>> resultSets = new ArrayList<Set<CategoryTagData>>(keys.length);
-
-        for(String key : keys)
-        {
-            resultSets.add(getCategoriesForKey(key));
-        }
-
-        Set<CategoryTagData> resultSet = resultSets.get(0);
-
-        for(int i=1;i<resultSets.size();i++)
-        {
-            resultSet.retainAll(resultSets.get(i));
-        }
-
-        return resultSet;
-
-    }
-
-    private TreeSet<CategoryTagData> getCategoriesForKey(String key)
-    {
-        TreeSet<CategoryTagData> result = null;
-
+        TreeSet<CategorySearchData> result = null;
         if(mCacheForShopSearchKeys.containsKey(key))
         {
             result = mCacheForShopSearchKeys.get(key);
-
         }
         else
         {
@@ -92,18 +76,18 @@ public enum CategorySearchManager
 
             if(result == null)
             {
-                result = new TreeSet<CategoryTagData>();
+                result = new TreeSet<CategorySearchData>();
             }
 
             mCacheForShopSearchKeys.put(key, result);
         }
-
         return result;
     }
 
     public void clearTransientResources()
     {
-
+        mCacheForLocalAnalogousScore.clear();
+        mCacheForShopSearchKeys.clear();
     }
 
     public boolean onQueryTextSubmit(String query,CategorySearchListener listener)
@@ -118,16 +102,22 @@ public enum CategorySearchManager
         return false;
     }
 
-    private List<StickerCategory> getOrderedCategories(Set<CategoryTagData> querySet, Set<CategoryTagData> keySet)
+    private List<StickerCategory> getOrderedCategories(Set<CategorySearchData> querySet)
     {
+        if(Utils.isEmpty(querySet))
+        {
+            return null;
+        }
+
         List<StickerCategory> result = new ArrayList<>(querySet.size());
 
-        for(CategoryTagData categoryTagData : querySet)
+        for(CategorySearchData categorySearchData : querySet)
         {
-            StickerCategory category = categoryTagData.getCategory();
+            StickerCategory category = categorySearchData.getCategory();
             if(category != null)
             {
                 result.add(category);
+                Logger.e("aktt","name "+category.getCategoryId());
             }
         }
 
@@ -140,4 +130,42 @@ public enum CategorySearchManager
         categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
     }
 
+    public float computeStringMatchScore(String searchKey, String tag)
+    {
+        String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
+        Float result = mCacheForLocalAnalogousScore.get(cacheKey);
+
+        if (result == null)
+        {
+            result = StickerSearchUtility.computeWordMatchScore(searchKey, tag);
+            mCacheForLocalAnalogousScore.put(cacheKey, result);
+        }
+
+        return result;
+    }
+
+    public void loadSearchedCategories(String[] categories)
+    {
+        mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categories));
+    }
+
+    public StickerCategory getSearchedCategoriesFromCache(String catId)
+    {
+        return mCacheForSearchedCategories.get(catId);
+    }
+
+	public float[] getFeatureWeights()
+	{
+		if(weights == null)
+        {
+            String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
+            weights = new float[inputs.length];
+            for(int i =0; i<inputs.length; i++)
+            {
+                weights[i] = Float.parseFloat(inputs[i]);
+            }
+        }
+
+        return weights;
+	}
 }
