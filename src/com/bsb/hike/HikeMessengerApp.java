@@ -96,6 +96,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
 
+	public static final String DEFAULT_SETTINGS_PREF = "com.bsb.hike_preferences";
+
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
 
 	public static final String VOIP_SETTINGS = "voipsettings";

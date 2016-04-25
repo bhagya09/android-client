@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -1327,8 +1328,51 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(listener)
 				.build();
-
 		requestToken.execute();
 		return requestToken;
 	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	{
+
+		JSONObject settingsJSON = new JSONObject();
+		try
+		{
+			settingsJSON.put(HikeConstants.BackupRestore.KEY_SETTINGS, payloadJSON);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		JsonBody jsonBody = new JsonBody(settingsJSON);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
+				.setRequestListener(requestListener)
+				.setId(Utils.StringToMD5(settingsJSON.toString()))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.post(jsonBody)
+				.build();
+//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken downloadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry)
+	{
+		//Since user settings will always be common. Define constant local var as id
+		String downloadSettingsID = "dnwloadSettings";
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
+				.setRequestListener(requestListener)
+				.setId(downloadSettingsID)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.build();
+		return requestToken;
+	}
+
+
 }

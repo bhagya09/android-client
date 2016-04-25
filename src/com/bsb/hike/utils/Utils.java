@@ -79,6 +79,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -7170,6 +7171,11 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
+	public static int getDeviceDensityDPI()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().densityDpi;
+	}
+
 	public static String getStackTrace(Throwable ex) {
 		if (ex == null) {
 			return "";
@@ -8367,6 +8373,14 @@ public class Utils
 		boolean exists = !TextUtils.isEmpty(getExternalFilesDirPath(null));
 		Logger.d(TAG, "external dir exists : " + exists);
 		return exists;
+	}
+
+	public static boolean isSettingsBackupEnabled() {
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false)) {
+			return false;
+		}
+
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, true);
 	}
 
     private static String getCursorString(Cursor cursor, String columnName) {
