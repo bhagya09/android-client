@@ -27,7 +27,7 @@ public class Mute
 
     public static final int MUTE_DURATION_ONE_YEAR = 2;
 
-    private Mute(InitBuilder<?> builder)
+    private Mute(InitBuilder builder)
     {
         this.msisdn = builder.msisdn;
         this.isMute = builder.isMute;
@@ -88,7 +88,7 @@ public class Mute
         return muteDurationsList;
     }
 
-    private static abstract class InitBuilder<P extends InitBuilder<P>>
+    public static class InitBuilder
     {
 
         private String msisdn;
@@ -99,29 +99,32 @@ public class Mute
 
         private int muteDuration;
 
-        protected InitBuilder(String msisdn)
+        public InitBuilder(String msisdn)
         {
             this.msisdn = msisdn;
         }
 
-        protected abstract P getSelfObject();
-
-        public P setIsMute(boolean isMute)
+        public InitBuilder setIsMute(boolean isMute)
         {
             this.isMute = isMute;
             return getSelfObject();
         }
 
-        public P setMuteNotification(boolean muteNotification)
+        public InitBuilder setMuteNotification(boolean muteNotification)
         {
             this.muteNotification = muteNotification;
             return getSelfObject();
         }
 
-        public P setMuteDuration(int muteDuration)
+        public InitBuilder setMuteDuration(int muteDuration)
         {
             this.muteDuration = muteDuration;
             return getSelfObject();
+        }
+
+        protected InitBuilder getSelfObject()
+        {
+            return this;
         }
 
         public Mute build()
@@ -130,17 +133,4 @@ public class Mute
         }
     }
 
-    public static class MuteBuilder extends InitBuilder<MuteBuilder>
-    {
-
-        public MuteBuilder(String msisdn)
-        {
-            super(msisdn);
-        }
-
-        protected MuteBuilder getSelfObject()
-        {
-            return this;
-        }
-    }
 }

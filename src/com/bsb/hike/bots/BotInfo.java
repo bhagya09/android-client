@@ -325,7 +325,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 		@Override
 		protected Mute getMute(String msisdn)
 		{
-			return new Mute.MuteBuilder(msisdn).build();
+			return new Mute.InitBuilder(msisdn).build();
 		}
 
 	}
