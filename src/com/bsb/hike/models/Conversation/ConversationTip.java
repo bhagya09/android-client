@@ -288,8 +288,11 @@ public class ConversationTip implements OnClickListener
 			AtomicTipManager atomicTipManager = AtomicTipManager.getInstance();
 			atomicTipManager.updateCurrentlyShowing();
 			v = atomicTipManager.getAtomicTipView();
-			v.findViewById(R.id.all_content).setOnClickListener(this);
-			v.findViewById(R.id.close_tip).setOnClickListener(this);
+			if(v != null)
+			{
+				v.findViewById(R.id.all_content).setOnClickListener(this);
+				v.findViewById(R.id.close_tip).setOnClickListener(this);
+			}
 			return v;
 		default:
 			tipType = NO_TIP;

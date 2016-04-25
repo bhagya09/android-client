@@ -255,13 +255,45 @@ public class AtomicTipManager
     }
 
     /**
-     * Method to set the top most list item as currently showing.
+     * Method to check if given tip is expired or not
+     * @param tipContentModel
+     * @return
+     */
+    public boolean isTipExpired(AtomicTipContentModel tipContentModel)
+    {
+        return (tipContentModel.getEndTime() < System.currentTimeMillis());
+    }
+
+    /**
+     * Method to remove all expired tips from the list
+     */
+    public void checkAndRemoveExpiredTips()
+    {
+        Logger.d(TAG, "checking for and removing expired tips only");
+        for(AtomicTipContentModel tipContentModel : tipContentModels)
+        {
+            if(isTipExpired(tipContentModel))
+            {
+                tipContentModels.remove(tipContentModel);
+                Logger.d(TAG, "expired atomic tip removed");
+            }
+        }
+    }
+
+    /**
+     * Method to update currentlyShowing by filtering expired tips and setting it to the first entry
      */
     public void updateCurrentlyShowing()
     {
-        if(currentlyShowing ==  null)
+        checkAndRemoveExpiredTips();
+
+        if(doesAtomicTipExist())
         {
             currentlyShowing = tipContentModels.get(0);
+        }
+        else
+        {
+            currentlyShowing = null;
         }
     }
 
@@ -272,6 +304,12 @@ public class AtomicTipManager
     public View getAtomicTipView()
     {
         Logger.d(TAG, "inflating atomic tip view");
+
+        if(currentlyShowing == null)
+        {
+            Logger.d(TAG, "No tip to show. Perhaps list contained expired tips");
+            return null;
+        }
 
         //since tip is seen by user, we need to update the status if not already done
         if(currentlyShowing.getTipStatus() != AtomicTipContentModel.AtomicTipStatus.SEEN.getValue())

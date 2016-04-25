@@ -1191,6 +1191,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public ArrayList<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
+		//first cleaning up tables to remove expired tips
+		cleanAtomicTipsTable();
 		ArrayList<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try
@@ -1199,7 +1201,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 			c = mDB.rawQuery(query, null);
 
-			Logger.d(getClass().getSimpleName(), "cursor size = "+c.getCount());
+			Logger.d(getClass().getSimpleName(), "atomic tips table cursor size = "+c.getCount());
 
 			while (c.moveToNext())
 			{
@@ -1240,14 +1242,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	}
 
 	/**
-	 * Method to clean atomic tips table by deleting dismissed tips.
+	 * Method to clean atomic tips table by deleting dismissed & expired tips.
 	 */
 	public void cleanAtomicTipsTable()
 	{
-		Logger.d(getClass().getSimpleName(), "Deleting dismissed atomic tips from table.");
+		Logger.d(getClass().getSimpleName(), "Deleting dismissed and expired atomic tips from table.");
 		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
-		int result = mDB.delete(ATOMIC_TIP_TABLE, dismissedClause, null);
-		Logger.d(getClass().getSimpleName(), "cleaned rows: "+result);
+		String expiredClause = " OR "+TIP_END_TIME+ "<" + System.currentTimeMillis();
+		int result = mDB.delete(ATOMIC_TIP_TABLE, dismissedClause + expiredClause, null);
+		Logger.d(getClass().getSimpleName(), "number of cleaned rows from atomic tip table: "+result);
 	}
 
 	/**
