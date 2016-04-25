@@ -132,7 +132,7 @@ public class HikeStickerSearchBaseConstants
 
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
 
-    // Table: TABLE_STICKER_TAG_MAPPING
+    // Table: TABLE_CATEGORY_TAG_MAPPING
     public static final String THEME = "theme";
 
     public static final String FOR_GENDER = "forGender";

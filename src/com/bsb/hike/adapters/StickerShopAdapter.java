@@ -95,7 +95,7 @@ public class StickerShopAdapter extends CursorAdapter
 			stickerCategoriesMap.put(categoryId, category);
 		}
 
-        viewholder.loadViewFromCategory(context,category);
+		viewholder.loadViewFromCategory(context, category);
 
 	}
 	
