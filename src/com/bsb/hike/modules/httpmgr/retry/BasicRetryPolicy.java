@@ -2,6 +2,7 @@ package com.bsb.hike.modules.httpmgr.retry;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.FT_PRODUCTION_API;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.PRODUCTION_API;
@@ -94,6 +95,9 @@ public class BasicRetryPolicy
 			break;
 		case PLATFORM_PRODUCTION_API:
 			this.hostUris = HttpManager.getPlatformProductionHostUris();
+			break;
+		case FT_PRODUCTION_API:
+			this.hostUris = HttpManager.getFtHostUris();
 			break;
 		default:
 			break;
