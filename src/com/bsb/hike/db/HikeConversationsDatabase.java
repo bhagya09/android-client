@@ -6353,7 +6353,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
 		values.put(DBConstants.BG_ID, bgId);
-		values.put(DBConstants.TIMESTAMP, timeStamp);
+		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
 //		TODO : ANU Check here if the old row is completely removed, because that will remove mute data also
 		mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
