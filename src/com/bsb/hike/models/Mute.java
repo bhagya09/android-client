@@ -15,7 +15,7 @@ public class Mute
 
     private boolean isMute = false;
 
-    private boolean muteNotification = false;
+    private boolean showNotification = false;
 
     private int muteDuration = 0;
 
@@ -31,7 +31,7 @@ public class Mute
     {
         this.msisdn = builder.msisdn;
         this.isMute = builder.isMute;
-        this.muteNotification = builder.muteNotification;
+        this.showNotification = builder.showNotification;
         this.muteDuration = builder.muteDuration;
     }
 
@@ -57,12 +57,12 @@ public class Mute
 
     public boolean isShowingNotifWhileMute()
     {
-        return muteNotification;
+        return showNotification;
     }
 
     public void setShowNotifInMute(boolean muteNotification)
     {
-        this.muteNotification = muteNotification;
+        this.showNotification = muteNotification;
     }
 
     public int getMuteDuration()
@@ -95,7 +95,7 @@ public class Mute
 
         private boolean isMute;
 
-        private boolean muteNotification;
+        private boolean showNotification;
 
         private int muteDuration;
 
@@ -112,7 +112,7 @@ public class Mute
 
         public InitBuilder setShowNotifInMute(boolean muteNotification)
         {
-            this.muteNotification = muteNotification;
+            this.showNotification = muteNotification;
             return getSelfObject();
         }
 
