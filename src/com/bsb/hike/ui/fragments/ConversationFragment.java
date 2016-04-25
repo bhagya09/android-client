@@ -82,6 +82,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
 import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.NUXChatReward;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -2912,9 +2913,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 
-			Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
-			String groupId = groupMute.first;
-			final Boolean isMuted = groupMute.second;
+			Mute mute = (Mute) object;
+			String groupId = mute.getMsisdn();
+			final Boolean isMuted = mute.isMute();
 
 			final ConvInfo convInfo = mConversationsByMSISDN.get(groupId);
 

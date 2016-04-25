@@ -53,7 +53,7 @@ public abstract class Conversation implements Comparable<Conversation>
 		return convInfo;
 	}
 
-	protected void setMute(Mute mute)
+	public void setMute(Mute mute)
 	{
 		convInfo.setMute(mute);
 	}
