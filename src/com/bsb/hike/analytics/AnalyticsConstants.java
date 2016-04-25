@@ -866,4 +866,6 @@ public class AnalyticsConstants
 
 	public static final String UPLOAD_MEDIA = "upload";
 
+	public static final String DOWNLOAD_MEDIA = "download";
+
 }

@@ -3689,8 +3689,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
-						if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-							sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							if (fss.getFTState() == FTState.NOT_STARTED) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+							} else if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
+						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
+							if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
 						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
