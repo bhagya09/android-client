@@ -143,7 +143,6 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		}
 		String categoryId = mAdapter.getItem(position);
 		IntentFactory.openPackPreviewIntent(getActivity(), categoryId);
-		mAdapter.setShownPackPreviewFtue();
 	}
 
     @Override

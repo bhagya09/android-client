@@ -164,7 +164,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
                 }
                 catch (JSONException e)
                 {
-                    Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+                    Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
                 }
 
                 IntentFactory.openStickerSettingsActivity(StickerShopActivity.this);

@@ -20,6 +20,7 @@ import com.bsb.hike.ui.fragments.StickerShopBaseFragment.StickerShopViewHolder;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 
 public class StickerShopSearchAdapter extends BaseAdapter
 {
@@ -28,10 +29,6 @@ public class StickerShopSearchAdapter extends BaseAdapter
 	private StickerOtherIconLoader stickerOtherIconLoader;
 
 	private boolean isListFlinging;
-
-	private Animation packPreviewFtueAnimation;
-
-	private boolean shownPackPreviewFtue;
 
 	private List<StickerCategory> searchedCategories;
 
@@ -45,7 +42,6 @@ public class StickerShopSearchAdapter extends BaseAdapter
 		this.layoutInflater = LayoutInflater.from(context);
 		this.stickerOtherIconLoader = stickerOtherIconLoader;
 		this.searchedCategories = searchedCategories;
-		this.packPreviewFtueAnimation = shownPackPreviewFtue ? null : HikeAnimationFactory.getStickerPreviewFtueAnimation(context);
         this.stickerCategoriesMap = stickerCategoriesMap;
 	}
 
@@ -101,7 +97,6 @@ public class StickerShopSearchAdapter extends BaseAdapter
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 
 		viewHolder.loadViewFromCategory(mContext, category);
-        viewHolder.showPackPreviewFtue(packPreviewFtueAnimation,position);
 
         return convertView;
 	}
@@ -109,7 +104,11 @@ public class StickerShopSearchAdapter extends BaseAdapter
 	@Override
 	public int getCount()
 	{
-		return searchedCategories.size();
+		if (Utils.isEmpty(searchedCategories))
+		{
+			return searchedCategories.size();
+		}
+		return 0;
 	}
 
 	public StickerOtherIconLoader getStickerPreviewLoader()
@@ -124,15 +123,6 @@ public class StickerShopSearchAdapter extends BaseAdapter
 		if (notify && !isListFlinging)
 		{
 			notifyDataSetChanged();
-		}
-	}
-
-	public void setShownPackPreviewFtue()
-	{
-		if (!shownPackPreviewFtue)
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, true);
-			shownPackPreviewFtue = true;
 		}
 	}
 
