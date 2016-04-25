@@ -1171,10 +1171,18 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		@Override
 		public void onSuccess(Response result) {
+			// This is NOT the main thread!
 			setcontactManagerIcon();
-			if (profileImageLoader != null) {
-				profileImageLoader.loadProfileImage(getSupportLoaderManager());
-			}
+			SignupActivity.this.mHandler.post(
+					new Runnable() {
+						@Override
+						public void run() {
+							if (profileImageLoader != null) {
+								profileImageLoader.loadProfileImage(getSupportLoaderManager());
+							}
+						}
+					}
+			);
 		}
 
 		@Override
@@ -1315,7 +1323,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			final Button retry  = (Button) restoringBackupLayout.findViewById(R.id.btn_retry);
 
 			TextView restoreTitleTv = (TextView) restoringBackupLayout.findViewById(R.id.txt_restore_title);
-			restoreTitleTv.setText(getString(R.string.restoring___));
+			restoreTitleTv.setText(getString(R.string.restore_error));
 
 			if (restoreStatus.equals(Boolean.FALSE.toString()) || restoreStatus.equals(getString(R.string.restore_msisdn_error)))
 			// If Restore failed due to generic reasons or if msisdn was different, show a retry button to give the user one more chance
@@ -1346,7 +1354,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 				retry.setText(getString(R.string.retry));
 
-				if (restoreStatus.equals(R.string.restore_msisdn_error)) //If msisdn mismatch, set the title as Bummer!
+				if (restoreStatus.equals(getString(R.string.restore_msisdn_error))) //If msisdn mismatch, set the title as Bummer!
 				{
 					restoreTitleTv.setText(getString(R.string.bummer));
 				}

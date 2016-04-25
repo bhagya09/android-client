@@ -222,6 +222,11 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		}
 	}
 
+	public boolean isInCropMode()
+	{
+		return mCropImageView.isCropOverlayVisible();
+	}
+
 	public void setListener(HikeCropListener argListener)
 	{
 		mListener = argListener;
@@ -230,6 +235,11 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 	public void setSourceImagePath(String argSourceImagePath)
 	{
 		mSourceImagePath = argSourceImagePath;
+	}
+
+	public String getSourceImagePath()
+	{
+		return mSourceImagePath;
 	}
 
 	public void crop()
@@ -346,6 +356,11 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		}
 
 		return false;
+	}
+
+	public Bitmap getImageBitmap()
+	{
+		return mCropImageView.getBitmap();
 	}
 
 }

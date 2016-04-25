@@ -78,7 +78,7 @@ public class DBsBackupRestore implements BackupableRestorable
 				add(chatsDB);
 
 				// Adding timeline DB
-				add(usersDB);
+				//add(usersDB);
 			}
 		};
 	}

@@ -23,6 +23,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
@@ -369,6 +370,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedListSize + "," + source + "," + dismissAndClear + ")");
 
+        StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker, (selectedIndex + 1), recommendedListSize,
+                StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+
 		sendSticker(sticker, source, dismissAndClear);
 
 		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
@@ -401,9 +405,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			}
 		}
 
-		// Send analytics
-		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), recommendedListSize,
-				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
 	@Override

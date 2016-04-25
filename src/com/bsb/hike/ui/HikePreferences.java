@@ -1530,6 +1530,18 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);
 		lp.setOnPreferenceChangeListener(this);
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			lp.setEntries(R.array.privacyPrefKeysFriendsExp);
+			lp.setEntryValues(R.array.privacyPrefValuesFriendsExp);
+		}
+
+		else
+		{
+			lp.setEntries(R.array.privacyPrefKeys);
+			lp.setEntryValues(R.array.privacyPrefValues);
+		}
+
 		lp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -1562,10 +1574,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		lp.setNegativeButtonText(R.string.CANCEL);
 
 		// Need to show the entry values differently in case friends experiment is on
-		String[] listPreferenceValues = new String[] { getString(R.string.privacy_everyone_key), getString(R.string.privacy_my_contacts_key), getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key), getString(R.string.privacy_nobody_key)};
-
-		lp.setEntries(listPreferenceValues);
-
 
 		IconPreference favPref = (IconPreference) getPreferenceScreen().findPreference(HikeConstants.FAV_LIST_PREF);
 
@@ -1696,6 +1704,12 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				}
 			}
 
+		}
+
+		Preference profilePicPref = getPreferenceScreen().findPreference(HikeConstants.STATUS_BOOLEAN_PREF);
+		if (profilePicPref != null)
+		{
+			profilePicPref.setSummary(Utils.isFavToFriendsMigrationAllowed() ? R.string.mute_status_notification_subtext_frn : R.string.mute_status_notification_subtext);
 		}
 
 		ledPref.setTitle(ledPref.getTitle() + ": " + ledPref.getEntry());
