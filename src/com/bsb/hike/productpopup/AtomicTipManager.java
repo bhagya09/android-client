@@ -1,8 +1,10 @@
 package com.bsb.hike.productpopup;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,18 +12,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * Manager class for all atomic tip related handling such as DB and UI interaction
@@ -49,7 +56,7 @@ public class AtomicTipManager
         currentlyShowing = null;
     }
 
-    public static AtomicTipManager getInstance()
+    public synchronized static AtomicTipManager getInstance()
     {
         return mAtomicTipManager;
     }
@@ -69,6 +76,9 @@ public class AtomicTipManager
         });
     }
 
+    /**
+     * Method to reorder list based on updated status
+     */
     public void refreshTipsList()
     {
         Logger.d(TAG, "refreshing atomic tips list by resorting entries");
@@ -270,11 +280,13 @@ public class AtomicTipManager
     public void checkAndRemoveExpiredTips()
     {
         Logger.d(TAG, "checking for and removing expired tips only");
-        for(AtomicTipContentModel tipContentModel : tipContentModels)
+        Iterator tipIterator = tipContentModels.iterator();
+        while(tipIterator.hasNext())
         {
-            if(isTipExpired(tipContentModel))
+            AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
+            if(isTipExpired(currentModel))
             {
-                tipContentModels.remove(tipContentModel);
+                tipIterator.remove();
                 Logger.d(TAG, "expired atomic tip removed");
             }
         }
@@ -362,11 +374,30 @@ public class AtomicTipManager
 
     /**
      * Method to handle atomic tip click action
+     * @param context - this is required by the {@link PlatformUtils#openActivity(Activity, String)} method
      */
-    public void onAtomicTipClicked()
+    public void onAtomicTipClicked(Activity context)
     {
         Logger.d(TAG, "processing atomic tip click action");
-        Toast.makeText(HikeMessengerApp.getInstance(), "Atomic Tip Clicked!", Toast.LENGTH_SHORT).show();
+        String metadata = currentlyShowing.getCtaLink();
+        switch(currentlyShowing.getCtaAction())
+        {
+            case ProductPopupsConstants.PopUpAction.OPENAPPSCREEN:
+                actionOpenAppScreen(context, metadata);
+                break;
+
+            case ProductPopupsConstants.PopUpAction.CALLTOSERVER:
+                ProductInfoManager.getInstance().callToServer(metadata);
+                break;
+
+            case ProductPopupsConstants.PopUpAction.DOWNLOAD_STKPK:
+                PlatformUtils.downloadStkPk(metadata);
+                break;
+
+            case ProductPopupsConstants.PopUpAction.ACTIVATE_CHAT_HEAD_APPS:
+                PlatformUtils.OnChatHeadPopupActivateClick();
+                break;
+        }
         HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
     }
 
@@ -387,5 +418,84 @@ public class AtomicTipManager
         cleanTipsTable();
 
         currentlyShowing = null;
+    }
+
+    /**
+     * Method to handle cta of opening hike app screen, same as for popups
+     * @param context
+     * @param metadata
+     */
+    public void actionOpenAppScreen(Activity context, String metadata)
+    {
+        String activityName = null;
+        JSONObject mmObject = null;
+        try
+        {
+            mmObject = new JSONObject(metadata);
+            activityName = mmObject.optString(HikeConstants.SCREEN);
+
+            if (activityName.equals(ProductPopupsConstants.HIKESCREEN.MULTI_FWD_STICKERS.toString()))
+            {
+                actionMultiFwdSticker(metadata);
+            }
+            else if (activityName.equals(ProductPopupsConstants.HIKESCREEN.OPEN_WEB_VIEW.toString()))
+            {
+                String url = ProductInfoManager.getInstance().getFormedUrl(metadata);
+
+                if (!TextUtils.isEmpty(url))
+                {
+                    Utils.startWebViewActivity(HikeMessengerApp.getInstance().getApplicationContext(), url, "hike");
+                }
+            }
+            else
+            {
+                PlatformUtils.openActivity(context, metadata);
+            }
+
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Method to handle cta of multi forward stickers
+     * @param stickerData
+     */
+    public void actionMultiFwdSticker(String stickerData)
+    {
+        try
+        {
+            JSONObject mmObject = new JSONObject(stickerData);
+            final String stickerId = mmObject.optString(ProductPopupsConstants.STKID);
+            final String categoryId = mmObject.optString(ProductPopupsConstants.CATID);
+            final boolean selectAll = mmObject.optBoolean(ProductPopupsConstants.SELECTALL, false);
+            final boolean sendAll=mmObject.optBoolean(ProductPopupsConstants.SENDALL,false);
+            if (!TextUtils.isEmpty(stickerId) && !TextUtils.isEmpty(categoryId))
+            {
+
+                if(sendAll)
+                {
+                    PlatformUtils.sendStickertoAllHikeContacts(stickerId,categoryId);
+                    return;
+                }
+
+                mHandler.post(new Runnable()
+                {
+
+                    @Override
+                    public void run()
+                    {
+                        PlatformUtils.multiFwdStickers(HikeMessengerApp.getInstance().getApplicationContext(), stickerId, categoryId, selectAll);
+                    }
+                });
+            }
+
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

@@ -4002,7 +4002,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
 				break;
 			case ConversationTip.ATOMIC_TIP:
-				AtomicTipManager.getInstance().onAtomicTipClicked();
+				AtomicTipManager.getInstance().onAtomicTipClicked(getActivity());
 				break;
 			default:
 				break;

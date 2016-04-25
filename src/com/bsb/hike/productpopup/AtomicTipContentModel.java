@@ -43,8 +43,6 @@ public class AtomicTipContentModel
 
     private String ctaAction;
 
-    private String ctaName;
-
     private String jsonString;
 
     private int tipStatus;
@@ -129,7 +127,6 @@ public class AtomicTipContentModel
         {
             this.ctaLink = tipCTAData.optJSONObject(HikeConstants.TIP_CTA_LINK).toString();
             this.ctaAction = tipCTAData.optString(HikeConstants.MqttMessageTypes.ACTION, "");
-            this.ctaName = tipCTAData.optString(HikeConstants.NAME, "");
         }
     }
 
@@ -196,11 +193,6 @@ public class AtomicTipContentModel
     public String getCtaAction()
     {
         return ctaAction;
-    }
-
-    public String getCtaName()
-    {
-        return ctaName;
     }
 
     public String getBgColor()
