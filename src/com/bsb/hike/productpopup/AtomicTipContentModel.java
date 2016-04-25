@@ -4,6 +4,8 @@ import com.bsb.hike.HikeConstants;
 
 import org.json.JSONObject;
 
+import java.util.Comparator;
+
 /**
  * @author paramshah
  */
@@ -245,4 +247,21 @@ public class AtomicTipContentModel
     {
         return bgImgKey;
     }
+
+    public static Comparator<AtomicTipContentModel> tipsComparator = new Comparator<AtomicTipContentModel>()
+    {
+        @Override
+        public int compare(AtomicTipContentModel lhs, AtomicTipContentModel rhs)
+        {
+            int statusComp = Integer.valueOf(lhs.getTipStatus()).compareTo(rhs.getTipStatus());
+            if(statusComp != 0)
+            {
+                return statusComp;
+            }
+            else
+            {
+                return Integer.valueOf(lhs.getPriority()).compareTo(rhs.getPriority());
+            }
+        }
+    };
 }

@@ -21,6 +21,7 @@ import com.bsb.hike.utils.Logger;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Manager class for all atomic tip related handling such as DB and UI interaction
@@ -36,6 +37,7 @@ public class AtomicTipManager
 
     private static final String TAG = "AtomicTipManager";
 
+    //currentlyShowing is maintained primarily for handling click actions
     private static AtomicTipContentModel currentlyShowing;
 
     private AtomicTipManager()
@@ -65,6 +67,12 @@ public class AtomicTipManager
         });
     }
 
+    public void refreshTipsList()
+    {
+        Logger.d(TAG, "refreshing atomic tips list by resorting entries");
+        Collections.sort(tipContentModels, AtomicTipContentModel.tipsComparator);
+    }
+
     /**
      * Method to parse mqtt packet to get tip content model and save in content DB
      * @param tipJSON
@@ -72,16 +80,41 @@ public class AtomicTipManager
     public void parseAtomicTipPacket(JSONObject tipJSON)
     {
         Logger.d(TAG, "parsing new tip packet");
+
+        //creating model from JSON
         AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(tipJSON);
         Logger.d(TAG, "new tip hash: " + tipContentModel.hashCode());
+
+        //saving model in DB
         saveNewTip(tipContentModel);
+
+        //processing icon base64 string
         createAndCacheIcon(tipContentModel);
+
+        //checking and processing if background also has base64 string
         if(!tipContentModel.isBgColor())
         {
             createAndCacheBgImage(tipContentModel);
         }
+
+        //adding model to tips list and refreshing list
+        tipContentModels.add(tipContentModel);
+        refreshTipsList();
+    }
+
+    /**
+     * Method to handle tips flush packet
+     */
+    public void processFlushPacket()
+    {
+        //firing pub sub to remove any atomic tip currently visible to user
+        HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
+
+        //clearing tips list
         tipContentModels.clear();
-        init();
+
+        //flushing tips table from DB
+        flushTips();
     }
 
     /**
@@ -105,8 +138,6 @@ public class AtomicTipManager
      */
     public void flushTips()
     {
-        HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
-        tipContentModels.clear();
         mHandler.post(new Runnable()
         {
             @Override
@@ -118,7 +149,7 @@ public class AtomicTipManager
     }
 
     /**
-     * Method to clean up atomic tip table by flushing dismissed tips
+     * Method to clean up atomic tip table by removing dismissed tips from DB via post on handler util
      */
     public void cleanTipsTable()
     {
@@ -223,20 +254,38 @@ public class AtomicTipManager
         return (doesAtomicTipExist() && tipContentModels.get(0).getPriority() < 2);
     }
 
-    public AtomicTipContentModel getFirstAtomicTip()
+    /**
+     * Method to set the top most list item as currently showing.
+     */
+    public void updateCurrentlyShowing()
     {
-        return tipContentModels.get(0);
+        if(currentlyShowing ==  null)
+        {
+            currentlyShowing = tipContentModels.get(0);
+        }
     }
 
-    public View getAtomicTipView(AtomicTipContentModel tipContentModel)
+    /**
+     * Method to inflate the atomic tip view by using model for currentlyShowing
+     * @return
+     */
+    public View getAtomicTipView()
     {
-        currentlyShowing = tipContentModel;
-        updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
-        currentlyShowing.setTipStatus(AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
         Logger.d(TAG, "inflating atomic tip view");
+
+        //since tip is seen by user, we need to update the status if not already done
+        if(currentlyShowing.getTipStatus() != AtomicTipContentModel.AtomicTipStatus.SEEN.getValue())
+        {
+            currentlyShowing.setTipStatus(AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
+            refreshTipsList();
+            updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
+        }
+
         View tipView = LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(R.layout.atomic_tip_view, null);
-        ((TextView) tipView.findViewById(R.id.atomic_tip_header_text)).setText(currentlyShowing.getHeader());
-        ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
+
+        Logger.d(TAG, "adding atomic tip background");
+
+        //checking if background is a single color or a background image
         if(currentlyShowing.isBgColor())
         {
             Logger.d(TAG, "atomic tip background is single color. processing it!");
@@ -254,16 +303,23 @@ public class AtomicTipManager
             tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
         }
 
+        Logger.d(TAG, "adding atomic tip icon");
         BitmapDrawable tipIcon = HikeMessengerApp.getLruCache().get(currentlyShowing.getIconKey());
         if(tipIcon == null)
         {
             Logger.d(TAG, "didn't find atomic tip icon in cache. trying to recreate.");
             tipIcon = createAndCacheIcon(currentlyShowing);
         }
-        ((ImageView)tipView.findViewById(R.id.atomic_tip_icon)).setImageBitmap(tipIcon.getBitmap());
+        ((ImageView)tipView.findViewById(R.id.atomic_tip_icon)).setImageDrawable(tipIcon);
+
+        ((TextView) tipView.findViewById(R.id.atomic_tip_header_text)).setText(currentlyShowing.getHeader());
+        ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
         return  tipView;
     }
 
+    /**
+     * Method to handle atomic tip click action
+     */
     public void onAtomicTipClicked()
     {
         Logger.d(TAG, "processing atomic tip click action");
@@ -271,11 +327,22 @@ public class AtomicTipManager
         HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
     }
 
+    /**
+     * Method to handle atomic tip close action
+     */
     public void onAtomicTipClosed()
     {
         Logger.d(TAG, "processing atomic tip dismiss");
+
+        //removing tip from list
+        tipContentModels.remove(currentlyShowing);
+
+        //updating tip status as DISMISSED so it can be cleaned
         updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue());
+
+        //cleaning to remove dismissed from DB
         cleanTipsTable();
+
         currentlyShowing = null;
     }
 }

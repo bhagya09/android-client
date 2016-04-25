@@ -1199,7 +1199,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 			c = mDB.rawQuery(query, null);
 
-			Logger.d("AtomicTip", "cursor size = "+c.getCount());
+			Logger.d(getClass().getSimpleName(), "cursor size = "+c.getCount());
 
 			while (c.moveToNext())
 			{
@@ -1240,14 +1240,14 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	}
 
 	/**
-	 * Method to clean atomic tips table by deleting expired and dismissed tips.
+	 * Method to clean atomic tips table by deleting dismissed tips.
 	 */
 	public void cleanAtomicTipsTable()
 	{
-		Logger.d(getClass().getSimpleName(), "Deleting expired and dismissed atomic tips from table.");
+		Logger.d(getClass().getSimpleName(), "Deleting dismissed atomic tips from table.");
 		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
 		int result = mDB.delete(ATOMIC_TIP_TABLE, dismissedClause, null);
-		Logger.d("AtomicTip", "cleaned rows: "+result);
+		Logger.d(getClass().getSimpleName(), "cleaned rows: "+result);
 	}
 
 	/**

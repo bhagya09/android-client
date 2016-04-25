@@ -286,8 +286,8 @@ public class ConversationTip implements OnClickListener
 			return v;
 		case ATOMIC_TIP:
 			AtomicTipManager atomicTipManager = AtomicTipManager.getInstance();
-			AtomicTipContentModel tipModel = atomicTipManager.getFirstAtomicTip();
-			v = atomicTipManager.getAtomicTipView(tipModel);
+			atomicTipManager.updateCurrentlyShowing();
+			v = atomicTipManager.getAtomicTipView();
 			v.findViewById(R.id.all_content).setOnClickListener(this);
 			v.findViewById(R.id.close_tip).setOnClickListener(this);
 			return v;

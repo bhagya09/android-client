@@ -69,7 +69,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -3980,7 +3979,7 @@ public class MqttMessagesManager
 		}
 		else if(subType.equals(HikeConstants.MqttMessageTypes.TIP))
 		{
-			saveAtomicTip(jsonObj);
+			saveOrFlushAtomicTip(jsonObj);
 		}
 		else
 		{
@@ -5067,7 +5066,7 @@ public class MqttMessagesManager
 	 * Method to parse atomic tip packet
 	 * @param jsonObj
      */
-	public void saveAtomicTip(JSONObject jsonObj)
+	public void saveOrFlushAtomicTip(JSONObject jsonObj)
 	{
 		Logger.d(getClass().getSimpleName(), "Parsing atomic tip packet");
 		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
@@ -5078,7 +5077,7 @@ public class MqttMessagesManager
 				if(data.optBoolean(HikeConstants.FLUSH, false))
 				{
 					Logger.d(getClass().getSimpleName(), "Received atomic tip flush packet!");
-					AtomicTipManager.getInstance().flushTips();
+					AtomicTipManager.getInstance().processFlushPacket();
 					return;
 				}
 			}
