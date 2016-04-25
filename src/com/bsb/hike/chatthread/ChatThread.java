@@ -148,6 +148,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
@@ -576,7 +577,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	
 
 	/**
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
+	 * This method handles the UI part of Mute conversation It is to be strictly called from the UI Thread
 	 * 
 	 * @param isMuted
 	 */
@@ -2286,6 +2287,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mActionMode.finish();
 			break;
 
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
+			toggleMuteChat();
+			dialog.dismiss();
+			break;
 		}
 
 	}
@@ -2293,7 +2298,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void neutralClicked(HikeDialog dialog)
 	{
-
+		switch (dialog.getId())
+		{
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				dialog.dismiss();
+				break;
+		}
 	}
 
 	protected void setConversationTheme(ChatTheme theme)
@@ -2625,6 +2635,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		initKeyboardOffBoarding();
 
 		setEditTextListeners();
+
+		toggleConversationMuteViewVisibility(mConversation.isMuted());
 		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
 		// Register broadcasts
@@ -6625,5 +6637,34 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		}
 
 	}
+
+	/**
+	 * Returns whether the chat is mute or not
+	 *
+	 * @return
+	 */
+	protected boolean isMuted()
+	{
+		/**
+		 * Defensive check
+		 */
+
+		if (mConversation == null)
+		{
+			return false;
+		}
+		return mConversation.isMuted();
+	}
+
+	/**
+	 * Used to toggle mute and unmute for chat
+	 */
+	protected void toggleMuteChat()
+	{
+		mConversation.setIsMute(!(mConversation.isMuted()));
+
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+	}
+
 
 }

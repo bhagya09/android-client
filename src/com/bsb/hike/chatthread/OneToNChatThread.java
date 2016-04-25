@@ -92,24 +92,6 @@ public abstract class OneToNChatThread extends ChatThread implements HashTagMode
 		// TODO implement me
 	}
 
-	/**
-	 * Returns whether the group is mute or not
-	 * 
-	 * @return
-	 */
-	protected boolean isMuted()
-	{
-		/**
-		 * Defensive check
-		 */
-
-		if (oneToNConversation == null)
-		{
-			return false;
-		}
-		return oneToNConversation.isMuted();
-	}
-
 	@Override
 	public void itemClicked(OverFlowMenuItem item)
 	{

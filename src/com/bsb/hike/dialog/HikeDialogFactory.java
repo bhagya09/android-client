@@ -33,6 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.AccountAdapter;
+import com.bsb.hike.adapters.MuteDurationListAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
@@ -151,6 +152,8 @@ public class HikeDialogFactory
 
 	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
+	public static final int MUTE_CHAT_DIALOG = 53;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -246,6 +249,8 @@ public class HikeDialogFactory
 
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+		case MUTE_CHAT_DIALOG:
+			return showChatMuteDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1249,6 +1254,63 @@ public class HikeDialogFactory
 		dialog.setCancelable(false);
 		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
 		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
+
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object... data)
+	{
+		final HikeDialog dialog = new HikeDialog(context, dialogId);
+		dialog.setContentView(R.layout.mute_dialog);
+		dialog.setCancelable(true);
+
+		TextView okBtn = (TextView) dialog.findViewById(R.id.mute_dialog_ok);
+		TextView cancelBtn = (TextView) dialog.findViewById(R.id.mute_dialog_cancel);
+
+		okBtn.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				if (listener != null)
+				{
+					listener.positiveClicked(dialog);
+				}
+				dialog.dismiss();
+			}
+		});
+
+		cancelBtn.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				if (listener != null)
+				{
+					listener.neutralClicked(dialog);
+				}
+				dialog.dismiss();
+			}
+		});
+
+		if (data == null || data.length == 0 || !(data instanceof String[]))
+		{
+			return null;
+		}
+
+		String[] timeDurations = (String[]) data;
+		ListView listMuteDurations = (ListView) dialog.findViewById(R.id.mute_duration_list);
+		final MuteDurationListAdapter muteDurationListAdapter = new MuteDurationListAdapter(context, timeDurations);
+		listMuteDurations.setAdapter(muteDurationListAdapter);
+		listMuteDurations.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		{
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+			{
+//				TODO : take action based on mute duration clicked
+			}
+		});
 
 		dialog.show();
 		return dialog;

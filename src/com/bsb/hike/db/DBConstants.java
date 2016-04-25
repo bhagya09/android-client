@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 49;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 50;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -111,8 +111,14 @@ public interface DBConstants
 	public static final String EMOTICON_INDEX = "emoticonIdx";
 
 	public static final String MUTE_GROUP = "muteGroup";
-	
+
 	public static final String IS_MUTE = "isMute";
+
+	public static final String MUTE_DURATION = "muteDuration";
+
+	public static final String MUTE_TIMESTAMP = "muteTs";
+
+	public static final String MUTE_NOTIFICATION = "muteNotif";
 
 	public static final String FAVORITES_TABLE = "favoritesTable";
 
@@ -197,9 +203,15 @@ public interface DBConstants
 
 	public static final String PLATFORM_USER_ID = "platformUserId";
 
+	public static final String CHAT_PROPERTIES_TABLE = "chatPropTable";
+
+	public static final String CHAT_PROPERTIES_INDEX = "chatPropIndex";
+
 	public static final String CHAT_BG_TABLE = "chatBgTable";
 
 	public static final String BG_ID = "bgId";
+
+	public static final String BG_TIMESTAMP = "bgTs";
 
 	public static final String CHAT_BG_INDEX = "chatBgIndex";
 
