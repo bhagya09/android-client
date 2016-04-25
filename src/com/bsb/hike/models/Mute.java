@@ -1,5 +1,9 @@
 package com.bsb.hike.models;
 
+import android.content.Context;
+
+import com.bsb.hike.R;
+
 /**
  * This class contains the Mute object which is used by the ConvInfo object.
  *
@@ -74,6 +78,14 @@ public class Mute
     public int getMuteEndTime()
     {
         return muteEndTime;
+    }
+
+    public static String[] getMuteDurationsList(Context context)
+    {
+        String[] muteDurationsList = {context.getString(R.string.mute_chat_eight_hrs),
+                context.getString(R.string.mute_chat_one_week), context.getString(R.string.mute_chat_one_yr)};
+
+        return muteDurationsList;
     }
 
     private static abstract class InitBuilder<P extends InitBuilder<P>>

@@ -2287,6 +2287,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mActionMode.finish();
 			break;
 
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
+			toggleMuteChat();
+			dialog.dismiss();
+			break;
 		}
 
 	}
@@ -2294,7 +2298,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void neutralClicked(HikeDialog dialog)
 	{
-
+		switch (dialog.getId())
+		{
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				dialog.dismiss();
+				break;
+		}
 	}
 
 	protected void setConversationTheme(ChatTheme theme)

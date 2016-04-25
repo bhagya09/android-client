@@ -300,7 +300,14 @@ public class GroupChatThread extends OneToNChatThread
 		switch (item.id)
 		{
 		case R.string.mute_group:
-			toggleMuteGroup();
+			if (item.text == getString(R.string.mute_group))
+			{
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, Mute.getMuteDurationsList(activity.getApplicationContext()));
+			}
+			else
+			{
+				toggleMuteChat();
+			}
 			break;
 		case R.string.group_profile:
 			openProfileScreen();
