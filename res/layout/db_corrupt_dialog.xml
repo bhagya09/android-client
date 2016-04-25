@@ -1,0 +1,115 @@
+<LinearLayout style="@style/BackgroundCustomDialog"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="@dimen/db_dialog_width"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/title_template"
+        style="@style/TitleCustomDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="fitCenter"
+            android:src="@null"
+            android:visibility="gone"/>
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/title"
+            style="@style/TitleTextStyleCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/title"
+            android:textAlignment="viewStart"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/messageBodyContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/message"
+            style="@style/MessageCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"/>
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            style="@style/ContentTextStyleCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/custom_dialog_preferred_paddding"
+            android:layout_marginRight="@dimen/custom_dialog_preferred_paddding"
+            android:button="@drawable/hike_list_item_checkbox"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:text="checkbox"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:indeterminateDrawable="@drawable/loading"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/button_panel"
+        style="@style/ButtonBarCustomDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:layoutDirection="locale"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_neutral"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEUTRAL_BTN"
+            android:visibility="gone"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="invisible"/>
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_negative"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEG_BTN"
+            android:visibility="gone"/>
+
+        <com.bsb.hike.view.CustomFontButton
+            android:id="@+id/btn_positive"
+            style="@style/ButtonCustomDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POS_BTN"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+</LinearLayout>

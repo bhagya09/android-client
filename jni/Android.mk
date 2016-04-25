@@ -61,9 +61,9 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := solicallsdk
 
 ifeq ($(TARGET_ARCH_ABI),$(filter $(TARGET_ARCH_ABI),armeabi armeabi-v7a))
-LOCAL_SRC_FILES := libSoliCallSDK-armeabi-v7a.a
+LOCAL_SRC_FILES := libSoliCallSDK.a
 else
-LOCAL_SRC_FILES := libSoliCallSDK-android-x86.a
+LOCAL_SRC_FILES := libSoliCallSDK-x86.a
 endif
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include

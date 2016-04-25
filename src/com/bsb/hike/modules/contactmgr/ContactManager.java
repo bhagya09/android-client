@@ -90,7 +90,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	private ContactManager()
 	{
 		context = HikeMessengerApp.getInstance().getApplicationContext();
-		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
+		setSelfMsisdn(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
 		hDb = HikeUserDatabase.getInstance();
 		persistenceCache = new PersistenceCache(hDb);
 		transientCache = new TransientCache(hDb);
@@ -125,10 +125,20 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		// and persistence cache have not been initialized completely
 		_instance.persistenceCache.updateGroupNames();
 	}
+
+	public void reinitializeUserDB()
+	{
+		hDb.reinitializeDB();
+	}
+
+	public void clearUserDbTable(String tableName)
+	{
+		hDb.clearTable(tableName);
+	}
 	
 	public SQLiteDatabase getWritableDatabase()
 	{
-		return hDb.getWritableDatabase();
+		return hDb.getWriteDatabase();
 	}
 
 	public SQLiteDatabase getReadableDatabase()
@@ -255,6 +265,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		if (null == name)
 		{
 			name = transientCache.getName(msisdn);
+		}
+		if (null == name)
+		{
+			// fetch from db if not found
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				GroupDetails grpDetails = getGroupDetails(msisdn);
+				if (grpDetails != null)
+				{
+					name = grpDetails.getGroupName();
+				}
+			}
+			else
+			{
+				ContactInfo contact = getContact(msisdn, true, false);
+				if (contact != null)
+				{
+					name = contact.getName();
+				}
+			}
 		}
 		if (null == name && !returnNullIfNotFound)
 			return msisdn;
@@ -1513,7 +1543,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}
@@ -3074,5 +3104,33 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		HikeUserDatabase.getInstance().insertAllBlockedContactsIntoCallerTable(callerContent);
 	}
 
+	public boolean isMyMsisdn(String outsideMsisdn)
+	{
+		return selfMsisdn.equals(outsideMsisdn);
+	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isOneWayFriend(String msidn)
+	{
+		FavoriteType favoriteType = getFriendshipStatus(msidn);
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isTwoWayFriend(msidn));
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isTwoWayFriend(String msisdn)
+	{
+		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
+	}
 }
 

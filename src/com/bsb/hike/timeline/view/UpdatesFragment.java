@@ -65,6 +65,7 @@ import com.etiennelawlor.quickreturn.library.enums.QuickReturnViewType;
 import com.etiennelawlor.quickreturn.library.listeners.QuickReturnRecyclerViewOnScrollListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class UpdatesFragment extends Fragment implements Listener, OnClickListener
 {
@@ -169,6 +170,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			{
 				mMsisdnArray.add(msisdn);
 			}
+
+			if (msisdnArray!= null && msisdnArray.length == 1)
+			{
+				//Send Analytics
+				HikeAnalyticsEvent.analyticsForUserProfileOpen(msisdnArray[0], "ProfileTap");
+			}
+
 		}
 		
 		timelineCardsAdapter = new TimelineCardsAdapter(getActivity(), statusMessages, userMsisdn, mFtueFriendList, getLoaderManager(), mShowProfileHeader, mMsisdnArray)

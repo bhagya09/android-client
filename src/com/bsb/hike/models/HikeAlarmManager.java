@@ -8,15 +8,18 @@ import android.content.Intent;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsSender;
 import com.bsb.hike.chatHead.ChatHeadUtils;
-import com.bsb.hike.db.AccountBackupRestore;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.notifications.HikeNotification;
-import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.MessagingBotAlarmManager;
+import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.productpopup.NotificationContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.service.HikeMicroAppsCodeMigrationService;
 import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.tasks.SendDailyAnalyticsTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -76,6 +79,8 @@ public class HikeAlarmManager
 	
 	public static final int REQUESTCODE_UPDATE_PERSISTENT_NOTIF = 4575;
 
+    public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4581;
+
 	public static final int REQUESTCODE_FETCH_BLOCK_LIST_CALLER = 4576;
 
 	public static final int REQUESTCODE_BLOCKED_CALLER_FROM_CLIENT_TO_SERVER = 4577;
@@ -83,6 +88,8 @@ public class HikeAlarmManager
 	public static final int REQUESTCODE_UPDATE_AUTO_APK_TIP = 4578;
 
     public static final int REQUESTCODE_LOG_HIKE_ANALYTICS = 4579;
+
+	public static final int REQUESTCODE_SHOW_CORRUPT_DB_NOTIF = 4580;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -93,7 +100,7 @@ public class HikeAlarmManager
 
 
 	/**
-	 * 
+	 *
 	 * @param context
 	 * @param time
 	 * @param requestCode
@@ -314,6 +321,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION:
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
+        case HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION:
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+             break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over. Processing persistent notif.");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
@@ -332,8 +343,22 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikeConstants.NON_MESSAGING_BOT.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 
@@ -398,6 +423,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUEST_CODE_STICKER_RECOMMENDATION:
 			StickerSearchManager.getInstance().startRebalancing(intent);
 			break;
+        case HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION:
+            Intent migrationIntent = new Intent(context, HikeMicroAppsCodeMigrationService.class);
+            context.startService(migrationIntent);
+            break;
 		case HikeAlarmManager.REQUESTCODE_UPDATE_PERSISTENT_NOTIF:
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "PersNotifAlarm interval over and alarm expired. Processing persistent notif.");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_PERS_NOTIF_ALARM_SET, false);
@@ -416,8 +445,22 @@ public class HikeAlarmManager
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
+		case HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF:
+			HikeNotification.getInstance().showCorruptDbNotification();
+			break;
 		default:
-			PlatformAlarmManager.processTasks(intent, context);
+			if (intent.hasExtra(HikePlatformConstants.BOT_TYPE))
+			{
+				if (HikeConstants.NON_MESSAGING_BOT.equals(intent.getStringExtra(HikePlatformConstants.BOT_TYPE)))
+				{
+					NonMessagingBotAlarmManager.processTasks(intent, context);
+				}
+
+				else
+				{
+					MessagingBotAlarmManager.processTasks(intent, context);
+				}
+			}
 			break;
 		}
 

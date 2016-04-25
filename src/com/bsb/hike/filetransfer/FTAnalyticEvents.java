@@ -1,14 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -20,19 +11,20 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class FTAnalyticEvents
 {
-	public int mRetryCount;
-
-	public int mPauseCount;
-
 	public String mNetwork;
 
 	public int mAttachementType;
-
-	public static final String FT_RETRY_COUNT = "rc";
-
-	public static final String FT_PAUSE_COUNT = "pc";
 
 	public static final String FT_NETWORK_TYPE = "con";
 
@@ -179,8 +171,6 @@ public class FTAnalyticEvents
 
 	public static final String UNABLE_TO_CREATE_HIKE_TEMP_DIR = "unable_to_hike_temp_dir";
 
-	public static final String UNABLE_TO_CREATE_LANG_DIC_DIR = "unable_to_create_lang_dic_dir";
-
 	public static final String BAD_RESUME_LENGTH = "bad_resume_len";
 
 	public static final String JSON_PARSING_ISSUE = "json_parsing_issue";
@@ -213,8 +203,6 @@ public class FTAnalyticEvents
 		{
 			this.mAttachementType = logMetaData.getInt(FT_ATTACHEMENT_TYPE);
 			this.mNetwork = logMetaData.getString(FT_NETWORK_TYPE);
-			this.mRetryCount = logMetaData.getInt(FT_RETRY_COUNT);
-			this.mPauseCount = logMetaData.getInt(FT_PAUSE_COUNT);
 		}
 		catch (JSONException e)
 		{
@@ -235,8 +223,6 @@ public class FTAnalyticEvents
 			JSONObject metadata = new JSONObject();
 			metadata.put(FT_ATTACHEMENT_TYPE, this.mAttachementType);
 			metadata.put(FT_NETWORK_TYPE, this.mNetwork);
-			metadata.put(FT_RETRY_COUNT, this.mRetryCount);
-			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			Logger.d("FTAnalyticEvents", "write data = " + metadata.toString());
 			file.write(metadata.toString());
 		}
@@ -299,8 +285,6 @@ public class FTAnalyticEvents
 			JSONObject metadata = new JSONObject();
 			metadata.put(FT_ATTACHEMENT_TYPE, this.mAttachementType);
 			metadata.put(FT_NETWORK_TYPE, network);
-			metadata.put(FT_RETRY_COUNT, this.mRetryCount);
-			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
 			if(!TextUtils.isEmpty(attachmentShardeAs)) {
@@ -460,8 +444,9 @@ public class FTAnalyticEvents
 
 	public String toString()
 	{
-		return "AttachementType : " + mAttachementType + ", NetworkType : " + mNetwork + ", RetryCount : " + mRetryCount + ", PauseCount : " + mPauseCount;
+		return "AttachementType : " + mAttachementType + ", NetworkType : " + mNetwork;
 	}
+
 	//Sending File Transfer analytics for bots.
 	public static void platformAnalytics(String msisdn,String fileKey, String fileType)
 	{
