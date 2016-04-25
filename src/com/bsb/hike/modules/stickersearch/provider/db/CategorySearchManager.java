@@ -3,7 +3,9 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.bsb.hike.HikeConstants;
@@ -35,11 +37,11 @@ public enum CategorySearchManager
 
     public static final String TAG = CategorySearchManager.class.getSimpleName();
 
-    private static HashMap<String, TreeSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, TreeSet<CategorySearchData>>();
+    private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
 
-    private static HashMap<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+    private static Map<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
-    private static HashMap<String, StickerCategory> mCacheForSearchedCategories = new HashMap<String, StickerCategory>();
+    private static Map<String, StickerCategory> mCacheForSearchedCategories = new HashMap<String, StickerCategory>();
 
     private SearchEngine categorySearchEngine = new SearchEngine();
 
@@ -58,14 +60,14 @@ public enum CategorySearchManager
 
     public List<StickerCategory> searchForPacks(String query)
     {
-        TreeSet<CategorySearchData> resultCategories = getCategoriesForKey(query.toLowerCase());
+        Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query.toLowerCase());
 
-        return getOrderedCategories(resultCategories);
+        return getOrderedCategoryList(resultCategories);
     }
 
-    private TreeSet<CategorySearchData> getCategoriesForKey(String key)
+    private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key)
     {
-        TreeSet<CategorySearchData> result = null;
+        SortedSet<CategorySearchData> result = null;
         if(mCacheForShopSearchKeys.containsKey(key))
         {
             result = mCacheForShopSearchKeys.get(key);
@@ -102,7 +104,7 @@ public enum CategorySearchManager
         return false;
     }
 
-    private List<StickerCategory> getOrderedCategories(Set<CategorySearchData> querySet)
+    private List<StickerCategory> getOrderedCategoryList(Set<CategorySearchData> querySet)
     {
         if(Utils.isEmpty(querySet))
         {
