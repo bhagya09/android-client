@@ -226,7 +226,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		HikeSharedPreferenceUtil.getInstance().saveData(SHOW_STICKER_SEARCH_FTUE, --searchFtueShownCount);
 
 
-		searchIcon.setImageResource(R.drawable.ic_search_white);
+		searchIcon.setImageResource(R.drawable.ic_top_bar_search);
 		searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -280,7 +280,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchBar), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         searchBar.setOnQueryTextListener(onQueryTextListener);
         searchBar.setQueryHint(getString(R.string.shop_search));
-        shopSearchMenuItem.setIcon(R.drawable.ic_search_white);
+        shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search);
         searchBar.setVisibility(View.VISIBLE);
     }
 }
