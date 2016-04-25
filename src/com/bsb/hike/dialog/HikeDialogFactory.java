@@ -1325,6 +1325,7 @@ public class HikeDialogFactory
 			public void onClick(View v)
 			{
 				checkBox.setChecked(!checked);
+				mute.setShowNotifInMute(checkBox.isChecked());
 			}
 		});
 
