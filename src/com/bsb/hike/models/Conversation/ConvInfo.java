@@ -527,7 +527,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 		@Override
 		protected Mute getMute(String msisdn)
 		{
-			return new Mute.MuteBuilder(msisdn).build();
+			return new Mute.InitBuilder(msisdn).build();
 		}
 	}
 

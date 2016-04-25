@@ -300,7 +300,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (item.id)
 		{
 		case R.string.mute_group:
-			if (item.text == getString(R.string.mute_group))
+			if ((item.text).equals(getString(R.string.mute_group)))
 			{
 				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, Mute.getMuteDurationsList(activity.getApplicationContext()));
 			}
