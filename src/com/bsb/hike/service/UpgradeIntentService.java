@@ -139,6 +139,16 @@ public class UpgradeIntentService extends IntentService
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, true);
 		}
 
+		if((!prefs.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false)))
+		{
+			if(StickerManager.getInstance().migrateRecent())
+			{
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, true);
+			}
+		}
+
+
+
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);

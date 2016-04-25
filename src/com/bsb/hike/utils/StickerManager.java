@@ -58,10 +58,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -760,9 +762,28 @@ public class StickerManager
 		return stickerCategoriesMap.get(categoryId);
 	}
 
-	public void saveCustomCategories()
+	public void saveRecents()
 	{
-		saveSortedListForCategory(StickerManager.RECENT);
+		StickerCategory customCategory = stickerCategoriesMap.get(StickerManager.RECENT);
+
+		if (customCategory == null)
+		{
+			return;
+		}
+
+		/**
+		 * Putting an instance of check here to avoid ClassCastException.
+		 */
+
+		if (!(customCategory instanceof CustomStickerCategory))
+		{
+			Logger.d("StickerManager", "Inside saveSortedListforCategory : " + customCategory.getCategoryName() + " is not CustomStickerCategory");
+			return;
+		}
+
+		Set<Sticker> list = ((CustomStickerCategory) customCategory).getStickerSet();
+
+		HikeConversationsDatabase.getInstance().saveRecentStickers(list);
 	}
 
 	public void saveSortedListForCategory(String catId)
@@ -3591,5 +3612,84 @@ public class StickerManager
 		}
 
 		return null;
+	}
+
+	/***
+	 *
+	 * @param catId
+	 * @return
+	 *
+	 *         This function can return null if file doesnot exist.
+	 */
+	public Set<Sticker> getRecentStickersFromFile()
+	{
+		Set<Sticker> list = null;
+		FileInputStream fileIn = null;
+		ObjectInputStream in = null;
+		String catId = RECENT;
+		String dirPath = StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(catId);
+
+		try
+		{
+			long t1 = System.currentTimeMillis();
+			Logger.d(TAG, "Calling function get sorted list for category : " + catId);
+			File dir = new File(dirPath);
+			if (!dir.exists())
+			{
+				dir.mkdirs();
+				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(RECENT_STICKERS_COUNT));
+			}
+			File catFile = new File(dirPath, catId + ".bin");
+			if (!catFile.exists())
+				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(RECENT_STICKERS_COUNT));
+			fileIn = new FileInputStream(catFile);
+			in = new ObjectInputStream(fileIn);
+			int size = in.readInt();
+			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(size));
+			for (int i = 0; i < size; i++)
+			{
+				try
+				{
+					Sticker s = new Sticker();
+					s.deSerializeObj(in);
+					File f = new File(s.getSmallStickerPath());
+					if(f.exists())
+					{
+						list.add(s);
+					}
+				}
+				catch (Exception e)
+				{
+					Logger.e(TAG, "Exception while deserializing sticker", e);
+				}
+			}
+			long t2 = System.currentTimeMillis();
+			Logger.d(TAG, "Time in ms to get sticker list of category : " + catId + " from file :" + (t2 - t1));
+		}
+		catch (Exception e)
+		{
+			Logger.e(TAG, "Exception while reading category file.", e);
+			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(RECENT_STICKERS_COUNT));
+		}
+		finally
+		{
+			Utils.closeStreams(in, fileIn);
+		}
+		return list;
+	}
+
+	public boolean migrateRecent()
+	{
+		Set<Sticker> recentStickers = getRecentStickersFromFile();
+		HikeConversationsDatabase.getInstance().saveRecentStickers(recentStickers);
+		try
+		{
+			Utils.delete(new File(StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(RECENT)));
+		}
+		catch(IOException e)
+		{
+			Logger.e(TAG, "exception in deleting recents file");
+		}
+		return true;
 	}
 }

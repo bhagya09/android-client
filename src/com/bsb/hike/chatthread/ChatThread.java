@@ -4384,7 +4384,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		releaseMessageAdapterResources();
 
-		StickerManager.getInstance().saveCustomCategories();
+		StickerManager.getInstance().saveRecents();
 
 		releaseMessageMap();
 		

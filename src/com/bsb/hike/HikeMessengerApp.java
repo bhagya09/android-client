@@ -601,6 +601,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SHOWN_PACK_PREVIEW_FTUE = "shownPackPreviewFtue";
 
+	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -868,6 +870,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false
 				|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
+				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
 				|| TEST)
 		{
 			startUpdgradeIntent();
