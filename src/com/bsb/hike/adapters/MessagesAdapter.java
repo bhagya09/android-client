@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -3639,6 +3640,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
@@ -4704,12 +4710,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	}
 
 	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
-		sendImageVideoRelatedAnalytic(uniqueKey_Order, null);
+		sendImageVideoRelatedAnalytic(uniqueKey_Order, null, null);
 	}
 
-	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus) {
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus, String family) {
 		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
-			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus);
+			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
 	}
 }
