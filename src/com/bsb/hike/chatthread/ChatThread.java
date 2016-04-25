@@ -1254,13 +1254,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onClick(View v)
 	{
-		if(v.getId() == R.id.msg_compose){
-			inProcessOfShowingPopup = true;
-		}
-		// Eat/Discard the click event when the WT recording is in progress
-		if(isWalkieTalkieShowing()) {
-			if(inProcessOfShowingPopup) dismissWalkieTalkie();
-			return;
+		if(useWTRevamped) {
+			if(v.getId() == R.id.msg_compose && !isKeyboardOpen()){ //CE-492
+				inProcessOfShowingPopup = true;
+			}
+			// Eat/Discard the click event when the WT recording is in progress
+			if(isWalkieTalkieShowing()) {
+				if(inProcessOfShowingPopup) dismissWalkieTalkie();
+				return;
+			}
 		}
 
 		switch (v.getId())
