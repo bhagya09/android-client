@@ -4135,4 +4135,6 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 }

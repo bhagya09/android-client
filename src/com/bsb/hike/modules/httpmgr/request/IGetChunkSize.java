@@ -12,4 +12,6 @@ public interface IGetChunkSize
 	 * @return
 	 */
 	int getChunkSize();
+	int getChunkSize(int chunkPolicy);
+	void setNetworkSpeed(long time, long fileSize);
 }
