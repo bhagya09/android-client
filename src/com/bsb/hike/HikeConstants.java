@@ -819,7 +819,7 @@ public class HikeConstants
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
 	/* quiet period of no changes(in seconds) before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 60;
+	public static final long CONTACT_UPDATE_TIMEOUT = 5;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -2259,6 +2259,12 @@ public class HikeConstants
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
 
         public static final String EMOTICON_SENT = "eSnt";
+
+        public static final String EMOTICON_DATA = "eD";
+
+        public static final String EMOTICON_NAME = "eName";
+
+        public static final String EMOTICON_COUNT = "eCnt";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
@@ -4103,4 +4109,31 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final class AddFriendSources
+	{
+		public static final String CHAT_FTUE = "chat_ftue_screen";
+
+		public static final String CHAT_ADD_FRIEND = "chat_add_friend_Screen";
+
+		public static final String FRIENDS_SCREEN = "friends_screen";
+
+		public static final String PROFILE_SCREEN = "profile_screen";
+
+		public static final String TIMELINE_FTUE_SCREEN = "timeline_ftue_screen";
+
+		public static final String FORWARD_SCREEN = "fwd_screen";
+
+		public static final String UNKNOWN = "unknown";
+	}
+
+	public static final String LAST_SEEN_TEMP_PREF = "ls_temp";
+
+	public static final String SHOW_RECOMMENDED_PACKS = "shw_rec_pcks";
+
+    public static final String STICKER_DOWNLOAD_ATTEMPTED_SET = "s_d_f_s";
+
+	public static final String POSITION = "pos";
+
+	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 }
