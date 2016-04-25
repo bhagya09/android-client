@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -43,6 +44,7 @@ import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfoData;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.tasks.SyncOldSMSTask;
@@ -1259,7 +1261,7 @@ public class HikeDialogFactory
 		return dialog;
 	}
 
-	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object... data)
+	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object[] data)
 	{
 		final HikeDialog dialog = new HikeDialog(context, dialogId);
 		dialog.setContentView(R.layout.mute_dialog);
@@ -1294,12 +1296,13 @@ public class HikeDialogFactory
 			}
 		});
 
-		if (data == null || data.length == 0 || !(data instanceof String[]))
+		if (data[0] == null || data[1] == null || !(data[1] instanceof String[]))
 		{
 			return null;
 		}
 
-		String[] timeDurations = (String[]) data;
+		final Mute mute = (Mute) data[0];
+		String[] timeDurations = (String[]) data[1];
 		ListView listMuteDurations = (ListView) dialog.findViewById(R.id.mute_duration_list);
 		final MuteDurationListAdapter muteDurationListAdapter = new MuteDurationListAdapter(context, timeDurations);
 		listMuteDurations.setAdapter(muteDurationListAdapter);
@@ -1309,6 +1312,19 @@ public class HikeDialogFactory
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 //				TODO : take action based on mute duration clicked
+				mute.setMuteDuration(position);
+			}
+		});
+
+		View showNotifView = dialog.findViewById(R.id.show_notif_view);
+		final CheckBox checkBox = ((CheckBox) showNotifView.findViewById(R.id.show_notif_checkbox));
+		final boolean checked = checkBox.isChecked();
+
+		showNotifView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v)
+			{
+				checkBox.setChecked(!checked);
 			}
 		});
 
