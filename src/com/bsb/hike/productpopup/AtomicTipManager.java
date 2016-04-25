@@ -37,6 +37,8 @@ public class AtomicTipManager
 
     private static final String TAG = "AtomicTipManager";
 
+    private final int DEFAULT_BG_COLOR = R.color.credits_blue;
+
     //currentlyShowing is maintained primarily for handling click actions
     private static AtomicTipContentModel currentlyShowing;
 
@@ -217,9 +219,7 @@ public class AtomicTipManager
         }
         else
         {
-            Logger.d(TAG, "caching atomic tip background image");
-            Logger.d(TAG, "Unable to create image from icon string. Returning credits_blue color drawable");
-            bgImageDrawable = (BitmapDrawable) HikeMessengerApp.getInstance().getApplicationContext().getResources().getDrawable(R.color.credits_blue);
+            Logger.d(TAG, "Failed to create image from base64. will use default color as atomic tip background");
         }
         return bgImageDrawable;
     }
@@ -335,10 +335,15 @@ public class AtomicTipManager
             BitmapDrawable bgDrawable = HikeMessengerApp.getLruCache().get(currentlyShowing.getBgImgKey());
             if(bgDrawable == null)
             {
-                Logger.d(TAG, "didn't find atomic tip background image in cache. trying to recreate.");
-                createAndCacheBgImage(currentlyShowing);
+                Logger.d(TAG, "didn't find atomic tip background image in cache. setting default color as background");
+                tipView.findViewById(R.id.all_content).setBackgroundColor(HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(DEFAULT_BG_COLOR));
             }
-            tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+            else
+            {
+                Logger.d(TAG, "setting cached image as atomic tip backround");
+                tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+            }
+
         }
 
         Logger.d(TAG, "adding atomic tip icon");
