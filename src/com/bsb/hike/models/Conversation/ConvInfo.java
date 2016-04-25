@@ -172,20 +172,20 @@ public class ConvInfo implements Comparable<ConvInfo>
 
 	/**
 	 *
-	 * @return isNotificationMuted for muted chat
+	 * @return isShowingNotifWhileMute for muted chat
      */
-	public boolean isNotificationMuted()
+	public boolean isShowingNotifWhileMute()
 	{
-		return mute.isNotificationMuted();
+		return mute.isShowingNotifWhileMute();
 	}
 
 	/**
 	 *
 	 * @param muteNotification for muted chat
      */
-	public void setNotificationMuted(boolean muteNotification)
+	public void setShowNotifInMute(boolean muteNotification)
 	{
-		mute.setNotificationMuted(muteNotification);
+		mute.setShowNotifInMute(muteNotification);
 	}
 
 	/**
@@ -464,9 +464,9 @@ public class ConvInfo implements Comparable<ConvInfo>
 			return getSelfObject();
 		}
 
-		public P setNotificationMuted(boolean muteNotification)
+		public P setShowNotifInMute(boolean muteNotification)
 		{
-			mute.setNotificationMuted(muteNotification);
+			mute.setShowNotifInMute(muteNotification);
 			return getSelfObject();
 		}
 

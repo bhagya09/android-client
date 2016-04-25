@@ -55,12 +55,12 @@ public class Mute
         this.isMute = isMute;
     }
 
-    public boolean isNotificationMuted()
+    public boolean isShowingNotifWhileMute()
     {
         return muteNotification;
     }
 
-    public void setNotificationMuted(boolean muteNotification)
+    public void setShowNotifInMute(boolean muteNotification)
     {
         this.muteNotification = muteNotification;
     }
@@ -110,7 +110,7 @@ public class Mute
             return getSelfObject();
         }
 
-        public InitBuilder setMuteNotification(boolean muteNotification)
+        public InitBuilder setShowNotifInMute(boolean muteNotification)
         {
             this.muteNotification = muteNotification;
             return getSelfObject();
