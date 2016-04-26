@@ -172,11 +172,11 @@ public class ConvInfo implements Comparable<ConvInfo>
 
 	/**
 	 *
-	 * @return isShowingNotifWhileMute for muted chat
+	 * @return shouldShowNotifInMute for muted chat
      */
-	public boolean isShowingNotifWhileMute()
+	public boolean shouldShowNotifInMute()
 	{
-		return mute.isShowingNotifWhileMute();
+		return mute.shouldShowNotifInMute();
 	}
 
 	/**

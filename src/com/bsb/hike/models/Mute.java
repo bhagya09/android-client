@@ -45,7 +45,7 @@ public class Mute
         this.isMute = isMute;
     }
 
-    public boolean isShowingNotifWhileMute()
+    public boolean shouldShowNotifInMute()
     {
         return showNotification;
     }

@@ -163,9 +163,9 @@ public abstract class Conversation implements Comparable<Conversation>
 		convInfo.setShowNotifInMute(muteNotification);
 	}
 
-	public boolean isShowingNotifWhileMute()
+	public boolean shouldShowNotifInMute()
 	{
-		return convInfo.isShowingNotifWhileMute();
+		return convInfo.shouldShowNotifInMute();
 	}
 
 	public void setMuteDuration(int muteDuration)
