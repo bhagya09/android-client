@@ -1,5 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+
 public class StickerConstants
 {
 	public static final String STICKER_SETTINGS_TASK_ARG = "stickerSettingsTaskArg";
@@ -134,12 +137,12 @@ public class StickerConstants
 
 	public static final short DEFAULT_PACK_PREVIEW_VIEW_ALL_VISIBLE_ROWS = 3;
 
-	public static final int NUMBER_OF_ROWS_FOR_ORDER = 100000;
+	public static int NUMBER_OF_ROWS_FOR_ORDER = 10000;
 
-	public static final int PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA = 1000;
+	public static int PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA =  1000;
 
-	public static final int PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA = 200;
+	public static int PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA = 200;
 
-	public static final int CATEGORIES_TO_FETCH_DATA = 10000;
+	public static int CATEGORIES_TO_FETCH_DATA = 10000;
 
 }

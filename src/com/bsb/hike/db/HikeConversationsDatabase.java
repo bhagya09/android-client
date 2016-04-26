@@ -7296,7 +7296,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " where "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.IS_PACK_METADATA_UPDATED + "=0 " + " order by " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE
-					+ "." + DBConstants.RANK + " asc " + " limit " + StickerConstants.CATEGORIES_TO_FETCH_DATA;
+					+ "." + DBConstants.RANK + " asc " + " limit " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT ,StickerConstants.CATEGORIES_TO_FETCH_DATA);
 			cursor = mDb.rawQuery(query, null);
 			list = new ArrayList<>(cursor.getCount());
 

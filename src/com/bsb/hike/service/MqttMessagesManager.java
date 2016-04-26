@@ -85,6 +85,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -3081,6 +3082,30 @@ public class MqttMessagesManager
 		{
 			boolean showRecommendedPacks = data.getBoolean(HikeConstants.SHOW_RECOMMENDED_PACKS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
+		}
+
+		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
+		{
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.NUMBER_OF_ROWS_FOR_ORDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
+		}
+
+		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
+		{
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
+		}
+
+		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
+		{
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
+		}
+
+		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
+		{
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.CATEGORIES_TO_FETCH_DATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
 		}
 
 		editor.commit();

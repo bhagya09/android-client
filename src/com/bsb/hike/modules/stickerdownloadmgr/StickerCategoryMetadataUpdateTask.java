@@ -36,7 +36,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 			if (stickerCategory.getPackUpdationTime() == 0)
 			{
 				createList.add(stickerCategory);
-				if (createList.size() == StickerConstants.PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA)
+				if (createList.size() == HikeSharedPreferenceUtil.getInstance().getData( HikeConstants.PACK_CREATION_PAGE_SIZE,StickerConstants.PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA))
 				{
 					fetchCategoryMetadataTask = new FetchCategoryMetadataTask(createList);
 					fetchCategoryMetadataTask.execute();
@@ -46,7 +46,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 			else
 			{
 				updateList.add(stickerCategory);
-				if (updateList.size() == StickerConstants.PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA)
+				if (updateList.size() == HikeSharedPreferenceUtil.getInstance().getData( HikeConstants.PACK_UPDATION_PAGE_SIZE,StickerConstants.PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA))
 				{
 					fetchCategoryMetadataTask = new FetchCategoryMetadataTask(updateList);
 					fetchCategoryMetadataTask.execute();

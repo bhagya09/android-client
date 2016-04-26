@@ -4146,4 +4146,13 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
 }

@@ -81,7 +81,8 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 	@Override
 	public void execute()
 	{
-		token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(), StickerConstants.NUMBER_OF_ROWS_FOR_ORDER, 0);
+		token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(),
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.NUMBER_OF_ROWS_FOR_ORDER), 0);
 		token.execute();
 	}
 
