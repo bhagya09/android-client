@@ -320,14 +320,10 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
     private String getCategoryTagMappingTableCreateQuery()
     {
-        return HikeStickerSearchBaseConstants.SYNTAX_CREATE_TABLE + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN
-                + HikeStickerSearchBaseConstants.UNIQUE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-                + HikeStickerSearchBaseConstants.CATEGORY_ID + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-                + HikeStickerSearchBaseConstants.NAME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-                + HikeStickerSearchBaseConstants.FOR_GENDER + HikeStickerSearchBaseConstants.SYNTAX_INTEGER_NEXT
-                + HikeStickerSearchBaseConstants.THEME + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-                + HikeStickerSearchBaseConstants.LANGUAGE + HikeStickerSearchBaseConstants.SYNTAX_TEXT_NEXT
-                + HikeStickerSearchBaseConstants.KEYWORDS + HikeStickerSearchBaseConstants.SYNTAX_TEXT_LAST + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+		return "CREATE TABLE IF NOT EXISTS " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "(" + HikeStickerSearchBaseConstants.UNIQUE_ID
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " + HikeStickerSearchBaseConstants.CATEGORY_ID + " TEXT," + HikeStickerSearchBaseConstants.NAME + " TEXT,"
+				+ HikeStickerSearchBaseConstants.FOR_GENDER + " TEXT," + HikeStickerSearchBaseConstants.THEME + " TEXT," + HikeStickerSearchBaseConstants.LANGUAGE + " TEXT,"
+				+ HikeStickerSearchBaseConstants.KEYWORDS + " TEXT)";
     }
 
 	/* Prepare search engine database */
@@ -401,13 +397,9 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         {
             Logger.v(TAG, "createCategoryVirtualTable() : Creating virtual table with name: " + tableName);
 
-            sql = HikeStickerSearchBaseConstants.SYNTAX_CREATE_VTABLE + tableName + HikeStickerSearchBaseConstants.SYNTAX_FTS_VERSION_4
-                    + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_NEXT
-                    + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_NEXT + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_KEY
-                    + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE
-                    + HikeStickerSearchBaseConstants.SYNTAX_FOREIGN_REF + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING
-                    + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_OPEN + HikeStickerSearchBaseConstants.CATEGORY_ID + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE
-                    + HikeStickerSearchBaseConstants.SYNTAX_BRACKET_CLOSE;
+			sql = "CREATE VIRTUAL TABLE " + tableName + " USING fts4(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ", " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
+					+ ", FOREIGN KEY(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ") REFERENCES " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
+					+ HikeStickerSearchBaseConstants.CATEGORY_ID + "))";
 
             mDb.execSQL(sql);
         }
