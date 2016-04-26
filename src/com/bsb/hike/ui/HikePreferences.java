@@ -1543,6 +1543,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void updatePrivacyPrefView()
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);
+
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
 			lp.setEntries(R.array.privacyPrefKeysFriendsExp);

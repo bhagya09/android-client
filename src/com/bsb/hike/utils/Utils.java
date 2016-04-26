@@ -8667,7 +8667,7 @@ public class Utils
 	}
 
 	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,
-												   String toUser_msisdn, boolean isStealth, String genus) {
+												   String toUser_msisdn, boolean isStealth, String genus, String family) {
 		try {
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
@@ -8683,6 +8683,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			if(!TextUtils.isEmpty(genus))
 				json.put(AnalyticsConstants.V2.GENUS, genus);
+			if(!TextUtils.isEmpty(family))
+				json.put(AnalyticsConstants.V2.FAMILY, family);
 
 			HAManager.getInstance().recordV2(json);
 		} catch (JSONException e) {
