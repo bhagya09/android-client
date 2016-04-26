@@ -33,6 +33,8 @@ public class AtomicTipContentModel
 
     private long endTime;
 
+    private boolean isCancellable;
+
     private boolean isSilent;
 
     private String notifTitle;
@@ -76,6 +78,7 @@ public class AtomicTipContentModel
         this.priority = tipContentJSON.optInt(HikeConstants.TIP_PRIORITY);
         this.startTime = tipContentJSON.optLong(ProductPopupsConstants.START_TIME, 0L);
         this.endTime = tipContentJSON.optLong(ProductPopupsConstants.END_TIME, 0L);
+        this.isCancellable = tipContentJSON.optBoolean(ProductPopupsConstants.IS_CANCELLABLE, true);
         prcessBackground(tipContentJSON.optJSONObject(HikeConstants.BACKGROUND));
         processNotifItems(tipContentJSON.optJSONObject(HikeConstants.PLAY_NOTIFICATION));
         processTipCTA(tipContentJSON.optJSONObject(HikeConstants.TIP_CTA));
@@ -143,6 +146,23 @@ public class AtomicTipContentModel
             hashCode = new String(getStartTime() + getEndTime() + getPriority() + getHeader() + "").hashCode();
         }
         return hashCode;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(!(obj instanceof AtomicTipContentModel))
+        {
+            return false;
+        }
+
+        AtomicTipContentModel newModel = (AtomicTipContentModel) obj;
+        if(this.hashCode() == newModel.hashCode())
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean isSilent()
@@ -238,6 +258,11 @@ public class AtomicTipContentModel
     public String getBgImgKey()
     {
         return bgImgKey;
+    }
+
+    public boolean isCancellable()
+    {
+        return isCancellable;
     }
 
     public static Comparator<AtomicTipContentModel> tipsComparator = new Comparator<AtomicTipContentModel>()

@@ -291,7 +291,10 @@ public class ConversationTip implements OnClickListener
 			if(v != null)
 			{
 				v.findViewById(R.id.all_content).setOnClickListener(this);
-				v.findViewById(R.id.close_tip).setOnClickListener(this);
+				if(atomicTipManager.isTipCancellable())
+				{
+					v.findViewById(R.id.close_tip).setOnClickListener(this);
+				}
 			}
 			return v;
 		default:

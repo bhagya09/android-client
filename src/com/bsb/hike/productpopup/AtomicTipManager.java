@@ -97,6 +97,12 @@ public class AtomicTipManager
         AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(tipJSON);
         Logger.d(TAG, "new tip hash: " + tipContentModel.hashCode());
 
+        if(tipContentModels.contains(tipContentModel))
+        {
+            Logger.d(TAG, "received duplicate atomic tip. not saving it!");
+            return;
+        }
+
         //saving model in DB
         saveNewTip(tipContentModel);
 
@@ -309,6 +315,11 @@ public class AtomicTipManager
         }
     }
 
+    public boolean isTipCancellable()
+    {
+        return currentlyShowing.isCancellable();
+    }
+
     /**
      * Method to inflate the atomic tip view by using model for currentlyShowing
      * @return
@@ -369,6 +380,10 @@ public class AtomicTipManager
 
         ((TextView) tipView.findViewById(R.id.atomic_tip_header_text)).setText(currentlyShowing.getHeader());
         ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
+        if(isTipCancellable())
+        {
+            tipView.findViewById(R.id.close_tip).setVisibility(View.VISIBLE);
+        }
         return  tipView;
     }
 
