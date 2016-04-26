@@ -1,25 +1,5 @@
 package com.bsb.hike.modules.contactmgr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -57,8 +37,29 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-class HikeUserDatabase extends SQLiteOpenHelper
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class HikeUserDatabase extends SQLiteOpenHelper
 {
+	private static final String TAG = "HikeUserDatabase";
 	private static volatile SQLiteDatabase mDb;
 
 	private static volatile HikeUserDatabase hikeUserDatabase;
@@ -134,12 +135,11 @@ class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.LAST_SEEN + " INTEGER DEFAULT -1, " // When this user was last seen on hike
 				+ DBConstants.IS_OFFLINE + " INTEGER DEFAULT 1, " // Whether this user is online or not
 				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
-				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT ''"    // Platform user id
+				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
+				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
+				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 "
 				+ " )";
 
-		db.execSQL(create);
-
-		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.BLOCK_TABLE + " ( " + DBConstants.MSISDN + " TEXT " + " ) ";
 		db.execSQL(create);
 
 		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.THUMBNAILS_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.IMAGE + " BLOB" + " ) ";
