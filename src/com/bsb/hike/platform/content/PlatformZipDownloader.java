@@ -11,6 +11,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -509,9 +510,9 @@ public class PlatformZipDownloader
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				long zipFileLength = zipFile.length();
 				if(!resumeSupported)
 				{
-					long zipFileLength = zipFile.length();
 
                     // Check being added here for checking content length of downloaded zip with the length received in http headers, in case of incorrect downloaded file size , it would be considered as download failure
                     if(result.getBody() != null && result.getBody().getContentLength() > 0 && zipFileLength > 0)
@@ -550,6 +551,33 @@ public class PlatformZipDownloader
 
 				if (resumeSupported && !TextUtils.isEmpty(statefilePath))
 				{
+					String range = "";
+					long totalLength = 0;
+					for (Header header : result.getHeaders())
+					{
+						if (header != null && HikeConstants.CONTENT_RANGE.equals(header.getName()))
+						{
+								range = header.getValue();
+								break;
+						}
+					}
+					try
+					{
+						totalLength = Integer.valueOf(range.substring(range.lastIndexOf("/") + 1, range.length()));
+					}
+					catch (Exception e)
+					{
+						Logger.e(getClass().getCanonicalName(), e.toString());
+						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+						onRequestFailure(exception);
+					}
+					if (zipFileLength != totalLength)
+					{
+						HttpException exception = new HttpException(HttpException.REASON_CODE_INCOMPLETE_REQUEST);
+						onRequestFailure(exception);
+						return;
+					}
+
 					(new File(statefilePath + FileRequestPersistent.STATE_FILE_EXT)).delete();
 				}
 
