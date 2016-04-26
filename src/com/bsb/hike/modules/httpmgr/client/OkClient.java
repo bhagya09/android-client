@@ -7,9 +7,12 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -107,6 +110,19 @@ public class OkClient implements IClient
 		responseBuilder.setUrl(response.request().urlString());
 		responseBuilder.setStatusCode(response.code());
 		responseBuilder.setReason(response.message());
+		Headers responseHeaders = response.headers();
+		if (responseHeaders != null)
+		{
+			int size = responseHeaders.size();
+			List<Header> headersList = new ArrayList<>(size);
+			for (int i = 0; i < size; ++i)
+			{
+				Header header = new Header(responseHeaders.name(i), responseHeaders.value(i));
+				headersList.add(header);
+			}
+			responseBuilder.setHeaders(headersList);
+		}
+
 		com.squareup.okhttp.ResponseBody responseBody = response.body();
 
 		InputStream stream = responseBody.byteStream();
