@@ -307,7 +307,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 		if(oldVersion < 19)
 		{
-			//TODO : Handle migration 
+			//TODO : Handle migration
 			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
 			db.execSQL(alter);
 
@@ -2898,5 +2898,38 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 
 		return HikePlatformConstants.FILE_DESCRIPTOR + imageFile.getAbsolutePath();
+	}
+
+	public List<String> getBlockedMsisdnFromBlockTable() {
+		Cursor c = null;
+		List<String> blockedSet = new ArrayList<>();
+
+		try {
+			c = mReadDb.query(DBConstants.BLOCK_TABLE, new String[]{DBConstants.MSISDN}, null, null, null, null, null);
+
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+
+			while (c.moveToNext()) {
+				blockedSet.add(c.getString(msisdnIdx));
+			}
+
+			return blockedSet;
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+	}
+
+	public void addToBlockTable(String msisdn)
+	{
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.MSISDN, msisdn);
+		mDb.insert(DBConstants.BLOCK_TABLE, null, values);
+	}
+
+	public void dropBlockTable() {
+		String dropTable=DBConstants.DROP_TABLE + DBConstants.BLOCK_TABLE;
+		mDb.execSQL(dropTable);
 	}
 }

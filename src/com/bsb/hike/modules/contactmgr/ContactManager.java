@@ -1036,6 +1036,12 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		hDb.block(msisdn);
 	}
 
+	public void block(List<String> msisdns)
+	{
+		persistenceCache.block(msisdns);
+		hDb.addBlockList(msisdns);
+	}
+
 	/**
 	 * This method updates the favorite type of a contact in memory as well as in database
 	 * 
