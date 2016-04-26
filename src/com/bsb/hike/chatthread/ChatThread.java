@@ -6136,6 +6136,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onHidden()
 	{
+		if (useWTRevamped) {
+			//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
+			if (inProcessOfShowingPopup) {
+				inProcessOfShowingPopup = false;
+			} else if (!isKeyboardOpen() && !mShareablePopupLayout.isShowing()) { //CE-513
+				//In some devices onBackPressed is not called when the keyboard was open
+				if (isWalkieTalkieShowing()) dismissWalkieTalkie();
+			}
+		}
 	}
 
 	private boolean inProcessOfShowingPopup = false;
