@@ -611,7 +611,7 @@ public class PlatformUtils
 						}
 						else
 						{
-							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())))
+							if(botMetadata.getAutoResume() && !(PlatformContent.EventCode.UNZIP_FAILED.toString().equals(event.toString())) && !(PlatformContent.EventCode.INCOMPLETE_ZIP_DOWNLOAD.toString().equals(event.toString())))
 							{
 								// In case of failure updating status
 								updatePlatformDownloadState(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), HikePlatformConstants.PlatformDwnldState.FAILED);
