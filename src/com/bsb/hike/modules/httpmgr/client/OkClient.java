@@ -1,9 +1,5 @@
 package com.bsb.hike.modules.httpmgr.client;
 
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
-import com.bsb.hike.StethoInterceptor;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
@@ -13,6 +9,8 @@ import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.io.InputStream;
+
 
 /**
  *
@@ -21,7 +19,7 @@ import com.squareup.okhttp.OkHttpClient;
  * @author anubhavgupta & sidharth
  *
  */
-public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
+public class OkClient implements IClient
 {
 	private OkHttpClient client;
 
@@ -51,10 +49,10 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 
 	public OkClient()
 	{
-		client = generateClient(com.bsb.hike.modules.httpmgr.client.ClientOptions.getDefaultClientOptions());
+		client = generateClient(ClientOptions.getDefaultClientOptions());
 	}
 
-	public OkClient(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	public OkClient(ClientOptions clientOptions)
 	{
 		client = generateClient(clientOptions);
 	}
@@ -135,7 +133,7 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public OkClient clone(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	public OkClient clone(ClientOptions clientOptions)
 	{
 		return new OkClient(new OkHttpClientFactory().setClientParameters(client.clone(), clientOptions));
 	}
