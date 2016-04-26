@@ -12,6 +12,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.tasks.MigrateBlockTableToUserTable;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -131,7 +132,17 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-        // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
+		MigrateBlockTableToUserTable migrateBlockTableToUserTable = new MigrateBlockTableToUserTable();
+		try {
+			boolean result = migrateBlockTableToUserTable.call();
+			if (result) {
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
         editor.apply();
