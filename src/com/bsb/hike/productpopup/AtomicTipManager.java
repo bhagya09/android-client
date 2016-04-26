@@ -1,6 +1,7 @@
 package com.bsb.hike.productpopup;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
@@ -19,6 +20,11 @@ import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -479,7 +485,7 @@ public class AtomicTipManager
                 break;
 
             case ProductPopupsConstants.PopUpAction.CALLTOSERVER:
-                ProductInfoManager.getInstance().callToServer(metadata);
+                callToServer(metadata);
                 break;
 
             case ProductPopupsConstants.PopUpAction.DOWNLOAD_STKPK:
@@ -528,8 +534,9 @@ public class AtomicTipManager
      */
     public void actionOpenAppScreen(Activity context, String metadata)
     {
-        String activityName = null;
-        JSONObject mmObject = null;
+        Logger.d(TAG, "processing open app screen action");
+        String activityName;
+        JSONObject mmObject;
         try
         {
             mmObject = new JSONObject(metadata);
@@ -541,11 +548,13 @@ public class AtomicTipManager
             }
             else if (activityName.equals(ProductPopupsConstants.HIKESCREEN.OPEN_WEB_VIEW.toString()))
             {
+                Logger.d(TAG, "processing open web view action");
                 String url = ProductInfoManager.getInstance().getFormedUrl(metadata);
+                String title = mmObject.optString(HikeConstants.Extras.TITLE, "");
 
                 if (!TextUtils.isEmpty(url))
                 {
-                    Utils.startWebViewActivity(HikeMessengerApp.getInstance().getApplicationContext(), url, "hike");
+                    Utils.startWebViewActivity(HikeMessengerApp.getInstance().getApplicationContext(), url, title);
                 }
             }
             else
@@ -567,6 +576,7 @@ public class AtomicTipManager
      */
     public void actionMultiFwdSticker(String stickerData)
     {
+        Logger.d(TAG, "processing multi forward sticker action");
         try
         {
             JSONObject mmObject = new JSONObject(stickerData);
@@ -600,4 +610,61 @@ public class AtomicTipManager
             e.printStackTrace();
         }
     }
+
+    /**
+     * Method to make http call on tip click
+     * @param metaData
+     */
+    public void callToServer(final String metaData)
+    {
+        Logger.d(TAG, "processing call server action");
+        String requestType;
+        String url;
+        try
+        {
+            JSONObject jsonObject = new JSONObject(metaData);
+            requestType = jsonObject.optString(ProductPopupsConstants.REQUEST_TYPE, HikeConstants.GET);
+            url = jsonObject.optString(ProductPopupsConstants.URL);
+            url = Utils.appendTokenInURL(url);
+            RequestToken requestToken;
+            if(requestType.equals(HikeConstants.GET))
+            {
+                requestToken = HttpRequests.atomicTipRequestGet(url, requestListener);
+            }
+            else
+            {
+                JSONObject payload = jsonObject.optJSONObject(HikeConstants.PAYLOAD);
+                requestToken = HttpRequests.atomicTipRequestPost(url, payload, requestListener);
+            }
+            requestToken.execute();
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            Logger.d(TAG, "unable to make http request from atomic tip due to JSON exception");
+        }
+    }
+
+    public IRequestListener requestListener = new IRequestListener()
+    {
+        @Override
+        public void onRequestSuccess(Response result)
+        {
+            Logger.d(TAG, "atmoic tip http call response code " + result.getStatusCode());
+            removeTipFromView();
+        }
+
+        @Override
+        public void onRequestProgressUpdate(float progress)
+        {
+        }
+
+        @Override
+        public void onRequestFailure(HttpException httpException)
+        {
+            Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
+            Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
+            Toast.makeText(hikeAppContext, hikeAppContext.getString(R.string.atomic_tip_http_failure), Toast.LENGTH_SHORT).show();
+        }
+    };
 }

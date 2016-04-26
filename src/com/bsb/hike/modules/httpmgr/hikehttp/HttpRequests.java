@@ -1217,4 +1217,26 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken atomicTipRequestGet(String url, IRequestListener listener)
+	{
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener)
+	{
+		JsonBody jsonBody = new JsonBody(payload);
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.post(jsonBody)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
 }
