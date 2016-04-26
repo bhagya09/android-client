@@ -160,6 +160,21 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
 
+		for(String s: getIndexQueriesForV19())
+		{
+			db.execSQL(s);
+		}
+	}
+
+	private List<String> getIndexQueriesForV19() {
+		int i = 0;
+		String indexQuery = null;
+		List<String> index=new ArrayList<>();
+
+		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
+		index.add(indexQuery);
+
+		return index;
 	}
 
 	@Override
@@ -313,6 +328,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
 			db.execSQL(alter);
+
+			for(String s: getIndexQueriesForV19())
+			{
+				db.execSQL(s);
+			}
 		}
 
 	}
