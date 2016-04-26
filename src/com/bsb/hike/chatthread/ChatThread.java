@@ -2198,12 +2198,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	}
 
 	private void recordMediaShareAnalyticEvent(String uniqueKey_order){
-		recordMediaShareAnalyticEvent(uniqueKey_order, null);
+		recordMediaShareAnalyticEvent(uniqueKey_order, null, null);
 	}
 
-	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus){
+	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus, String family){
 		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
-		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus);
+		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus, family);
 	}
 
 	protected void onShareLocation(Intent data)
