@@ -56,7 +56,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	
 	private int categorySize;
 
-	private int prefOrder;
+	private int shopRank;
 
 	private  boolean isDisabled;
 
@@ -104,7 +104,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.state = builder.state;
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
-		this.prefOrder = builder.prefOrder;
+		this.shopRank = builder.shopRank;
 		this.packUpdationTime = builder.packUpdationTime;
 		this.ucid = builder.ucid;
 		this.previewUpdationTime = builder.previewUpdationTime;
@@ -163,7 +163,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		private String copyRightString;
 
-		private int prefOrder;
+		private int shopRank;
 
 		private boolean isDisabled;
 
@@ -217,8 +217,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			return self();
 		}
 
-		public S setPrefOrder(int prefOrder) {
-			this.prefOrder = prefOrder;
+		public S setShopRank(int shopRank) {
+			this.shopRank = shopRank;
 			return self();
 		}
 
@@ -372,9 +372,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return categoryName;
 	}
 
-	public int getPrefOrder()
+	public int getShopRank()
 	{
-		return prefOrder;
+		return shopRank;
 	}
 
 	public boolean isDisabled()
@@ -556,9 +556,9 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return copyRightString;
 	}
 
-	public void setPrefOrder(int prefOrder)
+	public void setShopRank(int shopRank)
 	{
-		this.prefOrder = prefOrder;
+		this.shopRank = shopRank;
 	}
 
 	public void setIsDisabled(boolean isDisabled)

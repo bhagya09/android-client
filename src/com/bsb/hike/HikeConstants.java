@@ -3213,11 +3213,7 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
-	public static final String PACK_STATE = "state";
-
-	public static final String UPDATE_CATEGORIES_TIMESTAMP = "updateCategoriesTimeStamp";
-
-	public static final String UPDATE_ORDER_SERVER_TIMESTAMP = "updateOrderServerTimeStamp";
+	public static final String STATE = "state";
 
 	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
 

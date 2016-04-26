@@ -19,9 +19,9 @@ import org.json.JSONObject;
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 {
-	private static final String FETCH_CAT_PREF_ORDER_TAG = "FetchcatPrefOrderDownloadTask";
+	private static final String FETCH_CAT_PREF_ORDER_TAG = "FetchCatPrefOrderDownloadTask";
 
 	private RequestToken token;
 
@@ -33,6 +33,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
+				Logger.d(FETCH_CAT_PREF_ORDER_TAG, httpException.toString());
 			}
 
 			@Override
@@ -56,8 +57,6 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 						Logger.e(FETCH_CAT_PREF_ORDER_TAG, "Sticker Order download failed null data");
 						return;
 					}
-					Logger.d(FETCH_CAT_PREF_ORDER_TAG, "Sticker Order downloaod result : " + resultData);
-
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoryPrefOrder(orderArray);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, false);
@@ -82,11 +81,8 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 	@Override
 	public void execute()
 	{
-		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
-		{
-			token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(), StickerConstants.NUMBER_OF_ROWS_FOR_ORDER, 0);
-			token.execute();
-		}
+		token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(), StickerConstants.NUMBER_OF_ROWS_FOR_ORDER, 0);
+		token.execute();
 	}
 
 	@Override
@@ -95,15 +91,4 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 
 	}
 
-	@Override
-	public void doOnSuccess(Object result)
-	{
-
-	}
-
-	@Override
-	public void doOnFailure(HttpException exception)
-	{
-
-	}
 }

@@ -518,11 +518,11 @@ public interface DBConstants
 
 	public static final String UCID_INDEX = "ucidIndex";
 
-	public static final String ORDER = "prefOrder";
+	public static final String RANK = "rank";
 
 	public static final String UCID = "ucid";
 
-	public static final String UPDATED_METADATA = "updatedMetadata";
+	public static final String IS_PACK_METADATA_UPDATED = "isPackMetadataUpdated";
 
 	public static final String UPDATED_METADATA_TIMESTAMP = "updatedMetadataTs";
 

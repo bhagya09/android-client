@@ -30,7 +30,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 		}
 		List<StickerCategory> updateList = new ArrayList<>();
 		List<StickerCategory> createList = new ArrayList<>();
-		FetchAllCategoriesDownloadTask fetchAllCategoriesDownloadTask;
+		FetchCategoryMetadataTask fetchCategoryMetadataTask;
 		for (StickerCategory stickerCategory : stickerCategories)
 		{
 			if (stickerCategory.getPackUpdationTime() == 0)
@@ -38,9 +38,9 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 				createList.add(stickerCategory);
 				if (createList.size() == StickerConstants.PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA)
 				{
-					fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask(createList);
-					fetchAllCategoriesDownloadTask.execute();
-					createList = new ArrayList<>();
+					fetchCategoryMetadataTask = new FetchCategoryMetadataTask(createList);
+					fetchCategoryMetadataTask.execute();
+					createList.clear();
 				}
 			}
 			else
@@ -48,15 +48,21 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 				updateList.add(stickerCategory);
 				if (updateList.size() == StickerConstants.PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA)
 				{
-					fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask(updateList);
-					fetchAllCategoriesDownloadTask.execute();
-					updateList = new ArrayList<>();
+					fetchCategoryMetadataTask = new FetchCategoryMetadataTask(updateList);
+					fetchCategoryMetadataTask.execute();
+					updateList.clear();
 				}
 			}
 		}
-		fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask(createList);
-		fetchAllCategoriesDownloadTask.execute();
-		fetchAllCategoriesDownloadTask = new FetchAllCategoriesDownloadTask(updateList);
-		fetchAllCategoriesDownloadTask.execute();
+		if (createList.size() != 0)
+		{
+			fetchCategoryMetadataTask = new FetchCategoryMetadataTask(createList);
+			fetchCategoryMetadataTask.execute();
+		}
+		if (createList.size() != 0)
+		{
+			fetchCategoryMetadataTask = new FetchCategoryMetadataTask(updateList);
+			fetchCategoryMetadataTask.execute();
+		}
 	}
 }

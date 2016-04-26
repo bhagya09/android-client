@@ -208,7 +208,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken fetchAllCategoriesData(String requestId, JSONObject json, IRequestListener requestListener)
+	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()

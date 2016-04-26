@@ -222,7 +222,7 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
 
 

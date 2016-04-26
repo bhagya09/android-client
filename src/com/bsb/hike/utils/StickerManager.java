@@ -32,12 +32,9 @@ import com.bsb.hike.models.StickerPageAdapterItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
-import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.CategoryOrderPrefDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.FetchAllCategoriesDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
@@ -56,7 +53,6 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-import org.acra.util.HttpRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -389,11 +385,17 @@ public class StickerManager
 
 		doUpgradeTasks();
 
-		CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask= new CategoryOrderPrefDownloadTask();
-		categoryOrderPrefDownloadTask.execute();
-
+		fetchCategoryOrderTask();
 	}
 
+	private void fetchCategoryOrderTask()
+	{
+		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+		{
+			CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask = new CategoryOrderPrefDownloadTask();
+			categoryOrderPrefDownloadTask.execute();
+		}
+	}
 
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -1667,8 +1669,8 @@ public class StickerManager
 				category.setCopyRightString(copyright);
 			}
 
-			if(jsonObj.has(HikeConstants.PACK_STATE)) {
-				int state = jsonObj.optInt(HikeConstants.PACK_STATE);
+			if(jsonObj.has(HikeConstants.STATE)) {
+				int state = jsonObj.optInt(HikeConstants.STATE);
 				category.setIsDisabled(state == 1 ? false : true);
 			}
 			if(jsonObj.has(HikeConstants.TIMESTAMP)) {
