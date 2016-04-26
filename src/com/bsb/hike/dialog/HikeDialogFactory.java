@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -30,15 +29,16 @@ import android.widget.TextView;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.ImageQuality;
+import com.bsb.hike.HikeConstants.MuteDuration;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.AccountAdapter;
-import com.bsb.hike.adapters.MuteDurationListAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.chatthread.ChatThreadActivity;
+import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.CheckBoxPojo;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonItemCheckedListener;
 import com.bsb.hike.dialog.CustomAlertRadioButtonDialog.RadioButtonPojo;
 import com.bsb.hike.models.AccountData;
@@ -452,6 +452,41 @@ public class HikeDialogFactory
 		return hikeDialog;
 	}
 
+	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object... data)
+	{
+		List<RadioButtonPojo> radioButtons = DialogUtils.getMuteDurationOptions(context);
+
+		CheckBoxPojo checkBox = DialogUtils.showNotificationCheckBox(context);
+
+		final Mute mute = (Mute) data[0];
+
+		final CustomAlertRadioButtonDialog hikeDialog = new CustomAlertRadioButtonDialog(context, dialogId, radioButtons, new RadioButtonItemCheckedListener() {
+
+			@Override
+			public void onRadioButtonItemClicked(RadioButtonPojo whichItem, CustomAlertRadioButtonDialog dialog) {
+				dialog.selectedRadioGroup = whichItem;
+				saveMuteDuration(mute, whichItem);
+			}
+
+		}, checkBox, new CustomAlertRadioButtonDialog.CheckBoxListener() {
+
+			@Override
+			public void onCheckboxClicked(CheckBoxPojo whichItem, CustomAlertRadioButtonDialog dialog) {
+				mute.setShowNotifInMute(whichItem.isChecked);
+			}
+		});
+
+		hikeDialog.setCancelable(true);
+		hikeDialog.setCanceledOnTouchOutside(true);
+		hikeDialog.setTitle(R.string.group_mute_dialog_title);
+		hikeDialog.setPositiveButton(R.string.OK, listener);
+		hikeDialog.setNegativeButton(R.string.CANCEL, listener);
+
+		hikeDialog.show();
+		return hikeDialog;
+
+	}
+
 	private static HikeDialog showImageQualityDialog(int dialogId, final Context context, final HikeDialogListener listener, Object... data)
 	{
 		
@@ -469,7 +504,7 @@ public class HikeDialogFactory
 			}
 			
 		});
-		
+
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
 		hikeDialog.setTitle(R.string.image_quality_prefs);
@@ -526,6 +561,27 @@ public class HikeDialogFactory
 				editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_ORIGINAL);
 				editor.commit();				
 				break;
+			}
+		}
+	}
+
+	private static void saveMuteDuration(Mute mute, RadioButtonPojo pojo)
+	{
+		if (pojo != null)
+		{
+			switch (pojo.id)
+			{
+				case R.string.mute_chat_eight_hrs:
+					mute.setMuteDuration(MuteDuration.DURATION_EIGHT_HOURS);
+					break;
+
+				case R.string.mute_chat_one_week:
+					mute.setMuteDuration(MuteDuration.DURATION_ONE_WEEK);
+					break;
+
+				case R.string.mute_chat_one_yr:
+					mute.setMuteDuration(MuteDuration.DURATION_ONE_YEAR);
+					break;
 			}
 		}
 	}
@@ -1256,78 +1312,6 @@ public class HikeDialogFactory
 		dialog.setCancelable(false);
 		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
 		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
-
-		dialog.show();
-		return dialog;
-	}
-
-	private static HikeDialog showChatMuteDialog(final Context context, int dialogId, final HikeDialogListener listener, Object[] data)
-	{
-		final HikeDialog dialog = new HikeDialog(context, dialogId);
-		dialog.setContentView(R.layout.mute_dialog);
-		dialog.setCancelable(true);
-
-		TextView okBtn = (TextView) dialog.findViewById(R.id.mute_dialog_ok);
-		TextView cancelBtn = (TextView) dialog.findViewById(R.id.mute_dialog_cancel);
-
-		okBtn.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if (listener != null)
-				{
-					listener.positiveClicked(dialog);
-				}
-				dialog.dismiss();
-			}
-		});
-
-		cancelBtn.setOnClickListener(new OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
-				if (listener != null)
-				{
-					listener.neutralClicked(dialog);
-				}
-				dialog.dismiss();
-			}
-		});
-
-		if (data[0] == null || data[1] == null || !(data[1] instanceof String[]))
-		{
-			return null;
-		}
-
-		final Mute mute = (Mute) data[0];
-		String[] timeDurations = (String[]) data[1];
-		ListView listMuteDurations = (ListView) dialog.findViewById(R.id.mute_duration_list);
-		final MuteDurationListAdapter muteDurationListAdapter = new MuteDurationListAdapter(context, timeDurations);
-		listMuteDurations.setAdapter(muteDurationListAdapter);
-		listMuteDurations.setOnItemClickListener(new AdapterView.OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-			{
-//				TODO : take action based on mute duration clicked
-				mute.setMuteDuration(position);
-			}
-		});
-
-		View showNotifView = dialog.findViewById(R.id.show_notif_view);
-		final CheckBox checkBox = ((CheckBox) showNotifView.findViewById(R.id.show_notif_checkbox));
-		final boolean checked = checkBox.isChecked();
-
-		showNotifView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v)
-			{
-				checkBox.setChecked(!checked);
-				mute.setShowNotifInMute(checkBox.isChecked());
-			}
-		});
 
 		dialog.show();
 		return dialog;

@@ -40,7 +40,6 @@ import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.GroupTypingNotification;
-import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
@@ -302,7 +301,7 @@ public class GroupChatThread extends OneToNChatThread
 		case R.string.mute_group:
 			if ((item.text).equals(getString(R.string.mute_group)))
 			{
-				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, new Object[]{mConversation.getMute(), Mute.getMuteDurationsList(activity.getApplicationContext())});
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
 			}
 			else
 			{

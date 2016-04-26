@@ -3011,6 +3011,17 @@ public class HikeConstants
 		public static final String IMAGE_QUALITY_DEFAULT = IMAGE_QUALITY_SMALL;
 	}
 
+	public static final class MuteDuration
+	{
+		public static final int DURATION_EIGHT_HOURS = 0;
+
+		public static final int DURATION_ONE_WEEK = 1;
+
+		public static final int DURATION_ONE_YEAR = 2;
+
+		public static final int DURATION_DEFAULT = DURATION_EIGHT_HOURS;
+	}
+
 	public static final class PushType
 	{
 
