@@ -88,20 +88,20 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     float micPositionMaxSlide;
     private void updateTriggerLevels(){
-        micPositionMaxSlide = DrawUtils.dp(24);
+        micPositionMaxSlide = DrawUtils.dp(23);
         int screenWidth;
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             screenWidth = DrawUtils.displayMetrics.heightPixels;
             if(HikeMessengerApp.bottomNavBarWidthLandscape != 0){
-                micPositionMaxSlide = HikeMessengerApp.bottomNavBarWidthLandscape/2 - DrawUtils.dp(1);
+                micPositionMaxSlide = HikeMessengerApp.bottomNavBarWidthLandscape/2 - DrawUtils.dp(4);
             }
         } else {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
         micPositionMaxSlide = micPositionMaxSlide - screenWidth;
 
-        DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.72);//we change the recording img to delete
-        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.72); //CE-434
+        DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.60);//we change the recording img to delete
+        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.60); //CE-434
     }
 
     View inflatedLayoutView ;
@@ -154,7 +154,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
         if(recorderImg != null)
             startPulsatingDotAnimation(recorderImg);
-        recBgrndXPos  = rectBgrnd.getX() + DrawUtils.dp(9);
+        recBgrndXPos  = rectBgrnd.getX() + DrawUtils.dp(5);
         anim = recorderImg.animate().setDuration(200).setInterpolator(new DecelerateInterpolator(1.0f)).setListener(getAnimationListener());
     }
 
@@ -253,13 +253,16 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 float rawX = event.getRawX();
                 if (rawX > DELETE_REVERT_TRIGGER_DELTA)
                 {
-                    if(rectBgrnd.getVisibility() == View.VISIBLE)
-                    rectBgrnd.setVisibility(View.INVISIBLE);
+                    if(rectBgrnd.getVisibility() == View.VISIBLE) {
+                        rectBgrnd.setVisibility(View.INVISIBLE);
+                        recordingState.setVisibility(View.VISIBLE);
+                    }
                 }
                 else if (rawX <= DELETE_TRIGGER_DELTA)
                 {
                     if(rectBgrnd.getVisibility() != View.VISIBLE) {
                         rectBgrnd.setVisibility(View.VISIBLE);
+                        recordingState.setVisibility(View.INVISIBLE);
                         rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
                     }
                 }
