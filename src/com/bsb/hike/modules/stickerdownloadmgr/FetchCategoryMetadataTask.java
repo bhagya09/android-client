@@ -7,6 +7,7 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
+import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
@@ -20,10 +21,10 @@ import java.util.List;
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class FetchCategoryMetadataTask implements IHikeHTTPTask
+public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
-	private final String FETCH_ALL_CATEGORIES_TAG = "FetchCategoryMetadataTask";
+	private final String TAG = "FetchCategoryMetadataTask";
 
 	private RequestToken token;
 
@@ -33,33 +34,39 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 
 	private String ucids = "";
 
-	public FetchCategoryMetadataTask(List<StickerCategory> list)
-	{
-		this.list = list;
+    public FetchCategoryMetadataTask(List<StickerCategory> list)
+    {
+        this.list = list;
+        createRequestJsonBody();
+    }
+
+
+    private void createRequestJsonBody()
+    {
 		requestJsonBody = new JSONObject();
 		JSONObject jsonObject;
 		JSONArray array = new JSONArray();
 		try
-		{
+        {
 			for (StickerCategory category : list)
-			{
+            {
 				ucids += category.getUcid();
 				jsonObject = new JSONObject();
 				jsonObject.put(Integer.toString(category.getUcid()), category.getPackUpdationTime());
 				array.put(jsonObject);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
-			Logger.d(FETCH_ALL_CATEGORIES_TAG,  requestJsonBody.toString());
-		}
-		catch (Exception e)
-		{
-            Logger.d(FETCH_ALL_CATEGORIES_TAG, e.toString());
+            Logger.d(TAG, requestJsonBody.toString());
+        }
+        catch (Exception e)
+        {
+			Logger.d(TAG, e.toString());
 		}
 	}
 
 	public String getCategoryFetchRequestId()
 	{
-		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel()+ ucids;
+		return StickerConstants.StickerRequestType.FETCH_CATEGORY.getLabel() + ucids;
 	}
 
 	private IRequestListener getRequestListener()
@@ -69,7 +76,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				Logger.d(FETCH_ALL_CATEGORIES_TAG, httpException.toString());
+				doOnFailure(httpException);
 			}
 
 			@Override
@@ -77,19 +84,21 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 			{
 				try
 				{
-					Logger.d(FETCH_ALL_CATEGORIES_TAG, result.getBody().getContent().toString());
 					JSONObject response = (JSONObject) result.getBody().getContent();
+					Logger.d(TAG, response.toString());
 
 					if (!Utils.isResponseValid(response))
 					{
-						Logger.e(FETCH_ALL_CATEGORIES_TAG, "Sticker Category fetch download failed null response");
+						Logger.e(TAG, "Sticker Category fetch download failed null response");
+						doOnFailure(null);
 						return;
 					}
 
-					JSONObject resultData = response.getJSONObject(HikeConstants.DATA_2);
+					JSONObject resultData = response.optJSONObject(HikeConstants.DATA_2);
 					if (null == resultData)
 					{
-						Logger.e(FETCH_ALL_CATEGORIES_TAG, "Sticker Category fetch download failed null data");
+						Logger.e(TAG, "Sticker Category fetch download failed null data");
+						doOnFailure(null);
 						return;
 					}
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
@@ -98,7 +107,8 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 				}
 				catch (Exception e)
 				{
-					Logger.d(FETCH_ALL_CATEGORIES_TAG, e.toString());
+					Logger.e(TAG, "Exception", e);
+					doOnFailure(new HttpException(e));
 					return;
 				}
 			}
@@ -114,7 +124,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 	@Override
 	public void execute()
 	{
-		if (requestJsonBody != null)
+		if (requestJsonBody != null && !token.isRequestRunning())
 		{
 			token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
 			token.execute();
@@ -124,7 +134,21 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask
 	@Override
 	public void cancel()
 	{
+		if (null != token)
+		{
+			token.cancel();
+		}
+	}
+
+	@Override
+	public void doOnSuccess(Object result)
+	{
 
 	}
 
+	@Override
+	public void doOnFailure(HttpException exception)
+	{
+		Logger.e(TAG, "Exception", exception);
+	}
 }

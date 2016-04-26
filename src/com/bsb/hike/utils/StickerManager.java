@@ -35,6 +35,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.CategoryOrderPrefDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
@@ -386,6 +387,15 @@ public class StickerManager
 		doUpgradeTasks();
 
 		fetchCategoryOrderTask();
+	}
+
+	public void executeFetchCategoryMetadataTask(List<StickerCategory> list)
+	{
+		if (list.size() > 0)
+		{
+			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list);
+			fetchCategoryMetadataTask.execute();
+		}
 	}
 
 	private void fetchCategoryOrderTask()

@@ -4,7 +4,6 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
-import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
@@ -16,12 +15,14 @@ import com.bsb.hike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderForCategories;
+
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
+public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private static final String FETCH_CAT_PREF_ORDER_TAG = "FetchCatPrefOrderDownloadTask";
+	private static final String TAG = "FetchCatPrefOrderDownloadTask";
 
 	private RequestToken token;
 
@@ -33,7 +34,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 			@Override
 			public void onRequestFailure(HttpException httpException)
 			{
-				Logger.d(FETCH_CAT_PREF_ORDER_TAG, httpException.toString());
+				doOnFailure(httpException);
 			}
 
 			@Override
@@ -41,20 +42,22 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 			{
 				try
 				{
-					Logger.d(FETCH_CAT_PREF_ORDER_TAG, result.getBody().getContent().toString());
-
 					JSONObject response = (JSONObject) result.getBody().getContent();
+
+					Logger.d(TAG, response.toString());
 
 					if (!Utils.isResponseValid(response))
 					{
-						Logger.e(FETCH_CAT_PREF_ORDER_TAG, "Sticker Order download failed null response");
+						Logger.e(TAG, "Sticker Order download failed null response");
+						doOnFailure(null);
 						return;
 					}
 
-					JSONObject resultData = response.getJSONObject(HikeConstants.DATA_2);
+					JSONObject resultData = response.optJSONObject(HikeConstants.DATA_2);
 					if (null == resultData)
 					{
-						Logger.e(FETCH_CAT_PREF_ORDER_TAG, "Sticker Order download failed null data");
+						Logger.e(TAG, "Sticker Order download failed null data");
+						doOnFailure(null);
 						return;
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
@@ -64,7 +67,8 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 				}
 				catch (Exception e)
 				{
-					Logger.d(FETCH_CAT_PREF_ORDER_TAG, e.toString());
+					Logger.e(TAG, "Exception", e);
+					doOnFailure(new HttpException(e));
 					return;
 				}
 			}
@@ -78,18 +82,40 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask
 
 	}
 
+	private String getRequestId()
+	{
+		return StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel();
+	}
+
 	@Override
 	public void execute()
 	{
-		token = HttpRequests.getPrefOrderForCategories(StickerConstants.StickerRequestType.UPDATE_ORDER.getLabel(), getRequestListener(),
-				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.NUMBER_OF_ROWS_FOR_ORDER), 0);
-		token.execute();
+		token = getPrefOrderForCategories(getRequestId(), getRequestListener(),
+				HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER), 0);
+		if (!token.isRequestRunning())
+		{
+			token.execute();
+		}
 	}
 
 	@Override
 	public void cancel()
 	{
+		if (null != token)
+		{
+			token.cancel();
+		}
+	}
+
+	@Override
+	public void doOnSuccess(Object result)
+	{
 
 	}
 
+	@Override
+	public void doOnFailure(HttpException exception)
+	{
+		Logger.e(TAG, "Exception", exception);
+	}
 }

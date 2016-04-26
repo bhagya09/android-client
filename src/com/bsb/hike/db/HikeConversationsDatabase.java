@@ -7291,22 +7291,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		List<StickerCategory> list = null;
 		try
 		{
+			/* This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in
+			   sorted order based on order table whose pack metadata is not updated */
 			String query = "Select " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "."
 					+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " where "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.IS_PACK_METADATA_UPDATED + "=0 " + " order by " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE
-					+ "." + DBConstants.RANK + " asc " + " limit " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT ,StickerConstants.CATEGORIES_TO_FETCH_DATA);
+					+ "." + DBConstants.RANK + " asc " + " limit " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT ,StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
 			cursor = mDb.rawQuery(query, null);
 			list = new ArrayList<>(cursor.getCount());
 
-			int updatedMetadataTs = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
-			int ucid = cursor.getColumnIndex(DBConstants.UCID);
+			int updatedMetadataTsIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
+			int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
 			while (cursor.moveToNext())
 			{
 				StickerCategory stickerCategory = new StickerCategory.Builder()
-						                              .setPackUpdationTime(cursor.getInt(updatedMetadataTs))
-						                              .setUcid(cursor.getInt(ucid))
+						                              .setPackUpdationTime(cursor.getInt(updatedMetadataTsIdx))
+						                              .setUcid(cursor.getInt(ucidIdx))
 						                              .build();
 				list.add(stickerCategory);
 			}
@@ -7321,8 +7323,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				cursor.close();
 			}
-			return list;
 		}
+		return list;
 	}
 
 	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
@@ -7779,29 +7781,29 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		try
 		{
 			mDb.beginTransaction();
-			mDb.execSQL("delete from " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE);
+			mDb.delete(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, null);
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
 				contentValues.put(DBConstants.RANK, i);
-				contentValues.put(DBConstants.UCID, array.getInt(i));
-				if(mDb.insert(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, contentValues)>=0)
+				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
+				if(mDb.insert(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, contentValues) >= 0)
 				{
 					count++;
 				}
 
 			}
 			mDb.setTransactionSuccessful();
-			return count;
 		}
 		catch (Exception e)
 		{
-			return count;
+			Logger.d(getClass().getSimpleName(), e.toString());
 		}
 		finally
 		{
 			mDb.endTransaction();
 		}
+		return count;
 	}
 
 	/*
@@ -7862,8 +7864,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.IS_PACK_METADATA_UPDATED, 1);
-		ArrayList<String> arrayList = new ArrayList<>();
-		for(StickerCategory stickerCategory:list)
+		ArrayList<String> arrayList = new ArrayList<>(list.size());
+		for(StickerCategory stickerCategory : list)
 		{
 			arrayList.add(Integer.toString(stickerCategory.getUcid()));
 		}

@@ -333,7 +333,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 		{
 		case R.id.shop_icon:
 			// shop icon clicked
-			StickerManager.getInstance().refreshPacksMetadata();
 			shopIconClicked();
 			break;
 		case R.id.info_icon:
@@ -375,7 +374,6 @@ public class StickerPicker implements OnClickListener, ShareablePopup, StickerPi
 			onBackMainLayoutClick();
 			break;
 		case R.id.shop_icon_external:
-			StickerManager.getInstance().refreshPacksMetadata();
 			HAManager.getInstance().chatHeadshareAnalytics(AnalyticsConstants.ChatHeadEvents.STICKER_SHOP, ChatHeadViewManager.foregroundAppName);
 			ChatHeadViewManager.getInstance(mContext).resetPosition(ChatHeadConstants.STICKER_SHOP_ANIMATION, null);
 			break;

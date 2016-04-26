@@ -69,7 +69,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -3086,25 +3085,25 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
 		{
-			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.NUMBER_OF_ROWS_FOR_ORDER);
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
 		}
 
 		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
 		{
-			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
 		}
 
 		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
 		{
-			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
 		}
 
 		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
 		{
-			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.CATEGORIES_TO_FETCH_DATA);
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
 		}
 
