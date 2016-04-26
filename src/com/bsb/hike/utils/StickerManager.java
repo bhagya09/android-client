@@ -3446,7 +3446,7 @@ public class StickerManager
 	{
 		JSONArray jsonArray = new JSONArray();
 
-		Collection<StickerCategory> catList = HikeConversationsDatabase.getInstance().getAllStickerCategories();
+		List<StickerCategory> catList = HikeConversationsDatabase.getInstance().getAllStickerCategories();
 
 		if (!Utils.isEmpty(catList))
 		{

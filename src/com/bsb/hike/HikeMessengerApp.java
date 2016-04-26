@@ -704,7 +704,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	/*
 	 * Implement a Custom report sender to add our own custom msisdn and token for the username and password
 	 */
-	private class CustomReportSender implements ReportSender
+	public class CustomReportSender implements ReportSender
 	{
 		@Override
 		public void send(Context arg0, CrashReportData crashReportData) throws ReportSenderException
@@ -1017,7 +1017,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		});
 	}
 
-	private void initCrashReportingTool()
+	public void initCrashReportingTool()
 	{
 		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 		{
@@ -1033,6 +1033,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			ErrorReporter.getInstance().setReportSender(customReportSender);
 		}
 	}
+
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1098,7 +1099,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		initCrashReportingTool();
 	}
 
-	private void logUser() {
+	public void logUser() {
 		// TODO: Use the current user's information
 		// You can call any combination of these three methods
 		String uId = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);

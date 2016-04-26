@@ -9679,7 +9679,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public Collection<StickerCategory> getAllStickerCategories()
+	public List<StickerCategory> getAllStickerCategories()
 	{
 		Cursor c = null;
 		LinkedHashMap<String, StickerCategory> stickerDataMap;
@@ -9696,7 +9696,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
-		return stickerDataMap.values();
+
+		List<StickerCategory> catList = new ArrayList<StickerCategory>(stickerDataMap.values());
+		Collections.sort(catList);
+		return catList;
 	}
 
 	public Set<Sticker> getRecentStickers()
