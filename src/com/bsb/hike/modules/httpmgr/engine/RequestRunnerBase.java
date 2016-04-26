@@ -23,9 +23,14 @@ public class RequestRunnerBase
 
 	public RequestRunnerBase(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
-		defaultClient = new OkUrlClient(options);
+		defaultClient = getDefaultClient(options);
 		this.engine = engine;
 		this.requestListenerNotifier = requestListenerNotifier;
+	}
+
+	protected IClient getDefaultClient(ClientOptions options)
+	{
+		return new OkUrlClient(options);
 	}
 
 	/**
