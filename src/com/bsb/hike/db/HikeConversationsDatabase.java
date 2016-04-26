@@ -1149,7 +1149,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
 				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
-				+ DBConstants.MUTE_NOTIFICATION + "INTEGER DEFAULT 0" //
+				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0 " //
 				+ ")";
 	}
 
