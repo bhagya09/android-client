@@ -868,4 +868,8 @@ public class AnalyticsConstants
 
 	public static final String DOWNLOAD_MEDIA = "download";
 
+	public static final String BLOCK_LIST_BACK_PRESS = "blckPriv";
+
+	public static final String BLOCK_LIST_BACK = "bckBlck";
+
 }
