@@ -296,6 +296,7 @@ public interface DBConstants
 
 	public static final int DEFAULT_INACTIVE_STATE = 0;
 
+
 	public static interface HIKE_CONV_DB
 	{
 		// CHANNEL TABLE -> _id,channel_id,name,visibility,index
@@ -562,4 +563,12 @@ public interface DBConstants
 	int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String HIKE_UID="uid";
+
+	public static final String BLOCK_STATUS = "bs";
+
+	public static final String STATUS_BLOCKED = "1";
+
+	public static final String STATUS_UNBLOCKED = "0";
 }
