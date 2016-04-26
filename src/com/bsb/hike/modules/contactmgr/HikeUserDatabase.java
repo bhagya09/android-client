@@ -123,7 +123,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		String create = "CREATE TABLE IF NOT EXISTS " + DBConstants.USERS_TABLE
 				+ " ( "
 				+ DBConstants.ID + " STRING , " // Contact ID. Not used.
-				+ DBConstants.NAME + " TEXT, " // Contact name
+				+ DBConstants.NAME + " TEXT , " // Contact name
 				+ DBConstants.MSISDN + " TEXT COLLATE nocase, " // Contact normalised msisdn
 				+ DBConstants.ONHIKE + " INTEGER, " // Contact's on hike status
 				+ DBConstants.PHONE + " TEXT, " // Contact's phone number in the user's contacts DB
@@ -304,6 +304,15 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		if (oldVersion < 18)
 		{
 			db.execSQL(getHikeCallerTable());
+		}
+		if(oldVersion < 19)
+		{
+			//TODO : Handle migration 
+			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
+			db.execSQL(alter);
+
+			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
+			db.execSQL(alter);
 		}
 
 	}
