@@ -622,43 +622,36 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return 0;
 	}
 
-	void addBlockList(List<String> msisdns) throws DbException
+	public void addBlockList(List<String> msisdns)
 	{
-		if (msisdns == null)
-		{
+		Logger.d(TAG, "Going to insert into block into User Table");
+		if (Utils.isEmpty(msisdns)) {
 			return;
 		}
 
-		SQLiteDatabase db = mDb;
-		db.beginTransaction();
+		ContentValues cv = new ContentValues();
+		mDb.beginTransaction();
+		try {
+			for (String msisdn : msisdns) {
+				Logger.d(TAG, "Adding msisdb to block" + msisdn);
+				cv.put(DBConstants.MSISDN, msisdn);
+				cv.put(DBConstants.BLOCK_STATUS, DBConstants.STATUS_BLOCKED);
+				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
+				if (value == -1 || value == 0) {
 
-		InsertHelper ih = null;
-		try
-		{
-			ih = new InsertHelper(db, DBConstants.BLOCK_TABLE);
-			final int msisdnColumn = ih.getColumnIndex(DBConstants.MSISDN);
-			for (String msisdn : msisdns)
-			{
-				ih.prepareForReplace();
-				ih.bind(msisdnColumn, msisdn);
-				ih.execute();
+					value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					Logger.d(TAG, "MSISDN BLOCKED" + msisdn + "result -->" + value + "INSERT EXECUTED");
+				} else {
+					Logger.d(TAG, "MSISDN BLOCKED" + msisdn + "result -->" + value + "UPDATE EXECUTED");
+				}
+
 			}
-			db.setTransactionSuccessful();
-		}
-		catch (Exception e)
-		{
-			Logger.e("HikeUserDatabase", "Unable to insert contacts", e);
-			throw new DbException(e);
-		}
-		finally
-		{
-			if (ih != null)
-			{
-				ih.close();
-			}
-			db.endTransaction();
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
 		}
 	}
+
 
 	/**
 	 * Sets the address book from the list of contacts Deletes any existing contacts from the db
@@ -671,11 +664,12 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		/* delete all existing entries from database */
 		mDb.delete(DBConstants.USERS_TABLE, null, null);
 
-		mDb.delete(DBConstants.BLOCK_TABLE, null, null);
+		//mDb.delete(DBConstants.BLOCK_TABLE, null, null);
 
 		addContacts(contacts, true);
 		addBlockList(blockedMsisdns);
 	}
+
 
 	private ContactInfo processContact(Cursor c)
 	{
@@ -1768,25 +1762,56 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 
 
-	void unblock(String msisdn)
+	public void unblock(String msisdn)
 	{
-		mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		ContentValues cv=new ContentValues();
+		cv.put(DBConstants.BLOCK_STATUS,DBConstants.STATUS_UNBLOCKED);
+		long value=mDb.update(DBConstants.USERS_TABLE,cv,DBConstants.MSISDN + "=?", new String[] { msisdn});
+		Logger.d(TAG,"Unblocked MSISDN= "+msisdn+"And the Value in DB is "+value);
+		//mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	void block(String msisdn)
 	{
-		ContentValues values = new ContentValues();
-		values.put(DBConstants.MSISDN, msisdn);
-		mDb.insert(DBConstants.BLOCK_TABLE, null, values);
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return;
+		}
+		List<String> blockedContact=new ArrayList(1);
+		blockedContact.add(msisdn);
+		addBlockList(blockedContact);
 	}
 
-	boolean isBlocked(String msisdn)
+	void unblockUID(String hikeUID)
 	{
+		if(TextUtils.isEmpty(hikeUID))
+		{
+			return;
+		}
+		ContentValues cv=new ContentValues();
+		cv.put(DBConstants.BLOCK_STATUS,DBConstants.STATUS_UNBLOCKED);
+		long value=mDb.update(DBConstants.USERS_TABLE,cv,DBConstants.HIKE_UID + "=?", new String[] { hikeUID});
+		Logger.d(TAG,"Unblocked UID= "+hikeUID+"And the Value in DB is "+value);
+		//mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { hikeUID });
+	}
+
+	public boolean isMsisdnBlocked(String msisdn)
+	{
+		if(TextUtils.isEmpty(msisdn))
+		{
+			return false;
+		}
 		Cursor c = null;
+		String isBlocked = DBConstants.STATUS_UNBLOCKED;
 		try
 		{
-			c = mDb.query(DBConstants.BLOCK_TABLE, null, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
-			return c.moveToFirst();
+			c = mDb.query(DBConstants.USERS_TABLE, new String[]{DBConstants.BLOCK_STATUS}, DBConstants.MSISDN + "=?", new String[]{msisdn}, null, null, null);
+
+			if (c.moveToFirst()) {
+				isBlocked = c.getString(c.getColumnIndex(DBConstants.BLOCK_STATUS));
+			}
+
+			return isBlocked.equals(DBConstants.STATUS_BLOCKED);
 		}
 		finally
 		{
@@ -1796,6 +1821,29 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			}
 		}
 	}
+
+	boolean isHUIDBlocked(String hikeUID)
+	{
+		if (TextUtils.isEmpty(hikeUID)) {
+			return false;
+		}
+		Cursor c = null;
+		String isBlocked = DBConstants.STATUS_UNBLOCKED;
+		try {
+			c = mDb.query(DBConstants.USERS_TABLE, new String[]{DBConstants.BLOCK_STATUS}, DBConstants.HIKE_UID + "=?", new String[]{hikeUID}, null, null, null);
+
+			if (c.moveToFirst()) {
+				isBlocked = c.getString(c.getColumnIndex(DBConstants.BLOCK_STATUS));
+			}
+
+			return isBlocked.equals(DBConstants.STATUS_BLOCKED);
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+	}
+
 
 	void setIcon(String msisdn, byte[] data, boolean isProfileImage)
 	{
@@ -2533,8 +2581,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			selection = null;
 			break;
 		}
-		selection += (selection == null ? "" : " AND ") + DBConstants.MSISDN + " NOT IN (SELECT " + DBConstants.BLOCK_TABLE + "." + DBConstants.MSISDN + " FROM "
-				+ DBConstants.BLOCK_TABLE + ")";
+		selection += (selection == null ? "" : " AND ") + DBConstants.BLOCK_STATUS + " = " + DBConstants.STATUS_UNBLOCKED;
 
 		Cursor c = null;
 		try
@@ -2693,7 +2740,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 		try
 		{
-			c = mReadDb.query(DBConstants.BLOCK_TABLE, new String[] { DBConstants.MSISDN }, null, null, null, null, null);
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.BLOCK_STATUS + "=?", new String[] { DBConstants.STATUS_BLOCKED}, null, null, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 
@@ -2701,7 +2748,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				blockedSet.add(c.getString(msisdnIdx));
 			}
-
+			Logger.d(TAG, "The Blocked Msisdns are " + blockedSet);
 			return blockedSet;
 		}
 		finally
