@@ -1,5 +1,6 @@
 package com.hike.abtest;
 
+import java.lang.annotation.Documented;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
@@ -8,6 +9,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.hike.abtest.dataPersist.DataPersist;
+import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
 
 /**
@@ -51,7 +53,6 @@ public class ABTest {
     private DataPersist getDataPersist() {
         return mDataPersist;
     }
-
     /**
      * Applies/Loads all the stored ABExperiments if available.
      *
@@ -60,12 +61,12 @@ public class ABTest {
      */
     public static void apply(Context context) {
         if(isInitialized.get()) {
-            Logger.e(TAG, "Already initialized!!!");
+            Logger.d(TAG, "Already initialized!!!");
             return;
         }
 
         mContext = context.getApplicationContext();
-        Logger.e(TAG, "Initializing now..");
+        Logger.d(TAG, "Initializing now..");
         getInstance().loadExperiments();
         isInitialized.getAndSet(true);
     }
@@ -195,15 +196,32 @@ public class ABTest {
 
     /**
      * Retrieve a ABExperiments associated with the variable, which can be logged as analytics
+     *  @param requestType type of the request received
+     *  @param requestPayload payload of the request received
      *
-     * @param requestPayload payload of the request received
-     *
+     *  @return returns true if the message is handled, false otherwise
      */
-    public static void onRequestReceived(String requestPayload) {
+    public static boolean onRequestReceived(String requestType, JSONObject requestPayload) {
+        boolean result = false;
         if(mContext == null) {
             Logger.d(TAG, "onRequestReceived, ABTesting not started, do nothing..");
-            return;
+            return result;
         }
-        UpdateExperimentService.onRequestReceived(mContext, requestPayload, getInstance().getDataPersist());
+
+        if(DataParser.isABTestMessage(requestType)) {
+            Logger.d(TAG,"requestType: " + requestType);
+            Logger.d(TAG,"requestPayload: " + requestPayload.toString());
+            try {
+                requestPayload = requestPayload.getJSONObject("md");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Logger.d(TAG, "AB Request Payload: " + requestPayload);
+            UpdateExperimentService.onRequestReceived(mContext, requestType, requestPayload.toString(),
+                    getInstance().getDataPersist());
+            result = true;
+        }
+
+        return result;
     }
 }
