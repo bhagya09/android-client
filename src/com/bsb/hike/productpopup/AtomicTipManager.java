@@ -47,7 +47,7 @@ public class AtomicTipManager
     private final int DEFAULT_BG_COLOR = R.color.credits_blue;
 
     //currentlyShowing is maintained primarily for handling click actions
-    private static AtomicTipContentModel currentlyShowing;
+    private AtomicTipContentModel currentlyShowing;
 
     private AtomicTipManager()
     {
@@ -56,7 +56,7 @@ public class AtomicTipManager
         currentlyShowing = null;
     }
 
-    public synchronized static AtomicTipManager getInstance()
+    public static AtomicTipManager getInstance()
     {
         return mAtomicTipManager;
     }
@@ -71,7 +71,7 @@ public class AtomicTipManager
             @Override
             public void run()
             {
-                tipContentModels = HikeContentDatabase.getInstance().getSavedAtomicTips();
+                tipContentModels.addAll(HikeContentDatabase.getInstance().getSavedAtomicTips());
             }
         });
     }
@@ -82,7 +82,15 @@ public class AtomicTipManager
     public void refreshTipsList()
     {
         Logger.d(TAG, "refreshing atomic tips list by resorting entries");
-        Collections.sort(tipContentModels, AtomicTipContentModel.tipsComparator);
+        mHandler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Collections.sort(tipContentModels, AtomicTipContentModel.tipsComparator);
+            }
+        });
+
     }
 
     /**
@@ -116,8 +124,56 @@ public class AtomicTipManager
         }
 
         //adding model to tips list and refreshing list
-        tipContentModels.add(tipContentModel);
+        addTipToList(tipContentModel);
         refreshTipsList();
+
+
+    }
+
+    /**
+     * Method to add new tip to arraylist on handler util thread
+     * @param tipContentModel
+     */
+    public void addTipToList(final AtomicTipContentModel tipContentModel)
+    {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run()
+            {
+                tipContentModels.add(tipContentModel);
+            }
+        });
+    }
+
+    /**
+     * Method to remove a tip from arraylist on handler util thread
+     * @param tipContentModel
+     */
+    public void removeTipFromList(final AtomicTipContentModel tipContentModel)
+    {
+        mHandler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                tipContentModels.remove(tipContentModel);
+            }
+        });
+    }
+
+    /**
+     * Method to clear tips arraylist on handler util thread
+     */
+    public void clearTipsList()
+    {
+        mHandler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                tipContentModels.clear();
+            }
+        });
     }
 
     /**
@@ -126,10 +182,10 @@ public class AtomicTipManager
     public void processFlushPacket()
     {
         //firing pub sub to remove any atomic tip currently visible to user
-        HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
+        removeTipFromView();
 
         //clearing tips list
-        tipContentModels.clear();
+        clearTipsList();
 
         //flushing tips table from DB
         flushTips();
@@ -285,17 +341,24 @@ public class AtomicTipManager
      */
     public void checkAndRemoveExpiredTips()
     {
-        Logger.d(TAG, "checking for and removing expired tips only");
-        Iterator tipIterator = tipContentModels.iterator();
-        while(tipIterator.hasNext())
+        Logger.d(TAG, "checking for and removing expired tips only - via handler");
+        mHandler.post(new Runnable()
         {
-            AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
-            if(isTipExpired(currentModel))
+            @Override
+            public void run()
             {
-                tipIterator.remove();
-                Logger.d(TAG, "expired atomic tip removed");
+                Iterator tipIterator = tipContentModels.iterator();
+                while(tipIterator.hasNext())
+                {
+                    AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
+                    if(isTipExpired(currentModel))
+                    {
+                        tipIterator.remove();
+                        Logger.d(TAG, "expired atomic tip removed");
+                    }
+                }
             }
-        }
+        });
     }
 
     /**
@@ -315,6 +378,10 @@ public class AtomicTipManager
         }
     }
 
+    /**
+     * Method to check if the currently showing tip is cancellable or not
+     * @return
+     */
     public boolean isTipCancellable()
     {
         return currentlyShowing.isCancellable();
@@ -358,8 +425,18 @@ public class AtomicTipManager
             BitmapDrawable bgDrawable = HikeMessengerApp.getLruCache().get(currentlyShowing.getBgImgKey());
             if(bgDrawable == null)
             {
-                Logger.d(TAG, "didn't find atomic tip background image in cache. setting default color as background");
-                tipView.findViewById(R.id.all_content).setBackgroundColor(HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(DEFAULT_BG_COLOR));
+                Logger.d(TAG, "didn't find atomic tip background image in cache. trying to recreate");
+                bgDrawable = createAndCacheBgImage(currentlyShowing);
+                if(bgDrawable == null)
+                {
+                    Logger.d(TAG, "failed to create atomic tip bg image. setting default color as background");
+                    tipView.findViewById(R.id.all_content).setBackgroundColor(HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(DEFAULT_BG_COLOR));
+                }
+                else
+                {
+                    Logger.d(TAG, "setting image as atomic tip background");
+                    tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+                }
             }
             else
             {
@@ -407,13 +484,14 @@ public class AtomicTipManager
 
             case ProductPopupsConstants.PopUpAction.DOWNLOAD_STKPK:
                 PlatformUtils.downloadStkPk(metadata);
+                removeTipFromView();
                 break;
 
             case ProductPopupsConstants.PopUpAction.ACTIVATE_CHAT_HEAD_APPS:
                 PlatformUtils.OnChatHeadPopupActivateClick();
+                removeTipFromView();
                 break;
         }
-        HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
     }
 
     /**
@@ -424,7 +502,7 @@ public class AtomicTipManager
         Logger.d(TAG, "processing atomic tip dismiss");
 
         //removing tip from list
-        tipContentModels.remove(currentlyShowing);
+        removeTipFromList(currentlyShowing);
 
         //updating tip status as DISMISSED so it can be cleaned
         updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue());
@@ -433,6 +511,14 @@ public class AtomicTipManager
         cleanTipsTable();
 
         currentlyShowing = null;
+    }
+
+    /**
+     * Method to fire pub sub to remove any active atomic tip from view.
+     */
+    public void removeTipFromView()
+    {
+        HikeMessengerApp.getPubSub().publish(HikePubSub.REMOVE_TIP, ConversationTip.ATOMIC_TIP);
     }
 
     /**
@@ -472,6 +558,7 @@ public class AtomicTipManager
         {
             e.printStackTrace();
         }
+        removeTipFromView();
     }
 
     /**
