@@ -94,6 +94,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
     private boolean isContactChooserFilter = false;
 
+	private boolean addFriendOption;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -229,7 +231,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_favorite), null, null, null);
+					tv.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
@@ -462,19 +464,28 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			if (showCheckbox)
 			{
-				holder.checkbox.setVisibility(View.VISIBLE);
-				if (selectedPeople.containsKey(contactInfo.getMsisdn()))
+				if (!contactInfo.isMyOneWayFriend()
+						&& Utils.isFavToFriendsMigrationAllowed()
+						&& !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn())
+						&& addFriendOption)
 				{
-
-					holder.checkbox.setChecked(true);
+					holder.addFriendIcon.setVisibility(View.VISIBLE);
+					holder.checkbox.setVisibility(View.GONE);
 				}
 				else
 				{
-					holder.checkbox.setChecked(false);
+					holder.addFriendIcon.setVisibility(View.GONE);
+					holder.checkbox.setVisibility(View.VISIBLE);
+					if (selectedPeople.containsKey(contactInfo.getMsisdn())){
+						holder.checkbox.setChecked(true);
+					} else {
+						holder.checkbox.setChecked(false);
+					}
 				}
 			}
 			else
 			{
+				holder.addFriendIcon.setVisibility(View.GONE);
 				holder.checkbox.setVisibility(View.GONE);
 			}
 		}
@@ -520,6 +531,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.status = (TextView) convertView.findViewById(R.id.last_seen);
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
+			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 			holder.onlineIndicator = (ImageView) convertView.findViewById(R.id.online_indicator);
 			convertView.setTag(holder);
 			break;
@@ -549,6 +561,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 			holder.statusMood = (ImageView) convertView.findViewById(R.id.status_mood);
 			holder.checkbox = (CheckBox) convertView.findViewById(R.id.checkbox);
 			holder.inviteText = (TextView) convertView.findViewById(R.id.invite_Text);
+			holder.addFriendIcon = (ImageView) convertView.findViewById(R.id.add_friend);
 			holder.inviteIcon = (ImageView) convertView.findViewById(R.id.invite_icon);
 			convertView.setTag(holder);
 			break;
@@ -577,6 +590,8 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ImageView inviteIcon;
 		
 		RecyclerView recyclerView;
+
+		ImageView addFriendIcon;
 	}
 
 	@Override
@@ -727,7 +742,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		ContactInfo friendsSection = null;
 		if (!filteredFriendsList.isEmpty())
 		{
-			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+			friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
 		}
 		updateFriendsList(friendsSection, false, false);
 	}
@@ -766,6 +781,11 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 	{
 		this.showCheckbox = showCheckbox;
 
+	}
+
+	public void provideAddFriend(boolean addFriend)
+	{
+		this.addFriendOption = addFriend;
 	}
 
 	public ArrayList<ContactInfo> getAllSelectedContacts()
@@ -846,7 +866,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		// to add new section and number for user typed number
 		String text = constraint.toString().trim();
 	
-		if (isIntegers(text) && !isContactChooserFilter)
+		if (isIntegers(text))
 		{
 			newContactsList = new ArrayList<ContactInfo>();
 			ContactInfo section = new ContactInfo(SECTION_ID, null, context.getString(R.string.compose_chat_other_contacts), null);
@@ -960,7 +980,7 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		}
 		notifyDataSetChanged();
 	}
-	
+
 	public void preSelectContacts(HashSet<String> ... preSelectedMsisdnSets){
 		int total = preSelectedMsisdnSets.length;
 		for(int i=0;i<total;i++){
@@ -983,7 +1003,15 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 				{
 					if(contactInfo.isOnhike())
 					{
-						selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						if (Utils.isFavToFriendsMigrationAllowed() && !OneToNConversationUtils.isOneToNConversation(contactInfo.getMsisdn()))
+						{
+							if (contactInfo.isMyOneWayFriend())
+								selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						}
+						else
+						{
+							selectedPeople.put(contactInfo.getMsisdn(), contactInfo);
+						}
 					}
 				}
 			}

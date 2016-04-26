@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1639"
-    android:versionName="4.2.0.82.18.internal_release" >
+    android:versionCode="1655"
+    android:versionName="4.2.5.82.105.3.homescreen" >
 
-    <uses-sdk
+   <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
         tools:overrideLibrary = "android.support.customtabs"/>
@@ -136,6 +136,7 @@
             </intent-filter>
         </service>
         <service android:name=".service.UpgradeIntentService" />
+        <service android:name=".spaceManager.StorageSpecIntentService" />
         <service android:name=".GCMIntentService" />
         <activity
             android:name=".ui.HomeActivity"
@@ -255,8 +256,6 @@
             android:name=".ui.TellAFriend"
             android:launchMode="singleTop" >
         </activity>
-        <activity android:name=".ui.LanguageSettingsActivity" >
-        </activity>
         <activity android:name=".ui.SettingsActivity" 
                   android:configChanges="orientation|screenSize">            
         </activity>
@@ -309,6 +308,10 @@
         <activity
             android:name="com.bsb.hike.ui.StickerSettingsActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
+        <activity
+            android:name=".modules.packPreview.PackPreviewActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ui.FileSelectActivity"
@@ -542,6 +545,8 @@
         <service android:name=".service.SimpleWakefulService" >
         </service>
 
+        <service android:name=".service.HikeMicroAppsCodeMigrationService" />
+
 		<receiver android:name=".service.ScreenOnOffReceiver" >
         </receiver>
         
@@ -608,6 +613,9 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.hike.abtest.UpdateExperimentService"
+            android:exported="false" />
 </application>
 
 </manifest>

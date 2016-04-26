@@ -16,7 +16,6 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:atx="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/parentView"
@@ -88,13 +87,13 @@
                 android:layout_height="wrap_content"
 				android:layout_gravity="center"
                 android:layout_marginBottom="18dp"
+                android:password="true"
                 android:background="@drawable/bg_stealth_pin"
                 android:ellipsize="start"
                 android:focusable="true"
                 android:gravity="center|center_vertical|center_horizontal"
-                android:inputType="phone"
+                android:inputType="numberPassword"
                 android:maxLength="4"
-                atx:charInputMaxLength="4"
                 android:maxLines="1"
                 android:minEms="8"
                 android:paddingTop="9dp"

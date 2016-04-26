@@ -860,7 +860,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (clientPartner == null) 
 		{
 			// AND-1247
-			// getSherlockActivity().finish();
 			Logger.w(tag, "Partner client info is null. Returning.");
 			return;
 		}

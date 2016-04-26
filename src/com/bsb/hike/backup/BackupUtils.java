@@ -12,7 +12,6 @@ import java.nio.channels.FileChannel;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
-import android.os.Environment;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -219,5 +218,16 @@ public class BackupUtils
 		{
 			closeChannelsAndStreams(br);
 		}
+	}
+
+	public static boolean isSharedPrefFile(String prefName)
+	{
+		if (HikeMessengerApp.ACCOUNT_SETTINGS.equals(prefName)
+				|| HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF.equals(prefName)
+				|| HikeMessengerApp.DEFAULT_SETTINGS_PREF.equals(prefName))
+		{
+			return true;
+		}
+		return false;
 	}
 }
