@@ -1149,7 +1149,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
 				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
-				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0 " //
+				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0, " //
+				+ DBConstants.MUTE_END_TIME + " INTEGER "
 				+ ")";
 	}
 
@@ -4964,6 +4965,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_MUTE, mute.isMute());
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
 		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute());
+		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
+		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
 		mDb.updateWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[]{mute.getMsisdn()}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
