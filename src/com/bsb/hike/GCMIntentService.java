@@ -162,6 +162,10 @@ public class GCMIntentService extends GCMBaseIntentService
 				break;
 			}
 		}
+		else
+		{
+			Logger.d(TAG, "both GCM ids are same " + regId);
+		}
 	}
 
 	@Override
