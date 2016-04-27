@@ -512,7 +512,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					/*
 					 * We add to favorites this reference. So should set the favorite type here.
 					 */
-					Cursor favoriteCursor = mDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + "=?",
+					Cursor favoriteCursor = mDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + "=?",
 							new String[] { contact.getMsisdn() }, null, null, null);
 					try
 					{
