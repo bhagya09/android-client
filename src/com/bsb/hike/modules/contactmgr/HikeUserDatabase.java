@@ -1024,15 +1024,16 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	private Map<String, FavoriteType> getFavoriteMap()
+	public Map<String, FavoriteType> getFavoriteMap()
 	{
 		Cursor c = null;
 
-		Map<String, FavoriteType> favMap = new HashMap<String, FavoriteType>();
+		Map<String, FavoriteType> favMap = new HashMap<>();
 
 		try
 		{
-			c = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, null, null, null, null, null);
+			String selection = DBConstants.FAVORITE_TYPE + " > ?";
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, selection, new String[]{String.valueOf(FavoriteType.NOT_FRIEND.ordinal())}, null, null, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 			int favoriteTypeIdx = c.getColumnIndex(DBConstants.FAVORITE_TYPE);
