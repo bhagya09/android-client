@@ -1,6 +1,5 @@
 package com.bsb.hike.ui;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -181,14 +180,13 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         {
             Utils.hideSoftKeyboard(getApplicationContext(), shopSearchMenuItem.getActionView());
             showSearchFragment();
-            stickerShopSearchFragment.onQueryTextSubmit(query);
-            return true;
+            return stickerShopSearchFragment.onQueryTextSubmit(query);
         }
 
         @Override
-        public boolean onQueryTextChange(String newText)
+        public boolean onQueryTextChange(String query)
         {
-            return false;
+            return stickerShopSearchFragment.onQueryTextSubmit(query);
         }
     };
 
@@ -242,32 +240,28 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         });
 
 		Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
-		pulse.setRepeatCount(Animation.INFINITE);
-		pulse.setAnimationListener(new Animation.AnimationListener()
-		{
+        pulse.setRepeatCount(Animation.INFINITE);
+        pulse.setAnimationListener(new Animation.AnimationListener() {
             int count = 1;
-			@Override
-			public void onAnimationStart(Animation animation)
-			{
 
-			}
+            @Override
+            public void onAnimationStart(Animation animation) {
 
-			@Override
-			public void onAnimationEnd(Animation animation)
-			{
+            }
 
-			}
+            @Override
+            public void onAnimationEnd(Animation animation) {
 
-			@Override
-			public void onAnimationRepeat(Animation animation)
-			{
-                if(count++ % 2 !=0)
-                {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                if (count++ % 2 != 0) {
                     searchLayout.setPressed(true);
                     searchLayout.setPressed(false);
                 }
-			}
-		});
+            }
+        });
 
 		searchIcon.startAnimation(pulse);
 
