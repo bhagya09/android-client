@@ -2651,34 +2651,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public Map<String, FavoriteType> fetchFavoriteTypeMap()
-	{
-		Cursor c = null;
-		Map<String, FavoriteType> favoriteTypeMap = new HashMap<String, ContactInfo.FavoriteType>();
-
-		try
-		{
-			c = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, null, null, null, null, null);
-
-			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-			int favTypeIdx = c.getColumnIndex(DBConstants.FAVORITE_TYPE);
-
-			while (c.moveToNext())
-			{
-				favoriteTypeMap.put(c.getString(msisdnIdx), FavoriteType.values()[c.getInt(favTypeIdx)]);
-			}
-
-			return favoriteTypeMap;
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
+	
 	public Set<String> getBlockedMsisdnSet()
 	{
 		Cursor c = null;
