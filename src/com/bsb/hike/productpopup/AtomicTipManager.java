@@ -669,8 +669,16 @@ public class AtomicTipManager
         public void onRequestFailure(HttpException httpException)
         {
             Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
-            Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
-            Toast.makeText(hikeAppContext, hikeAppContext.getString(R.string.atomic_tip_http_failure), Toast.LENGTH_SHORT).show();
+            final Context hikeAppContext = HikeMessengerApp.getInstance().getApplicationContext();
+            Handler uiHandler = new Handler(hikeAppContext.getMainLooper());
+            uiHandler.post(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Toast.makeText(hikeAppContext, hikeAppContext.getString(R.string.atomic_tip_http_failure), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     };
 }
