@@ -1641,7 +1641,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		Cursor favoriteCursor = null;
 		try
 		{
-			favoriteCursor = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + " =? ", new String[] { number }, null,
+			favoriteCursor = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + " =? ", new String[] { number }, null,
 					null, null);
 
 			FavoriteType favoriteType = FavoriteType.NOT_FRIEND;
@@ -2011,24 +2011,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				extraInfo.close();
 			}
 			mDb.endTransaction();
-		}
-	}
-
-	public boolean isContactFavorite(String msisdn)
-	{
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN },
-					DBConstants.MSISDN + "=? AND " + DBConstants.FAVORITE_TYPE + "=" + FavoriteType.FRIEND.ordinal(), new String[] { msisdn }, null, null, null);
-			return c.moveToFirst();
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
 		}
 	}
 
