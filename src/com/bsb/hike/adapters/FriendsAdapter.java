@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class FriendsAdapter extends BaseAdapter implements OnClickListener, PinnedSectionListAdapter
 {
@@ -631,13 +632,13 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
         if(!showFilteredContacts)
         {
-            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(R.string.favorites_upper_case), FRIEND_PHONE_NUM);
+            friendsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredFriendsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends_upper_case : R.string.favorites_upper_case), FRIEND_PHONE_NUM);
             updateFriendsList(friendsSection, true, true);
         }
 
         if (isHikeContactsPresent())
 		{
-			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
+			hikeContactsSection = new ContactInfo(SECTION_ID, Integer.toString(filteredHikeContactsList.size()), context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn_upper_case : R.string.add_favorites_upper_case), CONTACT_PHONE_NUM);
 			updateHikeContactList(hikeContactsSection);
 		}
 		if (showSMSContacts)
@@ -751,7 +752,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 
 		if (hideSuggestions)
 		{
-			if (showAddFriendView && friendsList.isEmpty())
+			if (!Utils.isFavToFriendsMigrationAllowed() && showAddFriendView && friendsList.isEmpty())
 			{
 				if (TextUtils.isEmpty(queryText))
 				{
@@ -1419,7 +1420,14 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 					{
 						lastSeen.setVisibility(View.VISIBLE);
 						String infoSubText = context.getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-						lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							lastSeen.setText(context.getString(R.string.sent_you_friend_req));
+						}
+						else
+						{
+							lastSeen.setText(context.getString(R.string.sent_favorite_request_tab, infoSubText));
+						}
 
 						ImageView acceptBtn = viewHolder.acceptBtn;
 						ImageView rejectBtn = viewHolder.rejectBtn;
@@ -1430,11 +1438,16 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 						acceptBtn.setOnClickListener(acceptOnClickListener);
 						rejectBtn.setOnClickListener(rejectOnClickListener);
 
+						if (Utils.isFavToFriendsMigrationAllowed())
+						{
+							rejectBtn.setVisibility(View.GONE);
+						}
+
 					}
 					else if (viewType == ViewType.FTUE_CONTACT)
 					{
 						lastSeen.setVisibility(View.VISIBLE);
-						lastSeen.setText(R.string.ftue_favorite_subtext);
+						lastSeen.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.ftue_frn_subtext : R.string.ftue_favorite_subtext);
 
 						TextView addBtn = viewHolder.addBtn;
 
@@ -1453,7 +1466,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				if (viewType == ViewType.NOT_FRIEND_HIKE)
 				{
 					ImageView addFriend = viewHolder.addFriend;
-
+					viewHolder.addFriend.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite );
 					addFriend.setTag(contactInfo);
 					addFriend.setOnClickListener(this);
 				}
@@ -1489,7 +1502,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 				switch (contactInfo.getPhoneNum())
 				{
 				case FRIEND_PHONE_NUM:
-					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_section_header_favorite), null, null, null);
+					headerName.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_section_header_friends : R.drawable.ic_section_header_favorite), null, null, null);
 					break;
 
 				case CONTACT_PHONE_NUM:
@@ -1640,7 +1653,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 			return;
 		}
 
-		Utils.addFavorite(context, contactInfo, false);
+		Utils.addFavorite(context, contactInfo, false, HikeConstants.AddFriendSources.FRIENDS_SCREEN);
 	}
 
 	@Override
@@ -1705,7 +1718,7 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		{
 			ContactInfo contactInfo = (ContactInfo) v.getTag();
 
-			Utils.addFavorite(context, contactInfo, true);
+			Utils.addFavorite(context, contactInfo, true, HikeConstants.AddFriendSources.FRIENDS_SCREEN);
 
 			ContactInfo contactInfo2 = new ContactInfo(contactInfo);
 			
@@ -1735,6 +1748,10 @@ public class FriendsAdapter extends BaseAdapter implements OnClickListener, Pinn
 		HikeMessengerApp.getPubSub().publish(favoriteType == FavoriteType.FRIEND ? HikePubSub.FAVORITE_TOGGLED : HikePubSub.REJECT_FRIEND_REQUEST, favoriteAdded);
 
 		removeFromGroup(contactInfo, FRIEND_INDEX);
+		if (accept)
+		{
+			HikeAnalyticsEvent.recordAnalyticsForAddFriend(contactInfo.getMsisdn(), HikeConstants.AddFriendSources.FRIENDS_SCREEN, false); //req_acc
+		}
 	}
 
 	@Override

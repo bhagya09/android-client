@@ -117,6 +117,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public static final String WEBVIEW_MODE = "webviewMode";
 
 	public static final String INTERCEPT_URLS = "icpt_url";
+	
+	public static final String BACK_TO_ACTIVITY = "backToActivity";
 
 	public static final String URL_PARAMETER_STRING = "url_params";
 
@@ -167,9 +169,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	private String urlParams;
 
-	private  long time;
+	private long time;
 
 	private CustomTabActivityHelper mCustomTabActivityHelper;
+
+	private String isBackToActivity;
 	public static final String KEY_CUSTOM_TABS_MENU_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
 	public static final String EXTRA_CUSTOM_TABS_MENU_ITEMS = "android.support.customtabs.extra.MENU_ITEMS";
 	public static final String KEY_CUSTOM_TABS_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
@@ -196,6 +200,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		isShortcut = getIntent().getBooleanExtra(HikePlatformConstants.IS_SHORTCUT, false);
 		
 		setMode(getIntent().getIntExtra(WEBVIEW_MODE, WEB_URL_MODE));
+		
+		isBackToActivity =getIntent().getStringExtra( BACK_TO_ACTIVITY);
 
 		initInterceptUrls(getIntent().getStringExtra(INTERCEPT_URLS));
 
@@ -207,7 +213,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
 			{
 				setupCustomTabHelper();
 			}
@@ -518,11 +524,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
+            webView.clearWebViewCache(true);
 
 			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
 			{
 				webView.removeWebViewReferencesFromWebKit();
-				webView.clearWebViewCache(true);
 			}
 		}
 		
@@ -754,7 +760,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			color = R.color.blue_hike;
 		}
 		
-		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
+		updateActionBarColor(color !=-1 ? new ColorDrawable(getResources().getColor(color)) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		
 		setMicroAppStatusBarColor();
 		
@@ -795,7 +801,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 
 			@Override
-			public void onComplete(PlatformContentModel content)
+			public void onComplete(final PlatformContentModel content)
 			{
 				if(null != webView && null != content)
 				{
@@ -812,7 +818,12 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 					}
 
 					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
-					webView.loadMicroAppData(content.getFormedData());
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            webView.loadMicroAppData(content.getFormedData());
+                        }
+                    });
 				}
 			}
 		});
@@ -835,6 +846,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
+		if(isBackToActivity != null && isBackToActivity.equalsIgnoreCase("true")){
+			this.finish();
+			return;
+		}
+		
 		if ((mode == WEB_URL_MODE || mode == SERVER_CONTROLLED_WEB_URL_MODE) && webView.canGoBack())
 		{
 			webView.goBack();
@@ -1056,7 +1072,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	public void openFullPage(String url, String interceptUrlJson)
 	{
-		startWebViewWithBridge(url, "", interceptUrlJson);
+		startWebViewWithBridge(url, "", interceptUrlJson, null);
 	}
 	
 	@Override
@@ -1069,23 +1085,29 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	public void openFullPageWithTitle(String url, String title, String interceptUrlJson)
 	{
 
-		startWebViewWithBridge(url, title, interceptUrlJson);
+		startWebViewWithBridge(url, title, interceptUrlJson, null);
+	}
+	@Override
+	public void openFullPageWithTitle(String url, String title, String interceptUrlJson, String backToActivity)
+	{
+
+		startWebViewWithBridge(url, title, interceptUrlJson, backToActivity);
 	}
 	
 	private void startWebViewWithBridge(String url, String title)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
 		{
 			//TODO: Analytics impl
 			openCustomTab(url, title);
 		}
 		else
 		{
-			startWebViewWithBridge(url, title, null);
+			startWebViewWithBridge(url, title, null, null);
 		}
 	}
 
-	private void startWebViewWithBridge(String url, String title, String interceptUrlJson)
+	private void startWebViewWithBridge(String url, String title, String interceptUrlJson, String backToActivity)
 	{
 
 		if (TextUtils.isEmpty(title))
@@ -1106,6 +1128,10 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (!TextUtils.isEmpty(interceptUrlJson))
 		{
 			intent.putExtra(INTERCEPT_URLS, interceptUrlJson);
+		}
+		if (!TextUtils.isEmpty(backToActivity))
+		{
+			intent.putExtra(BACK_TO_ACTIVITY, backToActivity);
 		}
 
 		if (botConfig.isJSInjectorEnabled())
@@ -1201,7 +1227,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 	@Override
 	public void openUri(String url, String title) {
-		startWebViewWithBridge(url, title, null);
+		startWebViewWithBridge(url, title, null, null);
 	}
 
 
@@ -1530,6 +1556,9 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_NOTIF_TRACKER))
 		{
 			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_NOTIF_TRACKER));
+		}else if (getIntent() != null && getIntent().hasExtra(AnalyticsConstants.BOT_VIA_MENU))
+		{
+			PlatformUtils.recordBotOpenSource(msisdn, getIntent().getStringExtra(AnalyticsConstants.BOT_VIA_MENU));
 		}
 	}
 

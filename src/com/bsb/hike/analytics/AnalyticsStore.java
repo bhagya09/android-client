@@ -172,42 +172,11 @@ public class AnalyticsStore
 			@Override
 			public void run() {
 				long fileMaxSize = HAManager.getInstance().getMaxFileSize();
-				FileWriter normalFileWriter = null;
 				FileWriter highFileWriter = null;
-				StringBuilder normal = new StringBuilder();
 				StringBuilder high = new StringBuilder();
-
-				try {
-					JSONObject eventData = eventJson.getJSONObject(HikeConstants.DATA);
-
-					if (eventData.has(AnalyticsConstants.EVENT_PRIORITY)) {
-						EventPriority priority = (EventPriority) eventData.get(AnalyticsConstants.EVENT_PRIORITY);
-
-						if (priority == EventPriority.NORMAL) {
-							normal.append(eventJson);
-							normal.append(AnalyticsConstants.NEW_LINE);
-						} else if (priority == EventPriority.HIGH) {
-							high.append(eventJson);
-							high.append(AnalyticsConstants.NEW_LINE);
-						}
-					}
-
-					if (normal.length() > 0) {
-						if (!eventFileExists(EventPriority.NORMAL)) {
-							normalPriorityEventFile = createNewEventFile(EventPriority.NORMAL);
-						}
-
-						if (getFileSize(EventPriority.NORMAL) >= fileMaxSize) {
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "normal priority file size" +
-									" reached its limit! " + normalPriorityEventFile.getName());
-							compressAndDeleteOriginalFile(normalPriorityEventFile.getAbsolutePath());
-							normalPriorityEventFile = createNewEventFile(EventPriority.NORMAL);
-						}
-						normalFileWriter = new FileWriter(normalPriorityEventFile, true);
-						normalFileWriter.write(normal.toString());
-						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "events written to normal file! " +
-								"Size now :" + normalPriorityEventFile.length() + "bytes");
-					}
+				try{
+				    high.append(eventJson);
+				    high.append(AnalyticsConstants.NEW_LINE);
 
 					if (high.length() > 0) {
 						if (!eventFileExists(EventPriority.HIGH)) {
@@ -225,19 +194,12 @@ public class AnalyticsStore
 						Logger.d(AnalyticsConstants.ANALYTICS_TAG, "events written to imp file! Size " +
 								"now :" + highPriorityEventFile.length() + "bytes");
 					}
+				    HAManager.getInstance().incrementAnalyticsEventsUploadCount();
 				} catch (IOException e) {
 					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "io exception while writing events to" +
 							" file");
-				} catch (JSONException e) {
-					Logger.e(AnalyticsConstants.ANALYTICS_TAG, "json error");
-				} catch (ConcurrentModificationException e) {
-						Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Concurrent modification exception " +
-								"while writing the event: " + e.getMessage());
 				}
 				finally {
-					if (normalFileWriter != null) {
-						closeCurrentFile(normalFileWriter);
-					}
 					if (highFileWriter != null) {
 						closeCurrentFile(highFileWriter);
 					}
@@ -250,6 +212,11 @@ public class AnalyticsStore
 	 * Used to send events to Server
 	 */
 	protected void sendEvents() {
+		if(!Utils.isUserOnline(context)) {
+			HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(true);
+			return;
+		}
+
         mSingleThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {

@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
+import com.bsb.hike.utils.AccountUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -230,7 +232,24 @@ public class HAManager
 			return;
 		recordEvent(type, eventContext, priority, metadata, AnalyticsConstants.EVENT_TAG_MOB);		
 	}
-	
+
+	/**
+	 * Used to write analytics event to the file
+	 * @param eventJson event as JSONObject
+	 * @Sample: {"uk":"XXXXXX","k":"micro_app","c":"db_corrupt","fa":"db_error","f":"\"\\\/data\\\/data\\\/com.bsb.hike\\\/databases\\\/chats\"","ver":"v2"}
+	 * @NOTE: Below fields are mandatory
+	 *      1. AnalyticsConstants.V2.UNIQUE_KEY
+	 *      2. AnalyticsConstants.V2.KINGDOM
+	 *      3. AnalyticsConstants.V2.VERSION(This is added by the API itself)
+	 */
+	//TODO: choose better name
+	public void recordV2(JSONObject eventJson)
+	{
+		if(!isAnalyticsEnabled)
+			return;
+		recordEventV2(eventJson);
+	}
+
 	/**
 	 * Used to write the event onto the text file
 	 * @param type type of the event
@@ -251,6 +270,40 @@ public class HAManager
 
 		AnalyticsStore.getInstance(this.context).storeEvent(generateAnalticsJson(type, eventContext,
 				priority, metadata, tag));
+	}
+
+	/**
+	 * Used to write the event onto the text file
+	 * @param eventJson event data
+	 * @throws NullPointerException, IllegalArgumentException
+	 */
+	private synchronized void recordEventV2(JSONObject eventJson) throws NullPointerException, IllegalArgumentException
+	{
+		if(eventJson == null)
+		{
+			throw new NullPointerException("Event cannot be null.");
+		}
+		if(!eventJson.has(AnalyticsConstants.V2.UNIQUE_KEY) ||
+				!eventJson.has(AnalyticsConstants.V2.KINGDOM)) {
+			throw new IllegalArgumentException("AnalyticsConstants.V2.UNIQUE_KEY and AnalyticsConstants.V2.KINGDOM are Mandatory");
+		}
+		try {
+			if(!eventJson.has(AnalyticsConstants.V2.VERSION) ||
+                    !eventJson.getString(AnalyticsConstants.V2.VERSION).equals(AnalyticsConstants.V2.VERSION_VALUE))
+            {
+                eventJson.put(AnalyticsConstants.V2.VERSION, AnalyticsConstants.V2.VERSION_VALUE);
+            }
+			eventJson.put(AnalyticsConstants.V2.CTS, Utils.applyOffsetToMakeTimeServerSync(context, System.currentTimeMillis()));
+			eventJson.put(AnalyticsConstants.V2.RECORD_ID, fgSessionInstance.getSessionId());
+		} catch (JSONException e) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Error in Event Json, ignoring event...");
+			return;
+		}
+
+		eventJson = Utils.cloneJsonObject(eventJson);
+		Logger.d(AnalyticsConstants.ANALYTICS_TAG, eventJson.toString());
+
+		AnalyticsStore.getInstance(this.context).storeEvent(eventJson);
 	}
 
 	private synchronized void dumpInMemoryEventsAndTryToUpload(boolean sendNow, boolean isOnDemandFromServer)
@@ -494,7 +547,7 @@ public class HAManager
 	 */
 	public void sendAnalyticsData(boolean sendNow, boolean isOnDemandFromServer)
 	{
-		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);		
+		dumpInMemoryEventsAndTryToUpload(sendNow, isOnDemandFromServer);
 	}	
 	
 	/**
@@ -559,8 +612,17 @@ public class HAManager
 		//HAManager.getInstance().record(AnalyticsConstants.SESSION_EVENT, AnalyticsConstants.BACKGROUND, EventPriority.HIGH, metadata, AnalyticsConstants.EVENT_TAG_SESSION);
 
 		fgSessionInstance.reset();
-		
+
+		uploadAnalyticsIfReqd();
 		return metadata; 
+	}
+
+	private void uploadAnalyticsIfReqd() {
+		if(getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) >
+				AnalyticsConstants.DEFAULT_THRESHOLD_EVENTS_TO_UPLOAD) {
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "----Uploading events on Session end----");
+			sendAnalyticsData(true, false);
+		}
 	}
 
 	private JSONObject getMetaDataForSession( Session session, boolean sessionStart)
@@ -652,13 +714,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsNonUIEvent(String eventKey, String numberType, String msisdn, String status, String source)
+	public void stickyCallerAnalyticsNonUIEvent(String eventType, String numberType, String msisdn, String status, String source)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.NUMBER_TYPE, numberType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.STATUS, status);
@@ -672,13 +734,13 @@ public class HAManager
 
 	}
 	
-	public void stickyCallerAnalyticsUIEvent(String eventKey, String msisdn, String source, String callType)
+	public void stickyCallerAnalyticsUIEvent(String eventType, String msisdn, String source, String callType)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(HikeConstants.EVENT_TYPE, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_KEY, eventKey);
+			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
+			metadata.put(HikeConstants.EVENT_TYPE, eventType);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);
@@ -724,7 +786,7 @@ public class HAManager
 		}
 		catch (JSONException e)
 		{
-			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" +e.toString());
+			Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "intercept analytics event exception:" + e.toString());
 		}
 	}
 	
@@ -855,6 +917,7 @@ public class HAManager
 	{
 		JSONObject metadata;
         ChatSession chatSession = fgSessionInstance.getIndividualChatSesions(msisdn);
+        fgSessionInstance.removeChatSessionFromMap(msisdn);
 		try
 		{
 			if (chatSession != null)
@@ -1064,7 +1127,7 @@ public class HAManager
 		} 
 		catch (JSONException e) 
 		{
-			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:",e);
+			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "Invalid json:", e);
 		}
 
 	}
@@ -1124,5 +1187,18 @@ public class HAManager
 		Editor editor = getPrefs().edit();
 	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
 	    editor.apply();
+	}
+
+	public void resetAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0);
+		sharedPrefEditor.commit();
+	}
+
+	public void incrementAnalyticsEventsUploadCount() {
+		SharedPreferences.Editor sharedPrefEditor = getPrefs().edit();
+		sharedPrefEditor.putInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT,
+				getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) + 1);
+		sharedPrefEditor.commit();
 	}
 }

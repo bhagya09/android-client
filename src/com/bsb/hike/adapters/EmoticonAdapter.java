@@ -10,12 +10,11 @@ import android.widget.GridView;
 
 import com.bsb.hike.R;
 import com.bsb.hike.media.EmoticonPickerListener;
-import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.view.StickerEmoticonIconPageIndicator.StickerEmoticonIconPagerAdapter;
+import com.viewpagerindicator.IconPagerAdapter;
 
-public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIconPagerAdapter
+public class EmoticonAdapter extends PagerAdapter implements IconPagerAdapter
 {
 
 	public final int MAX_EMOTICONS_PER_ROW;
@@ -106,18 +105,6 @@ public class EmoticonAdapter extends PagerAdapter implements StickerEmoticonIcon
 		return categoryResIds[index];
 	}
 
-	@Override
-	public boolean isUpdateAvailable(int index)
-	{
-		return false;
-	}
-
-	@Override
-	public StickerCategory getCategoryForIndex(int index)
-	{
-		return null;
-	}
-	
 	/**
 	 * This is to update the recent emoticons palette, because of caching.
 	 * 

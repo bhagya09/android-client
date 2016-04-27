@@ -4,17 +4,13 @@ import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -22,8 +18,8 @@ import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.RecordActivityOpenTime;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.productpopup.DialogPojo;
@@ -34,8 +30,6 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.HikeBaseActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.utils.HikeUiHandler.IHandlerCallback;
-
-import java.util.Locale;
 
 public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implements Listener,IHandlerCallback
 {
@@ -50,6 +44,7 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	
 	private boolean isActivityVisible = false;
 
+	private RecordActivityOpenTime recordActivityOpenTime =null;
 	/**
 	 * 
 	 * @param msg
@@ -79,10 +74,24 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		startRecordTime();
 		HikeAppStateUtils.onCreate(this);
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.DB_CORRUPT, this);
 		super.onCreate(savedInstanceState);
 	}
+
+	private void startRecordTime()
+	{
+		recordActivityOpenTime =new RecordActivityOpenTime(this.getClass().getSimpleName());
+		if(recordActivityOpenTime.shouldStart()) {
+			recordActivityOpenTime.startRecording();
+		}
+		else
+		{
+			recordActivityOpenTime=null;
+		}
+	}
+
 
 	@Override
 	protected void onResume()
@@ -376,6 +385,17 @@ public class HikeAppStateBaseFragmentActivity extends HikeBaseActivity implement
 		return isActivityVisible;
 	}
 
+	protected void recordActivityEndTime()
+	{
+		if(recordActivityOpenTime ==null)
+		{
+			return;
+		}
+		recordActivityOpenTime.stopRecording();
+		recordActivityOpenTime.dumpAnalytics();
+		recordActivityOpenTime.onDestroy();
+		recordActivityOpenTime = null;
+	}
 	private boolean amIHomeActivity()
 	{
 		return (HikeAppStateBaseFragmentActivity.this instanceof HomeActivity);

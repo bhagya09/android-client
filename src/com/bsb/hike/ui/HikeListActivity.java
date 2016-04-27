@@ -30,9 +30,6 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
@@ -41,11 +38,6 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -67,13 +59,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener, 
-		AdaptxtKeyboordVisibilityStatusListner
+public class HikeListActivity extends HikeAppStateBaseFragmentActivity implements OnItemClickListener
 {
 
 	private enum Type
@@ -107,10 +97,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 	private ImageView backIcon;
 	
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-
 	List<Pair<AtomicBoolean, ContactInfo>> firstSectionList;
 
 	private boolean calledFromFTUE = false;
@@ -146,12 +132,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 
 		findViewById(android.R.id.empty).setVisibility(View.GONE);
 
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-		if (!systemKeyboard)
-		{
-			initCustomKeyboard();
-		}
-		
 		switch (type)
 		{
 		case BLOCK:
@@ -168,35 +148,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.INVITE_SMS.ordinal());
 	}
 
-	private void initCustomKeyboard()
-	{
-		View keyboardView = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(HikeListActivity.this, keyboardView, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, HikeListActivity.this);
-		mCustomKeyboard.registerEditText(R.id.input_number);
-		mCustomKeyboard.init(input);
-		input.setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				if (mCustomKeyboard.isCustomKeyboardVisible())
-				{
-					return;
-				}
-				mCustomKeyboard.showCustomKeyboard(input, true);
-				KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
-			}
-		});
-	}
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			mCustomKeyboard.showCustomKeyboard(input, false);
-		}
-	};
 	private void init()
 	{
 		if (type != Type.BLOCK)
@@ -527,8 +478,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	protected void onPause()
 	{
 		super.onPause();
-		KptUtils.pauseKeyboardResources(mCustomKeyboard, input);
-		KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
 		if(adapter != null)
 		{
 			adapter.getIconLoader().setExitTasksEarly(true);
@@ -540,7 +489,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		// TODO Auto-generated method stub
 		super.onResume();
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if(adapter != null)
 		{
 			adapter.getIconLoader().setExitTasksEarly(false);
@@ -551,7 +499,6 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	@Override
 	protected void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.input_number);
 		super.onDestroy();
 	}
 
@@ -651,6 +598,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
+			sendBlockAnalyticsOnBackAndSaveEvent(true);
 			finish();
 		}
 	}
@@ -788,76 +736,32 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	}
 
 	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
-	{
-		if (kptVisible)
-		{
-			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, height);
-		}
-		else
-		{
-			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
-		}
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(HikeListActivity.this, mCustomKeyboard);
-	}
-
-	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(input, false);
-			KptUtils.updatePadding(HikeListActivity.this, R.id.hike_list_parent_layout, 0);
-			return;
-		}
 		setResult(RESULT_OK);
 		super.onBackPressed();
+		sendBlockAnalyticsOnBackAndSaveEvent(false);
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);			
-		}
 		super.onConfigurationChanged(newConfig);
 	}
 
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
+	private void sendBlockAnalyticsOnBackAndSaveEvent(boolean isBlockChangesSaved) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.BLOCK_LIST_BACK_PRESS);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.BLOCK_LIST_BACK);
+			json.put(AnalyticsConstants.V2.VAL_INT, isBlockChangesSaved ? 1 : 0);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.toString();
+		}
 	}
 
 }

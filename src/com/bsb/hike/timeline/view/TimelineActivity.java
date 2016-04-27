@@ -61,6 +61,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import static com.bsb.hike.timeline.view.TimelineActivity.TimelineOpenSources.*;
 
 public class TimelineActivity extends HikeAppStateBaseFragmentActivity implements Listener
 {
@@ -93,6 +94,23 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	private boolean shouldOpenActivityFeed;
 
 	private boolean isFromNotif;
+
+	public static final String TIMELINE_SOURCE = "tl_source";
+
+	public static final class TimelineOpenSources
+	{
+		public static final int UNKNOWN = 0;
+
+		public static final int NOTIF = 1;
+
+		public static final int STATUS_UPDATE = 2;
+
+		public static final int COMPOSE_CHAT = 3;
+
+		public static final int HOME_ACTIVITY = 4;
+
+		public static final int PROFILE_PIC_FRAGMENT = 5;
+	}
 
 	@Override
 	public void onEventReceived(String type, Object object)
@@ -163,6 +181,8 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		{
 			fetchUnreadFeedsTask.execute();
 		}
+
+		sendTimeLineOpenAnalytics();
 	}
 
 	@Override
@@ -287,7 +307,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 			optionsList.add(new OverFlowMenuItem(getString(R.string.clear_timeline), 0, 0, R.string.clear_timeline));
 		}
 		
-		optionsList.add(new OverFlowMenuItem(getString(R.string.favourites), 0, 0, R.string.favourites));
+		optionsList.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friends : R.string.favourites), 0, 0, R.string.favourites));
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.my_profile), 0, 0, R.string.my_profile));
 
@@ -772,5 +792,48 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		int count = getSupportFragmentManager().getBackStackEntryCount();
 		return count == 0 ? true : false;
+	}
+
+	private void sendTimeLineOpenAnalytics()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.TIME_LINE_OPEN);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.TIME_LINE_OPEN);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.GENUS, getTimelineOpenSource(getIntent().getIntExtra(TIMELINE_SOURCE, UNKNOWN)));
+
+			HAManager.getInstance().recordV2(json);
+
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+
+	}
+
+	private String getTimelineOpenSource(int source)
+	{
+		switch (source)
+		{
+		case NOTIF:
+			return "notif";
+		case STATUS_UPDATE:
+			return "status_update";
+		case COMPOSE_CHAT:
+			return "compose_chat";
+		case HOME_ACTIVITY:
+			return "home_activity";
+		case PROFILE_PIC_FRAGMENT:
+			return "profile_pic_fragment";
+		default:
+			return "unknown";
+		}
 	}
 }

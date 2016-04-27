@@ -2,6 +2,7 @@ package com.bsb.hike.modules.httpmgr.retry;
 
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.FT_PRODUCTION_API;
 import static com.bsb.hike.modules.httpmgr.request.RequestConstants.POST;
 import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.PRODUCTION_API;
@@ -43,7 +44,9 @@ public class BasicRetryPolicy
 	/** The default back off multiplier. */
 	public static final float DEFAULT_BACKOFF_MULTIPLIER = 1f;
 
-	private int retryCount;
+	private int numOfRetries;
+
+	private int retryIndex;
 
 	private int retryDelay;
 
@@ -60,7 +63,7 @@ public class BasicRetryPolicy
 	 */
 	public BasicRetryPolicy()
 	{
-		this.retryCount = DEFAULT_RETRY_COUNT;
+		this.numOfRetries = DEFAULT_RETRY_COUNT;
 		this.retryDelay = DEFAULT_RETRY_DELAY;
 		this.backOffMultiplier = DEFAULT_BACKOFF_MULTIPLIER;
 	}
@@ -68,16 +71,16 @@ public class BasicRetryPolicy
 	/**
 	 * This constructor accepts three parameters which are used by the default retry policy
 	 * 
-	 * @param retryCount
+	 * @param numOfRetries
 	 *            number of retries
 	 * @param retryDelay
 	 *            delay between each retry
 	 * @param backOffMultiplier
 	 *            back off multiplier used to change delay between each retry
 	 */
-	public BasicRetryPolicy(int retryCount, int retryDelay, float backOffMultiplier)
+	public BasicRetryPolicy(int numOfRetries, int retryDelay, float backOffMultiplier)
 	{
-		this.retryCount = retryCount;
+		this.numOfRetries = numOfRetries;
 		this.retryDelay = retryDelay;
 		this.backOffMultiplier = backOffMultiplier;
 	}
@@ -93,9 +96,17 @@ public class BasicRetryPolicy
 		case PLATFORM_PRODUCTION_API:
 			this.hostUris = HttpManager.getPlatformProductionHostUris();
 			break;
+		case FT_PRODUCTION_API:
+			this.hostUris = HttpManager.getFtHostUris();
+			break;
 		default:
 			break;
 		}
+	}
+
+	public int getRetryIndex()
+	{
+		return retryIndex;
 	}
 
 	/**
@@ -103,9 +114,9 @@ public class BasicRetryPolicy
 	 * 
 	 * @return
 	 */
-	public int getRetryCount()
+	public int getNumOfRetries()
 	{
-		return retryCount;
+		return numOfRetries;
 	}
 
 	/**
@@ -149,7 +160,7 @@ public class BasicRetryPolicy
 	 */
 	protected void changeRetryParameters(RequestFacade requestFacade, HttpException ex)
 	{
-		retryCount--;
+		retryIndex++;
 		retryDelay = (int) (retryDelay * backOffMultiplier);
 	}
 
@@ -171,8 +182,14 @@ public class BasicRetryPolicy
 			handleUnknownHostException(requestFacade);
 			break;
 		default:
+			handleDefaultErrorCase(requestFacade, ex);
 			break;
 		}
+	}
+
+	protected void handleDefaultErrorCase(RequestFacade requestFacade, HttpException ex)
+	{
+
 	}
 
 	/**

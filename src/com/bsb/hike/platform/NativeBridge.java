@@ -578,7 +578,7 @@ public class NativeBridge
 			{
 				if (weakActivity != null)
 				{
-					Utils.createShortcut(weakActivity.get(), mBotInfo);
+					Utils.createShortcut(weakActivity.get(), mBotInfo, true);
 				}
 			}
 		});
