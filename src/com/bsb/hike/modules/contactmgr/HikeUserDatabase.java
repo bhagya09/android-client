@@ -137,7 +137,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
 				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
-				+ DBConstants.FAVORITE_TYPE + "TEXT 0 "
+				+ DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0 "
 				+ " )";
 
 		db.execSQL(create);
@@ -814,8 +814,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		try
 		{
 			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME, DBConstants.ONHIKE,
-					DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO, DBConstants.FAVORITE_TYPE_SELECTION,
-					DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN, DBConstants.PLATFORM_USER_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+					DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
+					DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN, DBConstants.PLATFORM_USER_ID ,DBConstants.FAVORITE_TYPE}, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 
 			contactInfos = extractContactInfo(c);
 		}
@@ -1278,7 +1278,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
 						DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
-						DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+						DBConstants.FAVORITE_TYPE, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
 						+ DBConstants.MSISDN + "!=" + DatabaseUtils.sqlEscapeString(myMsisdn) + " AND " + DBConstants.ONHIKE + "=1", null, DBConstants.MSISDN, null, null,
 						Integer.toString(limit));
 			}
@@ -1286,7 +1286,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME,
 						DBConstants.ONHIKE, DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO,
-						DBConstants.FAVORITE_TYPE_SELECTION, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
+						DBConstants.FAVORITE_TYPE, DBConstants.HIKE_JOIN_TIME, DBConstants.IS_OFFLINE, DBConstants.LAST_SEEN }, selectionBuilder.toString()
 						+ DBConstants.MSISDN + "!=" + DatabaseUtils.sqlEscapeString(myMsisdn) + " AND " + DBConstants.ONHIKE + "=1", null, DBConstants.MSISDN, null, null);
 			}
 			contactInfos = extractContactInfo(c, true);
