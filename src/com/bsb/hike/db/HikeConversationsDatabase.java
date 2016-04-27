@@ -4904,13 +4904,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public boolean isGroupMuted(String groupId)
+	public boolean isChatMuted(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID }, DBConstants.GROUP_ID + " = ? AND " + DBConstants.MUTE_GROUP + " = 1",
-					new String[] { groupId }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1",
+					new String[] { msisdn }, null, null, null);
+			return c.moveToFirst();
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public boolean shouldShowNotifForMutedChat(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1 AND " + DBConstants.MUTE_NOTIFICATION + " = 1",
+					new String[] { msisdn }, null, null, null);
 			return c.moveToFirst();
 		}
 		finally
