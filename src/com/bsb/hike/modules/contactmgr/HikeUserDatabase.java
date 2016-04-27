@@ -332,6 +332,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
 			db.execSQL(alter);
 
+			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
+			db.execSQL(alter);
+
+
 			for(String s: getIndexQueriesForV19())
 			{
 				db.execSQL(s);
