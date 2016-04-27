@@ -2206,76 +2206,60 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return contactList;
 	}
 
-	void setMultipleContactsToFavorites(JSONObject favorites)
-	{
-		SQLiteStatement insertStatement = null;
-		InsertHelper ih = null;
-		try
-		{
-			ih = new InsertHelper(mDb, DBConstants.FAVORITES_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.FAVORITE_TYPE + " ) "
-					+ " VALUES (?, ?)");
-			mDb.beginTransaction();
+	void setMultipleContactsToFavorites(JSONObject favorites) {
 
-			JSONArray msisdns = favorites.names();
-			if (msisdns == null)
-			{
-				return;
-			}
-			for (int i = 0; i < msisdns.length(); i++)
-			{
+		JSONArray msisdns = favorites.names();
+		if (msisdns == null) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+			for (int i = 0; i < msisdns.length(); i++) {
 				String msisdn = msisdns.optString(i);
 				JSONObject msisdnInfo = favorites.optJSONObject(msisdn);
 
 				FavoriteType favoriteType;
-				if (msisdnInfo.has(HikeConstants.PENDING))
-				{
+				if (msisdnInfo.has(HikeConstants.PENDING)) {
 					boolean pending = msisdnInfo.optBoolean(HikeConstants.PENDING);
 					favoriteType = pending ? FavoriteType.REQUEST_RECEIVED : FavoriteType.REQUEST_RECEIVED_REJECTED;
-				}
-				else if (msisdnInfo.has(HikeConstants.REQUEST_PENDING))
-				{
+				} else if (msisdnInfo.has(HikeConstants.REQUEST_PENDING)) {
 					boolean requestPending = msisdnInfo.optBoolean(HikeConstants.REQUEST_PENDING);
 					favoriteType = requestPending ? FavoriteType.REQUEST_SENT : FavoriteType.REQUEST_SENT_REJECTED;
-				}
-				else
-				{
+				} else {
 					favoriteType = FavoriteType.FRIEND;
 				}
 
 				ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn);
-				if (null != contactInfo)
-				{
+				if (null != contactInfo) {
 					ContactInfo updatedContact = new ContactInfo(contactInfo);
 					updatedContact.setFavoriteType(favoriteType);
 					ContactManager.getInstance().updateContacts(updatedContact);
 				}
+				ContentValues cv=new ContentValues();
+				cv.put(DBConstants.FAVORITE_TYPE,favoriteType.ordinal());
+				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
+				if (value == -1 || value == 0) {
 
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-				insertStatement.bindLong(ih.getColumnIndex(DBConstants.FAVORITE_TYPE), favoriteType.ordinal());
+					value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					Logger.d(TAG, "FAVOURITE TOGGLED" + msisdn + "result -->" + value + "INSERT EXECUTED");
+				} else {
+					Logger.d(TAG, "FAVOURITE TOGGLED" + msisdn + "result -->" + value + "UPDATE EXECUTED");
+				}
 
-				insertStatement.executeInsert();
 			}
 			mDb.setTransactionSuccessful();
 		}
 		finally
 		{
-			if (insertStatement != null)
-			{
-				insertStatement.close();
-			}
-			if (ih != null)
-			{
-				ih.close();
-			}
 			mDb.endTransaction();
 
-			if (favorites.length() > 0)
-			{
+			if (favorites.length() > 0) {
 				HikeMessengerApp.getPubSub().publish(HikePubSub.REFRESH_FAVORITES, null);
 			}
 		}
+
 	}
+
 
 	boolean hasIcon(String msisdn)
 	{
