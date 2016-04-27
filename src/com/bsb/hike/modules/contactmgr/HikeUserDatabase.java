@@ -832,21 +832,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			}
 			else
 			{
-				Cursor favoriteCursor = null;
-				try
-				{
-					favoriteCursor = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + " =? ", new String[] { msisdn },
-							null, null, null);
-
-					/*
-					 * Setting the favorite type for unknown contacts
-					 */
-					FavoriteType favoriteType = FavoriteType.NOT_FRIEND;
-					if (favoriteCursor.moveToFirst())
-					{
-						favoriteType = FavoriteType.values()[favoriteCursor.getInt(favoriteCursor.getColumnIndex(DBConstants.FAVORITE_TYPE))];
-					}
-
 					String name = null;
 					/*
 					 * Setting the hike bot name if the msisdn is a hikebot msisdn.
@@ -857,18 +842,10 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					}
 
 					ContactInfo contactInfo = new ContactInfo(msisdn, msisdn, name, msisdn, false);
-					contactInfo.setFavoriteType(favoriteType);
+					contactInfo.setFavoriteType(FavoriteType.NOT_FRIEND);
 					return contactInfo;
 				}
-				finally
-				{
-					if (favoriteCursor != null)
-					{
-						favoriteCursor.close();
-					}
-				}
 			}
-		}
 
 		return contactInfos.get(0);
 	}
