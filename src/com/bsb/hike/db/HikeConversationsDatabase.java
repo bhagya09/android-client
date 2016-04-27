@@ -4935,6 +4935,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.update(DBConstants.GROUP_INFO_TABLE, contentValues, DBConstants.GROUP_ID + "=?", new String[] { groupId });
 	}
 
+	public void toggleChatMute(Mute mute)
+	{
+		if (!ContactManager.getInstance().isConvExists(mute.getMsisdn()))
+		{
+			return;
+		}
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_MUTE, mute.isMute());
+		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
+		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute());
+
+		mDb.updateWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[]{mute.getMsisdn()}, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
 	public int setGroupName(String groupId, String groupname)
 	{
 		Cursor c = null;

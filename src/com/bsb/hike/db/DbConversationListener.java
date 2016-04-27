@@ -294,6 +294,8 @@ public class DbConversationListener implements Listener
 			String id = mute.getMsisdn();
 			boolean isMute = mute.isMute();
 
+			mConversationDb.toggleChatMute(mute);
+
 			if (BotUtils.isBot(id))
 			{
 				// TODO Do we have to do MQTT PUBLISH here?
