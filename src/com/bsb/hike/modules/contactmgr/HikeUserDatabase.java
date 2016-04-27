@@ -1225,46 +1225,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 	Map<String, ContactInfo> getAllContactInfo()
 	{
-		Cursor c = null;
-
-		Map<String, ContactInfo> contactMap = new LinkedHashMap<String, ContactInfo>();
-		Map<String, FavoriteType> favoriteMap = new HashMap<String, FavoriteType>();
-
-		try
-		{
-			contactMap = getSortedContactMap();
-			favoriteMap = getFavoriteMap();
-
-			for (Entry<String, ContactInfo> contactEntry : contactMap.entrySet())
-			{
-				String msisdn = contactEntry.getKey();
-				ContactInfo contact = contactEntry.getValue();
-				FavoriteType favType = favoriteMap.get(msisdn);
-				if (null != favType)
-				{
-					contact.setFavoriteType(favType);
-					favoriteMap.remove(msisdn);
-				}
-			}
-
-			for (Entry<String, FavoriteType> favTypeEntry : favoriteMap.entrySet())
-			{
-				String msisdn = favTypeEntry.getKey();
-				FavoriteType favType = favTypeEntry.getValue();
-				ContactInfo contact = new ContactInfo(msisdn, msisdn, null, msisdn);
-				contact.setFavoriteType(favType);
-				contactMap.put(msisdn, contact);
-			}
-			return contactMap;
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-
+		return getSortedContactMap();
 	}
 
 	List<ContactInfo> getAllContactsForSyncing()
@@ -1274,10 +1235,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		try
 		{
 			c = mReadDb.rawQuery("SELECT " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED
-					+ ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.HIKE_JOIN_TIME + ", "
+					+ ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.FAVORITE_TYPE + " , "
 					+ DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from " + DBConstants.USERS_TABLE, null);
 
-			Map<String, FavoriteType> favTypeMap = getFavoriteMap();
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
 			while (c.moveToNext())
 			{
@@ -1287,10 +1247,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					continue;
 				}
 				ContactInfo contact = processContact(c);
-				if (favTypeMap.containsKey(contact.getMsisdn()))
-				{
-					contact.setFavoriteType(favTypeMap.get(contact.getMsisdn()));
-				}
 				contacts.add(contact);
 			}
 			return contacts;
