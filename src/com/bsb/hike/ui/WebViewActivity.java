@@ -213,7 +213,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 
 		if (mode == MICRO_APP_MODE || mode == WEB_URL_BOT_MODE)
 		{
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
 			{
 				setupCustomTabHelper();
 			}
@@ -524,11 +524,11 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			webView.stopLoading();
 			webView.onActivityDestroyed();
+            webView.clearWebViewCache(true);
 
 			if (mode == SERVER_CONTROLLED_WEB_URL_MODE || mode == WEB_URL_MODE)
 			{
 				webView.removeWebViewReferencesFromWebKit();
-				webView.clearWebViewCache(true);
 			}
 		}
 		
@@ -760,7 +760,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			color = R.color.blue_hike;
 		}
 		
-		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
+		updateActionBarColor(color !=-1 ? new ColorDrawable(getResources().getColor(color)) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		
 		setMicroAppStatusBarColor();
 		
@@ -846,7 +846,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			}
 		}
 
-		if(isBackToActivity.equalsIgnoreCase("true")){
+		if(isBackToActivity != null && isBackToActivity.equalsIgnoreCase("true")){
 			this.finish();
 			return;
 		}
@@ -1096,7 +1096,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 	
 	private void startWebViewWithBridge(String url, String title)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, false) && Utils.isJellybeanOrHigher())
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikePlatformConstants.CUSTOM_TABS, true) && Utils.isJellybeanOrHigher())
 		{
 			//TODO: Analytics impl
 			openCustomTab(url, title);
