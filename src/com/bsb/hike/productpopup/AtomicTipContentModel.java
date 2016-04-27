@@ -129,7 +129,11 @@ public class AtomicTipContentModel
         if(tipCTAData != null)
         {
             this.ctaLink = tipCTAData.optJSONObject(HikeConstants.TIP_CTA_LINK).toString();
-            this.ctaAction = tipCTAData.optString(HikeConstants.MqttMessageTypes.ACTION, "");
+            this.ctaAction = tipCTAData.optString(HikeConstants.MqttMessageTypes.ACTION, AtomicTipManager.NO_CTA_ACTION);
+        }
+        else
+        {
+            this.ctaAction = AtomicTipManager.NO_CTA_ACTION;
         }
     }
 

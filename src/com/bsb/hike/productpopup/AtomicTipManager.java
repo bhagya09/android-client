@@ -50,6 +50,8 @@ public class AtomicTipManager
 
     private static final String TAG = "AtomicTipManager";
 
+    public static final String NO_CTA_ACTION = "noCtaAction";
+
     private final int DEFAULT_BG_COLOR = R.color.credits_blue;
 
     //currentlyShowing is maintained primarily for handling click actions
@@ -495,6 +497,10 @@ public class AtomicTipManager
 
             case ProductPopupsConstants.PopUpAction.ACTIVATE_CHAT_HEAD_APPS:
                 PlatformUtils.OnChatHeadPopupActivateClick();
+                removeTipFromView();
+                break;
+
+            case NO_CTA_ACTION:
                 removeTipFromView();
                 break;
         }
