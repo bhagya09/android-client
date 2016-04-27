@@ -5981,6 +5981,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		if ((view == mComposeView))
 		{
+			//CE-497:Samsung duos2, in landscape mode when DONE is pressed onHidden method isn't called
+			if(useWTRevamped && inProcessOfShowingPopup) inProcessOfShowingPopup = false;
 	     // On some phones (like: micromax A120) "actionId" always comes 0, so added one more optional check (view.getId() ==R.id.msg_compose) & (view.getId() ==R.id.search_text)
 			if ((actionId == EditorInfo.IME_ACTION_SEND)
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
@@ -6136,14 +6138,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onHidden()
 	{
-		if (useWTRevamped) {
-			//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
-			if (inProcessOfShowingPopup) {
-				inProcessOfShowingPopup = false;
-			} else if (!isKeyboardOpen() && !mShareablePopupLayout.isShowing()) { //CE-513
-				//In some devices onBackPressed is not called when the keyboard was open
-				if (isWalkieTalkieShowing()) dismissWalkieTalkie();
-			}
+		//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
+		if (useWTRevamped && inProcessOfShowingPopup) {
+			inProcessOfShowingPopup = false;
+		}
+	}
+
+	@Override
+	public void onHiddingPreviouslyShown(){
+		//CE-513: In some devices onBackPressed is not called when the keyboard was open
+		if (useWTRevamped && !isKeyboardOpen() && !mShareablePopupLayout.isShowing()) {
+			if (isWalkieTalkieShowing()) dismissWalkieTalkie();
 		}
 	}
 
