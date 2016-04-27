@@ -9,7 +9,6 @@ import android.database.DatabaseUtils;
 import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.BaseColumns;
@@ -492,7 +491,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				ih.bind(onHikeColumn, contact.isOnhike());
 				ih.bind(phoneColumn, contact.getPhoneNum());
 				ih.bind(platformIdColumn, contact.getPlatformId());
-				ih.bind(favouriteIdColumn,contact.getFavoriteType().ordinal());
+				ih.bind(favouriteIdColumn, contact.getFavoriteType() != null ? contact.getFavoriteType().ordinal() : FavoriteType.NOT_FRIEND.ordinal());
 				if (!isFirstSync)
 				{
 					String selection = Phone.CONTACT_ID + " =? " + " AND " + Phone.NUMBER + " =? ";
@@ -726,6 +725,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				c.getString(msisdnTypeIdx), c.getLong(lastMessagedIdx), c.getInt(hasCustomPhotoIdx) == 1, hikeJoinTime);
 		if (favoriteIdx != -1)
 		{
+			Logger.d(TAG,"Favoruite found"+c.getInt(favoriteIdx));
 			int favoriteTypeOrd = c.getInt(favoriteIdx);
 			contactInfo.setFavoriteType(FavoriteType.values()[favoriteTypeOrd]);
 		}
@@ -2136,42 +2136,20 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	void toggleContactFavorite(String msisdn, FavoriteType favoriteType)
-	{
+	void toggleContactFavorite(String msisdn, FavoriteType favoriteType) {
 		/*
 		 * If we are setting the type as not favorite, we'll remove the row itself.
 		 */
-		if (favoriteType == FavoriteType.NOT_FRIEND)
-		{
-			mDb.delete(DBConstants.FAVORITES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
-			return;
-		}
-
-		SQLiteStatement insertStatement = null;
-		InsertHelper ih = null;
-		try
-		{
-			ih = new InsertHelper(mDb, DBConstants.FAVORITES_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.FAVORITE_TYPE + " ) "
-					+ " VALUES (?, ?)");
-			mDb.beginTransaction();
-			insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-			insertStatement.bindLong(ih.getColumnIndex(DBConstants.FAVORITE_TYPE), favoriteType.ordinal());
-
-			insertStatement.executeInsert();
-			mDb.setTransactionSuccessful();
-		}
-		finally
-		{
-			if (insertStatement != null)
-			{
-				insertStatement.close();
-			}
-			if (ih != null)
-			{
-				ih.close();
-			}
-			mDb.endTransaction();
+		ContentValues cv = new ContentValues();
+		Logger.d(TAG, "Adding msisdb to favourite" + msisdn);
+		cv.put(DBConstants.MSISDN, msisdn);
+		cv.put(DBConstants.FAVORITE_TYPE, favoriteType.ordinal());
+		long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
+		if (value == -1 || value == 0) {
+			value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+			Logger.d(TAG, "MSISDN FAVOUTITE" + msisdn + "result -->" + value + "INSERT EXECUTED");
+		} else {
+			Logger.d(TAG, "MSISDN FAVOURITE" + msisdn + "result -->" + value + "UPDATE EXECUTED");
 		}
 	}
 
