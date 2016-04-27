@@ -132,14 +132,16 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-		MigrateBlockTableToUserTable migrateBlockTableToUserTable = new MigrateBlockTableToUserTable();
-		try {
-			boolean result = migrateBlockTableToUserTable.call();
-			if (result) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
+		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1) == 1) {
+			MigrateBlockTableToUserTable migrateBlockTableToUserTable = new MigrateBlockTableToUserTable();
+			try {
+				boolean result = migrateBlockTableToUserTable.call();
+				if (result) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 2);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes

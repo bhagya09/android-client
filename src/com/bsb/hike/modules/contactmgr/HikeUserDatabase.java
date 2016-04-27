@@ -339,6 +339,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			{
 				db.execSQL(s);
 			}
+			// Need to migrate the DBs in upgradeIntentService
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER,1);
 		}
 
 	}
