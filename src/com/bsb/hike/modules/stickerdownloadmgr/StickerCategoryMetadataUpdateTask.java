@@ -51,7 +51,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 				if (createList.size() == createPackListPageSize)
 				{
 					StickerManager.getInstance().executeFetchCategoryMetadataTask(createList);
-					createList.clear();
+					createList = new ArrayList<>();
 				}
 			}
 			else
@@ -60,7 +60,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 				if (updateList.size() == updatePackListPageSize)
 				{
 					StickerManager.getInstance().executeFetchCategoryMetadataTask(updateList);
-					updateList.clear();
+					updateList = new ArrayList<>();
 				}
 			}
 		}

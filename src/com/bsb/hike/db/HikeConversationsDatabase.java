@@ -7831,9 +7831,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
 				contentValues.put(DBConstants.AUTHOR, category.getAuthor());
 				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
-				contentValues.put(DBConstants.IS_DISABLED, category.isDisabled());
-				contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
-				contentValues.put(DBConstants.UCID, category.getUcid());
+				if (!insertInShopTable)
+				{
+					contentValues.put(DBConstants.IS_DISABLED, category.isDisabled());
+					contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
+					contentValues.put(DBConstants.UCID, category.getUcid());
+				}
 				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{category.getCategoryId()});
 				if(rowsAffected <= 0)
 				{
@@ -7841,9 +7844,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				}
 				if (insertInShopTable)
 				{
-					contentValues.remove(DBConstants.IS_DISABLED);
-					contentValues.remove(DBConstants.UPDATED_METADATA_TIMESTAMP);
-					contentValues.remove(DBConstants.UCID);
 					mDb.insertWithOnConflict(DBConstants.STICKER_SHOP_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 				}
 			}
@@ -7862,14 +7862,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public int updateIsPackMetadataUpdated(List<StickerCategory> list)
 	{
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(DBConstants.IS_PACK_METADATA_UPDATED, 1);
-		ArrayList<String> arrayList = new ArrayList<>(list.size());
-		for(StickerCategory stickerCategory : list)
+		try
 		{
-			arrayList.add(Integer.toString(stickerCategory.getUcid()));
+			if (!Utils.isEmpty(list))
+			{
+				ContentValues contentValues = new ContentValues();
+				contentValues.put(DBConstants.IS_PACK_METADATA_UPDATED, 1);
+				ArrayList<String> arrayList = new ArrayList<>(list.size());
+				for (StickerCategory stickerCategory : list)
+				{
+					arrayList.add(Integer.toString(stickerCategory.getUcid()));
+				}
+				return mDb.update(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, contentValues,
+						DBConstants.UCID + " IN " + Utils.valuesToCommaSepratedString(arrayList), null);
+			}
 		}
-		return mDb.update(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, contentValues,  DBConstants.IS_PACK_METADATA_UPDATED + " IN " + Utils.valuesToCommaSepratedString(arrayList), null);
+		catch (Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Exception in isstatusupdated Pack", e);
+		}
+		return -1;
 	}
 
 	public void updateStickerCategoriesInDb(Collection<StickerCategory> stickerCategories)
