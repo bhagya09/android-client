@@ -60,12 +60,11 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
 
         //to fix
-		mAdapter = new StickerShopSearchAdapter(getActivity(),new ArrayList<StickerCategory>(),stickerCategoriesMap);
+		mAdapter = new StickerShopSearchAdapter(getActivity(), stickerCategoriesMap);
 
 		listview.setAdapter(mAdapter);
 		listview.setOnScrollListener(this);
 		listview.setOnItemClickListener(this);
-
 	}
 
 	@Override
@@ -117,6 +116,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	{
         loadingEmptyState.setVisibility(View.GONE);
         searchFailedState.setVisibility(View.GONE);
+        listview.setVisibility(View.VISIBLE);
         mAdapter.updateSearchresult(categories);
 	}
 

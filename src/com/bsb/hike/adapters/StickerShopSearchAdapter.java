@@ -32,12 +32,11 @@ public class StickerShopSearchAdapter extends BaseAdapter
 
     private StickerShopBaseAdapter stickerShopBaseAdapter;
 
-	public StickerShopSearchAdapter(Context context, List<StickerCategory> searchedCategories, Map<String, StickerCategory> stickerCategoriesMap)
+	public StickerShopSearchAdapter(Context context, Map<String, StickerCategory> stickerCategoriesMap)
 	{
 		this.mContext = context;
 		this.layoutInflater = LayoutInflater.from(context);
 		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
-		this.searchedCategories = searchedCategories;
         this.stickerCategoriesMap = stickerCategoriesMap;
         this.stickerShopBaseAdapter = new StickerShopBaseAdapter(context);
 	}
@@ -45,17 +44,18 @@ public class StickerShopSearchAdapter extends BaseAdapter
 	@Override
 	public String getItem(int position)
 	{
-		if (position < searchedCategories.size())
-		{
+		if(!Utils.isEmpty(searchedCategories) && position < searchedCategories.size())
+        {
 			return searchedCategories.get(position).getCategoryId();
 		}
+
 		return null;
 	}
 
 	@Override
 	public long getItemId(int position)
 	{
-		if (position < searchedCategories.size())
+		if (!Utils.isEmpty(searchedCategories) && position < searchedCategories.size())
 		{
 			searchedCategories.get(position).getCategoryId().hashCode();
 		}
@@ -102,7 +102,7 @@ public class StickerShopSearchAdapter extends BaseAdapter
 	@Override
 	public int getCount()
 	{
-		if (Utils.isEmpty(searchedCategories))
+		if (!Utils.isEmpty(searchedCategories))
 		{
 			return searchedCategories.size();
 		}

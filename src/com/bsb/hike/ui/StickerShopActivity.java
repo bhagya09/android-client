@@ -186,7 +186,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         @Override
         public boolean onQueryTextChange(String query)
         {
-            return stickerShopSearchFragment.onQueryTextSubmit(query);
+            return false;
         }
     };
 

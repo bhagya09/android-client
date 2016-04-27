@@ -1651,7 +1651,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
             Logger.i(TAG, "Searching \"" + matchKey + "\" in " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH );
 
-			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH " + matchKey, null, null, null,
+			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH '" + matchKey + "'", null, null, null,
 					null);
 
             count = ((c == null) ? 0 : c.getCount());
@@ -2029,7 +2029,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		try
 		{
 			String whereConditionToUpdate = StickerSearchUtility.getSQLiteDatabaseMultipleConditionsWithANDSyntax(
-					new String[] { HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE }, new int[] { HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK });
+                    new String[]{HikeStickerSearchBaseConstants.STICKER_RECOGNIZER_CODE}, new int[]{HikeStickerSearchBaseConstants.SQLITE_NON_NULL_CHECK});
 
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_STICKER_TAG_MAPPING, new String[] { HikeStickerSearchBaseConstants.UNIQUE_ID,
 					HikeStickerSearchBaseConstants.STICKER_OVERALL_FREQUENCY }, whereConditionToUpdate, new String[] { stickerCode }, null, null, null);
