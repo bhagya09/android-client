@@ -53,7 +53,7 @@ public abstract class Conversation implements Comparable<Conversation>
 		return convInfo;
 	}
 
-	protected void setMute(Mute mute)
+	public void setMute(Mute mute)
 	{
 		convInfo.setMute(mute);
 	}
@@ -158,14 +158,14 @@ public abstract class Conversation implements Comparable<Conversation>
 		return convInfo.isMute();
 	}
 
-	public void setNotificationMuted(boolean muteNotification)
+	public void setShowNotifInMute(boolean muteNotification)
 	{
-		convInfo.setNotificationMuted(muteNotification);
+		convInfo.setShowNotifInMute(muteNotification);
 	}
 
-	public boolean isNotificationMuted()
+	public boolean shouldShowNotifInMute()
 	{
-		return convInfo.isNotificationMuted();
+		return convInfo.shouldShowNotifInMute();
 	}
 
 	public void setMuteDuration(int muteDuration)

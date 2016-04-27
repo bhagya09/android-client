@@ -1,25 +1,6 @@
 package com.bsb.hike.db;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -49,7 +30,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
-import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -75,6 +55,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -110,6 +91,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1070,26 +1052,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			String index = getChatPropertiesIndexCreateStatement();
 			db.execSQL(index);
-
-			String insert = "INSERT INTO " + DBConstants.CHAT_PROPERTIES_TABLE
-							+ "( "
-							+ DBConstants.MSISDN + ", "
-							+ DBConstants.BG_ID + ", "
-							+ DBConstants.BG_TIMESTAMP
-							+ " ) SELECT "
-							+ DBConstants.MSISDN + ", "
-							+ DBConstants.BG_ID + ", "
-							+ DBConstants.TIMESTAMP
-							+ " FROM " + DBConstants.CHAT_BG_TABLE;
-
-			db.execSQL(insert);
-
-			String dropIndex = "DROP INDEX IF EXISTS " + DBConstants.CHAT_BG_INDEX;
-			db.execSQL(dropIndex);
-
-			String drop = "DROP TABLE IF EXISTS " + DBConstants.CHAT_BG_TABLE;
-			db.execSQL(drop);
-
 		}
 	}
 
@@ -1187,7 +1149,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
 				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
-				+ DBConstants.MUTE_NOTIFICATION + "INTEGER DEFAULT 0" //
+				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0 " //
 				+ ")";
 	}
 
@@ -4942,13 +4904,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public boolean isGroupMuted(String groupId)
+	public boolean isChatMuted(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID }, DBConstants.GROUP_ID + " = ? AND " + DBConstants.MUTE_GROUP + " = 1",
-					new String[] { groupId }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1",
+					new String[] { msisdn }, null, null, null);
+			return c.moveToFirst();
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public boolean shouldShowNotifForMutedChat(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1 AND " + DBConstants.MUTE_NOTIFICATION + " = 1",
+					new String[] { msisdn }, null, null, null);
 			return c.moveToFirst();
 		}
 		finally
@@ -4971,6 +4951,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MUTE_GROUP, isMuted);
 
 		mDb.update(DBConstants.GROUP_INFO_TABLE, contentValues, DBConstants.GROUP_ID + "=?", new String[] { groupId });
+	}
+
+	public void toggleChatMute(Mute mute)
+	{
+		if (!ContactManager.getInstance().isConvExists(mute.getMsisdn()))
+		{
+			return;
+		}
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_MUTE, mute.isMute());
+		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
+		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute());
+
+		mDb.updateWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[]{mute.getMsisdn()}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public int setGroupName(String groupId, String groupname)
@@ -9697,6 +9692,47 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
 			}
 			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void migrateChatBgTableData()
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			String create = getChatPropertiesTableCreateStatement();
+			mDb.execSQL(create);
+
+			String index = getChatPropertiesIndexCreateStatement();
+			mDb.execSQL(index);
+
+			String insert = "INSERT INTO " + DBConstants.CHAT_PROPERTIES_TABLE
+					+ "( "
+					+ DBConstants.MSISDN + ", "
+					+ DBConstants.BG_ID + ", "
+					+ DBConstants.BG_TIMESTAMP
+					+ " ) SELECT "
+					+ DBConstants.MSISDN + ", "
+					+ DBConstants.BG_ID + ", "
+					+ DBConstants.TIMESTAMP
+					+ " FROM " + DBConstants.CHAT_BG_TABLE;
+
+			mDb.execSQL(insert);
+
+			String dropIndex = "DROP INDEX IF EXISTS " + DBConstants.CHAT_BG_INDEX;
+			mDb.execSQL(dropIndex);
+
+			String drop = "DROP TABLE IF EXISTS " + DBConstants.CHAT_BG_TABLE;
+			mDb.execSQL(drop);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
 		}
 		finally
 		{

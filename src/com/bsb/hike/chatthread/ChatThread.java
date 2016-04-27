@@ -2246,6 +2246,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	{
 		switch (dialog.getId())
 		{
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
@@ -2298,12 +2299,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void neutralClicked(HikeDialog dialog)
 	{
-		switch (dialog.getId())
-		{
-			case HikeDialogFactory.MUTE_CHAT_DIALOG:
-				dialog.dismiss();
-				break;
-		}
+
 	}
 
 	protected void setConversationTheme(ChatTheme theme)
@@ -4166,18 +4162,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	
 	private void onMuteConversationToggled(Object object)
 	{
-		Pair<String, Boolean> mutePair = (Pair<String, Boolean>) object;
+		Mute mute = (Mute) object;
 
 		/**
-		 * Proceeding only if we caught an event for this groupchat/botchat thread
+		 * Proceeding only if we caught an event for this chatThread
 		 */
-
-		if (mutePair.first.equals(msisdn))
+		if (mute.getMsisdn().equals(msisdn))
 		{
-			mConversation.setIsMute(mutePair.second);
+			mConversation.setMute(mute);
 		}
 
-		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mutePair.second);
+		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mute.isMute());
 	}
 
 	private void onMultiMessageDbInserted(Object object)
@@ -6663,7 +6658,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	{
 		mConversation.setIsMute(!(mConversation.isMuted()));
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 	}
 
 

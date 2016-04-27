@@ -2,7 +2,6 @@ package com.bsb.hike.chatthread;
 
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.View;
 
@@ -174,7 +173,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		mConversation.setIsMute(isMuted);
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 	}
 	
 	@Override
@@ -317,7 +316,7 @@ public class BotChatThread extends OneToOneChatThread
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 
 	}
 	

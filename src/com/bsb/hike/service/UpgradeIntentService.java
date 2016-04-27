@@ -131,6 +131,14 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		if(prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0)
+		{
+			migrateChatBgTableData();
+			Editor editor = prefs.edit();
+			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
+			editor.commit();
+		}
+
         // Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
         editor.putBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false);
@@ -145,6 +153,11 @@ public class UpgradeIntentService extends IntentService
 
 		super(TAG);
 
+	}
+
+	private void migrateChatBgTableData()
+	{
+		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()

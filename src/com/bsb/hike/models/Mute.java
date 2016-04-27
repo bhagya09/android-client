@@ -1,9 +1,5 @@
 package com.bsb.hike.models;
 
-import android.content.Context;
-
-import com.bsb.hike.R;
-
 /**
  * This class contains the Mute object which is used by the ConvInfo object.
  *
@@ -15,23 +11,17 @@ public class Mute
 
     private boolean isMute = false;
 
-    private boolean muteNotification = false;
+    private boolean showNotification = false;
 
     private int muteDuration = 0;
 
     private int muteEndTime;
 
-    public static final int MUTE_DURATION_EIGHT_HOURS = 0;
-
-    public static final int MUTE_DURATION_ONE_WEEK = 1;
-
-    public static final int MUTE_DURATION_ONE_YEAR = 2;
-
     private Mute(InitBuilder builder)
     {
         this.msisdn = builder.msisdn;
         this.isMute = builder.isMute;
-        this.muteNotification = builder.muteNotification;
+        this.showNotification = builder.showNotification;
         this.muteDuration = builder.muteDuration;
     }
 
@@ -55,14 +45,14 @@ public class Mute
         this.isMute = isMute;
     }
 
-    public boolean isNotificationMuted()
+    public boolean shouldShowNotifInMute()
     {
-        return muteNotification;
+        return showNotification;
     }
 
-    public void setNotificationMuted(boolean muteNotification)
+    public void setShowNotifInMute(boolean muteNotification)
     {
-        this.muteNotification = muteNotification;
+        this.showNotification = muteNotification;
     }
 
     public int getMuteDuration()
@@ -80,14 +70,6 @@ public class Mute
         return muteEndTime;
     }
 
-    public static String[] getMuteDurationsList(Context context)
-    {
-        String[] muteDurationsList = {context.getString(R.string.mute_chat_eight_hrs),
-                context.getString(R.string.mute_chat_one_week), context.getString(R.string.mute_chat_one_yr)};
-
-        return muteDurationsList;
-    }
-
     public static class InitBuilder
     {
 
@@ -95,7 +77,7 @@ public class Mute
 
         private boolean isMute;
 
-        private boolean muteNotification;
+        private boolean showNotification;
 
         private int muteDuration;
 
@@ -110,9 +92,9 @@ public class Mute
             return getSelfObject();
         }
 
-        public InitBuilder setMuteNotification(boolean muteNotification)
+        public InitBuilder setShowNotifInMute(boolean muteNotification)
         {
-            this.muteNotification = muteNotification;
+            this.showNotification = muteNotification;
             return getSelfObject();
         }
 
