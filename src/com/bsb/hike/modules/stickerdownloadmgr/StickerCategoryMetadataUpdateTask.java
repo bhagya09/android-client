@@ -35,11 +35,6 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 	public void run()
 	{
 		List<StickerCategory> stickerCategories;
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES, false))
-		{
-			Logger.v(TAG, "already updated all categories pref true");
-			return;
-		}
 		stickerCategories = HikeConversationsDatabase.getInstance().getStickerCatToBeSendForMetaData();
 		if (Utils.isEmpty(stickerCategories))
 		{

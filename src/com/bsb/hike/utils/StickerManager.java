@@ -391,7 +391,7 @@ public class StickerManager
 
 	public void executeFetchCategoryMetadataTask(List<StickerCategory> list)
 	{
-		if (list.size() > 0)
+		if (!Utils.isEmpty(list))
 		{
 			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list);
 			fetchCategoryMetadataTask.execute();
@@ -3358,6 +3358,11 @@ public class StickerManager
 
 	public void refreshPacksMetadata()
 	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES, false))
+		{
+			Logger.v(TAG, "already updated all categories pref true");
+			return;
+		}
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
