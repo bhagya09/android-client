@@ -458,6 +458,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.EDIT_PROFILE.ordinal();
+				if(getIntent().getBooleanExtra(HikeConstants.Extras.PROFILE_DOB, false))
+				{
+					showDatePickerDialog();
+				}
 			}
 			else
 			{

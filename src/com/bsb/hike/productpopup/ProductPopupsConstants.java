@@ -298,7 +298,14 @@ public class ProductPopupsConstants
 			{
 				return "edit_profile";
 			}
-		},
+		},PROFILE_DOB{
+
+		@Override
+		public String toString()
+		{
+			return "profile_dob";
+		}
+	},
 		HELP
 		{
 			@Override

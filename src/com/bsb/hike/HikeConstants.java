@@ -1953,6 +1953,8 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String PROFILE_DOB = "profile_dob";
+
     }
 
 	public static final class LogEvent

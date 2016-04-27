@@ -308,6 +308,14 @@ public class PlatformUtils
 				context.startActivity(intent);
 
 			}
+			if (activityName.equals(HIKESCREEN.PROFILE_DOB.toString()))
+			{
+				Intent intent = IntentFactory.getProfileIntent(context);
+				intent.putExtra(HikeConstants.Extras.EDIT_PROFILE, true);
+				intent.putExtra(HikeConstants.Extras.PROFILE_DOB, true);
+				context.startActivity(intent);
+
+			}
 			if (activityName.equals(HIKESCREEN.INVITE_WHATSAPP.toString()))
 			{
 				IntentFactory.openInviteWatsApp(context);
