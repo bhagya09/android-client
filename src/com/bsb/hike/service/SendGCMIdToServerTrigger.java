@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.bsb.hike.GCMIntentService;
 import com.bsb.hike.HikeConstants;
@@ -156,11 +157,13 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 				requestBody = Utils.getPostDeviceDetails(context);
 				try
 				{
-					Logger.d("pa","new gcm ID is : " + regId);
+					String oldGcmId = mprefs.getData(HikeConstants.OLD_GCM_ID,"");
 					requestBody.put(GCMIntentService.DEV_TOKEN, regId);
-					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, regId);
+					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, oldGcmId);
 
-					Logger.d("pa","old gcm ID is : " + regId);
+					Logger.d("pa","new gcm ID is : " + regId);
+
+					Logger.d("pa","old gcm ID is : " + oldGcmId);
 				}
 				catch (JSONException e)
 				{
@@ -185,6 +188,11 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 			@Override
 			public void onRequestSuccess(Response result)
 			{
+				String newGcmID = mprefs.getData(HikeConstants.GCM_ID,"");
+				if(!TextUtils.isEmpty(newGcmID))
+				{
+					mprefs.saveData(HikeConstants.OLD_GCM_ID, newGcmID);
+				}
 				Logger.d(SendGCMIdToServerTrigger.this.getClass().getSimpleName(), "Send successful");
 				JSONObject response = (JSONObject) result.getBody().getContent();
 				switch (mprefs.getData(HikeConstants.REGISTER_GCM_SIGNUP, 0))
