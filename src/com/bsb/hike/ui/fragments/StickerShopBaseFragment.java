@@ -14,8 +14,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +29,6 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 public abstract class StickerShopBaseFragment extends Fragment implements Listener
 {
@@ -67,128 +64,9 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
     protected View headerView;
 
-    public static class StickerShopViewHolder
-    {
-        public TextView categoryName;
-
-        public TextView totalStickers;
-
-        public TextView stickersPackDetails;
-
-        public TextView categoryPrice;
-
-        public ImageView downloadState;
-
-        public ImageView categoryPreviewIcon;
-
-        private boolean shownPackPreviewFtue;
-
-        public StickerShopViewHolder(View v)
-        {
-            this.categoryName = (TextView) v.findViewById(R.id.category_name);
-            this.stickersPackDetails = (TextView) v.findViewById(R.id.pack_details);
-            this.downloadState = (ImageView) v.findViewById(R.id.category_download_btn);
-            this.categoryPreviewIcon = (ImageView) v.findViewById(R.id.category_icon);
-            this.categoryPrice = (TextView) v.findViewById(R.id.category_price);
-            this.shownPackPreviewFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, false);
-            v.setTag(this);
-        }
-
-        public void loadViewFromCategory(Context context,StickerCategory category)
-        {
-
-            this.categoryName.setText(category.getCategoryName());
-            int totalStickerCount = category.getTotalStickers();
-            int categorySizeInBytes = category.getCategorySize();
-            if (totalStickerCount > 0)
-            {
-                String detailsStirng = totalStickerCount == 1 ? context.getResources().getString(R.string.singular_stickers, totalStickerCount)  : context.getResources().getString(R.string.n_stickers, totalStickerCount);
-                if (categorySizeInBytes > 0)
-                {
-                    detailsStirng += ", " + Utils.getSizeForDisplay(categorySizeInBytes);
-                }
-                this.stickersPackDetails.setVisibility(View.VISIBLE);
-                this.stickersPackDetails.setText(detailsStirng);
-            }
-            else
-            {
-                this.stickersPackDetails.setVisibility(View.GONE);
-            }
-
-            if(category.isVisible())
-            {
-                switch (category.getState())
-                {
-                    case StickerCategory.NONE:
-                    case StickerCategory.DONE_SHOP_SETTINGS:
-                    case StickerCategory.DONE:
-                        if (category.getDownloadedStickersCount() == 0)
-                        {
-                            this.categoryPrice.setVisibility(View.VISIBLE);
-                            this.categoryPrice.setText(context.getResources().getString(R.string.sticker_pack_free));
-                            this.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
-                        }
-                        else
-                        {
-                            this.categoryPrice.setText(context.getResources().getString(R.string.downloaded).toUpperCase());
-                            this.categoryPrice.setTextColor(context.getResources().getColor(R.color.blue_hike));
-                        }
-                        break;
-                    case StickerCategory.UPDATE:
-                        this.categoryPrice.setVisibility(View.VISIBLE);
-                        this.categoryPrice.setText(context.getResources().getString(R.string.update_sticker));
-                        this.categoryPrice.setTextColor(context.getResources().getColor(R.color.sticker_settings_update_color));
-                        break;
-                    case StickerCategory.RETRY:
-                        this.categoryPrice.setVisibility(View.VISIBLE);
-                        this.categoryPrice.setText(context.getResources().getString(R.string.RETRY));
-                        this.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
-                        break;
-                    case StickerCategory.DOWNLOADING:
-                        this.categoryPrice.setVisibility(View.VISIBLE);
-                        this.categoryPrice.setText(context.getResources().getString(R.string.downloading_stk));
-                        this.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
-
-                        break;
-                }
-            }
-            else
-            {
-                this.categoryPrice.setVisibility(View.VISIBLE);
-                this.categoryPrice.setText(context.getResources().getString(R.string.sticker_pack_free));
-                this.categoryPrice.setTextColor(context.getResources().getColor(R.color.tab_pressed));
-            }
-            this.downloadState.setTag(category);
-            this.downloadState.setVisibility(View.VISIBLE);
-        }
-
-        public void showPackPreviewFtue(Animation packPreviewFtueAnimation,int position)
-        {
-            if(!shownPackPreviewFtue)
-            {
-                Animation animation = this.downloadState.getAnimation();
-                if(animation != null)
-                {
-                    animation.cancel();
-                }
-
-                if(position == 0)
-                {
-                    this.downloadState.startAnimation(packPreviewFtueAnimation);
-                }
-                else
-                {
-                    this.downloadState.setAnimation(null);
-                }
-            }
-        }
-
-    }
-
     @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		// TODO Auto-generated method stub
 		View parent = inflater.inflate(R.layout.sticker_shop, null);
 		loadingEmptyState = parent.findViewById(R.id.loading_data);
 		loadingFailedEmptyState = parent.findViewById(R.id.loading_failed);
@@ -200,14 +78,13 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
-		// TODO Register PubSub Listeners
 		super.onActivityCreated(savedInstanceState);
 		if(StickerManager.getInstance().stickerShopUpdateNeeded())
 		{
 			HikeConversationsDatabase.getInstance().clearStickerShop();
 		}
-        this.stickerOtherIconLoader = new StickerOtherIconLoader(getActivity(), true);
-		doInitialSetup();
+
+        doInitialSetup();
 	}
 
 	protected abstract void doInitialSetup();
@@ -216,10 +93,11 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 
     protected abstract void reloadAdapter();
 
+    protected abstract StickerOtherIconLoader getStickerPreviewLoader();
+
 	@Override
 	public void onDestroy()
 	{
-		// TODO Clear the adapter and stickercategory list as well
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		unregisterListeners();
 		super.onDestroy();
@@ -228,11 +106,10 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	@Override
 	public void onPause()
 	{
-		// TODO Auto-generated method stub
 		super.onPause();
-		if (stickerOtherIconLoader != null)
+		if (getStickerPreviewLoader() != null)
 		{
-            stickerOtherIconLoader.setExitTasksEarly(true);
+            getStickerPreviewLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -240,9 +117,9 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	public void onResume()
 	{
 		super.onResume();
-		if (stickerOtherIconLoader != null)
+		if (getStickerPreviewLoader() != null)
 		{
-            stickerOtherIconLoader.setExitTasksEarly(false);
+            getStickerPreviewLoader().setExitTasksEarly(false);
 		}
         notifyAdapter();
 	}
@@ -269,7 +146,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		}
 		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
-			// TODO Auto-generated method stub
 			JSONArray resultData = (JSONArray) object;
 			if(resultData.length() == 0)
 			{
@@ -277,7 +153,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 			}
 			else
 			{
-				//TODO we should also update stickerCategoriesMap in StickerManager from here as well
+                //TODO we should also update stickerCategoriesMap in StickerManager from here as well
 				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
 			}
 			if (!isAdded())

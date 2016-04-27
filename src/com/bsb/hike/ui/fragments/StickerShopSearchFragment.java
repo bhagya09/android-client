@@ -20,6 +20,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.ui.CategorySearchWatcher;
+import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -59,20 +60,12 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
 
         //to fix
-		mAdapter = new StickerShopSearchAdapter(getActivity(),new ArrayList<StickerCategory>(),stickerCategoriesMap,stickerOtherIconLoader);
+		mAdapter = new StickerShopSearchAdapter(getActivity(),new ArrayList<StickerCategory>(),stickerCategoriesMap);
 
 		listview.setAdapter(mAdapter);
 		listview.setOnScrollListener(this);
 		listview.setOnItemClickListener(this);
 
-//		if ((mAdapter == null) || mAdapter.getCount() == 0)
-//		{
-//			listview.setVisibility(View.GONE);
-//		}
-//		else
-//		{
-//			listview.setVisibility(View.VISIBLE);
-//		}
 	}
 
 	@Override
@@ -161,5 +154,16 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
     {
         notifyAdapter();
     }
+
+	@Override
+	protected StickerOtherIconLoader getStickerPreviewLoader()
+	{
+        if(mAdapter != null)
+        {
+            return mAdapter.getStickerPreviewLoader();
+        }
+
+        return null;
+	}
 
 }

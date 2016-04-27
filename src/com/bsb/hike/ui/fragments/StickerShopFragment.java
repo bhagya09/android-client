@@ -37,6 +37,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
+import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -121,7 +122,7 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 		
 		stickerCategoriesMap = new HashMap<String, StickerCategory>();
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
-		mAdapter = new StickerShopAdapter(getActivity(), cursor, stickerCategoriesMap,stickerOtherIconLoader);
+		mAdapter = new StickerShopAdapter(getActivity(), cursor, stickerCategoriesMap);
 		
 		listview.addHeaderView(headerView);
 		listview.addFooterView(loadingFooterView);
@@ -262,6 +263,17 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
         {
             listview.removeHeaderView(headerView);
         }
+    }
+
+    @Override
+    protected StickerOtherIconLoader getStickerPreviewLoader()
+    {
+        if(mAdapter != null)
+        {
+            return mAdapter.getStickerPreviewLoader();
+        }
+
+        return null;
     }
 
 }

@@ -16,9 +16,9 @@ import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
-import com.bsb.hike.ui.fragments.StickerShopBaseFragment.StickerShopViewHolder;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.adapters.StickerShopBaseAdapter.ViewHolder;
 
 public class StickerShopAdapter extends CursorAdapter
 {
@@ -40,11 +40,11 @@ public class StickerShopAdapter extends CursorAdapter
 
 	private Map<String, StickerCategory> stickerCategoriesMap;
 
-    private StickerShopAdapter mAdapter;
-
     private StickerOtherIconLoader stickerOtherIconLoader;
+
+    private StickerShopBaseAdapter stickerShopBaseAdapter;
 	
-	public StickerShopAdapter(Context context, Cursor cursor, Map<String, StickerCategory> stickerCategoriesMap, StickerOtherIconLoader stickerOtherIconLoader)
+	public StickerShopAdapter(Context context, Cursor cursor, Map<String, StickerCategory> stickerCategoriesMap)
 	{
 		super(context, cursor, false);
 		this.layoutInflater = LayoutInflater.from(context);
@@ -53,28 +53,25 @@ public class StickerShopAdapter extends CursorAdapter
 		this.totalStickersCountColoumn = cursor.getColumnIndex(DBConstants.TOTAL_NUMBER);
 		this.categorySizeColoumn = cursor.getColumnIndex(DBConstants.CATEGORY_SIZE);
 		this.stickerCategoriesMap = stickerCategoriesMap;
-        this.stickerOtherIconLoader = stickerOtherIconLoader;
-		shownPackPreviewFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, false);
+        this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
+		this.shownPackPreviewFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_PACK_PREVIEW_FTUE, false);
 		this.packPreviewFtueAnimation = shownPackPreviewFtue ? null : HikeAnimationFactory.getStickerPreviewFtueAnimation(mContext);
+        this.stickerShopBaseAdapter = new StickerShopBaseAdapter(context);
 	}
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent)
 	{
 		View v = layoutInflater.inflate(R.layout.sticker_shop_list_item, parent, false);
-        StickerShopViewHolder viewholder = new StickerShopViewHolder(v);
+        ViewHolder viewholder = stickerShopBaseAdapter.loadShopViewHolder(v);
 		return v;
 	}
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor)
 	{
-		StickerShopViewHolder viewholder = (StickerShopViewHolder) view.getTag();
+		ViewHolder viewholder = (ViewHolder) view.getTag();
 		String categoryId = cursor.getString(idColoumn);
-		String displayCategoryName = context.getResources().getString(R.string.pack_rank, cursor.getPosition() + 1);
-		String categoryName = cursor.getString(categoryNameColoumn);
-		int totalStickerCount = cursor.getInt(totalStickersCountColoumn);
-		int categorySizeInBytes = cursor.getInt(categorySizeColoumn);
 
         stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_SHOP_TYPE), viewholder.categoryPreviewIcon);
         stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
@@ -86,7 +83,12 @@ public class StickerShopAdapter extends CursorAdapter
 		}
 		else
 		{
-			category = new StickerCategory.Builder()
+            String displayCategoryName = context.getResources().getString(R.string.pack_rank, cursor.getPosition() + 1);
+            String categoryName = cursor.getString(categoryNameColoumn);
+            int totalStickerCount = cursor.getInt(totalStickersCountColoumn);
+            int categorySizeInBytes = cursor.getInt(categorySizeColoumn);
+
+            category = new StickerCategory.Builder()
 					.setCategoryId(categoryId)
 					.setCategoryName(categoryName)
 					.setCategorySize(categorySizeInBytes)
@@ -95,8 +97,8 @@ public class StickerShopAdapter extends CursorAdapter
 			stickerCategoriesMap.put(categoryId, category);
 		}
 
-		viewholder.loadViewFromCategory(context, category);
-
+		stickerShopBaseAdapter.loadViewFromCategory(category, viewholder);
+        showPackPreviewFtue(cursor.getPosition(), viewholder);
 	}
 	
 	@Override
@@ -133,4 +135,25 @@ public class StickerShopAdapter extends CursorAdapter
 			shownPackPreviewFtue = true;
 		}
 	}
+
+    private void showPackPreviewFtue(int position, ViewHolder viewholder)
+    {
+        if(!shownPackPreviewFtue)
+        {
+            Animation animation = viewholder.downloadState.getAnimation();
+            if(animation != null)
+            {
+                animation.cancel();
+            }
+
+            if(position == 0)
+            {
+                viewholder.downloadState.startAnimation(packPreviewFtueAnimation);
+            }
+            else
+            {
+                viewholder.downloadState.setAnimation(null);
+            }
+        }
+    }
 }

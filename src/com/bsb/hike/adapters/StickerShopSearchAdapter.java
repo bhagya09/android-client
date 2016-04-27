@@ -4,23 +4,17 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.BaseAdapter;
 
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
-import com.bsb.hike.ui.fragments.StickerShopBaseFragment.StickerShopViewHolder;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.adapters.StickerShopBaseAdapter.ViewHolder;
 
 public class StickerShopSearchAdapter extends BaseAdapter
 {
@@ -36,13 +30,16 @@ public class StickerShopSearchAdapter extends BaseAdapter
 
 	private Context mContext;
 
-	public StickerShopSearchAdapter(Context context, List<StickerCategory> searchedCategories, Map<String, StickerCategory> stickerCategoriesMap, StickerOtherIconLoader stickerOtherIconLoader)
+    private StickerShopBaseAdapter stickerShopBaseAdapter;
+
+	public StickerShopSearchAdapter(Context context, List<StickerCategory> searchedCategories, Map<String, StickerCategory> stickerCategoriesMap)
 	{
 		this.mContext = context;
 		this.layoutInflater = LayoutInflater.from(context);
-		this.stickerOtherIconLoader = stickerOtherIconLoader;
+		this.stickerOtherIconLoader = new StickerOtherIconLoader(context, true);
 		this.searchedCategories = searchedCategories;
         this.stickerCategoriesMap = stickerCategoriesMap;
+        this.stickerShopBaseAdapter = new StickerShopBaseAdapter(context);
 	}
 
 	@Override
@@ -69,15 +66,16 @@ public class StickerShopSearchAdapter extends BaseAdapter
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		StickerShopViewHolder viewHolder = null;
-		if (convertView == null)
+		ViewHolder viewHolder = null;
+
+        if (convertView == null)
 		{
             convertView= layoutInflater.inflate(R.layout.sticker_shop_list_item, parent, false);
-			viewHolder = new StickerShopViewHolder(convertView);
+			viewHolder = stickerShopBaseAdapter.loadShopViewHolder(convertView);
 		}
         else
         {
-            viewHolder = (StickerShopViewHolder) convertView.getTag();
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         String categoryId = searchedCategories.get(position).getCategoryId();
@@ -96,7 +94,7 @@ public class StickerShopSearchAdapter extends BaseAdapter
                 viewHolder.categoryPreviewIcon);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 
-		viewHolder.loadViewFromCategory(mContext, category);
+        stickerShopBaseAdapter.loadViewFromCategory(category, viewHolder);
 
         return convertView;
 	}

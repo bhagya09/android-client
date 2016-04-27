@@ -1641,9 +1641,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
     public SortedSet<CategorySearchData> searchIntoFTSAndFindCategoryList(String matchKey)
     {
-        SortedSet<CategorySearchData> result = null;
+        
         List<String> tempReferences = null;
-        String[] rows = null;
         Cursor c = null;
         int count = 0;
 
@@ -1652,8 +1651,8 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
             Logger.i(TAG, "Searching \"" + matchKey + "\" in " + HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH );
 
-            c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + HikeStickerSearchBaseConstants.SYNTAX_MATCH_START + matchKey
-                    + HikeStickerSearchBaseConstants.SYNTAX_MATCH_END, null, null, null, null);
+			c = mDb.query(HikeStickerSearchBaseConstants.DEFAULT_VT_SHOP_SEARCH, null, HikeStickerSearchBaseConstants.TAG_REAL_PHRASE + " MATCH " + matchKey, null, null, null,
+					null);
 
             count = ((c == null) ? 0 : c.getCount());
 
@@ -1674,24 +1673,28 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
             }
         }
 
-        if (count > 0)
-        {
-            rows = new String[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                rows[i] = tempReferences.get(i);
-            }
-
-
-            CategorySearchManager.getInstance().loadSearchedCategories(rows);
-            result = searchIntoCategoryPrimaryTable(matchKey, rows);
-            SQLiteDatabase.releaseMemory();
-        }
-
-        return result;
+		return getCategoriesForReferences(tempReferences, matchKey, count);
     }
 
+	private SortedSet<CategorySearchData> getCategoriesForReferences(List<String> referenceIds, String matchKey, int resultLimit)
+	{
+		String[] rows = null;
+		SortedSet<CategorySearchData> result = null;
+
+		if (resultLimit > 0)
+		{
+			rows = new String[resultLimit];
+
+			rows = referenceIds.toArray(rows);
+
+			CategorySearchManager.getInstance().loadSearchedCategories(rows);
+			result = searchIntoCategoryPrimaryTable(matchKey, rows);
+			SQLiteDatabase.releaseMemory();
+		}
+
+		return result;
+	}
+    
 	private ArrayList<String> selectReferencesForStickerTags(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
 		int count = (c == null) ? 0 : c.getCount();
@@ -1854,8 +1857,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	public void removeTagsForDeletedCategories(Set<String> deletedCategorySet)
 	{
-
-        //ToDo modify category tag table as well
 
 		if (Utils.isEmpty(deletedCategorySet))
 		{
