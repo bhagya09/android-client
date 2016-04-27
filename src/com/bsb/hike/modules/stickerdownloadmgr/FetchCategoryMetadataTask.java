@@ -60,7 +60,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
         }
         catch (Exception e)
         {
-			Logger.d(TAG, e.toString());
+			Logger.e(TAG, "Exception in createjJsonBody" ,e);
 		}
 	}
 
@@ -124,9 +124,9 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void execute()
 	{
+		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
 		if (requestJsonBody != null && !token.isRequestRunning())
 		{
-			token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
 			token.execute();
 		}
 	}
