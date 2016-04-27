@@ -1112,7 +1112,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		Map<String, FavoriteType> favMap = new HashMap<String, FavoriteType>();
 		try
 		{
-			c = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, DBConstants.FAVORITE_TYPE + " IN " + favTypeIn, null,
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, DBConstants.FAVORITE_TYPE + " IN " + favTypeIn, null,
 					null, null, null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
