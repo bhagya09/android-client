@@ -34,8 +34,7 @@ public class StickerCategoryMetadataUpdateTask implements Runnable
 	@Override
 	public void run()
 	{
-		List<StickerCategory> stickerCategories;
-		stickerCategories = HikeConversationsDatabase.getInstance().getStickerCatToBeSendForMetaData();
+		List<StickerCategory> stickerCategories = HikeConversationsDatabase.getInstance().getStickerCatToBeSendForMetaData();
 		if (Utils.isEmpty(stickerCategories))
 		{
 			Logger.v(TAG, "already updated after checking all packs in db");
