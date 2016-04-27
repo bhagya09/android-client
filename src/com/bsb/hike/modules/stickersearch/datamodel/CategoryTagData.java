@@ -121,7 +121,7 @@ public class CategoryTagData
 
 	}
 
-	public void setKeywords(ArrayList<String> tags)
+	public void setKeywords(List<String> tags)
 	{
 		keywords = tags;
 	}
@@ -153,7 +153,6 @@ public class CategoryTagData
 	@Override
 	public boolean equals(Object o)
 	{
-		Logger.e("aktt", "CTD equals()");
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())

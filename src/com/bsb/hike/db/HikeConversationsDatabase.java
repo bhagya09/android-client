@@ -7852,16 +7852,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public HashMap<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
+	public Map<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
 	{
-		if(categories == null || categories.length == 0)
+		if(Utils.isEmpty(categories))
         {
             return null;
         }
 
         Cursor c = null;
 
-        HashMap<String,StickerCategory> result = null;
+        Map<String,StickerCategory> result = null;
 
 		try
 		{
@@ -7878,7 +7878,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
 
