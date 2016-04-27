@@ -71,8 +71,6 @@ public class StickerSettingsActivity extends HikeAppStateBaseFragmentActivity
 		actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		View actionBarView = getLayoutInflater().inflate(R.layout.sticker_shop_action_bar, null);
-		View stickerSettingsBtn = actionBarView.findViewById(R.id.sticker_settings_btn);
-		stickerSettingsBtn.setVisibility(View.GONE);
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
 		setTitle(title);
 		actionBar.setCustomView(actionBarView);

@@ -66,7 +66,6 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 	private int previewUpdationTime;
 
-
 	public static final int NONE = 0;
 	
 	public static final int UPDATE = 1;
@@ -108,7 +107,6 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.packUpdationTime = builder.packUpdationTime;
 		this.ucid = builder.ucid;
 		this.previewUpdationTime = builder.previewUpdationTime;
-
 		this.isDisabled = builder.isDisabled;
 		ensureSaneDefaults();
 	}
@@ -182,96 +180,116 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		return new StickerCategory(this);
 	}
 
-		public S setCategoryId(String categoryId) {
+		public S setCategoryId(String categoryId)
+		{
 			this.categoryId = categoryId;
-			return  self();
+			return self();
 		}
 
-		public S setCategoryName(String categoryName) {
+		public S setCategoryName(String categoryName)
+		{
 			this.categoryName = categoryName;
 			return self();
 		}
 
-		public S setCategorySize(int categorySize) {
+		public S setCategorySize(int categorySize)
+		{
 			this.categorySize = categorySize;
 			return self();
 		}
 
-		public S setCategoryDesc(String categoryDesc) {
+		public S setCategoryDesc(String categoryDesc)
+		{
 			this.categoryDesc = categoryDesc;
 			return self();
 		}
 
-		public S setTotalStickers(int totalStickers) {
+		public S setTotalStickers(int totalStickers)
+		{
 			this.totalStickers = totalStickers;
 			return self();
 		}
 
-		public S setUpdateAvailable(boolean updateAvailable) {
+		public S setUpdateAvailable(boolean updateAvailable)
+		{
 			this.updateAvailable = updateAvailable;
 			return self();
 		}
 
-		public S setIsVisible(boolean isVisible) {
+		public S setIsVisible(boolean isVisible)
+		{
 			this.isVisible = isVisible;
 			return self();
 		}
 
-		public S setShopRank(int shopRank) {
+		public S setShopRank(int shopRank)
+		{
 			this.shopRank = shopRank;
 			return self();
 		}
 
-		public S setIsDiabled(boolean isDisabled) {
+		public S setIsDiabled(boolean isDisabled)
+		{
 			this.isDisabled = isDisabled;
 			return self();
 		}
 
-		public S setPackUpdationTime(int packUpdationTime) {
+		public S setPackUpdationTime(int packUpdationTime)
+		{
 			this.packUpdationTime = packUpdationTime;
 			return self();
 		}
 
-		public S setPreviewUpdationTime(int previewUpdationTime) {
+		public S setPreviewUpdationTime(int previewUpdationTime)
+		{
 			this.previewUpdationTime = previewUpdationTime;
 			return self();
 		}
-		public S setUcid(int ucid) {
+
+		public S setUcid(int ucid)
+		{
 			this.ucid = ucid;
 			return self();
 		}
 
-		public S setIsCustom(boolean isCustom) {
+		public S setIsCustom(boolean isCustom)
+		{
 			this.isCustom = isCustom;
 			return self();
 		}
 
-		public S setIsAdded(boolean isAdded) {
+		public S setIsAdded(boolean isAdded)
+		{
 			this.isAdded = isAdded;
 			return self();
 		}
 
-		public S setIsPreview(boolean isPreview) {
+		public S setIsPreview(boolean isPreview)
+		{
 			this.isPreview = isPreview;
 			return self();
 		}
 
-		public S setIsDownloaded(boolean isDownloaded) {
+		public S setIsDownloaded(boolean isDownloaded)
+		{
 			this.isDownloaded = isDownloaded;
 			return self();
 		}
 
-		public S setCatIndex(int catIndex) {
+		public S setCatIndex(int catIndex)
+		{
 			this.catIndex = catIndex;
 			return self();
 		}
 
-		public S setAllStickers(List<Sticker> allStickers) {
+		public S setAllStickers(List<Sticker> allStickers)
+		{
 			this.allStickers = allStickers;
 			return self();
 		}
 
-		public S setState(int state) {
+		public S setState(int state)
+		{
 			this.state = state;
 			return self();
 		}
@@ -799,7 +817,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		else
 			setDownloadedStickersCount(0);
 	}
-	
+
 	public void setDownloadedStickersCount(int count)
 	{
 		this.downloadedStickersCount = count;

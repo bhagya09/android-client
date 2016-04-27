@@ -17,9 +17,17 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"/>
 
-    <include 
+    <include
         layout="@layout/sticker_shop_download_failed"
         android:id="@+id/loading_failed"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+
+    <include
+        layout="@layout/sticker_shop_search_failed"
+        android:id="@+id/search_failed"
         android:layout_centerInParent="true"
         android:visibility="gone"
         android:layout_height="match_parent"

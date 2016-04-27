@@ -1586,4 +1586,7 @@
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
+    <string name="shop_search">Search for Packs</string>
+    <string name="no_match_found">Oops! no match found</string>
+    <string name="search_again_hint">Try searching for something else</string>
 </resources>
