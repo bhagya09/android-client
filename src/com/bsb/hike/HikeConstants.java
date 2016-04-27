@@ -4143,4 +4143,6 @@ public class HikeConstants
 	public static final String TIP_CTA_LINK = "link";
 
 	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

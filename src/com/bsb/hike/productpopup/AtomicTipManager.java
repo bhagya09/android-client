@@ -640,7 +640,7 @@ public class AtomicTipManager
             else
             {
                 JSONObject payload = jsonObject.optJSONObject(HikeConstants.PAYLOAD);
-                requestToken = HttpRequests.atomicTipRequestPost(url, payload, requestListener);
+                requestToken = HttpRequests.atomicTipRequestPost(url, payload, requestListener, jsonObject.optBoolean(HikeConstants.ADD_HEADER, false));
             }
             requestToken.execute();
         }

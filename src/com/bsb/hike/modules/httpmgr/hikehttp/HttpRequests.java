@@ -1227,7 +1227,7 @@ public class HttpRequests
 		return builder.build();
 	}
 
-	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener)
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener, boolean addHeader)
 	{
 		JsonBody jsonBody = new JsonBody(payload);
 		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
@@ -1236,6 +1236,10 @@ public class HttpRequests
 				.setRequestListener(listener)
 				.post(jsonBody)
 				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		if(addHeader)
+		{
+			builder.addHeader(PlatformUtils.getHeaders());
+		}
 		return builder.build();
 	}
 
