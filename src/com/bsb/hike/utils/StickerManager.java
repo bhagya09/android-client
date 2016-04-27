@@ -387,6 +387,8 @@ public class StickerManager
 		doUpgradeTasks();
 
 		fetchCategoryOrderTask();
+
+		refreshPacksMetadata();
 	}
 
 	public void executeFetchCategoryMetadataTask(List<StickerCategory> list)
@@ -2221,6 +2223,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, false);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
+		fetchCategoryOrderTask();
 	}
 
 	public void logStickerButtonPressAnalytics()
