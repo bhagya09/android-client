@@ -482,6 +482,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			final int phoneColumn = ih.getColumnIndex(DBConstants.PHONE);
 			final int msisdnTypeColumn = ih.getColumnIndex(DBConstants.MSISDN_TYPE);
 			final int platformIdColumn = ih.getColumnIndex(DBConstants.PLATFORM_USER_ID);
+			final int favouriteIdColumn = ih.getColumnIndex(DBConstants.FAVORITE_TYPE);
 			for (ContactInfo contact : contacts)
 			{
 				ih.prepareForReplace();
@@ -491,6 +492,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				ih.bind(onHikeColumn, contact.isOnhike());
 				ih.bind(phoneColumn, contact.getPhoneNum());
 				ih.bind(platformIdColumn, contact.getPlatformId());
+				ih.bind(favouriteIdColumn,contact.getFavoriteType().ordinal());
 				if (!isFirstSync)
 				{
 					String selection = Phone.CONTACT_ID + " =? " + " AND " + Phone.NUMBER + " =? ";
@@ -861,7 +863,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", " + DBConstants.PLATFORM_USER_ID + " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP +  ", " + DBConstants.PLATFORM_USER_ID +  ", "+ DBConstants.FAVORITE_TYPE +  " from "
 					+ DBConstants.USERS_TABLE + " GROUP BY " + DBConstants.MSISDN + " ORDER BY " + DBConstants.NAME + " COLLATE NOCASE ", null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
@@ -898,7 +900,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + ", "+ DBConstants.FAVORITE_TYPE + " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.MSISDN + " IN " + msisdns + " GROUP BY " + DBConstants.MSISDN, null);
 
 			contactMap = extractContactInfoMap(c);
@@ -924,7 +926,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID+ " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID+ ", "+ DBConstants.FAVORITE_TYPE + " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.ONHIKE + " = " + onHike + " GROUP BY " + DBConstants.MSISDN, null);
 
 			contactMap = extractContactInfoMap(c);
@@ -955,7 +957,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			c = mReadDb.rawQuery("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", " + DBConstants.PHONE + ", "
 					+ DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", "
-					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from "
+					+ DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " , " + DBConstants.FAVORITE_TYPE + " from "
 					+ DBConstants.USERS_TABLE + " WHERE " + DBConstants.PHONE + " IN " + phoneNumbers + " AND " + DBConstants.ONHIKE + "=" + onHike + " GROUP BY "
 					+ DBConstants.MSISDN + " LIMIT " + limit, null);
 
@@ -981,7 +983,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		try
 		{
 			StringBuilder queryBuilder = new StringBuilder("SELECT max(" + DBConstants.ID + ") AS " + DBConstants.ID + ", " + DBConstants.NAME + ", " + DBConstants.MSISDN + ", "
-					+ DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO
+					+ DBConstants.PHONE + ", " + DBConstants.LAST_MESSAGED + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.ONHIKE + ", " + DBConstants.HAS_CUSTOM_PHOTO +", " +DBConstants.FAVORITE_TYPE
 					+ ", " + DBConstants.HIKE_JOIN_TIME + ", " + DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP + ", " + DBConstants.PLATFORM_USER_ID + " from "
 					+ DBConstants.USERS_TABLE + " WHERE ");
 
