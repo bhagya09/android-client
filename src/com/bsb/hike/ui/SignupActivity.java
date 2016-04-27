@@ -43,6 +43,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -237,6 +238,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public int height;
 	}
 
+	String[] mPubSubEvents = {HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED, HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS};
+
         /* Empty onNewIntent is created so as to avoid overriding the existing intent of SignupActivity,
            if we don't do this then SignupActivity will be launched as fresh i.e. requesting msisdn */
 	@Override
@@ -365,7 +368,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		setAnimation();
 		setListeners();
 
-		HikeMessengerApp.getPubSub().addListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
+		HikeMessengerApp.getPubSub().addListeners(this, mPubSubEvents);
 		setWindowSoftInputState();
 	}
 
@@ -585,8 +588,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		
-		HikeMessengerApp.getPubSub().removeListener(HikePubSub.FACEBOOK_IMAGE_DOWNLOADED, this);
+
+		HikeMessengerApp.getPubSub().removeListeners(this, mPubSubEvents);
 		if (dialog != null)
 		{
 			dialog.dismiss();
@@ -2271,8 +2274,13 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				{
 					viewFlipper.setDisplayedChild(RESTORING_BACKUP);
 				}
-				prepareLayoutForRestoringAnimation(null,stateValue);
+				prepareLayoutForRestoringAnimation(null, stateValue);
 			}
+			break;
+
+		case RESTORING_CLOUD_SETTINGS:
+			// Fetch user settings from server
+			HikeCloudSettingsManager.getInstance().doRestoreSkipEnableCheck(null);
 			break;
 		}
 		setListeners();
@@ -2487,6 +2495,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 				}
 			});
+		}
+		else if (HikePubSub.CLOUD_SETTINGS_RESTORE_SUCCESS.equals(type) || HikePubSub.CLOUD_SETTINGS_RESTORE_FAILED.equals(type))
+		{
+			// We are OK to continue even if cloud settings restore failed. User wont be getting his/her pre-set settings.
+			mTask.addUserInput("");
 		}
 	}
 
