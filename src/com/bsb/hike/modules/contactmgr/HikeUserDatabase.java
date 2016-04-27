@@ -1057,15 +1057,16 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 	}
 
-	private Map<String, FavoriteType> getFavoriteMap(String msisdns)
+	public Map<String, FavoriteType> getFavoriteMap(String msisdns)
 	{
 		Cursor c = null;
 
-		Map<String, FavoriteType> favMap = new HashMap<String, FavoriteType>();
+		Map<String, FavoriteType> favMap = new HashMap<>();
 
 		try
 		{
-			c = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + " IN " + msisdns, null, null, null,
+
+			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, DBConstants.MSISDN + " IN " + msisdns+ " AND " + DBConstants.FAVORITE_TYPE + " > 0 ", null, null, null,
 					null);
 
 			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
@@ -1143,12 +1144,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			ContactInfo contact = contactMap.get(msisdn);
 			if (null != contact)
 			{
-				FavoriteType fav = favoriteMap.get(msisdn);
-				if (null != fav)
-				{
-					contact.setFavoriteType(fav);
-				}
-				contactInfos.put(msisdn, contact);
+				continue;
 			}
 			else
 			{
@@ -1181,12 +1177,12 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return contactInfos;
 	}
 
-	Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded)
+	public Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded)
 	{
 		return getContactInfoFromMsisdns(msisdns, favoriteTypeNeeded, false);
 	}
 
-	Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded, boolean ignoreUnknownContacts)
+	public Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded, boolean ignoreUnknownContacts)
 	{
 		Cursor c = null;
 
@@ -2830,4 +2826,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		String dropTable=DBConstants.DROP_TABLE + DBConstants.BLOCK_TABLE;
 		mDb.execSQL(dropTable);
 	}
+
+
 }
