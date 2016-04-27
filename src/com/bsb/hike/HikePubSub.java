@@ -527,6 +527,14 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String CLOUD_SETTINGS_BACKUP_SUCESS = "cldSetBackupDone";
+
+	public static final String CLOUD_SETTINGS_BACKUP_FAILED = "cldSetBackupFailed";
+
+	public static final String CLOUD_SETTINGS_RESTORE_SUCCESS = "cldSetRestoreDone";
+
+	public static final String CLOUD_SETTINGS_RESTORE_FAILED = "cldSetRestoreFailed";
+
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
 	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
