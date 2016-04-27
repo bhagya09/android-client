@@ -20,7 +20,6 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -74,7 +73,7 @@ public enum CategorySearchManager
         }
         else
         {
-            result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryList(key);
+            result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key);
 
             if(result == null)
             {
@@ -119,7 +118,6 @@ public enum CategorySearchManager
             if(category != null)
             {
                 result.add(category);
-                Logger.e("aktt","name "+category.getCategoryId());
             }
         }
 

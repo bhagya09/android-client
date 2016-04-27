@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -7298,6 +7299,11 @@ public class Utils
 	{
 		return (argument == null) || !argument.iterator().hasNext();
 	}
+
+    public static <T extends Object> boolean isEmpty(T[] argument)
+    {
+        return (argument == null) || argument.length == 0;
+    }
 
 	public static boolean isEmpty(JSONArray jsonArray)
 	{

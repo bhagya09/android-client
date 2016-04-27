@@ -5865,7 +5865,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		LinkedHashMap<String, StickerCategory> stickerDataMap = new LinkedHashMap<String, StickerCategory>(c.getCount());
 
-        int index = 1;
 		while (c.moveToNext())
 		{
 			try
@@ -5899,7 +5898,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setCategorySize(categorySize).setCategoryDesc(categoryDescription)
 							.setTotalStickers(totalStickers).setUpdateAvailable(updateAvailable).setIsVisible(isVisible).setIsCustom(isCustom).setIsAdded(true)
-							.setIsDownloaded(isDownloaded).setCatIndex(catIndex).setAllStickerListString(stickerListJSONString).setSimilarPacksString(similarPacksJSONString).setAuthor(author).setCopyRightString(copyRightString).setShopRank(index++).build();
+							.setIsDownloaded(isDownloaded).setCatIndex(catIndex).setAllStickerListString(stickerListJSONString).setSimilarPacksString(similarPacksJSONString).setAuthor(author).setCopyRightString(copyRightString).build();
 				}
 				stickerDataMap.put(categoryId, s);
 			}
@@ -7954,16 +7953,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public HashMap<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
+	public Map<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
 	{
-		if(categories == null || categories.length == 0)
+		if(Utils.isEmpty(categories))
         {
             return null;
         }
 
         Cursor c = null;
 
-        HashMap<String,StickerCategory> result = null;
+        Map<String,StickerCategory> result = null;
 
 		try
 		{
@@ -7980,7 +7979,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
 			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
 
