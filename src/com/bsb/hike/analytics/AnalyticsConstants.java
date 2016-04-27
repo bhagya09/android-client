@@ -862,4 +862,14 @@ public class AnalyticsConstants
 
 	public static final String VIDEO_RECEIVER_DOWNLOAD_MANUALLY = "vidDwnld";
 
+	public static final String MEDIA_UPLOAD_DOWNLOAD_RETRY = "mediaRetry";
+
+	public static final String UPLOAD_MEDIA = "upload";
+
+	public static final String DOWNLOAD_MEDIA = "download";
+
+	public static final String BLOCK_LIST_BACK_PRESS = "blckPriv";
+
+	public static final String BLOCK_LIST_BACK = "bckBlck";
+
 }

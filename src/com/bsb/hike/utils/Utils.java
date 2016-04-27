@@ -79,6 +79,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -7165,6 +7166,11 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().heightPixels;
 	}
 
+	public static int getDeviceDensityDPI()
+	{
+		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().densityDpi;
+	}
+
 	public static String getStackTrace(Throwable ex) {
 		if (ex == null) {
 			return "";
@@ -8364,6 +8370,14 @@ public class Utils
 		return exists;
 	}
 
+	public static boolean isSettingsBackupEnabled() {
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false)) {
+			return false;
+		}
+
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, true);
+	}
+
     private static String getCursorString(Cursor cursor, String columnName) {
 		int index = cursor.getColumnIndex(columnName);
 		if(index != -1) return cursor.getString(index);
@@ -8596,7 +8610,7 @@ public class Utils
 	}
 
 	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,
-												   String toUser_msisdn, boolean isStealth, String genus) {
+												   String toUser_msisdn, boolean isStealth, String genus, String family) {
 		try {
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
@@ -8612,6 +8626,8 @@ public class Utils
 				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			if(!TextUtils.isEmpty(genus))
 				json.put(AnalyticsConstants.V2.GENUS, genus);
+			if(!TextUtils.isEmpty(family))
+				json.put(AnalyticsConstants.V2.FAMILY, family);
 
 			HAManager.getInstance().recordV2(json);
 		} catch (JSONException e) {

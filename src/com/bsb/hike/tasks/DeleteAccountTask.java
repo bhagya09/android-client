@@ -25,6 +25,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchDataController;
@@ -133,6 +134,8 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 */
 		HikeConversationsDatabase convDb = HikeConversationsDatabase.getInstance();
 		convDb.deleteAll();
+
+		HttpRequestStateDB.getInstance().deleteAll();
 
 		if (delete)
 		{

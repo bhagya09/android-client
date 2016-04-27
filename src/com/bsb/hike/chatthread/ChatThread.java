@@ -1457,6 +1457,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
 			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
 			showRecordingErrorTip(R.string.recording_help_text);
+			mComposeViewWatcher.setSendBtnChangeListener(null);
 		}
 	}
 
@@ -2199,12 +2200,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	}
 
 	private void recordMediaShareAnalyticEvent(String uniqueKey_order){
-		recordMediaShareAnalyticEvent(uniqueKey_order, null);
+		recordMediaShareAnalyticEvent(uniqueKey_order, null, null);
 	}
 
-	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus){
+	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus, String family){
 		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
-		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus);
+		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus, family);
 	}
 
 	protected void onShareLocation(Intent data)
@@ -2741,6 +2742,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		/* check if the send button should be enabled */
 		mComposeViewWatcher.setBtnEnabled();
+		//Begin CE-487: FTUE red-dot of WT also appears on send message button
+		boolean isWTTipShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+		if (useWTRevamped && isWTTipShown) {
+			mComposeViewWatcher.setSendBtnChangeListener(
+					new ComposeViewWatcher.SendBtnChangedListener() {
+						@Override
+						public void onSendBtnChanged(boolean enabled) {
+							if (enabled) {
+								mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							} else {
+								mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							}
+						}
+					});
+		}
+		//End CE-487
 		mComposeView.requestFocus();
 
 	}

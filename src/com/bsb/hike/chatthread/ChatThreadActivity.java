@@ -449,9 +449,9 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		}
 	}
 
-	public void recordMediaShareEvent(String uniqueKey_order, String genus){
+	public void recordMediaShareEvent(String uniqueKey_order, String genus, String family){
 		if(chatThread != null){
-			chatThread.recordMediaShareAnalyticEvent(uniqueKey_order, genus);
+			chatThread.recordMediaShareAnalyticEvent(uniqueKey_order, genus, family);
 		}
 	}
 

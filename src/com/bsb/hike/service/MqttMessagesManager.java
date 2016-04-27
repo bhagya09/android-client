@@ -2161,6 +2161,11 @@ public class MqttMessagesManager
 			 */
 			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
+		if (data.has(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP))
+		{
+			boolean enableSettingsBackup = data.getBoolean(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, enableSettingsBackup);
+		}
 		if (data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
 			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
