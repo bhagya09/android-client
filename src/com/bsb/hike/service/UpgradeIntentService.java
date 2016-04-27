@@ -147,7 +147,13 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-
+		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
+		{
+			StickerManager.getInstance().markAllCategoriesAsDownloaded();
+			Editor editor = prefs.edit();
+			editor.putBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
+			editor.apply();
+		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes
         Editor editor = prefs.edit();
