@@ -33,10 +33,13 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickerdownloadmgr.CategoryOrderPrefDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryMetadataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
@@ -382,8 +385,27 @@ public class StickerManager
         retryInsertForStickers();
 
 		doUpgradeTasks();
+
+		fetchCategoryOrderTask();
 	}
 
+	public void executeFetchCategoryMetadataTask(List<StickerCategory> list)
+	{
+		if (!Utils.isEmpty(list))
+		{
+			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list);
+			fetchCategoryMetadataTask.execute();
+		}
+	}
+
+	private void fetchCategoryOrderTask()
+	{
+		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+		{
+			CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask = new CategoryOrderPrefDownloadTask();
+			categoryOrderPrefDownloadTask.execute();
+		}
+	}
 
 
 	public List<StickerCategory> getStickerCategoryList()
@@ -1657,6 +1679,18 @@ public class StickerManager
 				category.setCopyRightString(copyright);
 			}
 
+			if(jsonObj.has(HikeConstants.STATE)) {
+				int state = jsonObj.optInt(HikeConstants.STATE);
+				category.setIsDisabled(state == 1 ? false : true);
+			}
+			if(jsonObj.has(HikeConstants.TIMESTAMP)) {
+				int ts = jsonObj.optInt(HikeConstants.TIMESTAMP);
+				category.setPackUpdationTime(ts);
+			}
+			if(jsonObj.has(HikeConstants.UCID)) {
+				int ucid = jsonObj.optInt(HikeConstants.UCID);
+				category.setUcid(ucid);
+			}
 			return category;
 		}
 		catch(JSONException ex)
@@ -3322,7 +3356,25 @@ public class StickerManager
 		return showLastCategory;
 	}
 
-    public void saveInTableStickerSet(Sticker sticker)
+	public void refreshPacksMetadata()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES, false))
+		{
+			Logger.v(TAG, "already updated all categories pref true");
+			return;
+		}
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				StickerCategoryMetadataUpdateTask stickerCategoryMetadataUpdateTask = new StickerCategoryMetadataUpdateTask();
+				stickerCategoryMetadataUpdateTask.run();
+			}
+		});
+	}
+
+	public void saveInTableStickerSet(Sticker sticker)
     {
         Set<String> stickerSet = HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.STICKER_DOWNLOAD_ATTEMPTED_SET,new HashSet<String>());
         stickerSet.add(sticker.getStickerCode());

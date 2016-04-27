@@ -288,6 +288,8 @@ public class AnalyticsConstants
 		public static final String NETWORK = "nw";
 
 		public static final String SOURCE = "src";
+		
+		public static final String NETWORK_TYPE = "nw";
 	}
 
 	// Edit picture flags and events
@@ -843,6 +845,10 @@ public class AnalyticsConstants
 	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
 
 	public static final String WT_CLICKED_TOUCHED = "wticon";
+
+	public static final String LOCATION_SHARING_CANCELLED= "cnclLoc";
+
+	public static final String STEALTH_CHAT_THREAD = "stealth";
 
 	public static final String TIME_LINE_OPEN = "TL_open";
 

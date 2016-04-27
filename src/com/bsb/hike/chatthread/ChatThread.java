@@ -985,6 +985,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
+			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
+				sendLocationCancelledAnalytic();
+			}
 			return;
 		}
 		switch (requestCode)
@@ -1625,6 +1628,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_BACKGROUND_TRIAL);
 			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
 			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
+			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
 			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
 			HAManager.getInstance().recordV2(metadata);
 		} catch (JSONException e)
@@ -2189,6 +2193,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		}
 
+	}
+
+	private void sendLocationCancelledAnalytic() {
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		Utils.recordCoreAnalyticsForShare(AnalyticsConstants.LOCATION_SHARING_CANCELLED, species,
+				msisdn, mConversation.isStealth());
 	}
 
 	protected void onShareLocation(Intent data)

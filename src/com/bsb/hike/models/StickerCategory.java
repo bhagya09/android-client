@@ -55,7 +55,18 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	private int totalStickers;
 	
 	private int categorySize;
-	
+
+	private int shopRank;
+
+	private  boolean isDisabled;
+
+	private int packUpdationTime;
+
+	private int ucid = -1;
+
+	private int previewUpdationTime;
+
+
 	public static final int NONE = 0;
 	
 	public static final int UPDATE = 1;
@@ -93,12 +104,18 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.state = builder.state;
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
+		this.shopRank = builder.shopRank;
+		this.packUpdationTime = builder.packUpdationTime;
+		this.ucid = builder.ucid;
+		this.previewUpdationTime = builder.previewUpdationTime;
+
+		this.isDisabled = builder.isDisabled;
 		ensureSaneDefaults();
 	}
 
 	private void ensureSaneDefaults()
 	{
-		if(categoryId == null)
+		if(categoryId == null && ucid < 0 )
 		{
 			throw new IllegalStateException("Category cannot be null");
 		}
@@ -146,6 +163,16 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		private String copyRightString;
 
+		private int shopRank;
+
+		private boolean isDisabled;
+
+		private int	packUpdationTime;
+
+		private int ucid;
+
+		private int	previewUpdationTime;
+
 		private int state;
 
 		protected abstract S self();
@@ -187,6 +214,30 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 
 		public S setIsVisible(boolean isVisible) {
 			this.isVisible = isVisible;
+			return self();
+		}
+
+		public S setShopRank(int shopRank) {
+			this.shopRank = shopRank;
+			return self();
+		}
+
+		public S setIsDiabled(boolean isDisabled) {
+			this.isDisabled = isDisabled;
+			return self();
+		}
+
+		public S setPackUpdationTime(int packUpdationTime) {
+			this.packUpdationTime = packUpdationTime;
+			return self();
+		}
+
+		public S setPreviewUpdationTime(int previewUpdationTime) {
+			this.previewUpdationTime = previewUpdationTime;
+			return self();
+		}
+		public S setUcid(int ucid) {
+			this.ucid = ucid;
 			return self();
 		}
 
@@ -319,6 +370,31 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public String getCategoryName()
 	{
 		return categoryName;
+	}
+
+	public int getShopRank()
+	{
+		return shopRank;
+	}
+
+	public boolean isDisabled()
+	{
+		return isDisabled;
+	}
+
+	public int getPackUpdationTime()
+	{
+		return packUpdationTime;
+	}
+
+	public int getUcid()
+	{
+		return ucid;
+	}
+
+	public int getPreviewUpdationTime()
+	{
+		return previewUpdationTime;
 	}
 
 	public void setCategoryName(String categoryName)
@@ -478,6 +554,31 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	public String getCopyRightString()
 	{
 		return copyRightString;
+	}
+
+	public void setShopRank(int shopRank)
+	{
+		this.shopRank = shopRank;
+	}
+
+	public void setIsDisabled(boolean isDisabled)
+	{
+		this.isDisabled = isDisabled;
+	}
+
+	public void setPackUpdationTime(int packUpdationTime)
+	{
+		this.packUpdationTime = packUpdationTime;
+	}
+
+	public void setUcid(int ucid)
+	{
+		this.ucid = ucid;
+	}
+
+	public void setPreviewUpdationTime(int previewUpdationTime)
+	{
+		this.previewUpdationTime = previewUpdationTime;
 	}
 
 	public void setCopyRightString(String copyRightString)

@@ -763,6 +763,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -3212,6 +3213,10 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
+	public static final String STATE = "state";
+
+	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
@@ -4109,6 +4114,12 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String UPDATED_ALL_CATEGORIES = "updatedAllCategories";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
 	public static final class AddFriendSources
 	{
 		public static final String CHAT_FTUE = "chat_ftue_screen";
@@ -4135,4 +4146,13 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
 }

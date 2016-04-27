@@ -335,7 +335,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 			else
 			{
 				//TODO we should also update stickerCategoriesMap in StickerManager from here as well
-				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData);
+				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData, true);
 			}
 			final Cursor updatedCursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
 			if (!isAdded())
