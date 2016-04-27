@@ -3682,6 +3682,7 @@ public class StickerManager
 	{
 		Set<Sticker> recentStickers = getRecentStickersFromFile();
 		HikeConversationsDatabase.getInstance().saveRecentStickers(recentStickers);
+		refreshRecents();
 		try
 		{
 			Utils.delete(new File(StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(RECENT)));
@@ -3691,5 +3692,14 @@ public class StickerManager
 			Logger.e(TAG, "exception in deleting recents file");
 		}
 		return true;
+	}
+
+	public void refreshRecents()
+	{
+		StickerCategory stickerCategory = StickerManager.getInstance().getCategoryForId(StickerManager.RECENT);
+		if(stickerCategory != null && stickerCategory instanceof CustomStickerCategory)
+		{
+			((CustomStickerCategory) stickerCategory).loadStickers();
+		}
 	}
 }
