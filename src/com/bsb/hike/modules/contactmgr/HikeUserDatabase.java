@@ -137,7 +137,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				+ DBConstants.INVITE_TIMESTAMP + " INTEGER DEFAULT 0, " // When this user was last invited.
 				+ DBConstants.PLATFORM_USER_ID + " TEXT DEFAULT '' ,"    // Platform user id
 				+ DBConstants.HIKE_UID + " TEXT DEFAULT NULL , "
-				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 "
+				+ DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0 ,"
+				+ DBConstants.FAVORITE_TYPE + "TEXT 0 "
 				+ " )";
 
 		db.execSQL(create);
@@ -145,8 +146,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.THUMBNAILS_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.IMAGE + " BLOB" + " ) ";
 		db.execSQL(create);
 
-		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.FAVORITE_TYPE + " INTEGER" + " ) ";
-		db.execSQL(create);
+		//create = "CREATE TABLE IF NOT EXISTS " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.FAVORITE_TYPE + " INTEGER" + " ) ";
+		//db.execSQL(create);
 
 		create = getHikeCallerTable();
 		db.execSQL(create);
@@ -157,8 +158,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.THUMBNAIL_INDEX + " ON " + DBConstants.THUMBNAILS_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
 
-		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
-		db.execSQL(create);
+		//create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
+		//db.execSQL(create);
 
 		for(String s: getIndexQueriesForV19())
 		{
@@ -174,6 +175,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.BLOCK_STATUS_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.BLOCK_STATUS + ")";
 		index.add(indexQuery);
 
+		indexQuery = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.USERS_TABLE + " (" + DBConstants.FAVORITE_TYPE + ")";
+		index.add(indexQuery);
 		return index;
 	}
 
