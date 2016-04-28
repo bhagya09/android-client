@@ -145,6 +145,9 @@ public class HikeStickerSearchBaseConstants
 
     public static final String KEYWORDS = "keywords";
 
+    public static final String LAST_UPDATED_TIMESTAMP = "lastTimestamp";
+
+    public static final String IS_UPDATED = "isUpdated";
 
 	// Syntax constants
 	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;

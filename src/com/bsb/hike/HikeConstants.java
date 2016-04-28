@@ -757,6 +757,8 @@ public class HikeConstants
 	public static final String AVATAR = "avatar";
 	public static final String LANGUAGE = "lan";
 
+    public static final String LANGUAGES = "langs";
+
 	public static final String NOTIFICATION_TITLE = "notifTitle";
 	public static final String NOTIFICATION_TEXT = "notifText";
 
@@ -3972,6 +3974,8 @@ public class HikeConstants
     public static final String MINI_STICKER_IMAGE = "mini_image";
 
     public static final String TAGS = "tags";
+    
+	public static final String THEMES = "themes";
 
     public static final String RECENTS = "recents";
 
