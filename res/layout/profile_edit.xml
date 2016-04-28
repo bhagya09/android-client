@@ -134,8 +134,7 @@
                     android:background="@null"
                     android:textColor="@color/subtext"
                     android:textSize="16sp"
-                    android:textStyle="italic"
-                    android:visibility="visible" />
+                    android:textStyle="italic"/>
             </LinearLayout>
         </RelativeLayout>
 
