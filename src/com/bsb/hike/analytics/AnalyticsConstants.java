@@ -891,4 +891,6 @@ public class AnalyticsConstants
 	public static final String IMAGE_SOURCE_GALLERY = "atchGal";
 
 	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
+
+	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 }
