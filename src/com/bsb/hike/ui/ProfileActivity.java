@@ -1690,6 +1690,16 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
 		dobTxt = preferences.getString(HikeConstants.DOB, "");
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			int day = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_DAY, 0);
+			int month = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_MONTH, 0);
+			int year = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_YEAR, 0);
+			if(day != 0 && month != 0 && year != 0)
+			{
+				dobTxt = new Birthday(day, month, year).toJsonString();
+			}
+		}
 	}
 
 	@Override
