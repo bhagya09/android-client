@@ -13,8 +13,8 @@ public class AnalyticsConstants
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
-	public static final Object MICRO_APP_LOADED ="microAppLoaded";
-	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String MICRO_APP_LOADED ="microAppLoaded";
+	public static final String MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
