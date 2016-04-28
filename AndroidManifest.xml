@@ -6,6 +6,7 @@
     android:versionCode="1652"
     android:versionName="4.2.5.14.hike_platform_internal" >
 
+
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"

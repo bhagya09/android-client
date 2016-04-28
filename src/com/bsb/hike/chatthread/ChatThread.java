@@ -116,6 +116,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
@@ -1041,11 +1042,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				}
 				else
 				{
+					final int numOfImagesCaptioned = (imageCaptions != null) ? imageCaptions.size() : 0;
+					final ArrayList<String> editedImages = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
+					final int numOfImagesEdited = (editedImages != null && !TextUtils.isEmpty(editedImages.get(0))) ? 1 : 0;
+
 					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
 					{
 						@Override
 						public void imageParsed(Uri uri)
 						{
+
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1053,6 +1060,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						@Override
 						public void imageParsed(String imagePath)
 						{
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
+
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1110,6 +1119,34 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
+		}
+	}
+
+	private void recordImageShareAnalyticEvent(int numberTotal, int numOfImagesCaptions, int numOfEditedImages){
+		String species = ChatThreadUtils.getChatThreadType(msisdn);
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SHARE_IMAGES);
+			if (mConversation.isStealth()) {
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
+			json.put(AnalyticsConstants.V2.RACE, numberTotal);
+			json.put(AnalyticsConstants.V2.BREED, numOfEditedImages);
+			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
+			json.put(AnalyticsConstants.V2.SOURCE, AnalyticsConstants.IMAGE_SOURCE_CAMERA);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1264,6 +1301,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
+			recordMediaShareAnalyticEvent(AnalyticsConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
 			stickerClicked();
@@ -1456,6 +1494,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
 			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
 			showRecordingErrorTip(R.string.recording_help_text);
+			mComposeViewWatcher.setSendBtnChangeListener(null);
 		}
 	}
 
@@ -2733,6 +2772,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		/* check if the send button should be enabled */
 		mComposeViewWatcher.setBtnEnabled();
+		//Begin CE-487: FTUE red-dot of WT also appears on send message button
+		boolean isWTTipShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+		if (useWTRevamped && isWTTipShown) {
+			mComposeViewWatcher.setSendBtnChangeListener(
+					new ComposeViewWatcher.SendBtnChangedListener() {
+						@Override
+						public void onSendBtnChanged(boolean enabled) {
+							if (enabled) {
+								mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							} else {
+								mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							}
+						}
+					});
+		}
+		//End CE-487
 		mComposeView.requestFocus();
 
 	}

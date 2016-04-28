@@ -62,7 +62,8 @@ public class Experiment {
     }
 
     public String toString() {
-        return "ExperimentId: " + mExperimentId + " VariantId:" + mVariantId + " Description:"
-                + mDescription + " StartTime:" + mStartTime + " EndTime:" + mEndTime;
+        return "ExperimentId: " + mExperimentId + " VariantId:" + mVariantId +
+                " Description:" + mDescription + " StartTime:" + mStartTime +
+                " EndTime:" + mEndTime + " isRolledOut:" + mIsRolledOut;
     }
 }
