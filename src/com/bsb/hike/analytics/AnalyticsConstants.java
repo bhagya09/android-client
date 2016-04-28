@@ -13,8 +13,8 @@ public class AnalyticsConstants
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
-	public static final Object MICRO_APP_LOADED ="microAppLoaded";
-	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String MICRO_APP_LOADED ="microAppLoaded";
+	public static final String MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
@@ -73,6 +73,8 @@ public class AnalyticsConstants
 	public static final String DEV_INFO = "info";
 
 	public static String CLICK_EVENT = "click";
+
+	public static String HTTP_EVENT = "rel_http";
 
 	public static String VIEW_EVENT = "view";
 
@@ -283,6 +285,9 @@ public class AnalyticsConstants
 
 		public static final String TS = "ts";
 
+		public static final String NETWORK = "nw";
+
+		public static final String SOURCE = "src";
 	}
 
 	// Edit picture flags and events
@@ -808,6 +813,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_CORE_LOGS = "act_core";
 
+	public static final String ACT_STICKER_LOGS = "act_stck";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -838,4 +845,11 @@ public class AnalyticsConstants
 	public static final String WT_CLICKED_TOUCHED = "wticon";
 
 	public static final String TIME_LINE_OPEN = "TL_open";
+
+	public static final String PACK_PREVIEW = "pckPrvw";
+
+	public static final String VIEW_ALL = "viewAll";
+
+	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
+
 }

@@ -1532,8 +1532,8 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
-    <string name="keyboard_shutdown_heading">Removing support for Regional Keyboards</string>
-    <string name="keyboard_shutdown_description">You can always chat with your phone keyboard or download one from the playstore</string>
+    <string name="keyboard_shutdown_heading">Upgrade Your Keyboard</string>
+    <string name="keyboard_shutdown_description">We encourage you to try out the Google Indic keyboard from Play Store. It\'s really good :)</string>
     <string name="open_phone_keyboard">PHONE KEYBOARD</string>
     <string name="open_google_keyboard">GOOGLE KEYBOARD</string>
     <string name="max_duration_recorded">Recording done for Max duration</string>
@@ -1555,7 +1555,7 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
-    <string name="bummer">Bummer</string>
+    <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
     <string name="voip_friend_error">Please add %1$s as friend to call. </string>

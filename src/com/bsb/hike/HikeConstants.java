@@ -4131,4 +4131,8 @@ public class HikeConstants
 	public static final String SHOW_RECOMMENDED_PACKS = "shw_rec_pcks";
 
     public static final String STICKER_DOWNLOAD_ATTEMPTED_SET = "s_d_f_s";
+
+	public static final String POSITION = "pos";
+
+	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 }

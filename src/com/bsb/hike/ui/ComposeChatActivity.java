@@ -440,6 +440,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							allImages = true;
 							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
+						else
+						{
+							// If the MIME type of shared media is anything other than image, discard caption
+							messageToShare = null;
+						}
 					}
 				}
 				// Image is not present. Is there a message to forward?

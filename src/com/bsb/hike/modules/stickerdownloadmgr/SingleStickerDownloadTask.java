@@ -35,6 +35,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestTy
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -228,7 +229,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
                             getStickerTags(data);
 
-                            StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
+							boolean cdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
+
+                            StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId, stickerId);
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
