@@ -5,28 +5,26 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="96dp"
+                android:paddingLeft="20dp"
+                android:paddingBottom="18dp"
                 android:background="@color/credits_blue">
 
     <ImageView
         android:id="@+id/atomic_tip_icon"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="12dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginBottom="18dp"
-        android:scaleType="center"
+        android:layout_marginTop="18dp"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_error"/>
 
     <LinearLayout
         android:id="@+id/atomic_tip_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="42dp"
-        android:paddingTop="18dp"
-        android:paddingLeft="6dp"
-        android:paddingBottom="12dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginLeft="12dp"
         android:layout_alignWithParentIfMissing="true"
         android:layout_toRightOf="@id/atomic_tip_icon"
         android:orientation="vertical">
@@ -45,20 +43,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             style="@style/AtomicTipBodyText"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:text="@string/atomic_tip_body_default"/>
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/close_tip"
-        android:layout_width="42dp"
+    <ViewStub
+        android:id="@+id/close_tip_stub"
+        android:inflatedId="@+id/close_tip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/atomic_tip_content"
-        android:padding="12dp"
-        android:scaleType="centerInside"
-        android:background="@drawable/popup_button_bg_selector"
-        android:src="@drawable/ic_tip_cross"
-        android:visibility="gone"/>
+        android:layout="@layout/tip_close_layout"/>
 
 </RelativeLayout>

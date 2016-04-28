@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -468,7 +469,7 @@ public class AtomicTipManager
         ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
         if(isTipCancellable())
         {
-            tipView.findViewById(R.id.close_tip).setVisibility(View.VISIBLE);
+            ((ViewStub) tipView.findViewById(R.id.close_tip_stub)).setVisibility(View.VISIBLE);
         }
         return  tipView;
     }
