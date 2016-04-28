@@ -7830,11 +7830,13 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		
+
 		// Precautionary check to prevent NPE from empty list files.
-		if (folder.listFiles() == null)
+        // Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+        File[] directory = folder.listFiles();
+		if (directory == null)
 			return length;
-		for (File file : folder.listFiles())
+		for (File file : directory)
 		{
 			if (file.isDirectory())
 				length += folderSize(file);
@@ -8229,6 +8231,7 @@ public class Utils
 	public static void deleteDiskCache()
 	{
 		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+        HikeMessengerApp.clearDiskCache();
 	}
 
 	/**

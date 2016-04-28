@@ -59,7 +59,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     private static final long MIN_DURATION = 1000;
     private Activity mActivity;
-    private byte recorderState;
+    private byte recorderState = IDLE;
     private long recordStartTime, recordedTime;
     private MediaRecorder recorder;
     private File selectedFile;
