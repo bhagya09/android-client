@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.utils.StickerManager;
 
@@ -386,5 +387,10 @@ public class Sticker implements Serializable, Comparable<Sticker>, Parcelable
     public boolean isMiniStickerAvailable()
     {
        return HikeMessengerApp.getDiskCache().isKeyExists(getMiniStickerPath());
+    }
+    
+    public StickerConstants.StickerType getStickerType()
+    {
+		return isStickerAvailable() ? StickerConstants.StickerType.LARGE : StickerConstants.StickerType.MINI;
     }
 }

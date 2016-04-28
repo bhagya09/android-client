@@ -428,7 +428,7 @@ public class BotUtils
 			return;
 		}
 
-		if (ContactManager.getInstance().isBlocked(msisdn))
+		if (ContactManager.getInstance().isBlocked(msisdn) && jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT))
 		{
 			Logger.e("bot error", "bot is blocked by user.");
 			return;
@@ -520,7 +520,7 @@ public class BotUtils
 
 				if(botMetadata.getAutoResume())
 				{
-					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),botMetadata.getPrefNetwork(), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
 				}
 				if(botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.

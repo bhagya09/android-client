@@ -71,6 +71,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
@@ -1327,7 +1328,8 @@ import java.util.Map;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 
 		// 1) user clicked sticker in Sticker Pallete i.e Sending Sticker
 		channelSelector.startMessageRelLogging(convMessage, MessageType.STICKER);
@@ -3330,6 +3332,8 @@ import java.util.Map;
 		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
 		{
 			favoriteType = FavoriteType.FRIEND;
+			Utils.incrementOrDecrementFriendRequestCount(HikeSharedPreferenceUtil.getInstance().getPref(), -1);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_COUNT_CHANGED, null);
 		}
 
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
@@ -3916,6 +3920,12 @@ import java.util.Map;
 	{
 		addFriendView.setVisibility(View.VISIBLE);
 
+		if (isThereAnyAnimationOnFriendsFtue(addFriendView))
+		{
+			// Remove the anim. This is causing : https://hikeapp.atlassian.net/browse/HS-387
+			removeFriendsFtueAnim(addFriendView);
+		}
+
 		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
 
 		addFriendView.findViewById(R.id.add_friend_ftue_button).setOnClickListener(this);
@@ -4149,4 +4159,15 @@ import java.util.Map;
 
 		return true;
 	}
+
+	private void removeFriendsFtueAnim(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView.getAnimation() != null)
+		{
+			tipView.setAnimation(null);
+		}
+	}
+
 }
