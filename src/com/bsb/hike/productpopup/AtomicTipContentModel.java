@@ -1,9 +1,13 @@
 package com.bsb.hike.productpopup;
 
+import android.support.annotation.IntDef;
+
 import com.bsb.hike.HikeConstants;
 
 import org.json.JSONObject;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Comparator;
 
 /**
@@ -47,28 +51,19 @@ public class AtomicTipContentModel
 
     private String jsonString;
 
-    private int tipStatus;
+    @Status private int tipStatus;
 
     private int hashCode = -1;
 
-    public enum AtomicTipStatus
-    {
-        UNSEEN(0),
-        SEEN(1),
-        DISMISSED(2);
+    public static final int UNSEEN = 0;
 
-        private int value;
+    public static final int SEEN = 1;
 
-        AtomicTipStatus(int val)
-        {
-            value = val;
-        }
+    public static final int DISMISSED = 2;
 
-        public int getValue()
-        {
-            return value;
-        }
-    }
+    @IntDef({UNSEEN, SEEN, DISMISSED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Status{}
 
     private AtomicTipContentModel(JSONObject tipContentJSON)
     {
@@ -234,12 +229,13 @@ public class AtomicTipContentModel
         return jsonString;
     }
 
+    @Status
     public int getTipStatus()
     {
         return tipStatus;
     }
 
-    public void setTipStatus(int status)
+    public void setTipStatus(@Status int status)
     {
         tipStatus = status;
     }

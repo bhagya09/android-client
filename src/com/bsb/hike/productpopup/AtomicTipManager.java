@@ -35,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Manager class for all atomic tip related handling such as DB and UI interaction
@@ -46,7 +47,7 @@ public class AtomicTipManager
 
     private final Handler mHandler;
 
-    private ArrayList<AtomicTipContentModel> tipContentModels;
+    private List<AtomicTipContentModel> tipContentModels;
 
     private static final String TAG = "AtomicTipManager";
 
@@ -210,7 +211,7 @@ public class AtomicTipManager
             @Override
             public void run()
             {
-                HikeContentDatabase.getInstance().saveAtomicTip(tipContentModel, AtomicTipContentModel.AtomicTipStatus.UNSEEN.getValue());
+                HikeContentDatabase.getInstance().saveAtomicTip(tipContentModel, AtomicTipContentModel.UNSEEN);
             }
         });
     }
@@ -321,7 +322,7 @@ public class AtomicTipManager
      */
     public boolean doesUnseenTipExist()
     {
-        return (doesAtomicTipExist() && tipContentModels.get(0).getTipStatus() == AtomicTipContentModel.AtomicTipStatus.UNSEEN.getValue());
+        return (doesAtomicTipExist() && tipContentModels.get(0).getTipStatus() == AtomicTipContentModel.UNSEEN);
     }
 
     /**
@@ -410,11 +411,11 @@ public class AtomicTipManager
         }
 
         //since tip is seen by user, we need to update the status if not already done
-        if(currentlyShowing.getTipStatus() != AtomicTipContentModel.AtomicTipStatus.SEEN.getValue())
+        if(currentlyShowing.getTipStatus() != AtomicTipContentModel.SEEN)
         {
-            currentlyShowing.setTipStatus(AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
+            currentlyShowing.setTipStatus(AtomicTipContentModel.SEEN);
             refreshTipsList();
-            updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.SEEN.getValue());
+            updateTipStatus(currentlyShowing, AtomicTipContentModel.SEEN);
         }
 
         View tipView = LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(R.layout.atomic_tip_view, null);
@@ -517,7 +518,7 @@ public class AtomicTipManager
         removeTipFromList(currentlyShowing);
 
         //updating tip status as DISMISSED so it can be cleaned
-        updateTipStatus(currentlyShowing, AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue());
+        updateTipStatus(currentlyShowing, AtomicTipContentModel.DISMISSED);
 
         //cleaning to remove dismissed from DB
         cleanTipsTable();

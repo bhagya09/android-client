@@ -159,13 +159,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         createAndIndexes[i++]= mAppTable;
 
 		//CREATE ATOMIC_TIP_TABLE
-		String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
-				+_ID +" INTEGER PRIMARY KEY ,"
-				+ TIP_DATA + " TEXT,"
-				+ TIP_STATUS + " INTEGER,"
-				+ TIP_PRIORITY + " INTEGER,"
-				+ TIP_END_TIME + " INTEGER" + ")";
-		createAndIndexes[i++] = atomicTipTable;
+		createAndIndexes[i++] = getAtomicTipTableCreateQuery();
 
 		String contentIndex = CREATE_INDEX + CONTENT_ID_INDEX + " ON " + CONTENT_TABLE + " (" + CONTENT_ID + ")";
 		
@@ -266,13 +260,8 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 		if(oldVersion < 8)
 		{
-			String atomicTipTable = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
-					+_ID +" INTEGER PRIMARY KEY ,"
-					+ TIP_DATA + " TEXT,"
-					+ TIP_STATUS + " INTEGER,"
-					+ TIP_PRIORITY + " INTEGER,"
-					+ TIP_END_TIME + " INTEGER" + ")";
-			queries.add(atomicTipTable);
+			String atomicTipTableCreateQuery = getAtomicTipTableCreateQuery();
+			queries.add(atomicTipTableCreateQuery);
 		}
 		
 		return queries.toArray(new String[]{});
@@ -1167,6 +1156,22 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	}
 
 	/**
+	 * Method to frame and return create table query for atomic tips table
+	 * @return
+     */
+	public String getAtomicTipTableCreateQuery()
+	{
+		String atomicTipTableCreateQuery = CREATE_TABLE + ATOMIC_TIP_TABLE + "("
+				+_ID +" INTEGER PRIMARY KEY ,"
+				+ TIP_DATA + " TEXT,"
+				+ TIP_STATUS + " INTEGER,"
+				+ TIP_PRIORITY + " INTEGER,"
+				+ TIP_END_TIME + " INTEGER" + ")";
+
+		return atomicTipTableCreateQuery;
+	}
+
+	/**
 	 * Method to insert atomic tips received via mqtt into Content DB.
 	 * @param tipContentModel
 	 * @param tipStatus
@@ -1188,12 +1193,12 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	 * Method to get list of all saved atomic tips in ascending order of status and tip priority
 	 * @return
      */
-	public ArrayList<AtomicTipContentModel> getSavedAtomicTips()
+	public List<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
 		//first cleaning up tables to remove expired tips
 		cleanAtomicTipsTable();
-		ArrayList<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
+		List<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try
 		{
@@ -1206,16 +1211,15 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			while (c.moveToNext())
 			{
 				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
-				int tipStatus = c.getInt(c.getColumnIndex(TIP_STATUS));
+				@AtomicTipContentModel.Status int tipStatus = c.getInt(c.getColumnIndex(TIP_STATUS));
 				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
 				tipContentModel.setTipStatus(tipStatus);
 				atomicTipContentModels.add(tipContentModel);
 			}
 		}
-		catch (Exception e)
+		catch (JSONException jse)
 		{
-			e.printStackTrace();
-			Logger.d(getClass().getSimpleName(), "Error while fetching Atomic Tips from Content DB");
+			Logger.d(getClass().getSimpleName(), "JSONException while fetching Atomic Tips from Content DB");
 		}
 		finally
 		{
@@ -1247,9 +1251,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public void cleanAtomicTipsTable()
 	{
 		Logger.d(getClass().getSimpleName(), "Deleting dismissed and expired atomic tips from table.");
-		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.AtomicTipStatus.DISMISSED.getValue();
+		String dismissedClause = TIP_STATUS + "=" + AtomicTipContentModel.DISMISSED;
 		String expiredClause = " OR "+TIP_END_TIME+ "<" + System.currentTimeMillis();
-		int result = mDB.delete(ATOMIC_TIP_TABLE, dismissedClause + expiredClause, null);
+		String whereClause = dismissedClause + expiredClause;
+		int result = mDB.delete(ATOMIC_TIP_TABLE, whereClause, null);
 		Logger.d(getClass().getSimpleName(), "number of cleaned rows from atomic tip table: "+result);
 	}
 
