@@ -1603,8 +1603,14 @@ import java.util.Map;
 			addFavorite(false);
 			break;
 		case R.string.mute_chat:
-			this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
-			toggleMuteChat();
+			if ((item.text).equals(getString(R.string.mute_chat)))
+			{
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+			}
+			else
+			{
+				toggleMuteChat();
+			}
 			break;
 		case R.string.scan_free_hike:
 			if (item.text.equals(getString(R.string.scan_free_hike)))
