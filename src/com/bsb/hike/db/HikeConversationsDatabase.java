@@ -375,7 +375,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		sql = getUCIDIndexOnStickerCategoryTable();
 		db.execSQL(sql);
 
-		sql = getUCIDIndexOnStickerCategoryOrderTable();
+		sql = getUCIDIndexOnStickerCategoryRankTable();
 		db.execSQL(sql);
 
 	}
@@ -1082,7 +1082,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(sql);
 			sql = getUCIDIndexOnStickerCategoryTable();
 			db.execSQL(sql);
-			sql = getUCIDIndexOnStickerCategoryOrderTable();
+			sql = getUCIDIndexOnStickerCategoryRankTable();
 			db.execSQL(sql);
 		}
 	}
@@ -1242,8 +1242,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				     DBConstants.STICKER_CATEGORY_RANK_TABLE + " ( " +
                      DBConstants.RANK + " INTEGER, " +
                      DBConstants.UCID + " INTEGER PRIMARY KEY, " +
-				     DBConstants.IS_PACK_METADATA_UPDATED + " INTEGER DEFAULT 0 " +
-                     DBConstants.IS_PACK_TAGDATA_UPDATED + " INTEGER DEFAULT 0 " + " )";
+				     DBConstants.IS_PACK_METADATA_UPDATED + " INTEGER DEFAULT 0, " +
+                     DBConstants.IS_PACK_TAGDATA_UPDATED + " INTEGER DEFAULT 0)";
 
 		return sql;
 	}
@@ -9434,9 +9434,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORIES_TABLE + " ( " + DBConstants.UCID + " )";
 	}
 
-	private String getUCIDIndexOnStickerCategoryOrderTable()
+	private String getUCIDIndexOnStickerCategoryRankTable()
 	{
-		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " ( " + DBConstants.RANK + " )";
+		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " ( " + DBConstants.RANK + " )";
 	}
 
 	private String getSortingIndexQuery()
