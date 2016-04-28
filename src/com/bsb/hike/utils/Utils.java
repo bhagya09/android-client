@@ -8229,6 +8229,7 @@ public class Utils
 	public static void deleteDiskCache()
 	{
 		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+        HikeMessengerApp.clearDiskCache();
 	}
 
 	/**
