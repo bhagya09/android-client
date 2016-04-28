@@ -217,7 +217,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -1485,37 +1485,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
-			new Thread(new Runnable()
+			runOnUiThread(new Runnable()
 			{
+				@SuppressLint("NewApi")
 				@Override
 				public void run()
 				{
-					runOnUiThread(new Runnable()
+					HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+
+					showingBlockingDialog = false;
+					if (progDialog != null)
 					{
-						@SuppressLint("NewApi")
-						@Override
-						public void run()
-						{
-							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+						progDialog.dismiss();
+						progDialog = null;
+					}
 
-							showingBlockingDialog = false;
-							if (progDialog != null)
-							{
-								progDialog.dismiss();
-								progDialog = null;
-							}
+					if (restoreProgDialog != null)
+					{
+						restoreProgDialog.dismiss();
+						restoreProgDialog = null;
+					}
 
-							if (Utils.isDBCorrupt())
-							{
-								showCorruptDBRestoreDialog();
-							}
+					if (Utils.isDBCorrupt())
+					{
+						showCorruptDBRestoreDialog();
+					}
 
-							invalidateOptionsMenu();
-							initialiseHomeScreen(null);
-						}
-					});
+					invalidateOptionsMenu();
+					initialiseHomeScreen(null);
 				}
-			}).start();
+			});
 		}
 		else if (HikePubSub.SMS_SYNC_COMPLETE.equals(type) || HikePubSub.SMS_SYNC_FAIL.equals(type))
 		{
@@ -1801,6 +1800,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				return;
 			}
+			if(((Pair) object).first instanceof BotInfo)
+			{
 			 final BotInfo info = ((BotInfo) ((Pair) object).first);
 			if(info == null)
 			{
@@ -1818,6 +1819,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						}
 					});
 			 }
+		   }
 		}
 	}
 
@@ -2063,8 +2065,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
-		optionsList.add(new OverFlowMenuItem("Corrupt Db", 0, 0, -100));
-
 		addEmailLogItem(optionsList);
 		
 		addBotItems(optionsList);
@@ -2130,6 +2130,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 case R.string.wallet_menu:
 					
 					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
+					break;
+					
+                case R.string.recharge_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE ,getApplicationContext());
 					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
@@ -2200,13 +2206,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					sendAnalyticsTakePicture();
 					break;
-
-				case -100: // Dummy commit for QA Testing.
-					// TODO : Revert this before build goes live.
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DB_CORRUPT, true);
-					Long alarmTime = System.currentTimeMillis() + (1000 * 60); // (Current time + 10 minutes)
-					HikeAlarmManager.setAlarm(HikeMessengerApp.getInstance().getApplicationContext(), alarmTime, HikeAlarmManager.REQUESTCODE_SHOW_CORRUPT_DB_NOTIF, false);
-					break;
 					
 				}
 
@@ -2262,6 +2261,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
 		{
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		}else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
 		}
 
 	}
@@ -2549,12 +2551,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void postRestoreFinished(@AccountBackupRestore.RestoreErrorStates Integer restoreResult)
 	{
-		if (restoreProgDialog != null)
-		{
-			restoreProgDialog.dismiss();
-			restoreProgDialog = null;
-		}
-
 		if (dbCorruptDialog != null)
 		{
 			dbCorruptDialog.dismiss();
@@ -2570,6 +2566,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			if (restoreProgDialog != null) //Dismiss the rotator!
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
 			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
 			return;
@@ -2579,9 +2580,19 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		// Set up the home screen
-		invalidateOptionsMenu();
-		initialiseHomeScreen(null);
+		// Set up the home screen. First check if we are running upgrade intent service or not.
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false))
+		{
+			if (restoreProgDialog != null)
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
+
+			invalidateOptionsMenu();
+			initialiseHomeScreen(null);
+		}
 	}
 
 	private void showRestoreInProcessDialog()
@@ -2610,4 +2621,5 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showCorruptDBRestoreDialog();
 		}
 	}
+
 }

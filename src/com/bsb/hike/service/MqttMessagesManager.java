@@ -84,6 +84,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -2001,11 +2002,11 @@ public class MqttMessagesManager
 
 				if(jsonObject.has(HikePlatformConstants.APP_NAME))
                 {
-                    BotUtils.removeMicroApp((JSONObject) microAppsTobeRemoved.get(i));
+                    BotUtils.removeMicroAppByAppName((JSONObject) microAppsTobeRemoved.get(i));
                 }
-                else if(jsonObject.has(HikePlatformConstants.MSISDN))
+                if(jsonObject.has(HikePlatformConstants.MSISDN))
                 {
-                    BotUtils.removeMicroAppFromVersioningPath((JSONObject) microAppsTobeRemoved.get(i));
+                    BotUtils.removeMicroAppFromVersioningPathByMsisdn((JSONObject) microAppsTobeRemoved.get(i));
                 }
                 else
                 {
@@ -3070,7 +3071,41 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.CONTACT_UPDATE))
 		{
-			saveContacts(data);
+			saveContacts(data, false);
+		}
+		else if (data.has(HikeConstants.CONTACT_NUMBER_OLD))
+		{
+			saveContacts(data, true);
+		}
+
+		if(data.has(HikeConstants.SHOW_RECOMMENDED_PACKS))
+		{
+			boolean showRecommendedPacks = data.getBoolean(HikeConstants.SHOW_RECOMMENDED_PACKS);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
+		}
+
+		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
+		{
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
+		}
+
+		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
+		{
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
+		}
+
+		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
+		{
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
+		}
+
+		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
+		{
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
 		}
 
 		editor.commit();
@@ -3110,12 +3145,18 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void saveContacts(JSONObject data) throws JSONException
+	private void saveContacts(JSONObject data, boolean makeAnEditCall) throws JSONException
 	{
-		String newMsisdn = data.getString(HikeConstants.CONTACT_UPDATE);
+		String newMsisdn = data.optString(HikeConstants.CONTACT_UPDATE,"");
 		String name = data.optString(HikeConstants.CONTACT_NAME, "");
 		String oldMsisdn = data.optString(HikeConstants.CONTACT_NUMBER_OLD, "");
 
+		if(!makeAnEditCall)
+		{
+			if(TextUtils.isEmpty(newMsisdn))
+			{
+				return;
+			}
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
 		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
@@ -3135,13 +3176,28 @@ public class MqttMessagesManager
 			List<AccountData> accountDatas = Utils.getAccountList(context);
 			List<ContactInfoData> items = new ArrayList<ContactInfoData>();
 			items.add(new ContactInfoData(ContactInfoData.DataType.PHONE_NUMBER, newMsisdn, HikeConstants.HIKE_CUSTOM_PHONE_TYPE));
-			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0));
+			Utils.addToContacts(items, TextUtils.isEmpty(name) ? newMsisdn : name, context, (accountDatas.isEmpty()) ? null : accountDatas.get(0), false);
 		}
 		else
 		{
 			if(changeMsisdn)
 			{
 				Utils.updateContactWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), newMsisdn);
+			}
+		}
+		}
+		else
+		{
+			if(TextUtils.isEmpty(oldMsisdn))
+			{
+				return;
+			}
+			Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(oldMsisdn));
+			String oldName = data.optString("cntct_nm_old","");
+			PairModified<String, String> contactIdPair = Utils.doesContactContainHikeCustomPhoneType(context, contactUri, oldName);
+			if(contactIdPair != null)
+			{
+				Utils.updateNameWithHikeCustomPhoneType(context, contactIdPair.getFirst(), contactIdPair.getSecond(), TextUtils.isEmpty(name) ? oldMsisdn : name);
 			}
 		}
 
@@ -3167,7 +3223,7 @@ public class MqttMessagesManager
 		{
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			List<ContactInfo> contactinfos = null;
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 			{
 				contactinfos = ContactManager.getInstance().getContacts(this.context);
 			}
@@ -3418,8 +3474,9 @@ public class MqttMessagesManager
 
 				for (int i = 0; i < stickerIds.length(); i++)
 				{
-					StickerManager.getInstance().removeSticker(new Sticker(categoryId, stickerIds.getString(i)));
-					removedStickerSet.add(StickerManager.getInstance().getStickerSetString(stickerIds.getString(i), categoryId));
+                    Sticker sticker = new Sticker(categoryId, stickerIds.getString(i));
+					StickerManager.getInstance().removeSticker(sticker);
+					removedStickerSet.add(sticker.getStickerCode());
 				}
 				int stickerCount = data.optInt(HikeConstants.COUNT, -1);
 				int categorySize = data.optInt(HikeConstants.UPDATED_SIZE, -1);

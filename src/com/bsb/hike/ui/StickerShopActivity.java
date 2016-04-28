@@ -30,6 +30,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
@@ -55,7 +56,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         showShopFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-
+        StickerManager.getInstance().refreshPacksMetadata();
     }
 
     private void setupShopFragment(Bundle savedInstanceState)
