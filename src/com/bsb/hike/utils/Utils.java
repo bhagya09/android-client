@@ -8640,6 +8640,23 @@ public class Utils
 		}
 	}
 
+	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
+			json.put(AnalyticsConstants.V2.VAL_INT, fileSize);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	private static void fetchHistoricalUpdates(String msisdn)
 	{
 		RequestToken token = HttpRequests.getHistoricSUToken(msisdn, new IRequestListener()

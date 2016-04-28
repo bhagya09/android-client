@@ -872,4 +872,6 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
+
 }
