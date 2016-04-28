@@ -8,7 +8,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -62,9 +61,9 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 						return;
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
-					HikeConversationsDatabase.getInstance().updateStickerCategoryPrefOrder(orderArray);
-                    HikeStickerSearchDatabase.getInstance().resetUpdateFlagForCategories();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, false);
+					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
+                    HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_ORDER_TIMESTAMP, System.currentTimeMillis());
 				}
 				catch (Exception e)

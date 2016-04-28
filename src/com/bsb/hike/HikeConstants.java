@@ -4118,7 +4118,9 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
-	public static final String UPDATED_ALL_CATEGORIES = "updatedAllCategories";
+	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
+
+    public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
 
 	public static final String UCIDS = "ucids";
 

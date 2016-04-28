@@ -36,16 +36,19 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private Map<Integer,CategoryTagData> fetchMap;
 
+    private List<CategoryTagData> fetchList;
+
 	private String ucids = "";
 
     public FetchCategoryTagDataTask(List<CategoryTagData> list)
     {
+        fetchList = list;
         fetchMap = new HashMap<Integer,CategoryTagData>();
-        createRequestJsonBody(list);
+        createRequestJsonBody();
     }
 
 
-    private void createRequestJsonBody(List<CategoryTagData> fetchList)
+    private void createRequestJsonBody()
     {
 		requestJsonBody = new JSONObject();
 		JSONObject jsonObject;
@@ -111,6 +114,7 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
                     CategorySearchManager.getInstance().insertCategoryTags(packs,fetchMap);
 
+                    HikeConversationsDatabase.getInstance().updateIsPackTagdataUpdated(fetchList);
                     doOnSuccess(null);
 
 				}

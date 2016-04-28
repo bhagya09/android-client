@@ -330,8 +330,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
                 + HikeStickerSearchBaseConstants.THEME + " TEXT, "
                 + HikeStickerSearchBaseConstants.LANGUAGE + " TEXT, "
 				+ HikeStickerSearchBaseConstants.KEYWORDS + " TEXT, "
-                + HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP + " INTEGER  DEFAULT 0, "
-                + HikeStickerSearchBaseConstants.IS_UPDATED + " INTEGER  DEFAULT 0"
+                + HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP + " INTEGER  DEFAULT 0"
                 +")";
     }
 
@@ -899,7 +898,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
                 contentValues.put(HikeStickerSearchBaseConstants.LANGUAGE, categoryTagData.getLanguagesString());
                 contentValues.put(HikeStickerSearchBaseConstants.KEYWORDS, categoryTagData.getKeywordsString());
                 contentValues.put(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP,categoryTagData.getCategoryLastUpdatedTime());
-                contentValues.put(HikeStickerSearchBaseConstants.IS_UPDATED,1);
 
 				long rowsAffected = mDb.update(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, contentValues, HikeStickerSearchBaseConstants.UNIQUE_ID + "=?",
 						new String[] { Integer.toString(categoryTagData.getUcid()) });
@@ -2900,24 +2898,20 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
                 int langIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LANGUAGE);
                 int keysIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.KEYWORDS);
                 int tsIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP);
-                int uaIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.IS_UPDATED);
 
-                while (c.moveToNext())
-                {
-                    if(c.getInt(uaIdx) == 0)
-                    {
-                        CategoryTagData categoryTagData = new CategoryTagData(c.getInt(ucidIdx));
-                        categoryTagData.setCategoryID(c.getString(catIdIdx));
-                        categoryTagData.setGender(c.getInt(forGenderIdx));
-                        categoryTagData.setName(c.getString(nameIdx));
-                        categoryTagData.setCategoryLastUpdatedTime(c.getLong(tsIdx));
-                        categoryTagData.setLanguages(c.getString(langIdx));
-                        categoryTagData.setThemes(c.getString(themeIdx));
-                        categoryTagData.setKeywords(c.getString(keysIdx));
-                        result.add(categoryTagData);
-                        categories.remove(Integer.toString(categoryTagData.getUcid()));
-                    }
-                }
+				while (c.moveToNext())
+				{
+					CategoryTagData categoryTagData = new CategoryTagData(c.getInt(ucidIdx));
+					categoryTagData.setCategoryID(c.getString(catIdIdx));
+					categoryTagData.setGender(c.getInt(forGenderIdx));
+					categoryTagData.setName(c.getString(nameIdx));
+					categoryTagData.setCategoryLastUpdatedTime(c.getLong(tsIdx));
+					categoryTagData.setLanguages(c.getString(langIdx));
+					categoryTagData.setThemes(c.getString(themeIdx));
+					categoryTagData.setKeywords(c.getString(keysIdx));
+					result.add(categoryTagData);
+					categories.remove(Integer.toString(categoryTagData.getUcid()));
+				}
 
             }
         }
@@ -2936,20 +2930,5 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
         return result;
     }
-
-	public int resetUpdateFlagForCategories()
-	{
-		try
-		{
-			ContentValues contentValues = new ContentValues();
-			contentValues.put(HikeStickerSearchBaseConstants.IS_UPDATED, 0);
-			return mDb.update(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, contentValues, null, null);
-		}
-		catch (Exception e)
-		{
-			Logger.e(getClass().getSimpleName(), "Exception in isstatusupdated Pack", e);
-		}
-		return -1;
-	}
 
 }

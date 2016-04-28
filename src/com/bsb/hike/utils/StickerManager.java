@@ -3371,9 +3371,9 @@ public class StickerManager
 
 	public void refreshPacksMetadata()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES, false))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
 		{
-			Logger.v(TAG, "already updated all categories pref true");
+			Logger.v(TAG, "already updated all categories data true");
 			return;
 		}
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()

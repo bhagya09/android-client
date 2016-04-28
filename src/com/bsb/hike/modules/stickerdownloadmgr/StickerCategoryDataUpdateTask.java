@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
+import android.util.Pair;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
@@ -36,25 +38,36 @@ public class StickerCategoryDataUpdateTask implements Runnable
 	@Override
 	public void run()
 	{
-		List<StickerCategory> stickerCategoriesMetadataList = HikeConversationsDatabase.getInstance().getStickerCategoriesForMetadataUpdate();
+        Pair<List<StickerCategory>,List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForMetadataUpdate();
+		List<StickerCategory> stickerCategoriesMetadataList = updataLists.first;
+        List<String> stickerCategoriesTagdataList = updataLists.second;
+
 		if (Utils.isEmpty(stickerCategoriesMetadataList))
 		{
-			Logger.v(TAG, "already updated after checking all packs in db");
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, true);
-			return;
+			Logger.v(TAG, "Metadata already updated after checking all packs in db");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, true);
 		}
+        else
+        {
+            updateCategoryMetadata(stickerCategoriesMetadataList);
+        }
 
-        List<String> ucidToUpdate = updateCategoryMetadata(stickerCategoriesMetadataList);
-
-        updateCategoryTagdata(HikeStickerSearchDatabase.getInstance().getStickerCategoriesForTagDataUpdate(ucidToUpdate));
+        if (Utils.isEmpty(stickerCategoriesTagdataList))
+        {
+            Logger.v(TAG, "Tagdata already updated after checking all packs in db");
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, true);
+        }
+        else
+        {
+            updateCategoryTagdata(HikeStickerSearchDatabase.getInstance().getStickerCategoriesForTagDataUpdate(stickerCategoriesTagdataList));
+        }
 
 	}
 
-    private List<String> updateCategoryMetadata(List<StickerCategory> stickerCategoriesMetadataList)
+    private void updateCategoryMetadata(List<StickerCategory> stickerCategoriesMetadataList)
     {
         List<StickerCategory> updateList = new ArrayList<StickerCategory>();
         List<StickerCategory> createList = new ArrayList<StickerCategory>();
-        List<String> updateUcids = new ArrayList<>(stickerCategoriesMetadataList.size());
 
         for (StickerCategory stickerCategory : stickerCategoriesMetadataList)
         {
@@ -76,11 +89,9 @@ public class StickerCategoryDataUpdateTask implements Runnable
                     updateList = new ArrayList<StickerCategory>();
                 }
             }
-            updateUcids.add(Integer.toString(stickerCategory.getUcid()));
         }
         StickerManager.getInstance().fetchCategoryMetadataTask(createList);
         StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
-        return updateUcids;
     }
 
     private void updateCategoryTagdata(List<CategoryTagData> stickerCategoriesTagDataList)

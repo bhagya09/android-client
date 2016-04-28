@@ -514,7 +514,7 @@ public interface DBConstants
 
 	public static final String COPYRIGHT_STRING = "copyRightString";
 
-	public static final String STICKER_CATEGORY_PREF_ORDER_TABLE = "catPrefOrderTable";
+	public static final String STICKER_CATEGORY_RANK_TABLE = "categoryRankTable";
 
 	public static final String UCID_INDEX = "ucidIndex";
 
@@ -523,6 +523,8 @@ public interface DBConstants
 	public static final String UCID = "ucid";
 
 	public static final String IS_PACK_METADATA_UPDATED = "isPackMetadataUpdated";
+
+    public static final String IS_PACK_TAGDATA_UPDATED = "isPackTagdataUpdated";
 
 	public static final String UPDATED_METADATA_TIMESTAMP = "updatedMetadataTs";
 
