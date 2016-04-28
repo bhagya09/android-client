@@ -279,8 +279,6 @@ public class StickerManager
 
 	public static String stickerExternalDir;
 
-	public static final String FETCH_CATEGORIES_METADATA = "fetchCatMd";
-
 	public FilenameFilter stickerFileFilter = new FilenameFilter()
 	{
 		@Override
@@ -1511,7 +1509,6 @@ public class StickerManager
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKERS_SIZE_DOWNLOADED, false))
 		{
-			tryToDownloadStickerDataForAllCategories();   //This case can be hit post account restore, where the initial SignupUpgradeCall might have been made.
 			return;
 		}
 
@@ -3341,7 +3338,7 @@ public class StickerManager
     {
         HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
-
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true); // No need to fetch cat metadata again since we have restored old categories
 		// Download Tags for whatever stickers are present now
 		Set<String> stickersSet = new HashSet<>();
 		for (Sticker s : getAllStickers())
@@ -3350,8 +3347,6 @@ public class StickerManager
 		}
 		StickerSearchManager.getInstance().downloadStickerTags(true, StickerSearchConstants.STATE_STICKER_DATA_FRESH_INSERT, stickersSet, StickerLanguagesManager.getInstance().getAccumulatedSet(StickerLanguagesManager.DOWNLOADED_LANGUAGE_SET_TYPE, StickerLanguagesManager.DOWNLOADING_LANGUAGE_SET_TYPE));
 		
-		resetCategoryMetadataFetchPreference();
-		tryToDownloadStickerDataForAllCategories();
 		handleDifferentDpi();
     }
 
@@ -3403,6 +3398,7 @@ public class StickerManager
 		if (!TextUtils.isEmpty(fromPath) && !TextUtils.isEmpty(toPath))// Paths are not null
 		{
 			// Copy to! We do not need to check size since we are merely renaming file paths on same mount
+
 			return Utils.moveDirectoryByRename(new File(fromPath), new File(toPath));
 		}
 		else
@@ -3453,20 +3449,6 @@ public class StickerManager
 		}
 
 		return jsonArray;
-	}
-
-	private void resetCategoryMetadataFetchPreference()
-	{
-		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.FETCH_CATEGORIES_METADATA, true);
-	}
-
-	private void tryToDownloadStickerDataForAllCategories()
-	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.FETCH_CATEGORIES_METADATA, false))
-		{
-			StickerSignupUpgradeDownloadTask stickerSignupUpgradeDownloadTask = new StickerSignupUpgradeDownloadTask(getAllCategoriesFromDbAsJsonArray());
-			stickerSignupUpgradeDownloadTask.execute();
-		}
 	}
 
     public void saveInTableStickerSet(Sticker sticker)
