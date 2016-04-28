@@ -23,13 +23,14 @@ public class CategorySearchTask implements Runnable
 	{
 		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
 
-        if(results == null)
-        {
-            mListener.onNoCategoriesFound(query);
-            return;
-        }
-
-        mListener.onSearchCompleted(results);
+		if (results == null)
+		{
+			mListener.onNoCategoriesFound(query);
+		}
+		else
+		{
+			mListener.onSearchCompleted(results);
+		}
 
 	}
 }
