@@ -815,6 +815,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_STICKER_LOGS = "act_stck";
 
+	public static final String ACT_ABTEST_LOGS = "act_ab";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -867,5 +869,11 @@ public class AnalyticsConstants
 	public static final String UPLOAD_MEDIA = "upload";
 
 	public static final String DOWNLOAD_MEDIA = "download";
+
+	public static final String BLOCK_LIST_BACK_PRESS = "blckPriv";
+
+	public static final String BLOCK_LIST_BACK = "bckBlck";
+
+	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
 
 }

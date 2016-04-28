@@ -59,21 +59,6 @@ public class DataPersistPrefImpl extends DataPersist{
         mExpEditor.apply();
     }
 
-    public void testStore(String pload) {
-        try {
-            JSONObject jsonObject = new JSONObject(pload);
-            if(jsonObject.has(ProtoMapper.EXPERIMENT_LIST)) {
-                String log = jsonObject.getString(ProtoMapper.EXPERIMENT_LIST);
-                android.util.Log.d(TAG, "Before write log: " + log);
-                mExperimentsPref.edit().putString("myId", log).commit();
-                android.util.Log.d(TAG, "Read log: " + mExperimentsPref.getString("myId", "none"));
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public Map<String, ?> getAllExperiments() {
         Map<String, ?> allExperiments = mExperimentsPref.getAll();
         return allExperiments;
