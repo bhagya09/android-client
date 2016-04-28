@@ -163,4 +163,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
         return null;
 	}
 
+    @Override
+    public void onDestroy()
+    {
+        searchWatcher.releaseResources();
+        super.onDestroy();
+    }
 }

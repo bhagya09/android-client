@@ -22,6 +22,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.ui.fragments.StickerShopSearchFragment;
@@ -240,33 +241,32 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             }
         });
 
-		Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
-        pulse.setRepeatCount(Animation.INFINITE);
-        pulse.setAnimationListener(new Animation.AnimationListener() {
-            int count = 1;
-
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                if (count++ % 2 != 0) {
-                    searchLayout.setPressed(true);
-                    searchLayout.setPressed(false);
-                }
-            }
-        });
-
-		searchIcon.startAnimation(pulse);
+        Animation pulse = HikeAnimationFactory.getStickerShopSearchIconFtueAnimation(this,rippleListener);
+        searchIcon.startAnimation(pulse);
 
 	}
+
+    private Animation.AnimationListener rippleListener = new Animation.AnimationListener() {
+        int count = 1;
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+            if (count++ % 2 != 0) {
+                searchLayout.setPressed(true);
+                searchLayout.setPressed(false);
+            }
+        }
+    };
 
     private void setupSearchBar()
     {
