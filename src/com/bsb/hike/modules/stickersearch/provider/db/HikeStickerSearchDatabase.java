@@ -2867,9 +2867,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         
     }
 
-	public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categories)
+	public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categoryUcids)
 	{
-		List<CategoryTagData> result = null;
+		if(Utils.isEmpty(categoryUcids))
+        {
+            return null;
+        }
+
+        List<CategoryTagData> result = new ArrayList<>();;
 
 		Cursor c = null;
 
@@ -2877,15 +2882,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 
 			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null,
-					HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.size()) + ")",
-					(String[]) categories.toArray(), null, null, null);
+                    HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categoryUcids.size()) + ")",
+                    categoryUcids.toArray(new String[categoryUcids.size()]), null, null, null);
 
 			int count = (c == null) ? 0 : c.getCount();
 
 			if (count > 0)
 			{
-				result = new ArrayList<>(count);
-
 				int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
 				int catIdIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.CATEGORY_ID);
 				int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
@@ -2905,7 +2908,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					categoryTagData.setThemes(c.getString(themeIdx));
 					categoryTagData.setKeywords(c.getString(keysIdx));
 					result.add(categoryTagData);
-					categories.remove(Integer.toString(categoryTagData.getUcid()));
+					categoryUcids.remove(Integer.toString(categoryTagData.getUcid()));
 				}
 
 			}
@@ -2918,9 +2921,12 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 			}
 		}
 
-		for (String category : categories)
+		if (!Utils.isEmpty(categoryUcids))
 		{
-			result.add(new CategoryTagData(Integer.parseInt(category)));
+			for (String ucid : categoryUcids)
+			{
+				result.add(new CategoryTagData(Integer.parseInt(ucid)));
+			}
 		}
 
 		return result;
