@@ -81,6 +81,7 @@ import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
@@ -7289,7 +7290,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public List<StickerCategory> getStickerCatToBeSendForMetaData()
+	public List<StickerCategory> getStickerCategoriesForMetadataUpdate()
 	{
 		Cursor cursor = null;
 		List<StickerCategory> list = null;
@@ -7319,7 +7320,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch (Exception e)
 		{
-			Logger.d(mContext.getClass().getSimpleName(), "getStickerCatToBeSendForMetaData"  + e.toString());
+			Logger.d(mContext.getClass().getSimpleName(), "getStickerCategoriesForMetadataUpdate"  + e.toString());
 		}
 		finally
 		{
@@ -7968,7 +7969,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE,
                     null,
-                    DBConstants._ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
+                    DBConstants.UCID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
                     categories,
                     null,
                     null,

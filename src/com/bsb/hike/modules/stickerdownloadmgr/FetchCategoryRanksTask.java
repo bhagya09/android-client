@@ -8,6 +8,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -20,9 +21,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderFor
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private static final String TAG = "FetchCatPrefOrderDownloadTask";
+	private static final String TAG = FetchCategoryRanksTask.class.getSimpleName();
 
 	private RequestToken token;
 
@@ -62,6 +63,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoryPrefOrder(orderArray);
+                    HikeStickerSearchDatabase.getInstance().resetUpdateFlagForCategories();
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_ORDER_TIMESTAMP, System.currentTimeMillis());
 				}

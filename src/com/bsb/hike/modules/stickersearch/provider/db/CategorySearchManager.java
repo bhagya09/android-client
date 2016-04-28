@@ -22,6 +22,8 @@ import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONArray;
+
 /**
  * Created by akhiltripathi on 13/04/16.
  */
@@ -124,9 +126,9 @@ public enum CategorySearchManager
         return result;
     }
 
-    public void insertCategoryTags(List<CategoryTagData> categoryTagData)
+    public void insertCategoryTags(JSONArray categoriesData, Map<Integer,CategoryTagData> sourceData)
     {
-        CategoryTagInsertTask categoryTagInsertTask = new CategoryTagInsertTask(categoryTagData);
+        CategoryTagInsertTask categoryTagInsertTask = new CategoryTagInsertTask(categoriesData, sourceData);
         categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
     }
 
