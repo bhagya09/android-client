@@ -1,6 +1,8 @@
 package com.bsb.hike.modules.httpmgr.request.requestbody;
 
 import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FTUtils;
@@ -20,6 +22,7 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 	public static final int DEFAULT_CHUNK_POLICY = 0;
 	public static final int NET_SPEED_BASED_CHUNK_POLICY = 1;
 	private final String NET_SPEED_AND_TYPE = "nwSpeed_nwType";
+	private final String WIFI_BSSID = "wifi_bssid";
 	private final String SEPARATOR = "_";
 	private final String DEFAULT_VALUE = "NA";
 	private int mNetSpeed;
@@ -79,8 +82,31 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 				}
 				else if(netType == networkType)
 				{
-					this.mNetSpeed = nSpeed;
-					chunkSize = evaluateChunkSizeBasedOnNetSpeed();
+					boolean proceed = true;
+					if(netType == FileTransferManager.NetworkType.WIFI)
+					{
+						WifiManager wifiManager = (WifiManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+						WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+						if (wifiInfo != null) {
+						    String savedBssid = HikeSharedPreferenceUtil.getInstance().getData(WIFI_BSSID, DEFAULT_VALUE);
+						    String currentBssid = wifiInfo.getBSSID();
+						    Logger.d("FileTransferChunkSizePolicy","Current Wifi BSSID : " + currentBssid);
+						    Logger.d("FileTransferChunkSizePolicy","Saved Wifi BSSID : " + savedBssid);
+						    if(!savedBssid.equals(currentBssid))
+						    {
+						    	proceed = false;
+						    }
+						}
+					}
+					if(proceed)
+					{
+						this.mNetSpeed = nSpeed;
+						chunkSize = evaluateChunkSizeBasedOnNetSpeed();
+					}
+					else
+					{
+						chunkSize = DEFAULT_CHUNK_SIZE;
+					}
 				}
 				else
 				{
@@ -175,9 +201,19 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 	{
 		Logger.d("FileTransferChunkSizePolicy","Time taken  : " + time + " : File Size = " + fileSize);
 		this.mNetSpeed = (int)(fileSize/time);
-		String value = this.mNetSpeed + SEPARATOR + Utils.getNetworkType(context);
+		int nType = Utils.getNetworkType(context);
+		String value = this.mNetSpeed + SEPARATOR + nType;
 		Logger.d("FileTransferChunkSizePolicy","NetSpeed  : " + this.mNetSpeed + "  : value = " + value);
 		HikeSharedPreferenceUtil.getInstance().saveData(NET_SPEED_AND_TYPE, value);
+		if(getNetworkType(nType) == FileTransferManager.NetworkType.WIFI)
+		{
+			WifiManager wifiManager = (WifiManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+			WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+			if (wifiInfo != null) {
+			    Logger.d("FileTransferChunkSizePolicy","Wifi BSSID : " + wifiInfo.getBSSID());
+			    HikeSharedPreferenceUtil.getInstance().saveData(WIFI_BSSID, wifiInfo.getBSSID());
+			}
+		}
 	}
 
 	/**

@@ -284,6 +284,13 @@ public class FileUploadRequest extends Request<JSONObject>
 						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
 						throw ex;
 					}
+					finally
+					{
+						if(chunkPolicy == FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY)
+						{
+							chunkSizePolicy.setNetworkSpeed((System.currentTimeMillis() - time), fileBytes.length);
+						}
+					}
 					break;
 				}
 				// update start and end for range header
