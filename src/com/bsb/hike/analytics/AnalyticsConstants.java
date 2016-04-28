@@ -815,6 +815,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_STICKER_LOGS = "act_stck";
 
+	public static final String ACT_ABTEST_LOGS = "act_ab";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
