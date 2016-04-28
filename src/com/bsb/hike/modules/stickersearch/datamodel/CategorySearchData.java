@@ -1,13 +1,10 @@
 package com.bsb.hike.modules.stickersearch.datamodel;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.StickerCategory;
-import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 
 /**
  * Created by akhiltripathi on 12/04/16.
@@ -34,12 +31,12 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private final float DEFAULT_STICKER_COUNT_SCORE = 0f;
 
-	public CategorySearchData(String categoryID)
+	public CategorySearchData(int ucid)
 	{
-		super(categoryID);
+		super(ucid);
 	}
 
-	public StickerCategory getCategory()
+    public StickerCategory getCategory()
 	{
 		if (category == null)
 		{
@@ -47,12 +44,6 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		}
 
 		return category;
-	}
-
-	@Override
-	public String toString()
-	{
-		return categoryID + " : name = " + name + "; language = " + language + "; theme = " + theme + "; gender = " + forGender + "; keys = " + getKeywordsSet();
 	}
 
 	public void setMatchKeyword(String matchKeyword)

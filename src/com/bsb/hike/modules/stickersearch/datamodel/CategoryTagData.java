@@ -3,16 +3,11 @@ package com.bsb.hike.modules.stickersearch.datamodel;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchHostManager;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.internal.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,19 +21,23 @@ public class CategoryTagData
 
 	protected String categoryID;
 
-	protected String language;
+    protected int ucid;
+
+    private List<String> languages;
 
 	private List<String> keywords;
 
-	protected String theme;
+    private List<String> themes;
 
 	protected String name;
 
 	protected int forGender;
 
-	public CategoryTagData(String categoryID)
+    private long categoryLastUpdatedTime;
+
+	public CategoryTagData(int ucid)
 	{
-		this.categoryID = categoryID;
+        this.ucid = ucid;
 	}
 
 	public String getCategoryID()
@@ -51,29 +50,9 @@ public class CategoryTagData
 		this.categoryID = categoryID;
 	}
 
-	public String getLanguage()
-	{
-		return language;
-	}
-
-	public void setLanguage(String language)
-	{
-		this.language = language;
-	}
-
-	public String getTheme()
-	{
-		return theme;
-	}
-
-	public void setTheme(String theme)
-	{
-		this.theme = theme;
-	}
-
 	public boolean isValid()
 	{
-		return !TextUtils.isEmpty(categoryID);
+		return !(TextUtils.isEmpty(categoryID) || ucid < 0);
 	}
 
 	public String getName()
@@ -96,7 +75,58 @@ public class CategoryTagData
 		this.forGender = forGender;
 	}
 
-	public String getKeywordsSet()
+	public long getCategoryLastUpdatedTime()
+	{
+		return categoryLastUpdatedTime;
+	}
+
+	public void setCategoryLastUpdatedTime(long categoryLastUpdatedTime)
+	{
+		this.categoryLastUpdatedTime = categoryLastUpdatedTime;
+	}
+
+	public List<String> getLanguages()
+	{
+		return languages;
+	}
+
+	public void setLanguages(List<String> languages)
+	{
+		this.languages = languages;
+	}
+
+    public void setLanguages(String languageSet)
+    {
+        this.languages = new ArrayList<String>(Arrays.asList(languageSet.split(HikeConstants.DELIMETER)));
+    }
+
+	public List<String> getThemes()
+	{
+		return themes;
+	}
+
+	public void setThemes(List<String> themes)
+	{
+		this.themes = themes;
+	}
+
+    public void setThemes(String themeSet)
+    {
+        this.themes = new ArrayList<String>(Arrays.asList(themeSet.split(HikeConstants.DELIMETER)));
+    }
+    
+	public int getUcid()
+	{
+		return ucid;
+	}
+
+	public void setUcid(int ucid)
+	{
+		this.ucid = ucid;
+	}
+
+
+    public String getKeywordsString()
 	{
 		String result = "";
 
@@ -121,17 +151,84 @@ public class CategoryTagData
 
 	}
 
-	public void setKeywords(List<String> tags)
+    public String getThemesString()
+    {
+        String result = "";
+
+        if (Utils.isEmpty(themes))
+        {
+            return result;
+        }
+
+        for (String theme : themes)
+        {
+            if (TextUtils.isEmpty(theme))
+            {
+                continue;
+            }
+
+            result += theme + HikeConstants.DELIMETER;
+        }
+
+        result = result.substring(0, result.length() - 1);
+
+        return result;
+
+    }
+
+    public String getLanguagesString()
+    {
+        String result = "";
+
+        if (Utils.isEmpty(languages))
+        {
+            return result;
+        }
+
+        for (String language : languages)
+        {
+            if (TextUtils.isEmpty(language))
+            {
+                continue;
+            }
+
+            result += language + HikeConstants.DELIMETER;
+        }
+
+        result = result.substring(0, result.length() - 1);
+
+        return result;
+
+    }
+
+	public List<String> getKeywords()
 	{
-		keywords = tags;
+		return keywords;
 	}
 
-	public String getTagList()
+    public void setKeywords(List<String> keywords)
+	{
+		this.keywords = keywords;
+	}
+
+    public void setKeywords(String keywordSet)
+    {
+        this.keywords = new ArrayList<String>(Arrays.asList(keywordSet.split(HikeConstants.DELIMETER)));
+    }
+
+    public String getCategoryDocument()
 	{
 		int size = CATEGORY_META_TAGS_COUNT;
 
 		String result = this.getName();
-		result += StickerSearchConstants.STRING_SPACE + this.getTheme();
+
+        if (!Utils.isEmpty(themes))
+        {
+            for (String theme : themes)
+            {
+                result += StickerSearchConstants.STRING_SPACE + theme;
+            }
+        }
 
 		if (!Utils.isEmpty(keywords))
 		{
@@ -147,7 +244,7 @@ public class CategoryTagData
 	@Override
 	public String toString()
 	{
-		return categoryID + " : name = " + name + "; language = " + language + "; theme = " + theme + "; gender = " + forGender + "; keys = " + getKeywordsSet();
+		return categoryID + " : name = " + name + "; language = " + getLanguagesString() + "; theme = " + getThemesString() + "; gender = " + forGender + "; keys = " + getKeywordsString();
 	}
 
 	@Override
