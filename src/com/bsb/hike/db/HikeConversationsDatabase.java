@@ -4963,9 +4963,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.MSISDN, mute.getMsisdn());
-		contentValues.put(DBConstants.IS_MUTE, mute.isMute());
+		contentValues.put(DBConstants.IS_MUTE, mute.isMute() ? 1 : 0);
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
-		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute());
+		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute() ? 1 : 0);
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
 		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 

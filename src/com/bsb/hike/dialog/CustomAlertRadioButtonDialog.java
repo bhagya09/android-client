@@ -86,7 +86,7 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 				checkBoxPojo.isChecked = !(checkBoxPojo.isChecked);
 				checkBox.setChecked(checkBoxPojo.isChecked);
 
-				if (checkBoxListener != null && checkBoxPojo.isChecked)
+				if (checkBoxListener != null)
 				{
 					checkBoxListener.onCheckboxClicked(checkBoxPojo, CustomAlertRadioButtonDialog.this);
 				}
