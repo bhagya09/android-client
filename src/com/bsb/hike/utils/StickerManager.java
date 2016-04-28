@@ -348,14 +348,6 @@ public class StickerManager
 			settings.edit().putBoolean(StickerManager.STICKER_FOLDER_NAMES_UPGRADE_DONE, true).commit();
 		}
 
-		if (!HikeSharedPreferenceUtil.getInstance().getData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
-		{
-			resetSignupUpgradeCallPreference();
-			resetStickerShopLastUpdateTime();
-			HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, true);
-		}
-
 		setupStickerCategoryList();
 
 		if (!settings.getBoolean(StickerManager.ADD_NO_MEDIA_FILE_FOR_STICKERS, false))
@@ -3349,7 +3341,6 @@ public class StickerManager
     {
         HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
-        HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false);
 
 		// Download Tags for whatever stickers are present now
 		Set<String> stickersSet = new HashSet<>();
@@ -3701,5 +3692,11 @@ public class StickerManager
 		{
 			((CustomStickerCategory) stickerCategory).loadStickers();
 		}
+	}
+
+	public void markAllCategoriesAsDownloaded()
+	{
+		HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
+		setupStickerCategoryList(); //Set up the sticker category list again
 	}
 }
