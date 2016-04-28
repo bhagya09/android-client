@@ -4697,6 +4697,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		if (view != null)
 		{
 			view.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+			view.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 		}
 	}
 }

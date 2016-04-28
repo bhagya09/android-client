@@ -1122,17 +1122,26 @@ public class ChatHeadUtils
 		return callerContentModel;
 	}
 
-	public static CallerContentModel getUpdatedCallerContentModelFromResponse(CallerContentModel callerContentModel, JSONObject result)
+	public static CallerContentModel getUpdatedCallerContentModelFromResponse(CallerContentModel callerContentModel, JSONObject result, String msisdn)
 	{
 		try
 		{
 			if(result != null)
 			{
+				if(callerContentModel == null)
+				{
+					callerContentModel = new CallerContentModel();
+					callerContentModel.setMsisdn(msisdn);
+					callerContentModel.setFullName(result.optString(HikeConstants.NAME));
+					callerContentModel.setLocation(result.optString(HikeConstants.LOCATION));
+				}
+
 				CallerMetadata md = new CallerMetadata(null);
 				md.setIsUserSpammedByYou(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
 				md.setChatSpamCount(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
-				callerContentModel.setCallerMetadata(md.toString());
+				callerContentModel.setCallerMetadata(md);
 			}
+
 		}
 		catch (JSONException ex)
 		{

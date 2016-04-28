@@ -222,6 +222,11 @@ public class CallerContentModel implements Parcelable
 		this.callerMetadata = new CallerMetadata(callerMetadataString);
 	}
 
+	public void setCallerMetadata(CallerMetadata callerMetadata)
+	{
+		this.callerMetadata = callerMetadata;
+	}
+
 	public int getChatSpamType()
 	{
 		return chat_spam_type;
