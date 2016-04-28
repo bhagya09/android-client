@@ -156,6 +156,8 @@ public class StickerSearchConstants
 
 	public static final String STRING_SPACE = " ";
 
+    public static final String STRING_CONCAT = "+";
+
 	public static final String STRING_PREDICATE = "*";
 
 	public static final String STRING_PREDICATE_NEXT = "* ";
@@ -227,4 +229,6 @@ public class StickerSearchConstants
 	public static final int MAX_RANK_DURING_EVENT = 1000;
 
 	public static final long DEFAULT_EVENT_DURATION = 24 * 60 * 60L; // 24 hours in seconds
+
+    public static final int DEFAULT_SHOP_SEARCH_KEY_LIMIT = 3;
 }

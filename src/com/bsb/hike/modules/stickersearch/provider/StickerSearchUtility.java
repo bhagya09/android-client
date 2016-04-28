@@ -1278,4 +1278,134 @@ public class StickerSearchUtility
 			sPatternContainer.clear();
 		}
 	}
+
+	public static float computeTextMatchScore(String searchKey, String tag, float marginalLateralScore)
+	{
+
+        float result = 0f;
+
+        ArrayList<String> searchWords = StickerSearchUtility.split(searchKey, StickerSearchConstants.REGEX_SPACE, 0);
+        while (searchWords.contains(StickerSearchConstants.STRING_EMPTY))
+        {
+            searchWords.remove(StickerSearchConstants.STRING_EMPTY);
+        }
+
+        ArrayList<String> tagWords = StickerSearchUtility.split(tag, StickerSearchConstants.REGEX_SPACE, 0);
+        while (tagWords.contains(StickerSearchConstants.STRING_EMPTY))
+        {
+            tagWords.remove(StickerSearchConstants.STRING_EMPTY);
+        }
+
+        int searchWordsCount = searchWords.size();
+        int exactWordsCount = tagWords.size();
+        float matchCount = 0.0f;
+        float localScore;
+
+        for (int indexInSearchKey = 0; indexInSearchKey < searchWordsCount; indexInSearchKey++)
+        {
+            for (int indexInTag = 0; indexInTag < exactWordsCount; indexInTag++)
+            {
+                if (tagWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
+                {
+                    localScore = ((float) searchWords.get(indexInSearchKey).length()) / tagWords.get(indexInTag).length();
+
+                    if (indexInSearchKey == indexInTag)
+                    {
+                        matchCount += localScore;
+                    }
+                    else if (indexInSearchKey < indexInTag)
+                    {
+                        matchCount += localScore * (((float) (indexInSearchKey + 1)) / (indexInTag + 1));
+                    }
+                    else
+                    {
+                        matchCount += localScore * (((float) (indexInTag + 1)) / (indexInSearchKey + 1));
+                    }
+
+                    break;
+                }
+            }
+        }
+
+
+
+        // Apply spectra-full match prioritization before final scoring
+		int maxIndexBound = Math.max(searchWordsCount, exactWordsCount);
+		if (matchCount < maxIndexBound)
+		{
+			matchCount = matchCount
+					+ computeAnalogousSpectrelScore(tagWords, searchWords, StickerSearchUtility.getFirstOrderMoment(searchWordsCount, exactWordsCount), marginalLateralScore);
+		}
+		result = Math.min(1.00f, (matchCount / maxIndexBound));
+
+		return result;
+	}
+
+    public static float computeWordMatchScore(String searchKey, String tag)
+    {
+        ArrayList<String> searchWords = StickerSearchUtility.split(searchKey, StickerSearchConstants.REGEX_SPACE, 0);
+        while (searchWords.contains(StickerSearchConstants.STRING_EMPTY))
+        {
+            searchWords.remove(StickerSearchConstants.STRING_EMPTY);
+        }
+
+        ArrayList<String> tagWords = StickerSearchUtility.split(tag, StickerSearchConstants.REGEX_SPACE, 0);
+        while (tagWords.contains(StickerSearchConstants.STRING_EMPTY))
+        {
+            tagWords.remove(StickerSearchConstants.STRING_EMPTY);
+        }
+
+        int searchWordsCount = searchWords.size();
+        int exactWordsCount = tagWords.size();
+        float matchScore = 0.0f;
+        float localScore;
+
+        for (int indexInSearchKey = 0; indexInSearchKey < searchWordsCount; indexInSearchKey++)
+        {
+            for (int indexInTag = 0; indexInTag < exactWordsCount; indexInTag++)
+            {
+                if (tagWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
+                {
+                    localScore = ((float) searchWords.get(indexInSearchKey).length()) / tagWords.get(indexInTag).length();
+
+                    if (indexInSearchKey == indexInTag)
+                    {
+                        matchScore += localScore;
+                    }
+                    else if (indexInSearchKey < indexInTag)
+                    {
+                        matchScore += localScore * (((float) (indexInSearchKey + 1)) / (indexInTag + 1));
+                    }
+                    else
+                    {
+                        matchScore += localScore * (((float) (indexInTag + 1)) / (indexInSearchKey + 1));
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return matchScore;
+    }
+
+	public static float computeAnalogousSpectrelScore(ArrayList<String> tagWords, ArrayList<String> searchWords, int maximumPossibleSpectrumSpreading, float marginalLateralScore)
+	{
+		int wordMatchIndex;
+		float specificSpectrumWidth;
+		float matchCount = 0.0f;
+		int spectrumLimit = Math.min(StickerSearchConstants.MAXIMUM_ACCEPTED_SPECTRUM_SCORING_SIZE, searchWords.size());
+
+		for (int i = 0; i < spectrumLimit; i++)
+		{
+			wordMatchIndex = tagWords.indexOf(searchWords.get(i));
+			if (wordMatchIndex > -1)
+			{
+				specificSpectrumWidth = marginalLateralScore / (i + 1);
+				matchCount = matchCount + (specificSpectrumWidth / maximumPossibleSpectrumSpreading) / (wordMatchIndex + 1);
+			}
+		}
+
+		return matchCount;
+	}
 }

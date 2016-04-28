@@ -82,6 +82,9 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
+import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
+import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -5829,6 +5832,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				c.close();
 			}
 		}
+
 		return stickerDataMap;
 	}
 
@@ -7832,20 +7836,52 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public Cursor getCursorForStickerShop()
+    public Cursor getCursorForStickerShop()
+    {
+        Cursor c = null;
+        try
+        {
+            c = mDb.query(DBConstants.STICKER_SHOP_TABLE, new String[]{DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE}, null, null,
+                    null, null, null);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable",e);
+        }
+        return c;
+    }
+
+	public Map<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
 	{
-		Cursor c = null;
+		if(Utils.isEmpty(categories))
+        {
+            return null;
+        }
+
+        Cursor c = null;
+
+        Map<String,StickerCategory> result = null;
+
 		try
 		{
-			c = mDb.query(DBConstants.STICKER_SHOP_TABLE, new String[] { DBConstants._ID, DBConstants.TOTAL_NUMBER, DBConstants.CATEGORY_NAME, DBConstants.CATEGORY_SIZE }, null, null,
-					null, null, null);
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE,
+                    null,
+                    DBConstants._ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
+                    categories,
+                    null,
+                    null,
+                    null);
+
+            result = parseStickerCategoriesCursor(c);
+
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
-			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable",e);
+			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
-		return c;
+
+		return result;
 	}
 
 	public void clearStickerShop()

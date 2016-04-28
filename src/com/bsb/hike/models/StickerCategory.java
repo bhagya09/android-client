@@ -55,6 +55,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 	private int totalStickers;
 	
 	private int categorySize;
+
+    private int shopRank;
 	
 	public static final int NONE = 0;
 	
@@ -93,6 +95,7 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		this.state = builder.state;
 		this.author = builder.author;
 		this.copyRightString = builder.copyRightString;
+        this.shopRank = builder.shopRank;
 		ensureSaneDefaults();
 	}
 
@@ -147,6 +150,8 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		private String copyRightString;
 
 		private int state;
+
+        private int shopRank;
 
 		protected abstract S self();
 
@@ -250,6 +255,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 			this.author = author;
 			return self();
 		}
+
+        public S setShopRank(int shopRank)
+        {
+            this.shopRank = shopRank;
+            return self();
+        }
 
 		public S setCopyRightString(String copyRightString)
 		{
@@ -698,7 +709,12 @@ public class StickerCategory implements Serializable, Comparable<StickerCategory
 		else
 			setDownloadedStickersCount(0);
 	}
-	
+
+	public int getShopRank()
+	{
+		return shopRank;
+	}
+
 	public void setDownloadedStickersCount(int count)
 	{
 		this.downloadedStickersCount = count;
