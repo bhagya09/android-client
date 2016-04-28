@@ -53,7 +53,7 @@ import java.util.Map;
 public class StickerShopFragment extends StickerShopBaseFragment implements OnScrollListener, AdapterView.OnItemClickListener
 {
 
-	private static final String TAG = StickerShopFragment.class.getSimpleName();
+    private static final String TAG = StickerShopFragment.class.getSimpleName();
 
     StickerShopAdapter mAdapter;
 
@@ -66,15 +66,15 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
     }
 
     private class FetchCursorTask extends AsyncTask<Void, Void, Pair<Cursor,Drawable>>
-	{
+    {
 
-		@Override
-		protected Pair<Cursor,Drawable> doInBackground(Void... arg0)
-		{
-			if(!isAdded()) // not attached to any activity
-			{
-				return null;
-			}
+        @Override
+        protected Pair<Cursor,Drawable> doInBackground(Void... arg0)
+        {
+            if(!isAdded()) // not attached to any activity
+            {
+                return null;
+            }
 
             Bitmap bmp = HikeBitmapFactory.decodeResource(HikeMessengerApp.getInstance().getResources(), R.drawable.art_banner);
             Drawable dr = HikeBitmapFactory.getBitmapDrawable(HikeMessengerApp.getInstance().getResources(), bmp);
@@ -82,135 +82,135 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
             Cursor cursor = HikeConversationsDatabase.getInstance().getCursorForStickerShop();
 
             return new Pair(cursor, dr);
-		}
+        }
 
-		@Override
-		protected void onPreExecute()
-		{
-			getView().findViewById(R.id.loading_data).setVisibility(View.VISIBLE);
-			super.onPreExecute();
-		}
+        @Override
+        protected void onPreExecute()
+        {
+            getView().findViewById(R.id.loading_data).setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
 
-		@Override
-		protected void onPostExecute(Pair<Cursor,Drawable> pair)
-		{
-			if(pair == null || !isAdded())
-			{
-				return ;
-			}
-			super.onPostExecute(pair);
-			View parent = getView();
-			if (parent != null && parent.findViewById(R.id.loading_data) != null)
-			{
-				parent.findViewById(R.id.loading_data).setVisibility(View.GONE);
-			}
-			initAdapterAndList(pair.first, pair.second);
-			HikeMessengerApp.getPubSub().addListeners(StickerShopFragment.this, pubSubListeners);
-			registerListener();
-		}
-	}
+        @Override
+        protected void onPostExecute(Pair<Cursor,Drawable> pair)
+        {
+            if(pair == null || !isAdded())
+            {
+                return ;
+            }
+            super.onPostExecute(pair);
+            View parent = getView();
+            if (parent != null && parent.findViewById(R.id.loading_data) != null)
+            {
+                parent.findViewById(R.id.loading_data).setVisibility(View.GONE);
+            }
+            initAdapterAndList(pair.first, pair.second);
+            HikeMessengerApp.getPubSub().addListeners(StickerShopFragment.this, pubSubListeners);
+            registerListener();
+        }
+    }
 
 
-	private void initAdapterAndList(Cursor cursor, Drawable headerViewDrawable)
-	{
-		listview = (ListView) getView().findViewById(android.R.id.list);
-		listview.setVisibility(View.VISIBLE);
-		headerView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_header, null);
-		ImageView shopBanner = (ImageView) headerView.findViewById(R.id.shop_banner);
-		shopBanner.setImageDrawable(headerViewDrawable);
-		loadingFooterView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_footer, null);
-		downloadFailedFooterView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_footer_loading_failed, null);
-		
-		stickerCategoriesMap = new HashMap<String, StickerCategory>();
-		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
-		mAdapter = new StickerShopAdapter(getActivity(), cursor, stickerCategoriesMap);
-		
-		listview.addHeaderView(headerView);
-		listview.addFooterView(loadingFooterView);
-		listview.addFooterView(downloadFailedFooterView);
-		listview.setAdapter(mAdapter);
-		listview.setOnScrollListener(this);
-		listview.removeFooterView(loadingFooterView);
-		listview.removeFooterView(downloadFailedFooterView);
-		listview.setOnItemClickListener(this);
-		
-		downloadFailedFooterView.setOnClickListener(new OnClickListener()
-		{
-			
-			@Override
-			public void onClick(View v)
-			{
-				downLoadStickerData();
-			}
-		});
-		
-		if((mAdapter.getCursor() == null) || mAdapter.getCursor().getCount() == 0)
-		{
-			listview.setVisibility(View.GONE);
-			downLoadStickerData();
-		}
-		else
-		{
-			listview.setVisibility(View.VISIBLE);
-		}
-	}
-	
-	public void downLoadStickerData()
-	{
-		currentCategoriesCount = (mAdapter == null) || (mAdapter.getCursor() == null) ? 0 : mAdapter.getCursor().getCount();
-		downloadState = DOWNLOADING;
-		loadingFailedEmptyStateMainText = (TextView) loadingFailedEmptyState.findViewById(R.id.main_text);
-		loadingFailedEmptyStateSubText = (TextView) loadingFailedEmptyState.findViewById(R.id.sub_text);
-		if(currentCategoriesCount == 0)
-		{
-			loadingEmptyState.setVisibility(View.VISIBLE);
-			loadingFailedEmptyState.setVisibility(View.GONE);
-		}
-		
-		else
-		{
-			loadingEmptyState.setVisibility(View.GONE);
-			loadingFailedEmptyState.setVisibility(View.GONE);
-			listview.removeFooterView(downloadFailedFooterView);
-			listview.removeFooterView(loadingFooterView);
-			listview.addFooterView(loadingFooterView);
-		}
-		
+    private void initAdapterAndList(Cursor cursor, Drawable headerViewDrawable)
+    {
+        listview = (ListView) getView().findViewById(android.R.id.list);
+        listview.setVisibility(View.VISIBLE);
+        headerView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_header, null);
+        ImageView shopBanner = (ImageView) headerView.findViewById(R.id.shop_banner);
+        shopBanner.setImageDrawable(headerViewDrawable);
+        loadingFooterView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_footer, null);
+        downloadFailedFooterView = getActivity().getLayoutInflater().inflate(R.layout.sticker_shop_footer_loading_failed, null);
 
-		StickerShopDownloadTask stickerShopDownloadTask = new StickerShopDownloadTask(currentCategoriesCount);
-		stickerShopDownloadTask.execute();
-	}
+        stickerCategoriesMap = new HashMap<String, StickerCategory>();
+        stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
+        mAdapter = new StickerShopAdapter(getActivity(), cursor, stickerCategoriesMap);
 
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-	{
-		if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) &&(firstVisibleItem + visibleItemCount)  > (totalItemCount - 5) && StickerManager.getInstance().moreDataAvailableForStickerShop())
-		{
-			downLoadStickerData();
-		}
+        listview.addHeaderView(headerView);
+        listview.addFooterView(loadingFooterView);
+        listview.addFooterView(downloadFailedFooterView);
+        listview.setAdapter(mAdapter);
+        listview.setOnScrollListener(this);
+        listview.removeFooterView(loadingFooterView);
+        listview.removeFooterView(downloadFailedFooterView);
+        listview.setOnItemClickListener(this);
 
-		if (previousFirstVisibleItem != firstVisibleItem)
-		{
-			long currTime = System.currentTimeMillis();
-			long timeToScrollOneElement = currTime - previousEventTime;
-			velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
+        downloadFailedFooterView.setOnClickListener(new OnClickListener()
+        {
 
-			previousFirstVisibleItem = firstVisibleItem;
-			previousEventTime = currTime;
-		}
+            @Override
+            public void onClick(View v)
+            {
+                downLoadStickerData();
+            }
+        });
 
-		if (mAdapter == null)
-		{
-			return;
-		}
+        if((mAdapter.getCursor() == null) || mAdapter.getCursor().getCount() == 0)
+        {
+            listview.setVisibility(View.GONE);
+            downLoadStickerData();
+        }
+        else
+        {
+            listview.setVisibility(View.VISIBLE);
+        }
+    }
 
-	}
+    public void downLoadStickerData()
+    {
+        currentCategoriesCount = (mAdapter == null) || (mAdapter.getCursor() == null) ? 0 : mAdapter.getCursor().getCount();
+        downloadState = DOWNLOADING;
+        loadingFailedEmptyStateMainText = (TextView) loadingFailedEmptyState.findViewById(R.id.main_text);
+        loadingFailedEmptyStateSubText = (TextView) loadingFailedEmptyState.findViewById(R.id.sub_text);
+        if(currentCategoriesCount == 0)
+        {
+            loadingEmptyState.setVisibility(View.VISIBLE);
+            loadingFailedEmptyState.setVisibility(View.GONE);
+        }
 
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState)
-	{
-		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
-	}
+        else
+        {
+            loadingEmptyState.setVisibility(View.GONE);
+            loadingFailedEmptyState.setVisibility(View.GONE);
+            listview.removeFooterView(downloadFailedFooterView);
+            listview.removeFooterView(loadingFooterView);
+            listview.addFooterView(loadingFooterView);
+        }
+
+
+        StickerShopDownloadTask stickerShopDownloadTask = new StickerShopDownloadTask(currentCategoriesCount);
+        stickerShopDownloadTask.execute();
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+    {
+        if (downloadState == NOT_DOWNLOADING && (!mAdapter.isEmpty()) &&(firstVisibleItem + visibleItemCount)  > (totalItemCount - 5) && StickerManager.getInstance().moreDataAvailableForStickerShop())
+        {
+            downLoadStickerData();
+        }
+
+        if (previousFirstVisibleItem != firstVisibleItem)
+        {
+            long currTime = System.currentTimeMillis();
+            long timeToScrollOneElement = currTime - previousEventTime;
+            velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
+
+            previousFirstVisibleItem = firstVisibleItem;
+            previousEventTime = currTime;
+        }
+
+        if (mAdapter == null)
+        {
+            return;
+        }
+
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState)
+    {
+        mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
+    }
 
     public static StickerShopFragment newInstance()
     {
