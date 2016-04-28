@@ -124,8 +124,12 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 	@Override
 	public void execute()
 	{
+		if (requestJsonBody == null)
+		{
+			return;
+		}
 		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
-		if (requestJsonBody != null && !token.isRequestRunning())
+		if (!token.isRequestRunning())
 		{
 			token.execute();
 		}
