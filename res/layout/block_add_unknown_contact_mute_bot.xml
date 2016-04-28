@@ -63,7 +63,7 @@
         <com.bsb.hike.view.CustomFontButton
             android:id="@+id/block_unknown_contact"
             style="@style/BlockAddUnknownContact"
-            android:text="@string/block_title" />
+            android:text="@string/overlay_block_title" />
 
         <View
             android:layout_width="1dp"

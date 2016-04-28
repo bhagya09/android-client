@@ -2565,6 +2565,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
+		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
 			break;

@@ -18,7 +18,8 @@
     <string name="updating_profile">Updating Profile</string>
     <string name="update_profile_failed">Could not update profile</string>
     <string name="image_failed">Unable to open image</string>
-    <string name="block_title">BLOCK</string>
+    <string name="block_title">Block</string>
+    <string name="overlay_block_title">BLOCK</string>
     <string name="unblock_title">Unblock</string>
     <string name="feedback">Feedback</string>
     <string name="block_overlay_message">You\'ve blocked %1$s.  Unblock and continue hiking.</string>
