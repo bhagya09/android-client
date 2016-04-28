@@ -1,10 +1,8 @@
 package com.bsb.hike.ui.fragments;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.os.AsyncTask;
 import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.widget.AbsListView;
@@ -14,9 +12,7 @@ import android.widget.ListView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerShopSearchAdapter;
-import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.ui.CategorySearchWatcher;
@@ -166,4 +162,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
         return null;
 	}
 
+    @Override
+    public void onDestroy()
+    {
+        searchWatcher.releaseResources();
+        super.onDestroy();
+    }
 }
