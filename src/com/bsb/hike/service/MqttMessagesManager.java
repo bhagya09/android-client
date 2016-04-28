@@ -981,7 +981,7 @@ public class MqttMessagesManager
 		 * Start auto download for media files
 		 */
 		String name = OneToNConversationUtils.isGroupConversation(msisdn) ? manager.getName(msisdn) : manager.getContact(msisdn, false, true).getName();
-		if (convMessage.isFileTransferMessage()  || BotUtils.isBot(msisdn))
+		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
 			NetworkType networkType = FTUtils.getNetworkType(context);
