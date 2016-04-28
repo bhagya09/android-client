@@ -25,8 +25,8 @@ public class MessageInfoAdapter extends BaseAdapter
 
  	public static final int LIST_NAME=0;
 	public static final int LIST_REMAINING_GROUP=1;
-	public static final int LIST_CONTACT_GROUP=2;
-	public static final int LIST_CONTACT_ONE=3;
+	public static final int LIST_ONE_TO_N_CONTACT =2;
+	public static final int LIST_ONE_TO_ONE=3;
 	public static final int DEFAULT=4;
 	private Context context;
 
@@ -96,7 +96,7 @@ public class MessageInfoAdapter extends BaseAdapter
 					viewHolder.headerImageViewRight=(ImageView)v.findViewById(R.id.headerImageView);
 					break;
 
-				case LIST_CONTACT_GROUP:
+				case LIST_ONE_TO_N_CONTACT:
 					v = new LinearLayout(context);
 					viewHolder.parent = inflater.inflate(R.layout.messageinfo_item_contact, (LinearLayout) v, false);
 					viewHolder.contactName = (TextView) viewHolder.parent.findViewById(R.id.contact);
@@ -109,7 +109,14 @@ public class MessageInfoAdapter extends BaseAdapter
 					viewHolder.remainingItemsTextView = (TextView) v.findViewById(R.id.remainingItems);
 					break;
 
+				case LIST_ONE_TO_ONE:
+					v = inflater.inflate(R.layout.messageinfo_list_onetoone, null);
+					viewHolder.listheader = (TextView) v.findViewById(R.id.headerTextView);
+					viewHolder.headerImageViewRight=(ImageView)v.findViewById(R.id.headerImageView);
+					viewHolder.timeStamp=(TextView)v.findViewById(R.id.timestamp);
 
+					Logger.d("refresh", "inflating adapter LIST_ONE_TO_ONE " + messageInfoItem + " position " + position);
+					break;
 
 			}
 
@@ -135,7 +142,7 @@ public class MessageInfoAdapter extends BaseAdapter
 				break;
 
 
-			case LIST_CONTACT_GROUP:
+			case LIST_ONE_TO_N_CONTACT:
 				LinearLayout parentView = (LinearLayout) v;
 				parentView.removeAllViews();
 				MessageInfoItem.MesageInfoParticipantItem participant= (MessageInfoItem.MesageInfoParticipantItem) messageInfoItem;
@@ -172,6 +179,13 @@ public class MessageInfoAdapter extends BaseAdapter
 					viewHolder.remainingItemsTextView.setText(remaining);
 
 				Logger.d("refresh","adapter LISTREMAINING "+messageInfoItem+" position "+position);
+				break;
+			case LIST_ONE_TO_ONE:
+				MessageInfoItem.MessageInfoItemOnetoOne onetoOneList=((MessageInfoItem.MessageInfoItemOnetoOne)messageInfoItem);
+				viewHolder.listheader.setText(onetoOneList.getHeader());
+				viewHolder.headerImageViewRight.setBackgroundResource(onetoOneList.getDrawableheaderIcon());
+				viewHolder.timeStamp.setText(onetoOneList.getDisplayedTimeStamp());
+				Logger.d("refresh", "adapter LIST_ONE_TO_ONE " + messageInfoItem + " position " + position);
 				break;
 
 		}
@@ -216,6 +230,9 @@ public class MessageInfoAdapter extends BaseAdapter
 		TextView expandedPlayedTimeStamp;
 		ImageView headerImageViewRight;
 		TextView remainingItemsTextView;
+		TextView headerOneToOne;
+		TextView timeStampOnetoOne;
+
 	}
 
 }

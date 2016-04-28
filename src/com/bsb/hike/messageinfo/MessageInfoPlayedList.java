@@ -16,7 +16,7 @@ public class MessageInfoPlayedList extends MessageInfoList {
 
     public void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData){
         if(participantData.hasRead()){
-            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData,MessageInfoItem.MesageInfoParticipantItem.PLAYED_CONTACT, MessageInfoAdapter.LIST_CONTACT_GROUP));
+            allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData,MessageInfoItem.MesageInfoParticipantItem.PLAYED_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT));
         }else
         {
         }
