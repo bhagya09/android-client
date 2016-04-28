@@ -3370,11 +3370,14 @@ public class StickerManager
 	public void migrateStickerAssets(String fromPath, String toPath)
 	{
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
+		HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
+
 		if (isMoved)
 		{
 			// Assets migrated successfully
 			// Update stickers path
 			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
+
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				doInitialSetup();
@@ -3383,10 +3386,7 @@ public class StickerManager
 		else
 		{
 			// Move wasn't successful.
-			// 1. Wipe StickerTable
-			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-
-			// 2. Delete old sticker folder (if present)
+			// 1. Delete old sticker folder (if present)
 			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
 		}
 	}
