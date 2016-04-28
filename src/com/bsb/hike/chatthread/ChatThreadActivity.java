@@ -433,6 +433,13 @@ public class ChatThreadActivity extends HikeAppStateBaseFragmentActivity
 		return;
 	}
 	
+	public boolean isWalkieTalkieShowing(){
+		if(chatThread != null) {
+			return chatThread.isWalkieTalkieShowing();
+		}
+		return false;
+	}
+
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();

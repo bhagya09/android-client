@@ -88,6 +88,7 @@ public class KeyboardOffBoarding
 		if (googleBtnTxt != null) {
 			((TextView)(rootView.findViewById(R.id.btn_google_keyboard))).setText(googleBtnTxt);
 		}
+
 	}
 
 	public boolean showView() {
@@ -113,14 +114,6 @@ public class KeyboardOffBoarding
 					// TODO Auto-generated method stub
 					destroy();
 					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_OPEN_KEYBOARD);
-				}
-			});
-
-			rootView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					destroy();
-					trackClickAnalyticEvents(HikeConstants.LogEvent.KEYBOARD_EXIT_UI_CLOSE_BUTTON);
 				}
 			});
 

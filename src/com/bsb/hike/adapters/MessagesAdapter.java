@@ -66,6 +66,7 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -1136,7 +1137,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							wtHolder.action.setImageResource(R.drawable.ic_mic);
 						}
 						wtHolder.duration.setTag(hikeFile.getFileKey());
-						voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						//CE-261: Last played audio message shows incorrect time when mediaplayer is null
+						if (voiceMessagePlayer.mediaPlayer == null) {
+							Utils.setupFormattedTime(wtHolder.duration, hikeFile.getRecordingDuration());
+						} else {
+							voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						}
 						wtHolder.duration.setVisibility(View.VISIBLE);
 						wtHolder.progress.setVisibility(View.VISIBLE);
 					}
@@ -3533,6 +3539,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		/**
 		 * Other click cases
 		 */
+
+		// Eating the click event when the WT recording is in progress
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity){
+			boolean isWTShowing = ((ChatThreadActivity)mActivity).isWalkieTalkieShowing();
+			if(isWTShowing) return;
+		}
 		ConvMessage convMessage = (ConvMessage) v.getTag();
 		if (convMessage == null)
 		{
@@ -4052,14 +4064,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			catch (IllegalArgumentException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IllegalStateException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
+
+				File tempFile = new File(hikeFile.getFilePath());
+				boolean doesFileExist = (tempFile != null) ? tempFile.exists(): false;
+				if(!doesFileExist) {
+					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 
@@ -4114,6 +4135,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationProgress = null;
 
 			unregisterProximitySensor();
+			unregisterHeadserReceiver();
 			audioManager.setMode(initialAudioMode);
 		}
 
@@ -4220,7 +4242,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				return;
 			}
 			String btnFileKey = (String) fileBtn.getTag();
-			if (!fileKey.equals(btnFileKey))
+			if (fileKey != null && !fileKey.equals(btnFileKey))
 			{
 				return;
 			}
@@ -4245,6 +4267,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (durationTxt == null || durationProgress == null || fileKey == null || mediaPlayer == null)
 			{
+				if(fileKey == null && durationTxt != null){ //CE-462 & CE-461
+					durationTxt.setText("N/A");
+				}
 				return;
 			}
 			String txtFileKey = (String) durationTxt.getTag();

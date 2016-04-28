@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1651"
-    android:versionName="4.2.5.82.103" >
+    android:versionCode="1685"
+    android:versionName="4.2.5.82.49.3.sticker_sprint_25_4_16" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -613,6 +613,9 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.hike.abtest.UpdateExperimentService"
+            android:exported="false" />
 </application>
 
 </manifest>

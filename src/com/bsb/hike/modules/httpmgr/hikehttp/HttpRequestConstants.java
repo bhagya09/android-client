@@ -61,11 +61,19 @@ public class HttpRequestConstants
 
 	private static final String BASE_STICKER = "/stickers";
 
+	private static final String BASE_SHOP = "/shop";
+
 	private static final String BASE_INVITE = "/invite";
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
 	
 	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_PROD = "http://oauth.platform.hike.in/o/oauth2/";
+
+	private static String BASE_AUTH_SDK = HTTP + BASE_AUTH_SDK_PROD;
 	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
@@ -105,6 +113,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -113,8 +122,15 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
+	private static void changeBaseAuthUrl()
+	{
+		BASE_AUTH_SDK = "";
+		BASE_AUTH_SDK += (isSSL) ? HTTPS : HTTP;
+		BASE_AUTH_SDK += (isProduction) ? BASE_AUTH_SDK_PROD : BASE_AUTH_SDK_STAGING;
+	}
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
@@ -206,9 +222,20 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
-	
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
 	public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
@@ -347,7 +374,7 @@ public class HttpRequestConstants
 	
 	public static String authBaseUrl()
 	{
-		return BASE_SDK_STAGING+"authorize" + "?" ;
+		return BASE_AUTH_SDK+"authorize" + "?" ;
 	}
 
 	public static String registerBrandUrl()
@@ -534,5 +561,10 @@ public class HttpRequestConstants
 
 	public static String getAnalyticsUrl() {
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
+	public static String getHistoricalStatusUpdatesUrl()
+	{
+		return  BASE_URL + BASE_V1 + "hsu/";
 	}
 }

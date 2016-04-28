@@ -87,9 +87,11 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.signUpP
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerImageDownloadBase;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.singleStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryFetchPrefOrderUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPalleteImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerPreviewImageDownloadUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopDownloadUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerShopFetchCategoryUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerSignupUpgradeUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.stickerCategoryDetailsUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.unlinkAccountBaseUrl;
@@ -97,8 +99,10 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
+import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
 
@@ -200,6 +204,33 @@ public class HttpRequests
 				.setId(requestId)
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
+				.setPriority(PRIORITY_HIGH)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(stickerShopFetchCategoryUrl())
+				.setId(requestId)
+				.post(body)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
+				.setPriority(PRIORITY_LOW)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getPrefOrderForCategories(String requestId, IRequestListener requestListener, int catSize, int offset)
+	{
+		String url = stickerCategoryFetchPrefOrderUrl() + "?N=" + catSize + "&offset=" + offset;
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setId(requestId)
+				.setRequestListener(requestListener)
+				.setRequestType(REQUEST_TYPE_LONG)
 				.setPriority(PRIORITY_HIGH)
 				.build();
 		return requestToken;
@@ -636,6 +667,31 @@ public class HttpRequests
 
 
 	}
+
+    public static RequestToken forwardCardsMISPostRequest(String url, JSONObject json, IRequestListener requestListener, String id)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(url)
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .setId(id)
+                    .build();
+
+            return requestToken;
+        }
+
+
+    }
 
 	public static RequestToken microAppGetRequest(String url, IRequestListener requestListener)
 	{
@@ -1177,6 +1233,18 @@ public class HttpRequests
 		}
 
 
+	}
+
+	public static RequestToken getHistoricSUToken(String userMsisdn, IRequestListener listener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getHistoricalStatusUpdatesUrl() + userMsisdn)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.build();
+
+		requestToken.execute();
+		return requestToken;
 	}
 
 }

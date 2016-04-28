@@ -48,6 +48,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -61,6 +62,12 @@ import com.bsb.hike.utils.Utils;
 public class ChatThreadUtils
 {
 	private static final String TAG = "ChatThreadUtils";
+
+	public static boolean isWT1RevampEnabled(Context context)
+	{
+		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
+		return wtRevamp;
+	}
 
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
@@ -362,19 +369,21 @@ public class ChatThreadUtils
 		HikeMessengerApp.getPubSub().publish(HikePubSub.DELETE_MESSAGE, new Pair<ArrayList<Long>, Bundle>(msgIds, bundle));
 	}
 
-	protected static void setStickerMetadata(ConvMessage convMessage, String categoryId, String stickerId, String source)
+	protected static void setStickerMetadata(ConvMessage convMessage, Sticker sticker, String source)
 	{
 		JSONObject metadata = new JSONObject();
 		try
 		{
-			metadata.put(StickerManager.CATEGORY_ID, categoryId);
+			metadata.put(StickerManager.CATEGORY_ID, sticker.getCategoryId());
 
-			metadata.put(StickerManager.STICKER_ID, stickerId);
+			metadata.put(StickerManager.STICKER_ID, sticker.getStickerId());
 
 			if (!source.equalsIgnoreCase(StickerManager.FROM_OTHER))
 			{
 				metadata.put(StickerManager.SEND_SOURCE, source);
 			}
+
+			metadata.put(StickerManager.STICKER_TYPE, sticker.getStickerType().ordinal());
 
 			convMessage.setMetadata(metadata);
 			Logger.d(TAG, "metadata: " + metadata.toString());

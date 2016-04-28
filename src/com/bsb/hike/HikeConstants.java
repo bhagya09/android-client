@@ -763,6 +763,7 @@ public class HikeConstants
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -818,7 +819,7 @@ public class HikeConstants
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
 	/* quiet period of no changes(in seconds) before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 60;
+	public static final long CONTACT_UPDATE_TIMEOUT = 5;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1381,6 +1382,8 @@ public class HikeConstants
 	public static final String VOIP_AEC_TAIL_TYPE = "att";
 
 	public static final String VOIP_RATINGS_LEFT = "vrl";
+
+	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
 	public static final class ChatHead
 	{
@@ -2257,6 +2260,12 @@ public class HikeConstants
 
         public static final String EMOTICON_SENT = "eSnt";
 
+        public static final String EMOTICON_DATA = "eD";
+
+        public static final String EMOTICON_NAME = "eName";
+
+        public static final String EMOTICON_COUNT = "eCnt";
+
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
 		public static final String STKR_SHOP_BTN_CLICKED_FROM_RECOMMENDATION_FTUE = "ftshpck";
@@ -2648,6 +2657,9 @@ public class HikeConstants
 		public static final String KEYBOARD_EXIT_UI_OPEN_KEYBOARD = "kek";
 
 		public static final String KEYBOARD_EXIT_UI_PLAYSTORE_BUTTON = "kep";
+
+		public static final String WT_RECORDING_CANCELLED_BY_USER = "wtcan";
+
 	}
 
 	public static final class Toast
@@ -3200,6 +3212,10 @@ public class HikeConstants
 	public static final String AUTHOR = "author";
 
 	public static final String COPYRIGHT = "copyright";
+
+	public static final String STATE = "state";
+
+	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -4097,4 +4113,46 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final String UPDATED_ALL_CATEGORIES = "updatedAllCategories";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
+	public static final class AddFriendSources
+	{
+		public static final String CHAT_FTUE = "chat_ftue_screen";
+
+		public static final String CHAT_ADD_FRIEND = "chat_add_friend_Screen";
+
+		public static final String FRIENDS_SCREEN = "friends_screen";
+
+		public static final String PROFILE_SCREEN = "profile_screen";
+
+		public static final String TIMELINE_FTUE_SCREEN = "timeline_ftue_screen";
+
+		public static final String FORWARD_SCREEN = "fwd_screen";
+
+		public static final String UNKNOWN = "unknown";
+	}
+
+	public static final String LAST_SEEN_TEMP_PREF = "ls_temp";
+
+	public static final String SHOW_RECOMMENDED_PACKS = "shw_rec_pcks";
+
+    public static final String STICKER_DOWNLOAD_ATTEMPTED_SET = "s_d_f_s";
+
+	public static final String POSITION = "pos";
+
+	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
 }

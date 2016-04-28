@@ -415,7 +415,7 @@ public class GroupChatThread extends OneToNChatThread
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, ChatThreadTips.WT_RECOMMEND_TIP }, sharedPreference);
 
 		mTips.showTip();
 	}
@@ -550,9 +550,13 @@ public class GroupChatThread extends OneToNChatThread
 			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
+			if(item.getItemId() != android.R.id.home) {
+				if(isWalkieTalkieShowing()) return true;
+			}
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
+
 				// Make a group voip call after confirmation
 				new AlertDialog.Builder(activity).
 				setTitle(R.string.voip_conference_label).
