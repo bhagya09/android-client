@@ -165,7 +165,6 @@ public class StickerSignupUpgradeDownloadTask implements IHikeHTTPTask, IHikeHtt
 		JSONArray resultData = (JSONArray) result;
 		StickerManager.getInstance().updateStickerCategoriesMetadata(resultData);
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true);
-		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.FETCH_CATEGORIES_METADATA, false); //Set the pref as done
 	}
 
 	@Override

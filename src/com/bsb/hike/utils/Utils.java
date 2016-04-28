@@ -8626,9 +8626,7 @@ public class Utils
 		boolean result = true;
 
 		// param check
-		if(oldRootDir == null
-				|| newRootDir == null
-				|| oldRootDir.listFiles() == null)
+		if(oldRootDir == null || newRootDir == null)
 		{
 			return false;
 		}
@@ -8636,6 +8634,12 @@ public class Utils
 		if (!newRootDir.exists())
 		{
 			result = result && newRootDir.mkdirs();
+		}
+
+		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		{
+			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
+			return true; //Migration unsuccessful but new folder created
 		}
 
 		if (result)
