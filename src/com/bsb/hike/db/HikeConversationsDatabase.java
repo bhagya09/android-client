@@ -4962,13 +4962,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 
 		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MSISDN, mute.getMsisdn());
 		contentValues.put(DBConstants.IS_MUTE, mute.isMute());
 		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
 		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute());
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
 		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
-		mDb.updateWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[]{mute.getMsisdn()}, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
 	}
 
 	public int setGroupName(String groupId, String groupname)
@@ -6341,8 +6342,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.BG_ID, bgId);
 		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
-//		TODO : ANU Check here if the old row is completely removed, because that will remove mute data also
-		mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.update(DBConstants.GROUP_INFO_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
@@ -6403,81 +6403,64 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void removeChatThemeForMsisdn(String msisdn)
 	{
-//		TODO : ANU Do not remove the column here, instead make the chat_bg value default
-		mDb.delete(DBConstants.CHAT_PROPERTIES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.BG_ID, "");
+		values.put(DBConstants.BG_TIMESTAMP, 0);
+
+		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public void setChatThemesFromArray(JSONArray chatBackgroundArray)
 	{
-		SQLiteStatement insertStatement = null;
-		InsertHelper ih = null;
-		try
+
+		ContentValues contentValues = new ContentValues();
+
+		if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
 		{
-			ih = new InsertHelper(mDb, DBConstants.CHAT_PROPERTIES_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.CHAT_PROPERTIES_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.BG_ID + " ) "
-					+ " VALUES (?, ?)");
-			mDb.beginTransaction();
-
-			if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
-			{
-				return;
-			}
-			for (int i = 0; i < chatBackgroundArray.length(); i++)
-			{
-				JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
-
-				if (chatBgJson == null)
-				{
-					continue;
-				}
-
-				String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
-				String bgId = chatBgJson.optString(HikeConstants.BG_ID);
-
-				if (TextUtils.isEmpty(msisdn))
-				{
-					continue;
-				}
-
-				ChatTheme chatTheme = null;
-
-				try
-				{
-					/*
-					 * We don't support custom themes yet.
-					 */
-					if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
-					{
-						throw new IllegalArgumentException();
-					}
-
-					chatTheme = ChatTheme.getThemeFromId(bgId);
-				}
-				catch (IllegalArgumentException e)
-				{
-					continue;
-				}
-
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.BG_ID), bgId);
-
-				insertStatement.executeInsert();
-
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
-			}
-			mDb.setTransactionSuccessful();
+			return;
 		}
-		finally
+		for (int i = 0; i < chatBackgroundArray.length(); i++)
 		{
-			if (insertStatement != null)
+			JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
+
+			if (chatBgJson == null)
 			{
-				insertStatement.close();
+				continue;
 			}
-			if (ih != null)
+
+			String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
+			String bgId = chatBgJson.optString(HikeConstants.BG_ID);
+
+			if (TextUtils.isEmpty(msisdn))
 			{
-				ih.close();
+				continue;
 			}
-			mDb.endTransaction();
+
+			ChatTheme chatTheme = null;
+
+			try
+			{
+				/*
+				 * We don't support custom themes yet.
+				 */
+				if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
+				{
+					throw new IllegalArgumentException();
+				}
+
+				chatTheme = ChatTheme.getThemeFromId(bgId);
+			}
+			catch (IllegalArgumentException e)
+			{
+				continue;
+			}
+
+			contentValues.put(DBConstants.MSISDN, msisdn);
+			contentValues.put(DBConstants.BG_ID, bgId);
+
+			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
 		}
 	}
 
