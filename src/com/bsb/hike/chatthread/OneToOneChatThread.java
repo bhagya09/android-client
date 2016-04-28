@@ -275,7 +275,7 @@ import java.util.Map;
 	{
 		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
 		{
-			if (mContactInfo == null && !mContactInfo.isUnknownContact())
+			if (mContactInfo == null || !mContactInfo.isUnknownContact())
 			{
 				intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
 				return;
