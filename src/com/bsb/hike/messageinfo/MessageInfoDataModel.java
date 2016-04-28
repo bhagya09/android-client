@@ -15,7 +15,7 @@ import java.util.TreeMap;
 /**
  * Created by ravi on 4/20/16.
  */
-public abstract class MessageInfoDataModel implements HikePubSub.Listener
+public abstract class MessageInfoDataModel
 {
 
 	public abstract HashMap<String, MessageInfoParticipantData> getAllDeliveredMembers();
@@ -43,22 +43,6 @@ public abstract class MessageInfoDataModel implements HikePubSub.Listener
 	protected HikeConversationsDatabase mDb = HikeConversationsDatabase.getInstance();
 
 	protected ConvMessage convMessage;
-
-	public void fetchMessageInfo()
-	{
-
-		messageInfoMap = mDb.getMessageInfo(messageID);
-		convMessage=mDb.getMessageFromID(messageID,msisdn);
-		Iterator<MessageInfo> iterator = messageInfoMap.iterator();
-		while (iterator.hasNext())
-		{
-			MessageInfo info = iterator.next();
-			MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
-			participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
-			participant.setReadTimeStamp(info.getReadTimestamp());
-			participant.setPlayedTimeStamp(info.getPlayedTimestamp());
-		}
-	}
 
 	public String msisdn;
 

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ 	<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/conversation_item"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/conversation_list_item"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/conv_item_padding"
+        android:paddingRight="@dimen/conv_item_padding" >
+
+        <FrameLayout
+            android:layout_width="@dimen/conv_item_avatar"
+            android:layout_height="@dimen/conv_item_avatar">
+
+            <com.bsb.hike.view.RoundedImageView
+                android:id="@+id/avatar"
+                style="@style/AvatarStyle.MorePadding" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:orientation="vertical"
+            android:paddingBottom="3dp" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/contact"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginRight="5dp"
+                    android:text="Alice Stone"
+                    style="@style/ListItemHeaderTextView" />
+                
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="1.0"
+                android:layout_marginTop=".5dp">
+
+                 <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/timestamp"
+                    android:layout_marginRight="16dp"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="visible" />
+
+
+               
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:weightSum="1.0"
+                android:layout_marginTop=".5dp">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/expand_read_text"
+                    android:layout_marginRight="16dp"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="invisible" />
+
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/read_message_timestamp"
+                    android:layout_marginRight="16dp"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:weightSum="1.0"
+                android:layout_marginTop=".5dp">
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/expand_delivered_text"
+                    android:layout_marginRight="16dp"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="invisible" />
+
+
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/delivered_message_timestamp"
+                    android:layout_marginRight="16dp"
+                    style="@style/ListItemSubHeaderTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+        </LinearLayout>
+ </LinearLayout>
