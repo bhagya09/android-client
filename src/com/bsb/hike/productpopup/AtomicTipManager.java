@@ -397,6 +397,18 @@ public class AtomicTipManager
         return currentlyShowing.isCancellable();
     }
 
+    public void setAtomicTipBackground(View tipView, BitmapDrawable bgDrawable)
+    {
+        if(Utils.isJellybeanOrHigher())
+        {
+            tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+        }
+        else
+        {
+            tipView.findViewById(R.id.all_content).setBackgroundDrawable(bgDrawable);
+        }
+    }
+
     /**
      * Method to inflate the atomic tip view by using model for currentlyShowing
      * @return
@@ -445,13 +457,13 @@ public class AtomicTipManager
                 else
                 {
                     Logger.d(TAG, "setting image as atomic tip background");
-                    tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+                    setAtomicTipBackground(tipView, bgDrawable);
                 }
             }
             else
             {
                 Logger.d(TAG, "setting cached image as atomic tip backround");
-                tipView.findViewById(R.id.all_content).setBackground(bgDrawable);
+                setAtomicTipBackground(tipView, bgDrawable);
             }
 
         }
