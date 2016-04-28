@@ -1237,7 +1237,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			searchText = null;
 			mAdapter.removeSearch();
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false);
 			searchMode = false;
 		}
 	}
@@ -1844,7 +1844,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty());
+		ShowTipIfNeeded(displayedConversations.isEmpty(), false);
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1870,7 +1870,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void ShowTipIfNeeded(boolean hasNoConversation)
+	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent)
 	{
 
 		if (convTip == null)
@@ -1883,7 +1883,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
 
-		if(AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist())
+		if(!isFromNewIntent && AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist())
 		{
 			tipType = ConversationTip.ATOMIC_TIP;
 		}
@@ -3885,7 +3885,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			ShowTipIfNeeded(displayedConversations.isEmpty(), true);
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
