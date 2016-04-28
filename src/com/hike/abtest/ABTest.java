@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.hike.abtest.dataPersist.DataPersist;
 import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
@@ -55,6 +56,7 @@ public class ABTest {
     }
     /**
      * Applies/Loads all the stored ABExperiments if available.
+     * Called as and when the application starts up
      *
      * @param context Application context.
      *
@@ -170,7 +172,7 @@ public class ABTest {
      *
      * @return Returns experiment details for the given variable if applicable, or null.
      */
-    public static synchronized JSONObject getDetails(String varKey) {
+    public static synchronized JSONObject getLogDetails(String varKey) {
         if(!isInitialized.get()) {
             return null;
         }
@@ -183,8 +185,9 @@ public class ABTest {
                 //Logging only when experiment is running
                 if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
                     experimentDetails = new JSONObject();
-                    experimentDetails.put("ExperimentID", experiment.getExperimentId());
-                    experimentDetails.put("VariantID", experiment.getVariantId());
+                    experimentDetails.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_ABTEST_LOGS);
+                    experimentDetails.put(AnalyticsConstants.V2.PHYLUM, experiment.getExperimentId());
+                    experimentDetails.put(AnalyticsConstants.V2.CLASS, experiment.getVariantId());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
