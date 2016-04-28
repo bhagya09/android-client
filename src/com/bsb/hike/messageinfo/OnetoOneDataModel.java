@@ -54,9 +54,5 @@ public class OnetoOneDataModel extends MessageInfoDataModel
 		}
 	}
 
-	@Override
-	public void onEventReceived(String type, Object object)
-	{
 
-	}
 }

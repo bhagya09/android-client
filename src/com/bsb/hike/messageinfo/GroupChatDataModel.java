@@ -47,7 +47,8 @@ public class GroupChatDataModel extends MessageInfoDataModel
 	@Override
 	public void fetchAllParticipantsInfo()
 	{
-		ContactInfo contactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+
+		convMessage=mDb.getMessageFromID(messageID,msisdn);
 		messageInfoMap = mDb.getMessageInfo(messageID);
 
 		oneToNConversation = (GroupConversation) mDb.getConversation(msisdn, 0, false);
@@ -73,10 +74,21 @@ public class GroupChatDataModel extends MessageInfoDataModel
 			}
 		}
 	}
+	public void refreshData(){
 
-	@Override
-	public void onEventReceived(String type, Object object)
-	{
-
+		messageInfoMap = mDb.getMessageInfo(messageID);
+		if (messageInfoMap != null)
+		{
+			Iterator<MessageInfo> iterator = messageInfoMap.iterator();
+			while (iterator.hasNext())
+			{
+				MessageInfo info = iterator.next();
+				MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
+				participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
+				participant.setReadTimeStamp(info.getReadTimestamp());
+				participant.setPlayedTimeStamp(info.getPlayedTimestamp());
+			}
+		}
 	}
+
 }
