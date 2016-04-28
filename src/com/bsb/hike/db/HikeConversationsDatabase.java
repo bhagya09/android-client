@@ -5861,6 +5861,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return stickerDataMap;
 	}
 
+    public Map<Integer, StickerCategory> parseCategorySearchResultsCursor(Cursor c)
+    {
+        Map<Integer, StickerCategory> stickerDataMap = new LinkedHashMap<Integer, StickerCategory>(c.getCount());
+
+        while (c.moveToNext())
+        {
+            try
+            {
+                String categoryId = c.getString(c.getColumnIndex(DBConstants._ID));
+                String categoryName = c.getString(c.getColumnIndex(DBConstants.CATEGORY_NAME));
+                boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
+                boolean isDownloaded = c.getInt(c.getColumnIndex(DBConstants.IS_DOWNLOADED)) == 1;
+                int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
+                int ucid = c.getInt(c.getColumnIndex(DBConstants.UCID));
+                int rank = c.getInt(c.getColumnIndex(DBConstants.RANK));
+
+                StickerCategory s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName)
+                            .setTotalStickers(totalStickers).setUpdateAvailable(updateAvailable)
+                            .setIsDownloaded(isDownloaded).setUcid(ucid).build();
+                stickerDataMap.put(ucid, s);
+            }
+            catch (Exception e)
+            {
+                Logger.e(getClass().getSimpleName(), e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return stickerDataMap;
+    }
+
 	public LinkedHashMap<String, StickerCategory> parseStickerCategoriesCursor(Cursor c)
 	{
 		LinkedHashMap<String, StickerCategory> stickerDataMap = new LinkedHashMap<String, StickerCategory>(c.getCount());
@@ -7995,7 +8025,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public Map<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
+	public Map<Integer,StickerCategory> getCategoriesForShopSearch(String[] categories)
 	{
 		if(Utils.isEmpty(categories))
         {
@@ -8004,19 +8034,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
         Cursor c = null;
 
-        Map<String,StickerCategory> result = null;
+        Map<Integer,StickerCategory> result = null;
+
+        String selection[] = {DBConstants._ID,DBConstants.UCID,DBConstants.CATEGORY_NAME,DBConstants.RANK,DBConstants.TOTAL_NUMBER,DBConstants.IS_DOWNLOADED,DBConstants.UPDATE_AVAILABLE};
 
 		try
 		{
 			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE,
-                    null,
+                    selection,
                     DBConstants.UCID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
                     categories,
                     null,
                     null,
                     null);
 
-            result = parseStickerCategoriesCursor(c);
+            result = parseCategorySearchResultsCursor(c);
 
 		}
 		catch (Exception e)

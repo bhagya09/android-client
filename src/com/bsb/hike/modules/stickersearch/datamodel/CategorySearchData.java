@@ -40,7 +40,7 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 	{
 		if (category == null)
 		{
-			category = CategorySearchManager.getInstance().getSearchedCategoriesFromCache(categoryID);
+			category = CategorySearchManager.getInstance().getSearchedCategoriesFromCache(ucid);
 		}
 
 		return category;

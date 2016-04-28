@@ -42,7 +42,7 @@ public enum CategorySearchManager
 
     private static Map<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
-    private static Map<String, StickerCategory> mCacheForSearchedCategories = new HashMap<String, StickerCategory>();
+    private static Map<Integer, StickerCategory> mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
 
     private SearchEngine categorySearchEngine = new SearchEngine();
 
@@ -146,14 +146,14 @@ public enum CategorySearchManager
         return result;
     }
 
-    public void loadSearchedCategories(String[] categories)
+    public void loadSearchedCategories(String[] categorieUcids)
     {
-        mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categories));
+        mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categorieUcids));
     }
 
-    public StickerCategory getSearchedCategoriesFromCache(String catId)
+    public StickerCategory getSearchedCategoriesFromCache(int ucid)
     {
-        return mCacheForSearchedCategories.get(catId);
+        return mCacheForSearchedCategories.get(ucid);
     }
 
 	public float[] getFeatureWeights()
