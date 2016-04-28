@@ -2914,10 +2914,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			}
 
 			Mute mute = (Mute) object;
-			String groupId = mute.getMsisdn();
+			String msisdn = mute.getMsisdn();
 			final Boolean isMuted = mute.isMute();
 
-			final ConvInfo convInfo = mConversationsByMSISDN.get(groupId);
+			final ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
 
 			if (convInfo == null)
 			{
@@ -2928,14 +2928,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void run()
 				{
-					if (convInfo instanceof OneToNConvInfo)
-					{
-						convInfo.setIsMute(isMuted);
-					}
-					else if (BotUtils.isBot(convInfo.getMsisdn()))
-					{
-						convInfo.setIsMute(isMuted);
-					}
+					convInfo.setIsMute(isMuted);
 
 					View parentView = getParenViewForConversation(convInfo);
 					if (parentView == null)
