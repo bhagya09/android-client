@@ -1301,6 +1301,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
+			recordMediaShareAnalyticEvent(AnalyticsConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
 			stickerClicked();
