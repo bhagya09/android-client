@@ -33,9 +33,6 @@ public class CustomLinearLayout extends LinearLayout
 			}
 			else
 			{
-				if(oldSpec < newSpec){
-					onSoftKeyboardListener.onHiddingPreviouslyShown();
-				}
 				onSoftKeyboardListener.onHidden();
 			}
 		}
@@ -53,8 +50,6 @@ public class CustomLinearLayout extends LinearLayout
 		public void onShown();
 
 		public void onHidden();
-
-		public void onHiddingPreviouslyShown();
 	}
 
 }

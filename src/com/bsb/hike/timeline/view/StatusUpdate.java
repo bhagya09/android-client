@@ -909,12 +909,6 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	}
 
 	@Override
-	public void onHiddingPreviouslyShown()
-	{
-	}
-
-
-	@Override
 	public void onClick(View v)
 	{
 		switch (v.getId())
