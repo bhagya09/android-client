@@ -16,6 +16,7 @@ public abstract class MessageInfoList {
     public int totalNumberofParticipants;
     public abstract void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData);
     public MessageInfoList(int totalNumberofParticipants){
+
         this.totalNumberofParticipants=totalNumberofParticipants;
         allDisplayedContactItems=new ArrayList<MessageInfoItem.MesageInfoParticipantItem>();
         remainingItem=new MessageInfoItem.MesageInfoRemainingItem(MessageInfoItem.REMAINING_ITEM,totalNumberofParticipants, MessageInfoAdapter.LIST_REMAINING_GROUP, R.string.emptydeliveredlist);

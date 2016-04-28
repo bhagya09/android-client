@@ -82,6 +82,10 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		if (msg.what == 1)
 		{
 			messageInfoAdapter.notifyDataSetChanged();
+			Logger.d("refresh", " adapter count" + messageInfoAdapter.getCount());
+
+			Logger.d("refresh", " list count" + messageInfoItemList.size());
+
 		}
 	}
 
@@ -112,7 +116,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 		setupActionBar();
-		addMessageHeaderView(dataModel.getConvMessage());
+		addMessageHeaderView(controller.getConvMessage());
 		Toast.makeText(this, "Message Info " + populateMessageInfo(), Toast.LENGTH_LONG).show();
 
 	}
@@ -125,14 +129,18 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		if (type == HikeConstants.MESSAGE_INFO.GROUP || type == HikeConstants.MESSAGE_INFO.BROADCAST)
 		{
 			isGroupChat = true;
+			if(dataModel==null)
 			dataModel = new GroupChatDataModel(msisdn, messageID);
+			if(controller==null)
 			controller = new MessageInfoControllerGroup(dataModel);
 
 		}
 		else
 		{
 			isOnetoOne = true;
+			if(dataModel==null)
 			dataModel = new OnetoOneDataModel(msisdn, messageID);
+			if(controller==null)
 			controller = new MessageInfoControllerOnetoOne(dataModel);
 		}
 		controller.init();
@@ -161,6 +169,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			this.dataModel = dataModel;
 		}
 
+		public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
+
+		MessageInfoList readList, deliveredList, playedList;
 		ConvMessage convMessage;
 
 		public abstract void refreshData();
@@ -183,12 +194,14 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			if (controller != null)
 				controller.onDestroy();
 		}
-
+		public ConvMessage getConvMessage(){
+			return convMessage;
+		}
 		@Override
 		public void onEventReceived(String type, Object object)
 		{
 			//Holding it for now
-			//refreshData();
+			refreshData();
 		}
 
 		protected boolean shouldAddPlayedList()
@@ -212,32 +225,48 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void refreshData()
 		{
+			dataModel.fetchAllParticipantsInfo();
+			addItems();
 
 		}
 
 		@Override
 		protected void notifyAdapter()
 		{
-
+			uiHandler.sendEmptyMessageDelayed(1,5000);
 		}
 
 		@Override
-		public void addItems()
-		{
+		public void addItems() {
 			Logger.d("MessageInfo", "Adding Items One to One");
-
-			messageInfoItemList.add(new MessageInfoItem.MessageStatusHeader("Read List", R.drawable.ic_double_tick_white));
+			messageInfoItemList.clear();
 			participantTreeMap = dataModel.participantTreeMap;
-			Iterator iterator = participantTreeMap.values().iterator();
-			MessageInfoDataModel.MessageInfoParticipantData participantData = (MessageInfoDataModel.MessageInfoParticipantData) iterator.next();
-
-			messageInfoItemList.add(new MessageInfoItem.MesageInfoParticipantItem(participantData, MessageInfoItem.MesageInfoParticipantItem.READ_CONTACT,
-					MessageInfoItem.MesageInfoParticipantItem.READ_CONTACT));
-			messageInfoItemList.add(new MessageInfoItem.MessageStatusHeader("Delivered List", R.drawable.ic_double_tick_white));
-			messageInfoItemList.add(new MessageInfoItem.MesageInfoParticipantItem(participantData, MessageInfoItem.MesageInfoParticipantItem.DELIVERED_CONTACT,
-					MessageInfoItem.MesageInfoParticipantItem.DELIVERED_CONTACT));
-			notifyAdapter();
+			Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
+			MessageInfoDataModel.MessageInfoParticipantData participantData=null;
+			if(iterator.hasNext())
+			 participantData=iterator.next();
+			//Creating readList
+			MessageInfoItem.MessageInfoItemOnetoOne readList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.read_list),R.drawable.ic_double_tick_r);
+			if(!participantTreeMap.isEmpty()){
+				if(participantData!=null)
+				readList.setTimeStamp(participantData.getReadTimeStamp());
+			}
+			//Creating deliveredList
+			MessageInfoItem.MessageInfoItemOnetoOne deliveredList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.delivered_list),R.drawable.ic_double_tick);
+			if(!participantTreeMap.isEmpty()){
+				if(participantData!=null)
+					deliveredList.setTimeStamp(participantData.getDeliveredTimeStamp());
+			}
+			//Creating playedList
+			MessageInfoItem.MessageInfoItemOnetoOne playedList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.delivered_list),R.drawable.ic_double_tick_r);
+			if(!participantTreeMap.isEmpty()){
+				if(participantData!=null)
+					playedList.setTimeStamp(participantData.getDeliveredTimeStamp());
+			}
+			messageInfoItemList.add(readList);
+			messageInfoItemList.add(deliveredList);
 		}
+
 
 	}
 
@@ -265,7 +294,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		protected void notifyAdapter()
 		{
 
-			uiHandler.sendEmptyMessageDelayed(1,1000);
+			uiHandler.sendEmptyMessageDelayed(1,5000);
 
 		}
 
@@ -290,9 +319,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 
-		public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
 
-		MessageInfoList readList, deliveredList, playedList;
 
 		@Override
 		public synchronized void addItems()
