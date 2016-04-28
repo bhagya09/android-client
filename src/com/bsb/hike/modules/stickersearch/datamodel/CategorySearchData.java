@@ -36,7 +36,7 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		super(ucid);
 	}
 
-    public StickerCategory getCategory()
+	public StickerCategory getCategory()
 	{
 		if (category == null)
 		{
@@ -96,7 +96,7 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		float searchScore = (featureWeights[0] * genderMatchScore) + (featureWeights[1] * packStateScore) + (featureWeights[2] * stickerCountScore)
 				+ (featureWeights[3] * nameMatchScore);
 
-		Logger.i(TAG, "Scores for " + categoryID + " ( " + name + " ) : genderMatchScore = " + genderMatchScore + " packStateScore = " + packStateScore + " stickerCountScore = "
+		Logger.i(TAG, "Scores for " + ucid + " ( " + name + " ) : genderMatchScore = " + genderMatchScore + " packStateScore = " + packStateScore + " stickerCountScore = "
 				+ stickerCountScore + " nameMatchScore = " + nameMatchScore);
 
 		return searchScore;

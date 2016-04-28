@@ -236,11 +236,10 @@ public class HttpRequestConstants
 		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
 	}
 
-    public static String stickerShopFetchCategoryTagsUrl()
-    {
-        return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
-    }
-
+	public static String stickerShopFetchCategoryTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+	}
 
     public static String stickerSignupUpgradeUrl()
 	{

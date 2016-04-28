@@ -34,40 +34,39 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 	private JSONObject requestJsonBody;
 
-	private Map<Integer,CategoryTagData> fetchMap;
+	private Map<Integer, CategoryTagData> fetchMap;
 
-    private List<CategoryTagData> fetchList;
+	private List<CategoryTagData> fetchList;
 
 	private String ucids = "";
 
-    public FetchCategoryTagDataTask(List<CategoryTagData> list)
-    {
-        fetchList = list;
-        fetchMap = new HashMap<Integer,CategoryTagData>();
-        createRequestJsonBody();
-    }
+	public FetchCategoryTagDataTask(List<CategoryTagData> list)
+	{
+		fetchList = list;
+		fetchMap = new HashMap<Integer, CategoryTagData>();
+		createRequestJsonBody();
+	}
 
-
-    private void createRequestJsonBody()
-    {
+	private void createRequestJsonBody()
+	{
 		requestJsonBody = new JSONObject();
 		JSONObject jsonObject;
 		JSONArray array = new JSONArray();
 		try
-        {
+		{
 			for (CategoryTagData categoryTagData : fetchList)
-            {
+			{
 				ucids += categoryTagData.getUcid();
 				jsonObject = new JSONObject();
 				jsonObject.put(Integer.toString(categoryTagData.getUcid()), categoryTagData.getCategoryLastUpdatedTime());
 				array.put(jsonObject);
-                fetchMap.put(categoryTagData.getUcid(),categoryTagData);
+				fetchMap.put(categoryTagData.getUcid(), categoryTagData);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
-            Logger.d(TAG, requestJsonBody.toString());
-        }
-        catch (Exception e)
-        {
+			Logger.d(TAG, requestJsonBody.toString());
+		}
+		catch (Exception e)
+		{
 			Logger.d(TAG, e.toString());
 		}
 	}
@@ -112,10 +111,10 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
 					JSONArray packs = resultData.optJSONArray(HikeConstants.PACKS);
 
-                    CategorySearchManager.getInstance().insertCategoryTags(packs,fetchMap);
+					CategorySearchManager.getInstance().insertCategoryTags(packs, fetchMap);
 
-                    HikeConversationsDatabase.getInstance().updateIsPackTagdataUpdated(fetchList);
-                    doOnSuccess(null);
+					HikeConversationsDatabase.getInstance().updateIsPackTagdataUpdated(fetchList);
+					doOnSuccess(null);
 
 				}
 				catch (Exception e)
@@ -137,12 +136,12 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	@Override
 	public void execute()
 	{
-        if(requestJsonBody != null)
-        {
-            return;
-        }
+		if (requestJsonBody != null)
+		{
+			return;
+		}
 
-        token = HttpRequests.fetchCategoryTagData(getCategoryFetchTagsRequestId(), requestJsonBody, getRequestListener());
+		token = HttpRequests.fetchCategoryTagData(getCategoryFetchTagsRequestId(), requestJsonBody, getRequestListener());
 
 		if (!token.isRequestRunning())
 		{

@@ -19,40 +19,28 @@ public class CategoryTagData
 
 	private final int CATEGORY_META_TAGS_COUNT = 3;
 
-	protected String categoryID;
-
     protected int ucid;
 
-    private List<String> languages;
+	private List<String> languages;
 
 	private List<String> keywords;
 
-    private List<String> themes;
+	private List<String> themes;
 
 	protected String name;
 
 	protected int forGender;
 
-    private long categoryLastUpdatedTime;
+	private long categoryLastUpdatedTime;
 
 	public CategoryTagData(int ucid)
 	{
-        this.ucid = ucid;
-	}
-
-	public String getCategoryID()
-	{
-		return categoryID;
-	}
-
-	public void setCategoryID(String categoryID)
-	{
-		this.categoryID = categoryID;
+		this.ucid = ucid;
 	}
 
 	public boolean isValid()
 	{
-		return !(TextUtils.isEmpty(categoryID) || ucid < 0);
+		return  ucid >= 0;
 	}
 
 	public String getName()
@@ -95,10 +83,13 @@ public class CategoryTagData
 		this.languages = languages;
 	}
 
-    public void setLanguages(String languageSet)
-    {
-        this.languages = new ArrayList<String>(Arrays.asList(languageSet.split(HikeConstants.DELIMETER)));
-    }
+	public void setLanguages(String languageSet)
+	{
+        if(!TextUtils.isEmpty(languageSet))
+        {
+            this.languages = new ArrayList<String>(Arrays.asList(languageSet.split(HikeConstants.DELIMETER)));
+        }
+	}
 
 	public List<String> getThemes()
 	{
@@ -110,11 +101,14 @@ public class CategoryTagData
 		this.themes = themes;
 	}
 
-    public void setThemes(String themeSet)
-    {
-        this.themes = new ArrayList<String>(Arrays.asList(themeSet.split(HikeConstants.DELIMETER)));
-    }
-    
+	public void setThemes(String themeSet)
+	{
+        if(!TextUtils.isEmpty(themeSet))
+        {
+            this.themes = new ArrayList<String>(Arrays.asList(themeSet.split(HikeConstants.DELIMETER)));
+        }
+	}
+
 	public int getUcid()
 	{
 		return ucid;
@@ -125,8 +119,7 @@ public class CategoryTagData
 		this.ucid = ucid;
 	}
 
-
-    public String getKeywordsString()
+	public String getKeywordsString()
 	{
 		String result = "";
 
@@ -151,84 +144,87 @@ public class CategoryTagData
 
 	}
 
-    public String getThemesString()
-    {
-        String result = "";
+	public String getThemesString()
+	{
+		String result = "";
 
-        if (Utils.isEmpty(themes))
-        {
-            return result;
-        }
+		if (Utils.isEmpty(themes))
+		{
+			return result;
+		}
 
-        for (String theme : themes)
-        {
-            if (TextUtils.isEmpty(theme))
-            {
-                continue;
-            }
+		for (String theme : themes)
+		{
+			if (TextUtils.isEmpty(theme))
+			{
+				continue;
+			}
 
-            result += theme + HikeConstants.DELIMETER;
-        }
+			result += theme + HikeConstants.DELIMETER;
+		}
 
-        result = result.substring(0, result.length() - 1);
+		result = result.substring(0, result.length() - 1);
 
-        return result;
+		return result;
 
-    }
+	}
 
-    public String getLanguagesString()
-    {
-        String result = "";
+	public String getLanguagesString()
+	{
+		String result = "";
 
-        if (Utils.isEmpty(languages))
-        {
-            return result;
-        }
+		if (Utils.isEmpty(languages))
+		{
+			return result;
+		}
 
-        for (String language : languages)
-        {
-            if (TextUtils.isEmpty(language))
-            {
-                continue;
-            }
+		for (String language : languages)
+		{
+			if (TextUtils.isEmpty(language))
+			{
+				continue;
+			}
 
-            result += language + HikeConstants.DELIMETER;
-        }
+			result += language + HikeConstants.DELIMETER;
+		}
 
-        result = result.substring(0, result.length() - 1);
+		result = result.substring(0, result.length() - 1);
 
-        return result;
+		return result;
 
-    }
+	}
 
 	public List<String> getKeywords()
 	{
 		return keywords;
 	}
 
-    public void setKeywords(List<String> keywords)
+	public void setKeywords(List<String> keywords)
 	{
 		this.keywords = keywords;
 	}
 
-    public void setKeywords(String keywordSet)
-    {
-        this.keywords = new ArrayList<String>(Arrays.asList(keywordSet.split(HikeConstants.DELIMETER)));
-    }
+	public void setKeywords(String keywordSet)
+	{
+        if(!TextUtils.isEmpty(keywordSet))
+        {
+            this.keywords = new ArrayList<String>(Arrays.asList(keywordSet.split(HikeConstants.DELIMETER)));
+        }
+	}
 
-    public String getCategoryDocument()
+	public String getCategoryDocument()
 	{
 		int size = CATEGORY_META_TAGS_COUNT;
 
 		String result = this.getName();
 
-        if (!Utils.isEmpty(themes))
-        {
-            for (String theme : themes)
-            {
-                result += StickerSearchConstants.STRING_SPACE + theme;
-            }
-        }
+		if (!Utils.isEmpty(themes))
+		{
+			for (String theme : themes)
+			{
+				result += StickerSearchConstants.STRING_SPACE + theme;
+			}
+		}
 
 		if (!Utils.isEmpty(keywords))
 		{
@@ -244,27 +240,30 @@ public class CategoryTagData
 	@Override
 	public String toString()
 	{
-		return categoryID + " : name = " + name + "; language = " + getLanguagesString() + "; theme = " + getThemesString() + "; gender = " + forGender + "; keys = " + getKeywordsString();
+		return ucid + " : name = " + name + "; language = " + getLanguagesString() + "; theme = " + getThemesString() + "; gender = " + forGender + "; keys = "
+				+ getKeywordsString();
 	}
+
 
 	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o)
 			return true;
-		if (o == null || getClass() != o.getClass())
+		if (!(o instanceof CategoryTagData))
 			return false;
 
 		CategoryTagData that = (CategoryTagData) o;
 
-		return !(categoryID != null ? !categoryID.equals(that.categoryID) : that.categoryID != null);
+		return ucid == that.ucid;
 
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return categoryID != null ? categoryID.hashCode() : 0;
+		return ucid;
 	}
+
 
 }

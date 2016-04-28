@@ -47,7 +47,6 @@ public class CategoryTagInsertTask implements Runnable
 					continue;
 				}
 
-                categoryTagData.setCategoryID(categoryJSON.optString(HikeConstants.CATEGORY_ID));
                 categoryTagData.setName(categoryJSON.optString(HikeConstants.CAT_NAME));
 				categoryTagData.setCategoryLastUpdatedTime(categoryJSON.optLong(HikeConstants.TIMESTAMP));
 				categoryTagData.setGender(categoryJSON.optInt(HikeConstants.GENDER));

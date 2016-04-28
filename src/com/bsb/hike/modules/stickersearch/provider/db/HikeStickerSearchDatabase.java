@@ -324,7 +324,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
     {
 		return "CREATE TABLE IF NOT EXISTS " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
                 + HikeStickerSearchBaseConstants.UNIQUE_ID + " INTEGER PRIMARY KEY, "
-                + HikeStickerSearchBaseConstants.CATEGORY_ID + " TEXT NOT NULL, "
                 + HikeStickerSearchBaseConstants.NAME + " TEXT, "
 				+ HikeStickerSearchBaseConstants.FOR_GENDER + " TEXT, "
                 + HikeStickerSearchBaseConstants.THEME + " TEXT, "
@@ -886,12 +885,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
             {
                 if(!categoryTagData.isValid())
                 {
-                    Logger.i(TAG, "insertCategoryTagDataList() : Ignoring invalid tag data for category = " + categoryTagData.getCategoryID());
+                    Logger.i(TAG, "insertCategoryTagDataList() : Ignoring invalid tag data for category = " + categoryTagData.getUcid());
                     continue;
                 }
 
                 contentValues.put(HikeStickerSearchBaseConstants.UNIQUE_ID, categoryTagData.getUcid());
-                contentValues.put(HikeStickerSearchBaseConstants.CATEGORY_ID, categoryTagData.getCategoryID());
                 contentValues.put(HikeStickerSearchBaseConstants.NAME, categoryTagData.getName());
                 contentValues.put(HikeStickerSearchBaseConstants.FOR_GENDER, categoryTagData.getGender());
                 contentValues.put(HikeStickerSearchBaseConstants.THEME, categoryTagData.getThemesString());
@@ -1299,43 +1297,44 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		return list;
 	}
 
-    private SortedSet<CategorySearchData> searchIntoCategoryPrimaryTable(String matchKey, String[] referenceArgs)
-    {
-        SortedSet<CategorySearchData> list = null;
+	private SortedSet<CategorySearchData> searchIntoCategoryPrimaryTable(String matchKey, String[] referenceArgs)
+	{
+		SortedSet<CategorySearchData> list = null;
 
-        if ((referenceArgs != null) && (referenceArgs.length > 0))
-        {
-            Cursor c = null;
+		if ((referenceArgs != null) && (referenceArgs.length > 0))
+		{
+			Cursor c = null;
 
-            try
-            {
-                String[] columns = {HikeStickerSearchBaseConstants.UNIQUE_ID,HikeStickerSearchBaseConstants.CATEGORY_ID,HikeStickerSearchBaseConstants.NAME,HikeStickerSearchBaseConstants.FOR_GENDER};
+			try
+			{
+				String[] columns = { HikeStickerSearchBaseConstants.UNIQUE_ID, HikeStickerSearchBaseConstants.CATEGORY_ID, HikeStickerSearchBaseConstants.NAME,
+						HikeStickerSearchBaseConstants.FOR_GENDER };
 
-                //Todo use utils method
-                c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, columns, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN ("
-                        + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(referenceArgs.length)
-                        + ")", referenceArgs, null, null, null);
+				// Todo use utils method
+				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, columns,
+						HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(referenceArgs.length) + ")",
+						referenceArgs, null, null, null);
 
-                int count = (c == null) ? 0 : c.getCount();
+				int count = (c == null) ? 0 : c.getCount();
 
-                if (count > 0)
-                {
-                    list = loadCategorySearchData(matchKey, c);
-                    Logger.i(TAG, "Search findings count = " + list.size());
-                    Logger.i(TAG, "Search findings: " + list);
-                }
-            }
-            finally
-            {
-                if (c != null)
-                {
-                    c.close();
-                }
-            }
-        }
+				if (count > 0)
+				{
+					list = loadCategorySearchData(matchKey, c);
+					Logger.i(TAG, "Search findings count = " + list.size());
+					Logger.i(TAG, "Search findings: " + list);
+				}
+			}
+			finally
+			{
+				if (c != null)
+				{
+					c.close();
+				}
+			}
+		}
 
-        return list;
-    }
+		return list;
+	}
 
 	private ArrayList<StickerAppositeDataContainer> selectTagsForStickers(String matchKey, boolean isExactMatchNeeded, Cursor c)
 	{
@@ -1488,7 +1487,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         while (c.moveToNext())
         {
             CategorySearchData categorySearchData = new CategorySearchData(c.getInt(ucidIdx));
-            categorySearchData.setCategoryID(c.getString(catIdIdx));
             categorySearchData.setGender(c.getInt(forGenderIdx));
             categorySearchData.setName(c.getString(nameIdx));
             categorySearchData.setMatchKeyword(matchKey);
@@ -2869,40 +2867,37 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         
     }
 
-    public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categories)
-    {
-        List<CategoryTagData> result = null;
-        
-        Cursor c = null;
+	public List<CategoryTagData> getStickerCategoriesForTagDataUpdate(List<String> categories)
+	{
+		List<CategoryTagData> result = null;
 
+		Cursor c = null;
 
+		try
+		{
 
-        try
-        {
+			c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null,
+					HikeStickerSearchBaseConstants.UNIQUE_ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.size()) + ")",
+					(String[]) categories.toArray(), null, null, null);
 
-            c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null, HikeStickerSearchBaseConstants.UNIQUE_ID + " IN ("
-                    + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.size())
-                    + ")", (String[])categories.toArray(), null, null, null);
+			int count = (c == null) ? 0 : c.getCount();
 
-            int count = (c == null) ? 0 : c.getCount();
+			if (count > 0)
+			{
+				result = new ArrayList<>(count);
 
-            if (count > 0)
-            {
-                result = new ArrayList<>(count);
-
-                int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
-                int catIdIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.CATEGORY_ID);
-                int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
-                int nameIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.NAME);
-                int themeIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.THEME);
-                int langIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LANGUAGE);
-                int keysIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.KEYWORDS);
-                int tsIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP);
+				int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
+				int catIdIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.CATEGORY_ID);
+				int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
+				int nameIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.NAME);
+				int themeIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.THEME);
+				int langIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LANGUAGE);
+				int keysIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.KEYWORDS);
+				int tsIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.LAST_UPDATED_TIMESTAMP);
 
 				while (c.moveToNext())
 				{
 					CategoryTagData categoryTagData = new CategoryTagData(c.getInt(ucidIdx));
-					categoryTagData.setCategoryID(c.getString(catIdIdx));
 					categoryTagData.setGender(c.getInt(forGenderIdx));
 					categoryTagData.setName(c.getString(nameIdx));
 					categoryTagData.setCategoryLastUpdatedTime(c.getLong(tsIdx));
@@ -2913,22 +2908,22 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 					categories.remove(Integer.toString(categoryTagData.getUcid()));
 				}
 
-            }
-        }
-        finally
-        {
-            if (c != null)
-            {
-                c.close();
-            }
-        }
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
 
-        for(String category : categories)
-        {
-            result.add(new CategoryTagData(Integer.parseInt(category)));
-        }
+		for (String category : categories)
+		{
+			result.add(new CategoryTagData(Integer.parseInt(category)));
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 }

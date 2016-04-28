@@ -30,144 +30,144 @@ import org.json.JSONArray;
 public enum CategorySearchManager
 {
 
-    INSTANCE;
+	INSTANCE;
 
-    public final String SEARCH_WEIGHTS = "srcW";
+	public final String SEARCH_WEIGHTS = "srcW";
 
-    public final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
+	public final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
 
-    public static final String TAG = CategorySearchManager.class.getSimpleName();
+	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
-    private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
+	private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
 
-    private static Map<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+	private static Map<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
-    private static Map<Integer, StickerCategory> mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
+	private static Map<Integer, StickerCategory> mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
 
-    private SearchEngine categorySearchEngine = new SearchEngine();
+	private SearchEngine categorySearchEngine = new SearchEngine();
 
-    private float[] weights;
+	private float[] weights;
 
-    /* Get the instance of this class from outside */
-    public static CategorySearchManager getInstance()
-    {
-        return INSTANCE;
-    }
+	/* Get the instance of this class from outside */
+	public static CategorySearchManager getInstance()
+	{
+		return INSTANCE;
+	}
 
 	public SearchEngine getSearchEngine()
 	{
 		return categorySearchEngine;
 	}
 
-    public List<StickerCategory> searchForPacks(String query)
-    {
-        Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query.toLowerCase());
+	public List<StickerCategory> searchForPacks(String query)
+	{
+		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query.toLowerCase());
 
-        return getOrderedCategoryList(resultCategories);
-    }
+		return getOrderedCategoryList(resultCategories);
+	}
 
-    private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key)
-    {
-        SortedSet<CategorySearchData> result = null;
-        if(mCacheForShopSearchKeys.containsKey(key))
-        {
-            result = mCacheForShopSearchKeys.get(key);
-        }
-        else
-        {
-            result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key);
+	private SortedSet<CategorySearchData> getCategorySearchDataForKey(String key)
+	{
+		SortedSet<CategorySearchData> result = null;
+		if (mCacheForShopSearchKeys.containsKey(key))
+		{
+			result = mCacheForShopSearchKeys.get(key);
+		}
+		else
+		{
+			result = HikeStickerSearchDatabase.getInstance().searchIntoFTSAndFindCategoryDataList(key);
 
-            if(result == null)
-            {
-                result = new TreeSet<CategorySearchData>();
-            }
+			if (result == null)
+			{
+				result = new TreeSet<CategorySearchData>();
+			}
 
-            mCacheForShopSearchKeys.put(key, result);
-        }
-        return result;
-    }
+			mCacheForShopSearchKeys.put(key, result);
+		}
+		return result;
+	}
 
-    public void clearTransientResources()
-    {
-        mCacheForLocalAnalogousScore.clear();
-        mCacheForShopSearchKeys.clear();
-    }
+	public void clearTransientResources()
+	{
+		mCacheForLocalAnalogousScore.clear();
+		mCacheForShopSearchKeys.clear();
+	}
 
-    public boolean onQueryTextSubmit(String query,CategorySearchListener listener)
-    {
-        CategorySearchTask categorySearchTask = new CategorySearchTask(query,listener);
-        categorySearchEngine.runOnSearchThread(categorySearchTask, 0);
-        return true;
-    }
+	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
+	{
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
+		categorySearchEngine.runOnSearchThread(categorySearchTask, 0);
+		return true;
+	}
 
-    public boolean onQueryTextChange(String s,CategorySearchListener listener)
-    {
-        return false;
-    }
+	public boolean onQueryTextChange(String s, CategorySearchListener listener)
+	{
+		return false;
+	}
 
-    private List<StickerCategory> getOrderedCategoryList(Set<CategorySearchData> querySet)
-    {
-        if(Utils.isEmpty(querySet))
-        {
-            return null;
-        }
+	private List<StickerCategory> getOrderedCategoryList(Set<CategorySearchData> querySet)
+	{
+		if (Utils.isEmpty(querySet))
+		{
+			return null;
+		}
 
-        List<StickerCategory> result = new ArrayList<>(querySet.size());
+		List<StickerCategory> result = new ArrayList<>(querySet.size());
 
-        for(CategorySearchData categorySearchData : querySet)
-        {
-            StickerCategory category = categorySearchData.getCategory();
-            if(category != null)
-            {
-                result.add(category);
-            }
-        }
+		for (CategorySearchData categorySearchData : querySet)
+		{
+			StickerCategory category = categorySearchData.getCategory();
+			if (category != null)
+			{
+				result.add(category);
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public void insertCategoryTags(JSONArray categoriesData, Map<Integer,CategoryTagData> sourceData)
-    {
-        CategoryTagInsertTask categoryTagInsertTask = new CategoryTagInsertTask(categoriesData, sourceData);
-        categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
-    }
+	public void insertCategoryTags(JSONArray categoriesData, Map<Integer, CategoryTagData> sourceData)
+	{
+		CategoryTagInsertTask categoryTagInsertTask = new CategoryTagInsertTask(categoriesData, sourceData);
+		categorySearchEngine.runOnQueryThread(categoryTagInsertTask);
+	}
 
-    public float computeStringMatchScore(String searchKey, String tag)
-    {
-        String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
-        Float result = mCacheForLocalAnalogousScore.get(cacheKey);
+	public float computeStringMatchScore(String searchKey, String tag)
+	{
+		String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
+		Float result = mCacheForLocalAnalogousScore.get(cacheKey);
 
-        if (result == null)
-        {
-            result = StickerSearchUtility.computeWordMatchScore(searchKey, tag);
-            mCacheForLocalAnalogousScore.put(cacheKey, result);
-        }
+		if (result == null)
+		{
+			result = StickerSearchUtility.computeWordMatchScore(searchKey, tag);
+			mCacheForLocalAnalogousScore.put(cacheKey, result);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public void loadSearchedCategories(String[] categorieUcids)
-    {
-        mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categorieUcids));
-    }
+	public void loadSearchedCategories(String[] categoryUcids)
+	{
+		mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categoryUcids));
+	}
 
-    public StickerCategory getSearchedCategoriesFromCache(int ucid)
-    {
-        return mCacheForSearchedCategories.get(ucid);
-    }
+	public StickerCategory getSearchedCategoriesFromCache(int ucid)
+	{
+		return mCacheForSearchedCategories.get(ucid);
+	}
 
 	public float[] getFeatureWeights()
 	{
-		if(weights == null)
-        {
-            String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
-            weights = new float[inputs.length];
-            for(int i =0; i<inputs.length; i++)
-            {
-                weights[i] = Float.parseFloat(inputs[i]);
-            }
-        }
+		if (weights == null)
+		{
+			String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
+			weights = new float[inputs.length];
+			for (int i = 0; i < inputs.length; i++)
+			{
+				weights[i] = Float.parseFloat(inputs[i]);
+			}
+		}
 
-        return weights;
+		return weights;
 	}
 }

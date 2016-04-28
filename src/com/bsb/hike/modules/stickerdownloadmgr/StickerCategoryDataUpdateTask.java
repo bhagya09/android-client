@@ -38,92 +38,92 @@ public class StickerCategoryDataUpdateTask implements Runnable
 	@Override
 	public void run()
 	{
-        Pair<List<StickerCategory>,List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForMetadataUpdate();
+		Pair<List<StickerCategory>, List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForMetadataUpdate();
 		List<StickerCategory> stickerCategoriesMetadataList = updataLists.first;
-        List<String> stickerCategoriesTagdataList = updataLists.second;
+		List<String> stickerCategoriesTagdataList = updataLists.second;
 
 		if (Utils.isEmpty(stickerCategoriesMetadataList))
 		{
 			Logger.v(TAG, "Metadata already updated after checking all packs in db");
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, true);
 		}
-        else
-        {
-            updateCategoryMetadata(stickerCategoriesMetadataList);
-        }
+		else
+		{
+			updateCategoryMetadata(stickerCategoriesMetadataList);
+		}
 
-        if (Utils.isEmpty(stickerCategoriesTagdataList))
-        {
-            Logger.v(TAG, "Tagdata already updated after checking all packs in db");
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, true);
-        }
-        else
-        {
-            updateCategoryTagdata(HikeStickerSearchDatabase.getInstance().getStickerCategoriesForTagDataUpdate(stickerCategoriesTagdataList));
-        }
+		if (Utils.isEmpty(stickerCategoriesTagdataList))
+		{
+			Logger.v(TAG, "Tagdata already updated after checking all packs in db");
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, true);
+		}
+		else
+		{
+			updateCategoryTagdata(HikeStickerSearchDatabase.getInstance().getStickerCategoriesForTagDataUpdate(stickerCategoriesTagdataList));
+		}
 
 	}
 
-    private void updateCategoryMetadata(List<StickerCategory> stickerCategoriesMetadataList)
-    {
-        List<StickerCategory> updateList = new ArrayList<StickerCategory>();
-        List<StickerCategory> createList = new ArrayList<StickerCategory>();
+	private void updateCategoryMetadata(List<StickerCategory> stickerCategoriesMetadataList)
+	{
+		List<StickerCategory> updateList = new ArrayList<StickerCategory>();
+		List<StickerCategory> createList = new ArrayList<StickerCategory>();
 
-        for (StickerCategory stickerCategory : stickerCategoriesMetadataList)
-        {
-            if (stickerCategory.getPackUpdationTime() == 0)
-            {
-                createList.add(stickerCategory);
-                if (createList.size() == createPackListPageSize)
-                {
-                    StickerManager.getInstance().fetchCategoryMetadataTask(createList);
-                    createList = new ArrayList<StickerCategory>();;
-                }
-            }
-            else
-            {
-                updateList.add(stickerCategory);
-                if (updateList.size() == updatePackListPageSize)
-                {
-                    StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
-                    updateList = new ArrayList<StickerCategory>();
-                }
-            }
-        }
-        StickerManager.getInstance().fetchCategoryMetadataTask(createList);
-        StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
-    }
+		for (StickerCategory stickerCategory : stickerCategoriesMetadataList)
+		{
+			if (stickerCategory.getPackUpdationTime() == 0)
+			{
+				createList.add(stickerCategory);
+				if (createList.size() == createPackListPageSize)
+				{
+					StickerManager.getInstance().fetchCategoryMetadataTask(createList);
+					createList = new ArrayList<StickerCategory>();
+					;
+				}
+			}
+			else
+			{
+				updateList.add(stickerCategory);
+				if (updateList.size() == updatePackListPageSize)
+				{
+					StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
+					updateList = new ArrayList<StickerCategory>();
+				}
+			}
+		}
+		StickerManager.getInstance().fetchCategoryMetadataTask(createList);
+		StickerManager.getInstance().fetchCategoryMetadataTask(updateList);
+	}
 
-    private void updateCategoryTagdata(List<CategoryTagData> stickerCategoriesTagDataList)
-    {
-        List<CategoryTagData> updateList = new ArrayList<CategoryTagData>();
-        List<CategoryTagData> createList = new ArrayList<CategoryTagData>();
+	private void updateCategoryTagdata(List<CategoryTagData> stickerCategoriesTagDataList)
+	{
+		List<CategoryTagData> updateList = new ArrayList<CategoryTagData>();
+		List<CategoryTagData> createList = new ArrayList<CategoryTagData>();
 
+		for (CategoryTagData categoryTagData : stickerCategoriesTagDataList)
+		{
+			if (categoryTagData.getCategoryLastUpdatedTime() == 0)
+			{
+				createList.add(categoryTagData);
+				if (createList.size() == createPackListPageSize)
+				{
+					StickerManager.getInstance().fetchCategoryTagdataTask(createList);
+					createList = new ArrayList<CategoryTagData>();
+				}
+			}
+			else
+			{
+				updateList.add(categoryTagData);
+				if (updateList.size() == updatePackListPageSize)
+				{
+					StickerManager.getInstance().fetchCategoryTagdataTask(updateList);
+					updateList = new ArrayList<CategoryTagData>();
+				}
+			}
+		}
 
-        for (CategoryTagData categoryTagData : stickerCategoriesTagDataList)
-        {
-            if (categoryTagData.getCategoryLastUpdatedTime() == 0)
-            {
-                createList.add(categoryTagData);
-                if (createList.size() == createPackListPageSize)
-                {
-                    StickerManager.getInstance().fetchCategoryTagdataTask(createList);
-                    createList = new ArrayList<CategoryTagData>();
-                }
-            }
-            else
-            {
-                updateList.add(categoryTagData);
-                if (updateList.size() == updatePackListPageSize)
-                {
-                    StickerManager.getInstance().fetchCategoryTagdataTask(updateList);
-                    updateList = new ArrayList<CategoryTagData>();
-                }
-            }
-        }
-
-        StickerManager.getInstance().fetchCategoryTagdataTask(createList);
-        StickerManager.getInstance().fetchCategoryTagdataTask(updateList);
-    }
+		StickerManager.getInstance().fetchCategoryTagdataTask(createList);
+		StickerManager.getInstance().fetchCategoryTagdataTask(updateList);
+	}
 
 }
