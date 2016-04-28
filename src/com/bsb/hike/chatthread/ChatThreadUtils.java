@@ -257,7 +257,6 @@ public class ChatThreadUtils
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-			//CE-572
 			Utils.recordEventMaxSizeToastShown(AnalyticsConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
