@@ -76,7 +76,7 @@
             android:id="@+id/add_unknown_contact"
             style="@style/BlockAddUnknownContact"
             android:tag="@string/add"
-            android:text="@string/add" />
+            android:text="@string/overlay_add_title" />
 
     </LinearLayout>
 
