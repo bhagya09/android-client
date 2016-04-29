@@ -255,7 +255,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
         }
 		if(oldVersion < 8)
 		{
-			String alterNamespace = "ALTER TABLE " + PLATFORM_DOWNLOAD_STATE_TABLE + " ADD COLUMN " + AUTO_RETRY + " TEXT";
+			String alterNamespace = "ALTER TABLE " + PLATFORM_DOWNLOAD_STATE_TABLE + " ADD COLUMN " + AUTO_RESUME + " INTEGER";
 			queries.add(alterNamespace);
 		}
 		
@@ -1085,7 +1085,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ HikePlatformConstants.TYPE + " INTEGER, "
 				+ HikePlatformConstants.TTL + " INTEGER, "
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
-				+ AUTO_RETRY + " TEXT DEFAULT " + "false" + ", "
+				+ AUTO_RESUME + " INTEGER DEFAULT " + 0 + ", "
 				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
 				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
@@ -1097,7 +1097,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	/**
 	 * Function to add data to Platform Download State Table
 	 */
-	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState,String autoRetry)
+	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState,int autoResume)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(HikePlatformConstants.APP_NAME, name);
@@ -1107,7 +1107,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(HikePlatformConstants.TTL, ttl);
 		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, dwnldState);
-		cv.put(AUTO_RETRY, autoRetry);
+		cv.put(AUTO_RESUME, autoResume);
 		try
 		{
 			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);

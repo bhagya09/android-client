@@ -2412,7 +2412,7 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoRetry)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoResume)
 	{
 		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{
@@ -2423,7 +2423,7 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,String.valueOf(autoRetry));
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,(autoResume) ? 1 : 0);
 			}
 		});
 	}
@@ -2506,6 +2506,11 @@ public class PlatformUtils
 						int prefNetwork =c.getInt(c.getColumnIndex(HikePlatformConstants.PREF_NETWORK));
 
 						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
+
+						if(c.getInt(c.getColumnIndex(HikePlatformConstants.AUTO_RESUME)) != 1)
+						{
+							continue;    // Moving ahead only if auto_resume is true.
+						}
 
 						if (currentTime > ttl)
 						{
