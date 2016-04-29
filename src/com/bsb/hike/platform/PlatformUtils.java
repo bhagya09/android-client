@@ -849,6 +849,10 @@ public class PlatformUtils
 								HikePlatformConstants.PlatformDwnldState.FAILED);
 						sendDownloadPausedAnalytics(platformContentModel.getId());
 					}
+					if (!autoResume)
+					{
+						PlatformUtils.removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
+					}
 					else
 					{
 						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);

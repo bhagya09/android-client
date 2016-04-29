@@ -372,11 +372,8 @@ public class PlatformZipDownloader
 								PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode);
 								HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String, String>(callbackId, "unzipFailed"));
 
-								if (autoResume)
-								{
 									PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName,
 											mRequest.getContentData().cardObj.getmAppVersionCode()); // Incase of unzip fail we will remove from state table.
-								}
 
 								String appName= mRequest.getContentData().cardObj.appName;
 								if (!TextUtils.isEmpty(appName))
@@ -612,6 +609,10 @@ public class PlatformZipDownloader
                     eventCode = EventCode.ZERO_BYTE_ZIP_DOWNLOAD;
 
 				callbackProgress.remove(callbackId);
+				if (!autoResume)
+				{
+					PlatformUtils.removeFromPlatformDownloadStateTable(mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.getmAppVersionCode());
+				}
 				PlatformZipDownloader.removeDownloadingRequest(mRequest.getContentData().getId());
 				HikeMessengerApp.getPubSub().publish(HikePubSub.DOWNLOAD_PROGRESS, new Pair<String,String>(callbackId, "downloadFailure"));
 				PlatformUtils.sendMicroAppServerAnalytics(false, mRequest.getContentData().cardObj.appName, mRequest.getContentData().cardObj.mAppVersionCode,httpException.getErrorCode());
