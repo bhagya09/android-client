@@ -136,7 +136,7 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 	@Override
 	public void execute()
 	{
-		if (requestJsonBody != null)
+		if (requestJsonBody == null)
 		{
 			return;
 		}
