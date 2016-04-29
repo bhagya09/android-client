@@ -81,7 +81,6 @@ import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -370,13 +369,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         sql = getStickerTableCreateQuery();
         db.execSQL(sql);
 
-		sql = getStickerCategoryOrderPrefCreateQuery();
+		sql = getStickerCategoryRankTableCreateQuery();
 		db.execSQL(sql);
 
 		sql = getUCIDIndexOnStickerCategoryTable();
 		db.execSQL(sql);
 
-		sql = getUCIDIndexOnStickerCategoryOrderTable();
+		sql = getUCIDIndexOnStickerCategoryRankTable();
 		db.execSQL(sql);
 
 	}
@@ -408,7 +407,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
-		mDb.delete(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, null);
+		mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
 	}
 
 	@Override
@@ -1080,11 +1079,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.IS_DISABLED + " INTEGER DEFAULT 0";
 				db.execSQL(alter4);
 			}
-			String sql = getStickerCategoryOrderPrefCreateQuery();
+			String sql = getStickerCategoryRankTableCreateQuery();
 			db.execSQL(sql);
 			sql = getUCIDIndexOnStickerCategoryTable();
 			db.execSQL(sql);
-			sql = getUCIDIndexOnStickerCategoryOrderTable();
+			sql = getUCIDIndexOnStickerCategoryRankTable();
 			db.execSQL(sql);
 		}
 	}
@@ -1238,13 +1237,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	private String getStickerCategoryOrderPrefCreateQuery()
+	private String getStickerCategoryRankTableCreateQuery()
 	{
 		String sql = CREATE_TABLE +
-				     DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " ( " +
-				     DBConstants.RANK + " INTEGER, " +
-				     DBConstants.UCID + " INTEGER PRIMARY KEY, " +
-				     DBConstants.IS_PACK_METADATA_UPDATED + " INTEGER DEFAULT 0 " + " )";
+				     DBConstants.STICKER_CATEGORY_RANK_TABLE + " ( " +
+                     DBConstants.RANK + " INTEGER, " +
+                     DBConstants.UCID + " INTEGER PRIMARY KEY, " +
+				     DBConstants.IS_PACK_METADATA_UPDATED + " INTEGER DEFAULT 0, " +
+                     DBConstants.IS_PACK_TAGDATA_UPDATED + " INTEGER DEFAULT 0)";
 
 		return sql;
 	}
@@ -5867,6 +5867,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return stickerDataMap;
 	}
 
+	public Map<Integer, StickerCategory> parseCategorySearchResultsCursor(Cursor c)
+	{
+		Map<Integer, StickerCategory> stickerDataMap = new LinkedHashMap<Integer, StickerCategory>(c.getCount());
+
+		while (c.moveToNext())
+		{
+			try
+			{
+				String categoryId = c.getString(c.getColumnIndex(DBConstants._ID));
+				String categoryName = c.getString(c.getColumnIndex(DBConstants.CATEGORY_NAME));
+				boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
+				boolean isDownloaded = c.getInt(c.getColumnIndex(DBConstants.IS_DOWNLOADED)) == 1;
+				int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
+				int ucid = c.getInt(c.getColumnIndex(DBConstants.UCID));
+				int rank = c.getInt(c.getColumnIndex(DBConstants.RANK));
+
+				StickerCategory s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setTotalStickers(totalStickers)
+						.setUpdateAvailable(updateAvailable).setIsDownloaded(isDownloaded).setUcid(ucid).setShopRank(rank).build();
+				stickerDataMap.put(ucid, s);
+			}
+			catch (Exception e)
+			{
+				Logger.e(getClass().getSimpleName(), e.getMessage());
+			}
+		}
+		return stickerDataMap;
+	}
+
 	public LinkedHashMap<String, StickerCategory> parseStickerCategoriesCursor(Cursor c)
 	{
 		LinkedHashMap<String, StickerCategory> stickerDataMap = new LinkedHashMap<String, StickerCategory>(c.getCount());
@@ -7295,41 +7323,53 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public List<StickerCategory> getStickerCatToBeSendForMetaData()
+	public Pair<List<StickerCategory>, List<String>> getStickerCategoriesForDataUpdate()
 	{
 		Cursor cursor = null;
-		List<StickerCategory> list = null;
+		List<StickerCategory> metadataUpdateList = null;
+		List<String> tagdataUpdateList = null;
 		try
 		{
-			/* This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in
-			   sorted order based on order table whose pack metadata is not updated */
-			String query = "Select " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "."
-					+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
-					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
-					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by "
-					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.RANK + " asc " + " limit "
+			/*
+			 * This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table
+			 * whose pack metadata is not updated
+			 */
+			String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+					+ DBConstants.IS_PACK_METADATA_UPDATED + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.IS_PACK_TAGDATA_UPDATED + ", "
+					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from " + DBConstants.STICKER_CATEGORY_RANK_TABLE
+					+ " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "="
+					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID  + " order by "
+					+ DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.RANK + " asc " + " limit "
 					+ HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
 			cursor = mDb.rawQuery(query, null);
-			list = new ArrayList<>(cursor.getCount());
+			metadataUpdateList = new ArrayList<StickerCategory>(cursor.getCount());
+			tagdataUpdateList = new ArrayList<String>(cursor.getCount());
 
-			int updatedMetadataTsIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
 			int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
-			int isPackMetadataUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
-			while (cursor.moveToNext())
+			int metaUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
+			int tagUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_TAGDATA_UPDATED);
+            
+            
+            
+			if (cursor.getCount() > 0)
 			{
-				if (cursor.getInt(isPackMetadataUpdatedIdx) == 0)
+				while (cursor.moveToNext())
 				{
-					StickerCategory stickerCategory = new StickerCategory.Builder()
-						                              .setPackUpdationTime(cursor.getInt(updatedMetadataTsIdx))
-						                              .setUcid(cursor.getInt(ucidIdx))
-						                              .build();
-					list.add(stickerCategory);
+					int ucid = cursor.getInt(ucidIdx);
+
+					if (cursor.getInt(metaUpdatedIdx) == 0)
+					{
+						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(metaUpdatedIdx)).setUcid(ucid).build();
+						metadataUpdateList.add(stickerCategory);
+					}
+
+					if (cursor.getInt(tagUpdatedIdx) == 0 && StickerManager.getInstance().isShopSearchEnabled())
+					{
+						tagdataUpdateList.add(Integer.toString(ucid));
+					}
+
 				}
 			}
-		}
-		catch (Exception e)
-		{
-			Logger.d(mContext.getClass().getSimpleName(), "getStickerCatToBeSendForMetaData"  + e.toString());
 		}
 		finally
 		{
@@ -7338,7 +7378,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				cursor.close();
 			}
 		}
-		return list;
+
+		return new Pair<List<StickerCategory>, List<String>>(metadataUpdateList, tagdataUpdateList);
 	}
 
 	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
@@ -7788,20 +7829,20 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
-	public long updateStickerCategoryPrefOrder(JSONArray array)
+	public long updateStickerCategoryRanks(JSONArray array)
 	{
 		ContentValues contentValues;
 		long count = 0;
 		try
 		{
 			mDb.beginTransaction();
-			mDb.delete(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, null);
+			mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
 				contentValues.put(DBConstants.RANK, i);
 				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
-				if(mDb.insert(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, contentValues) >= 0)
+				if(mDb.insert(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues) > 0)
 				{
 					count++;
 				}
@@ -7876,29 +7917,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public int updateIsPackMetadataUpdated(List<StickerCategory> list)
 	{
-		try
+		if (Utils.isEmpty(list))
 		{
-			if (!Utils.isEmpty(list))
-			{
-				ContentValues contentValues = new ContentValues();
-				contentValues.put(DBConstants.IS_PACK_METADATA_UPDATED, 1);
-				ArrayList<String> arrayList = new ArrayList<>(list.size());
-				for (StickerCategory stickerCategory : list)
-				{
-					arrayList.add(Integer.toString(stickerCategory.getUcid()));
-				}
-				return mDb.update(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, contentValues,
-						DBConstants.UCID + " IN " + Utils.valuesToCommaSepratedString(arrayList), null);
-			}
+			return -1;
 		}
-		catch (Exception e)
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_PACK_METADATA_UPDATED, 1);
+		ArrayList<String> arrayList = new ArrayList<>(list.size());
+		for (StickerCategory stickerCategory : list)
 		{
-			Logger.e(getClass().getSimpleName(), "Exception in isstatusupdated Pack", e);
+			arrayList.add(Integer.toString(stickerCategory.getUcid()));
 		}
-		return -1;
+		return mDb.update(DBConstants.STICKER_CATEGORY_RANK_TABLE, contentValues, DBConstants.UCID + " IN " + Utils.valuesToCommaSepratedString(arrayList), null);
+
 	}
 
-	public void updateStickerCategoriesInDb(Collection<StickerCategory> stickerCategories)
+	public int updateIsPackTagdataUpdated(List<CategoryTagData> list)
+	{
+		if (Utils.isEmpty(list))
+		{
+			return -1;
+		}
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_PACK_TAGDATA_UPDATED, 1);
+		ArrayList<String> arrayList = new ArrayList<>(list.size());
+		for (CategoryTagData categoryTagData : list)
+		{
+			arrayList.add(Integer.toString(categoryTagData.getUcid()));
+		}
+		return mDb.update(DBConstants.STICKER_CATEGORY_RANK_TABLE, contentValues, DBConstants.UCID + " IN " + Utils.valuesToCommaSepratedString(arrayList), null);
+	}
+
+    public void updateStickerCategoriesInDb(Collection<StickerCategory> stickerCategories)
 	{
 		try
 		{
@@ -7963,28 +8015,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public Map<String,StickerCategory> getCategoriesForShopSearch(String[] categories)
+	public Map<Integer, StickerCategory> getCategoriesForShopSearch()
 	{
-		if(Utils.isEmpty(categories))
-        {
-            return null;
-        }
+		Cursor c = null;
 
-        Cursor c = null;
+		Map<Integer, StickerCategory> result = null;
 
-        Map<String,StickerCategory> result = null;
 
 		try
 		{
-			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE,
-                    null,
-                    DBConstants._ID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")",
-                    categories,
-                    null,
-                    null,
-                    null);
+			String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.RANK
+					+ "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants._ID + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.CATEGORY_NAME + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.TOTAL_NUMBER + ","
+					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.IS_DOWNLOADED + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATE_AVAILABLE
+					+ " from " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " INNER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE
+					+ "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID;
+			c = mDb.rawQuery(query, null);
 
-            result = parseStickerCategoriesCursor(c);
+            if(c.getCount()>0)
+            {
+                result = parseCategorySearchResultsCursor(c);
+            }
 
 		}
 		catch (Exception e)
@@ -9371,9 +9421,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORIES_TABLE + " ( " + DBConstants.UCID + " )";
 	}
 
-	private String getUCIDIndexOnStickerCategoryOrderTable()
+	private String getUCIDIndexOnStickerCategoryRankTable()
 	{
-		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " ( " + DBConstants.RANK + " )";
+		return DBConstants.CREATE_INDEX + DBConstants.UCID_INDEX + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " ( " + DBConstants.RANK + " )";
 	}
 
 	private String getSortingIndexQuery()

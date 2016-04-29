@@ -757,6 +757,8 @@ public class HikeConstants
 	public static final String AVATAR = "avatar";
 	public static final String LANGUAGE = "lan";
 
+    public static final String LANGUAGES = "langs";
+
 	public static final String NOTIFICATION_TITLE = "notifTitle";
 	public static final String NOTIFICATION_TEXT = "notifText";
 
@@ -3215,7 +3217,7 @@ public class HikeConstants
 
 	public static final String STATE = "state";
 
-	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
+	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
@@ -3758,6 +3760,8 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
+    public static final String LIMIT_KEY = "limit";
+
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stms_tlb"; // integer
@@ -3972,6 +3976,8 @@ public class HikeConstants
     public static final String MINI_STICKER_IMAGE = "mini_image";
 
     public static final String TAGS = "tags";
+    
+	public static final String THEMES = "themes";
 
     public static final String RECENTS = "recents";
 
@@ -4114,7 +4120,9 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
-	public static final String UPDATED_ALL_CATEGORIES = "updatedAllCategories";
+	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
+
+    public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
 
 	public static final String UCIDS = "ucids";
 
@@ -4154,5 +4162,11 @@ public class HikeConstants
 	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
 
 	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
+    public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
+
+    public static final String STICKER_SHOP_SEARCH_TOGGLE = "s_s_s_tgl";
+
+    public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
 }

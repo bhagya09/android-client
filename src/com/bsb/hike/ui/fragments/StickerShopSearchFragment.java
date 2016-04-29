@@ -14,6 +14,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.adapters.StickerShopSearchAdapter;
 import com.bsb.hike.models.StickerCategory;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.ui.CategorySearchWatcher;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
@@ -131,7 +132,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 			return;
 		}
 		String categoryId = mAdapter.getItem(position);
-		IntentFactory.openPackPreviewIntent(getActivity(), categoryId);
+        IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
 	}
 
     @Override

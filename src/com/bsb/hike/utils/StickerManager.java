@@ -33,13 +33,14 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.stickerdownloadmgr.CategoryOrderPrefDownloadTask;
+import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryRanksTask;
 import com.bsb.hike.modules.stickerdownloadmgr.DefaultTagDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryMetadataTask;
+import com.bsb.hike.modules.stickerdownloadmgr.FetchCategoryTagDataTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.MultiStickerImageDownloadTask;
 import com.bsb.hike.modules.stickerdownloadmgr.SingleStickerDownloadTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryMetadataUpdateTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerCategoryDataUpdateTask;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadSource;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
@@ -50,6 +51,7 @@ import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
+import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
@@ -386,12 +388,12 @@ public class StickerManager
 
 		doUpgradeTasks();
 
-		fetchCategoryOrderTask();
+		fetchCategorRanksTask();
 
-		refreshPacksMetadata();
+		refreshPacksData();
 	}
 
-	public void executeFetchCategoryMetadataTask(List<StickerCategory> list)
+	public void fetchCategoryMetadataTask(List<StickerCategory> list)
 	{
 		if (!Utils.isEmpty(list))
 		{
@@ -400,15 +402,23 @@ public class StickerManager
 		}
 	}
 
-	public void fetchCategoryOrderTask()
+	public void fetchCategorRanksTask()
 	{
-		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
 		{
-			CategoryOrderPrefDownloadTask categoryOrderPrefDownloadTask = new CategoryOrderPrefDownloadTask();
-			categoryOrderPrefDownloadTask.execute();
+			FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask();
+			fetchCategoryRanksTask.execute();
 		}
 	}
 
+    public void fetchCategoryTagdataTask(List<CategoryTagData> list)
+    {
+        if (!Utils.isEmpty(list))
+        {
+            FetchCategoryTagDataTask fetchCategoryTagDataTask = new FetchCategoryTagDataTask(list);
+            fetchCategoryTagDataTask.execute();
+        }
+    }
 
 	public List<StickerCategory> getStickerCategoryList()
 	{
@@ -2223,7 +2233,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, false);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
-		fetchCategoryOrderTask();
+		fetchCategorRanksTask();
 	}
 
 	public void logStickerButtonPressAnalytics()
@@ -3059,6 +3069,11 @@ public class StickerManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, true);
 	}
 
+    public boolean isShopSearchEnabled()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true);
+    }
+
 	public void saveSticker(Sticker sticker, StickerConstants.StickerType stickerType)
 	{
 		List<Sticker> stickers = new ArrayList<Sticker>(1);
@@ -3359,11 +3374,11 @@ public class StickerManager
 		return showLastCategory;
 	}
 
-	public void refreshPacksMetadata()
+	public void refreshPacksData()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES, false))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
 		{
-			Logger.v(TAG, "already updated all categories pref true");
+			Logger.v(TAG, "already updated all categories data true");
 			return;
 		}
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -3371,8 +3386,8 @@ public class StickerManager
 			@Override
 			public void run()
 			{
-				StickerCategoryMetadataUpdateTask stickerCategoryMetadataUpdateTask = new StickerCategoryMetadataUpdateTask();
-				stickerCategoryMetadataUpdateTask.run();
+				StickerCategoryDataUpdateTask stickerCategoryDataUpdateTask = new StickerCategoryDataUpdateTask();
+				stickerCategoryDataUpdateTask.run();
 			}
 		});
 	}

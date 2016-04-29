@@ -7,11 +7,11 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -41,10 +41,6 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
     private MenuItem shopSearchMenuItem;
 
-    private final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
-
-    public static final String SHOW_STICKER_SEARCH_FTUE = "s_s_ftue";
-
     private RelativeLayout searchLayout;
 
     @Override
@@ -56,7 +52,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         showShopFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-        StickerManager.getInstance().refreshPacksMetadata();
+        StickerManager.getInstance().refreshPacksData();
     }
 
     private void setupShopFragment(Bundle savedInstanceState)
@@ -128,25 +124,33 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 		shopSearchMenuItem = menu.findItem(R.id.shop_search);
 
-        searchLayout = (RelativeLayout) MenuItemCompat.getActionView(menu.findItem(R.id.shop_search));
+        shopSearchMenuItem.setVisible(StickerManager.getInstance().isShopSearchEnabled());
 
-        setupSearchFTUE();
+		if (StickerManager.getInstance().isShopSearchEnabled())
+		{
+			searchLayout = (RelativeLayout) MenuItemCompat.getActionView(menu.findItem(R.id.shop_search));
 
-		MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.shop_search), new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                menu.findItem(R.id.shop_settings).setVisible(false);
-                stickerShopFragment.showBanner(false);
-                return true;
-            }
+			setupSearchFTUE();
 
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                menu.findItem(R.id.shop_settings).setVisible(true);
-                stickerShopFragment.showBanner(true);
-                return true;
-            }
-        });
+			MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.shop_search), new MenuItemCompat.OnActionExpandListener()
+			{
+				@Override
+				public boolean onMenuItemActionExpand(MenuItem item)
+				{
+					menu.findItem(R.id.shop_settings).setVisible(false);
+					stickerShopFragment.showBanner(false);
+					return true;
+				}
+
+				@Override
+				public boolean onMenuItemActionCollapse(MenuItem item)
+				{
+					menu.findItem(R.id.shop_settings).setVisible(true);
+					stickerShopFragment.showBanner(true);
+					return true;
+				}
+			});
+		}
 
 		return true;
 	}
@@ -188,7 +192,17 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         @Override
         public boolean onQueryTextChange(String query)
         {
-            return false;
+            if(TextUtils.isEmpty(query))
+            {
+                return false;
+            }
+
+            if(!TextUtils.isEmpty(query.trim()))
+            {
+                showSearchFragment();
+                return stickerShopSearchFragment.onQueryTextChange(query);
+            }
+            return true;
         }
     };
 
@@ -207,13 +221,12 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         }
 
         super.onBackPressed();
-
     }
 
 	private void setupSearchFTUE()
 	{
 
-		int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(SHOW_STICKER_SEARCH_FTUE, DEFAULT_SEARCH_FTUE_LIMIT);
+		int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
         final ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
 		if (searchFtueShownCount <= 0)
 		{
@@ -223,14 +236,14 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             return;
 		}
 
-		HikeSharedPreferenceUtil.getInstance().saveData(SHOW_STICKER_SEARCH_FTUE, --searchFtueShownCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, --searchFtueShownCount);
 
 
 		searchIcon.setImageResource(R.drawable.ic_top_bar_search);
 		searchIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HikeSharedPreferenceUtil.getInstance().saveData(SHOW_STICKER_SEARCH_FTUE, 0);
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, 0);
                 v.clearAnimation();
                 v.setAnimation(null);
                 v.setVisibility(View.GONE);

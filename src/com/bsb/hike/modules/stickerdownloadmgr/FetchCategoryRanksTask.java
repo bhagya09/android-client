@@ -25,9 +25,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderFor
 /**
  * Created by ashishagarwal on 15/04/16.
  */
-public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
-	private static final String TAG = "FetchCatPrefOrderDownloadTask";
+	private static final String TAG = FetchCategoryRanksTask.class.getSimpleName();
 
 	private RequestToken token;
 
@@ -66,9 +66,10 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 						return;
 					}
 					JSONArray orderArray = resultData.optJSONArray(HikeConstants.PACKS);
-					HikeConversationsDatabase.getInstance().updateStickerCategoryPrefOrder(orderArray);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES, false);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_ORDER_TIMESTAMP, System.currentTimeMillis());
+					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
 					doOnSuccess(null);
 				}
 				catch (Exception e)
@@ -117,7 +118,7 @@ public class CategoryOrderPrefDownloadTask implements IHikeHTTPTask, IHikeHttpTa
 	public void doOnSuccess(Object result)
 	{
 		setAlarmForFetchOrder();
-		StickerManager.getInstance().refreshPacksMetadata();
+		StickerManager.getInstance().refreshPacksData();
 	}
 
 	private void setAlarmForFetchOrder()
