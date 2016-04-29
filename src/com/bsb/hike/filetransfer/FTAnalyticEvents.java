@@ -1,14 +1,5 @@
 package com.bsb.hike.filetransfer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -20,19 +11,20 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class FTAnalyticEvents
 {
-	public int mRetryCount;
-
-	public int mPauseCount;
-
 	public String mNetwork;
 
 	public int mAttachementType;
-
-	public static final String FT_RETRY_COUNT = "rc";
-
-	public static final String FT_PAUSE_COUNT = "pc";
 
 	public static final String FT_NETWORK_TYPE = "con";
 
@@ -53,6 +45,8 @@ public class FTAnalyticEvents
 	private static final String VIDEO_COMPRESS_STATE = "vidCompSt";
 
 	private static final String VIDEO_COMPRESSION = "videoCompression";
+
+	private static final String TIME_TO_COMPRESS_VIDEO = "videoCompTime";
 
 	private static final String QUICK_UPLOAD = "quickUpload";
 
@@ -211,8 +205,6 @@ public class FTAnalyticEvents
 		{
 			this.mAttachementType = logMetaData.getInt(FT_ATTACHEMENT_TYPE);
 			this.mNetwork = logMetaData.getString(FT_NETWORK_TYPE);
-			this.mRetryCount = logMetaData.getInt(FT_RETRY_COUNT);
-			this.mPauseCount = logMetaData.getInt(FT_PAUSE_COUNT);
 		}
 		catch (JSONException e)
 		{
@@ -233,8 +225,6 @@ public class FTAnalyticEvents
 			JSONObject metadata = new JSONObject();
 			metadata.put(FT_ATTACHEMENT_TYPE, this.mAttachementType);
 			metadata.put(FT_NETWORK_TYPE, this.mNetwork);
-			metadata.put(FT_RETRY_COUNT, this.mRetryCount);
-			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			Logger.d("FTAnalyticEvents", "write data = " + metadata.toString());
 			file.write(metadata.toString());
 		}
@@ -297,8 +287,6 @@ public class FTAnalyticEvents
 			JSONObject metadata = new JSONObject();
 			metadata.put(FT_ATTACHEMENT_TYPE, this.mAttachementType);
 			metadata.put(FT_NETWORK_TYPE, network);
-			metadata.put(FT_RETRY_COUNT, this.mRetryCount);
-			metadata.put(FT_PAUSE_COUNT, this.mPauseCount);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);
 			if(!TextUtils.isEmpty(attachmentShardeAs)) {
@@ -311,11 +299,15 @@ public class FTAnalyticEvents
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while logging FT send status.", e);
 		}
 	}
-	
+
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState){
+		sendVideoCompressionEvent(inputRes, outRes, inputSize, outSize, compressedState, 0);
+	}
+
 	/*
 	 * Send an event for video compression
 	 */
-	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState)
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState, long timeToCompress)
 	{
 		try
 		{
@@ -325,6 +317,7 @@ public class FTAnalyticEvents
 			metadata.put(VIDEO_INPUT_SIZE, inputSize);
 			metadata.put(VIDEO_OUTPUT_SIZE, outSize);
 			metadata.put(VIDEO_COMPRESS_STATE, compressedState);
+			if(compressedState != 0) metadata.put(TIME_TO_COMPRESS_VIDEO,timeToCompress);
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, VIDEO_COMPRESSION, EventPriority.HIGH, metadata, VIDEO_COMPRESSION);			
 		}
 		catch (JSONException e)
@@ -458,8 +451,9 @@ public class FTAnalyticEvents
 
 	public String toString()
 	{
-		return "AttachementType : " + mAttachementType + ", NetworkType : " + mNetwork + ", RetryCount : " + mRetryCount + ", PauseCount : " + mPauseCount;
+		return "AttachementType : " + mAttachementType + ", NetworkType : " + mNetwork;
 	}
+
 	//Sending File Transfer analytics for bots.
 	public static void platformAnalytics(String msisdn,String fileKey, String fileType)
 	{

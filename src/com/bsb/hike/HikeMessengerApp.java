@@ -48,6 +48,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
@@ -80,6 +81,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.abtest.ABTest;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
@@ -94,6 +96,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
+
+	public static final String DEFAULT_SETTINGS_PREF = "com.bsb.hike_preferences";
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
 
@@ -951,7 +955,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
-		validateHikeRootDir();
+		validateCriticalDirs();
+
 		makeNoMediaFiles();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -973,13 +978,39 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		PlatformUtils.resumeLoggingLocationIfRequired();
+		//Init AB-Testing framework
+		ABTest.apply(getApplicationContext());
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 		CustomTabsHelper.getPackageNameToUse(this);
 	}
 
+	private void validateCriticalDirs()
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Utils.validateDirectory(HikeConstants.HIKE_DIRECTORY_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.VIDEO_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_RECORDING_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.OTHER_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
+			}
+		});
+	}
+
 	private void initCrashReportingTool()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 		{
 			Logger.d("HikeMessangerApp","Initializing Crashlytics");
 			Fabric.with(this, new Crashlytics());
@@ -1148,31 +1179,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
 		 */
 		ContactManager.getInstance();
-	}
-
-	/**
-	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
-	 */
-	private void validateHikeRootDir()
-	{
-		File rootDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT);
-		/*
-		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
-		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
-		 * Caused mainly by app like clean master, native memory optimization etc.
-		 */
-		if(rootDir != null && rootDir.exists())
-		{
-			if(!rootDir.isDirectory() && rootDir.isFile())
-			{
-				int count = 0;
-				File mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + count);
-				while (mFile.exists()) {
-					mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + ++count);
-				}
-				rootDir.renameTo(mFile);
-			}
-		}
 	}
 
 	private void makeNoMediaFiles()
@@ -1378,6 +1384,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
+
+    public static void clearDiskCache()
+    {
+        diskCache = null;
     }
 
 }

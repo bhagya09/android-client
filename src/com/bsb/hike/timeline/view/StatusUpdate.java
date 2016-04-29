@@ -60,9 +60,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.MotionEvent;
 
+import java.io.File;
+
 public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Listener, OnSoftKeyboardListener, PopupListener, View.OnClickListener, View.OnTouchListener
 {
-
 	private BitmapFactory.Options options;
 
 	private String mPrefillCaption;
@@ -365,6 +366,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 	{
 		super.onResume();
 		isForeground = true;
+		Utils.showSoftKeyboard(StatusUpdate.this, statusTxt);
 		if (statusImage != null && statusImage.getDrawable() != null)
 		{
 			ChatThreadUtils.applyMatrixTransformationToImageView(statusImage.getDrawable(), statusImage);
@@ -873,6 +875,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog.dismiss();
 			progressDialog = null;
 		}
+
+		if(!enableCompression && mActivityTask.task == null)
+		{
+			Utils.deleteFile(new File(mImagePath));
+		}
+
 		super.onDestroy();
 		
 	}
@@ -899,6 +907,12 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 		mActivityTask.keyboardShowing = false;
 		Logger.d(StatusUpdate.class.getSimpleName(), "hidden keyboard");
 	}
+
+	@Override
+	public void onHiddingPreviouslyShown()
+	{
+	}
+
 
 	@Override
 	public void onClick(View v)

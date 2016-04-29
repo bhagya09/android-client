@@ -1032,7 +1032,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 				}
 			}
 			boolean showThumbnail = false;
@@ -1137,7 +1137,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 							wtHolder.action.setImageResource(R.drawable.ic_mic);
 						}
 						wtHolder.duration.setTag(hikeFile.getFileKey());
-						voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						//CE-261: Last played audio message shows incorrect time when mediaplayer is null
+						if (voiceMessagePlayer.mediaPlayer == null) {
+							Utils.setupFormattedTime(wtHolder.duration, hikeFile.getRecordingDuration());
+						} else {
+							voiceMessagePlayer.setDurationTxt(wtHolder.duration, wtHolder.progress);
+						}
 						wtHolder.duration.setVisibility(View.VISIBLE);
 						wtHolder.progress.setVisibility(View.VISIBLE);
 					}
@@ -3042,7 +3047,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
 	{
-		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
+		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile, isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
@@ -3076,7 +3081,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 		else if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
-			if (progress < 100)
+			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
 			if (Utils.isHoneycombOrHigher())
 				holder.circularProgress.stopAnimation();
@@ -3091,11 +3096,22 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 					{
-						holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), progress, 300);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+					}
+					else if(progress == 100)
+					{
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
 					}
 					else
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						if((progress + (int) (animatedProgress * 100)) > 100)
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
+						else
+						{
+							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
+						}
 					}
 				}
 			}
@@ -3616,11 +3632,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
-
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
@@ -3651,7 +3674,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), receivedFile);
+					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 
 					Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
 
@@ -3665,6 +3688,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
+						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							if (fss.getFTState() == FTState.NOT_STARTED) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+							} else if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
+						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
+							if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
+						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
 					}
@@ -4055,18 +4089,38 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				registerPoximitySensor();
 				registerHeadSetReceiver();
+
+				informUserIfVolumeLowOrMuted();
 			}
 			catch (IllegalArgumentException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IllegalStateException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
 			}
 			catch (IOException e)
 			{
 				Logger.w(getClass().getSimpleName(), e);
+				fileKey = null;
+
+				File tempFile = new File(hikeFile.getFilePath());
+				boolean doesFileExist = (tempFile != null) ? tempFile.exists(): false;
+				if(!doesFileExist) {
+					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
+				}
+			}
+		}
+
+		public void informUserIfVolumeLowOrMuted() {
+			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
+			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
+			int currentVol = audioManager.getStreamVolume(audioManager.getMode());
+			if(currentVol == 0){
+				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -4121,6 +4175,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			durationProgress = null;
 
 			unregisterProximitySensor();
+			unregisterHeadserReceiver();
 			audioManager.setMode(initialAudioMode);
 		}
 
@@ -4227,7 +4282,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				return;
 			}
 			String btnFileKey = (String) fileBtn.getTag();
-			if (!fileKey.equals(btnFileKey))
+			if (fileKey != null && !fileKey.equals(btnFileKey))
 			{
 				return;
 			}
@@ -4252,6 +4307,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (durationTxt == null || durationProgress == null || fileKey == null || mediaPlayer == null)
 			{
+				if(fileKey == null && durationTxt != null){ //CE-462 & CE-461
+					durationTxt.setText("N/A");
+				}
 				return;
 			}
 			String txtFileKey = (String) durationTxt.getTag();
@@ -4667,5 +4725,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
+		sendImageVideoRelatedAnalytic(uniqueKey_Order, null, null);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus, String family) {
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
+			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
+		}
 	}
 }

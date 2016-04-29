@@ -196,9 +196,10 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject analyticsObj = new JSONObject();
-			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			analyticsObj.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			analyticsObj.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			analyticsObj.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			analyticsObj.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.USER_TL_OPEN);
 			analyticsObj.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			analyticsObj.put(AnalyticsConstants.V2.GENUS, source);
@@ -210,6 +211,30 @@ public class HikeAnalyticsEvent
 		catch (JSONException e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	public static void recordAnalyticsForAddFriend(String userMsisdn, String source, boolean requestSent)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ADD_FRIEND);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.ADD_FRIEND);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.GENUS, requestSent ? "req_sent" : "req_acc");
+			json.put(AnalyticsConstants.V2.SPECIES, source);
+			json.put(AnalyticsConstants.V2.TO_USER, userMsisdn);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
 		}
 	}
 }
