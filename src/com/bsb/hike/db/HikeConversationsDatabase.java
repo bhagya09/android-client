@@ -1067,7 +1067,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
 
 		if(oldVersion < 50)
