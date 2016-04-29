@@ -13,8 +13,8 @@ public class AnalyticsConstants
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
-	public static final Object MICRO_APP_LOADED ="microAppLoaded";
-	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String MICRO_APP_LOADED ="microAppLoaded";
+	public static final String MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
@@ -288,6 +288,16 @@ public class AnalyticsConstants
 		public static final String NETWORK = "nw";
 
 		public static final String SOURCE = "src";
+
+		public static final String SERIES = "ser";
+
+		public static final String CENSUS = "cs";
+
+		public static final String BREED = "b";
+
+		public static final String RACE = "ra";
+
+		public static final String POPULATION = "pop";
 	}
 
 	// Edit picture flags and events
@@ -815,6 +825,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_STICKER_LOGS = "act_stck";
 
+	public static final String ACT_ABTEST_LOGS = "act_ab";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -872,4 +884,13 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
+
+	public static final String SHARE_IMAGES = "imgShare";
+
+	public static final String IMAGE_SOURCE_GALLERY = "atchGal";
+
+	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
+
+	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
 }
