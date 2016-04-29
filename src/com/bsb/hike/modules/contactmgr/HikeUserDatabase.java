@@ -39,6 +39,7 @@ import com.bsb.hike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -1228,7 +1229,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return getSortedContactMap();
 	}
 
-	List<ContactInfo> getAllContactsForSyncing()
+	public List<ContactInfo> getAllContactsForSyncing()
 	{
 		Cursor c = null;
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
@@ -1242,11 +1243,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			while (c.moveToNext())
 			{
 				String msisdn = c.getString(msisdnIdx);
-				if (TextUtils.isEmpty(msisdn))
+				if (TextUtils.isEmpty(msisdn)|| TextUtils.isEmpty(c.getString(c.getColumnIndex(DBConstants.ID))))
 				{
+					Logger.d(TAG,"Skipping Contact");
 					continue;
 				}
 				ContactInfo contact = processContact(c);
+				Logger.d(TAG,"Contact Name:"+contact.getMsisdn()+"Contact Id:"+contact.getId()+"");
 				contacts.add(contact);
 			}
 			return contacts;
