@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -191,7 +192,16 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         @Override
         public boolean onQueryTextChange(String query)
         {
-            return false;
+            if(TextUtils.isEmpty(query.trim()))
+            {
+                showSearchFragment();
+                return stickerShopSearchFragment.onQueryTextChange(query);
+            }
+            else
+            {
+                //todo discuss scenario
+            }
+            return true;
         }
     };
 
@@ -210,7 +220,6 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         }
 
         super.onBackPressed();
-
     }
 
 	private void setupSearchFTUE()

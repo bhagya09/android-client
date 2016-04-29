@@ -7,7 +7,7 @@ import android.support.v7.widget.SearchView;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
-import com.bsb.hike.ui.fragments.StickerShopSearchFragment;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 public class CategorySearchWatcher implements CategorySearchListener, SearchView.OnQueryTextListener
@@ -15,6 +15,8 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	public static final String TAG = CategorySearchWatcher.class.getSimpleName();
 
 	private CategorySearchListener mListener;
+
+    private String currentQueryState;
 
 	public CategorySearchWatcher(CategorySearchListener listener)
 	{
@@ -70,8 +72,29 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	}
 
 	@Override
-	public boolean onQueryTextChange(String query)
+	public boolean onQueryTextChange(final String query)
 	{
-		return CategorySearchManager.getInstance().onQueryTextChange(query, this);
+		currentQueryState = new String(query);
+
+		CategorySearchManager.getInstance().getSearchEngine().runOnSearchThread(new Runnable()
+		{
+			private String capturedQueryState = query;
+
+			@Override
+			public void run()
+			{
+				if (capturedQueryState.equals(currentQueryState))
+				{
+					Logger.e(TAG, "Yo going to search oq= " + capturedQueryState + " <> nq=" + currentQueryState);
+					CategorySearchManager.getInstance().onQueryTextChange(currentQueryState, CategorySearchWatcher.this);
+				}
+				else
+				{
+					Logger.i(TAG, "ignoring since changed oq= " + capturedQueryState + " <> nq=" + currentQueryState);
+				}
+			}
+		}, HikeSharedPreferenceUtil.getInstance().getData(CategorySearchManager.AUTO_SEARCH_TIME, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME));
+
+		return true;
 	}
 }

@@ -36,6 +36,10 @@ public enum CategorySearchManager
 
     public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
 
+    public static final String AUTO_SEARCH_TIME = "a_s_tm";
+
+    public static final long DEFAULT_AUTO_SEARCH_TIME = 2000;
+
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
 
     public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 10;
@@ -65,7 +69,7 @@ public enum CategorySearchManager
 
 	public List<StickerCategory> searchForPacks(String query)
 	{
-		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query.toLowerCase());
+		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
 
 		return getOrderedCategoryList(resultCategories);
 	}
@@ -99,14 +103,16 @@ public enum CategorySearchManager
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
 	{
-		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, false);
 		categorySearchEngine.runOnSearchThread(categorySearchTask, 0);
 		return true;
 	}
 
-	public boolean onQueryTextChange(String s, CategorySearchListener listener)
+	public boolean onQueryTextChange(String query, CategorySearchListener listener)
 	{
-		return false;
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, true);
+		categorySearchTask.run();
+		return true;
 	}
 
 	private List<StickerCategory> getOrderedCategoryList(Set<CategorySearchData> querySet)
