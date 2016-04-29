@@ -2408,7 +2408,7 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoRetry)
 	{
 		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{
@@ -2419,7 +2419,7 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,String.valueOf(autoRetry));
 			}
 		});
 	}
