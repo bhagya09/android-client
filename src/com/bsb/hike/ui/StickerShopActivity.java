@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -56,7 +55,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         showShopFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-        StickerManager.getInstance().refreshPacksMetadata();
+        StickerManager.getInstance().refreshPacksData();
     }
 
     private void setupShopFragment(Bundle savedInstanceState)

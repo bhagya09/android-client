@@ -7322,7 +7322,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public Pair<List<StickerCategory>, List<String>> getStickerCategoriesForMetadataUpdate()
+	public Pair<List<StickerCategory>, List<String>> getStickerCategoriesForDataUpdate()
 	{
 		Cursor cursor = null;
 		List<StickerCategory> metadataUpdateList = null;
@@ -7368,7 +7368,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		catch (Exception e)
 		{
-			Logger.d(mContext.getClass().getSimpleName(), "getStickerCategoriesForMetadataUpdate" + e.toString());
+			Logger.d(mContext.getClass().getSimpleName(), "getStickerCategoriesForDataUpdate" + e.toString());
 		}
 		finally
 		{

@@ -38,7 +38,7 @@ public class StickerCategoryDataUpdateTask implements Runnable
 	@Override
 	public void run()
 	{
-		Pair<List<StickerCategory>, List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForMetadataUpdate();
+		Pair<List<StickerCategory>, List<String>> updataLists = HikeConversationsDatabase.getInstance().getStickerCategoriesForDataUpdate();
 		List<StickerCategory> stickerCategoriesMetadataList = updataLists.first;
 		List<String> stickerCategoriesTagdataList = updataLists.second;
 

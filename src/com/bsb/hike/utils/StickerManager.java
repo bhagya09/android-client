@@ -390,7 +390,7 @@ public class StickerManager
 
 		fetchCategorRanksTask();
 
-		refreshPacksMetadata();
+		refreshPacksData();
 	}
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
@@ -3369,7 +3369,7 @@ public class StickerManager
 		return showLastCategory;
 	}
 
-	public void refreshPacksMetadata()
+	public void refreshPacksData()
 	{
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
 		{
