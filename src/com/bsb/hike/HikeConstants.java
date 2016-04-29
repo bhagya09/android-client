@@ -3217,7 +3217,7 @@ public class HikeConstants
 
 	public static final String STATE = "state";
 
-	public static final String UPDATE_ORDER_TIMESTAMP = "updateOrderTimeStamp";
+	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
 
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes

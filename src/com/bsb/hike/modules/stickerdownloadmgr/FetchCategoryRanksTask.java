@@ -1,7 +1,9 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
@@ -10,10 +12,13 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Calendar;
 
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.getPrefOrderForCategories;
 
@@ -64,7 +69,8 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 					HikeConversationsDatabase.getInstance().updateStickerCategoryRanks(orderArray);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false);
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false);
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_ORDER_TIMESTAMP, System.currentTimeMillis());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, System.currentTimeMillis());
+					doOnSuccess(null);
 				}
 				catch (Exception e)
 				{
@@ -111,6 +117,16 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	@Override
 	public void doOnSuccess(Object result)
 	{
+		setAlarmForFetchOrder();
+		StickerManager.getInstance().refreshPacksData();
+	}
+
+	private void setAlarmForFetchOrder()
+	{
+		Logger.d(TAG, "Cancelling old Alarm if any and Setting new Alarm");
+		HikeAlarmManager.cancelAlarm(HikeMessengerApp.getInstance().getApplicationContext(), HikeAlarmManager.REQUESTCODE_FETCH_PACK_ORDER);
+		HikeAlarmManager.setAlarmPersistance(HikeMessengerApp.getInstance().getApplicationContext(), Calendar.getInstance().getTimeInMillis() + HikeConstants.ONE_DAY_MILLS,
+				HikeAlarmManager.REQUESTCODE_FETCH_PACK_ORDER, false, true);
 
 	}
 
@@ -118,5 +134,6 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnFailure(HttpException exception)
 	{
 		Logger.e(TAG, "Exception", exception);
+		setAlarmForFetchOrder();
 	}
 }

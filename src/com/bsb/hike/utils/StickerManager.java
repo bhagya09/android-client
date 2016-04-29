@@ -402,9 +402,9 @@ public class StickerManager
 		}
 	}
 
-	private void fetchCategorRanksTask()
+	public void fetchCategorRanksTask()
 	{
-		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
 		{
 			FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask();
 			fetchCategoryRanksTask.execute();

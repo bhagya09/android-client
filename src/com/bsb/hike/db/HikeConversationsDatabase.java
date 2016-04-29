@@ -407,6 +407,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
+		mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
 	}
 
 	@Override
@@ -7337,15 +7338,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					+ DBConstants.IS_PACK_METADATA_UPDATED + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.IS_PACK_TAGDATA_UPDATED + ", "
 					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from " + DBConstants.STICKER_CATEGORY_RANK_TABLE
 					+ " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "="
-					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " where " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
-					+ DBConstants.IS_PACK_METADATA_UPDATED + "=0 OR " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.IS_PACK_TAGDATA_UPDATED + "=0" + " order by "
+					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID  + " order by "
 					+ DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.RANK + " asc " + " limit "
 					+ HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
 			cursor = mDb.rawQuery(query, null);
 			metadataUpdateList = new ArrayList<StickerCategory>(cursor.getCount());
 			tagdataUpdateList = new ArrayList<String>(cursor.getCount());
 
-			int updatedMetadataTsIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
 			int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
 			int metaUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
 			int tagUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_TAGDATA_UPDATED);
@@ -7360,7 +7359,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					if (cursor.getInt(metaUpdatedIdx) == 0)
 					{
-						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(updatedMetadataTsIdx)).setUcid(ucid).build();
+						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(metaUpdatedIdx)).setUcid(ucid).build();
 						metadataUpdateList.add(stickerCategory);
 					}
 
