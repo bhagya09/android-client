@@ -4547,26 +4547,6 @@ public class Utils
 		}
 	}
 
-	/*
-	 * When Active Contacts >= 3 show the 'Add Friends' pop-up When Activate Contacts <3 show the 'Invite Friends' pop-up
-	 */
-	public static boolean shouldShowAddFriendsFTUE(int hikeContactsCount, int recommendedCount)
-	{
-		Logger.d("AddFriendsActivity", " hikeContactsCount=" + hikeContactsCount + " recommendedCount=" + recommendedCount);
-		/*
-		 * also if all the recommended contacts are your friend we should not show add friends popup
-		 */
-		if (recommendedCount == 0 || hikeContactsCount == 0)
-		{
-			return false;
-		}
-		if (recommendedCount > 2)
-		{
-			return true;
-		}
-		return false;
-	}
-
 	public static void startChatThread(Context context, ContactInfo contactInfo, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
@@ -4635,21 +4615,21 @@ public class Utils
 
 	public static void getRecommendedAndHikeContacts(Context context, List<ContactInfo> recommendedContacts, List<ContactInfo> hikeContacts, List<ContactInfo> friendsList)
 	{
-		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
 
-		Logger.d("AddFriendsActivity", " friendsList size " + friendsList.size());
+		Logger.d(TAG, " friendsList size " + friendsList.size());
 		Set<String> recommendedContactsSelection = Utils.getServerRecommendedContactsSelection(settings.getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), msisdn);
-		Logger.d("AddFriendsActivity", " recommendedContactsSelection " + recommendedContactsSelection);
+		Logger.d(TAG, " recommendedContactsSelection " + recommendedContactsSelection);
 		if (!recommendedContactsSelection.isEmpty())
 		{
 			recommendedContacts.addAll(ContactManager.getInstance().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
 		}
 
-		Logger.d("AddFriendsActivity", " size recommendedContacts = " + recommendedContacts.size());
+		Logger.d(TAG, " size recommendedContacts = " + recommendedContacts.size());
 
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED_REJECTED, HikeConstants.ON_HIKE_VALUE, msisdn, false, true));
