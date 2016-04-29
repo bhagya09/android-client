@@ -1149,5 +1149,37 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		Logger.v("HikeContentDatabase", "Fluhsing Download state table");
 		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE, null, null);
 	}
+	/*
+	Method to check if a microapp download is in progress
+	@param appName whose progress is to be checked .
+	 */
+	public boolean isMicroAppDownloadRunning(String appName)
+	{
+		if (TextUtils.isEmpty(appName))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys to search for.");
+			return false;
+		}
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(PLATFORM_DOWNLOAD_STATE_TABLE, new String[] { DOWNLOAD_STATE }, HikePlatformConstants.APP_NAME + "=?", new String[] {appName}, null, null, null);
+			if (c.moveToFirst())
+			{
+				int downloadStateIndex = c.getColumnIndex(DOWNLOAD_STATE);
+				int value = c.getInt(downloadStateIndex);
+				if(value == (HikePlatformConstants.PlatformDwnldState.IN_PROGRESS))
+				return true;
+			}
+			return false;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
 
 }

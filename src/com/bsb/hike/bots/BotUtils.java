@@ -554,6 +554,11 @@ public class BotUtils
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
 	}
 
+	private static boolean checkIfDownloadInProgress(String appName)
+	{
+		return HikeContentDatabase.getInstance().isMicroAppDownloadRunning(appName);
+	}
+
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		
