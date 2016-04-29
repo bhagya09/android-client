@@ -849,6 +849,10 @@ public class PlatformUtils
 								HikePlatformConstants.PlatformDwnldState.FAILED);
 						sendDownloadPausedAnalytics(platformContentModel.getId());
 					}
+					if (!autoResume)
+					{
+						PlatformUtils.removeFromPlatformDownloadStateTable(platformContentModel.getId(), platformContentModel.cardObj.getmAppVersionCode());
+					}
 					else
 					{
 						microappDownloadAnalytics(HikePlatformConstants.MICROAPP_DOWNLOAD_FAILED, platformContentModel, jsonObject);
@@ -884,17 +888,17 @@ public class PlatformUtils
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
-		if(autoResume)
+		if (autoResume)
 		{
-			resumeSupported =true;
-			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
-					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+			resumeSupported = true;
 		}
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(), rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,autoResume);
 		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
 		{
 			return;    // Do not download if current network is below preferred network.
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
@@ -2408,7 +2412,7 @@ public class PlatformUtils
 /*
  *Method to add data to the State table
  */
-	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state)
+	public static void addToPlatformDownloadStateTable(final String name, final int mAppVersionCode, final String data,@HikePlatformConstants.PlatformTypes final int type, final long ttl,final int prefNetwork,@HikePlatformConstants.PlatformDwnldState final int state, final boolean autoResume)
 	{
 		if (mAppVersionCode <-1 || TextUtils.isEmpty(name) || ttl < 0)
 		{
@@ -2419,7 +2423,7 @@ public class PlatformUtils
 		handler.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state);
+				HikeContentDatabase.getInstance().addToPlatformDownloadStateTable(name, mAppVersionCode, data, type, System.currentTimeMillis() + ttl, prefNetwork, state,(autoResume) ? 1 : 0);
 			}
 		});
 	}
@@ -2502,6 +2506,11 @@ public class PlatformUtils
 						int prefNetwork =c.getInt(c.getColumnIndex(HikePlatformConstants.PREF_NETWORK));
 
 						String name = c.getString(c.getColumnIndex(HikePlatformConstants.APP_NAME));
+
+						if(c.getInt(c.getColumnIndex(HikePlatformConstants.AUTO_RESUME)) != 1)
+						{
+							continue;    // Moving ahead only if auto_resume is true.
+						}
 
 						if (currentTime > ttl)
 						{

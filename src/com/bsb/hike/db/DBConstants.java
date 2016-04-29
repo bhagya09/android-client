@@ -324,7 +324,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 7;
+		public static final int DB_VERSION = 8;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -410,6 +410,7 @@ public interface DBConstants
 		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
 		String DOWNLOAD_STATE = "downloadState";
+		String AUTO_RESUME = "autoResume";
 		
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";
