@@ -82,6 +82,10 @@ public class Mute
         this.muteDuration = muteDuration;
     }
 
+    /**
+     *
+     * @return muteEndTime in seconds for the following durations : 8 hours, 1 week, 1 year
+     */
     public long getMuteEndTime()
     {
         switch(muteDuration)
