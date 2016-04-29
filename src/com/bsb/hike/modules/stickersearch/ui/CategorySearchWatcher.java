@@ -41,6 +41,7 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 				if (mListener == null)
 				{
 					Logger.e(TAG, "onSearchCompleted() : No listener present");
+                    return;
 				}
 				mListener.onSearchCompleted(categories);
 			}
@@ -58,6 +59,7 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 				if (mListener == null)
 				{
 					Logger.e(TAG, "onNoCategoriesFound() : No listener present");
+                    return;
 				}
 
 				mListener.onNoCategoriesFound(query);
