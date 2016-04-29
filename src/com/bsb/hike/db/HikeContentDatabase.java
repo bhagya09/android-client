@@ -253,6 +253,11 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
+		if(oldVersion < 8)
+		{
+			String alterNamespace = "ALTER TABLE " + PLATFORM_DOWNLOAD_STATE_TABLE + " ADD COLUMN " + AUTO_RETRY + " TEXT";
+			queries.add(alterNamespace);
+		}
 		
 		return queries.toArray(new String[]{});
 	}
@@ -1080,6 +1085,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ HikePlatformConstants.TYPE + " INTEGER, "
 				+ HikePlatformConstants.TTL + " INTEGER, "
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ AUTO_RETRY + " TEXT DEFAULT " + "false" + ", "
 				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
 				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
