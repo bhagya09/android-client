@@ -10,6 +10,8 @@ import java.util.Map;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,19 +70,30 @@ public class CategoryTagInsertTask implements Runnable
 
 	private List<String> getModifiedFieldList(List<String> currentFieldList, JSONArray updatedInFieldList) throws JSONException
 	{
+        if(Utils.isEmpty(currentFieldList))
+        {
+            currentFieldList = new ArrayList<String>() ;
+        }
+
 		Pair<List<String>, List<String>> segregatedFieldUpdates = getUpdatedPairs(updatedInFieldList);
-		for (String activeField : segregatedFieldUpdates.first)
+		if (!Utils.isEmpty(segregatedFieldUpdates.first))
 		{
-			if (!currentFieldList.contains(activeField))
+			for (String activeField : segregatedFieldUpdates.first)
 			{
-				currentFieldList.add(activeField);
+				if (!currentFieldList.contains(activeField))
+				{
+					currentFieldList.add(activeField);
+				}
 			}
 		}
-		for (String inActiveField : segregatedFieldUpdates.second)
+		if (!Utils.isEmpty(segregatedFieldUpdates.second))
 		{
-			if (currentFieldList.contains(inActiveField))
+			for (String inActiveField : segregatedFieldUpdates.second)
 			{
-				currentFieldList.remove(inActiveField);
+				if (currentFieldList.contains(inActiveField))
+				{
+					currentFieldList.remove(inActiveField);
+				}
 			}
 		}
 		return currentFieldList;

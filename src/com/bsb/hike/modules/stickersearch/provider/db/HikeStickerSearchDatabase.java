@@ -1301,14 +1301,13 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 	{
 		SortedSet<CategorySearchData> list = null;
 
-		if ((referenceArgs != null) && (referenceArgs.length > 0))
+		if (!Utils.isEmpty(referenceArgs))
 		{
 			Cursor c = null;
 
 			try
 			{
-				String[] columns = { HikeStickerSearchBaseConstants.UNIQUE_ID, HikeStickerSearchBaseConstants.CATEGORY_ID, HikeStickerSearchBaseConstants.NAME,
-						HikeStickerSearchBaseConstants.FOR_GENDER };
+				String[] columns = { HikeStickerSearchBaseConstants.UNIQUE_ID, HikeStickerSearchBaseConstants.NAME, HikeStickerSearchBaseConstants.FOR_GENDER };
 
 				// Todo use utils method
 				c = mDb.query(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, columns,
@@ -1480,7 +1479,6 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
         SortedSet<CategorySearchData> list = new TreeSet<CategorySearchData>();
 
         int ucidIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.UNIQUE_ID);
-        int catIdIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.CATEGORY_ID);
         int forGenderIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.FOR_GENDER);
         int nameIdx = c.getColumnIndex(HikeStickerSearchBaseConstants.NAME);
 
@@ -1687,14 +1685,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 	private SortedSet<CategorySearchData> getCategoriesForReferences(String[] referenceIds, String matchKey)
 	{
+
 		SortedSet<CategorySearchData> result = null;
 
-		if (referenceIds.length > 0)
-		{
-			CategorySearchManager.getInstance().loadSearchedCategories(referenceIds);
-			result = searchIntoCategoryPrimaryTable(matchKey, referenceIds);
-			SQLiteDatabase.releaseMemory();
-		}
+		result = searchIntoCategoryPrimaryTable(matchKey, referenceIds);
+		SQLiteDatabase.releaseMemory();
 
 		return result;
 	}

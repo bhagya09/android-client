@@ -192,14 +192,15 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         @Override
         public boolean onQueryTextChange(String query)
         {
-            if(TextUtils.isEmpty(query.trim()))
+            if(TextUtils.isEmpty(query))
+            {
+                return false;
+            }
+
+            if(!TextUtils.isEmpty(query.trim()))
             {
                 showSearchFragment();
                 return stickerShopSearchFragment.onQueryTextChange(query);
-            }
-            else
-            {
-                //todo discuss scenario
             }
             return true;
         }
