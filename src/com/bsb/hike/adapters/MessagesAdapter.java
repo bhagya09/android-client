@@ -3639,6 +3639,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
@@ -3683,8 +3688,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
-						if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-							sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							if (fss.getFTState() == FTState.NOT_STARTED) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+							} else if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
+						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
+							if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+							}
 						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
@@ -4076,6 +4089,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				registerPoximitySensor();
 				registerHeadSetReceiver();
+
+				informUserIfVolumeLowOrMuted();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4097,6 +4112,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if(!doesFileExist) {
 					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
 				}
+			}
+		}
+
+		public void informUserIfVolumeLowOrMuted() {
+			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
+			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
+			int currentVol = audioManager.getStreamVolume(audioManager.getMode());
+			if(currentVol == 0){
+				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -4704,12 +4728,12 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	}
 
 	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
-		sendImageVideoRelatedAnalytic(uniqueKey_Order, null);
+		sendImageVideoRelatedAnalytic(uniqueKey_Order, null, null);
 	}
 
-	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus) {
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus, String family) {
 		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
-			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus);
+			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
 	}
 }

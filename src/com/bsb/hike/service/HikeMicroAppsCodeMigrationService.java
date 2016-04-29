@@ -43,7 +43,10 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent)
 	{
-		boolean isMicroAppsSuccessfullyMigrated = true,isDPDirectoryMigrated = false;
+        // keeping this variables as true bcoz there might be case in which user does not have any data that needs to be migrated
+		boolean isMicroAppsSuccessfullyMigrated = true;
+        boolean isDPDirectoryMigrated = true;
+        boolean isGameEngineMigrated = true;
 		HashMap<String, Boolean> mapForMigratedApps = new HashMap<String, Boolean>();
         String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
@@ -55,16 +58,15 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
                 isDPDirectoryMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + PlatformContentConstants.MICROAPPS_DP_DIR),
                         new File(PlatformContentConstants.PLATFORM_CONTENT_DIR + PlatformContentConstants.MICROAPPS_DP_DIR));
             }
-            else
-                isDPDirectoryMigrated = true;
         }
         catch (IOException e)
         {
+            PlatformUtils.microappsMigrationFailedAnalytics(e.toString());
             e.printStackTrace();
         }
 
 		/*
-		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently present in BotTable
+		 * Iterating and doing the migration over the key set of hikeBotInfoMap currently presenxt in BotTable
 		 */
 		for (Map.Entry<String, BotInfo> entry : HikeMessengerApp.hikeBotInfoMap.entrySet())
 		{
@@ -81,36 +83,45 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 
                     // Keeping default bot type as web micro apps
                     byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
-					
+
                     // For Native micro apps, if game engine is not already migrated , migrate it as well
-					if (botMetadata.isNativeMode())
-					{
-						botType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+                    if (botMetadata.isNativeMode())
+                    {
+                        botType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
 
-						JSONArray mapps = botMetadata.getAsocmapp();
-						if (mapps != null)
-						{
-							for (int i = 0; i < mapps.length(); i++)
-							{
-								JSONObject json = new JSONObject();
-								try
-								{
-									json = mapps.getJSONObject(i);
-								}
-								catch (JSONException e)
-								{
-									e.printStackTrace();
-								}
-								String appName = json.optString(HikeConstants.NAME);
-								if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName).exists())
-								{
-									PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName), new File(
-											PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)));
+                        JSONArray mapps = botMetadata.getAsocmapp();
+                        if (mapps != null)
+                        {
+                            for (int i = 0; i < mapps.length(); i++)
+                            {
+                                JSONObject json = new JSONObject();
+                                try
+                                {
+                                    json = mapps.getJSONObject(i);
+                                }
+                                catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                String appName = json.optString(HikeConstants.NAME);
+                                if (new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName).exists())
+                                {
+                                    // If there's already a directory present in new path, there's a chance it might be partial one so deleting it before copying it again
+                                    if(new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)).exists())
+                                    {
+                                        PlatformUtils.deleteDirectory(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName));
+                                    }
 
-								}
-							}
-						}
-					}
+                                    isGameEngineMigrated = PlatformUtils.copyDirectoryTo(new File(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName),
+                                            new File(PlatformUtils.generateMappUnZipPathForBotType(HikePlatformConstants.PlatformBotType.HIKE_MAPPS, unzipPath, appName)));
+
+                                    // delete game engine from the old content code if it successfully got migrated
+                                    if(isGameEngineMigrated && !TextUtils.isEmpty(appName))
+                                        PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + appName);
+                                }
+                            }
+                        }
+                    }
 
                     String newVersioningCodePath = PlatformUtils.generateMappUnZipPathForBotType(botType, unzipPath, botName);
 
@@ -127,7 +138,14 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 					// Copy this code from source to destination
                     boolean isCopied = false;
                     if(originalFile.exists())
+                    {
                         isCopied = PlatformUtils.copyDirectoryTo(originalFile, newFilePath);
+                    }
+                    else
+                    {
+                        // Since the file name have not been found on old content directory , here we are assuming that this file has been migrated in the last time and setting its value as true in hashmap
+                        mapForMigratedApps.put(entry.getKey(), true);
+                    }
 
                     if (isCopied)
                     {
@@ -162,11 +180,14 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 						HikeConversationsDatabase.getInstance().updateBotMetaData(entry.getKey(), botMetadataJson);
 						entry.getValue().setMetadata(botMetadataJson);
 						mapForMigratedApps.put(entry.getKey(), true);
+
+                        // Delete micro app file if from the old content code if it successfully got migrated
+                        if(!TextUtils.isEmpty(microAppName))
+                            PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR + microAppName);
 					}
 				}
 				catch (FileNotFoundException fnfe)
 				{
-                    mapForMigratedApps.put(entry.getKey(), true);
                     Logger.e("Hike Micro apps code Migration Service File Not Found Exception" ,fnfe.toString());
                     PlatformUtils.microappsMigrationFailedAnalytics(fnfe.toString());
                     fnfe.printStackTrace();
@@ -180,6 +201,11 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
                 catch (IOException e)
                 {
                     Logger.e("Hike Micro apps code Migration Service IOException",e.toString());
+                    PlatformUtils.microappsMigrationFailedAnalytics(e.toString());
+                    e.printStackTrace();
+                }
+                catch (Exception e)
+                {
                     PlatformUtils.microappsMigrationFailedAnalytics(e.toString());
                     e.printStackTrace();
                 }
@@ -197,7 +223,7 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 		/*
 		 * Check if migration is successful , save the flag as true in Shared Preferences and delete old directory content code  , else set alarm for making it happen in future
 		 */
-		if (isMicroAppsSuccessfullyMigrated && isDPDirectoryMigrated)
+		if (isMicroAppsSuccessfullyMigrated && isDPDirectoryMigrated && isGameEngineMigrated)
 		{
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, true);
             PlatformUtils.deleteDirectory(PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR);
@@ -217,7 +243,8 @@ public class HikeMicroAppsCodeMigrationService extends IntentService
 			}
 
 			HikeAlarmManager.setAlarm(this, scheduleTime, HikeAlarmManager.REQUEST_CODE_MICROAPPS_MIGRATION, true);
-		}
+            PlatformUtils.microappsMigrationFailedAnalytics("Migration failed because of logical issue");
+        }
 	}
 
 }
