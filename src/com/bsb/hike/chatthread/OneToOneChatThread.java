@@ -320,7 +320,7 @@ import java.util.Map;
 		}
 
 		// Update Content of user info view
-		if (callerContentModel.getExpiryTime() > System.currentTimeMillis())
+		if (System.currentTimeMillis() - callerContentModel.getExpiryTime() < HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
 		{
 			if (mAdapter != null)
 			{
@@ -645,7 +645,7 @@ import java.util.Map;
 					// 2. if not in DB, then HTTP Call for user info + show loader(later on)
 					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, null);
 				}
-				else if(callerContentModel.getExpiryTime() < System.currentTimeMillis())
+				else if(System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
 				{
 					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
 					// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time

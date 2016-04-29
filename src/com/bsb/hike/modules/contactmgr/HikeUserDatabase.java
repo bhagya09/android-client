@@ -557,7 +557,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
-			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis() + HikeConstants.NO_OF_MILISECONDS_IN_1_DAY);
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
 			mDb.update(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, contentValues, DBConstants.MSISDN + "=? ", new String[]{callerContentModel.getMsisdn()});
 			Logger.d("c_spam", "HTTP res SUCCESS :- successfully updated old row in in DB " + contentValues);
 		}
@@ -584,7 +584,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			contentValues.put(DBConstants.NAME, callerContentModel.getFullName());
 			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
 			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, creationTime);
-			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis() + HikeConstants.NO_OF_MILISECONDS_IN_1_DAY);
+			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
 			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CHATSPAM" + contentValues);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 		}
