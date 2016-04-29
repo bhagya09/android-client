@@ -2,7 +2,10 @@ package com.bsb.hike.modules.httpmgr.engine;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.client.OkClientCustomDev;
 
 /**
  * This class clones the {@link IClient} object and passes it to {@link RequestExecuter} for the final execution of the request
@@ -10,7 +13,7 @@ import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
  * @author sidharth & anubhav
  *
  */
-public class RequestRunner extends RequestRunnerBase
+public class RequestRunner extends com.bsb.hike.modules.httpmgr.engine.RequestRunnerBase
 {
 	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
@@ -19,6 +22,6 @@ public class RequestRunner extends RequestRunnerBase
 
 	protected IClient getDefaultClient(ClientOptions options)
 	{
-		return new OkUrlClient(options);
+		return new OkClientCustomDev(options);
 	}
 }

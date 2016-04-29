@@ -1,9 +1,5 @@
 package com.bsb.hike.modules.httpmgr.client;
 
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
-import com.bsb.hike.StethoInterceptor;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
@@ -11,7 +7,12 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -21,7 +22,7 @@ import com.squareup.okhttp.OkHttpClient;
  * @author anubhavgupta & sidharth
  *
  */
-public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
+public class OkClient implements IClient
 {
 	private OkHttpClient client;
 
@@ -44,116 +45,17 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 		System.setProperty("http.maxConnections", Integer.toString(numOfMaxConnections));
 	}
 
-	/**
-	 * Generates a new OkHttpClient with given clientOption parameters
-	 *
-	 * @param clientOptions
-	 * @return
-	 */
-	static OkHttpClient generateClient(
-			com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	protected OkHttpClient generateClient(ClientOptions options)
 	{
-		clientOptions = clientOptions != null ? clientOptions : com.bsb.hike.modules.httpmgr.client.ClientOptions
-				.getDefaultClientOptions();
-		OkHttpClient client = new OkHttpClient();
-		client.networkInterceptors().add(new StethoInterceptor());
-		return setClientParameters(client, clientOptions);
-	}
-
-	/**
-	 * Sets Client option parameters to given OkHttpClient
-	 *
-	 * @param client
-	 * @param clientOptions
-	 * @return
-	 */
-	static OkHttpClient setClientParameters(OkHttpClient client, com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
-	{
-		client.setConnectTimeout(clientOptions.getConnectTimeout(), TimeUnit.MILLISECONDS);
-		client.setReadTimeout(clientOptions.getReadTimeout(), TimeUnit.MILLISECONDS);
-		client.setWriteTimeout(clientOptions.getWriteTimeout(), TimeUnit.MILLISECONDS);
-		client.setWriteTimeout(clientOptions.getWriteTimeout(), TimeUnit.MILLISECONDS);
-		client.setSocketFactory(client.getSocketFactory());
-		client.setSslSocketFactory(clientOptions.getSslSocketFactory());
-		client.setHostnameVerifier(clientOptions.getHostnameVerifier());
-
-		if (clientOptions.getProxy() != null)
-		{
-			client.setProxy(clientOptions.getProxy());
-		}
-
-		if (clientOptions.getProxySelector() != null)
-		{
-			client.setProxySelector(clientOptions.getProxySelector());
-		}
-
-		if (clientOptions.getProxySelector() != null)
-		{
-			client.setProxySelector(clientOptions.getProxySelector());
-		}
-
-		if (clientOptions.getCookieHandler() != null)
-		{
-			client.setCookieHandler(clientOptions.getCookieHandler());
-		}
-
-		if (clientOptions.getCache() != null)
-		{
-			client.setCache(clientOptions.getCache());
-		}
-
-		if (clientOptions.getCache() != null)
-		{
-			client.setCache(clientOptions.getCache());
-		}
-
-		if (clientOptions.getHostnameVerifier() != null)
-		{
-			client.setHostnameVerifier(clientOptions.getHostnameVerifier());
-		}
-
-		if (clientOptions.getCertificatePinner() != null)
-		{
-			client.setCertificatePinner(clientOptions.getCertificatePinner());
-		}
-
-		if (clientOptions.getAuthenticator() != null)
-		{
-			client.setAuthenticator(clientOptions.getAuthenticator());
-		}
-
-		if (clientOptions.getProtocols() != null)
-		{
-			client.setProtocols(clientOptions.getProtocols());
-		}
-
-		if (clientOptions.getConnectionSpecs() != null)
-		{
-			client.setConnectionSpecs(clientOptions.getConnectionSpecs());
-		}
-
-		if (clientOptions.getDispatcher() != null)
-		{
-			client.setDispatcher(clientOptions.getDispatcher());
-		}
-
-		if (clientOptions.getConnectionPool() != null)
-		{
-			client.setConnectionPool(clientOptions.getConnectionPool());
-		}
-
-		client.setFollowSslRedirects(clientOptions.getFollowSslRedirects());
-		client.setFollowRedirects(clientOptions.getFollowRedirects());
-
-		return client;
+		return new OkHttpClientFactory().generateClient(options);
 	}
 
 	public OkClient()
 	{
-		client = generateClient(com.bsb.hike.modules.httpmgr.client.ClientOptions.getDefaultClientOptions());
+		client = generateClient(ClientOptions.getDefaultClientOptions());
 	}
 
-	public OkClient(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	public OkClient(ClientOptions clientOptions)
 	{
 		client = generateClient(clientOptions);
 	}
@@ -208,6 +110,19 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 		responseBuilder.setUrl(response.request().urlString());
 		responseBuilder.setStatusCode(response.code());
 		responseBuilder.setReason(response.message());
+		Headers responseHeaders = response.headers();
+		if (responseHeaders != null)
+		{
+			int size = responseHeaders.size();
+			List<Header> headersList = new ArrayList<>(size);
+			for (int i = 0; i < size; ++i)
+			{
+				Header header = new Header(responseHeaders.name(i), responseHeaders.value(i));
+				headersList.add(header);
+			}
+			responseBuilder.setHeaders(headersList);
+		}
+
 		com.squareup.okhttp.ResponseBody responseBody = response.body();
 
 		InputStream stream = responseBody.byteStream();
@@ -234,9 +149,9 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public OkClient clone(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	public OkClient clone(ClientOptions clientOptions)
 	{
-		return new OkClient(setClientParameters(client.clone(), clientOptions));
+		return new OkClient(new OkHttpClientFactory().setClientParameters(client.clone(), clientOptions));
 	}
 
 }

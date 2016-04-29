@@ -2,7 +2,7 @@ package com.bsb.hike.modules.httpmgr.engine;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkClient;
+import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -13,7 +13,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
  * @author sidharth & anubhav
  *
  */
-public class RequestRunner
+public class RequestRunnerBase
 {
 	private IClient defaultClient;
 
@@ -21,11 +21,16 @@ public class RequestRunner
 
 	private com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier;
 
-	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
+	public RequestRunnerBase(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
-		defaultClient = new OkClient(options);
+		defaultClient = getDefaultClient(options);
 		this.engine = engine;
 		this.requestListenerNotifier = requestListenerNotifier;
+	}
+
+	protected IClient getDefaultClient(ClientOptions options)
+	{
+		return new OkUrlClient(options);
 	}
 
 	/**
@@ -43,7 +48,6 @@ public class RequestRunner
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
-				com.bsb.hike.modules.httpmgr.engine.RequestProcessor.removeRequest(request);
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);

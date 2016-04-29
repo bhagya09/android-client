@@ -25,7 +25,7 @@ public class OkUrlClient extends UrlConnectionClient
 
 	public OkUrlClient(ClientOptions clientOptions)
 	{
-		OkHttpClient okHttpCLient = OkClient.generateClient(clientOptions);
+		OkHttpClient okHttpCLient = new OkHttpClientFactory().generateClient(clientOptions);
 		this.okUrlFactory = new OkUrlFactory(okHttpCLient);
 	}
 
@@ -46,6 +46,6 @@ public class OkUrlClient extends UrlConnectionClient
 	@Override
 	public OkUrlClient clone(ClientOptions clientOptions)
 	{
-		return new OkUrlClient(OkClient.setClientParameters(okUrlFactory.client().clone(), clientOptions));
+		return new OkUrlClient(new OkHttpClientFactory().setClientParameters(okUrlFactory.client().clone(), clientOptions));
 	}
 }
