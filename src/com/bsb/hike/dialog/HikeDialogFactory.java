@@ -53,6 +53,7 @@ import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
@@ -478,7 +479,7 @@ public class HikeDialogFactory
 
 		hikeDialog.setCancelable(true);
 		hikeDialog.setCanceledOnTouchOutside(true);
-		hikeDialog.setTitle(R.string.group_mute_dialog_title);
+		hikeDialog.setTitle(OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? R.string.group_mute_dialog_title : R.string.chat_mute_dialog_title);
 		hikeDialog.setPositiveButton(R.string.OK, listener);
 		hikeDialog.setNegativeButton(R.string.CANCEL, listener);
 

@@ -440,25 +440,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 	}
 	
-	/**
-	 * This overrides {@link ChatThread#updateNetworkState()} inorder to toggleGroupMute visibility appropriately
-	 */
-	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-
-		if (ChatThreadUtils.checkNetworkError())
-		{
-			toggleConversationMuteViewVisibility(false);
-		}
-
-		else
-		{
-			toggleConversationMuteViewVisibility(oneToNConversation.isMuted());
-		}
-	}
-	
 	@Override
 	protected void clearConversation()
 	{

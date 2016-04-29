@@ -120,6 +120,8 @@ public interface DBConstants
 
 	public static final String MUTE_NOTIFICATION = "muteNotif";
 
+	public static final String MUTE_END_TIME = "muteEndTime";
+
 	public static final String FAVORITES_TABLE = "favoritesTable";
 
 	public static final String FAVORITE_TYPE = "favoriteType";

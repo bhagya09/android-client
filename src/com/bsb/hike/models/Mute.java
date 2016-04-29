@@ -1,5 +1,7 @@
 package com.bsb.hike.models;
 
+import com.bsb.hike.HikeConstants.MuteDuration;
+
 /**
  * This class contains the Mute object which is used by the ConvInfo object.
  *
@@ -15,7 +17,9 @@ public class Mute
 
     private int muteDuration = 0;
 
-    private int muteEndTime;
+    private long muteEndTime;
+
+    private long muteTimestamp;
 
     private Mute(InitBuilder builder)
     {
@@ -43,6 +47,19 @@ public class Mute
     public void setIsMute(boolean isMute)
     {
         this.isMute = isMute;
+        if (isMute)
+        {
+            this.muteTimestamp = System.currentTimeMillis()/1000;
+        }
+    }
+
+    /**
+     *
+     * @return the time when the conversation was muted in seconds
+     */
+    public long getMuteTimestamp()
+    {
+        return this.muteTimestamp;
     }
 
     public boolean shouldShowNotifInMute()
@@ -65,8 +82,26 @@ public class Mute
         this.muteDuration = muteDuration;
     }
 
-    public int getMuteEndTime()
+    /**
+     *
+     * @return muteEndTime in seconds for the following durations : 8 hours, 1 week, 1 year
+     */
+    public long getMuteEndTime()
     {
+        switch(muteDuration)
+        {
+            case MuteDuration.DURATION_EIGHT_HOURS:
+                muteEndTime = muteTimestamp + (8 * 60 * 60);
+                break;
+
+            case MuteDuration.DURATION_ONE_WEEK:
+                muteEndTime = muteTimestamp + (7 * 24 * 60 * 60);
+                break;
+
+            case MuteDuration.DURATION_ONE_YEAR:
+                muteEndTime = muteTimestamp + (365 * 24 * 60 * 60);
+                break;
+        }
         return muteEndTime;
     }
 

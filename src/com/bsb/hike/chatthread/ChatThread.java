@@ -5367,6 +5367,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void updateNetworkState()
 	{
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		toggleConversationMuteViewVisibility(ChatThreadUtils.checkNetworkError() ? false : mConversation.isMuted());
 	}
 
 	/**
