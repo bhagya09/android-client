@@ -59,6 +59,11 @@ public enum CategorySearchManager
 	/* Get the instance of this class from outside */
 	public static CategorySearchManager getInstance()
 	{
+
+        if(mCacheForSearchedCategories.size() == 0)
+        {
+            INSTANCE.loadCategoriesForShopSearch();
+        }
 		return INSTANCE;
 	}
 
@@ -99,6 +104,7 @@ public enum CategorySearchManager
 	{
 		mCacheForLocalAnalogousScore.clear();
 		mCacheForShopSearchKeys.clear();
+        mCacheForSearchedCategories.clear();
 	}
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
@@ -161,9 +167,9 @@ public enum CategorySearchManager
 		return result;
 	}
 
-	public void loadSearchedCategories(String[] categoryUcids)
+	public void loadCategoriesForShopSearch()
 	{
-		mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch(categoryUcids));
+		mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch());
 	}
 
 	public StickerCategory getSearchedCategoriesFromCache(int ucid)

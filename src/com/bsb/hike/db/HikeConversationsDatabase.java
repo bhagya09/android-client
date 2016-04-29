@@ -5883,7 +5883,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				int rank = c.getInt(c.getColumnIndex(DBConstants.RANK));
 
 				StickerCategory s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setTotalStickers(totalStickers)
-						.setUpdateAvailable(updateAvailable).setIsDownloaded(isDownloaded).setUcid(ucid).build();
+						.setUpdateAvailable(updateAvailable).setIsDownloaded(isDownloaded).setUcid(ucid).setShopRank(rank).build();
 				stickerDataMap.put(ucid, s);
 			}
 			catch (Exception e)
@@ -8028,26 +8028,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         return c;
     }
 
-	public Map<Integer, StickerCategory> getCategoriesForShopSearch(String[] categories)
+	public Map<Integer, StickerCategory> getCategoriesForShopSearch()
 	{
-		if (Utils.isEmpty(categories))
-		{
-			return null;
-		}
-
 		Cursor c = null;
 
 		Map<Integer, StickerCategory> result = null;
 
-		String selection[] = { DBConstants._ID, DBConstants.UCID, DBConstants.CATEGORY_NAME, DBConstants.RANK, DBConstants.TOTAL_NUMBER, DBConstants.IS_DOWNLOADED,
-				DBConstants.UPDATE_AVAILABLE };
 
 		try
 		{
-			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, selection,
-					DBConstants.UCID + " IN (" + StickerSearchUtility.getSQLiteDatabaseMultipleParametersSyntax(categories.length) + ")", categories, null, null, null);
+			String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.RANK
+					+ "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants._ID + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.CATEGORY_NAME + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.TOTAL_NUMBER + ","
+					+ DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.IS_DOWNLOADED + "," + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATE_AVAILABLE
+					+ " from " + DBConstants.STICKER_CATEGORY_RANK_TABLE + " INNER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE
+					+ "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID;
+			c = mDb.rawQuery(query, null);
 
-			result = parseCategorySearchResultsCursor(c);
+            if(c.getCount()>0)
+            {
+                result = parseCategorySearchResultsCursor(c);
+            }
 
 		}
 		catch (Exception e)
