@@ -1555,7 +1555,7 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
-    <string name="bummer">Bummer</string>
+    <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
     <string name="voip_friend_error">Please add %1$s as friend to call. </string>
