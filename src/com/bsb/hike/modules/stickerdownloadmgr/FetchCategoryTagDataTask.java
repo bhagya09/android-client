@@ -56,7 +56,7 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 		{
 			for (CategoryTagData categoryTagData : fetchList)
 			{
-				ucids += categoryTagData.getUcid();
+				ucids += categoryTagData.getUcid() + HikeConstants.DELIMETER;
 				jsonObject = new JSONObject();
 				jsonObject.put(Integer.toString(categoryTagData.getUcid()), categoryTagData.getCategoryLastUpdatedTime());
 				array.put(jsonObject);

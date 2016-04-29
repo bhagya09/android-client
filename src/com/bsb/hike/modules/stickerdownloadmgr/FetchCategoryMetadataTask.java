@@ -50,7 +50,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
         {
 			for (StickerCategory category : list)
             {
-				ucids += category.getUcid();
+				ucids += category.getUcid() + HikeConstants.DELIMETER;
 				jsonObject = new JSONObject();
 				jsonObject.put(Integer.toString(category.getUcid()), category.getPackUpdationTime());
 				array.put(jsonObject);
