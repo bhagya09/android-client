@@ -57,6 +57,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_V4 = "/v4";
 
+	private static final String BASE_V5 = "/v5";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
@@ -100,6 +102,8 @@ public class HttpRequestConstants
 	private static final String BASE_BLOCK = "/block";
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
+
+	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	public static synchronized void setUpBase()
 	{
@@ -576,5 +580,15 @@ public class HttpRequestConstants
 	public static String getHistoricalStatusUpdatesUrl()
 	{
 		return  BASE_URL + BASE_V1 + "hsu/";
+	}
+
+	public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 }
