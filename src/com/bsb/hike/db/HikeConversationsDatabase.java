@@ -5873,8 +5873,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		while (c.moveToNext())
 		{
-			try
-			{
 				String categoryId = c.getString(c.getColumnIndex(DBConstants._ID));
 				String categoryName = c.getString(c.getColumnIndex(DBConstants.CATEGORY_NAME));
 				boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
@@ -5886,11 +5884,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				StickerCategory s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setTotalStickers(totalStickers)
 						.setUpdateAvailable(updateAvailable).setIsDownloaded(isDownloaded).setUcid(ucid).setShopRank(rank).build();
 				stickerDataMap.put(ucid, s);
-			}
-			catch (Exception e)
-			{
-				Logger.e(getClass().getSimpleName(), e.getMessage());
-			}
 		}
 		return stickerDataMap;
 	}
@@ -8037,10 +8030,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
             }
 
 		}
-		catch (Exception e)
-		{
-			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
-		}
+		finally
+        {
+            if (c != null)
+            {
+                c.close();
+            }
+        }
 
 		return result;
 	}
