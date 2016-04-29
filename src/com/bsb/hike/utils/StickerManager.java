@@ -22,6 +22,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
@@ -3336,7 +3337,19 @@ public class StickerManager
 
     public void postRestoreSetup()
     {
-        HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
+		// Check if we are restoring sticker backup from a non sticker backup compatible version
+		BackupMetadata metadata = BackupUtils.getBackupMetadata();
+		if (metadata != null)
+		{
+			int oldBackupVersion = metadata.getAppVersion();
+
+			if (oldBackupVersion <= AccountBackupRestore.STICKER_BACKUP_THRESHHOLD_VERSION)
+			{
+				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+			}
+		}
+
+		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1);
         HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false); // Need to reset sticker tables again
 		HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKERS_SIZE_DOWNLOADED, true); // No need to fetch cat metadata again since we have restored old categories
 		// Download Tags for whatever stickers are present now
