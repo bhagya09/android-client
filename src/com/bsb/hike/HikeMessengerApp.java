@@ -525,8 +525,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String UPGRADE_LANG_ORDER = "upgradeLanguageOrder";
 
-	public static final String UPGRADE_FOR_STICKER_TABLE = "upgradeForStickerTable";
-
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
@@ -869,7 +867,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1
 				||settings.getInt(UPGRADE_LANG_ORDER,0)==0
 				|| settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false
-				|| settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
 				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
