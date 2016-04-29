@@ -1511,12 +1511,12 @@ public class VoIPClient  {
 						
 					case RTT_RESPONSE:
 						if (rttSent) {
-							long newRtt = System.currentTimeMillis() - rttSentAt; 
+							long newRtt = System.currentTimeMillis() - rttSentAt;
+//							Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 							if (newRtt > VoIPConstants.MAX_RTT * 1000) {
 								Logger.w(tag, "Discarding excessive RTT: " + newRtt);
 								rttTooHigh = true;
 							} else {
-//								Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 								rtt = newRtt;
 								if (minimumDecodedQueueSize > 0)
 									setAudioLatency();
@@ -2410,6 +2410,7 @@ public class VoIPClient  {
 		bitrateAdjustment = 0;
 		audioFramesPerUDPPacket = 1;
 		decodedBuffersQueue.clear();
+		voicePacketsCache.clear();
 		measureRTT();
 		sendMessageToService(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}
