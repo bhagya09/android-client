@@ -42,6 +42,7 @@ import com.bsb.hike.tasks.FetchFriendsTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.SmileyParser;
@@ -96,6 +97,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 	private boolean addFriendOption;
 
+	private List<String> composeExcludeList;
+
+	private boolean isGroupFirst;
+
     public ComposeChatAdapter(Context context, ListView listView, boolean fetchGroups, boolean fetchRecents, boolean fetchRecentlyJoined, String existingGroupId, String sendingMsisdn, FriendsListFetchedCallback friendsListFetchedCallback, boolean showSMSContacts, boolean showMicroappShowcase,boolean isContactChooserFilter, boolean showTimeline)
 	{
 		super(context, listView, friendsListFetchedCallback, ContactInfo.lastSeenTimeComparatorWithoutFav);
@@ -142,6 +147,10 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		this.nuxStateActive = nuxStateActive;
 	}
 
+	public void setComposeExcludeList(List<String> composeExcludeList) { this.composeExcludeList = composeExcludeList; }
+
+	public void setGroupFirst(boolean isGroupFirst) { this.isGroupFirst = isGroupFirst; }
+
 	@Override
 	public void executeFetchTask()
 	{
@@ -178,12 +187,12 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, nuxRecommendedList, nuxFilteredRecoList, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false);
+					existingParticipants, sendingMsisdn, false, existingGroupId, isCreatingOrEditingGroup, fetchSMSContacts, false, false , false, showDefaultEmptyList, fetchHikeContacts, false, fetchRecommendedContacts, fetchHideListContacts, null, null, false, null);
 
 		} else {
 			fetchFriendsTask = new FetchFriendsTask(this, context, friendsList, hikeContactsList, smsContactsList, recentContactsList,recentlyJoinedHikeContactsList, friendsStealthList, hikeStealthContactsList,
 					smsStealthContactsList, recentStealthContactsList, filteredFriendsList, filteredHikeContactsList, filteredSmsContactsList, groupsList, groupsStealthList, null, null, filteredGroupsList, filteredRecentsList,filteredRecentlyJoinedHikeContactsList,
-					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase);
+					existingParticipants, sendingMsisdn, fetchGroups, existingGroupId, isCreatingOrEditingGroup, showSMSContacts, false, fetchRecents , fetchRecentlyJoined, showDefaultEmptyList, true, true, false , false, microappShowcaseList , filteredmicroAppShowcaseList, showMicroappShowcase, composeExcludeList);
 		}
 
 		if(showTimeline)
@@ -700,13 +709,22 @@ public class ComposeChatAdapter extends FriendsAdapter implements PinnedSectionL
 		if (groupsList.size() < filteredFriendsList.size()) {
 			addFirstGroups = false;
 		}
-       
-		if(addFirstGroups){
+
+		if(!isGroupFirst)
+		{
+			if (addFirstGroups) {
+				addGroupList();
+				addFriendList();
+			} else {
+				addFriendList();
+				addGroupList();
+			}
+		}
+		else
+		{
+			Logger.d("ComposeChatAdapter","isGroupFirst");
 			addGroupList();
 			addFriendList();
-		}else{
-			addFriendList();
-			addGroupList();
 		}
 		if (isHikeContactsPresent())
 		{

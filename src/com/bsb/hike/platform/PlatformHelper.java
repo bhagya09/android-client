@@ -1,5 +1,12 @@
 package com.bsb.hike.platform;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -24,16 +31,10 @@ import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
-import com.bsb.hike.ui.WebViewActivity;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 
 public class PlatformHelper
 {
@@ -185,6 +186,22 @@ public class PlatformHelper
 			NonMessagingBotMetadata metadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 			JSONObject cardObj = new JSONObject(cardObject);
 
+			boolean isGroupFirst = false;
+			ArrayList<String> composeExcludedList = new ArrayList<>();
+			if(cardObj.has(HikeConstants.Extras.IS_GROUP_FIRST))
+			{
+				isGroupFirst = cardObj.getBoolean(HikeConstants.Extras.IS_GROUP_FIRST);
+			}
+			if(cardObj.has(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST))
+			{
+				JSONArray composeExcludedArray = cardObj.getJSONArray(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST);
+				for(int i = 0 ; i < composeExcludedArray.length(); i++)
+				{
+					composeExcludedList.add(composeExcludedArray.getString(i));
+				}
+			}
+
+
 			/**
 			 * Blindly inserting the appName in the cardObject JSON.
 			 */
@@ -210,7 +227,7 @@ public class PlatformHelper
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
-			pickContactAndSend(message, activity, hashcode);
+			pickContactAndSend(message, activity, hashcode, isGroupFirst, composeExcludedList);
 
 		}
 		catch (JSONException e)
@@ -258,6 +275,23 @@ public class PlatformHelper
 				intent.putExtra(JavascriptBridge.tag, hashcode);
 			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
 			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
+			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
+
+		}
+	}
+
+	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode, boolean isGroupFirst, ArrayList<String> composeExcludedList)
+	{
+		if (activity != null)
+		{
+			final Intent intent = IntentFactory.getForwardIntentForConvMessage(activity, message, PlatformContent.getForwardCardData(message.webMetadata.JSONtoString()), false);
+			intent.putExtra(HikeConstants.Extras.COMPOSE_MODE, ComposeChatActivity.PICK_CONTACT_AND_SEND_MODE);
+			if (hashcode < 0)
+				intent.putExtra(JavascriptBridge.tag, hashcode);
+			intent.putExtra(HikePlatformConstants.REQUEST_CODE, JavascriptBridge.PICK_CONTACT_AND_SEND_REQUEST);
+			intent.putExtra(HikeConstants.Extras.THUMBNAILS_REQUIRED, true);
+			intent.putExtra(HikeConstants.Extras.IS_GROUP_FIRST, isGroupFirst);
+			intent.putStringArrayListExtra(HikeConstants.Extras.COMPOSE_EXCLUDE_LIST, composeExcludedList);
 			activity.startActivityForResult(intent, HikeConstants.PLATFORM_REQUEST);
 
 		}

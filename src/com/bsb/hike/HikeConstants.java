@@ -1955,6 +1955,10 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String IS_GROUP_FIRST = "is_group_first";
+
+		public static final String COMPOSE_EXCLUDE_LIST = "compose_exclude_list";
+
     }
 
 	public static final class LogEvent
