@@ -143,7 +143,7 @@ public class FileDownloadRequest extends Request<File>
 
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY);
+				int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
 				chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 				if (chunkSize <= 0)
 				{

@@ -172,7 +172,7 @@ public class FileUploadRequest extends Request<JSONObject>
 			String boundary = "\r\n--" + BOUNDARY + "--\r\n";
 
 			// Calculate chunk size using network type and other stuff
-			int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY);
+			int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
 			chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 
 			if (mStart == 0 && chunkPolicy == FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY)
