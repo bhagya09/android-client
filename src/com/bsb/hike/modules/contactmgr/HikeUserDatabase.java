@@ -1146,6 +1146,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			ContactInfo contact = contactMap.get(msisdn);
 			if (null != contact)
 			{
+				contactInfos.put(msisdn, contact);
 				continue;
 			}
 			else
