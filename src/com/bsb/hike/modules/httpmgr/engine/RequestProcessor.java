@@ -1,14 +1,14 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.listener.IProgressListener;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListener;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class handles the duplicate check of the request and then submits the request to {@link RequestRunner}
@@ -18,7 +18,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestCancellationListene
  */
 public class RequestProcessor
 {
-	private static Map<String, Request<?>> requestMap;
+	private static ConcurrentHashMap<String, Request<?>> requestMap;
 
 	private RequestRunner requestRunner;
 
@@ -48,9 +48,9 @@ public class RequestProcessor
 		}
 
 		String requestId = request.getId();
-		
-		Request<?> req = requestMap.get(requestId);
-		if (null != req)
+
+		Request<?> req = requestMap.putIfAbsent(requestId, request);
+		if (req != null)
 		{
 			LogFull.i(request.toString() + " already exists");
 			req.addRequestListeners(request.getRequestListeners());
@@ -58,7 +58,6 @@ public class RequestProcessor
 		else
 		{
 			LogFull.d("adding " + request.toString() + " to request map");
-			requestMap.put(requestId, request);
 			IRequestCancellationListener listener = new IRequestCancellationListener()
 			{
 				@Override
@@ -142,6 +141,7 @@ public class RequestProcessor
 	{
 		if (request.getId() != null)
 		{
+            LogFull.i(request.toString() + " removing key in map");
 			requestMap.remove(request.getId());
 		}
 	}

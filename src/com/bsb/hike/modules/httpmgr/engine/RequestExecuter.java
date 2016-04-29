@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
@@ -30,6 +31,7 @@ import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsLogger;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.network.NetworkChecker;
@@ -234,14 +236,19 @@ public class RequestExecuter
 			/** Logging request for analytics */
 			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
+			long startTimeNs = System.nanoTime();
 			response = client.execute(request);
+			long timeTakenNs = System.nanoTime() - startTimeNs;
+
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
 			{
 				throw new IOException();
 			}
 
 			LogFull.d(request.toString() + " completed");
-			
+
+			addResponseTimeHeader(response, timeTakenNs);
+
 			notifyResponseToRequestRunner();
 		}
 		catch (SocketTimeoutException ex)
@@ -283,10 +290,10 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
 			statusCode = response.getStatusCode();
 
-			if (statusCode == HTTP_LENGTH_REQUIRED)
+			if (statusCode == HTTP_LENGTH_REQUIRED || statusCode == HTTP_UNZIP_FAILED)
 			{
 				/*
-				 * in case of response code == 411 we make a retry without gzip
+				 * in case of response code == 411 or 420 we make a retry without gzip
 				 */
 				handleRetry(ex, statusCode);
 			}
@@ -344,7 +351,7 @@ public class RequestExecuter
 		{
 			BasicRetryPolicy retryPolicy = request.getRetryPolicy();
 			retryPolicy.retry(new RequestFacade(request), httpException);
-			if (retryPolicy.getRetryCount() >= 0)
+			if (retryPolicy.getRetryIndex() <= retryPolicy.getNumOfRetries())
 			{
 				LogFull.i("retring " + request.toString());
 				execute(false, retryPolicy.getRetryDelay());
@@ -396,13 +403,14 @@ public class RequestExecuter
 			else
 			{
 				LogFull.d("Pre-processing completed for " + request.toString());
-				if (RequestProcessor.isRequestDuplicateAfterInterceptorsProcessing(request))
-				{
-					return;
-				}
 				allInterceptorsExecuted = true;
 				processRequest();
 			}
 		}
+	}
+
+	private void addResponseTimeHeader(Response response, long timeTakenNs)
+	{
+		response.replaceOrAddHeader(HttpHeaderConstants.NETWORK_TIME, Long.toString(timeTakenNs));
 	}
 }

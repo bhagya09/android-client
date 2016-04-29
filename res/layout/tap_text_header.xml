@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tap_text_header_container"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/tap_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/sticker_tap_text"
+        android:textAllCaps="true"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+</LinearLayout>

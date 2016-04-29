@@ -4,7 +4,8 @@ package com.bsb.hike.platform.content;
 import android.os.Environment;
 
 import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.platform.ContentModules.*;
+import com.bsb.hike.platform.ContentModules.PlatformContentModel;
+import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformContentListener;
 import com.bsb.hike.platform.PlatformContentLoader;
 import com.bsb.hike.platform.PlatformContentRequest;
@@ -134,6 +135,25 @@ public class PlatformContent
 	{
 		return getContent(0, contentData, listener);
 	}
+
+
+    /**
+     * Gets well formed HTML content.
+     *
+     * @param botType
+     *            the subtype of micro app
+     * @param contentData
+     *            the content data
+     * @param listener
+     *            the listener
+     * @return new request made, use this for cancelling requests
+     *
+     * @return the content
+     */
+    public static PlatformContentRequest getContent(byte botType,String contentData, PlatformContentListener<PlatformContentModel> listener)
+    {
+        return getContent(botType,0, contentData, listener);
+    }
 	
 	/**
 	 * 
@@ -145,7 +165,7 @@ public class PlatformContent
 	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener, boolean clearRequestInQueue)
 	{
 		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
-		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId,contentData,HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
 		if(model != null) {
 			model.setUniqueId(uniqueId); // GSON issue
 		}
@@ -167,15 +187,58 @@ public class PlatformContent
 			return null;
 		}
 	}
+
+	/**
+	 * @param botType
+	 * @param uniqueId
+	 *            - the id which you will get back once templating is finished : {@link PlatformContentModel#getUniqueId()}
+	 * @param contentData
+	 * @param listener
+	 *
+	 * @return
+	 */
+	public static PlatformContentRequest getContent(byte botType, int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
+	{
+		Logger.d("PlatformContent", "Content Dir : " + PlatformContentConstants.PLATFORM_CONTENT_DIR);
+		PlatformContentModel model = PlatformContentModel.make(uniqueId, contentData, botType);
+		if (model != null)
+		{
+			model.setUniqueId(uniqueId); // GSON issue
+		}
+		PlatformContentRequest request = PlatformContentRequest.make(model, listener);
+
+		if (request != null)
+		{
+			// Set the request type in PlatformContentRequest type to request type received in getContent
+            request.setBotType(botType);
+            request.getContentData().setBotType(botType);
+
+			PlatformContentLoader.getLoader().handleRequest(request);
+			return request;
+		}
+		else
+		{
+			Logger.e("PlatformContent", "Incorrect content data");
+			listener.onEventOccured(0, EventCode.INVALID_DATA);
+			return null;
+		}
+	}
+
 	public static PlatformContentRequest getContent(int uniqueId, String contentData, PlatformContentListener<PlatformContentModel> listener)
 	{
 		return getContent(uniqueId, contentData,listener, false);
 	}
+
 	public static void init(boolean isProduction)
 	{
-		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
-				Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
-	}
+        // Toggle current micro apps file path
+		PlatformContentConstants.PLATFORM_CONTENT_DIR = isProduction ? PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR : PlatformContentConstants.MICRO_APPS_VERSIONING_STAG_CONTENT_DIR ;
+
+        // Toggle old micro apps file path
+        PlatformContentConstants.PLATFORM_CONTENT_OLD_DIR = isProduction ? HikeMessengerApp.getInstance().getApplicationContext().getFilesDir() + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator:
+                Environment.getExternalStorageDirectory() + File.separator + PlatformContentConstants.HIKE_DIR_NAME + File.separator + PlatformContentConstants.CONTENT_DIR_NAME + File.separator ;
+
+    }
 
 	public static String getForwardCardData(String contentData)
 	{

@@ -189,6 +189,8 @@ public class AccountUtils
 	public static final String SDK_AUTH_PARAM_PACKAGE_NAME = "package_name";
 	
 	public static final String SDK_AUTH_PARAM_SHA1 = "sha1";
+	
+	public static final String SDK_AUTH_EXPIRY_TYPE = "expiry_type";
 
 	public static final String ANALYTICS_UPLOAD_PATH = "/logs/analytics";
 	

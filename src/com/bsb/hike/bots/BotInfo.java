@@ -1,13 +1,15 @@
 package com.bsb.hike.bots;
 
-import com.bsb.hike.models.Conversation.ConvInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.text.TextUtils;
+
+import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
 
 /**
  * Created by shobhit on 22/04/15.
@@ -25,6 +27,8 @@ public class BotInfo extends ConvInfo implements Cloneable
 	private int configuration = Integer.MAX_VALUE;
 
 	private String namespace;
+	
+	private int triggerPointFormenu;
 
 	private String metadata;
 
@@ -48,13 +52,31 @@ public class BotInfo extends ConvInfo implements Cloneable
 	
 	private int updatedVersion;
 	
+	private String clientId;
+	
+	private String clientHash;
+	
+	 private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+	 
+	private int mAppVersionCode;
+	
+	public static final class TriggerEntryPoint
+	{
+		public static final int ENTRY_AT_HOME_MENU = 1;
+
+		public static final int ENTRY_AT_CHAT_MENU = 2;
+
+	}
+	
 	public static abstract class InitBuilder<P extends InitBuilder<P>> extends ConvInfo.InitBuilder<P>
 	{
-		private int type, config, version, updatedVersion;
-
+		private int type, config, version, updatedVersion, triggerPointForMenu,mAppVersionCode;
+   
 		private String namespace;
 
-		private String metadata, configData, notifData, helperData, botDescription;
+		private String metadata, configData, notifData, helperData, botDescription, clientId, clientHash;
+
+        private byte botType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
 
 		protected InitBuilder(String msisdn)
 		{
@@ -64,6 +86,24 @@ public class BotInfo extends ConvInfo implements Cloneable
 		public P setType(int type)
 		{
 			this.type = type;
+			return getSelfObject();
+		}
+		
+		public P setTriggerPoint(int triggerPoint)
+		{
+			this.triggerPointForMenu = triggerPoint;
+			return getSelfObject();
+		}
+		
+		public P setClientid(String id)
+		{
+			this.clientId = id;
+			return getSelfObject();
+		}
+		
+		public P setClientHash(String hash)
+		{
+			this.clientHash = hash;
 			return getSelfObject();
 		}
 
@@ -84,7 +124,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.type = type;
 			return getSelfObject();
 		}
-
+		
 		public P setConfigData(String configData)
 		{
 			this.configData = configData;
@@ -114,6 +154,7 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.helperData = helperData;
 			return getSelfObject();
 		}
+
 		@Override
 		public P setOnHike(boolean onHike)
 		{
@@ -131,6 +172,18 @@ public class BotInfo extends ConvInfo implements Cloneable
 			this.botDescription = description;
 			return getSelfObject();
 		}
+
+        public P setBotType(byte botType)
+        {
+            this.botType = botType;
+            return getSelfObject();
+        }
+
+        public P setMAppVersionCode(int mAppVersionCode)
+        {
+            this.mAppVersionCode = mAppVersionCode;
+            return getSelfObject();
+        }
 
 		@Override
 		public BotInfo build()
@@ -180,6 +233,16 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.namespace = namespace;
 	}
 
+	public int getTriggerPointFormenu()
+	{
+		return triggerPointFormenu;
+	}
+
+	public void setTriggerPointFormenu(int triggerPointFormenu)
+	{
+		this.triggerPointFormenu = triggerPointFormenu;
+	}
+
 	public String getNotifData()
 	{
 		return notifData == null ? "{}" : notifData;
@@ -227,6 +290,23 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.notifData = notifData;
 	}
 
+    public String getClientId(){
+		return clientId;
+	}
+
+	public void setClientId(String clientId){
+		this.clientId = clientId;
+	}
+	
+	public String getClientHash()
+	{
+		return clientHash;
+	}
+
+	public void setClientHash(String clientHash)
+	{
+		this.clientHash = clientHash;
+	}
 
 	public static class HikeBotBuilder extends BotInfo.InitBuilder<HikeBotBuilder>
 	{
@@ -251,12 +331,38 @@ public class BotInfo extends ConvInfo implements Cloneable
 		this.metadata = builder.metadata;
 		this.configData = builder.configData;
 		this.namespace = builder.namespace;
+		this.triggerPointFormenu = builder.triggerPointForMenu;
 		this.notifData = builder.notifData;
 		this.helperData = builder.helperData;
 		this.setOnHike(true);
 		this.version = builder.version;
 		this.botDescription = builder.botDescription;
+        this.mAppVersionCode = builder.mAppVersionCode;
 		this.updatedVersion = builder.updatedVersion;
+		this.clientId = builder.clientId;
+		this.clientHash = builder.clientHash;
+
+        // Get mAppVersionCode from the metadata to store in the Object in case of
+        if (!TextUtils.isEmpty(metadata) && mAppVersionCode <= 0)
+        {
+            int microAppVersionCode = 0;
+            try
+            {
+                JSONObject mdJsonObject = new JSONObject(metadata);
+
+                if (mdJsonObject != null)
+                {
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+                    if (cardObjectJson != null)
+                        microAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+                }
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            this.mAppVersionCode = microAppVersionCode;
+        }
 	}
 
 	public boolean isMessagingBot()
@@ -480,8 +586,36 @@ public class BotInfo extends ConvInfo implements Cloneable
 	{
 		this.updatedVersion = updatedVersion;
 	}
-	
-	@Override
+
+    /**
+     * @return the botType
+     */
+    public byte getBotType(){ return botType; }
+
+    /**
+     * @param botType
+     *            the botType to set
+     */
+    public void setBotType(byte botType)
+    {
+        this.botType = botType;
+    }
+
+    /**
+     * @return the mAppVersionCode
+     */
+    public int getMAppVersionCode(){ return mAppVersionCode; }
+
+    /**
+     * @param mAppVersionCode
+     *            the botType to set
+     */
+    public void setMAppVersionCode(int mAppVersionCode)
+    {
+        this.mAppVersionCode = mAppVersionCode;
+    }
+
+    @Override
 	public Object clone() throws CloneNotSupportedException
 	{
 		// TODO Auto-generated method stub

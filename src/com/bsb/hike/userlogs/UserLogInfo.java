@@ -14,6 +14,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -69,6 +71,7 @@ public class UserLogInfo {
 	public static final int FETCH_LOG_FLAG = 16;
 	public static final int PHONE_SPEC = 32;
 	public static final int DEVICE_DETAILS = 64;
+	public static final int ACCOUNT_ANALYTICS_FLAG = 128;
 	
 	
 	private static final long milliSecInDay = 1000 * 60 * 60 * 24;
@@ -94,6 +97,9 @@ public class UserLogInfo {
 	
 	private static final String SENT_SMS = "ss";
 	private static final String RECEIVED_SMS = "rs";
+
+	private static final String ACCOUNT_TYPE = "act";
+	private static final String ACCOUNT_NAME = "acn";
 	
 	private static final String SESSION_COUNT = "sn";
 	private static final String DURATION = "dr";
@@ -197,6 +203,58 @@ public class UserLogInfo {
 		}
 	}
 
+	public static class AccountLogPojo
+	{
+		private String accountName;
+		private String accountType;
+
+		public AccountLogPojo(String accountName, String accountType)
+		{
+			this.accountName = accountName;
+			this.accountType = accountType;
+		}
+
+		public JSONObject toJSON() throws JSONException
+		{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.putOpt(ACCOUNT_NAME, this.accountName);
+			jsonObj.putOpt(ACCOUNT_TYPE,this.accountType);
+			return jsonObj;
+		}
+	}
+
+	public static List<AccountLogPojo> getAccountLogs()
+	{
+
+		List<AccountLogPojo> accountLogPojos = new ArrayList<AccountLogPojo>();
+
+		Account[] accountList = AccountManager.get(HikeMessengerApp.getInstance().getApplicationContext()).getAccounts();
+		if(accountList != null && accountList.length > 0)
+		{
+			for (Account account : accountList)
+			{
+				accountLogPojos.add(new AccountLogPojo(account.name, account.type));
+				Logger.d(TAG, account.name + " : " + account.type + " : " + account.toString());
+
+			}
+		}
+		return accountLogPojos;
+		
+	}
+
+	public static JSONArray getJSONAccountArray(List<AccountLogPojo> accountLogList)
+			throws JSONException
+	{
+		JSONArray jsonArray = new JSONArray();
+		for (AccountLogPojo accountLog : accountLogList)
+		{
+			jsonArray.put(accountLog.toJSON());
+		}
+		return jsonArray;
+
+	}
+
+
 	public static List<AppLogPojo> getAppLogs() {
 		
 		List<AppLogPojo> appLogList = new ArrayList<AppLogPojo>();
@@ -248,6 +306,7 @@ public class UserLogInfo {
 			case (FETCH_LOG_FLAG): jsonKey = HikeConstants.SESSION_LOG_TRACKING; break;
 			case (PHONE_SPEC): jsonKey = HikeConstants.PHONE_SPEC; break;
 			case (DEVICE_DETAILS): jsonKey = HikeConstants.DEVICE_DETAILS; break;
+			case (ACCOUNT_ANALYTICS_FLAG): jsonKey = HikeConstants.ACCOUNT_LOG_ANALYTICS; break;
 			
 		}
 		return jsonKey;
@@ -306,6 +365,7 @@ public class UserLogInfo {
 			case FETCH_LOG_FLAG : return getJSONLogArray(getLogsFor(HikeConstants.SESSION_LOG_TRACKING));
 			case PHONE_SPEC:  return PhoneSpecUtils.getPhoneSpec();
 			case DEVICE_DETAILS:  return getDeviceDetails();
+			case ACCOUNT_ANALYTICS_FLAG : return getJSONAccountArray(getAccountLogs());
 			default : return null;
 		}
 	}
@@ -474,6 +534,10 @@ public class UserLogInfo {
 		if(data.optBoolean(HikeConstants.DEVICE_DETAILS))
 		{
 			flags |= UserLogInfo.DEVICE_DETAILS;
+		}
+		if(data.optBoolean(HikeConstants.ACCOUNT_LOG_ANALYTICS))
+		{
+			flags |= UserLogInfo.ACCOUNT_ANALYTICS_FLAG;
 		}
 		
 		if(flags == 0) 

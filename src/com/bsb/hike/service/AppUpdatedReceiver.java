@@ -6,28 +6,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
-import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 
 /**
  * @author Rishabh This receiver is used to notify that the app has been updated.
@@ -45,11 +36,6 @@ public class AppUpdatedReceiver extends BroadcastReceiver
 
 			final SharedPreferences prefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 
-
-			Intent intentKpt = new Intent();
-			intentKpt.setAction(KPTConstants.ACTION_BASE_PACKAGE_REPLACED);
-			context.sendBroadcast(intentKpt);
-			
 			/*
 			 * If the user has not signed up yet, don't do anything.
 			 */
@@ -111,4 +97,5 @@ public class AppUpdatedReceiver extends BroadcastReceiver
             PlatformUtils.platformDiskConsumptionAnalytics(AnalyticsConstants.APP_UPDATE_TRIGGER);
 		}
 	}
+
 }

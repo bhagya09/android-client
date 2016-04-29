@@ -51,6 +51,7 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.ParcelableSparseArray;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements GalleryItemLoaderImp
 {
@@ -644,7 +645,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		});
 	}
 
-	public void onGalleryItemClick(int position) {
+	public void onGalleryItemClick(int position)
+	{
+		if(position < 0)
+		{
+			return;
+		}
 		GalleryItem galleryItem = galleryItemList.get(position);
 
 		Intent intent;
@@ -737,7 +743,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		}
 	}
 
-	public boolean onGalleryLongItemClick(int position) {
+	public boolean onGalleryLongItemClick(int position)
+	{
+		if(position < 0)
+		{
+			return false;
+		}
 		if (!multiSelectMode)
 		{
 			multiSelectMode = true;

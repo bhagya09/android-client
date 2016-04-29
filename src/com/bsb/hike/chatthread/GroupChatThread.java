@@ -14,6 +14,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -25,7 +26,6 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.ui.utils.HashSpanWatcher;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -36,13 +36,9 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
 import com.bsb.hike.voip.VoIPUtils;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
@@ -58,12 +54,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,58 +102,6 @@ public class GroupChatThread extends OneToNChatThread
 		super.onCreate(savedState);
 	}
 
-	private void shouldShowMultiAdminPopup() {
-		if(! HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, false)&&!isNewChat&&oneToNConversation.isConversationAlive())
-		{
-			try {
-				if(oneToNConversation!=null&&oneToNConversation.getMetadata()!=null && oneToNConversation.getMetadata().amIAdmin()){
-		            Utils.blockOrientationChange(activity);
-					showMultiAdminTip(activity);
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-		
-	}
-	public void showMultiAdminTip(final Context context)
-	{
-	
-		HikeDialog hikeDialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.MULTI_ADMIN_DIALOG, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_MULTI_ADMIN_TIP, true);
-			}
-
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-				
-			}
-
-		}, 0);
-         hikeDialog.setOnDismissListener(new OnDismissListener() {
-			
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				Utils.unblockOrientationChange(activity);
-				
-			}
-		});
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -187,6 +129,7 @@ public class GroupChatThread extends OneToNChatThread
 		}
 
 		updateUnreadPinCount();
+		activity.recordActivityEndTime();
 	}
 
 	@Override
@@ -249,7 +192,7 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = oneToNConversation = (GroupConversation) mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
+		mConversation = oneToNConversation = (GroupConversation) HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, true);
 		// imp message from DB like pin
 		if (mConversation != null)
 		{
@@ -275,8 +218,6 @@ public class GroupChatThread extends OneToNChatThread
 		showTips();
 		oneToNConversation = (GroupConversation) conversation;
 		super.fetchConversationFinished(conversation);
-
-		shouldShowMultiAdminPopup();
 
 		/**
 		 * Is the group owner blocked ? If true then show the block overlay with appropriate strings
@@ -317,6 +258,7 @@ public class GroupChatThread extends OneToNChatThread
 			break;
 		case GROUP_END:
 			toggleGroupLife(false);
+			removeKeyboardShutdownIfShowing();
 			break;
 		default:
 			super.handleUIMessage(msg);
@@ -473,7 +415,7 @@ public class GroupChatThread extends OneToNChatThread
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP, ChatThreadTips.WT_RECOMMEND_TIP }, sharedPreference);
 
 		mTips.showTip();
 	}
@@ -595,7 +537,6 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.messageedittext:
-			showKeyboard();
 			return mShareablePopupLayout.onEditTextTouch(v, event);
 		default:
 			return super.onTouch(v, event);
@@ -609,9 +550,13 @@ public class GroupChatThread extends OneToNChatThread
 			toastForGroupEnd();
 		if (!checkForDeadOrBlocked())
 		{
+			if(item.getItemId() != android.R.id.home) {
+				if(isWalkieTalkieShowing()) return true;
+			}
 			switch (item.getItemId())
 			{
 			case R.id.voip_call:
+
 				// Make a group voip call after confirmation
 				new AlertDialog.Builder(activity).
 				setTitle(R.string.voip_conference_label).
@@ -675,7 +620,6 @@ public class GroupChatThread extends OneToNChatThread
 
 	private void showPinCreateView(String pinText)
 	{
-		removeKeyboardFtueIfShowing();
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			return;
@@ -683,18 +627,10 @@ public class GroupChatThread extends OneToNChatThread
 		mActionMode.showActionMode(PIN_CREATE_ACTION_MODE, getString(R.string.create_pin), getString(R.string.pin), HikeActionMode.DEFAULT_LAYOUT_RESID);
 		// TODO : dismissPopupWindow was here : gaurav
 
+		removeKeyboardShutdownIfShowing();
 		View content = activity.findViewById(R.id.impMessageCreateView);
 		content.setVisibility(View.VISIBLE);
 		mComposeView = (CustomFontEditText) content.findViewById(R.id.messageedittext);
-		if (isSystemKeyboard())
-		{
-			unregisterCustomKeyboardEditText(R.id.messageedittext);
-		}
-		else
-		{
-			mCustomKeyboard.registerEditText(R.id.messageedittext);	
-			mCustomKeyboard.init(mComposeView);
-		}
 		mComposeView.requestFocus();
 		if (mEmoticonPicker != null)
 		{
@@ -734,7 +670,6 @@ public class GroupChatThread extends OneToNChatThread
 		}
 		
 //		activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-		showKeyboard();
 
 		content.findViewById(R.id.emo_btn).setOnClickListener(this);
 	}
@@ -856,13 +791,11 @@ public class GroupChatThread extends OneToNChatThread
 	private void destroyPinCreateView()
 	{
 		// AFTER PIN MODE, we make sure mComposeView is reinitialized to message composer compose
-		unregisterCustomKeyboardEditText(R.id.messageedittext);
 		mComposeView = (CustomFontEditText) activity.findViewById(R.id.msg_compose);
 		if (mEmoticonPicker != null)
 		{
 			mEmoticonPicker.updateET(mComposeView);
 		}
-		mComposeView.setOnClickListener(mComposeChatOnClickListener);
 		mComposeView.requestFocus();
 
 		View mBottomView = activity.findViewById(R.id.bottom_panel);
@@ -883,7 +816,6 @@ public class GroupChatThread extends OneToNChatThread
 		{
 			mShareablePopupLayout.dismiss();
 		}
-		hideKeyboard();
 	}
 	
 	
@@ -1117,7 +1049,6 @@ public class GroupChatThread extends OneToNChatThread
 			{
 			case R.string.create_pin:
 			case R.string.group_profile:
-			case R.string.hike_keyboard:
 			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
@@ -1170,13 +1101,19 @@ public class GroupChatThread extends OneToNChatThread
 			pinView.setVisibility(View.VISIBLE);
 		}
 		if(!oneToNConversation.isConversationAlive()){
-			hideKeyboard();
+			Utils.hideSoftKeyboard(activity, mComposeView);
 		}
 		super.destroySearchMode();
 	}
 	
 	@Override
 	protected boolean shouldShowKeyboardInActionMode() {
-		return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
+	    return (super.shouldShowKeyboardInActionMode() || mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE);
+	}
+
+	@Override
+	protected void initKeyboardOffBoarding() {
+		if(!checkForDeadOrBlocked())
+			super.initKeyboardOffBoarding();
 	}
 }

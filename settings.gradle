@@ -15,13 +15,12 @@ include 'shared'
 include 'api'
 include 'services:webservice'
 */
-include 'google-play',':appcompatv7',':viewpager-indicator-library',':cardview',':recyclerview',':transporter-library',':kpt-host',':cropper'
+include 'google-play',':appcompatv7',':viewpager-indicator-library',':cardview',':recyclerview',':transporter-library',':cropper'
 project(':google-play').projectDir = new File('./google-play-services_lib')
 project(':appcompatv7').projectDir = new File('./appcompat')
 project(':viewpager-indicator-library').projectDir = new File('./Android ViewPagerIndicator library')
 project(':transporter-library').projectDir = new File('./transporter')
 project(':cardview').projectDir = new File('./cardview')
 project(':recyclerview').projectDir = new File('./recyclerview')
-project(':kpt-host').projectDir = new File('./kptHost')
 project(':cropper').projectDir = new File('./cropper')
 rootProject.name = 'android-client'

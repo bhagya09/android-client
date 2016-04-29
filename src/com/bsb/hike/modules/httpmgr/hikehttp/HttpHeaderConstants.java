@@ -19,8 +19,6 @@ public class HttpHeaderConstants
 
 	public static final String RANGE = "Range";
 
-	public static final String OKHTTP_SENT_MILLIS = "OkHttp-Sent-Millis";
-
-	public static final String OKHTTP_RECEIVED_MILLIS = "OkHttp-Received-Millis";
+	public static final String NETWORK_TIME = "network-time";
 
 }
