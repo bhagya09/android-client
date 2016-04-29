@@ -32,8 +32,6 @@
 
         <com.bsb.hike.view.IconListPreference
             android:defaultValue="@string/privacy_my_contacts"
-            android:entries="@array/privacyPrefKeys"
-            android:entryValues="@array/privacyPrefValues"
             android:key="lastSeenPrefList"
             android:layout="@layout/list_preference"
             android:summary="@string/ls_my_contacts_summary"

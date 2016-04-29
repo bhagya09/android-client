@@ -9,16 +9,20 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.media.MediaRecorder;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.ViewStub;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -28,15 +32,10 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     private static final long MIN_DURATION = 1000;
     private Activity mActivity;
-    private byte recorderState;
+    private byte recorderState = IDLE;
     private long recordStartTime, recordedTime;
     private MediaRecorder recorder;
     private File selectedFile;
@@ -71,10 +70,10 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
     private LinearLayout slideToCancel;
     private ImageView rectBgrnd;
     private ViewStub waverMic;
-    private float walkieSize;
     private PopupWindow popup_l;
-    private int LOWER_TRIGGER_DELTA; //Min Delta of the delete/cancel range - ui to change
-    private int HIGHER_TRIGGER_DELTA; //Delta at which delete/cancel is triggered
+    private int DELETE_TRIGGER_DELTA; //Delta for which the delete/cancel option appears
+    private int DELETE_REVERT_TRIGGER_DELTA; //Delta for which the delete/cancel option disappears back
+    private float recBgrndXPos;
 
     public HikeAudioRecordView(Activity activity, HikeAudioRecordListener listener) {
         this.mActivity = activity;
@@ -87,16 +86,22 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         updateTriggerLevels();
     }
 
+    float micPositionMaxSlide;
     private void updateTriggerLevels(){
+        micPositionMaxSlide = DrawUtils.dp(23);
         int screenWidth;
         if (mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             screenWidth = DrawUtils.displayMetrics.heightPixels;
+            if(HikeMessengerApp.bottomNavBarWidthLandscape != 0){
+                micPositionMaxSlide = HikeMessengerApp.bottomNavBarWidthLandscape/2 - DrawUtils.dp(4);
+            }
         } else {
             screenWidth = DrawUtils.displayMetrics.widthPixels;
         }
-        LOWER_TRIGGER_DELTA = (int) (screenWidth * 0.80);//we change the recording img to delete
-        walkieSize = mContext.getResources().getDimensionPixelSize(R.dimen.walkie_mic_size);
-        HIGHER_TRIGGER_DELTA = (int) (screenWidth * 0.50 + walkieSize / 2);
+        micPositionMaxSlide = micPositionMaxSlide - screenWidth;
+
+        DELETE_TRIGGER_DELTA = (int) (screenWidth * 0.60);//we change the recording img to delete
+        DELETE_REVERT_TRIGGER_DELTA = (int) (screenWidth * 0.60); //CE-434
     }
 
     View inflatedLayoutView ;
@@ -106,6 +111,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         inflatedLayoutView = layoutInflater.inflate(R.layout.walkie_talkie_view, null);
 
         HikeMessengerApp.bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(mContext);
+        HikeMessengerApp.bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(mContext);
 
         recordInfo = (TextView) inflatedLayoutView.findViewById(R.id.record_info_duration);
         recordingState = (RedDot) inflatedLayoutView.findViewById(R.id.recording);
@@ -133,7 +139,6 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         popup_l.setTouchInterceptor(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                popup_l.dismiss();
                 return true;
             }
         });
@@ -149,6 +154,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
         if(recorderImg != null)
             startPulsatingDotAnimation(recorderImg);
+        recBgrndXPos  = rectBgrnd.getX() + DrawUtils.dp(5);
+        anim = recorderImg.animate().setDuration(200).setInterpolator(new DecelerateInterpolator(1.0f)).setListener(getAnimationListener());
     }
 
 
@@ -159,6 +166,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 @Override
                 public void onInflate(ViewStub stub, View inflated) {
                     recorderImg = inflated;
+                    recorderImg.setDrawingCacheEnabled(true);
                 }
             });
 
@@ -166,15 +174,17 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
+    private Runnable ringAnimRunnable1, ringAnimRunnable2, micRunnable;
     /**
      * Used to start mic wave animation
      *
      * @param view
      */
+
     private void startPulsatingDotAnimation(View view) {
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.mic_image), 0);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1000);
-        mHandler.postDelayed(getPulsatingRunnable(view, R.id.ring2), 1750);
+        recordingHandler.postDelayed(micRunnable = getPulsatingRunnable(view, R.id.mic_image), 0);
+        recordingHandler.postDelayed(ringAnimRunnable1 = getPulsatingRunnable(view, R.id.ring2), 1000);
+        recordingHandler.postDelayed(ringAnimRunnable2 = getPulsatingRunnable(view, R.id.ring2), 1750);
     }
 
     private Runnable getPulsatingRunnable(final View view, final int viewId) {
@@ -216,8 +226,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             case MotionEvent.ACTION_MOVE:
                 if (recorderState == IDLE) return false;
                 Log.d(TAG, " action move occurred event.getX():: " + event.getX() + " :view get x:" + view.getX());
-                float x = event.getX();
-                x = x + view.getX();
+                float x = event.getX() + view.getX();
                 if (startedDraggingX != -1) {
                     float dist = (x - startedDraggingX);
                     float alpha = 1.0f + dist / distCanMove;
@@ -227,9 +236,13 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                         alpha = 0;
                     }
                     slideToCancel.setAlpha(alpha);
-                    if(dist <= 0.0f) recorderImg.setTranslationX(dist);
+                    //CE-435: Preventing user from sliding beyond the X
+                    float maxLeftSlidePossible = micPositionMaxSlide - rectBgrnd.getX();
+                    if (dist <= 0.0f && dist >= maxLeftSlidePossible) {
+                        recorderImg.setTranslationX(dist);
+                    }
                 } else {
-                    if (event.getX() <= LOWER_TRIGGER_DELTA) startedDraggingX = x;
+                    if (event.getX() <= DELETE_TRIGGER_DELTA) startedDraggingX = x;
                     distCanMove = (recorderImg.getMeasuredWidth() - slideToCancel.getMeasuredWidth() - DrawUtils.dp(48)) / 2.0f;
                     if (distCanMove <= 0) {
                         distCanMove = DrawUtils.dp(80);
@@ -238,28 +251,29 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                     }
                 }
                 float rawX = event.getRawX();
-                if (rawX <= LOWER_TRIGGER_DELTA) {
-                    if (rawX <= HIGHER_TRIGGER_DELTA) {
-                        Log.d(TAG, "  move slided in left direction: will call cancel now");
-                        slideLeftComplete();
-                        return true;
-                    } else {
-
-                        if(rectBgrnd.getVisibility() != View.VISIBLE) {
-                            rectBgrnd.setVisibility(View.VISIBLE);
-                            rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
-                        }
+                if (rawX > DELETE_REVERT_TRIGGER_DELTA)
+                {
+                    if(rectBgrnd.getVisibility() == View.VISIBLE) {
+                        rectBgrnd.setVisibility(View.INVISIBLE);
+                        recordingState.setVisibility(View.VISIBLE);
                     }
-                } else {
-                    rectBgrnd.setVisibility(View.INVISIBLE);
+                }
+                else if (rawX <= DELETE_TRIGGER_DELTA)
+                {
+                    if(rectBgrnd.getVisibility() != View.VISIBLE) {
+                        rectBgrnd.setVisibility(View.VISIBLE);
+                        recordingState.setVisibility(View.INVISIBLE);
+                        rectBgrnd.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.scale_to_mid));
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (recorderState == IDLE) return false;
                 startedDraggingX = -1;
-                if (event.getRawX() <= HIGHER_TRIGGER_DELTA) {
-                    Log.d(TAG, "   slided in left direction: will call cancel now" );
+                if (rectBgrnd .getVisibility() == View.VISIBLE)
+                {
                     slideLeftComplete();
+                    Log.d(TAG, "   slided in left direction done");
                     return true;
                 }
                 if (stopRecordingAudio()) {
@@ -284,11 +298,16 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         mAnimationListener = new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
+                recorderImg.setDrawingCacheEnabled(true);
             }
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                postCancelTask();
+                recorderImg.setVisibility(View.INVISIBLE);
+                Animation cancelAnim = getCrossDissapearScaleInAnimation();
+                cancelAnim.setAnimationListener(getCancelAnimationListener());
+                rectBgrnd.startAnimation(cancelAnim);
+                recorderImg.setDrawingCacheEnabled(false);
             }
 
             @Override
@@ -303,79 +322,58 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         return mAnimationListener;
     }
 
+    private ViewPropertyAnimator anim;
+
     private void slideLeftComplete() {
+        recordingHandler.removeCallbacks(micRunnable);
+        micRunnable = null;
+        anim.x(recBgrndXPos).start();
         recorderState = CANCELLED;
-        doVibration(50);
         stopUpdateTimeAndRecorder();
         recordInfo.animate().alpha(0.0f).setDuration(0).start();
-        recorderImg.animate().x(rectBgrnd.getX() + DrawUtils.dp(9)).setDuration(500).setListener(getAnimationListener()).start();
-        sendAnalyticsUserCancelledRecording();
+        doVibration(50);
     }
 
-    private void sendAnalyticsUserCancelledRecording()
+    public static Animation getCrossDissapearScaleInAnimation()
     {
-        try
-        {
-            JSONObject json = new JSONObject();
-            json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
-            HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
+        AnimationSet animSet = new AnimationSet(true);
+        float a = 1f;
+        float pivotX = 0.5f;
+        float pivotY = 0.75f;
+
+        Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
+        anim0.setDuration(200);
+        animSet.addAnimation(anim0);
+
+        return anim0;
     }
 
-    static final int CANCEL_RECORDING = 1;
-    static final int DO_CANCEL_ANIMATION = 2;
-    static final int DO_SCATTER_ANIMATION = 3;
-    protected Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            if (msg == null) {
-                Logger.e(TAG, "Getting a null message in HikeAudioRecordView");
-                return;
-            }
-            handleUIMessage(msg);
-        }
-    };
+    private Animation.AnimationListener mCancelAnimationListener = null;
 
-    void handleUIMessage(android.os.Message msg) {
-        switch (msg.what) {
-            case CANCEL_RECORDING:
-                cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER);
-                break;
-            case DO_CANCEL_ANIMATION:
-                recorderImg.setVisibility(View.INVISIBLE);
-                rectBgrnd.startAnimation(HikeAnimationFactory.getScaleInAnimation(0));
-                break;
-            case DO_SCATTER_ANIMATION:
+    private Animation.AnimationListener getCancelAnimationListener() {
+        if (mCancelAnimationListener != null) return mCancelAnimationListener;
+        mCancelAnimationListener = new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
                 rectBgrnd.setVisibility(View.INVISIBLE);
-                ImageView innerView = (ImageView)inflatedLayoutView.findViewById(R.id.delete_inner);
+                ImageView innerView = (ImageView) inflatedLayoutView.findViewById(R.id.delete_inner);
                 innerView.setVisibility(View.VISIBLE);
                 ImageView outerView = (ImageView) inflatedLayoutView.findViewById(R.id.delete_outer);
                 outerView.setVisibility(View.VISIBLE);
                 playDeleteAnim(innerView, outerView);
-                break;
-            default:
-                break;
-        }
-    }
+            }
 
-    private void postCancelTask() {
-        Message message = Message.obtain();
-        message.what = DO_CANCEL_ANIMATION;
-        mHandler.sendMessageDelayed(message, 500);
+            @Override
+            public void onAnimationRepeat(Animation animation) {
 
-        Message message1 = Message.obtain();
-        message1.what = DO_SCATTER_ANIMATION;
-        mHandler.sendMessageDelayed(message1,700);
-    }
-
-    private void postCancelMessage(){
-
-        Message cancelMsg = Message.obtain();
-        cancelMsg.what = CANCEL_RECORDING;
-        mHandler.sendMessageDelayed(cancelMsg,200);
+            }
+        };
+        return mCancelAnimationListener;
     }
 
     static int anim_repeat_count;
@@ -433,7 +431,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
                 if (anim_repeat_count > 0) {
                     animator.start();
                 } else {
-                    postCancelMessage();
+                    cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER, true);
                 }
             }
 
@@ -575,8 +573,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         recordingHandler.post(updateRecordingDuration);
     }
 
-    private void cancelAndDeleteAudio(int cause) {
-        if(recorderState != CANCELLED) doVibration(50);
+    private void cancelAndDeleteAudio(int cause, boolean doVibration) {
+        if(recorderState != CANCELLED && doVibration) doVibration(50);
         stopRecorder();
         recordingError(false);
         listener.audioRecordCancelled(cause);
@@ -591,8 +589,8 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Utils.unblockOrientationChange(mActivity);
         stopUpdateTimeAndRecorder();
-        dismissAudioRecordView();
         recorderState = IDLE;
+        dismissAudioRecordView();
     }
 
     public void stopRecorderAndShowError() {
@@ -677,9 +675,9 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
         }
     }
 
-    public void cancelAndDismissAudio() {
+    public void cancelAndDismissAudio(boolean doVibration) {
         if(recorderState != IDLE && recorderState != CANCELLED){
-            cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT);
+            cancelAndDeleteAudio(HikeAudioRecordListener.AUDIO_CANCELLED_DEFAULT, doVibration);
         }
 
         if (popup_l != null && popup_l.isShowing())
@@ -692,7 +690,7 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
 
     @Override
     public void onDismiss() {
-        if (recorderState != IDLE) cancelAndDismissAudio();
+        if (recorderState != IDLE) cancelAndDismissAudio(true);
         resetAndClearAnim();
         recorderState = IDLE;
     }
@@ -709,9 +707,18 @@ public class HikeAudioRecordView implements PopupWindow.OnDismissListener {
             recorderImg.setVisibility(View.VISIBLE);
             rectBgrnd.setVisibility(View.INVISIBLE);
             recordingState.setVisibility(View.VISIBLE);
-            ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
-            ringView.setVisibility(View.INVISIBLE);
+            clearRingAnim();
         }
+    }
+
+    private void clearRingAnim(){
+        ImageView ringView = (ImageView) recorderImg.findViewById(R.id.ring2);
+        ringView.clearAnimation();
+        ringView.setVisibility(View.GONE);
+        recordingHandler.removeCallbacks(ringAnimRunnable1);
+        ringAnimRunnable1 = null;
+        recordingHandler.removeCallbacks(ringAnimRunnable2);
+        ringAnimRunnable2 = null;
     }
 
     private class UpdateRecordingDuration implements Runnable {

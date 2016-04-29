@@ -57,4 +57,7 @@ public class PlatformContentConstants
     public static String PLATFORM_CONTENT_OLD_DIR = Environment.getExternalStorageDirectory() + File.separator + HIKE_DIR_NAME + File.separator + CONTENT_DIR_NAME + File.separator;
 
     public static final String MICROAPPS_DP_DIR = "DP";
+
+    public static final String MICROAPPS_MACOSX_DIR = "__MACOSX";
+
 }

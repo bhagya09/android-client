@@ -212,6 +212,11 @@ public class AnalyticsStore
 	 * Used to send events to Server
 	 */
 	protected void sendEvents() {
+		if(!Utils.isUserOnline(context)) {
+			HAManager.getInstance().setIsSendAnalyticsDataWhenConnected(true);
+			return;
+		}
+
         mSingleThreadExecutor.execute(new Runnable() {
             @Override
             public void run() {

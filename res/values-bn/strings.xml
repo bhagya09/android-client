@@ -1424,9 +1424,13 @@
     <string name="share_on_timeline">টাইমলাইন-এ শেয়ার করবেন?</string>
     <string name="posting_photos_timeline">আপনার ফোটোস টাইমলাইনে পোস্ট করা হচ্ছে</string>
     <string name="add_a_caption">ক্যাপশন যোগ করুন</string>
-    <string name="keyboard_shutdown_heading">রিজিওনাল কীবোর্ড এর সাপোর্ট সরিয়ে নেওয়া হচ্ছে</string>
-    <string name="keyboard_shutdown_description">আপনি নিজের ফোনের কীবোর্ড ব্যবহার করতে পারেন
-বা প্লেস্টোর থেকে ও একটি ডাউনলোড করতে পারেন</string>
+    <string name="keyboard_shutdown_heading">Hike এর রিজিওনাল কীবোর্ড সরিয়ে নেওয়া হচ্ছে</string>
+    <string name="keyboard_shutdown_description"> আপনি ফোনের কীবোর্ডে চ্যাট চালিয়ে যেতে পারেন বা গুগল প্লেস্টোর থেকেও কীবোর্ড ডাউনলোড করতে পারেন।</string>
     <string name="open_phone_keyboard">ফোন কীবোর্ড</string>
     <string name="open_google_keyboard">গুগল কীবোর্ড</string>
+
+    <string name="slide_to_cancel">বাতিল করতে স্লাইড করুন</string>
+    <string name="recording_help_text">রেকর্ড করতে স্পর্শ করুন, পাঠাতে ছেড়ে দিন</string>
+    <string name="max_duration_recorded">সর্বোচ্চ সময়ের জন্য রেকর্ড সম্পন্ন হয়েছে</string>
+    <string name="stream_volume_muted_or_low">প্লিস আওয়াজ বাড়ান</string>
 </resources>
