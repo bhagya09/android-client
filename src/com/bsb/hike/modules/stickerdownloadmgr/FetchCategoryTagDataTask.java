@@ -89,40 +89,31 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			@Override
 			public void onRequestSuccess(Response result)
 			{
-				try
+				JSONObject response = (JSONObject) result.getBody().getContent();
+				Logger.d(TAG, response.toString());
+
+				if (!Utils.isResponseValid(response))
 				{
-					JSONObject response = (JSONObject) result.getBody().getContent();
-					Logger.d(TAG, response.toString());
-
-					if (!Utils.isResponseValid(response))
-					{
-						Logger.e(TAG, "Sticker Category fetch download failed null response");
-						doOnFailure(null);
-						return;
-					}
-
-					JSONObject resultData = response.optJSONObject(HikeConstants.DATA_2);
-					if (null == resultData)
-					{
-						Logger.e(TAG, "Sticker Category fetch download failed null data");
-						doOnFailure(null);
-						return;
-					}
-
-					JSONArray packs = resultData.optJSONArray(HikeConstants.PACKS);
-
-					CategorySearchManager.getInstance().insertCategoryTags(packs, fetchMap);
-
-					HikeConversationsDatabase.getInstance().updateIsPackTagdataUpdated(fetchList);
-					doOnSuccess(null);
-
-				}
-				catch (Exception e)
-				{
-					Logger.e(TAG, "Exception", e);
-					doOnFailure(new HttpException(e));
+					Logger.e(TAG, "Sticker Category fetch download failed null response");
+					doOnFailure(null);
 					return;
 				}
+
+				JSONObject resultData = response.optJSONObject(HikeConstants.DATA_2);
+				if (null == resultData)
+				{
+					Logger.e(TAG, "Sticker Category fetch download failed null data");
+					doOnFailure(null);
+					return;
+				}
+
+				JSONArray packs = resultData.optJSONArray(HikeConstants.PACKS);
+
+				CategorySearchManager.getInstance().insertCategoryTags(packs, fetchMap);
+
+				HikeConversationsDatabase.getInstance().updateIsPackTagdataUpdated(fetchList);
+				doOnSuccess(null);
+
 			}
 
 			@Override

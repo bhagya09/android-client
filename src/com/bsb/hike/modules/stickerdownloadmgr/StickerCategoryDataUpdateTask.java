@@ -97,6 +97,11 @@ public class StickerCategoryDataUpdateTask implements Runnable
 
 	private void updateCategoryTagdata(List<CategoryTagData> stickerCategoriesTagDataList)
 	{
+        if(Utils.isEmpty(stickerCategoriesTagDataList))
+        {
+            return;
+        }
+
 		List<CategoryTagData> updateList = new ArrayList<CategoryTagData>();
 		List<CategoryTagData> createList = new ArrayList<CategoryTagData>();
 

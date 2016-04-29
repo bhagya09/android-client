@@ -2869,7 +2869,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
             return null;
         }
 
-        List<CategoryTagData> result = new ArrayList<>();;
+        List<CategoryTagData> result = new ArrayList<>();
 
 		Cursor c = null;
 
