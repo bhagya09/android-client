@@ -400,7 +400,7 @@ public class StickerManager
 		}
 	}
 
-	private void fetchCategoryOrderTask()
+	public void fetchCategoryOrderTask()
 	{
 		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_ORDER_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
 		{

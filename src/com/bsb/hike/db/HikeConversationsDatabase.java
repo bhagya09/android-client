@@ -408,6 +408,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
+		mDb.delete(DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE, null, null);
 	}
 
 	@Override
@@ -7305,21 +7306,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String query = "Select " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "."
 					+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
 					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON "
-					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " where "
-					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.IS_PACK_METADATA_UPDATED + "=0 " + " order by " + DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE
-					+ "." + DBConstants.RANK + " asc " + " limit " + HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT ,StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by "
+					+ DBConstants.STICKER_CATEGORY_PREF_ORDER_TABLE + "." + DBConstants.RANK + " asc " + " limit "
+					+ HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
 			cursor = mDb.rawQuery(query, null);
 			list = new ArrayList<>(cursor.getCount());
 
 			int updatedMetadataTsIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
 			int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
+			int isPackMetadataUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
 			while (cursor.moveToNext())
 			{
-				StickerCategory stickerCategory = new StickerCategory.Builder()
+				if (cursor.getInt(isPackMetadataUpdatedIdx) == 0)
+				{
+					StickerCategory stickerCategory = new StickerCategory.Builder()
 						                              .setPackUpdationTime(cursor.getInt(updatedMetadataTsIdx))
 						                              .setUcid(cursor.getInt(ucidIdx))
 						                              .build();
-				list.add(stickerCategory);
+					list.add(stickerCategory);
+				}
 			}
 		}
 		catch (Exception e)
