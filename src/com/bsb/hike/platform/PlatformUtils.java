@@ -884,17 +884,17 @@ public class PlatformUtils
 		boolean resumeSupported = downloadData.optBoolean(HikePlatformConstants.RESUME_SUPPORTED);
 		String assoc_cbot = downloadData.optString(HikePlatformConstants.ASSOCIATE_CBOT, "");
 		int prefNetwork = downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK));
-		if(autoResume)
+		if (autoResume)
 		{
-			resumeSupported =true;
-			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(),rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
-					downloadData.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
+			resumeSupported = true;
 		}
+			PlatformUtils.addToPlatformDownloadStateTable(rqst.getContentData().getId(), rqst.getContentData().cardObj.getmAppVersionCode(), downloadData.toString(), HikePlatformConstants.PlatformTypes.MAPP,
+					downloadData.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS), downloadData.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,autoResume);
 		if(currentNetwork <= 0 || prefNetwork < currentNetwork)
 		{
 			return;    // Do not download if current network is below preferred network.
 		}
-		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot,autoResume);
+		downloadAndUnzip(rqst, false, doReplace, callbackId, resumeSupported, assoc_cbot, autoResume);
 	}
 
 	private static void microappDownloadAnalytics(String key, PlatformContentModel content)
