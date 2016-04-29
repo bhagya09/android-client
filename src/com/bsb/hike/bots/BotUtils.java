@@ -428,7 +428,7 @@ public class BotUtils
 			return;
 		}
 
-		if (ContactManager.getInstance().isBlocked(msisdn))
+		if (ContactManager.getInstance().isBlocked(msisdn) && jsonObj.optBoolean(HikePlatformConstants.ENABLE_BOT))
 		{
 			Logger.e("bot error", "bot is blocked by user.");
 			return;
