@@ -3069,6 +3069,11 @@ public class StickerManager
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MINI_STICKER_ENABLED, true);
 	}
 
+    public boolean isShopSearchEnabled()
+    {
+        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true);
+    }
+
 	public void saveSticker(Sticker sticker, StickerConstants.StickerType stickerType)
 	{
 		List<Sticker> stickers = new ArrayList<Sticker>(1);

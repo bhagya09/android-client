@@ -32,9 +32,13 @@ public enum CategorySearchManager
 
 	INSTANCE;
 
-	public final String SEARCH_WEIGHTS = "srcW";
+	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW";
 
-	public final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
+    public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
+
+	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
+
+    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 10;
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
@@ -117,10 +121,15 @@ public enum CategorySearchManager
 		for (CategorySearchData categorySearchData : querySet)
 		{
 			StickerCategory category = categorySearchData.getCategory();
-			if (category != null)
+			if (category != null )
 			{
 				result.add(category);
 			}
+
+            if(result.size() == HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_SEARCH_RESULTS_LIMIT))
+            {
+                break;
+            }
 		}
 
 		return result;
@@ -160,7 +169,7 @@ public enum CategorySearchManager
 	{
 		if (weights == null)
 		{
-			String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
+			String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
 			weights = new float[inputs.length];
 			for (int i = 0; i < inputs.length; i++)
 			{

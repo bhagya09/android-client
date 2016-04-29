@@ -6,6 +6,7 @@
         android:id="@+id/shop_search"
         app:showAsAction="always"
         android:title="@string/shop_search"
+        android:visible="false"
         app:actionLayout="@layout/shop_search_layout"/>
 
     <item

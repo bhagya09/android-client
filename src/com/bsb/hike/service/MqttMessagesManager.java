@@ -88,6 +88,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
@@ -111,7 +112,6 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.triggers.InterceptUtils;
 import com.bsb.hike.ui.HomeActivity;
-import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ChatTheme;
@@ -3556,7 +3556,6 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.MINI_STICKER_ENABLED.equals(subType))
 		{
-            HikeSharedPreferenceUtil.getInstance().saveData(StickerShopActivity.SHOW_STICKER_SEARCH_FTUE, 2);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MINI_STICKER_ENABLED, data.optBoolean(HikeConstants.BADGE, false));
 		}
 		else if (HikeConstants.DISPLAY_MINI_IN_CT.equals(subType))
@@ -3571,15 +3570,32 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
 		{
-			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, data.optBoolean(HikeConstants.BADGE, false));
 		}
         else if(HikeConstants.STICKER_SIZE.equals(subType))
         {
             int stickerSize = data.optInt(HikeConstants.STICKER_SIZE,-1);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SIZE, stickerSize);
         }
-
+        else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+        }
+        else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, data.optBoolean(HikeConstants.BADGE, false));
+        }
+        else if(CategorySearchManager.SHOP_SEARCH_WEIGHTS.equals(subType))
+        {
+            String weightString = data.optString(HikeConstants.STICKER_SCORE_WEIGHTAGE, CategorySearchManager.DEFAULT_WEIGHTS_INPUT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SHOP_SEARCH_WEIGHTS, weightString);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException

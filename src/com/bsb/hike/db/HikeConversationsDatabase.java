@@ -7359,7 +7359,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					metadataUpdateList.add(stickerCategory);
 				}
 
-				if (cursor.getInt(tagUpdatedIdx) == 0)
+				if (cursor.getInt(tagUpdatedIdx) == 0 && StickerManager.getInstance().isShopSearchEnabled())
 				{
 					tagdataUpdateList.add(Integer.toString(ucid));
 				}
