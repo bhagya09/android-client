@@ -273,50 +273,66 @@ import java.util.Map;
 	 */
 	private void addQuickReplyMessage(Intent intent)
 	{
-		if (intent.getBooleanExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, false))
+		if (!intent.hasExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD) || mContactInfo == null)
 		{
-			if (mContactInfo == null || !mContactInfo.isUnknownContact())
-			{
-				intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
-				return;
-			}
-
-			// Showing Caller View inside unknown contact overlay
-			if (messages != null && messages.size() == 0)
-			{
-				ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
-				cm.setBlockAddHeader(true);
-				messages.add(0, cm);
-			}
-
-			// Provide content to caller View inside Unknown contact overlay
-			CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
-			mConversation.setOnHike(callerContentModel.getIsOnHike());
-
-			if (callerContentModel.getExpiryTime() > System.currentTimeMillis())
-			{
-				if (mAdapter != null)
-				{
-					mAdapter.setCallerContentModel(callerContentModel);
-					mAdapter.notifyDataSetChanged();
-					Logger.d("c_spam", "C->C, info found in DB :- " + callerContentModel);
-				}
-			}
-			else
-			{
-				Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel +", so going for HTTP, with updationg old");
-				FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
-			}
-
-			// Showing quick reply message inside CT, only if user is not blocked
-			if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG) && !mConversation.isBlocked())
-			{
-				String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
-				String msisdn = callerContentModel.getMsisdn();
-				ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
-				sendMessage(convMessage);
-			}
 			intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
+			return;
+		}
+
+		// Provide content to caller View inside Unknown contact overlay
+		CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
+		mConversation.setOnHike(callerContentModel.getIsOnHike());
+
+		// Showing quick reply message inside CT, only if user is not blocked
+		if (intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG) && !mConversation.isBlocked())
+		{
+			String message = intent.getStringExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG);
+			String msisdn = callerContentModel.getMsisdn();
+			ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, true);
+			sendMessage(convMessage);
+		}
+
+		intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
+
+		if (!mContactInfo.isUnknownContact())
+		{
+			return;
+		}
+		else
+		{
+			showUserInfoView(callerContentModel);
+		}
+	}
+
+	/**
+	 * Shows (User info + Block Add) View
+	 * 
+	 * @param callerContentModel
+	 */
+	private void showUserInfoView(CallerContentModel callerContentModel)
+	{
+		// Showing Caller View inside unknown contact overlay
+		if (messages != null && messages.size() == 0)
+		{
+			ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
+			cm.setBlockAddHeader(true);
+			messages.add(0, cm);
+		}
+
+		// Update Content of user info view
+		if (callerContentModel.getExpiryTime() > System.currentTimeMillis())
+		{
+			if (mAdapter != null)
+			{
+				mAdapter.setCallerContentModel(callerContentModel);
+				mAdapter.notifyDataSetChanged();
+				Logger.d("c_spam", "C->C, info found in DB :- " + callerContentModel);
+			}
+		}
+		else
+		{
+			Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel + ", so going for HTTP, with updationg old");
+			FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
 		}
 	}
 
