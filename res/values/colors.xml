@@ -340,4 +340,5 @@
     <color name="white_90">#E6FFFFFF</color>
     <color name="show_notif_color">#525252</color>
     <color name="mute_list_item">#323232</color>
+    <color name="rec_duration_color">#3D475B</color>
 </resources>

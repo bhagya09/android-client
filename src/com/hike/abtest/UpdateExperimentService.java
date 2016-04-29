@@ -13,6 +13,7 @@ import com.hike.abtest.dataparser.ParserException;
 public class UpdateExperimentService extends IntentService {
     private static final String ACTION_NOTIFICATION_RCVD = "com.hike.abtest.action.NOTIFICATION_RCVD";
     private static final String EXTRA_PAYLOAD = "com.hike.abtest.extra.PAYLOAD";
+    private static final String EXTRA_REQUEST_TYPE = "com.hike.abtest.extra.requesttype";
     private static final String TAG = UpdateExperimentService.class.getSimpleName();
     private static final String STATUS_SUCCESS = "success";
     private static final String STATUS_FAILURE = "failure";
@@ -23,7 +24,7 @@ public class UpdateExperimentService extends IntentService {
         super(TAG);
     }
 
-    public static void onRequestReceived(Context context, String payLoad, DataPersist dataPersist) {
+    public static void onRequestReceived(Context context,  String requestType, String payLoad, DataPersist dataPersist) {
         if(dataPersist == null) {
             return;
         }
@@ -31,6 +32,7 @@ public class UpdateExperimentService extends IntentService {
 
         Intent intent = new Intent(context, UpdateExperimentService.class);
         intent.setAction(ACTION_NOTIFICATION_RCVD);
+        intent.putExtra(EXTRA_REQUEST_TYPE, requestType);
         intent.putExtra(EXTRA_PAYLOAD, payLoad);
         context.startService(intent);
     }
@@ -39,16 +41,16 @@ public class UpdateExperimentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null && intent.getAction()!=null) {
             final String payload = intent.getStringExtra(EXTRA_PAYLOAD);
+            final String requestType = intent.getStringExtra(EXTRA_REQUEST_TYPE);
             try {
                 mDataParser = new DataParser();
-                handleRequest(payload);
+                handleRequest(requestType, payload);
             } catch (ParserException | IllegalArgumentException e) {
                 Logger.e(TAG, "Error processing request:");
                 e.printStackTrace();
                 respondStatus(STATUS_FAILURE);
             } finally {
                 mDataParser = null;
-                mDataPersist = null;
             }
             respondStatus(STATUS_SUCCESS);
         } else {
@@ -56,16 +58,16 @@ public class UpdateExperimentService extends IntentService {
         }
     }
 
-    private void handleRequest(String payload) throws ParserException {
-        String requestType = mDataParser.getRequestType(payload);
+    private void handleRequest(String requestType, String payload) throws ParserException {
+        //String requestType = mDataParser.getRequestType(payload);
         switch(requestType) {
-            case DataParser.REQUEST_TYPE_EXPERIMENT:
+            case DataParser.REQUEST_TYPE_EXPERIMENT_INIT:
                 handleExperimentInit(payload);
                 break;
             case DataParser.REQUEST_TYPE_EXPERIMENT_ABORT:
                 handleExperimentAbort(payload);
                 break;
-            case DataParser.REQUEST_TYPE_ROLL_OUT:
+            case DataParser.REQUEST_TYPE_EXPERIMENT_ROLL_OUT:
                 handleRollOut(payload);
                 break;
             default:

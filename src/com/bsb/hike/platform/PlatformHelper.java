@@ -329,7 +329,7 @@ public class PlatformHelper
 
 	}
 
-	public static void showPopup(String contentData, Activity activity)
+	public static void showPopup(String contentData, final Activity activity)
 	{
 		final HikeBaseActivity hikeBaseActivity;
 		if (TextUtils.isEmpty(contentData) || activity == null)
@@ -359,7 +359,13 @@ public class PlatformHelper
 				@Override
 				public void onSuccess(ProductContentModel productContentModel)
 				{
-					hikeBaseActivity.showPopupDialog(mmModel);
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							hikeBaseActivity.showPopupDialog(mmModel);
+						}
+					});
+
 				}
 
 				@Override
