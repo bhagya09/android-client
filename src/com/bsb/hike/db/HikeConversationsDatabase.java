@@ -6342,7 +6342,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.BG_ID, bgId);
 		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
-		mDb.update(DBConstants.GROUP_INFO_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
