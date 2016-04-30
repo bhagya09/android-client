@@ -1,23 +1,16 @@
 package com.bsb.hike.chatthemes;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -266,11 +259,11 @@ public class ChatThemeManager
 			downloadThemesArr[i] = downloadThemeIds.get(i);
 		}
 
-		DownloadAssetIdTask downloadAssetIds;
+		DownloadThemeContentTask downloadAssetIds;
 
 		if(downloadThemesArr.length > 0)
 		{
-			downloadAssetIds = new DownloadAssetIdTask(downloadThemesArr);
+			downloadAssetIds = new DownloadThemeContentTask(downloadThemesArr);
 			downloadAssetIds.execute();
 		}
 
