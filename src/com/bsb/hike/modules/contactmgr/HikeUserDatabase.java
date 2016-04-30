@@ -2114,6 +2114,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					ContactManager.getInstance().updateContacts(updatedContact);
 				}
 				ContentValues cv=new ContentValues();
+				cv.put(DBConstants.MSISDN,msisdn);
 				cv.put(DBConstants.FAVORITE_TYPE,favoriteType.ordinal());
 				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
 				if (value == -1 || value == 0) {
