@@ -33,11 +33,12 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private final float DEFAULT_STICKER_COUNT_SCORE = 0f;
 
-    private CategorySearchData(Builder builder) {
-        super(builder);
-        this.matchKeyword = builder.matchKeyword;
-        this.category = builder.category;
-    }
+	private CategorySearchData(Builder builder)
+	{
+		super(builder);
+		this.matchKeyword = builder.matchKeyword;
+		this.category = builder.category;
+	}
 
 	public StickerCategory getCategory()
 	{
@@ -102,26 +103,26 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 	public static class Builder extends CategoryTagData.Builder<Builder>
 	{
 
-        private String matchKeyword;
+		private String matchKeyword;
 
-        private StickerCategory category;
+		private StickerCategory category;
 
 		public Builder(int ucid)
 		{
-            super(ucid);
+			super(ucid);
 		}
 
-        public Builder setMatchKeyword(String matchKeyword)
-        {
-            this.matchKeyword = matchKeyword;
-            return this;
-        }
+		public Builder setMatchKeyword(String matchKeyword)
+		{
+			this.matchKeyword = matchKeyword;
+			return this;
+		}
 
-        public Builder setCategory(StickerCategory category)
-        {
-            this.category = category;
-            return this;
-        }
+		public Builder setCategory(StickerCategory category)
+		{
+			this.category = category;
+			return this;
+		}
 
 		public CategorySearchData build()
 		{
