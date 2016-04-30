@@ -473,28 +473,21 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 			extraInfo.close();
 		}
 
-		InsertHelper ih = null;
+		ContentValues cv=new ContentValues();
 		try
 		{
-			ih = new InsertHelper(db, DBConstants.USERS_TABLE);
-			final int msisdnColumn = ih.getColumnIndex(DBConstants.MSISDN);
-			final int idColumn = ih.getColumnIndex(DBConstants.ID);
-			final int nameColumn = ih.getColumnIndex(DBConstants.NAME);
-			final int onHikeColumn = ih.getColumnIndex(DBConstants.ONHIKE);
-			final int phoneColumn = ih.getColumnIndex(DBConstants.PHONE);
-			final int msisdnTypeColumn = ih.getColumnIndex(DBConstants.MSISDN_TYPE);
-			final int platformIdColumn = ih.getColumnIndex(DBConstants.PLATFORM_USER_ID);
-			final int favouriteIdColumn = ih.getColumnIndex(DBConstants.FAVORITE_TYPE);
 			for (ContactInfo contact : contacts)
 			{
-				ih.prepareForReplace();
-				ih.bind(nameColumn, contact.getName());
-				ih.bind(msisdnColumn, contact.getMsisdn());
-				ih.bind(idColumn, contact.getId());
-				ih.bind(onHikeColumn, contact.isOnhike());
-				ih.bind(phoneColumn, contact.getPhoneNum());
-				ih.bind(platformIdColumn, contact.getPlatformId());
-				ih.bind(favouriteIdColumn, contact.getFavoriteType() != null ? contact.getFavoriteType().ordinal() : FavoriteType.NOT_FRIEND.ordinal());
+
+				cv.put(DBConstants.NAME, contact.getName());
+				cv.put(DBConstants.MSISDN, contact.getMsisdn());
+				cv.put(DBConstants.ID, contact.getId());
+
+				cv.put(DBConstants.ONHIKE, contact.isOnhike());
+				cv.put(DBConstants.PHONE, contact.getPhoneNum());
+				cv.put(DBConstants.PLATFORM_USER_ID, contact.getPlatformId());
+				cv.put(DBConstants.FAVORITE_TYPE, contact.getFavoriteType() != null ? contact.getFavoriteType().ordinal() : FavoriteType.NOT_FRIEND.ordinal());
+
 				if (!isFirstSync)
 				{
 					String selection = Phone.CONTACT_ID + " =? " + " AND " + Phone.NUMBER + " =? ";
@@ -510,7 +503,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					}
 					additionalInfo.close();
 
-					ih.bind(msisdnTypeColumn, contact.getMsisdnType());
+					cv.put(DBConstants.MSISDN_TYPE, contact.getMsisdnType());
 
 					/*
 					 * We add to favorites this reference. So should set the favorite type here.
@@ -523,6 +516,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 						{
 							int favoriteTypeOrdinal = favoriteCursor.getInt(favoriteCursor.getColumnIndex(DBConstants.FAVORITE_TYPE));
 							contact.setFavoriteType(FavoriteType.values()[favoriteTypeOrdinal]);
+							cv.put(DBConstants.FAVORITE_TYPE,favoriteTypeOrdinal);
 						}
 						else
 						{
@@ -537,7 +531,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				}
 				else
 				{
-					ih.bind(msisdnTypeColumn, msisdnTypeMap.get(contact.getPhoneNum()));
+					cv.put(DBConstants.MSISDN_TYPE, msisdnTypeMap.get(contact.getPhoneNum()));
 					/*
 					 * We're saving this parameter to notify that the extra info that we are now fetching (Msisdn type) has been synced. So for apps that update from an older
 					 * version, we can just check this value to verify whether the contacts have their extra info synced.
@@ -546,7 +540,15 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 					editor.putBoolean(HikeMessengerApp.CONTACT_EXTRA_INFO_SYNCED, true);
 					editor.commit();
 				}
-				ih.execute();
+				String selection = DBConstants.MSISDN + " =? AND " + DBConstants.NAME + " =?";
+				long value = mDb.update(DBConstants.USERS_TABLE, cv, selection, new String[]{contact.getMsisdn(),contact.getName()});
+				if (value == -1 || value == 0) {
+					value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					Logger.d(TAG, "MSISDN ADDED" + contact.getMsisdn() + "result -->" + value + "INSERT EXECUTED");
+				} else {
+					Logger.d(TAG, "MSISDN ADDED" + contact.getMsisdn() + "result -->" + value + "UPDATE EXECUTED");
+				}
+				cv.clear();
 			}
 			db.setTransactionSuccessful();
 		}
@@ -557,10 +559,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 		finally
 		{
-			if (ih != null)
-			{
-				ih.close();
-			}
 			db.endTransaction();
 		}
 	}
