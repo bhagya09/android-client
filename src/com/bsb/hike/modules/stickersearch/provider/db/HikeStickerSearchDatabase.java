@@ -1484,10 +1484,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
         while (c.moveToNext())
         {
-            CategorySearchData categorySearchData = new CategorySearchData(c.getInt(ucidIdx));
-            categorySearchData.setGender(c.getInt(forGenderIdx));
-            categorySearchData.setName(c.getString(nameIdx));
-            categorySearchData.setMatchKeyword(matchKey);
+            CategorySearchData categorySearchData = new CategorySearchData.Builder(c.getInt(ucidIdx))
+                    .setGender(c.getInt(forGenderIdx))
+                    .setName(c.getString(nameIdx))
+                    .setMatchKeyword(matchKey)
+                    .build();
             list.add(categorySearchData);
         }
 
@@ -2895,13 +2896,14 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
 				while (c.moveToNext())
 				{
-					CategoryTagData categoryTagData = new CategoryTagData(c.getInt(ucidIdx));
-					categoryTagData.setGender(c.getInt(forGenderIdx));
-					categoryTagData.setName(c.getString(nameIdx));
-					categoryTagData.setCategoryLastUpdatedTime(c.getLong(tsIdx));
-					categoryTagData.setLanguages(c.getString(langIdx));
-					categoryTagData.setThemes(c.getString(themeIdx));
-					categoryTagData.setKeywords(c.getString(keysIdx));
+					CategoryTagData categoryTagData = new CategoryTagData.Builder(c.getInt(ucidIdx))
+                            .setGender(c.getInt(forGenderIdx))
+                            .setName(c.getString(nameIdx))
+                            .setCategoryLastUpdatedTime(c.getLong(tsIdx))
+                            .setLanguages(c.getString(langIdx))
+                            .setThemes(c.getString(themeIdx))
+                            .setKeywords(c.getString(keysIdx))
+                            .build();
 					result.add(categoryTagData);
 					categoryUcids.remove(Integer.toString(categoryTagData.getUcid()));
 				}
@@ -2920,7 +2922,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 		{
 			for (String ucid : categoryUcids)
 			{
-				result.add(new CategoryTagData(Integer.parseInt(ucid)));
+				result.add(new CategoryTagData.Builder(Integer.parseInt(ucid)).build());
 			}
 		}
 
