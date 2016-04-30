@@ -383,7 +383,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		/*
 		 * For unknown contacts, we make the id and msisdn equal.
 		 */
-		return msisdn.equals(id);
+		return TextUtils.isEmpty(id) ? true : msisdn.equals(id);
 	}
 
 	public boolean isGroupConversationContact()
