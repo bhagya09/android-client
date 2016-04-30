@@ -1532,7 +1532,25 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 	void deleteMultipleRows(Collection<String> ids)
 	{
 		String ids_joined = "(" + Utils.join(ids, ",", "\"", "\"") + ")";
-		mDb.delete(DBConstants.USERS_TABLE, DBConstants.ID + " in " + ids_joined, null);
+		String selection= DBConstants.ID + " in " + ids_joined+ " AND ( "+DBConstants.FAVORITE_TYPE + " > 0 OR " + DBConstants.BLOCK_STATUS + " = "+ DBConstants.STATUS_BLOCKED + " ) ";
+		Logger.d(TAG,"The Selection query is "+selection);
+
+		ContentValues cv = new ContentValues();
+		cv.putNull(DBConstants.NAME);
+		cv.putNull(DBConstants.ID);
+
+		long rows=mDb.update(DBConstants.USERS_TABLE,cv,selection,null);
+
+		Logger.d(TAG,"Update in deleteMultipleRows + "+rows);
+
+		selection=DBConstants.ID + " in " + ids_joined+ " AND "+DBConstants.FAVORITE_TYPE + " = 0 AND " + DBConstants.BLOCK_STATUS + " = "+ DBConstants.STATUS_UNBLOCKED;
+		Logger.d(TAG,"The Selection query is "+selection);
+
+
+
+		rows=mDb.delete(DBConstants.USERS_TABLE,selection,null);
+
+		Logger.d(TAG,"Delete in deleteMultipleRows + "+rows);
 	}
 
 	void deleteMultipleRows(Collection<String> ids, Collection<String> pNums)
