@@ -902,7 +902,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
                 if(rowsAffected <= 0)
                 {
                     rowsAffected = mDb.insert(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, null, contentValues);
-                    if(rowsAffected>0)
+                    if(rowsAffected>=0)
                     {
                         updatedCategories.add(categoryTagData);
                     }
