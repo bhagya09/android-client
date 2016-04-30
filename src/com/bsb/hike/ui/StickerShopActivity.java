@@ -302,4 +302,14 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search);
         searchBar.setVisibility(View.VISIBLE);
     }
+
+	@Override
+	protected void onDestroy()
+	{
+        if(stickerShopSearchFragment != null)
+        {
+            stickerShopSearchFragment.releaseSearchResources();
+        }
+		super.onDestroy();
+	}
 }
