@@ -140,7 +140,7 @@ public class DownloadAssetIdTask implements IHikeHTTPTask, IHikeHttpTaskResult
         try
         {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            ChatThemeManager.getInstance().processNewThemeSignal(data);
+            ChatThemeManager.getInstance().processNewThemeSignal(data, true);
         }
         catch (JSONException e)
         {

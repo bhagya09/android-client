@@ -136,11 +136,10 @@ public class ChatThemeManager
 	}
 
 	//MQTT Signal packet processing
-	public void processNewThemeSignal(JSONArray data)
+	public void processNewThemeSignal(JSONArray data, boolean downloadAssets)
 	{
 		try
 		{
-
 			int len = data.length();
 
 			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
@@ -192,10 +191,11 @@ public class ChatThemeManager
 			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
 
-			for(HikeChatTheme theme : themeList)
-			{
-				//querying for chat themes data (images) when the packet is received. The call might be removed later.
-				downloadAssetsForTheme(theme.getThemeId());
+			if(downloadAssets) {
+				for (HikeChatTheme theme : themeList) {
+					//querying for chat themes data (images) when the packet is received. The call might be removed later.
+					downloadAssetsForTheme(theme.getThemeId());
+				}
 			}
 		}
 		catch(JSONException e)
