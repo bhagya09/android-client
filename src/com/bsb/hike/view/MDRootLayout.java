@@ -127,7 +127,7 @@ public class MDRootLayout extends ViewGroup
 			{
 				mButtonContainer = v;
 			}
-			else if (v.getId() == R.id.checkbox_panel)
+			else if (v.getId() == R.id.checkbox_container)
 			{
 				mCheckboxContainer = v;
 			}
@@ -268,14 +268,14 @@ public class MDRootLayout extends ViewGroup
 		if (isVisible(mContent))
 			mContent.layout(l, t, r, t + mContent.getMeasuredHeight());
 
+		if (isVisible(mCheckboxContainer))
+		{
+			mCheckboxContainer.layout(l, b - mCheckboxBarHeight - mButtonBarHeight, r, b - mButtonBarHeight);
+		}
+
 		if (isVisible(mButtonContainer))
 		{
 			mButtonContainer.layout(l, b - mButtonBarHeight, r, b);
-		}
-
-		if (isVisible(mCheckboxContainer))
-		{
-			mCheckboxContainer.layout(l, b - mCheckboxBarHeight, r, b);
 		}
 
 		setUpDividersVisibility(mContent, true, true);

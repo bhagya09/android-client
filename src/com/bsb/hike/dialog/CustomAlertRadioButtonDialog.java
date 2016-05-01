@@ -67,7 +67,11 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 
 	private void initCheckBox()
 	{
-		final LinearLayout checkboxView = (LinearLayout) findViewById(R.id.checkbox_panel);
+		LinearLayout checkboxContainer = (LinearLayout) findViewById(R.id.checkbox_container);
+		checkboxContainer.setVisibility(View.VISIBLE);
+		View divider = checkboxContainer.findViewById(R.id.divider);
+		divider.setVisibility(View.VISIBLE);
+		LinearLayout checkboxView = (LinearLayout) checkboxContainer.findViewById(R.id.checkbox_panel);
 		checkboxView.setVisibility(View.VISIBLE);
 		final CheckBox checkBox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
 		checkBox.setVisibility(View.VISIBLE);
