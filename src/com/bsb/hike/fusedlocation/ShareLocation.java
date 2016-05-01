@@ -879,7 +879,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			@Override
 			protected String doInBackground(Void... params)
 			{
-				return getAddressFromPosition(lat, lng, ShareLocation.this);
+				return getAddressFromPosition(lat, lng);
 			}
 
 			@Override
@@ -902,7 +902,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 	}
 
-	public static String getAddressFromPosition(double lat, double lng, Context context)
+	public static String getAddressFromPosition(double lat, double lng)
 	{
 		String address = "";
 		try
