@@ -7339,9 +7339,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			tagdataUpdateList = new ArrayList<String>(cursor.getCount());
 
 			int ucidIdx = cursor.getColumnIndex(DBConstants.UCID);
-			int metaUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
-			int tagUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_TAGDATA_UPDATED);
-            
+			int isMetaUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_METADATA_UPDATED);
+			int isTagUpdatedIdx = cursor.getColumnIndex(DBConstants.IS_PACK_TAGDATA_UPDATED);
+            int metadataUpdateIdx = cursor.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP);
             
             
 			if (cursor.getCount() > 0)
@@ -7350,13 +7350,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					int ucid = cursor.getInt(ucidIdx);
 
-					if (cursor.getInt(metaUpdatedIdx) == 0)
+					if (cursor.getInt(isMetaUpdatedIdx) == 0)
 					{
-						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(metaUpdatedIdx)).setUcid(ucid).build();
+						StickerCategory stickerCategory = new StickerCategory.Builder().setPackUpdationTime(cursor.getInt(metadataUpdateIdx)).setUcid(ucid).build();
 						metadataUpdateList.add(stickerCategory);
 					}
 
-					if (cursor.getInt(tagUpdatedIdx) == 0 && StickerManager.getInstance().isShopSearchEnabled())
+					if (cursor.getInt(isTagUpdatedIdx) == 0 && StickerManager.getInstance().isShopSearchEnabled())
 					{
 						tagdataUpdateList.add(Integer.toString(ucid));
 					}
