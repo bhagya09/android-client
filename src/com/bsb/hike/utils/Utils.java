@@ -8745,6 +8745,7 @@ public class Utils
 	public static int getPlayServicesAvailableCode(Context context)
 	{
 		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
 		return resultCode;
 	}
 }

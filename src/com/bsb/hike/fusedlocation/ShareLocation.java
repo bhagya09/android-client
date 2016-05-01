@@ -32,7 +32,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -115,7 +114,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 		 * if isGooglePlayServicesAvailable method returns 2=ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED this implies we need to update our playservice library if it returns
 		 * 0=ConnectionResult.SUCCESS this implies we have correct version and working playservice api
 		 */
-		Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
+//		Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
 
 		// Showing status
 		if (Utils.checkAndShowPlayServicesErrorDialog(ShareLocation.this)) //PlayServices Available
