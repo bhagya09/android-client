@@ -23,7 +23,7 @@ import java.util.Set;
 public class LocationManager implements LocationListener, GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener
 {
-	private Set<LocationListener> mLocationListeners;
+	private Set<ILocationUpdates> mLocationListeners;
 
 	private GoogleApiClient mGoogleApiClient;
 
@@ -41,7 +41,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 
 	private LocationManager()
 	{
-		this.mLocationListeners = new HashSet<LocationListener>(1); //Default size as 1.
+		this.mLocationListeners = new HashSet<ILocationUpdates>(1); //Default size as 1.
 	}
 
 	public static LocationManager getInstance()
@@ -85,6 +85,15 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 	public void onConnected(@Nullable Bundle bundle)
 	{
 		Logger.d(TAG, "onConnected : ");
+
+		if (!Utils.isEmpty(mLocationListeners))
+		{
+			for (ILocationUpdates listener : mLocationListeners)
+			{
+				listener.onConnected(bundle);
+			}
+		}
+
 		startLocationUpdates();
 	}
 
@@ -116,7 +125,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 
 		if (!Utils.isEmpty(mLocationListeners))
 		{
-			for (LocationListener listener : mLocationListeners)
+			for (ILocationUpdates listener : mLocationListeners)
 			{
 				listener.onLocationChanged(location);
 			}
@@ -129,7 +138,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 		Logger.d(TAG, "onConnectionFailed : ");
 	}
 
-	public void addLocationListener(LocationListener listener)
+	public void addLocationListener(ILocationUpdates listener)
 	{
 		if (listener != null)
 		{
@@ -137,7 +146,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 		}
 	}
 
-	public void removeLocationListener(LocationListener listener)
+	public void removeLocationListener(ILocationUpdates listener)
 	{
 		if (listener != null)
 		{
