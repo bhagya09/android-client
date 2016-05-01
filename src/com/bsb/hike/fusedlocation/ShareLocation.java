@@ -21,14 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TableLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
@@ -41,20 +34,12 @@ import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,7 +50,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements LocationListener
 {
 
 	private GoogleMap map;
@@ -118,18 +103,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private int selectedPosition = 0;
 
-	private LocationClient mLocationClient;
-
 	private int SEARCH_RADIUS = 2000; // 2KM
-
-	// These settings are the same as the settings for the map. They will in
-	// fact give you updates at
-	// the maximal rates currently possible.
-	private static final LocationRequest REQUEST = LocationRequest.create().setInterval(1000)
-	// 1 seconds
-			.setFastestInterval(16)
-			// 16ms = 60fps
-			.setSmallestDisplacement(4).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 	private View doneBtn;
 
@@ -199,11 +173,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 					adapter.notifyDataSetChanged();
 					if (selectedPosition != 0)
 					{
-						mLocationClient.disconnect();
+
 					}
 					else
 					{
-						mLocationClient.connect();
+
 					}
 				}
 			});
@@ -218,8 +192,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			map.setTrafficEnabled(false);
 			// map.setMyLocationEnabled(true);
 			setUpLocationClientIfNeeded();
-			mLocationClient.connect(); // onConnected is called when connection
-										// is made.
 
 			places = new MarkerOptions[MAX_PLACES];
 			placeMarkers = new Marker[MAX_PLACES + 1];
@@ -284,10 +256,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 						executeTask(new GetPlaces(), searchStr);
 
-						if (!mLocationClient.isConnected())
-						{
-							mLocationClient.connect();
-						}
 					}
 				}
 				catch (UnsupportedEncodingException e)
@@ -341,20 +309,12 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private void setUpLocationClientIfNeeded()
 	{
-		if (mLocationClient == null)
-		{
-			mLocationClient = new LocationClient(getApplicationContext(), this, // ConnectionCallbacks
-					this); // OnConnectionFailedListener
-		}
+
 	}
 
 	@Override
 	protected void onDestroy()
 	{
-		if (mLocationClient != null)
-		{
-			mLocationClient.disconnect();
-		}
 		super.onDestroy();
 	}
 
@@ -394,38 +354,16 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 
 	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult arg0)
-	{
-
-	}
-
-	@Override
-	public void onConnected(Bundle arg0)
-	{
-		Logger.d(TAG, "LocationClient Connected");
-		if (myLocation == null)
-		{
-			Logger.d(TAG, "LocationClient Connected inside if");
-			updateMyLocation();
-		}
-		mLocationClient.requestLocationUpdates(REQUEST, this); // LocationListener
-	}
-
-	@Override
-	public void onDisconnected()
-	{
-
-	}
-
+	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		setUpLocationClientIfNeeded();
 		if (selectedPosition == 0)
-			mLocationClient.connect();
+		{
+
+		}
 	}
 
 	@Override
@@ -433,11 +371,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		super.onPause();
 		Logger.d(TAG, "onPause");
-		if (mLocationClient != null)
-		{
-			Logger.d(TAG, "Disconnecting LocationClient");
-			mLocationClient.disconnect();
-		}
 	}
 
 	public void sendSelectedLocation()
@@ -471,7 +404,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		// get location manager
 		showLocationDialog();
-		myLocation = mLocationClient.getLastLocation();
+//		myLocation = mLocationClient.getLastLocation();
 		if (myLocation == null)
 			myLocation = locManager.getLastKnownLocation(currentLocationDevice == GPS_ENABLED ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER);
 		// myLocation = map.getMyLocation();
