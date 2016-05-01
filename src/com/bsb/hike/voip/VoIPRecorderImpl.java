@@ -86,15 +86,21 @@ public class VoIPRecorderImpl implements VoIPRecorder {
                 }
 
                 // Attach AGC
-                if (Utils.isJellybeanOrHigher()) {
-                    if (AutomaticGainControl.isAvailable()) {
-                        AutomaticGainControl agc = AutomaticGainControl.create(recorder.getAudioSessionId());
-                        if (agc != null) {
-                            Logger.w(VoIPConstants.TAG, "Initial AGC status: " + agc.getEnabled());
-                            agc.setEnabled(true);
-                        }
-                    } else
-                        Logger.w(tag, "AGC not available.");
+                try {
+                    if (Utils.isJellybeanOrHigher()) {
+                        if (AutomaticGainControl.isAvailable()) {
+                            AutomaticGainControl agc = AutomaticGainControl.create(recorder.getAudioSessionId());
+                            if (agc != null) {
+                                Logger.w(VoIPConstants.TAG, "Initial AGC status: " + agc.getEnabled());
+                                agc.setEnabled(true);
+                            }
+                        } else
+                            Logger.w(tag, "AGC not available.");
+                    }
+                } catch (NullPointerException e) {
+                    // java.lang.NullPointerException at android.media.audiofx.AudioEffect.isEffectTypeAvailable(AudioEffect.java:482) at
+                    // android.media.audiofx.AutomaticGainControl.isAvailable(AutomaticGainControl.java:51)
+                    Logger.w(tag, "AutomaticGainControl NPE: " + e.toString());
                 }
 
                 // Start processing recorded data
