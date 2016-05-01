@@ -1,29 +1,96 @@
 package com.bsb.hike.fusedlocation;
 
 import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by piyush on 01/05/16.
  */
-public class LocationManager implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public class LocationManager implements LocationListener, GoogleApiClient.ConnectionCallbacks,
+		GoogleApiClient.OnConnectionFailedListener
 {
+	private List<LocationListener> mLocationListeners;
+
+	private GoogleApiClient mGoogleApiClient;
+
+	private LocationRequest mLocationRequest;
+
+	private static final int DEFAULT_UPDATE_INTERVAL = 10;
+
+	private static final int DEFAULT_FASTEST_INTERVAL = 16;
+
+	private static final int DEFAULT_SMALLEST_DISP = 4;
+
+	private static LocationManager instance;
+
+	private String TAG = getClass().getSimpleName();
+
+	private LocationManager()
+	{
+		this.mLocationListeners = new ArrayList<LocationListener>(1); //Default size as 1.
+	}
+
+	public static LocationManager getInstance()
+	{
+		if (instance == null)
+		{
+			synchronized (LocationManager.class)
+			{
+				if (instance == null)
+				{
+					instance = new LocationManager();
+				}
+			}
+		}
+
+		return instance;
+	}
+
+	private void init()
+	{
+		if (mGoogleApiClient == null)
+		{
+			mGoogleApiClient = new GoogleApiClient.Builder(
+					HikeMessengerApp.getInstance().getApplicationContext())
+					.addApi(LocationServices.API).addConnectionCallbacks(this)
+					.addOnConnectionFailedListener(this).build();
+		}
+
+		if (mLocationRequest == null)
+		{
+			mLocationRequest = LocationRequest.create().setInterval(DEFAULT_UPDATE_INTERVAL)
+					// 1 seconds
+					.setFastestInterval(DEFAULT_FASTEST_INTERVAL)
+					// 16ms = 60fps
+					.setSmallestDisplacement(DEFAULT_SMALLEST_DISP)
+					.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		}
+	}
+
 	@Override
 	public void onConnected(@Nullable Bundle bundle)
 	{
-
+		Logger.d(TAG, "onConnected : ");
 	}
 
 	@Override
 	public void onConnectionSuspended(int i)
 	{
-
+		Logger.d(TAG, "onConnectionSuspended : ");
 	}
 
 	/**
@@ -36,67 +103,49 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 	@Override
 	public void onLocationChanged(Location location)
 	{
+		Logger.d(TAG, "onLocationChanged : ");
 
-	}
-
-	/**
-	 * Called when the provider status changes. This method is called when
-	 * a provider is unable to fetch a location or if the provider has recently
-	 * become available after a period of unavailability.
-	 *
-	 * @param provider the name of the location provider associated with this
-	 *                 update.
-	 * @param status   {@link LocationProvider#OUT_OF_SERVICE} if the
-	 *                 provider is out of service, and this is not expected to change in the
-	 *                 near future; {@link LocationProvider#TEMPORARILY_UNAVAILABLE} if
-	 *                 the provider is temporarily unavailable but is expected to be available
-	 *                 shortly; and {@link LocationProvider#AVAILABLE} if the
-	 *                 provider is currently available.
-	 * @param extras   an optional Bundle which will contain provider specific
-	 *                 status variables.
-	 *                 <p/>
-	 *                 <p> A number of common key/value pairs for the extras Bundle are listed
-	 *                 below. Providers that use any of the keys on this list must
-	 *                 provide the corresponding value as described below.
-	 *                 <p/>
-	 *                 <ul>
-	 *                 <li> satellites - the number of satellites used to derive the fix
-	 */
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras)
-	{
-
-	}
-
-	/**
-	 * Called when the provider is enabled by the user.
-	 *
-	 * @param provider the name of the location provider associated with this
-	 *                 update.
-	 */
-	@Override
-	public void onProviderEnabled(String provider)
-	{
-
-	}
-
-	/**
-	 * Called when the provider is disabled by the user. If requestLocationUpdates
-	 * is called on an already disabled provider, this method is called
-	 * immediately.
-	 *
-	 * @param provider the name of the location provider associated with this
-	 *                 update.
-	 */
-	@Override
-	public void onProviderDisabled(String provider)
-	{
-
+		if (!Utils.isEmpty(mLocationListeners))
+		{
+			for (LocationListener listener : mLocationListeners)
+			{
+				listener.onLocationChanged(location);
+			}
+		}
 	}
 
 	@Override
 	public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
 	{
+		Logger.d(TAG, "onConnectionFailed : ");
+	}
 
+	public void addLocationListener(LocationListener listener)
+	{
+		if (listener != null)
+		{
+			mLocationListeners.add(listener);
+		}
+	}
+
+	public void removeLocationListener(LocationListener listener)
+	{
+		if (listener != null)
+		{
+			mLocationListeners.remove(listener);
+		}
+	}
+
+	public void startLocationUpdates()
+	{
+		init();
+		LocationServices.FusedLocationApi
+				.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+	}
+
+	public void stopLocationUpdates()
+	{
+		init();
+		LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 	}
 }
