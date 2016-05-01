@@ -85,12 +85,21 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 	public void onConnected(@Nullable Bundle bundle)
 	{
 		Logger.d(TAG, "onConnected : ");
+		startLocationUpdates();
 	}
 
+	/**
+	 * Reason can be : <br>
+	 * int CAUSE_SERVICE_DISCONNECTED = 1;<br>
+	 * int CAUSE_NETWORK_LOST = 2;
+	 *
+	 * @param reason
+	 */
 	@Override
-	public void onConnectionSuspended(int i)
+	public void onConnectionSuspended(int reason)
 	{
-		Logger.d(TAG, "onConnectionSuspended : ");
+		Logger.d(TAG, "onConnectionSuspended : " + reason);
+		stopLocationUpdates();
 	}
 
 	/**
@@ -136,16 +145,39 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 		}
 	}
 
-	public void startLocationUpdates()
+	private void startLocationUpdates()
 	{
 		init();
 		LocationServices.FusedLocationApi
 				.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 	}
 
-	public void stopLocationUpdates()
+	private void stopLocationUpdates()
 	{
 		init();
 		LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
 	}
+
+	public void connectToLocation()
+	{
+		init();
+		mGoogleApiClient.connect();
+	}
+
+	public void disConnectFromLocation()
+	{
+		init();
+		if (mGoogleApiClient.isConnected())
+		{
+			stopLocationUpdates();
+			mGoogleApiClient.disconnect();
+		}
+	}
+
+	public Location getLastLocation()
+	{
+		connectToLocation();
+		return LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+	}
+
 }
