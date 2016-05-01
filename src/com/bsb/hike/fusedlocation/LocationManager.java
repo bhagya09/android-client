@@ -14,8 +14,8 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by piyush on 01/05/16.
@@ -23,7 +23,7 @@ import java.util.List;
 public class LocationManager implements LocationListener, GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener
 {
-	private List<LocationListener> mLocationListeners;
+	private Set<LocationListener> mLocationListeners;
 
 	private GoogleApiClient mGoogleApiClient;
 
@@ -41,7 +41,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 
 	private LocationManager()
 	{
-		this.mLocationListeners = new ArrayList<LocationListener>(1); //Default size as 1.
+		this.mLocationListeners = new HashSet<LocationListener>(1); //Default size as 1.
 	}
 
 	public static LocationManager getInstance()
