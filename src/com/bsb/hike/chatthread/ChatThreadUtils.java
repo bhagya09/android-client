@@ -1,14 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -18,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.animation.Animation;
@@ -48,6 +40,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
@@ -58,6 +51,15 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class ChatThreadUtils
 {
@@ -742,5 +744,17 @@ public class ChatThreadUtils
 		}
 
 		return null;
+	}
+
+	public static void processTasks(final Intent intent)
+	{
+			String msisdn = intent.getStringExtra(HikeConstants.MSISDN);
+			boolean showNotification = intent.getBooleanExtra(HikeConstants.MUTE_NOTIF, true);
+			if (TextUtils.isEmpty(msisdn))
+			{
+				return;
+			}
+			Mute mute =  new Mute.InitBuilder(msisdn).setIsMute(false).setShowNotifInMute(showNotification).setMuteDuration(0).build();
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
 	}
 }

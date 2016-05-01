@@ -4175,4 +4175,6 @@ public class HikeConstants
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 
 	public static final String CHAT_BG_TABLE_MIGRATION = "chatBgTableMigration";
+
+	public static final String MUTE_NOTIF = "muteNotif";
 }
