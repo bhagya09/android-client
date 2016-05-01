@@ -7830,11 +7830,13 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		
+
 		// Precautionary check to prevent NPE from empty list files.
-		if (folder.listFiles() == null)
+        // Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+        File[] directory = folder.listFiles();
+		if (directory == null)
 			return length;
-		for (File file : folder.listFiles())
+		for (File file : directory)
 		{
 			if (file.isDirectory())
 				length += folderSize(file);
@@ -8229,6 +8231,7 @@ public class Utils
 	public static void deleteDiskCache()
 	{
 		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+        HikeMessengerApp.clearDiskCache();
 	}
 
 	/**
@@ -8638,6 +8641,23 @@ public class Utils
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
+			json.put(AnalyticsConstants.V2.VAL_INT, fileSize);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private static void fetchHistoricalUpdates(String msisdn)

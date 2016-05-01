@@ -130,6 +130,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 /**
  *
@@ -3134,7 +3135,10 @@ public class MqttMessagesManager
 
 		if(!makeAnEditCall)
 		{
-
+			if(TextUtils.isEmpty(newMsisdn))
+			{
+				return;
+			}
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
 		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
@@ -4651,6 +4655,10 @@ public class MqttMessagesManager
 		else if (HikeConstants.TOAST.equals(type))
 		{
 			showToast(jsonObj);
+		}
+		else if (ABTest.onRequestReceived(type, jsonObj))
+		{
+			//Do nothing, if its a ABTest message its handled
 		}
 	}
 	
