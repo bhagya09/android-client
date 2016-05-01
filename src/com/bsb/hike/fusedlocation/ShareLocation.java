@@ -3,7 +3,6 @@ package com.bsb.hike.fusedlocation;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -33,7 +32,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -122,32 +120,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements L
 		 */
 		Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
 
-		// Getting Google Play availability status
-		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
-
 		// Showing status
-		if (status != ConnectionResult.SUCCESS)
-		{ // Google Play Services// are
-			// not available
-			int requestCode = 10;
-			playServiceErrordialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
-			playServiceErrordialog.show();
-			playServiceErrordialog.setOnDismissListener(new Dialog.OnDismissListener()
-			{
-
-				@Override
-				public void onDismiss(DialogInterface arg0)
-				{
-					finish();
-				}
-
-			});
-			return;
-
-		}
-		else
-		{ // Google Play Services are available
-
+		if (Utils.checkAndShowPlayServicesErrorDialog(ShareLocation.this)) //PlayServices Available
+		{
 			setContentView(R.layout.share_location);
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
 			listview = (ListView) findViewById(R.id.itemListView);
@@ -863,5 +838,5 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements L
 	{
 		finish();
 	}
-	
+
 }
