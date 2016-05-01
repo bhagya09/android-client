@@ -137,6 +137,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
+	private final String TAG = getClass().getSimpleName();
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -146,7 +148,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		 * if isGooglePlayServicesAvailable method returns 2=ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED this implies we need to update our playservice library if it returns
 		 * 0=ConnectionResult.SUCCESS this implies we have correct version and working playservice api
 		 */
-		Logger.d(getClass().getSimpleName(), "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
+		Logger.d(TAG, "is play service available = " + Integer.valueOf(GooglePlayServicesUtil.isGooglePlayServicesAvailable(this)).toString());
 
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
@@ -292,7 +294,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					Logger.w(getClass().getSimpleName(), "in nearby search url encoding", e);
+					Logger.w(TAG, "in nearby search url encoding", e);
 				}
 			}
 		});
@@ -365,7 +367,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{
 			userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
 			map.animateCamera(CameraUpdateFactory.newLatLng(userMarker.getPosition()));
-			Logger.d("ShareLocation", "is Location changed = " + Double.valueOf(myLocation.distanceTo(newLocation)).toString());
+			Logger.d(TAG, "is Location changed = " + Double.valueOf(myLocation.distanceTo(newLocation)).toString());
 			if ((currentLocationDevice == GPS_ENABLED && myLocation.distanceTo(newLocation) > 100)
 					|| (currentLocationDevice == GPS_DISABLED && myLocation.distanceTo(newLocation) > 800))
 			{
@@ -374,8 +376,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
 				updateLocationAddress(myLocation.getLatitude(), myLocation.getLongitude(), userMarker);
 				// do something on location change
-				Logger.d("ShareLocation", "my longi in loc listener = " + Double.valueOf(newLocation.getLongitude()).toString());
-				Logger.d("ShareLocation", "my lati in loc listener = " + Double.valueOf(newLocation.getLatitude()).toString());
+				Logger.d(TAG, "my longi in loc listener = " + Double.valueOf(newLocation.getLongitude()).toString());
+				Logger.d(TAG, "my lati in loc listener = " + Double.valueOf(newLocation.getLatitude()).toString());
 				if (!isTextSearch)
 				{
 					lastMarker = userMarker;
@@ -404,10 +406,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	@Override
 	public void onConnected(Bundle arg0)
 	{
-		Logger.d("ShareLocation", "LocationClient Connected");
+		Logger.d(TAG, "LocationClient Connected");
 		if (myLocation == null)
 		{
-			Logger.d("ShareLocation", "LocationClient Connected inside if");
+			Logger.d(TAG, "LocationClient Connected inside if");
 			updateMyLocation();
 		}
 		mLocationClient.requestLocationUpdates(REQUEST, this); // LocationListener
@@ -432,10 +434,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	public void onPause()
 	{
 		super.onPause();
-		Logger.d("ShareLocation", "onPause");
+		Logger.d(TAG, "onPause");
 		if (mLocationClient != null)
 		{
-			Logger.d("ShareLocation", "Disconnecting LocationClient");
+			Logger.d(TAG, "Disconnecting LocationClient");
 			mLocationClient.disconnect();
 		}
 	}
@@ -444,7 +446,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		if (lastMarker == null)
 		{
-			Logger.d("ShareLocation", "sendSelectedLocation");
+			Logger.d(TAG, "sendSelectedLocation");
 			Toast.makeText(getApplicationContext(), R.string.select_location, Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -475,7 +477,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		if (myLocation == null)
 			myLocation = locManager.getLastKnownLocation(currentLocationDevice == GPS_ENABLED ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER);
 		// myLocation = map.getMyLocation();
-		Logger.d(getClass().getSimpleName(), "inside updateMyLocation");
+		Logger.d(TAG, "inside updateMyLocation");
 
 		if (myLocation != null)
 		{
@@ -504,7 +506,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		CameraPosition cameraPosition = new CameraPosition.Builder().target(myLatLng) // Sets the center of the map to Mountain View
 				.zoom(HikeConstants.DEFAULT_ZOOM_LEVEL) // Sets the zoom
 				.build(); // Creates a CameraPosition from the builder
-		Logger.d(getClass().getSimpleName(), "stting up camera in set my location");
+		Logger.d(TAG, "stting up camera in set my location");
 		map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 	}
@@ -541,7 +543,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		protected Integer doInBackground(String... placesURL)
 		{
 			// fetch places
-			Logger.d(getClass().getSimpleName(), "GetPlaces Async Task do in background");
+			Logger.d(TAG, "GetPlaces Async Task do in background");
 			JSONObject resultObject = null;
 			for (String placeSearchURL : placesURL)
 			{
@@ -572,7 +574,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 						// read lat lng
 						placeLL = new LatLng(Double.valueOf(loc.getString("lat")), Double.valueOf(loc.getString("lng")));
 
-						Logger.d(getClass().getSimpleName(), Integer.valueOf(p).toString() + " = " + (String) placeObject.get("name"));
+						Logger.d(TAG, Integer.valueOf(p).toString() + " = " + (String) placeObject.get("name"));
 
 						// vicinity
 						if (!isTextSearch)
@@ -619,17 +621,17 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 					placeMarkers[pm].remove();
 				}
 			}
-			Logger.d(getClass().getSimpleName(), "list length before = " + Integer.valueOf(list.size()).toString());
+			Logger.d(TAG, "list length before = " + Integer.valueOf(list.size()).toString());
 			int listSize = list.size();
 			for (int i = listSize - 1; i > 0; i--)
 			{
-				Logger.d(getClass().getSimpleName(), Integer.valueOf(i).toString() + " = " + list.get(i).getName());
+				Logger.d(TAG, Integer.valueOf(i).toString() + " = " + list.get(i).getName());
 				list.remove(i);
 			}
 			adapter.notifyDataSetChanged();
-			Logger.d(getClass().getSimpleName(), "list length after = " + Integer.valueOf(list.size()).toString());
+			Logger.d(TAG, "list length after = " + Integer.valueOf(list.size()).toString());
 
-			Logger.d(getClass().getSimpleName(), "GetPlaces Async Task do in background");
+			Logger.d(TAG, "GetPlaces Async Task do in background");
 			findViewById(R.id.progress_dialog).setVisibility(View.VISIBLE);
 		}
 
@@ -824,7 +826,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				Bitmap b = HikeBitmapFactory.createScaledBitmap(bitmap, width, width, Bitmap.Config.RGB_565, true, true, false);
 				Drawable scaled_dr = HikeBitmapFactory.getBitmapDrawable(getResources(), b);
 
-				Logger.d("BitmapLocation","size : "+BitmapUtils.getBitmapSize(b));
+				Logger.d(TAG,"size : "+BitmapUtils.getBitmapSize(b));
 				holder.txt_itemName.setCompoundDrawablesWithIntrinsicBounds(scaled_dr, null, null, null);
 				holder.txt_itemName.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.share_my_location_drawable_padding));
 			}
