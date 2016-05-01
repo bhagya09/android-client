@@ -27,6 +27,7 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	public void releaseResources()
 	{
 		CategorySearchManager.getInstance().clearTransientResources();
+        currentQueryState = null;
 		mListener = null;
 	}
 

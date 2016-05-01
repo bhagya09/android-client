@@ -20,6 +20,7 @@ import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -42,7 +43,7 @@ public enum CategorySearchManager
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
 
-    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 10;
+    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 100;
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
@@ -59,8 +60,7 @@ public enum CategorySearchManager
 	/* Get the instance of this class from outside */
 	public static CategorySearchManager getInstance()
 	{
-
-        if(mCacheForSearchedCategories.size() == 0)
+       if(mCacheForSearchedCategories.size() == 0)
         {
             INSTANCE.loadCategoriesForShopSearch();
         }
@@ -137,9 +137,14 @@ public enum CategorySearchManager
 			{
 				result.add(category);
 			}
+            else
+            {
+                Logger.e(TAG, "getOrderedCategoryList ignoring : "+category.getCategoryName() );
+            }
 
             if(result.size() == HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_SEARCH_RESULTS_LIMIT))
             {
+                Logger.e(TAG, "getOrderedCategoryList limit reached");
                 break;
             }
 		}

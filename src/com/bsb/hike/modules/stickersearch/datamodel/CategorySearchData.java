@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.stickersearch.datamodel;
 
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
@@ -31,9 +33,11 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private final float DEFAULT_STICKER_COUNT_SCORE = 0f;
 
-	public CategorySearchData(int ucid)
+	private CategorySearchData(Builder builder)
 	{
-		super(ucid);
+		super(builder);
+		this.matchKeyword = builder.matchKeyword;
+		this.category = builder.category;
 	}
 
 	public StickerCategory getCategory()
@@ -46,15 +50,9 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		return category;
 	}
 
-	public void setMatchKeyword(String matchKeyword)
-	{
-		this.matchKeyword = matchKeyword;
-	}
-
 	@Override
 	public int compareTo(CategorySearchData another)
 	{
-		Logger.e(TAG, "CTD compareTo() " + this.name + " <> " + another.name);
 
 		if (this.equals(another))
 		{
@@ -100,6 +98,36 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 				+ stickerCountScore + " nameMatchScore = " + nameMatchScore);
 
 		return searchScore;
+	}
+
+	public static class Builder extends CategoryTagData.Builder<Builder>
+	{
+
+		private String matchKeyword;
+
+		private StickerCategory category;
+
+		public Builder(int ucid)
+		{
+			super(ucid);
+		}
+
+		public Builder setMatchKeyword(String matchKeyword)
+		{
+			this.matchKeyword = matchKeyword;
+			return this;
+		}
+
+		public Builder setCategory(StickerCategory category)
+		{
+			this.category = category;
+			return this;
+		}
+
+		public CategorySearchData build()
+		{
+			return new CategorySearchData(this);
+		}
 	}
 
 }

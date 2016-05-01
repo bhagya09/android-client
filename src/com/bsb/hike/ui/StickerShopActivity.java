@@ -83,7 +83,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             return;
         }
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.sticker_shop_parent, stickerShopSearchFragment).addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment).addToBackStack(null).commit();
 
     }
 
@@ -99,7 +99,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
             return;
         }
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.sticker_shop_parent, stickerShopFragment).commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopFragment).commit();
 
     }
 
@@ -192,16 +192,20 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         @Override
         public boolean onQueryTextChange(String query)
         {
-            if(TextUtils.isEmpty(query))
-            {
-                return false;
-            }
+			if (TextUtils.isEmpty(query))
+			{
+				if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
+				{
+					StickerShopActivity.super.onBackPressed();
+				}
+				return true;
+			}
 
-            if(!TextUtils.isEmpty(query.trim()))
-            {
-                showSearchFragment();
-                return stickerShopSearchFragment.onQueryTextChange(query);
-            }
+			if (!TextUtils.isEmpty(query.trim()))
+			{
+				showSearchFragment();
+				return stickerShopSearchFragment.onQueryTextChange(query);
+			}
             return true;
         }
     };
@@ -218,6 +222,13 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         if (shopSearchMenuItem != null && shopSearchMenuItem.isActionViewExpanded())
         {
             shopSearchMenuItem.collapseActionView();
+
+            if(stickerShopSearchFragment!=null && stickerShopSearchFragment.isAdded())
+            {
+                super.onBackPressed();
+            }
+
+            return;
         }
 
         super.onBackPressed();
@@ -259,27 +270,32 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 	}
 
-    private Animation.AnimationListener rippleListener = new Animation.AnimationListener() {
-        int count = 1;
+	private Animation.AnimationListener rippleListener = new Animation.AnimationListener()
+	{
+		int count = 1;
 
-        @Override
-        public void onAnimationStart(Animation animation) {
+		@Override
+		public void onAnimationStart(Animation animation)
+		{
 
-        }
+		}
 
-        @Override
-        public void onAnimationEnd(Animation animation) {
+		@Override
+		public void onAnimationEnd(Animation animation)
+		{
 
-        }
+		}
 
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-            if (count++ % 2 != 0) {
-                searchLayout.setPressed(true);
-                searchLayout.setPressed(false);
-            }
-        }
-    };
+		@Override
+		public void onAnimationRepeat(Animation animation)
+		{
+			if (count++ % 2 != 0)
+			{
+				searchLayout.setPressed(true);
+				searchLayout.setPressed(false);
+			}
+		}
+	};
 
     private void setupSearchBar()
     {
@@ -291,4 +307,14 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search);
         searchBar.setVisibility(View.VISIBLE);
     }
+
+	@Override
+	protected void onDestroy()
+	{
+		if (stickerShopSearchFragment != null)
+		{
+			stickerShopSearchFragment.releaseSearchResources();
+		}
+		super.onDestroy();
+	}
 }

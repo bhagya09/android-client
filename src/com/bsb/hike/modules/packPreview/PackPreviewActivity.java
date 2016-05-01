@@ -22,24 +22,6 @@ public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 		setupActionBar();
 	}
 	
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-	}
-	
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-	}
-	
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
-	}
-	
 	private void setupPreviewFragment(Bundle savedInstance)
 	{
 		if(savedInstance != null)
