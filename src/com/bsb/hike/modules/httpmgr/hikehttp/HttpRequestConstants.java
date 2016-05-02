@@ -326,7 +326,7 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/pa/";
+		return HTTP + STAGING_API + BASE_V1 + "/pa/";
 	}
 
 	public static String deleteAccountBaseUrl()

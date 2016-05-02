@@ -53,7 +53,7 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 public class UserLogInfo {
-	
+
 	public static final int START = 0;
 	public static final int STOP = 2;
 	public static final int OPERATE = 1;
@@ -502,6 +502,32 @@ public class UserLogInfo {
 		}
 	}
 
+	public static void requestUserLogs(final int flags) throws JSONException
+	{
+
+
+		Runnable rn  = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				for(int counter = 0; counter<Integer.SIZE;counter ++)
+				{
+					try {
+						sendLogs((1 << counter) & flags);
+					} catch (JSONException e) {
+						Logger.d(TAG, "JSON exception in making Logs" + e);
+					}
+
+				}
+
+			}
+		};
+
+		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
+
+	}
+
 	public static void requestUserLogs(JSONObject data) throws JSONException {
 		
 		flags = 0;
@@ -544,34 +570,17 @@ public class UserLogInfo {
 		{
 			return;
 		}
-		
-		Runnable rn  = new Runnable() 
-		{	
-			@Override
-			public void run() 
-			{
-				for(int counter = 0; counter<Integer.SIZE;counter ++)
-				{
-					try {
-						sendLogs((1 << counter) & flags);
-					} catch (JSONException e) {
-						Logger.d(TAG, "JSON exception in making Logs" + e);
-					}
-
-				}
-				
-			}
-		};
 
 		boolean isForceUser = data.optBoolean(HikeConstants.FORCE_USER,false);
 		boolean isDeviceRooted=Utils.isDeviceRooted();
-		
+
 		sendAnalytics(isDeviceRooted);
-		if ((!isForceUser && isDeviceRooted) || !isKeysAvailable()) 
+		if ((!isForceUser && isDeviceRooted) || !isKeysAvailable())
 		{
 			return;
 		}
-		HikeHandlerUtil.getInstance().postRunnableWithDelay(rn, 0);
+
+		requestUserLogs(flags);
 	}
 	
 	private static void sendAnalytics(boolean isDeviceRooted)
