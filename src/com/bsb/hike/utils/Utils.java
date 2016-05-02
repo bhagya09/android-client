@@ -70,7 +70,6 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,7 +78,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -4549,26 +4547,6 @@ public class Utils
 		}
 	}
 
-	/*
-	 * When Active Contacts >= 3 show the 'Add Friends' pop-up When Activate Contacts <3 show the 'Invite Friends' pop-up
-	 */
-	public static boolean shouldShowAddFriendsFTUE(int hikeContactsCount, int recommendedCount)
-	{
-		Logger.d("AddFriendsActivity", " hikeContactsCount=" + hikeContactsCount + " recommendedCount=" + recommendedCount);
-		/*
-		 * also if all the recommended contacts are your friend we should not show add friends popup
-		 */
-		if (recommendedCount == 0 || hikeContactsCount == 0)
-		{
-			return false;
-		}
-		if (recommendedCount > 2)
-		{
-			return true;
-		}
-		return false;
-	}
-
 	public static void startChatThread(Context context, ContactInfo contactInfo, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
@@ -4637,21 +4615,21 @@ public class Utils
 
 	public static void getRecommendedAndHikeContacts(Context context, List<ContactInfo> recommendedContacts, List<ContactInfo> hikeContacts, List<ContactInfo> friendsList)
 	{
-		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
 
-		Logger.d("AddFriendsActivity", " friendsList size " + friendsList.size());
+		Logger.d(TAG, " friendsList size " + friendsList.size());
 		Set<String> recommendedContactsSelection = Utils.getServerRecommendedContactsSelection(settings.getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), msisdn);
-		Logger.d("AddFriendsActivity", " recommendedContactsSelection " + recommendedContactsSelection);
+		Logger.d(TAG, " recommendedContactsSelection " + recommendedContactsSelection);
 		if (!recommendedContactsSelection.isEmpty())
 		{
 			recommendedContacts.addAll(ContactManager.getInstance().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
 		}
 
-		Logger.d("AddFriendsActivity", " size recommendedContacts = " + recommendedContacts.size());
+		Logger.d(TAG, " size recommendedContacts = " + recommendedContacts.size());
 
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED_REJECTED, HikeConstants.ON_HIKE_VALUE, msisdn, false, true));
@@ -8615,6 +8593,63 @@ public class Utils
 			e.toString();
 			return null;
 		}
+	}
+
+	/**
+	 * This does a rename of entire folder (recursive) to new path.
+	 * Use this if old and new paths are on same mount point since its practically instantaneous.
+	 * 
+	 * @param oldRootDir
+	 * @param newRootDir
+	 * @return true, if the operation was successful
+	 */
+	public static boolean moveDirectoryByRename(File oldRootDir, File newRootDir)
+	{
+		boolean result = true;
+
+		// param check
+		if(oldRootDir == null || newRootDir == null)
+		{
+			return false;
+		}
+
+		if (!newRootDir.exists())
+		{
+			result = result && newRootDir.mkdirs();
+		}
+
+		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		{
+			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
+			return true; //Migration unsuccessful but new folder created
+		}
+
+		if (result)
+		{
+			for (File f : oldRootDir.listFiles())
+			{
+				if (f.isDirectory())
+				{
+					File newDir = new File(newRootDir, f.getName());
+					result = result && moveDirectoryByRename(f, newDir);
+				}
+				else
+				{
+					File newFile = new File(newRootDir, f.getName());
+					if (newFile.exists())
+					{
+						result = result && newFile.delete();
+					}
+					result = result && f.renameTo(newFile);
+				}
+			}
+
+			// Delete residual dirs
+			Utils.deleteFile(oldRootDir);
+		}
+
+
+		return result;
 	}
 
 	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,

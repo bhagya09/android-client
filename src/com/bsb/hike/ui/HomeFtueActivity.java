@@ -18,6 +18,8 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
+import com.bsb.hike.backup.impl.HikeSettingsCloudBackup;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -143,6 +145,7 @@ public class HomeFtueActivity extends HikeAppStateBaseFragmentActivity {
         {
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOCALIZATION_FTUE_COMPLETE, true);
             addAnalyticsForDoneButton();
+            HikeCloudSettingsManager.getInstance().doBackup();
             showNextFtue();
         }
     }

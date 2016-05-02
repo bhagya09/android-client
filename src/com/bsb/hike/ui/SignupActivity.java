@@ -522,6 +522,15 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
+			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
+			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
+			{
+				if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
+				{
+					LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
+					break;
+				}
+			}
 			Intent i = new Intent(SignupActivity.this, HomeActivity.class);
 			i.putExtra(HikeConstants.Extras.NEW_USER, true);
 			startActivity(i);
