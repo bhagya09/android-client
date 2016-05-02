@@ -1797,6 +1797,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				return;
 			}
+			if(((Pair) object).first instanceof BotInfo)
+			{
 			 final BotInfo info = ((BotInfo) ((Pair) object).first);
 			if(info == null)
 			{
@@ -1814,6 +1816,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 						}
 					});
 			 }
+		   }
 		}
 	}
 

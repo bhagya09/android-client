@@ -51,7 +51,6 @@ public class UpdateExperimentService extends IntentService {
                 respondStatus(STATUS_FAILURE);
             } finally {
                 mDataParser = null;
-                mDataPersist = null;
             }
             respondStatus(STATUS_SUCCESS);
         } else {

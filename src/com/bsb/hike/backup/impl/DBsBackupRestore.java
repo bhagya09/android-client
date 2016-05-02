@@ -5,7 +5,6 @@ import com.bsb.hike.backup.iface.BackupableRestorable;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.StickerManager;
 
@@ -36,7 +35,7 @@ public class DBsBackupRestore implements BackupableRestorable
 	{
 		chatsDB = new DB(DBConstants.CONVERSATIONS_DATABASE_NAME,
 				// STICKER_SHOP_TABLE and STICKER_CATEGORIES_TABLE will be skipped
-				new String[] { DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_CATEGORIES_TABLE,DBConstants.STICKER_TABLE },
+				new String[] { DBConstants.STICKER_SHOP_TABLE},
 				backupToken)
 		{
 			@Override

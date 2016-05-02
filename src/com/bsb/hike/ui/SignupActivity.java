@@ -522,6 +522,15 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
+			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
+			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
+			{
+				if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
+				{
+					LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
+					break;
+				}
+			}
 			Intent i = new Intent(SignupActivity.this, HomeActivity.class);
 			i.putExtra(HikeConstants.Extras.NEW_USER, true);
 			startActivity(i);
@@ -1079,6 +1088,11 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		defAvBgColor = bgColorArray.getColor(index, 0);
 
+		// Remove any pending image selected by user in previous attempt.
+		HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
+		// Remove any temporary image saved in the process;
+		Utils.removeTempProfileImage(msisdn);
+
 		if(mActivityState.profileBitmap == null && savedInstanceState != null)
 		{
 			mActivityState.profileBitmap = savedInstanceState.getParcelable(HikeConstants.Extras.BITMAP);
@@ -1356,7 +1370,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 				if (restoreStatus.equals(getString(R.string.restore_msisdn_error))) //If msisdn mismatch, set the title as Bummer!
 				{
-					restoreTitleTv.setText(getString(R.string.bummer));
+					restoreTitleTv.setText(getString(R.string.restore_failed));
 				}
 			}
 
@@ -1373,6 +1387,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				});
 
 				retry.setText(getString(R.string.upgrade_hike));
+				restoreTitleTv.setText(getString(R.string.restore_failed));
 			}
 
 			restoreProgress.setVisibility(View.INVISIBLE);

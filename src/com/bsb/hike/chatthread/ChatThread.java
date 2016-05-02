@@ -116,6 +116,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
@@ -1041,11 +1042,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				}
 				else
 				{
+					final int numOfImagesCaptioned = (imageCaptions != null) ? imageCaptions.size() : 0;
+					final ArrayList<String> editedImages = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
+					final int numOfImagesEdited = (editedImages != null && !TextUtils.isEmpty(editedImages.get(0))) ? 1 : 0;
+
 					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
 					{
 						@Override
 						public void imageParsed(Uri uri)
 						{
+
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1053,6 +1060,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						@Override
 						public void imageParsed(String imagePath)
 						{
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
+
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1110,6 +1119,34 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
+		}
+	}
+
+	private void recordImageShareAnalyticEvent(int numberTotal, int numOfImagesCaptions, int numOfEditedImages){
+		String species = ChatThreadUtils.getChatThreadType(msisdn);
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SHARE_IMAGES);
+			if (mConversation.isStealth()) {
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
+			json.put(AnalyticsConstants.V2.RACE, numberTotal);
+			json.put(AnalyticsConstants.V2.BREED, numOfEditedImages);
+			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
+			json.put(AnalyticsConstants.V2.SOURCE, AnalyticsConstants.IMAGE_SOURCE_CAMERA);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1188,6 +1225,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
+			//CE-602 : Add new fields to existing overflow menu events
+			metadata.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				metadata.put(HikeConstants.FROM, AnalyticsConstants.STEALTH_CHAT_THREAD);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1258,12 +1300,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onClick(View v)
 	{
-		// Eat/Discard the click event when the WT recording is in progress
-		if(isWalkieTalkieShowing()) return;
+		if(useWTRevamped) {
+			if(v.getId() == R.id.msg_compose && !isKeyboardOpen()){ //CE-492
+				inProcessOfShowingPopup = true;
+			}
+			// Eat/Discard the click event when the WT recording is in progress
+			if(isWalkieTalkieShowing()) {
+				if(inProcessOfShowingPopup) dismissWalkieTalkie();
+				return;
+			}
+		}
+
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
+			recordMediaShareAnalyticEvent(AnalyticsConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
 			stickerClicked();
@@ -1273,6 +1325,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			{// previous task is running don't accept this event
 				return;
 			}
+			inProcessOfShowingPopup = true;
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1419,6 +1472,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
 		}
+		inProcessOfShowingPopup = true;
 		setEmoticonButtonSelected(false);
 		setStickerButtonSelected(true);
 
@@ -1427,7 +1481,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 		closeStickerTip();
 		StickerManager.getInstance().logStickerButtonPressAnalytics();
-		
+
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
+
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
@@ -1436,6 +1494,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			if (!retryToInflateStickers())
 			{
+				inProcessOfShowingPopup = false;
 				setStickerButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
@@ -1509,12 +1568,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
 			{
 				setEmoticonButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+				inProcessOfShowingPopup = false;
 			}
 		}
 
@@ -3823,6 +3886,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				return mShareablePopupLayout.onEditTextTouch(v, event);
 			}
 			case R.id.send_message_audio:
+				if(inProcessOfShowingPopup) return true;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
@@ -4401,7 +4465,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		releaseMessageAdapterResources();
 
-		StickerManager.getInstance().saveCustomCategories();
+		StickerManager.getInstance().saveRecents();
 
 		releaseMessageMap();
 		
@@ -4529,6 +4593,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
+			inProcessOfShowingPopup = true;
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 
@@ -4648,7 +4713,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
 	private boolean dismissWalkieTalkie(){
 		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
+			walkieView.cancelAndDismissAudio(false);
 			return true;
 		}
 		return false;
@@ -5976,6 +6041,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		if ((view == mComposeView))
 		{
+			//CE-497:Samsung duos2, in landscape mode when DONE is pressed onHidden method isn't called
+			if(useWTRevamped && inProcessOfShowingPopup) inProcessOfShowingPopup = false;
 	     // On some phones (like: micromax A120) "actionId" always comes 0, so added one more optional check (view.getId() ==R.id.msg_compose) & (view.getId() ==R.id.search_text)
 			if ((actionId == EditorInfo.IME_ACTION_SEND)
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
@@ -6111,6 +6178,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onShown()
 	{
+		inProcessOfShowingPopup = false;
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
 		 */
@@ -6130,7 +6198,21 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onHidden()
 	{
+		//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
+		if (useWTRevamped && inProcessOfShowingPopup) {
+			inProcessOfShowingPopup = false;
+		}
 	}
+
+	@Override
+	public void onHiddingPreviouslyShown(){
+		//CE-513: In some devices onBackPressed is not called when the keyboard was open
+		if (useWTRevamped && !isKeyboardOpen() && !mShareablePopupLayout.isShowing()) {
+			if (isWalkieTalkieShowing()) dismissWalkieTalkie();
+		}
+	}
+
+	private boolean inProcessOfShowingPopup = false;
 
 	public void dismissResidualAcitonMode()
 	{

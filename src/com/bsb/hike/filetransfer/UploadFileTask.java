@@ -69,12 +69,6 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ContactInfo> contactList;
 
-	private int okHttpResCode;
-
-	private String okHttpRes;
-
-	private String caption;
-
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";
@@ -298,6 +292,7 @@ public class UploadFileTask extends FileTransferBase
 				{
 					File compFile = null;
 					VideoEditedInfo info = null;
+					long time = 0;
 					if (!isFileKeyValid && android.os.Build.VERSION.SDK_INT >= 18
 							&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
 					{
@@ -306,7 +301,7 @@ public class UploadFileTask extends FileTransferBase
 						{
 							if (info.isCompRequired)
 							{
-								long time = System.currentTimeMillis();
+								time = System.currentTimeMillis();
 								/*
 								 * Changes done to avoid the creation of multiple compressed file. Here I'm using message id as unique id of file.
 								 */
@@ -318,13 +313,14 @@ public class UploadFileTask extends FileTransferBase
 								HikeVideoCompressor instance = new HikeVideoCompressor();
 								compFile = instance.compressVideo(hikeFile);
 								Logger.d(getClass().getSimpleName(), "Video compression time = " + (System.currentTimeMillis() - time));
+								time = (System.currentTimeMillis() - time);
 							}
 						}
 					}
 					if (compFile != null && compFile.exists())
 					{
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight, mFile.length(),
-								compFile.length(), 1);
+								compFile.length(), 1, time);
 						selectedFile = compFile;
 						vidCompressionRequired = "1";
 						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
