@@ -281,7 +281,7 @@ public class ToastListener implements Listener
 			{
 				if (!(Utils.showNotifForMutedConversation(message.getMsisdn())))
 				{
-					Logger.d(getClass().getSimpleName(), "Group has been muted");
+					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
 					return;
 				}
 			}
@@ -579,7 +579,7 @@ public class ToastListener implements Listener
 					{
 						if (!(Utils.showNotifForMutedConversation(msisdn)))
 						{
-							Logger.d(getClass().getSimpleName(), "Group has been muted");
+							Logger.d(getClass().getSimpleName(), "Conversation has been muted");
 							continue;
 						}
 					}
