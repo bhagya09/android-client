@@ -19,6 +19,10 @@ import java.util.Date;
 
 public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 {
+	public boolean getBlockedStatus() {
+		return isBlocked;
+	}
+
 	public enum FavoriteType
 	{
 		NOT_FRIEND, REQUEST_RECEIVED, FRIEND, AUTO_RECOMMENDED_FAVORITE, REQUEST_SENT, REQUEST_SENT_REJECTED, REQUEST_RECEIVED_REJECTED
@@ -37,6 +41,8 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	private String id;
 
 	private short bits = 0;
+
+	private boolean isBlocked = false;
 
 	/*
 	 * bits 1111
@@ -665,6 +671,11 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	public boolean isNotMyFriend()
 	{
 		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
+	}
+
+	public void setBlockStatus(boolean status)
+	{
+		this.isBlocked = status;
 	}
 
 }
