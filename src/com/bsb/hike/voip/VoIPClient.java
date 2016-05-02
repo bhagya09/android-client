@@ -1203,7 +1203,7 @@ public class VoIPClient  {
 					} catch (IOException e) {
 						break;
 					}
-					
+
 					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(packet.getData(), packet.getLength());
 					
 					if (dataPacket == null)
