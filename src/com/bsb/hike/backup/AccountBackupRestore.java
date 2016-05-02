@@ -383,14 +383,8 @@ public class AccountBackupRestore
 			prefbBackupReady = false;
 		}
 
-		File backupStateFile = getBackupStateFile();
-		boolean stateFileAvailable = true;
-		if(!backupStateFile.exists())
-		{
-			stateFileAvailable = false;
-		}
 		if (getLastBackupTime() > 0
-				&& (stateFileAvailable || prefbBackupReady)
+				&& prefbBackupReady
 				&& dbBackupReady)
 		{
 			return true;
