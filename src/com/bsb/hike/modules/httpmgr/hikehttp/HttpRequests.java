@@ -1373,4 +1373,26 @@ public class HttpRequests
 		return requestToken;
 	}
 
+    public static RequestToken makeBotJoinPostRequest(JSONObject json, IRequestListener requestListener)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(HttpRequestConstants.getBotInitiateUrl())
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .build();
+
+            return requestToken;
+        }
+    }
+
 }

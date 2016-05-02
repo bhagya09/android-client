@@ -47,13 +47,14 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.filetransfer.FileTransferManager.NetworkType;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
@@ -70,7 +71,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -86,6 +86,7 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
@@ -104,7 +105,6 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
-import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.timeline.TimelineActionsManager;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -678,7 +678,7 @@ public class MqttMessagesManager
 		}
 	}
 
-	private void saveMessage(JSONObject jsonObj) throws JSONException
+	public void saveMessage(JSONObject jsonObj) throws JSONException
 	{
 		final ConvMessage convMessage = messagePreProcess(jsonObj);
 
@@ -820,68 +820,98 @@ public class MqttMessagesManager
 		}
 	}
 
-	/**
-	 * This function pre-process on message of type "m" like make convMessage object , set metadata and timestamp
-	 *
-	 * @param jsonObj
-	 *            the JsonObject of type "m"
-	 *
-	 * @return ConvMessage object
-	 */
-	private ConvMessage messagePreProcess(JSONObject jsonObj) throws JSONException
-	{
-		ConvMessage convMessage = new ConvMessage(jsonObj, context);
-		if (convMessage.isStickerMessage())
-		{
-			convMessage.setMessage(context.getString(R.string.sent_sticker));
-		}
-		// AND-3843 begin
-		if (convMessage.getMetadata() != null && convMessage.getMetadata().isPokeMessage())
-		{
-			convMessage.setMessage(context.getString(R.string.poke_msg));
-		}
-		// AND-3843 End
+    /**
+     * This function pre-process on message of type "m" like make convMessage object , set metadata and timestamp
+     *
+     * @param jsonObj
+     *            the JsonObject of type "m"
+     *
+     * @return ConvMessage object
+     */
+    private ConvMessage messagePreProcess(JSONObject jsonObj) throws JSONException
+    {
+        ConvMessage convMessage = new ConvMessage(jsonObj, context);
+        if (convMessage.isStickerMessage())
+        {
+            convMessage.setMessage(context.getString(R.string.sent_sticker));
+        }
+        // AND-3843 begin
+        if (convMessage.getMetadata() != null && convMessage.getMetadata().isPokeMessage())
+        {
+            convMessage.setMessage(context.getString(R.string.poke_msg));
+        }
+        // AND-3843 End
 		/*
 		 * Need to rename every audio recording to a unique name since the ios client is sending every file with the same name.
 		 */
-		if (convMessage.isFileTransferMessage())
-		{
-			MessageMetadata messageMetadata = convMessage.getMetadata();
-			HikeFile hikeFile = messageMetadata.getHikeFiles().get(0);
-			JSONObject metadataJson = messageMetadata.getJSON();
-			// this value indicates that file is not downloaded yet
-			JSONArray fileArray = metadataJson.optJSONArray(HikeConstants.FILES);
-			for (int i = 0; i < fileArray.length(); i++)
-			{
-				JSONObject fileJson = fileArray.getJSONObject(i);
-				Logger.d(getClass().getSimpleName(), "Previous json: " + fileJson);
-				if (hikeFile.getHikeFileType() != HikeFileType.CONTACT && hikeFile.getHikeFileType() != HikeFileType.LOCATION) // dont change name for contact or location
-					fileJson.put(HikeConstants.FILE_NAME, Utils.getFinalFileName(hikeFile.getHikeFileType(), hikeFile.getFileName()));
-				Logger.d(getClass().getSimpleName(), "New json: " + fileJson);
-			}
+        if (convMessage.isFileTransferMessage())
+        {
+            MessageMetadata messageMetadata = convMessage.getMetadata();
+            HikeFile hikeFile = messageMetadata.getHikeFiles().get(0);
+            JSONObject metadataJson = messageMetadata.getJSON();
+            // this value indicates that file is not downloaded yet
+            JSONArray fileArray = metadataJson.optJSONArray(HikeConstants.FILES);
+            for (int i = 0; i < fileArray.length(); i++)
+            {
+                JSONObject fileJson = fileArray.getJSONObject(i);
+                Logger.d(getClass().getSimpleName(), "Previous json: " + fileJson);
+                if (hikeFile.getHikeFileType() != HikeFileType.CONTACT && hikeFile.getHikeFileType() != HikeFileType.LOCATION) // dont change name for contact or location
+                    fileJson.put(HikeConstants.FILE_NAME, Utils.getFinalFileName(hikeFile.getHikeFileType(), hikeFile.getFileName()));
+                Logger.d(getClass().getSimpleName(), "New json: " + fileJson);
+            }
 			/*
 			 * Resetting the metadata
 			 */
-			convMessage.setMetadata(metadataJson);
-		}
+            convMessage.setMetadata(metadataJson);
+        }
 
-		// Check if "pd" is there in response ===> if msg was a trackable msg
-		// If found ===> update "pd" field of convMessage
-		if (jsonObj.has(HikeConstants.PRIVATE_DATA))
-		{
-			JSONObject pd = jsonObj.getJSONObject(HikeConstants.PRIVATE_DATA);
-			String uid = pd.getString(HikeConstants.MSG_REL_UID);
-			MessagePrivateData messagePrivateData = new MessagePrivateData(uid);
-			convMessage.setPrivateData(messagePrivateData);
-		}
+        // Check if "pd" is there in response ===> if msg was a trackable msg
+        // If found ===> update "pd" field of convMessage
+        if (jsonObj.has(HikeConstants.PRIVATE_DATA))
+        {
+            JSONObject pd = jsonObj.getJSONObject(HikeConstants.PRIVATE_DATA);
+            String uid = pd.getString(HikeConstants.MSG_REL_UID);
+            MessagePrivateData messagePrivateData = new MessagePrivateData(uid);
+            convMessage.setPrivateData(messagePrivateData);
+        }
+
+        //check if message had platform data in the "pt" packet
+        if(convMessage.getPlatformData() != null)
+        {
+            JSONObject keyboardJson = convMessage.getPlatformData().getJSONObject(HikeConstants.KEYBOARD_DATA);
+            if(keyboardJson != null)
+            {
+                // Delete previous keyboard data from shared pref is the remove previous keyboard is set as true
+                if(keyboardJson.optBoolean(HikePlatformConstants.REMOVE_PREVIOUS_KEYBOARD,false))
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
+                else
+                    CustomKeyboardManager.getInstance().saveToSharedPreferences(convMessage.getMsisdn(), convMessage.getPlatformData());
+            }
+        }
+        else
+        {
+            // Delete keyboard data from shared pref if the keyboard type is not persistent
+            String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(convMessage.getMsisdn()), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+            try
+            {
+                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+                if (!isKeyBoardPersistent)
+                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+
+        }
 
 		/*
 		 * Applying the offset.
 		 */
-		convMessage.setTimestamp(Utils.applyServerTimeOffset(context, convMessage.getTimestamp()));
+        convMessage.setTimestamp(Utils.applyServerTimeOffset(context, convMessage.getTimestamp()));
 
-		return convMessage;
-	}
+        return convMessage;
+    }
 
 	/**
 	 * This function download sticker if not already downloaded

@@ -2918,6 +2918,8 @@ public class HikeConstants
 		public static final String OFFLINE = "offline";
 
 		public static final String GENERAL_EVENT_DR = "dr";
+
+        public static final String CUSTOM_KEYBOARD = "kb";
 	}
 
 	
@@ -4176,4 +4178,10 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+    public static final String HANDLE = "handle";
+
+    public static final String HIKE = "hike";
+
+    public static final String KEYBOARD_DATA = "kb";
 }

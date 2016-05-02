@@ -1,6 +1,7 @@
 package com.bsb.hike.platform;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.StringDef;
 
 public interface HikePlatformConstants
 {
@@ -426,4 +427,38 @@ public interface HikePlatformConstants
     String APP_STATUS = "app_status";
 
     String BOT_DISCOVERY = "bot_discovery";
+
+    String CUSTOM_KEYBOARD = "kb";
+
+    String INTRO = "intro";
+
+    String IS_KEYBOARD_PERSISTENT = "keep";
+
+    String REMOVE_PREVIOUS_KEYBOARD = "remove";
+
+    String KEYBOARD_DEFAULT_DATA = "keyboard_default_data";
+
+    @StringDef({BotsStickerSize.SMALL,BotsStickerSize.MEDIUM,BotsStickerSize.LARGE})
+    @interface BotsStickerSize
+    {
+        String SMALL = "s";
+        String MEDIUM = "m";
+        String LARGE = "l";
+    }
+
+    @IntDef({BotsStickerGridType.largeStkrGridCols,BotsStickerGridType.midStkrGridCols,BotsStickerGridType.smallStkrGridCols})
+    @interface BotsStickerGridType
+    {
+        int largeStkrGridCols = 2;
+        int midStkrGridCols = 3;
+        int smallStkrGridCols = 5;
+    }
+
+    @IntDef({BotsTextKeyboardNumCols.ONE_COL,BotsTextKeyboardNumCols.TWO_COLS,BotsTextKeyboardNumCols.THREE_COLS})
+    @interface BotsTextKeyboardNumCols
+    {
+        int ONE_COL = 1;
+        int TWO_COLS = 2;
+        int THREE_COLS = 3;
+    }
 }

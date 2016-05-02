@@ -31,6 +31,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -92,8 +93,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import android.graphics.drawable.BitmapDrawable;
-
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeConstants.MESSAGE_TYPE;
@@ -107,6 +106,8 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboardManager;
+import com.bsb.hike.bots.TextPickerListener;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
@@ -204,7 +205,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 @SuppressLint("ResourceAsColor") public abstract class ChatThread extends SimpleOnGestureListener implements OverflowItemClickListener, View.OnClickListener, ThemePickerListener, ImageParserListener,
 		PickFileListener, StickerPickerListener, HikeAudioRecordListener, LoaderCallbacks<Object>, OnItemLongClickListener, OnTouchListener, OnScrollListener,
 		Listener, ActionModeListener, HikeDialogListener, TextWatcher, OnDismissListener, OnEditorActionListener, OnKeyListener, PopupListener, BackKeyListener,
-		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback
+		OverflowViewListener, OnSoftKeyboardListener, IStickerPickerRecommendationListener, IOfflineCallbacks, IShopIconClickedCallback,TextPickerListener
 {
 
 	private static boolean useWTRevamped;
@@ -293,6 +294,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected static final int OPEN_PICKER = 40;
 
 	protected static final int FILE_OPENED = 41;
+
+    protected static final int SHOW_INPUT_BOX = 45;
+
+    protected static final int REMOVE_INPUT_BOX = 46;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
@@ -563,6 +568,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+			break;
+		case SHOW_INPUT_BOX:
+			showInputBox();
+			break;
+		case REMOVE_INPUT_BOX:
+			dismissInputBox();
 			break;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
@@ -1327,6 +1338,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			}
 			inProcessOfShowingPopup = true;
 			setStickerButtonSelected(false);
+            setInputBoxButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
 			break;
@@ -1373,19 +1385,25 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	}
 
-	protected void sendButtonClicked()
-	{
-		if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
-		{
-			audioRecordClicked();
-		} else
-		{
-			sendMessageForStickerRecommendLearning();
-			sendMessage();
-			dismissStickerRecommendationPopup();
-			dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
-		}
-	}
+    protected void sendButtonClicked()
+    {
+        if (!useWTRevamped && TextUtils.isEmpty(mComposeView.getText()))
+        {
+            if (BotUtils.isBot(msisdn) && CustomKeyboardManager.getInstance().shouldShowInputBox(msisdn))
+            {
+                inputBoxClicked();
+            }
+            else
+                audioRecordClicked();
+        }
+        else
+        {
+            sendMessageForStickerRecommendLearning();
+            sendMessage();
+            dismissStickerRecommendationPopup();
+            dismissTip(ChatThreadTips.STICKER_RECOMMEND_TIP);
+        }
+    }
 
 	/**
 	 * This function gets text from compose edit text and makes a message and uses {@link ChatThread#sendMessage(ConvMessage)} to send message
@@ -2718,7 +2736,13 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 		}
 
-		recordChatThreadOpen();
+        if(CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
+        {
+            CustomKeyboardManager.getInstance().initInputBox(activity,this,this,mConversation.getMsisdn());
+            sendUIMessage(SHOW_INPUT_BOX, mConversation.getMsisdn());
+        }
+
+        recordChatThreadOpen();
 	}
 
 	private OnItemsFinishedListener mOnItemsFinishedListener  = new OnItemsFinishedListener()
@@ -4177,6 +4201,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		case HikePubSub.FILE_OPENED:
 			uiHandler.sendEmptyMessage(FILE_OPENED);
 			break;
+		case HikePubSub.SHOW_INPUT_BOX:
+			Logger.i(TAG, "General Event: Show Custom Keyboard PubSub");
+			createInputBox(object);
+			break;
 
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
@@ -4312,9 +4340,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			{
 				SoundUtils.playSoundFromRaw(activity.getApplicationContext(), R.raw.received_message, AudioManager.STREAM_RING);
 			}
-			
-			sendUIMessage(MESSAGE_RECEIVED, message);
 
+            sendUIMessage(MESSAGE_RECEIVED, message);
+
+            if(CustomKeyboardManager.getInstance().shouldShowInputBox(senderMsisdn))
+            {
+                CustomKeyboardManager.getInstance().initInputBox(activity,this,this,senderMsisdn);
+                sendUIMessage(SHOW_INPUT_BOX, senderMsisdn);
+            }
+            else
+            {
+                sendUIMessage(REMOVE_INPUT_BOX, null);
+            }
 		}
 	}
 
@@ -4412,7 +4449,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION,HikePubSub.SHOW_INPUT_BOX};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -6110,6 +6147,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			setEmoticonButtonSelected(false);
 		}
+
+        if(activity.findViewById(R.id.send_message).isSelected())
+        {
+            setInputBoxButtonSelected(false);
+        }
 	}
 	
 	@Override
@@ -6724,5 +6766,85 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		}
 
 	}
+
+    private void createInputBox(Object object)
+    {
+        CustomKeyboardManager.getInstance().initInputBox(activity,this,this,msisdn);
+        sendUIMessage(SHOW_INPUT_BOX, object);
+    }
+
+    private void showInputBox()
+    {
+        if(!CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
+        {
+			CustomKeyboardManager.getInstance().setInputBoxButtonShowing(true);
+        }
+        if(mShareablePopupLayout != null)
+            mShareablePopupLayout.showPopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation);
+    }
+
+    private void dismissInputBox()
+    {
+        mShareablePopupLayout.dismiss();
+        if(CustomKeyboardManager.getInstance().isInputBoxButtonShowing())
+        {
+            ((ImageButton)activity.findViewById(R.id.send_message)).setImageResource(R.drawable.walkie_talkie_btn_selector);
+            CustomKeyboardManager.getInstance().setInputBoxButtonShowing(false);
+        }
+    }
+
+    protected ConvMessage createConvMessageFromString(String message)
+    {
+        if (TextUtils.isEmpty(message))
+        {
+            showToast(R.string.text_empty_error);
+            return null; // Do not create message
+        }
+        ConvMessage convMessage = Utils.makeConvMessage(msisdn, message, mConversation.isOnHike());
+
+        mComposeView.setText("");
+        if (mComposeViewWatcher != null)
+        {
+            mComposeViewWatcher.onMessageSent();
+        }
+        return convMessage;
+    }
+
+    private void setInputBoxButtonSelected(boolean selected)
+    {
+        activity.findViewById(R.id.send_message).setSelected(selected);
+    }
+
+    protected void inputBoxClicked()
+    {
+        setInputBoxButtonSelected(true);
+        setStickerButtonSelected(false);
+        setEmoticonButtonSelected(false);
+        mShareablePopupLayout.togglePopup(CustomKeyboardManager.getInstance(), activity.getResources().getConfiguration().orientation);
+    }
+
+
+	@Override
+	public void onTextClicked(String textSelected)
+	{
+		sendMessage(createConvMessageFromString(textSelected));
+
+		// Delete keyboard data from shared pref is the keyboard type is not persistent
+		String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(msisdn),
+				HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+		try
+		{
+			boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
+			if (!isKeyBoardPersistent)
+				CustomKeyboardManager.getInstance().removeFromSharedPreferences(msisdn);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+
+
 
 }

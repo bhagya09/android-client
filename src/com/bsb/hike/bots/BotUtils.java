@@ -1,7 +1,18 @@
 package com.bsb.hike.bots;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -34,16 +45,6 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class is for utility methods of bots
@@ -682,7 +683,7 @@ public class BotUtils
 
 	}
 
-	private static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
+	public static BotInfo getBotInfoFormessagingBots(JSONObject jsonObj, String msisdn)
 	{
 		BotInfo existingBotInfo = getBotInfoForBotMsisdn(msisdn);
 		BotInfo botInfo = null;
@@ -1127,5 +1128,22 @@ public class BotUtils
 		}
 		return true;
 	}
-	
+
+    /**
+     * Is bot url boolean.
+     *
+     * @param uri
+     *            the uri
+     * @return the boolean
+     */
+    public static boolean isBotUrl(Uri uri)
+    {
+        if (HikeConstants.HIKE.equals(uri.getScheme()) && HikePlatformConstants.BOTS.equals(uri.getAuthority()) && !TextUtils.isEmpty(uri.getQueryParameter(HikeConstants.HANDLE)))
+        {
+            return true;
+        }
+        return false;
+    }
+
+
 }
