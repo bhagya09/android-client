@@ -1332,8 +1332,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadUserSettings(IRequestListener requestListener,
-												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	public static RequestToken uploadUserSettings(IRequestListener requestListener, int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
 	{
 
 		JSONObject settingsJSON = new JSONObject();
@@ -1373,6 +1372,5 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
-
 
 }

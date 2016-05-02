@@ -576,4 +576,6 @@ public interface DBConstants
 	int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

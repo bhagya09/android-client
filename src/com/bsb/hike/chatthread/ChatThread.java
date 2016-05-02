@@ -1226,6 +1226,11 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
+			//CE-602 : Add new fields to existing overflow menu events
+			metadata.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				metadata.put(HikeConstants.FROM, AnalyticsConstants.STEALTH_CHAT_THREAD);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -4467,7 +4472,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		releaseMessageAdapterResources();
 
-		StickerManager.getInstance().saveCustomCategories();
+		StickerManager.getInstance().saveRecents();
 
 		releaseMessageMap();
 		
