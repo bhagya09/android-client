@@ -46,6 +46,9 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.localisation.LocalLanguage;
@@ -2297,6 +2300,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Fetch user settings from server
 			HikeCloudSettingsManager.getInstance().doRestoreSkipEnableCheck(null);
 			break;
+
+		case SHOW_STICKER_RESTORE_DIALOG:
+			showStickerRestoreDialog();
 		}
 		setListeners();
 	}
@@ -2557,6 +2563,35 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		// TODO Auto-generated method stub
 		return true;
+	}
+
+	private void showStickerRestoreDialog()
+	{
+		HikeDialogFactory.showDialog(SignupActivity.this,
+				HikeDialogFactory.STICKER_RESTORE_DIFF_DPI_DIALOG, new HikeDialogListener()
+				{
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+
+					}
+
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+						if (mTask != null)
+						{
+							mTask.addUserInput("");
+						}
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog)
+					{
+
+					}
+				}, null);
 	}
 
 }
