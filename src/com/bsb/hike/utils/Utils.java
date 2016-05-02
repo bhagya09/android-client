@@ -111,8 +111,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.StatFs;
@@ -6586,6 +6588,11 @@ public class Utils
 
 	}
 
+	public static boolean isEmpty(byte[] argument)
+	{
+		return (argument == null) || argument.length == 0;
+	}
+
 	/**
 	 * Checks that an Iterable is both non-null and non-empty. This method does not check individual elements in the Iterable, it just checks that the Iterable has at least one
 	 * element.
@@ -8081,6 +8088,37 @@ public class Utils
 		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
 		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
 		return resultCode;
+	}
+
+	public static byte[] getBytesFromBundle(Bundle bundle)
+	{
+		byte[] bundleBytes = null;
+
+		if(bundle != null)
+		{
+			Parcel parcel = Parcel.obtain();
+			bundle.writeToParcel(parcel, 0);
+			bundleBytes = parcel.marshall();
+			parcel.recycle();
+		}
+
+		return bundleBytes;
+	}
+
+	public static Bundle getBundleFromBytes(byte[] bundleBytes)
+	{
+		Bundle bundle = null;
+
+		if (isEmpty(bundleBytes))
+		{
+			Parcel parcel = Parcel.obtain();
+			parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
+			parcel.setDataPosition(0);
+			bundle = parcel.readBundle();
+			parcel.recycle();
+		}
+
+		return bundle;
 	}
 }
 
