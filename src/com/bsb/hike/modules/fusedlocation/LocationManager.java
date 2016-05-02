@@ -24,9 +24,9 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 {
 	private Set<ILocationUpdates> mLocationListeners;
 
-	private GoogleApiClient mGoogleApiClient;
+	private volatile GoogleApiClient mGoogleApiClient;
 
-	private LocationRequest mLocationRequest;
+	private volatile LocationRequest mLocationRequest;
 
 	private static final int DEFAULT_UPDATE_INTERVAL = 10;
 
@@ -59,7 +59,7 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 		return instance;
 	}
 
-	private void init()
+	private synchronized void init()
 	{
 		if (mGoogleApiClient == null)
 		{
