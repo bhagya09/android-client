@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.DownloadFileTask;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
@@ -14,7 +15,9 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpHeaderConstants;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.client.IClient;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -140,7 +143,8 @@ public class FileDownloadRequest extends Request<File>
 
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				chunkSize = chunkSizePolicy.getChunkSize();
+				int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
+				chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 				if (chunkSize <= 0)
 				{
 					FTAnalyticEvents.sendFTDevEvent(FTAnalyticEvents.DOWNLOAD_FILE_TASK, "Chunk size is less than or equal to 0, so setting it to default i.e. 100kb");

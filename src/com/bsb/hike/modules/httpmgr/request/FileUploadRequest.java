@@ -3,6 +3,7 @@ package com.bsb.hike.modules.httpmgr.request;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FileSavedState;
@@ -15,7 +16,9 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.request.requestbody.FileTransferChunkSizePolicy;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -169,9 +172,10 @@ public class FileUploadRequest extends Request<JSONObject>
 			String boundary = "\r\n--" + BOUNDARY + "--\r\n";
 
 			// Calculate chunk size using network type and other stuff
-			chunkSize = chunkSizePolicy.getChunkSize();
+			int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
+			chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 
-			if (mStart == 0)
+			if (mStart == 0 && chunkPolicy == FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY)
 			{
 				chunkSize = chunkSize / 5;
 			}
@@ -280,6 +284,13 @@ public class FileUploadRequest extends Request<JSONObject>
 						Logger.e(getClass().getSimpleName(), "exception in getting json from response ", ex);
 						throw ex;
 					}
+					finally
+					{
+						if(chunkPolicy == FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY)
+						{
+							chunkSizePolicy.setNetworkSpeed((System.currentTimeMillis() - time), fileBytes.length);
+						}
+					}
 					break;
 				}
 				// update start and end for range header
@@ -292,8 +303,12 @@ public class FileUploadRequest extends Request<JSONObject>
 				fss.setFTState(FTState.ERROR);
 				saveStateInDB(fss);
 
+				if(chunkPolicy == FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY)
+				{
+					chunkSizePolicy.setNetworkSpeed((System.currentTimeMillis() - time), fileBytes.length);
+				}
 				// calculate chunk size again
-				chunkSize = chunkSizePolicy.getChunkSize();
+				chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 
 				end = length;
 				if (end >= (start + chunkSize))
@@ -320,7 +335,6 @@ public class FileUploadRequest extends Request<JSONObject>
 						LogFull.d("content range  : " + contentRange + " time taken : " + time);
 					}
 				}
-
 				fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
 				publishProgress((float) bytesTransferred / length);
 			}
