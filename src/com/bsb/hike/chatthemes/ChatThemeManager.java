@@ -1,6 +1,7 @@
 package com.bsb.hike.chatthemes;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -287,9 +288,13 @@ public class ChatThemeManager
 	public void initializeHikeChatThemesWithDefaultSet(){
 		try {
 			JSONObject jsonObj = new JSONObject(Utils.loadJSONFromAsset(HikeMessengerApp.getInstance().getApplicationContext(), HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME));
-			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-			JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-			processNewThemeSignal(themeData, false);
+			if(jsonObj != null) {
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+				processNewThemeSignal(themeData, false);
+			} else {
+				Log.v(TAG, "Unable to load "+HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME+" file from assets");
+			}
 		}catch(JSONException e){
 			e.printStackTrace();
 		}
