@@ -7,15 +7,14 @@ import android.support.annotation.Nullable;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Created by piyush on 01/05/16.
@@ -35,13 +34,13 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 
 	private static final int DEFAULT_SMALLEST_DISP = 4;
 
-	private static LocationManager instance;
+	private static volatile LocationManager instance;
 
 	private String TAG = getClass().getSimpleName();
 
 	private LocationManager()
 	{
-		this.mLocationListeners = new HashSet<ILocationUpdates>(1); //Default size as 1.
+		this.mLocationListeners = new CopyOnWriteArraySet<ILocationUpdates>(); //Default size as 1.
 	}
 
 	public static LocationManager getInstance()
@@ -86,12 +85,9 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 	{
 		Logger.d(TAG, "onConnected : ");
 
-		if (!Utils.isEmpty(mLocationListeners))
+		for (ILocationUpdates listener : mLocationListeners)
 		{
-			for (ILocationUpdates listener : mLocationListeners)
-			{
-				listener.onConnected(bundle);
-			}
+			listener.onConnected(bundle);
 		}
 
 		startLocationUpdates();
@@ -123,12 +119,9 @@ public class LocationManager implements LocationListener, GoogleApiClient.Connec
 	{
 		Logger.d(TAG, "onLocationChanged : ");
 
-		if (!Utils.isEmpty(mLocationListeners))
+		for (ILocationUpdates listener : mLocationListeners)
 		{
-			for (ILocationUpdates listener : mLocationListeners)
-			{
-				listener.onLocationChanged(location);
-			}
+			listener.onLocationChanged(location);
 		}
 	}
 
