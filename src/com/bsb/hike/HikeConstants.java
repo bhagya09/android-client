@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -76,6 +78,8 @@ public class HikeConstants
 	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
+
+	public static final String SPECIES = "s";
 
 	public static final String METADATA_DND = "dnd";
 
@@ -2866,6 +2870,14 @@ public class HikeConstants
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
+
+		/**
+		 * VoIP custom error message.
+		 * The server will include the error text to display to the user.
+		 * Usage (15 Apr, 2016) - To let a user know if the person they are calling is on a
+		 * carrier that prohibits VoIP.
+		 */
+		public static final String VOIP_ERROR_CUSTOM_MESSAGE = "e4";
 
 		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
 
