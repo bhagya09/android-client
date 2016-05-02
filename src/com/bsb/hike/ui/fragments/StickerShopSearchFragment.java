@@ -122,36 +122,30 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onSearchCompleted(List<StickerCategory> categories)
 	{
-		if (getActivity() != null)
+		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
-			if (Utils.isUserOnline(getActivity()))
-			{
-				loadingEmptyState.setVisibility(View.GONE);
-				searchFailedState.setVisibility(View.GONE);
-				listview.setVisibility(View.VISIBLE);
-				mAdapter.updateSearchresult(categories);
-			}
-			else
-			{
-				showNoInternetConnectionState();
-			}
+			loadingEmptyState.setVisibility(View.GONE);
+			searchFailedState.setVisibility(View.GONE);
+			listview.setVisibility(View.VISIBLE);
+			mAdapter.updateSearchresult(categories);
+		}
+		else
+		{
+			showNoInternetConnectionState();
 		}
 	}
 
 	@Override
 	public void onNoCategoriesFound(String query)
 	{
-		if (getActivity() != null)
+		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
-			if (Utils.isUserOnline(getActivity()))
-			{
-				setSearchEmptyState(query);
-				searchFailedState.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				showNoInternetConnectionState();
-			}
+			setSearchEmptyState(query);
+			searchFailedState.setVisibility(View.VISIBLE);
+		}
+		else
+		{
+			showNoInternetConnectionState();
 		}
 
 	}
