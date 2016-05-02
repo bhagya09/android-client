@@ -17,6 +17,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -303,7 +305,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         searchLayout.removeView(searchBar);
         MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(shopSearchMenuItem, searchBar), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         searchBar.setOnQueryTextListener(onQueryTextListener);
-        searchBar.setQueryHint(getString(R.string.shop_search));
+        searchBar.setQueryHint(getString(R.string.shop_search_hint));
         shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search);
         searchBar.setVisibility(View.VISIBLE);
     }
@@ -315,6 +317,22 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		{
 			stickerShopSearchFragment.releaseSearchResources();
 		}
+
 		super.onDestroy();
+	}
+
+	public void disableShopSearch()
+	{
+		shopSearchMenuItem.setEnabled(false);
+		shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search_disabled);
+		ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
+		if (searchIcon != null && searchIcon.getVisibility() == View.VISIBLE)
+		{
+			searchIcon.setEnabled(false);
+			searchIcon.setAnimation(null);
+            searchIcon.setImageResource(R.drawable.ic_top_bar_search_disabled);
+            int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, ++searchFtueShownCount);
+		}
 	}
 }

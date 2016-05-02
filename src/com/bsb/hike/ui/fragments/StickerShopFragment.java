@@ -39,6 +39,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -277,4 +278,10 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
         return null;
     }
 
+	@Override
+	public void onDestroy()
+	{
+        HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		super.onDestroy();
+	}
 }

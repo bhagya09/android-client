@@ -27,6 +27,7 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
@@ -71,7 +72,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		loadingEmptyState = parent.findViewById(R.id.loading_data);
 		loadingFailedEmptyState = parent.findViewById(R.id.loading_failed);
         searchFailedState = parent.findViewById(R.id.search_failed);
-
 		return parent;
 	}
 
@@ -98,7 +98,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	@Override
 	public void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		unregisterListeners();
 		super.onDestroy();
 	}
@@ -183,7 +182,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
 		{
 			final HttpException exception = (HttpException) object;
-			
+
 			//footerView.setVisibility(View.GONE);
 			if (!isAdded())
 			{
@@ -198,10 +197,16 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					downloadState = DOWNLOAD_FAILED;
 					if(currentCategoriesCount == 0)
 					{
-						loadingEmptyState.setVisibility(View.GONE);
+                        if (getActivity() instanceof StickerShopActivity)
+                        {
+                            ((StickerShopActivity) getActivity()).disableShopSearch();
+                        }
+
+
+                        loadingEmptyState.setVisibility(View.GONE);
                         searchFailedState.setVisibility(View.GONE);
 						loadingFailedEmptyState.setVisibility(View.VISIBLE);
-						
+
 						if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
 						{
 							loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed_out_of_space);
@@ -234,7 +239,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 						{
 							failedText.setText(R.string.shop_loading_failed_no_internet);
 						}
-						
+
 						else
 						{
 							failedText.setText(R.string.shop_download_failed);
