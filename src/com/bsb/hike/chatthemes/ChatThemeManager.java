@@ -7,10 +7,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,8 +62,7 @@ public class ChatThemeManager
 		return mInstance;
 	}
 
-	private void initialize()
-	{
+	private void initialize() {
 		mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
 		mDrawableHelper = new ChatThemeDrawableHelper();
 		mAssetHelper = new ChatThemeAssetHelper();
@@ -67,6 +70,11 @@ public class ChatThemeManager
 		// initialising the default theme
 		defaultChatTheme.setThemeId(defaultChatThemeId);
 		mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, false)) {
+			initializeHikeChatThemesWithDefaultSet();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, true);
+		}
 	}
 
 	public ChatThemeAssetHelper getAssetHelper()
@@ -274,4 +282,17 @@ public class ChatThemeManager
 		}
 		HikeConversationsDatabase.getInstance().saveChatThemes(updateThemes);
 	}
+
+
+	public void initializeHikeChatThemesWithDefaultSet(){
+		try {
+			JSONObject jsonObj = new JSONObject(Utils.loadJSONFromAsset(HikeMessengerApp.getInstance().getApplicationContext(), HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME));
+			JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+			JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+			processNewThemeSignal(themeData, false);
+		}catch(JSONException e){
+			e.printStackTrace();
+		}
+	}
+
 }

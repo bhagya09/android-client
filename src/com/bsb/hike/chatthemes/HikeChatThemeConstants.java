@@ -158,4 +158,8 @@ public class HikeChatThemeConstants
 	public static final String CHAT_THEME_ID_NOT_DOWNLOADED = "0";
 
 	public static final String CHAT_THEME_ID_DOWNLOADED = "2";
+
+	public static final String CHATTHEMES_DEFAULT_JSON_FILE_NAME = "chatthemes_data";
+
+	public static final String SHAREDPREF_DEFAULT_SET_RECORDED = "defaultChatThemeSetRecorded";
 }

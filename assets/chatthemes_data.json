@@ -1,0 +1,144 @@
+{
+  "d": {
+    "theme_data": [
+      {
+        "theme_id": "42",
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_coffeebean_2.jpg",
+          "size": 34
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "theme_state": 0,
+        "status_bar": {
+          "type": 0,
+          "value": "170e0e",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_coffeebean_preview.png",
+          "size": 9
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme_3x.9.png",
+          "size": 0
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_coffeebean.jpg",
+          "size": 45
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "41",
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_2x.png",
+          "size": 0
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_track_2.jpg",
+          "size": 44
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "theme_state": 0,
+        "status_bar": {
+          "type": 0,
+          "value": "716567",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme_3x.9.png",
+          "size": 0
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_track.jpg",
+          "size": 44
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_track_preview.png",
+          "size": 6
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        }
+      }
+    ]
+  }
+}
