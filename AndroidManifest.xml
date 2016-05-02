@@ -247,7 +247,7 @@
             android:theme="@style/WebView.Theme"> 
         </activity>
         <activity
-            android:name=".fusedlocation.ShareLocation"
+            android:name=".modules.fusedlocation.ShareLocation"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTop"
             android:windowSoftInputMode="stateHidden" >

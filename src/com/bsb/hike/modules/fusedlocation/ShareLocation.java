@@ -1,4 +1,4 @@
-package com.bsb.hike.fusedlocation;
+package com.bsb.hike.modules.fusedlocation;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
