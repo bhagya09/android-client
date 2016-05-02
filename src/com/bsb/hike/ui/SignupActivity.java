@@ -203,6 +203,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private ProfileImageLoader profileImageLoader;
 
+	private boolean showStickerRestoreDiffDpiDialog = false;
+
 	private class ActivityState
 	{
 		public RequestToken pinCallRequestToken; /* the task to update the global profile */
@@ -495,7 +497,16 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				HttpRequestConstants.toggleSSL();
 
 				mHandler.removeCallbacks(startWelcomeScreen);
-				mHandler.postDelayed(startWelcomeScreen, 2500);
+
+				if (showStickerRestoreDiffDpiDialog)
+				{
+					showStickerRestoreDialog();
+				}
+
+				else
+				{
+					mHandler.postDelayed(startWelcomeScreen, 2500);
+				}
 
 				SharedPreferences settings = getApplication().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 				Editor ed = settings.edit();
@@ -525,19 +536,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		@Override
 		public void run()
 		{
-			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
-			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
-			{
-				if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
-				{
-					LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
-					break;
-				}
-			}
-			Intent i = new Intent(SignupActivity.this, HomeActivity.class);
-			i.putExtra(HikeConstants.Extras.NEW_USER, true);
-			startActivity(i);
-			finish();
+			openHomeActivity();
 		}
 	};
 
@@ -2302,7 +2301,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			break;
 
 		case SHOW_STICKER_RESTORE_DIALOG:
-			showStickerRestoreDialog();
+			showStickerRestoreDiffDpiDialog = true;
+			break;
 		}
 		setListeners();
 	}
@@ -2580,10 +2580,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
 						hikeDialog.dismiss();
-						if (mTask != null)
-						{
-							mTask.addUserInput("");
-						}
+						openHomeActivity();
 					}
 
 					@Override
@@ -2592,6 +2589,23 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 					}
 				}, null);
+	}
+
+	private void openHomeActivity()
+	{
+		final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(getApplicationContext());
+		for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(getApplicationContext()))
+		{
+			if (language.getDisplayName().equalsIgnoreCase(localLanguage.getDisplayName()))
+			{
+				LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
+				break;
+			}
+		}
+		Intent i = new Intent(SignupActivity.this, HomeActivity.class);
+		i.putExtra(HikeConstants.Extras.NEW_USER, true);
+		startActivity(i);
+		finish();
 	}
 
 }

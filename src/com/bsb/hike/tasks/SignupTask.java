@@ -710,15 +710,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 						if (BackupUtils.isDeviceDpiDifferent())
 						{
-							synchronized (this)
-							{
-								this.wait(600); //This is the duration of the success animation. Need to wait for that much amount so as to not interrupt the animation
-							}
 							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
-							synchronized (this)
-							{
-								this.wait(); // We will show a sticker dialog here since, the user has restored stickers on a diff device
-							}
 						}
 					}
 
