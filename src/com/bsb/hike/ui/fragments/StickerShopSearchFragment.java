@@ -38,11 +38,11 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
 	private CategorySearchWatcher searchWatcher;
 
-    private List<StickerCategory> searchedCategories;
+	private List<StickerCategory> searchedCategories;
 
-    private StickerShopSearchAdapter mAdapter;
+	private StickerShopSearchAdapter mAdapter;
 
-    private CustomFontTextView searchFailedMessageView;
+	private CustomFontTextView searchFailedMessageView;
 
 	public StickerShopSearchFragment()
 	{
@@ -53,10 +53,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void doInitialSetup()
 	{
-        searchFailedMessageView = (CustomFontTextView) searchFailedState.findViewById(R.id.empty_search_txt);
-        initAdapterAndList();
-        HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
-        registerListener();
+		searchFailedMessageView = (CustomFontTextView) searchFailedState.findViewById(R.id.empty_search_txt);
+		initAdapterAndList();
+		HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
+		registerListener();
 	}
 
 	private void initAdapterAndList()
@@ -64,10 +64,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		listview = (ListView) getView().findViewById(android.R.id.list);
 		listview.setVisibility(View.VISIBLE);
 
-        stickerCategoriesMap = new HashMap<String, StickerCategory>();
+		stickerCategoriesMap = new HashMap<String, StickerCategory>();
 		stickerCategoriesMap.putAll(StickerManager.getInstance().getStickerCategoryMap());
 
-        //to fix
+		// to fix
 		mAdapter = new StickerShopSearchAdapter(getActivity(), stickerCategoriesMap);
 
 		listview.setAdapter(mAdapter);
@@ -78,26 +78,26 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 	{
-        if (previousFirstVisibleItem != firstVisibleItem)
-        {
-            long currTime = System.currentTimeMillis();
-            long timeToScrollOneElement = currTime - previousEventTime;
-            velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
+		if (previousFirstVisibleItem != firstVisibleItem)
+		{
+			long currTime = System.currentTimeMillis();
+			long timeToScrollOneElement = currTime - previousEventTime;
+			velocity = (int) (((double) 1 / timeToScrollOneElement) * 1000);
 
-            previousFirstVisibleItem = firstVisibleItem;
-            previousEventTime = currTime;
-        }
+			previousFirstVisibleItem = firstVisibleItem;
+			previousEventTime = currTime;
+		}
 
-        if (mAdapter == null)
-        {
-            return;
-        }
+		if (mAdapter == null)
+		{
+			return;
+		}
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState)
 	{
-        mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
+		mAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_IMAGES_SMALL && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 	}
 
 	public static StickerShopSearchFragment newInstance()
@@ -109,8 +109,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
-		//loadingEmptyState.setVisibility(View.VISIBLE);
-        return searchWatcher.onQueryTextSubmit(query);
+		// loadingEmptyState.setVisibility(View.VISIBLE);
+		return searchWatcher.onQueryTextSubmit(query);
 	}
 
 	@Override
@@ -156,13 +156,13 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
 	}
 
-    private void showNoInternetConnectionState()
-    {
-        loadingEmptyState.setVisibility(View.GONE);
-        searchFailedState.setVisibility(View.GONE);
-        listview.setVisibility(View.GONE);
-        loadingFailedEmptyState.setVisibility(View.VISIBLE);
-    }
+	private void showNoInternetConnectionState()
+	{
+		loadingEmptyState.setVisibility(View.GONE);
+		searchFailedState.setVisibility(View.GONE);
+		listview.setVisibility(View.GONE);
+		loadingFailedEmptyState.setVisibility(View.VISIBLE);
+	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -173,41 +173,41 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 			return;
 		}
 		String categoryId = mAdapter.getItem(position);
-        IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
 	}
 
-    @Override
-    protected void notifyAdapter()
-    {
-        if(mAdapter == null)
-        {
-            return;
-        }
+	@Override
+	protected void notifyAdapter()
+	{
+		if (mAdapter == null)
+		{
+			return;
+		}
 
-        mAdapter.notifyDataSetChanged();
-    }
+		mAdapter.notifyDataSetChanged();
+	}
 
-    @Override
-    protected void reloadAdapter()
-    {
-        notifyAdapter();
-    }
+	@Override
+	protected void reloadAdapter()
+	{
+		notifyAdapter();
+	}
 
 	@Override
 	protected StickerOtherIconLoader getStickerPreviewLoader()
 	{
-        if(mAdapter != null)
-        {
-            return mAdapter.getStickerPreviewLoader();
-        }
+		if (mAdapter != null)
+		{
+			return mAdapter.getStickerPreviewLoader();
+		}
 
-        return null;
+		return null;
 	}
 
-    public void releaseSearchResources()
-    {
-        searchWatcher.releaseResources();
-    }
+	public void releaseSearchResources()
+	{
+		searchWatcher.releaseResources();
+	}
 
 	private void setSearchEmptyState(String query)
 	{
