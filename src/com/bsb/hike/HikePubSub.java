@@ -579,12 +579,12 @@ public class HikePubSub extends Handler implements Runnable
 		list.add(listener);
 	}
 
-	public void addUiListener(String type, UiListener listener)
+	public void addUiListener(UiListener listener, String type)
 	{
 		add(type, listener);
 	}
 
-	public void addUiListeners(UiListener listener, String... types)
+	public void addUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{
@@ -637,12 +637,12 @@ public class HikePubSub extends Handler implements Runnable
 		}
 	}
 
-	public void removeUiListener(String type, UiListener listener)
+	public void removeUiListener(UiListener listener, String type)
 	{
 		remove(type, listener);
 	}
 
-	public void removeListeners(UiListener listener, String... types)
+	public void removeUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{
