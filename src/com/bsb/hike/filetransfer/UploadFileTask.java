@@ -69,12 +69,6 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ContactInfo> contactList;
 
-	private int okHttpResCode;
-
-	private String okHttpRes;
-
-	private String caption;
-
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";

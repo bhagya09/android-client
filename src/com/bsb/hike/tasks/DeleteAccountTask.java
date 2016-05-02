@@ -171,9 +171,12 @@ public class DeleteAccountTask implements ActivityCallableTask
 		 */
 
 		/**
-		 * Deleting residual sticker data
+		 * Deleting residual sticker data on account deletion only and not in case of unlink relink account
 		 */
-		StickerManager.getInstance().deleteStickers();
+		if (delete)
+		{
+			StickerManager.getInstance().deleteStickers();
+		}
 		Utils.deleteDiskCache();
 		
 		/**
