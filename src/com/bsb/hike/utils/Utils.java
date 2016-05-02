@@ -7853,7 +7853,7 @@ public class Utils
 	 * @param order
 	 * @return
 	 */
-	public static JSONObject getCoreChatClickJSON(String uniqueKey, String order)
+	public static JSONObject getCoreChatClickJSON(String uniqueKey, String species, boolean isStealth)
 	{
 		try
 		{
@@ -7862,8 +7862,11 @@ public class Utils
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			if (isStealth)
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			return json;
 
 		}

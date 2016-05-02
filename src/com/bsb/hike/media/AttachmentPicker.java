@@ -29,11 +29,13 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.chatthread.IChannelSelector;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
@@ -291,7 +293,7 @@ public class AttachmentPicker extends OverFlowMenuLayout
 
 	private void sendClickAnalytics(String type)
 	{
-		JSONObject json = Utils.getCoreChatClickJSON(type, type);
+		JSONObject json = Utils.getCoreChatClickJSON(type, ChatThreadUtils.getChatThreadType(msisdn), StealthModeManager.getInstance().isStealthMsisdn(msisdn));
 		if (json != null)
 		{
 			HAManager.getInstance().recordV2(json);
