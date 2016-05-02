@@ -49,7 +49,7 @@ public class Mute
         this.isMute = isMute;
         if (isMute)
         {
-            this.muteTimestamp = System.currentTimeMillis()/1000;
+            this.muteTimestamp = System.currentTimeMillis();
         }
     }
 
@@ -84,22 +84,22 @@ public class Mute
 
     /**
      *
-     * @return muteEndTime in seconds for the following durations : 8 hours, 1 week, 1 year
+     * @return muteEndTime in milliseconds for the following durations : 8 hours, 1 week, 1 year
      */
     public long getMuteEndTime()
     {
         switch(muteDuration)
         {
             case MuteDuration.DURATION_EIGHT_HOURS:
-                muteEndTime = muteTimestamp + (8 * 60 * 60);
+                muteEndTime = muteTimestamp + (8 * 60 * 60 * 1000);
                 break;
 
             case MuteDuration.DURATION_ONE_WEEK:
-                muteEndTime = muteTimestamp + (7 * 24 * 60 * 60);
+                muteEndTime = muteTimestamp + (7 * 24 * 60 * 60 * 1000);
                 break;
 
             case MuteDuration.DURATION_ONE_YEAR:
-                muteEndTime = muteTimestamp + (365 * 24 * 60 * 60);
+                muteEndTime = muteTimestamp + (365 * 24 * 60 * 60 * 1000);
                 break;
         }
         return muteEndTime;
