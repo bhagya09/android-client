@@ -870,6 +870,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
 				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
 				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
+				|| settings.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0
 				|| TEST)
 		{
 			startUpdgradeIntent();
