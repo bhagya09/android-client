@@ -43,8 +43,6 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
     private CustomFontTextView searchFailedMessageView;
 
-    private CustomFontTextView searchTip;
-
 	public StickerShopSearchFragment()
 	{
 		super();
@@ -54,9 +52,6 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void doInitialSetup()
 	{
-        searchTip = (CustomFontTextView) searchFailedState.findViewById(R.id.search_hint);
-        searchTip.setVisibility(View.VISIBLE);
-        searchTip.setText(R.string.pack_search_again_hint);
         searchFailedMessageView = (CustomFontTextView) searchFailedState.findViewById(R.id.empty_search_txt);
         initAdapterAndList();
         HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
