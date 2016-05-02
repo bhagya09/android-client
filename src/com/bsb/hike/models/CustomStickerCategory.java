@@ -1,17 +1,13 @@
 package com.bsb.hike.models;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -97,9 +93,10 @@ public class CustomStickerCategory extends StickerCategory
 
 	public void loadStickers()
 	{
-		stickerSet = getSortedListForCategory(getCategoryId(), StickerManager.getInstance().getInternalStickerDirectoryForCategoryId(getCategoryId()));
+
 		if (getCategoryId().equals(StickerManager.RECENT))
 		{
+			stickerSet = loadRecentsFromDb();
 			if(stickerSet.isEmpty())
 			{
 				addDefaultRecentSticker();
@@ -114,69 +111,12 @@ public class CustomStickerCategory extends StickerCategory
 					stickerSet.addAll(forcedRecentStickers);
 				}
 			}
-
 		}
 	}
 
-	/***
-	 * 
-	 * @param catId
-	 * @return
-	 * 
-	 *         This function can return null if file doesnot exist.
-	 */
-	public Set<Sticker> getSortedListForCategory(String catId, String dirPath)
+	public Set<Sticker> loadRecentsFromDb()
 	{
-		Set<Sticker> list = null;
-		FileInputStream fileIn = null;
-		ObjectInputStream in = null;
-		try
-		{
-			long t1 = System.currentTimeMillis();
-			Logger.d(TAG, "Calling function get sorted list for category : " + catId);
-			File dir = new File(dirPath);
-			if (!dir.exists())
-			{
-				dir.mkdirs();
-				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-			}
-			File catFile = new File(dirPath, catId + ".bin");
-			if (!catFile.exists())
-				return Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-			fileIn = new FileInputStream(catFile);
-			in = new ObjectInputStream(fileIn);
-			int size = in.readInt();
-			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(size));
-			for (int i = 0; i < size; i++)
-			{
-				try
-				{
-					Sticker s = new Sticker();
-					s.deSerializeObj(in);
-					File f = new File(s.getSmallStickerPath());
-					if(f.exists())
-					{
-						list.add(s);
-					}
-				}
-				catch (Exception e)
-				{
-					Logger.e(TAG, "Exception while deserializing sticker", e);
-				}
-			}
-			long t2 = System.currentTimeMillis();
-			Logger.d(TAG, "Time in ms to get sticker list of category : " + catId + " from file :" + (t2 - t1));
-		}
-		catch (Exception e)
-		{
-			Logger.e(TAG, "Exception while reading category file.", e);
-			list = Collections.synchronizedSet(new LinkedHashSet<Sticker>(getMaxStickerCount()));
-		}
-		finally
-		{
-			Utils.closeStreams(in, fileIn);
-		}
-		return list;
+		return HikeConversationsDatabase.getInstance().getRecentStickers();
 	}
 
 	public void addDefaultRecentSticker()
