@@ -388,10 +388,8 @@ public class StickerManager
 
 		doUpgradeTasks();
 
-		fetchCategorRanksTask();
-
-		refreshPacksData();
-	}
+		initiateFetchCategoryRanksAndDataTask();
+}
 
 	public void fetchCategoryMetadataTask(List<StickerCategory> list)
 	{
@@ -402,13 +400,24 @@ public class StickerManager
 		}
 	}
 
-	public void fetchCategorRanksTask()
+	public void initiateFetchCategoryRanksAndDataTask()
 	{
-		if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
-			FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask();
-			fetchCategoryRanksTask.execute();
-		}
+			@Override
+			public void run()
+			{
+				if ((System.currentTimeMillis() - HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATE_SHOP_RANK_TIMESTAMP, 0L)) > HikeConstants.ONE_DAY_MILLS)
+				{
+					FetchCategoryRanksTask fetchCategoryRanksTask = new FetchCategoryRanksTask();
+					fetchCategoryRanksTask.execute();
+				}
+				else
+				{
+					refreshPacksData();
+				}
+			}
+		});
 	}
 
     public void fetchCategoryTagdataTask(List<CategoryTagData> list)
@@ -2233,7 +2242,7 @@ public class StickerManager
 		HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF).saveData(StickerSearchConstants.DEFAULT_KEYBOARD_LANGUAGE_ISO_CODE, false);
 		StickerManager.getInstance().downloadStickerTagData();
 		StickerManager.getInstance().downloadDefaultTagsFirstTime(true);
-		fetchCategorRanksTask();
+		initiateFetchCategoryRanksAndDataTask();
 	}
 
 	public void logStickerButtonPressAnalytics()
@@ -3374,22 +3383,16 @@ public class StickerManager
 		return showLastCategory;
 	}
 
-	public void refreshPacksData()
+	private void refreshPacksData()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
 		{
 			Logger.v(TAG, "already updated all categories data true");
 			return;
 		}
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				StickerCategoryDataUpdateTask stickerCategoryDataUpdateTask = new StickerCategoryDataUpdateTask();
-				stickerCategoryDataUpdateTask.run();
-			}
-		});
+		StickerCategoryDataUpdateTask stickerCategoryDataUpdateTask = new StickerCategoryDataUpdateTask();
+		HikeHandlerUtil.getInstance().postRunnable(stickerCategoryDataUpdateTask);
 	}
 
 	public void saveInTableStickerSet(Sticker sticker)

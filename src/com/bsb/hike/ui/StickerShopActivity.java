@@ -52,7 +52,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
         showShopFragment();
         setupActionBar();
         showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STICKER_SHOP.ordinal());
-        StickerManager.getInstance().refreshPacksData();
+        StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
     }
 
     private void setupShopFragment(Bundle savedInstanceState)
