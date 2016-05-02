@@ -4175,4 +4175,6 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
 }
