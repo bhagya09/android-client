@@ -9,11 +9,21 @@
         android:id="@+id/empty_search_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="36dp"
         android:gravity="center"
         android:maxWidth="220dp"
-        android:text="@string/failed_search"
+        android:text="Your search for did not match any contacts"
         android:textColor="@color/gray"
         android:textSize="18sp" />
+
+    <com.bsb.hike.view.CustomFontTextView
+        android:id="@+id/search_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textColor="#3d475b"
+        android:visibility="gone"
+        android:textSize="12sp" />
 
 </LinearLayout>

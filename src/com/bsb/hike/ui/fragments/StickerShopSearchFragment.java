@@ -4,14 +4,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.support.v7.widget.SearchView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerShopSearchAdapter;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
@@ -21,6 +27,7 @@ import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.view.CustomFontTextView;
 
 public class StickerShopSearchFragment extends StickerShopBaseFragment implements OnScrollListener, SearchView.OnQueryTextListener, CategorySearchListener,
 		AdapterView.OnItemClickListener
@@ -34,6 +41,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
     private StickerShopSearchAdapter mAdapter;
 
+    private CustomFontTextView searchFailedMessageView;
+
+    private CustomFontTextView searchTip;
+
 	public StickerShopSearchFragment()
 	{
 		super();
@@ -43,6 +54,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void doInitialSetup()
 	{
+        searchTip = (CustomFontTextView) searchFailedState.findViewById(R.id.search_hint);
+        searchTip.setVisibility(View.VISIBLE);
+        searchTip.setText(R.string.pack_search_again_hint);
+        searchFailedMessageView = (CustomFontTextView) searchFailedState.findViewById(R.id.empty_search_txt);
         initAdapterAndList();
         HikeMessengerApp.getPubSub().addListeners(StickerShopSearchFragment.this, pubSubListeners);
         registerListener();
@@ -120,6 +135,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onNoCategoriesFound(String query)
 	{
+        setSearchEmptyState(query);
         searchFailedState.setVisibility(View.VISIBLE);
 	}
 
@@ -167,5 +183,23 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
     {
         searchWatcher.releaseResources();
     }
+
+	private void setSearchEmptyState(String query)
+	{
+		String emptyText = String.format(getActivity().getString(R.string.no_sticker_pack_match_found), query);
+		if (!TextUtils.isEmpty(query))
+		{
+			SpannableString spanEmptyText = new SpannableString(emptyText);
+			String darkText = "'" + query + "'";
+			int start = spanEmptyText.toString().indexOf(darkText);
+			int end = start + darkText.length();
+			spanEmptyText.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.standard_light_grey2)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			searchFailedMessageView.setText(spanEmptyText, TextView.BufferType.SPANNABLE);
+		}
+		else
+		{
+			searchFailedMessageView.setText(emptyText);
+		}
+	}
 
 }

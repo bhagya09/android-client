@@ -5,7 +5,7 @@
     <item
         android:id="@+id/shop_search"
         app:showAsAction="always"
-        android:title="@string/shop_search"
+        android:title="@string/shop_search_hint"
         android:visible="false"
         app:actionLayout="@layout/shop_search_layout"/>
 
