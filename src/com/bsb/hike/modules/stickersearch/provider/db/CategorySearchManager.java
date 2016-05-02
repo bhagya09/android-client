@@ -174,7 +174,11 @@ public enum CategorySearchManager
 
 	public void loadCategoriesForShopSearch()
 	{
-		mCacheForSearchedCategories.putAll(HikeConversationsDatabase.getInstance().getCategoriesForShopSearch());
+		Map<Integer, StickerCategory> loadMap = HikeConversationsDatabase.getInstance().getCategoriesForShopSearch();
+		if (loadMap != null)
+		{
+			mCacheForSearchedCategories.putAll(loadMap);
+		}
 	}
 
 	public StickerCategory getSearchedCategoriesFromCache(int ucid)

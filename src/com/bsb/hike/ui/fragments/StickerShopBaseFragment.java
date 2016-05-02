@@ -27,51 +27,51 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
+import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.StickerManager;
 
 public abstract class StickerShopBaseFragment extends Fragment implements Listener
 {
-    protected String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE};
+	protected String[] pubSubListeners = { HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE };
 
-    protected StickerOtherIconLoader stickerOtherIconLoader;
+	protected StickerOtherIconLoader stickerOtherIconLoader;
 
-    protected ListView listview;
+	protected ListView listview;
 
-    protected int previousFirstVisibleItem;
+	protected int previousFirstVisibleItem;
 
-    protected int velocity;
+	protected int velocity;
 
-    protected long previousEventTime;
-	
+	protected long previousEventTime;
+
 	protected Map<String, StickerCategory> stickerCategoriesMap;
 
-    protected final int NOT_DOWNLOADING = 0;
+	protected final int NOT_DOWNLOADING = 0;
 
-    protected final int DOWNLOADING = 1;
+	protected final int DOWNLOADING = 1;
 
-    protected final int DOWNLOAD_FAILED = 2;
+	protected final int DOWNLOAD_FAILED = 2;
 
-    protected int downloadState = NOT_DOWNLOADING;
-	
-	View loadingFooterView, downloadFailedFooterView, loadingEmptyState, loadingFailedEmptyState,searchFailedState;
-	
+	protected int downloadState = NOT_DOWNLOADING;
+
+	View loadingFooterView, downloadFailedFooterView, loadingEmptyState, loadingFailedEmptyState, searchFailedState;
+
 	TextView loadingFailedEmptyStateMainText, loadingFailedEmptyStateSubText;
 
-    protected int currentCategoriesCount;
+	protected int currentCategoriesCount;
 
 	private static final String TAG = StickerShopBaseFragment.class.getSimpleName();
 
-    protected View headerView;
+	protected View headerView;
 
-    @Override
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View parent = inflater.inflate(R.layout.sticker_shop, null);
 		loadingEmptyState = parent.findViewById(R.id.loading_data);
 		loadingFailedEmptyState = parent.findViewById(R.id.loading_failed);
-        searchFailedState = parent.findViewById(R.id.search_failed);
-
+		searchFailedState = parent.findViewById(R.id.search_failed);
 		return parent;
 	}
 
@@ -79,26 +79,25 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		if(StickerManager.getInstance().stickerShopUpdateNeeded())
+		if (StickerManager.getInstance().stickerShopUpdateNeeded())
 		{
 			HikeConversationsDatabase.getInstance().clearStickerShop();
 		}
 
-        doInitialSetup();
+		doInitialSetup();
 	}
 
 	protected abstract void doInitialSetup();
 
-    protected abstract void notifyAdapter();
+	protected abstract void notifyAdapter();
 
-    protected abstract void reloadAdapter();
+	protected abstract void reloadAdapter();
 
-    protected abstract StickerOtherIconLoader getStickerPreviewLoader();
+	protected abstract StickerOtherIconLoader getStickerPreviewLoader();
 
 	@Override
 	public void onDestroy()
 	{
-		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		unregisterListeners();
 		super.onDestroy();
 	}
@@ -109,7 +108,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		super.onPause();
 		if (getStickerPreviewLoader() != null)
 		{
-            getStickerPreviewLoader().setExitTasksEarly(true);
+			getStickerPreviewLoader().setExitTasksEarly(true);
 		}
 	}
 
@@ -119,9 +118,9 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		super.onResume();
 		if (getStickerPreviewLoader() != null)
 		{
-            getStickerPreviewLoader().setExitTasksEarly(false);
+			getStickerPreviewLoader().setExitTasksEarly(false);
 		}
-        notifyAdapter();
+		notifyAdapter();
 	}
 
 	@Override
@@ -129,7 +128,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	{
 		if (HikePubSub.STICKER_CATEGORY_MAP_UPDATED.equals(type))
 		{
-			if(!isAdded())
+			if (!isAdded())
 			{
 				return;
 			}
@@ -144,16 +143,16 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				}
 			});
 		}
-		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
+		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
 			JSONArray resultData = (JSONArray) object;
-			if(resultData.length() == 0)
+			if (resultData.length() == 0)
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
 			}
 			else
 			{
-                //TODO we should also update stickerCategoriesMap in StickerManager from here as well
+				// TODO we should also update stickerCategoriesMap in StickerManager from here as well
 				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData, true);
 			}
 			if (!isAdded())
@@ -166,7 +165,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				@Override
 				public void run()
 				{
-					if(currentCategoriesCount == 0)
+					if (currentCategoriesCount == 0)
 					{
 						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
 					}
@@ -174,17 +173,17 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					listview.removeFooterView(loadingFooterView);
 					loadingEmptyState.setVisibility(View.GONE);
 					loadingFailedEmptyState.setVisibility(View.GONE);
-                    searchFailedState.setVisibility(View.GONE);
-                    reloadAdapter();
+					searchFailedState.setVisibility(View.GONE);
+					reloadAdapter();
 					downloadState = NOT_DOWNLOADING;
 				}
 			});
 		}
-		else if(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
+		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE.equals(type))
 		{
 			final HttpException exception = (HttpException) object;
-			
-			//footerView.setVisibility(View.GONE);
+
+			// footerView.setVisibility(View.GONE);
 			if (!isAdded())
 			{
 				return;
@@ -196,18 +195,18 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				public void run()
 				{
 					downloadState = DOWNLOAD_FAILED;
-					if(currentCategoriesCount == 0)
+					if (currentCategoriesCount == 0)
 					{
 						loadingEmptyState.setVisibility(View.GONE);
-                        searchFailedState.setVisibility(View.GONE);
+						searchFailedState.setVisibility(View.GONE);
 						loadingFailedEmptyState.setVisibility(View.VISIBLE);
-						
+
 						if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_OUT_OF_SPACE)
 						{
 							loadingFailedEmptyStateMainText.setText(R.string.shop_download_failed_out_of_space);
 							loadingFailedEmptyStateSubText.setVisibility(View.GONE);
 						}
-						else if(exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+						else if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 						{
 							loadingFailedEmptyStateMainText.setText(R.string.shop_loading_failed_no_internet);
 							loadingFailedEmptyStateSubText.setVisibility(View.VISIBLE);
@@ -230,11 +229,11 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 						{
 							failedText.setText(R.string.shop_download_failed_out_of_space);
 						}
-						else if(exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+						else if (exception != null && exception.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 						{
 							failedText.setText(R.string.shop_loading_failed_no_internet);
 						}
-						
+
 						else
 						{
 							failedText.setText(R.string.shop_download_failed);
@@ -251,7 +250,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			if(!isAdded())
+			if (!isAdded())
 			{
 				return;
 			}
@@ -281,7 +280,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					return;
 				}
 			}
-			else if(intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
+			else if (intent.getAction().equals(StickerManager.STICKER_PREVIEW_DOWNLOADED))
 			{
 				notifyAdapter();
 			}
@@ -291,7 +290,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 				final String categoryId = (String) b.getSerializable(StickerManager.CATEGORY_ID);
 				final DownloadType type = (DownloadType) b.getSerializable(StickerManager.STICKER_DOWNLOAD_TYPE);
 				final StickerCategory category = stickerCategoriesMap.get(categoryId);
-				final boolean failedDueToLargeFile =b.getBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE);
+				final boolean failedDueToLargeFile = b.getBoolean(StickerManager.STICKER_DOWNLOAD_FAILED_FILE_TOO_LARGE);
 				if (category == null)
 				{
 					return;
@@ -305,7 +304,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 						@Override
 						public void run()
 						{
-							if(failedDueToLargeFile)
+							if (failedDueToLargeFile)
 							{
 								Toast.makeText(getActivity(), R.string.out_of_space, Toast.LENGTH_SHORT).show();
 							}
@@ -345,7 +344,7 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver, filter);
 
 	}
-	
+
 	public void unregisterListeners()
 	{
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
