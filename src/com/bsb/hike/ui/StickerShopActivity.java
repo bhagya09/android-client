@@ -238,9 +238,9 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 	private void setupSearchFTUE()
 	{
 
-		int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+		int searchFtueShowRemainingCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
 
-		if (!Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()) && searchFtueShownCount > 0)
+		if (!Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()) && searchFtueShowRemainingCount > 0)
 		{
 			shopSearchMenuItem.setEnabled(false);
 			shopSearchMenuItem.setVisible(false);
@@ -248,7 +248,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		}
 
 		final ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
-		if (searchFtueShownCount <= 0)
+		if (searchFtueShowRemainingCount <= 0)
 		{
 			searchIcon.setVisibility(View.GONE);
 			searchLayout.removeView(searchIcon);
@@ -256,7 +256,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
-		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, --searchFtueShownCount);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, --searchFtueShowRemainingCount);
 
 		searchIcon.setImageResource(R.drawable.ic_top_bar_search);
 		searchIcon.setOnClickListener(new View.OnClickListener()
