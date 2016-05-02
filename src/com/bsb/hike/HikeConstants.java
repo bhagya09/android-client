@@ -77,6 +77,8 @@ public class HikeConstants
 
 	public static final String METADATA = "md";
 
+	public static final String SPECIES = "s";
+
 	public static final String METADATA_DND = "dnd";
 
 	public static final String ANALYTICS_EVENT = "ae";
