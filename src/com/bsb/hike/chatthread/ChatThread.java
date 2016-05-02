@@ -6755,9 +6755,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 
 		if(mConversation.isMuted())
 		{
-			Intent intent = new Intent();
-			intent.putExtra(HikeConstants.MSISDN, mConversation.getMute().getMsisdn());
-			intent.putExtra(HikeConstants.MUTE_NOTIF, mConversation.shouldShowNotifInMute());
+			Intent intent = IntentFactory.getIntentForMuteAlarm(mConversation);
 			HikeAlarmManager.setAlarmwithIntentPersistance(activity.getApplicationContext(), mConversation.getMute().getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
 		}
 

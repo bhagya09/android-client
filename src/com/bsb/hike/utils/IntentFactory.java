@@ -35,6 +35,7 @@ import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.ConvInfo;
+import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
@@ -1608,5 +1609,13 @@ public class IntentFactory
 			storageSpecIntent.putExtra(HikeConstants.SPACE_MANAGER.DIRECTORY_PATH, dirPath);
 		}
 		hikeAppContext.startService(storageSpecIntent);
+	}
+
+	public static Intent getIntentForMuteAlarm(Conversation mConversation)
+	{
+		Intent intent = new Intent();
+		intent.putExtra(HikeConstants.MSISDN, mConversation.getMute().getMsisdn());
+		intent.putExtra(HikeConstants.MUTE_NOTIF, mConversation.shouldShowNotifInMute());
+		return intent;
 	}
 }
