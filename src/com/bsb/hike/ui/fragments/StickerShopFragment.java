@@ -58,6 +58,8 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 
     StickerShopAdapter mAdapter;
 
+    private int FIRST_PACK_VIEW_ROW_NUMBER = 1;
+
 
     @Override
     public void doInitialSetup()
@@ -222,12 +224,12 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
-        if(position <= 0 || position > mAdapter.getCount())
+        if(position < FIRST_PACK_VIEW_ROW_NUMBER || position > mAdapter.getCount())
         {
             Logger.d(TAG, "position is less than 0. wrong item clicked");
             return ;
         }
-        String categoryId = mAdapter.getItem(position - 1);
+        String categoryId = mAdapter.getItem(position - FIRST_PACK_VIEW_ROW_NUMBER);
         IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
         mAdapter.setShownPackPreviewFtue();
     }
@@ -260,10 +262,12 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
         if(visible)
         {
             listview.addHeaderView(headerView);
+            FIRST_PACK_VIEW_ROW_NUMBER = 1;
         }
         else
         {
             listview.removeHeaderView(headerView);
+            FIRST_PACK_VIEW_ROW_NUMBER = 0;
         }
     }
 
