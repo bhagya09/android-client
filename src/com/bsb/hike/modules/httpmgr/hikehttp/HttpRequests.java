@@ -1154,19 +1154,23 @@ public class HttpRequests
 	{
 		RequestToken requestToken = null;
 
-		if (msisdn != null) {
+		if (!TextUtils.isEmpty(msisdn))
+		{
+			if(msisdn.contains("+"))
+			{
+				msisdn = msisdn.substring(1);
+			}
+
 			String url = HttpRequestConstants.getUrlForFetchingUnknownChatUserInfo() + "?msisdn=" + msisdn;
-			if(!newRow)// we need info only about spam count
+			if (!newRow)// we need info only about spam count
 			{
 				int spaminfo = newRow == true ? 1 : 0;
 				url = url + "&spaminfo=" + spaminfo;
 			}
-			requestToken = new JSONObjectRequest.Builder()
-					.setUrl(url)
-					.setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
-					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT)
-					.get()
-					.build();
+			
+			Logger.d("c_spam", "The url is --------> " + url);
+			requestToken = new JSONObjectRequest.Builder().setUrl(url).setRetryPolicy(new BasicRetryPolicy(noOfRetry, retryDelay, backOffMultiplier))
+					.setRequestListener(requestListener).setRequestType(REQUEST_TYPE_SHORT).get().build();
 		}
 
 		return requestToken;
