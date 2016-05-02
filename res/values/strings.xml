@@ -1587,4 +1587,7 @@
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
     <string name="stream_volume_muted_or_low">Please turn up the volume</string>
+    <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
+    <string name="sticker_restore_diffdpi_message">Looks like you have upgraded your phone. You will need to upgrade your sticker packs to support your new phone</string>
+    <string name="GOT_IT">GOT IT</string>
 </resources>
