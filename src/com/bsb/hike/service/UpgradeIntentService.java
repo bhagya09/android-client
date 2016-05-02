@@ -132,7 +132,7 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
-		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1) == 1) {
+		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 0) == 1) {
 			MigrateBlockTableToUserTable migrateBlockTableToUserTable = new MigrateBlockTableToUserTable();
 			try {
 				boolean result = migrateBlockTableToUserTable.call();
