@@ -197,12 +197,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 					downloadState = DOWNLOAD_FAILED;
 					if(currentCategoriesCount == 0)
 					{
-                        if (getActivity() instanceof StickerShopActivity)
-                        {
-                            ((StickerShopActivity) getActivity()).disableShopSearch();
-                        }
-
-
                         loadingEmptyState.setVisibility(View.GONE);
                         searchFailedState.setVisibility(View.GONE);
 						loadingFailedEmptyState.setVisibility(View.VISIBLE);

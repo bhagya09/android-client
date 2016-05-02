@@ -240,6 +240,14 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 	{
 
 		int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+
+        if(!Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()) && searchFtueShownCount>0)
+        {
+            shopSearchMenuItem.setEnabled(false);
+            shopSearchMenuItem.setVisible(false);
+            return;
+        }
+
         final ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
 		if (searchFtueShownCount <= 0)
 		{
@@ -321,18 +329,4 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		super.onDestroy();
 	}
 
-	public void disableShopSearch()
-	{
-		shopSearchMenuItem.setEnabled(false);
-		shopSearchMenuItem.setIcon(R.drawable.ic_top_bar_search_disabled);
-		ImageView searchIcon = (ImageView) searchLayout.findViewById(R.id.icon);
-		if (searchIcon != null && searchIcon.getVisibility() == View.VISIBLE)
-		{
-			searchIcon.setEnabled(false);
-			searchIcon.setAnimation(null);
-            searchIcon.setImageResource(R.drawable.ic_top_bar_search_disabled);
-            int searchFtueShownCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, ++searchFtueShownCount);
-		}
-	}
 }

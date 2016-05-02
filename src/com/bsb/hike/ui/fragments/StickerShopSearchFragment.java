@@ -27,6 +27,7 @@ import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontTextView;
 
 public class StickerShopSearchFragment extends StickerShopBaseFragment implements OnScrollListener, SearchView.OnQueryTextListener, CategorySearchListener,
@@ -121,18 +122,47 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onSearchCompleted(List<StickerCategory> categories)
 	{
-        loadingEmptyState.setVisibility(View.GONE);
-        searchFailedState.setVisibility(View.GONE);
-        listview.setVisibility(View.VISIBLE);
-        mAdapter.updateSearchresult(categories);
+		if (getActivity() != null)
+		{
+			if (Utils.isUserOnline(getActivity()))
+			{
+				loadingEmptyState.setVisibility(View.GONE);
+				searchFailedState.setVisibility(View.GONE);
+				listview.setVisibility(View.VISIBLE);
+				mAdapter.updateSearchresult(categories);
+			}
+			else
+			{
+				showNoInternetConnectionState();
+			}
+		}
 	}
 
 	@Override
 	public void onNoCategoriesFound(String query)
 	{
-        setSearchEmptyState(query);
-        searchFailedState.setVisibility(View.VISIBLE);
+		if (getActivity() != null)
+		{
+			if (Utils.isUserOnline(getActivity()))
+			{
+				setSearchEmptyState(query);
+				searchFailedState.setVisibility(View.VISIBLE);
+			}
+			else
+			{
+				showNoInternetConnectionState();
+			}
+		}
+
 	}
+
+    private void showNoInternetConnectionState()
+    {
+        loadingEmptyState.setVisibility(View.GONE);
+        searchFailedState.setVisibility(View.GONE);
+        listview.setVisibility(View.GONE);
+        loadingFailedEmptyState.setVisibility(View.VISIBLE);
+    }
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
