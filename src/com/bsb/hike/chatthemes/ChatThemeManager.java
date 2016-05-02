@@ -241,7 +241,7 @@ public class ChatThemeManager
 		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
 	}
 
-	public void downloadAssetIds(String[] themeIds)
+	public void downloadThemeAssetsMetadata(String[] themeIds)
 	{
 		ArrayList<String> downloadThemeIds = new ArrayList<String>();
 		for(String themeId : themeIds)
