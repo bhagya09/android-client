@@ -2607,7 +2607,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
 				if (callerContentModel.getCallerMetadata() != null)
 				{
-					String spamCoutString = String.format(context.getString(R.string.unknown_user_spam_info), callerContentModel.getCallerMetadata().getChatSpamCountJson());
+					String spamCoutString = context.getString(R.string.unknown_user_spam_info, callerContentModel.getCallerMetadata().getChatSpamCount());
+					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() +" and text is " + spamCoutString);
 					if (!TextUtils.isEmpty(spamCoutString))
 					{
 						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);

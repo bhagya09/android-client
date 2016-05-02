@@ -51,7 +51,7 @@ public class CallerMetadata {
         jsonObject.put(HikeConstants.CHAT_SPAM_COUNT, count);
     }
 
-    public int getChatSpamCountJson() throws JSONException
+    public int getChatSpamCount() throws JSONException
     {
         return jsonObject.optInt(HikeConstants.CHAT_SPAM_COUNT);
     }

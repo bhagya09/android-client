@@ -1137,7 +1137,7 @@ public class ChatHeadUtils
 				}
 
 				CallerMetadata md = new CallerMetadata(null);
-				md.setIsUserSpammedByYou(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
+				md.setIsUserSpammedByYou(result.optBoolean(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU) == true ? 1 : 0);
 				md.setChatSpamCount(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
 				callerContentModel.setCallerMetadata(md);
 			}
