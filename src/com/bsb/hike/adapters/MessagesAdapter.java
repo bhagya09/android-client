@@ -4089,6 +4089,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 				registerPoximitySensor();
 				registerHeadSetReceiver();
+
+				informUserIfVolumeLowOrMuted();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4110,6 +4112,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if(!doesFileExist) {
 					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
 				}
+			}
+		}
+
+		public void informUserIfVolumeLowOrMuted() {
+			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
+			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
+			int currentVol = audioManager.getStreamVolume(audioManager.getMode());
+			if(currentVol == 0){
+				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
 		}
 
