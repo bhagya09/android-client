@@ -243,6 +243,9 @@ import com.bsb.hike.ui.WelcomeActivity;
 import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import android.app.Dialog;
 
 public class Utils
 {
@@ -8692,6 +8695,58 @@ public class Utils
 				rootDir.renameTo(mFile);
 			}
 		}
+	}
+
+	/**
+	 * Taken from https://github.com/googlesamples/google-services/blob/master/android/gcm/app/src/main/java/gcm/play/android/samples/com/gcmquickstart/MainActivity.java
+	 *
+	 * @return true : If Play Services are available on the device
+	 */
+	public static boolean checkAndShowPlayServicesErrorDialog(final Activity activity)
+	{
+		int resultCode = getPlayServicesAvailableCode(activity.getApplicationContext());
+
+		if (resultCode != ConnectionResult.SUCCESS)
+		{
+			if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+			{
+				int requestCode = 10; //Magic Number
+				Dialog errorDialog = GoogleApiAvailability.getInstance()
+						.getErrorDialog(activity, resultCode, requestCode);
+				errorDialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+				{
+					@Override
+					public void onDismiss(DialogInterface dialog)
+					{
+						activity.finish();
+					}
+				});
+				errorDialog.show();
+			}
+			else
+			{
+				Logger.wtf(TAG, "This device is not supported.");
+				activity.finish();
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Can return any of the following :
+	 * SUCCESS, SERVICE_MISSING, SERVICE_VERSION_UPDATE_REQUIRED, SERVICE_DISABLED, SERVICE_INVALID
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getPlayServicesAvailableCode(Context context)
+	{
+		int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+		Logger.d(TAG, "Is PlayService Available ? : " + resultCode);
+		return resultCode;
 	}
 }
 
