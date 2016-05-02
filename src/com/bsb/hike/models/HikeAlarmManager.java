@@ -344,7 +344,7 @@ public class HikeAlarmManager
 			ChatHeadUtils.syncAllCallerBlockedContacts();
 			break;
 		case HikeAlarmManager.REQUESTCODE_FETCH_PACK_ORDER:
-			StickerManager.getInstance().fetchCategorRanksTask();
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
 			break;
 		case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();

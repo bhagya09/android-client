@@ -1265,7 +1265,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			showOverflowMenu();
 			break;
 		case R.id.sticker_btn:
-			StickerManager.getInstance().fetchCategorRanksTask();
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
 			stickerClicked();
 			break;
 		case R.id.emoticon_btn:

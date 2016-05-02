@@ -118,7 +118,7 @@ public class FetchCategoryRanksTask implements IHikeHTTPTask, IHikeHttpTaskResul
 	public void doOnSuccess(Object result)
 	{
 		setAlarmForFetchOrder();
-		StickerManager.getInstance().refreshPacksData();
+		StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
 	}
 
 	private void setAlarmForFetchOrder()
