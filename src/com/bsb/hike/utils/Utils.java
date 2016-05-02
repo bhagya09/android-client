@@ -6476,7 +6476,7 @@ public class Utils
 
 	private static void recordBlockedNetworkState(JSONObject data)
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		if (data == null || data.length() == 0 || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, false))
 		{
 			return;
 		}
