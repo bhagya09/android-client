@@ -3037,7 +3037,7 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
 		{
-			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN, HikeConstants.DEFAULT_ACTIVITY_OPEN);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
 		}
 
@@ -3050,6 +3050,11 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED);
+			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
