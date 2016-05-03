@@ -199,17 +199,22 @@ public class AtomicTipManager
             return;
         }
 
-        //saving model in DB
-        mHandler.sendMessage(getMessage(SAVE_TIP_TO_DB, tipContentModel));
-
         //processing icon base64 string
-        createAndCacheIcon(tipContentModel);
+        if(!createAndCacheIcon(tipContentModel))
+        {
+            Logger.d(TAG, "unable to create icon for atomic tip. aborting");
+            return;
+        }
 
         //checking and processing if background also has base64 string
-        if(!tipContentModel.isBgColor())
+        if(!processTipBg(tipContentModel))
         {
-            createAndCacheBgImage(tipContentModel);
+            Logger.d(TAG, "Failure in processing tip bg. aborting");
+            return;
         }
+
+        //saving model in DB
+        mHandler.sendMessage(getMessage(SAVE_TIP_TO_DB, tipContentModel));
 
         //adding model to tips list and refreshing list
         mHandler.sendMessage(getMessage(ADD_TIP_TO_LIST, tipContentModel));
@@ -299,21 +304,20 @@ public class AtomicTipManager
      * @param tipContentModel
      * @return
      */
-    public BitmapDrawable createAndCacheIcon(AtomicTipContentModel tipContentModel)
+    private boolean createAndCacheIcon(AtomicTipContentModel tipContentModel)
     {
-        Logger.d(TAG, "creating icon for atomic tip from base64");
-        BitmapDrawable iconDrawable = HikeBitmapFactory.stringToDrawable(tipContentModel.getIcon());
+        BitmapDrawable iconDrawable = drawableFromString(tipContentModel.getIcon());
         if(iconDrawable != null)
         {
             Logger.d(TAG, "caching atomic tip icon");
-            HikeMessengerApp.getLruCache().put(tipContentModel.getIconKey(), iconDrawable);
+            cacheTipAsset(tipContentModel.getIconKey(), iconDrawable);
+            return true;
         }
         else
         {
-            Logger.d(TAG, "Unable to create image from icon string. Returning ic_error");
-            iconDrawable = (BitmapDrawable) HikeMessengerApp.getInstance().getApplicationContext().getResources().getDrawable(R.drawable.ic_error);
+            Logger.d(TAG, "Unable to create image from icon string");
+            return false;
         }
-        return iconDrawable;
     }
 
     /**
@@ -321,19 +325,67 @@ public class AtomicTipManager
      * @param tipContentModel
      * @return
      */
-    public BitmapDrawable createAndCacheBgImage(AtomicTipContentModel tipContentModel)
+    private boolean createAndCacheBgImage(AtomicTipContentModel tipContentModel)
     {
-        Logger.d(TAG, "creating background image for atomic tip from base64");
-        BitmapDrawable bgImageDrawable = HikeBitmapFactory.stringToDrawable(tipContentModel.getBgImage());
+        BitmapDrawable bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
         if(bgImageDrawable != null)
         {
-            HikeMessengerApp.getLruCache().put(tipContentModel.getBgImgKey(), bgImageDrawable);
+            cacheTipAsset(tipContentModel.getBgImgKey(), bgImageDrawable);
+            return true;
         }
         else
         {
-            Logger.d(TAG, "Failed to create image from base64. will use default color as atomic tip background");
+            Logger.d(TAG, "Failed to create background image from base64");
+            return false;
         }
-        return bgImageDrawable;
+    }
+
+    /**
+     * Method to process atomic tip bg based on whether it is color or image
+     * @param tipContentModel
+     * @return
+     */
+    private boolean processTipBg(AtomicTipContentModel tipContentModel)
+    {
+        if(tipContentModel.isBgColor())
+        {
+            try
+            {
+                Color.parseColor(tipContentModel.getBgColor());
+            }
+            catch (IllegalArgumentException iae)
+            {
+                Logger.d(TAG, "bg color value seems to be wrong");
+                return false;
+            }
+
+            return true;
+        }
+        else
+        {
+            return createAndCacheBgImage(tipContentModel);
+        }
+    }
+
+    /**
+     * Method to convert base64 string into drawable using BitmapFactory method
+     * @param base64Txt
+     * @return
+     */
+    public BitmapDrawable drawableFromString(String base64Txt)
+    {
+        Logger.d(TAG, "creating icon for atomic tip from base64");
+        return HikeBitmapFactory.stringToDrawable(base64Txt);
+    }
+
+    /**
+     * Method to save drawable in LRU cache
+     * @param key
+     * @param tipDrawable
+     */
+    public void cacheTipAsset(String key, BitmapDrawable tipDrawable)
+    {
+        HikeMessengerApp.getLruCache().put(key, tipDrawable);
     }
 
     /**
@@ -480,24 +532,20 @@ public class AtomicTipManager
             if(bgDrawable == null)
             {
                 Logger.d(TAG, "didn't find atomic tip background image in cache. trying to recreate");
-                bgDrawable = createAndCacheBgImage(currentlyShowing);
+                bgDrawable = drawableFromString(currentlyShowing.getBgImage());
                 if(bgDrawable == null)
                 {
-                    Logger.d(TAG, "failed to create atomic tip bg image. setting default color as background");
-                    tipView.findViewById(R.id.all_content).setBackgroundColor(HikeMessengerApp.getInstance().getApplicationContext().getResources().getColor(DEFAULT_BG_COLOR));
+                    Logger.d(TAG, "failed to create atomic tip bg image. returning null");
+                    return null;
                 }
                 else
                 {
                     Logger.d(TAG, "setting image as atomic tip background");
-                    setAtomicTipBackground(tipView, bgDrawable);
+                    cacheTipAsset(currentlyShowing.getBgImgKey(), bgDrawable);
                 }
             }
-            else
-            {
-                Logger.d(TAG, "setting cached image as atomic tip backround");
-                setAtomicTipBackground(tipView, bgDrawable);
-            }
 
+            setAtomicTipBackground(tipView, bgDrawable);
         }
 
         Logger.d(TAG, "adding atomic tip icon");
@@ -505,10 +553,19 @@ public class AtomicTipManager
         if(tipIcon == null)
         {
             Logger.d(TAG, "didn't find atomic tip icon in cache. trying to recreate.");
-            tipIcon = createAndCacheIcon(currentlyShowing);
+            tipIcon = drawableFromString(currentlyShowing.getIcon());
+            if(tipIcon == null)
+            {
+                Logger.d(TAG, "creating tip icon from base64 failed.");
+                return null;
+            }
+            else
+            {
+                cacheTipAsset(currentlyShowing.getIconKey(), tipIcon);
+            }
         }
-        ((ImageView)tipView.findViewById(R.id.atomic_tip_icon)).setImageDrawable(tipIcon);
 
+        ((ImageView)tipView.findViewById(R.id.atomic_tip_icon)).setImageDrawable(tipIcon);
         ((TextView) tipView.findViewById(R.id.atomic_tip_header_text)).setText(currentlyShowing.getHeader());
         ((TextView) tipView.findViewById(R.id.atomic_tip_body_text)).setText(currentlyShowing.getBody());
         if(isTipCancellable())
