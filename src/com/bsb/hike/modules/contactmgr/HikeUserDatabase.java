@@ -2832,4 +2832,28 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		String dropTable=DBConstants.DROP_TABLE + DBConstants.FAVORITES_TABLE;
 		mDb.execSQL(dropTable);
 	}
+
+	/**
+	 * Function to get the hike Id of missing Msisdn from DB
+	 * @return
+     */
+	Set<String> getMsisdnsForMissingHikeUID() {
+		Cursor c = null;
+		Set<String> msisdns = new HashSet<>();
+		try {
+
+			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from " + DBConstants.USERS_TABLE + " where " + DBConstants.ONHIKE + "=1 AND " + DBConstants.HIKE_UID + "=''", null);
+
+
+			while (c.moveToNext()) {
+				msisdns.add(c.getString(c.getColumnIndex(DBConstants.MSISDN)));
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+
+		return msisdns;
+	}
 }
