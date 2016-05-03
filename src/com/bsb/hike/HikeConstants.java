@@ -3241,6 +3241,10 @@ public class HikeConstants
 
 	public static final String ADD_CATEGORY = "addCat";
 
+    public static final String ADDED_DATA = "add";
+
+    public static final String REMOVED_DATA = "rem";
+
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
 
 	/**

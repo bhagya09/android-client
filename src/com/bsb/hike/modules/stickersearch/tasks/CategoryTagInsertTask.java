@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.stickersearch.tasks;
 
+import android.text.TextUtils;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Map;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchDatabase;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.internal.Util;
 
@@ -19,6 +21,8 @@ import org.json.JSONObject;
 
 public class CategoryTagInsertTask implements Runnable
 {
+    private final String TAG = CategoryTagInsertTask.class.getSimpleName();
+
 	private Map<Integer, CategoryTagData> sourceCategoryData;
 
 	private JSONArray categoriesJSON;
@@ -46,15 +50,32 @@ public class CategoryTagInsertTask implements Runnable
 				CategoryTagData categoryTagData = sourceCategoryData.get(ucid);
 				if (categoryTagData == null)
 				{
+                    Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for null tag data");
 					continue;
 				}
 
-                categoryTagData.setName(categoryJSON.optString(HikeConstants.CAT_NAME));
+                String categoryName = categoryJSON.optString(HikeConstants.CAT_NAME);
+
+                if(TextUtils.isEmpty(categoryName))
+                {
+                    Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for empty pack name");
+                    continue;
+                }
+
+                categoryTagData.setName(categoryName.toLowerCase().trim());
 				categoryTagData.setCategoryLastUpdatedTime(categoryJSON.optLong(HikeConstants.TIMESTAMP));
 				categoryTagData.setGender(categoryJSON.optInt(HikeConstants.GENDER));
-                categoryTagData.setThemes(getModifiedFieldList(categoryTagData.getThemes(), categoryJSON.optJSONArray(HikeConstants.THEMES)));
-                categoryTagData.setLanguages(getModifiedFieldList(categoryTagData.getLanguages(), categoryJSON.optJSONArray(HikeConstants.LANGUAGES)));
-                categoryTagData.setKeywords(getModifiedFieldList(categoryTagData.getKeywords(), categoryJSON.optJSONArray(HikeConstants.TAGS)));
+
+
+                JSONObject addedData = categoryJSON.optJSONObject(HikeConstants.ADDED_DATA);
+                JSONObject removedData = categoryJSON.optJSONObject(HikeConstants.REMOVED_DATA);
+
+				categoryTagData.setThemes(getModifiedFieldList(categoryTagData.getThemes(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.THEMES),
+                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.THEMES)));
+                categoryTagData.setKeywords(getModifiedFieldList(categoryTagData.getKeywords(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.TAGS),
+                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.TAG)));
+                categoryTagData.setLanguages(getModifiedFieldList(categoryTagData.getLanguages(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.LANGUAGES),
+                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.LANGUAGES)));
 
                 result.add(categoryTagData);
 			}
@@ -68,63 +89,38 @@ public class CategoryTagInsertTask implements Runnable
 		HikeStickerSearchDatabase.getInstance().insertCategoryTagDataList(result);
 	}
 
-	private List<String> getModifiedFieldList(List<String> currentFieldList, JSONArray updatedInFieldList) throws JSONException
+	private List<String> getModifiedFieldList(List<String> currentFieldList, JSONArray addedFieldList, JSONArray removedFieldList) throws JSONException
 	{
-        if(Utils.isEmpty(currentFieldList))
-        {
-            currentFieldList = new ArrayList<String>() ;
-        }
+		if (Utils.isEmpty(currentFieldList))
+		{
+			currentFieldList = new ArrayList<String>();
+		}
 
-		Pair<List<String>, List<String>> segregatedFieldUpdates = getUpdatedPairs(updatedInFieldList);
-		if (!Utils.isEmpty(segregatedFieldUpdates.first))
+		if (!Utils.isEmpty(addedFieldList))
 		{
-			for (String activeField : segregatedFieldUpdates.first)
+			for (int i = 0; i < addedFieldList.length(); i++)
 			{
-				if (!currentFieldList.contains(activeField))
+				String activeField = addedFieldList.optString(i);
+				if (!TextUtils.isEmpty(activeField) && !currentFieldList.contains(activeField))
 				{
-					currentFieldList.add(activeField);
+					currentFieldList.add(activeField.toLowerCase().trim());
 				}
 			}
 		}
-		if (!Utils.isEmpty(segregatedFieldUpdates.second))
+
+		if (!Utils.isEmpty(removedFieldList) && !Utils.isEmpty(currentFieldList))
 		{
-			for (String inActiveField : segregatedFieldUpdates.second)
+			for (int i = 0; i < removedFieldList.length(); i++)
 			{
-				if (currentFieldList.contains(inActiveField))
+				String inActiveField = removedFieldList.optString(i);
+				if (!TextUtils.isEmpty(inActiveField) && currentFieldList.contains(inActiveField))
 				{
-					currentFieldList.remove(inActiveField);
+					currentFieldList.remove(inActiveField.toLowerCase().trim());
 				}
 			}
 		}
+
 		return currentFieldList;
-	}
-
-	private Pair<List<String>, List<String>> getUpdatedPairs(JSONArray fields) throws JSONException
-	{
-		List<String> active = new ArrayList<String>();
-		List<String> inactive = new ArrayList<String>();
-
-		for (int i = 0; i < fields.length(); i++)
-		{
-			JSONObject fieldObject = fields.getJSONObject(i);
-			Iterator<String> fieldIterator = fieldObject.keys();
-			if (fieldIterator.hasNext())
-			{
-				String field = fieldIterator.next();
-				boolean isActive = fieldObject.optInt(field, 1) == 1;
-				if (isActive)
-				{
-					active.add(field);
-				}
-				else
-				{
-					inactive.add(field);
-				}
-			}
-
-		}
-
-		return new Pair<List<String>, List<String>>(active, inactive);
 	}
 
 }
