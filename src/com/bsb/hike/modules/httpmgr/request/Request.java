@@ -157,6 +157,13 @@ public abstract class Request<T> implements IRequestFacade
 			setWrongRequestErrorCode(HttpException.REASON_CODE_WRONG_URL);
 			return;
 		}
+
+		if (gcmTaskConfig != null && !asynchronous)
+		{
+			setWrongRequest(true);
+			setWrongRequestErrorCode(HttpException.REASON_CODE_CAN_NOT_USE_GCM_TASK_FOR_SYNC_CALLS);
+			return;
+		}
 	}
 
 	private void setHostUris()
