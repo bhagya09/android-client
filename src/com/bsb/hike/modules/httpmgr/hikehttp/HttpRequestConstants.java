@@ -591,4 +591,9 @@ public class HttpRequestConstants
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
+
+	public static String editProfileNameBaseUrl()
+	{
+		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/name";
+	}
 }
