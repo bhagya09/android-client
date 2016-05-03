@@ -394,6 +394,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				
 			case R.string.sms_with_settings:
 			case R.string.sms:
+				recordSMSClick();
 				IntentFactory.openSettingSMS(this);
 				break;
 
@@ -402,6 +403,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.manage_account:
+				recordAccountClick();
 				IntentFactory.openSettingAccount(this);
 				break;
 
@@ -655,6 +657,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	{
 		recordPreferencesPageOpen("lng_stng");
 	}
+
+	private void recordAccountClick()
+	{
+		recordPreferencesPageOpen("account");
+	}
+
+	private void recordSMSClick()
+	{
+		recordPreferencesPageOpen("sms");
+	}
+
 
 	private void recordPreferencesPageOpen(String whichPage)
 	{

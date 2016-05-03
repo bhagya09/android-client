@@ -791,6 +791,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if (HikeConstants.BLOKED_LIST_PREF.equals(preference.getKey()))
 		{
+			recordBlockedListClickPref();
 			Intent intent = new Intent(HikePreferences.this, HikeListActivity.class);
 			intent.putExtra(HikeConstants.Extras.BLOCKED_LIST, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -2180,6 +2181,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void record128BitSSLSettingsChange(boolean newValue)
 	{
 		recordPreferencesAnalytics("ssl", newValue ? "on" : "off");
+	}
+
+	private void recordBlockedListClickPref()
+	{
+		recordPreferencesAnalytics("blocked", "");
 	}
 
 }
