@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -76,6 +78,10 @@ public class HikeConstants
 	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
+
+	public static final String SPECIES = "s";
+
+	public static final String VARIETY = "v";
 
 	public static final String METADATA_DND = "dnd";
 
@@ -282,10 +288,6 @@ public class HikeConstants
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
-
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -1955,6 +1957,8 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String PROFILE_DOB = "profile_dob";
+
     }
 
 	public static final class LogEvent
@@ -2172,9 +2176,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
@@ -2866,6 +2867,14 @@ public class HikeConstants
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
+
+		/**
+		 * VoIP custom error message.
+		 * The server will include the error text to display to the user.
+		 * Usage (15 Apr, 2016) - To let a user know if the person they are calling is on a
+		 * carrier that prohibits VoIP.
+		 */
+		public static final String VOIP_ERROR_CUSTOM_MESSAGE = "e4";
 
 		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
 
@@ -4100,7 +4109,8 @@ public class HikeConstants
 
 		public static final String KEY_SETTINGS = "settings";
 
-		public static final String KEY_SETTING = "setting";
+		public static final String KEY_MOVED_STICKER_EXTERNAL = "movdstckrext";
+
 	}
 
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
@@ -4162,4 +4172,12 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

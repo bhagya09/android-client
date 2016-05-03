@@ -4061,7 +4061,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		private float proximitySensorMaxRange;
 
-		private int initialAudioMode;
 
 		private HeadSetConnectionReceiver headsetReceiver;
 		IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
@@ -4070,7 +4069,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			handler = new Handler();
 			audioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
-			initialAudioMode = audioManager.getMode();
 			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
 			headsetReceiver = new HeadSetConnectionReceiver();
 			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -4092,13 +4090,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			try
 			{
-				audioManager.setMode(AudioManager.STREAM_MUSIC);
 				mediaPlayer = new MediaPlayer();
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
-				mediaPlayer.start();
+				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
+				mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+					@Override
+					public void onPrepared(MediaPlayer mediaPlayer) {
+						mediaPlayer.start();
 
-				setFileBtnResource();
+						setFileBtnResource();
+
+						handler.post(updateTimer);
+
+						registerPoximitySensor();
+						registerHeadSetReceiver();
+					}
+				});
 
 				mediaPlayer.setOnCompletionListener(new OnCompletionListener()
 				{
@@ -4108,10 +4116,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						resetPlayer();
 					}
 				});
-				handler.post(updateTimer);
-
-				registerPoximitySensor();
-				registerHeadSetReceiver();
+				informUserIfVolumeLowOrMuted();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4133,6 +4138,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if(!doesFileExist) {
 					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
 				}
+			}
+		}
+
+		public void informUserIfVolumeLowOrMuted() {
+			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
+			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
+			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			if(currentVol == 0){
+				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -4188,7 +4202,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			unregisterProximitySensor();
 			unregisterHeadserReceiver();
-			audioManager.setMode(initialAudioMode);
 		}
 
 		@Override
@@ -4236,12 +4249,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					int state = intent.getIntExtra("state", -1);
 					switch (state) {
 						case HEADSET_UNPLUGGED:
-							audioManager.setMode(AudioManager.STREAM_MUSIC);
 							audioManager.setSpeakerphoneOn(true);
 							registerPoximitySensor();
 							break;
 						case HEADSET_PLUGGED:
-							audioManager.setMode(AudioManager.USE_DEFAULT_STREAM_TYPE);
 							audioManager.setSpeakerphoneOn(false);
 							unregisterProximitySensor();
 							break;

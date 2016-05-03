@@ -46,6 +46,8 @@ public class FTAnalyticEvents
 
 	private static final String VIDEO_COMPRESSION = "videoCompression";
 
+	private static final String TIME_TO_COMPRESS_VIDEO = "videoCompTime";
+
 	private static final String QUICK_UPLOAD = "quickUpload";
 
 	private static final String QUICK_UPLOAD_STATUS = "quSt";
@@ -297,11 +299,15 @@ public class FTAnalyticEvents
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json while logging FT send status.", e);
 		}
 	}
-	
+
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState){
+		sendVideoCompressionEvent(inputRes, outRes, inputSize, outSize, compressedState, 0);
+	}
+
 	/*
 	 * Send an event for video compression
 	 */
-	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState)
+	public static void sendVideoCompressionEvent(String inputRes, String outRes, long inputSize, long outSize, int compressedState, long timeToCompress)
 	{
 		try
 		{
@@ -311,6 +317,7 @@ public class FTAnalyticEvents
 			metadata.put(VIDEO_INPUT_SIZE, inputSize);
 			metadata.put(VIDEO_OUTPUT_SIZE, outSize);
 			metadata.put(VIDEO_COMPRESS_STATE, compressedState);
+			if(compressedState != 0) metadata.put(TIME_TO_COMPRESS_VIDEO,timeToCompress);
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, VIDEO_COMPRESSION, EventPriority.HIGH, metadata, VIDEO_COMPRESSION);			
 		}
 		catch (JSONException e)

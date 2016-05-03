@@ -446,7 +446,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	private void addProfileImgInHeader()
 	{
 		// set profile picture
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		Drawable drawable = null;
+		// workaround for bug AND-461 , if msisdn is null we will show default avatar
+		if (contactInfo.getMsisdn() != null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		}
+
 		if (drawable == null)
 		{
 			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());

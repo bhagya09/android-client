@@ -1358,8 +1358,31 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken uploadUserSettings(IRequestListener requestListener,
-												  int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	public static RequestToken atomicTipRequestGet(String url, IRequestListener listener)
+	{
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener, boolean addHeader) {
+		JsonBody jsonBody = new JsonBody(payload);
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.post(jsonBody)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		if (addHeader) {
+			builder.addHeader(PlatformUtils.getHeaders());
+		}
+		return builder.build();
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener, int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
 	{
 
 		JSONObject settingsJSON = new JSONObject();
@@ -1399,6 +1422,5 @@ public class HttpRequests
 				.build();
 		return requestToken;
 	}
-
 
 }

@@ -1421,4 +1421,5 @@
     <string name="slide_to_cancel">रद्द के लिए स्लाईड करें</string>
     <string name="recording_help_text">रिकॉर्डिंग के लिए दबा कर रखें, भेजने के लिए छोड़ें</string>
     <string name="max_duration_recorded">अधिकतम अवधि तक रिकॉर्डिंग की गई</string>
+    <string name="stream_volume_muted_or_low">कृप्या आवाज़ बढ़ाएँ</string>
 </resources>

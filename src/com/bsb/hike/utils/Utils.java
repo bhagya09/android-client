@@ -70,7 +70,6 @@ import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,7 +78,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -282,16 +280,6 @@ public class Utils
 
 	public static Pattern pinRegex;
 
-	public static String shortCodeIntent;
-
-	private static Animation mOutToRight;
-
-	private static Animation mInFromLeft;
-
-	private static TranslateAnimation mOutToLeft;
-
-	private static TranslateAnimation mInFromRight;
-
 	public static float scaledDensityMultiplier = 1.0f;
 
 	public static float densityMultiplier = 1.0f;
@@ -343,65 +331,6 @@ public class Utils
 		return builder.toString();
 	}
 
-	/*
-	 * serializes the given collection into an object. Ignores exceptions
-	 */
-	public static JSONArray jsonSerialize(Collection<? extends JSONSerializable> elements)
-	{
-		JSONArray arr = new JSONArray();
-		for (JSONSerializable elem : elements)
-		{
-			try
-			{
-				arr.put(elem.toJSON());
-			}
-			catch (JSONException e)
-			{
-				Logger.e("Utils", "error json serializing", e);
-			}
-		}
-		return arr;
-	}
-
-	public static void makeCall(String number)
-	{
-		Intent intent = new Intent(Intent.ACTION_CALL);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.setData(Uri.parse("tel:" + number));
-		try
-		{
-			HikeMessengerApp.getInstance().startActivity(intent);
-		}
-		catch (Exception e)
-		{
-			Logger.d("Utils", "makeCall");
-		}
-	}
-	
-	public static void sendSMS(String number, String message)
-	{
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", number, null));
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra(StickyCaller.SMS_BODY, message); 
-		try
-		{
-			HikeMessengerApp.getInstance().startActivity(intent);
-		}
-		catch (Exception e)
-		{
-			Logger.d("Utils", "sms exception");
-		}
-	}
-
-	public static JSONObject jsonSerialize(Map<String, ? extends JSONSerializable> elements) throws JSONException
-	{
-		JSONObject obj = new JSONObject();
-		for (Map.Entry<String, ? extends JSONSerializable> element : elements.entrySet())
-		{
-			obj.put(element.getKey(), element.getValue().toJSON());
-		}
-		return obj;
-	}
 
 	public static boolean isIndianMobileNumber(String number)
 	{
@@ -424,58 +353,7 @@ public class Utils
 	}
 	
 	
-	
-	
 	static final private int ANIMATION_DURATION = 400;
-
-	public static Animation inFromRightAnimation(Context ctx)
-	{
-		if (mInFromRight == null)
-		{
-			synchronized (Utils.class)
-			{
-				mInFromRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, +1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
-						Animation.RELATIVE_TO_PARENT, 0.0f);
-				mInFromRight.setDuration(ANIMATION_DURATION);
-				mInFromRight.setInterpolator(new AccelerateInterpolator());
-			}
-		}
-		return mInFromRight;
-	}
-
-	public static Animation outToLeftAnimation(Context ctx)
-	{
-		if (mOutToLeft == null)
-		{
-			synchronized (Utils.class)
-			{
-				mOutToLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
-						Animation.RELATIVE_TO_PARENT, 0.0f);
-				mOutToLeft.setDuration(ANIMATION_DURATION);
-				mOutToLeft.setInterpolator(new AccelerateInterpolator());
-			}
-		}
-
-		return mOutToLeft;
-	}
-
-	public static Animation outToRightAnimation(Context ctx)
-	{
-		if (mOutToRight == null)
-		{
-			synchronized (Utils.class)
-			{
-				if (mOutToRight == null)
-				{
-					mOutToRight = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 1.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
-							Animation.RELATIVE_TO_PARENT, 0.0f);
-					mOutToRight.setDuration(ANIMATION_DURATION);
-					mOutToRight.setInterpolator(new AccelerateInterpolator());
-				}
-			}
-		}
-		return mOutToRight;
-	}
 
 	public static long gettingMidnightTimeinMilliseconds()
 	{
@@ -487,23 +365,7 @@ public class Utils
 		return c.getTimeInMillis();
 	}
 
-	public static Animation inFromLeftAnimation(Context ctx)
-	{
-		if (mInFromLeft == null)
-		{
-			synchronized (Utils.class)
-			{
-				if (mInFromLeft == null)
-				{
-					mInFromLeft = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1.0f, Animation.RELATIVE_TO_PARENT, 0.0f, Animation.RELATIVE_TO_PARENT, 0.0f,
-							Animation.RELATIVE_TO_PARENT, 0.0f);
-					mInFromLeft.setDuration(ANIMATION_DURATION);
-					mInFromLeft.setInterpolator(new AccelerateInterpolator());
-				}
-			}
-		}
-		return mInFromLeft;
-	}
+
 
 	/** Create a File for saving an image or video */
 	public static File getOutputMediaFile(HikeFileType type, String orgFileName, boolean isSent)
@@ -864,16 +726,6 @@ public class Utils
 		return false;
 	}
 
-	public static String formatNo(String msisdn)
-	{
-		StringBuilder sb = new StringBuilder(msisdn);
-		sb.insert(msisdn.length() - 4, '-');
-		sb.insert(msisdn.length() - 7, '-');
-		Logger.d("Fomat MSISD", "Fomatted number is:" + sb.toString());
-
-		return sb.toString();
-	}
-
 	public static boolean isValidEmail(Editable text)
 	{
 		return (!TextUtils.isEmpty(text) && android.util.Patterns.EMAIL_ADDRESS.matcher(text).matches());
@@ -904,37 +756,6 @@ public class Utils
 		editor.commit();
 	}
 
-	public static List<String> splitSelectedContacts(String selections)
-	{
-		Matcher matcher = msisdnRegex.matcher(selections);
-		List<String> contacts = new ArrayList<String>();
-		if (matcher.find())
-		{
-			do
-			{
-				contacts.add(matcher.group().substring(1, matcher.group().length() - 1));
-				Logger.d("Utils", "Adding: " + matcher.group().substring(1, matcher.group().length() - 1));
-			}
-			while (matcher.find(matcher.end()));
-		}
-		return contacts;
-	}
-
-	public static List<String> splitSelectedContactsName(String selections)
-	{
-		String[] selectedContacts = selections.split(", ");
-		List<String> contactNames = new ArrayList<String>(selectedContacts.length);
-		for (int i = 0; i < selectedContacts.length; i++)
-		{
-			if (!selectedContacts[i].contains("["))
-			{
-				continue;
-			}
-			contactNames.add(selectedContacts[i].substring(0, selectedContacts[i].indexOf("[")));
-		}
-		return contactNames;
-	}
-
 	public static boolean validateBotMsisdn(String msisdn)
 	{
 		if (TextUtils.isEmpty(msisdn))
@@ -948,37 +769,6 @@ public class Utils
 			return false;
 		}
 		return true;
-	}
-
-	public static String defaultGroupName(List<PairModified<GroupParticipant, String>> participantList)
-	{
-		List<GroupParticipant> groupParticipants = new ArrayList<GroupParticipant>();
-		for (PairModified<GroupParticipant, String> participant : participantList)
-		{
-			if (!participant.getFirst().hasLeft())
-			{
-				groupParticipants.add(participant.getFirst());
-			}
-		}
-		Collections.sort(groupParticipants);
-		String name = null;
-		if (groupParticipants.size() > 0)
-		{
-			name = extractFullFirstName(groupParticipants.get(0).getContactInfo().getFirstNameAndSurname());
-		}
-		switch (groupParticipants.size())
-		{
-		case 0:
-			return "";
-		case 1:
-			return name;
-		default:
-			for (int i = 1; i < groupParticipants.size(); i++)
-			{
-				name += ", " + extractFullFirstName(groupParticipants.get(i).getContactInfo().getFirstNameAndSurname());
-			}
-			return name;
-		}
 	}
 
 	public static String getConversationJoinHighlightText(JSONArray participantInfoArray, OneToNConvInfo convInfo, boolean newGrp, Context context)
@@ -1147,15 +937,6 @@ public class Utils
 		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
-//	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
-//	{
-//		if (!info.contains(textToHighlight))
-//			return info;
-//		SpannableStringBuilder ssb = new SpannableStringBuilder(info);
-//		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + textToHighlight.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//		return ssb;
-//	}
-
 	//AND-4036, Extending the high light to the next space.
 	//Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
 	//Sol: making the highlight text extend to the end of the word.
@@ -1254,18 +1035,6 @@ public class Utils
 		contactInfo.setHikeJoinTime(userJoinTime);
 
 		return contactInfo;
-	}
-
-	public static boolean wasScreenOpenedNNumberOfTimes(SharedPreferences prefs, String whichScreen)
-	{
-		return prefs.getInt(whichScreen, 0) >= HikeConstants.NUM_TIMES_SCREEN_SHOULD_OPEN_BEFORE_TOOL_TIP;
-	}
-
-	public static void incrementNumTimesScreenOpen(SharedPreferences prefs, String whichScreen)
-	{
-		Editor editor = prefs.edit();
-		editor.putInt(whichScreen, prefs.getInt(whichScreen, 0) + 1);
-		editor.commit();
 	}
 
 	public static boolean isVersionNameHigher(String oldVersion, String newVersion, Context context) throws NumberFormatException
@@ -1411,57 +1180,6 @@ public class Utils
 		context.startActivity(s);
 	}
 
-	public static void bytesToFile(byte[] bytes, File dst)
-	{
-		FileOutputStream out = null;
-		try
-		{
-			out = new FileOutputStream(dst);
-			out.write(bytes, 0, bytes.length);
-			out.flush();
-			out.getFD().sync();
-		}
-		catch (IOException e)
-		{
-			Logger.e("Utils", "Excecption while copying the file", e);
-		}
-		finally
-		{
-			Utils.closeStreams(out);
-		}
-	}
-
-	public static byte[] fileToBytes(File file)
-	{
-		byte[] bytes = new byte[(int) file.length()];
-		FileInputStream fileInputStream = null;
-		try
-		{
-			fileInputStream = new FileInputStream(file);
-			fileInputStream.read(bytes);
-			return bytes;
-		}
-		catch (IOException e)
-		{
-			Logger.e("Utils", "Excecption while reading the file " + file.getName(), e);
-			return null;
-		}
-		finally
-		{
-			Utils.closeStreams(fileInputStream);
-		}
-	}
-
-	public static Drawable stringToDrawable(String encodedString)
-	{
-		if (TextUtils.isEmpty(encodedString))
-		{
-			return null;
-		}
-		byte[] thumbnailBytes = Base64.decode(encodedString, Base64.DEFAULT);
-		return new BitmapDrawable(BitmapFactory.decodeByteArray(thumbnailBytes, 0, thumbnailBytes.length));
-	}
-
 	public static String drawableToString(Drawable ic)
 	{
 		if (ic != null)
@@ -1522,40 +1240,6 @@ public class Utils
 		}
 
 		return rotatedBitmap;
-	}
-
-	public static Bitmap makeSquareThumbnail(Bitmap thumbnail, int dimensionLimit)
-	{
-		dimensionLimit = thumbnail.getWidth() < thumbnail.getHeight() ? thumbnail.getWidth() : thumbnail.getHeight();
-
-		int startX = thumbnail.getWidth() > dimensionLimit ? (int) ((thumbnail.getWidth() - dimensionLimit) / 2) : 0;
-		int startY = thumbnail.getHeight() > dimensionLimit ? (int) ((thumbnail.getHeight() - dimensionLimit) / 2) : 0;
-
-		Logger.d("Utils", "StartX: " + startX + " StartY: " + startY + " WIDTH: " + thumbnail.getWidth() + " Height: " + thumbnail.getHeight());
-		Bitmap squareThumbnail = Bitmap.createBitmap(thumbnail, startX, startY, dimensionLimit, dimensionLimit);
-
-		if (squareThumbnail != thumbnail)
-		{
-			thumbnail.recycle();
-		}
-		thumbnail = null;
-		return squareThumbnail;
-	}
-
-	public static Bitmap stringToBitmap(String thumbnailString)
-	{
-		byte[] encodeByte = Base64.decode(thumbnailString, Base64.DEFAULT);
-		return BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-	}
-
-	public static boolean isThumbnailSquare(Bitmap thumbnail)
-	{
-		return (thumbnail.getWidth() == thumbnail.getHeight());
-	}
-
-	public static byte[] bitmapToBytes(Bitmap bitmap, Bitmap.CompressFormat format)
-	{
-		return bitmapToBytes(bitmap, format, 50);
 	}
 
 	public static byte[] bitmapToBytes(Bitmap bitmap, Bitmap.CompressFormat format, int quality)
@@ -1693,6 +1377,7 @@ public class Utils
 		return returnFilePath;
 
 	}
+
 	public static enum ExternalStorageState
 	{
 		WRITEABLE, READ_ONLY, NONE
@@ -1758,74 +1443,6 @@ public class Utils
 		}
 		
 		return sdAvailSize;
-	}
-
-	public static boolean copyImage(String srcFilePath, String destFilePath, Bitmap.Config config, int quality)
-	{
-		/*
-		 * If source and destination have the same path, just return.
-		 */
-		if (srcFilePath.equals(destFilePath))
-		{
-			return true;
-		}
-
-		boolean status = false;
-		InputStream src = null;
-		FileOutputStream dest = null;
-		try
-		{
-			String imageOrientation = Utils.getImageOrientation(srcFilePath);
-			Bitmap tempBmp = HikeBitmapFactory.scaleDownBitmap(srcFilePath, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX, HikeConstants.MAX_DIMENSION_MEDIUM_FULL_SIZE_PX,
-					Bitmap.Config.RGB_565, true, false);
-			tempBmp = HikeBitmapFactory.rotateBitmap(tempBmp, Utils.getRotatedAngle(imageOrientation));
-			// Temporary fix for when a user uploads a file through Picasa
-			// on ICS or higher.
-			if (tempBmp != null)
-			{
-				int imageCompressQuality = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SERVER_CONFIG_DEFAULT_IMAGE_SAVE_QUALITY,
-						HikeConstants.HikePhotos.DEFAULT_IMAGE_SAVE_QUALITY);
-				byte[] fileBytes = BitmapUtils.bitmapToBytes(tempBmp, Bitmap.CompressFormat.JPEG, imageCompressQuality);
-				tempBmp.recycle();
-				src = new ByteArrayInputStream(fileBytes);
-			}
-			else
-			{
-				src = new FileInputStream(new File(srcFilePath));
-			}
-			dest = new FileOutputStream(new File(destFilePath));
-
-			byte[] buffer = new byte[HikeConstants.MAX_BUFFER_SIZE_KB * 1024];
-			int len;
-
-			while ((len = src.read(buffer)) > 0)
-			{
-				dest.write(buffer, 0, len);
-			}
-
-			dest.flush();
-			dest.getFD().sync();
-
-			status = true;
-		}
-		catch (FileNotFoundException e)
-		{
-			Logger.e("Utils", "File not found while copying", e);
-		}
-		catch (IOException e)
-		{
-			Logger.e("Utils", "Error while reading/writing/closing file", e);
-		}
-		catch (Exception ex)
-		{
-			Logger.e("Utils", "WTF Error while reading/writing/closing file", ex);
-		}
-		finally
-		{
-			Utils.closeStreams(src, dest);
-		}
-
-		return status;
 	}
 
 	public static boolean compressAndCopyImage(String srcFilePath, String destFilePath, Context context)
@@ -1923,13 +1540,6 @@ public class Utils
 		}
 	}
 
-	public static void resetImageQuality(SharedPreferences appPrefs)
-	{
-		final Editor editor = appPrefs.edit();
-		editor.putInt(HikeConstants.IMAGE_QUALITY, ImageQuality.QUALITY_DEFAULT);
-		editor.commit();
-	}
-
 	public static String getImageOrientation(String filePath)
 	{
 		ExifInterface exif;
@@ -1961,29 +1571,6 @@ public class Utils
 		}
 
 		return 0;
-	}
-
-	public static Bitmap rotateBitmap(Bitmap b, int degrees)
-	{
-		if (degrees != 0 && b != null)
-		{
-			Matrix m = new Matrix();
-			m.setRotate(degrees, (float) b.getWidth() / 2, (float) b.getHeight() / 2);
-			try
-			{
-				Bitmap b2 = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, true);
-				if (b != b2)
-				{
-					b.recycle();
-					b = b2;
-				}
-			}
-			catch (OutOfMemoryError e)
-			{
-				Logger.e("Utils", "Out of memory", e);
-			}
-		}
-		return b;
 	}
 
 	public static void setupUri()
@@ -2184,7 +1771,7 @@ public class Utils
 		}
 	}
 
-	public static enum WhichScreen
+	public enum WhichScreen
 	{
 		FRIENDS_TAB, UPDATES_TAB, SMS_SECTION, OTHER
 	}
@@ -2361,41 +1948,6 @@ public class Utils
 		}
 	}
 
-	public static String getUniqueFileName(String orgFileName, String fileKey)
-	{
-		File hikeFileList = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT, HikeConstants.HIKE_FILE_LIST_NAME);
-		JSONObject currentFiles = getHikeFileListData(hikeFileList);
-		if (currentFiles == null || !currentFiles.has(orgFileName))
-		{
-			Logger.d("Utils", "File with this name does not exist");
-			return orgFileName;
-		}
-
-		String fileExtension = orgFileName.contains(".") ? orgFileName.substring(orgFileName.lastIndexOf("."), orgFileName.length()) : "";
-		String orgFileNameWithoutExtension = !TextUtils.isEmpty(fileExtension) ? orgFileName.substring(0, orgFileName.indexOf(fileExtension)) : orgFileName;
-		StringBuilder newFileName = new StringBuilder(orgFileNameWithoutExtension);
-
-		String currentNameToCheck = orgFileName;
-		int i = 1;
-		Logger.d("Utils", "File name: " + newFileName.toString() + " Extension: " + fileExtension);
-		while (true)
-		{
-			String existingFileKey = currentFiles.optString(currentNameToCheck);
-			if (TextUtils.isEmpty(existingFileKey) || existingFileKey.equals(fileKey))
-			{
-				break;
-			}
-			else
-			{
-				newFileName = new StringBuilder(orgFileNameWithoutExtension + "_" + i++);
-				currentNameToCheck = newFileName + fileExtension;
-			}
-		}
-		Logger.d("Utils", "NewFile name: " + newFileName.toString() + " Extension: " + fileExtension);
-		newFileName.append(fileExtension);
-		return newFileName.toString();
-	}
-
 	public static void makeNewFileWithExistingData(JSONObject data)
 	{
 		File hikeFileList = new File(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT, HikeConstants.HIKE_FILE_LIST_NAME);
@@ -2487,31 +2039,6 @@ public class Utils
 		}
 
 		return currentFiles;
-	}
-
-	public static String getSquareThumbnail(JSONObject obj)
-	{
-		String thumbnailString = obj.optString(HikeConstants.THUMBNAIL);
-		if (TextUtils.isEmpty(thumbnailString))
-		{
-			return thumbnailString;
-		}
-
-		Bitmap thumbnailBmp = HikeBitmapFactory.stringToBitmap(thumbnailString);
-		if (!BitmapUtils.isThumbnailSquare(thumbnailBmp))
-		{
-			Bitmap squareThumbnail = HikeBitmapFactory.makeSquareThumbnail(thumbnailBmp);
-			thumbnailString = Base64.encodeToString(BitmapUtils.bitmapToBytes(squareThumbnail, Bitmap.CompressFormat.JPEG), Base64.DEFAULT);
-			squareThumbnail.recycle();
-			squareThumbnail = null;
-		}
-		if (!thumbnailBmp.isRecycled())
-		{
-			thumbnailBmp.recycle();
-			thumbnailBmp = null;
-		}
-
-		return thumbnailString;
 	}
 
 	public static String normalizeNumber(String inputNumber, String countryCode)
@@ -2820,32 +2347,6 @@ public class Utils
 	public static String getHashedDeviceId(String deviceId) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
 		return "and:" + SHA1(deviceId);
-	}
-
-	public static long getContactId(Context context, long rawContactId)
-	{
-		Cursor cur = null;
-		try
-		{
-			cur = context.getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI, new String[] { ContactsContract.RawContacts.CONTACT_ID },
-					ContactsContract.RawContacts._ID + "=" + rawContactId, null, null);
-			if (cur.moveToFirst())
-			{
-				return cur.getLong(cur.getColumnIndex(ContactsContract.RawContacts.CONTACT_ID));
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if (cur != null)
-			{
-				cur.close();
-			}
-		}
-		return -1l;
 	}
 
 	public static List<ContactInfoData> getContactDataFromHikeFile(HikeFile hikeFile)
@@ -3318,11 +2819,6 @@ public class Utils
 		}
 	}
 
-	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline)
-	{
-		return getLastSeenTimeAsString(context, lastSeenTime, offline, false);
-	}
-
 	public static String getLastSeenTimeAsString(Context context, long lastSeenTime, int offline, boolean groupParticipant)
 	{
 		return getLastSeenTimeAsString(context, lastSeenTime, offline, groupParticipant, false);
@@ -3629,22 +3125,6 @@ public class Utils
 
 	}
 
-	private static void sendSMSSyncLogEvent(boolean syncing)
-	{
-		JSONObject metadata = new JSONObject();
-
-		try
-		{
-			metadata.put(HikeConstants.PULL_OLD_SMS, syncing);
-			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.SMS, metadata);
-		}
-		catch (JSONException e)
-		{
-			Logger.w(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-
-	}
-
 	public static void sendDefaultSMSClientLogEvent(boolean defaultClient)
 	{
 		JSONObject metadata = new JSONObject();
@@ -3652,38 +3132,6 @@ public class Utils
 		try
 		{
 			metadata.put(HikeConstants.UNIFIED_INBOX, defaultClient);
-			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.SMS, metadata);
-		}
-		catch (JSONException e)
-		{
-			Logger.w(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-
-	}
-
-	public static void sendFreeSmsLogEvent(boolean freeSmsOn)
-	{
-		JSONObject metadata = new JSONObject();
-
-		try
-		{
-			metadata.put(HikeConstants.FREE_SMS_ON, freeSmsOn);
-			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.SMS, metadata);
-		}
-		catch (JSONException e)
-		{
-			Logger.w(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-		}
-
-	}
-
-	public static void sendNativeSmsLogEvent(boolean nativeSmsOn)
-	{
-		JSONObject metadata = new JSONObject();
-
-		try
-		{
-			metadata.put(HikeConstants.NATIVE_SMS, nativeSmsOn);
 			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, HikeConstants.SMS, metadata);
 		}
 		catch (JSONException e)
@@ -3765,11 +3213,6 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	}
-	
-	public static boolean isLollipopMR1OrHigher()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1;
-	}
 
 	public static boolean isJellybeanOrHigher()
 	{
@@ -3794,30 +3237,6 @@ public class Utils
 	}
 
 	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeFtResultAsyncTask(AsyncTask<Void, Void, FTResult> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeIntProgFtResultAsyncTask(AsyncTask<Void, Integer, FTResult> asyncTask)
 	{
 		if (isHoneycombOrHigher())
 		{
@@ -3865,18 +3284,6 @@ public class Utils
 		}
 	}
 
-	public static void executeLongResultTask(AsyncTask<Void, Void, Long> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
 	public static void executeContactListResultTask(AsyncTask<Void, Void, List<Pair<AtomicBoolean, ContactInfo>>> asyncTask)
 	{
 		if (isHoneycombOrHigher())
@@ -3898,42 +3305,6 @@ public class Utils
 		else
 		{
 			asyncTask.execute();
-		}
-	}
-
-	public static void executeStringResultTask(AsyncTask<Void, Void, String> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeSMSSyncStateResultTask(AsyncTask<Void, Void, SMSSyncState> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeConvInfoAsyncTask(AsyncTask<ConvInfo, Void, ConvInfo[]> asyncTask, ConvInfo... conversations)
-	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, conversations);
-		}
-		else
-		{
-			asyncTask.execute(conversations);
 		}
 	}
 
@@ -4287,14 +3658,6 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 	}
 
-	public static boolean hasFroyo()
-	{
-		// Can use static final constants like FROYO, declared in later versions
-		// of the OS since they are inlined at compile time. This is guaranteed
-		// behavior.
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
-	}
-
 	public static boolean hasGingerbread()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
@@ -4305,11 +3668,6 @@ public class Utils
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
 	}
 
-	public static boolean hasJellyBean()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-	}
-
 	public static boolean hasJellyBeanMR1()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
@@ -4318,11 +3676,6 @@ public class Utils
 	public static boolean hasKitKat()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-	}
-
-	public static boolean hasIceCreamSandwich()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 	}
 
 	public static boolean hasEnoughFreeSpaceForProfilePic()
@@ -4551,26 +3904,6 @@ public class Utils
 		}
 	}
 
-	/*
-	 * When Active Contacts >= 3 show the 'Add Friends' pop-up When Activate Contacts <3 show the 'Invite Friends' pop-up
-	 */
-	public static boolean shouldShowAddFriendsFTUE(int hikeContactsCount, int recommendedCount)
-	{
-		Logger.d("AddFriendsActivity", " hikeContactsCount=" + hikeContactsCount + " recommendedCount=" + recommendedCount);
-		/*
-		 * also if all the recommended contacts are your friend we should not show add friends popup
-		 */
-		if (recommendedCount == 0 || hikeContactsCount == 0)
-		{
-			return false;
-		}
-		if (recommendedCount > 2)
-		{
-			return true;
-		}
-		return false;
-	}
-
 	public static void startChatThread(Context context, ContactInfo contactInfo, int source)
 	{
 		Intent intent = new Intent(context, ChatThreadActivity.class);
@@ -4639,21 +3972,21 @@ public class Utils
 
 	public static void getRecommendedAndHikeContacts(Context context, List<ContactInfo> recommendedContacts, List<ContactInfo> hikeContacts, List<ContactInfo> friendsList)
 	{
-		SharedPreferences settings = (SharedPreferences) context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
+		SharedPreferences settings = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
 		String msisdn = settings.getString(HikeMessengerApp.MSISDN_SETTING, "");
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.FRIEND, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT, HikeConstants.BOTH_VALUE, msisdn, false));
 		friendsList.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_SENT_REJECTED, HikeConstants.BOTH_VALUE, msisdn, false));
 
-		Logger.d("AddFriendsActivity", " friendsList size " + friendsList.size());
+		Logger.d(TAG, " friendsList size " + friendsList.size());
 		Set<String> recommendedContactsSelection = Utils.getServerRecommendedContactsSelection(settings.getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null), msisdn);
-		Logger.d("AddFriendsActivity", " recommendedContactsSelection " + recommendedContactsSelection);
+		Logger.d(TAG, " recommendedContactsSelection " + recommendedContactsSelection);
 		if (!recommendedContactsSelection.isEmpty())
 		{
 			recommendedContacts.addAll(ContactManager.getInstance().getHikeContacts(-1, recommendedContactsSelection, null, msisdn));
 		}
 
-		Logger.d("AddFriendsActivity", " size recommendedContacts = " + recommendedContacts.size());
+		Logger.d(TAG, " size recommendedContacts = " + recommendedContacts.size());
 
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.NOT_FRIEND, HikeConstants.ON_HIKE_VALUE, msisdn, false));
 		hikeContacts.addAll(ContactManager.getInstance().getContactsOfFavoriteType(FavoriteType.REQUEST_RECEIVED_REJECTED, HikeConstants.ON_HIKE_VALUE, msisdn, false, true));
@@ -4859,35 +4192,7 @@ public class Utils
 		}
 	}
 
-	/*
-	 * This function is to respect old sound preference before sound list pref , if previous was on then check for hike jingle, else return SOUND_OFF
-	 */
-	public static String getOldSoundPref(Context context)
-	{
-		SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
-		Resources res = context.getResources();
-		String notifSoundOff = res.getString(R.string.notif_sound_off);
-		String notifSoundDefault = res.getString(R.string.notif_sound_default);
-		String notifSoundHike = res.getString(R.string.notif_sound_Hike);
 
-		if (preferenceManager.getBoolean(HikeConstants.SOUND_PREF, true))
-		{
-			if (preferenceManager.getBoolean(HikeConstants.HIKE_JINGLE_PREF, true))
-			{
-				return notifSoundHike;
-			}
-			return notifSoundDefault;
-		}
-		else
-		{
-			return notifSoundOff;
-		}
-	}
-
-	public static int getFreeSMSCount(Context context)
-	{
-		return context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE).getInt(HikeMessengerApp.SMS_SETTING, 0);
-	}
 
 	public static void handleBulkLastSeenPacket(Context context, JSONObject jsonObj) throws JSONException
 	{
@@ -5987,19 +5292,6 @@ public class Utils
 	{
 		sendDeviceDetails(context, upgrade, sendBot);
 		SharedPreferences accountPrefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-		{
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		}
 		if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 		{
 			try
@@ -7537,22 +6829,7 @@ public class Utils
 		}
 	}
 
-	public static int getUnreadCounterBadgeWidth(Context context, String unreadCount)
-	{
-		switch (unreadCount.length())
-		{
-		case 1:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
-		case 2:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_double_width);
-		case 3:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_triple_width);
-		case 4:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_quad_width);
-		default:
-			return context.getResources().getDimensionPixelSize(R.dimen.unread_badge_single_width);
-		}
-	}
+
 	
 	public static boolean isSelfMsisdn(String argMsisdn)
 	{
@@ -7576,21 +6853,7 @@ public class Utils
 		return app_installed;
 	}
 	
-	/**
-	* Call this method to post a status update without an image to timeline.
-	* @param status
-	* @param moodId : Pass -1 if no mood
-	*
-	* Both status = null and moodId = -1 should not hold together
-	*
-	* List of moods:
-	* {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
-	*
-	*/
-	public static void postStatusUpdate(String status, int moodId)
-	{
-		postStatusUpdate(status, moodId, null);
-	}
+
 	
 	/**
 	 * Call this method to post a status update to timeline.
@@ -7837,11 +7100,13 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		
+
 		// Precautionary check to prevent NPE from empty list files.
-		if (folder.listFiles() == null)
+        // Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+        File[] directory = folder.listFiles();
+		if (directory == null)
 			return length;
-		for (File file : folder.listFiles())
+		for (File file : directory)
 		{
 			if (file.isDirectory())
 				length += folderSize(file);
@@ -7970,20 +7235,6 @@ public class Utils
         return result.toString();
     }
 
-	public static void setEditTextCursorDrawableColor(EditText editText, int drawables)
-	{
-		// http://stackoverflow.com/questions/11554078/set-textcursordrawable-programatically
-		try
-		{
-			Field fCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
-			fCursorDrawableRes.setAccessible(true);
-			fCursorDrawableRes.set(editText, drawables);
-		}
-		catch (Throwable ignored)
-		{
-
-		}
-	}
 
 	public static Locale getCurrentLanguageLocale()
 	{
@@ -8091,7 +7342,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0) {
 
 			return true;
 		}
@@ -8104,7 +7355,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists()) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
 			try {
 
@@ -8236,6 +7487,7 @@ public class Utils
 	public static void deleteDiskCache()
 	{
 		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
+        HikeMessengerApp.clearDiskCache();
 	}
 
 	/**
@@ -8336,11 +7588,6 @@ public class Utils
 	public static boolean isFavToFriendsMigrationAllowed()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FAV_TO_FRIENDS_MIGRATION, false);
-	}
-
-	public static boolean isNewUser()
-	{
-		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.IS_NEW_USER, false);
 	}
 
 	public static ConvMessage generateAddFriendSystemMessage(String msisdn, String message, boolean isOnHike, State state)
@@ -8600,7 +7847,7 @@ public class Utils
 	 * @param order
 	 * @return
 	 */
-	public static JSONObject getCoreChatClickJSON(String uniqueKey, String order)
+	public static JSONObject getCoreChatClickJSON(String uniqueKey, String species, boolean isStealth)
 	{
 		try
 		{
@@ -8609,8 +7856,11 @@ public class Utils
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			if (isStealth)
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			return json;
 
 		}
@@ -8619,6 +7869,63 @@ public class Utils
 			e.toString();
 			return null;
 		}
+	}
+
+	/**
+	 * This does a rename of entire folder (recursive) to new path.
+	 * Use this if old and new paths are on same mount point since its practically instantaneous.
+	 * 
+	 * @param oldRootDir
+	 * @param newRootDir
+	 * @return true, if the operation was successful
+	 */
+	public static boolean moveDirectoryByRename(File oldRootDir, File newRootDir)
+	{
+		boolean result = true;
+
+		// param check
+		if(oldRootDir == null || newRootDir == null)
+		{
+			return false;
+		}
+
+		if (!newRootDir.exists())
+		{
+			result = result && newRootDir.mkdirs();
+		}
+
+		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
+		{
+			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
+			return true; //Migration unsuccessful but new folder created
+		}
+
+		if (result)
+		{
+			for (File f : oldRootDir.listFiles())
+			{
+				if (f.isDirectory())
+				{
+					File newDir = new File(newRootDir, f.getName());
+					result = result && moveDirectoryByRename(f, newDir);
+				}
+				else
+				{
+					File newFile = new File(newRootDir, f.getName());
+					if (newFile.exists())
+					{
+						result = result && newFile.delete();
+					}
+					result = result && f.renameTo(newFile);
+				}
+			}
+
+			// Delete residual dirs
+			Utils.deleteFile(oldRootDir);
+		}
+
+
+		return result;
 	}
 
 	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,
@@ -8645,6 +7952,23 @@ public class Utils
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
+			json.put(AnalyticsConstants.V2.VAL_INT, fileSize);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private static void fetchHistoricalUpdates(String msisdn)
@@ -8701,6 +8025,16 @@ public class Utils
 		}
 	}
 
+	public static String formatDOB(String dobString)
+	{
+		if(TextUtils.isEmpty(dobString))
+		{
+			return "";
+		}
+
+		Birthday dob = new Birthday(dobString);
+		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+	}
 
 	public static String repeatString(String repeat, int repeatCount) {
 		StringBuilder repeatedString = new StringBuilder();
