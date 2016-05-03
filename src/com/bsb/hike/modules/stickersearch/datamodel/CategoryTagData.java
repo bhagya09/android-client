@@ -44,7 +44,7 @@ public class CategoryTagData
 
 	public boolean isValid()
 	{
-		return ucid > 0;
+		return ucid >= 0;
 	}
 
 	public String getName()
