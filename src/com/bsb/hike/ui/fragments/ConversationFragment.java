@@ -1237,7 +1237,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			searchText = null;
 			mAdapter.removeSearch();
-			ShowTipIfNeeded(displayedConversations.isEmpty(), false);
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
 			searchMode = false;
 		}
 	}
@@ -1844,7 +1844,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty(), false);
+		ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1870,7 +1870,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent)
+	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent, int tipFromNotifId)
 	{
 
 		if (convTip == null)
@@ -1883,7 +1883,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
 
-		if(!isFromNewIntent && (AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist()))
+		if(isFromNewIntent)
+		{
+			tipType = tipFromNotifId;
+		}
+		else if(AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist())
 		{
 			tipType = ConversationTip.ATOMIC_TIP;
 		}
@@ -3885,7 +3889,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			ShowTipIfNeeded(displayedConversations.isEmpty(), true);
+			int tipId = intent.getIntExtra(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
+			if(intent.getBooleanExtra(HikeConstants.IS_ATOMIC_TIP, false))
+			{
+				AtomicTipManager.getInstance().processAtomicTipFromNotif(tipId);
+				tipId = ConversationTip.ATOMIC_TIP;
+			}
+			ShowTipIfNeeded(displayedConversations.isEmpty(), true, tipId);
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
