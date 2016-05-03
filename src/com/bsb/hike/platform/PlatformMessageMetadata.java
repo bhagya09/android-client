@@ -13,6 +13,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.CardComponent.ImageComponent;
 import com.bsb.hike.platform.CardComponent.MediaComponent;
@@ -34,7 +36,8 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
     public String clickTrackUrl = "";
     Context mContext;
     private JSONObject json;
-
+    public boolean showShare;
+    public String backgroundColor;
     public PlatformMessageMetadata(String jsonString, Context context) throws JSONException {
         this(new JSONObject(jsonString), context);
     }
@@ -44,10 +47,11 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         this.mContext = context;
 
         try {
-
+            backgroundColor = getString(metadata,BACKGROUND_COLOR);
             version = getInt(metadata, VERSION);
             layoutId = getInt(metadata, LAYOUT_ID);
             loveId = getInt(metadata, LOVE_ID);
+            showShare = getBoolean(metadata, SHOW_SHARE);
             notifText = getString(metadata, NOTIF_TEXT);
             clickTrackUrl = getString(metadata, CLICK_TRACK_URL);
 
@@ -195,7 +199,17 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         }
     }
-
+    private boolean getBoolean(JSONObject json, String key) {
+        if (json.has(key)) {
+            try {
+                return json.getBoolean(key);
+            } catch (JSONException e) {
+// TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
     private int getInt(JSONObject json, String key) {
         if (json.has(key)) {
             try {

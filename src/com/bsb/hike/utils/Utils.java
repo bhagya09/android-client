@@ -99,7 +99,10 @@ import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
@@ -8692,6 +8695,12 @@ public class Utils
 				rootDir.renameTo(mFile);
 			}
 		}
+	}
+
+	public static void setRectangularBackground(View v, int backgroundColor)
+	{
+		GradientDrawable drawable = (GradientDrawable) v.getBackground();
+		drawable.setColor(backgroundColor);
 	}
 }
 
