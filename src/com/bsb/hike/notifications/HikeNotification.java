@@ -306,6 +306,20 @@ public class HikeNotification
 
 	}
 
+	public void notifyAtomicTip(String title, String message, boolean isSilent, Intent notifIntent)
+	{
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		Logger.d(getClass().getSimpleName(), "Creating notif for atomic tips with bundled values");
+		int notifId = NOTIFICATION_PRODUCT_POPUP;
+		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), isSilent, isSilent, false);
+		setNotificationIntentForBuilder(mBuilder, notifIntent, notifId);
+		notifyNotification(notifId, mBuilder);
+	}
+
 	public void notifyMessage(final Protip proTip, int notificationType)
 	{
 

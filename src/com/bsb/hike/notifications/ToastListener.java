@@ -71,7 +71,7 @@ public class ToastListener implements Listener
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
 			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
-			HikePubSub.SHOW_PERSISTENT_NOTIF};
+			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -407,6 +407,28 @@ public class ToastListener implements Listener
 						e.printStackTrace();
 					}
 
+				}
+			}
+		}
+		else if(HikePubSub.ATOMIC_TIP_WITH_NOTIF.equals(type))
+		{
+			Logger.d(getClass().getSimpleName(), "Recived pubsub to show notif for atomic tip");
+			if (object != null && object instanceof Bundle)
+			{
+				Bundle bundle = (Bundle) object;
+				String notifTitle = bundle.getString(HikeConstants.NOTIFICATION_TITLE);
+				String notifText = bundle.getString(HikeConstants.NOTIFICATION_TEXT);
+				int tipId = bundle.getInt(HikeConstants.TIP_ID);
+				boolean isSilent = bundle.getBoolean(HikeConstants.SILENT);
+				if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
+				{
+					Intent notificationIntent;
+					notificationIntent = new Intent(context, HomeActivity.class);
+					notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+					notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
+					notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
+					toaster.notifyAtomicTip(notifTitle, notifText, isSilent, notificationIntent);
 				}
 			}
 		}
