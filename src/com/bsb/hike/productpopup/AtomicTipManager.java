@@ -504,6 +504,11 @@ public class AtomicTipManager
      */
     public void updateCurrentlyShowing()
     {
+        if(isTipFromNotif)
+        {
+            Logger.d(TAG, "already updated to show atomic tip from notif");
+            return;
+        }
         mHandler.sendMessage(getMessage(REMOVE_EXPIRED_TIPS, null));
 
         if(doesAtomicTipExist())
@@ -544,6 +549,9 @@ public class AtomicTipManager
     public View getAtomicTipView()
     {
         Logger.d(TAG, "inflating atomic tip view");
+
+        //resetting flag in case it was set for tip from notif case
+        isTipFromNotif = false;
 
         if(currentlyShowing == null)
         {
