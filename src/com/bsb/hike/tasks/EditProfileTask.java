@@ -70,6 +70,7 @@ public class EditProfileTask implements IHikeHTTPTask
         this.currName = prefs.getString(HikeMessengerApp.NAME_SETTING, "");
         this.currEmail = prefs.getString(HikeConstants.Extras.EMAIL, "");
         this.currGenderType = prefs.getInt(HikeConstants.Extras.GENDER, 0);
+        this.editProfileRequestsCount = new AtomicInteger(0);
     }
 
     public void setNewName(String name)
