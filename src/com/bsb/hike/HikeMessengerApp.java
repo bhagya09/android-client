@@ -65,6 +65,7 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -342,8 +343,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String FIRST_VIEW_FTUE_LIST_TIMESTAMP = "firstViewFtueListTimestamp";
 
 	public static final String HIDE_FTUE_SUGGESTIONS = "hideFtueSuggestions";
-
-	public static final String FB_SIGNUP = "fbSignup";
 
 	public static final String BIRTHDAY_DAY = "birthdayDay";
 
@@ -1073,6 +1072,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		registerReceivers();
 
 		ProductInfoManager.getInstance().init();
+
+		AtomicTipManager.getInstance().init();
 
         // Set default path as internal storage on production host
         PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;

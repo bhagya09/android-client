@@ -1601,19 +1601,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try

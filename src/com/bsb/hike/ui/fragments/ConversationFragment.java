@@ -94,6 +94,7 @@ import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -1236,7 +1237,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			searchText = null;
 			mAdapter.removeSearch();
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false);
 			searchMode = false;
 		}
 	}
@@ -1843,7 +1844,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty());
+		ShowTipIfNeeded(displayedConversations.isEmpty(), false);
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1869,7 +1870,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void ShowTipIfNeeded(boolean hasNoConversation)
+	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent)
 	{
 
 		if (convTip == null)
@@ -1882,7 +1883,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
 
-		if(shouldShowUpdateTip())
+		if(!isFromNewIntent && (AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist()))
+		{
+			tipType = ConversationTip.ATOMIC_TIP;
+		}
+		else if(shouldShowUpdateTip())
 		{
 			tipType = whichUpdateTip();
 			Logger.d(HikeConstants.UPDATE_TIP_AND_PERS_NOTIF_LOG, "Preparing to show tip:"+tipType);
@@ -1936,6 +1941,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		else if (tip.equals(HikeMessengerApp.ATOMIC_POP_UP_APP_GENERIC))
 		{
 			tipType = ConversationTip.ATOMIC_APP_GENERIC_TIP;
+		}
+		else if(AtomicTipManager.getInstance().doesAtomicTipExist())
+		{
+			tipType = ConversationTip.ATOMIC_TIP;
 		}
 
 		// to prevent more than one tip to display at a time , it can happen at time of onnewintent
@@ -3838,6 +3847,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
                     AnalyticsConstants.INVITE_TIP_DISMISSED, AnalyticsConstants.CLICK_EVENT);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 			break;
+		case ConversationTip.ATOMIC_TIP:
+			AtomicTipManager.getInstance().onAtomicTipClosed();
+			break;
 		case ConversationTip.RESET_STEALTH_TIP:
 			if (convTip != null)
 			{
@@ -3873,7 +3885,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			ShowTipIfNeeded(displayedConversations.isEmpty());
+			ShowTipIfNeeded(displayedConversations.isEmpty(), true);
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
@@ -3988,6 +4000,9 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_INVITE_TIP, false);
 				Intent sendInvite = new Intent(getContext(), HikeListActivity.class);
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
+				break;
+			case ConversationTip.ATOMIC_TIP:
+				AtomicTipManager.getInstance().onAtomicTipClicked(getActivity());
 				break;
 			default:
 				break;
