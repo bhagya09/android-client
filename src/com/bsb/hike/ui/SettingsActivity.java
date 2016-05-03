@@ -373,6 +373,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.settings_media:
+				recordMediaClick();
 				IntentFactory.openSettingMedia(this);
 				break;
 
@@ -636,6 +637,25 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			if (json != null)
 			{
 				json.put(AnalyticsConstants.V2.FAMILY, "notif");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordMediaClick()
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "media");
 				HAManager.getInstance().recordV2(json);
 			}
 		}
