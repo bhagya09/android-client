@@ -80,7 +80,7 @@ public class CategorySearchManager
     {
         if (instance == null)
         {
-            synchronized (StickerTagCache.class)
+            synchronized (CategorySearchManager.class)
             {
                 if (instance == null)
                 {
