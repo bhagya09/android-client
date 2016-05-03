@@ -1,25 +1,25 @@
 package com.bsb.hike.modules.contactmgr;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class ContactUtils
 {
@@ -116,32 +116,26 @@ public class ContactUtils
 		return server_contacts;
 	}
 
-	public static List<String> getBlockList(JSONObject obj)
-	{
+	public static List<PairModified<String,String>> getBlockList(JSONObject obj) {
 		JSONArray blocklist;
-		List<String> blockListMsisdns = new ArrayList<String>();
-		if ((obj == null) || ("fail".equals(obj.optString("stat"))))
-		{
+		List<PairModified<String, String>> blockListMsisdns = new ArrayList();
+		if ((obj == null) || ("fail".equals(obj.optString("stat")))) {
 			Logger.w("HTTP", "Unable to upload address book");
 			// TODO raise a real exception here
 			return null;
 		}
 		Logger.d("AccountUtils", "Reply from addressbook:" + obj.toString());
 		blocklist = obj.optJSONArray("blocklist");
-		if (blocklist == null)
-		{
+		if (blocklist == null) {
 			Logger.e("AccountUtils", "Received blocklist as null");
 			return null;
 		}
-
-		for (int i = 0; i < blocklist.length(); i++)
-		{
-			try
-			{
-				blockListMsisdns.add(blocklist.getString(i));
-			}
-			catch (JSONException e)
-			{
+		JSONObject blockData = null;
+		for (int i = 0; i < blocklist.length(); i++) {
+			try {
+				blockData = blocklist.getJSONObject(i);
+				blockListMsisdns.add(new PairModified<>(blockData.getString("m"), blockData.getString("u")));
+			} catch (JSONException e) {
 				Logger.e("AccountUtils", "Invalid json object", e);
 				return null;
 			}
