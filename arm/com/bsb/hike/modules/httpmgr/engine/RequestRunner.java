@@ -39,7 +39,7 @@ public class RequestRunner
 	 */
 	private IClient getClientBasedOnServerValue(ClientOptions options)
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE,0)==1)
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE,1)==1)
 		{
 			return new TwinPrimeOkClient(options);
 		}
