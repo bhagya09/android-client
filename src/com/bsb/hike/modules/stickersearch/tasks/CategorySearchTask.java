@@ -46,13 +46,13 @@ public class CategorySearchTask implements Runnable
 
 	private void sendResponse(List<StickerCategory> results)
 	{
-		if (!Utils.isEmpty(results))
+		if (Utils.isEmpty(results))
 		{
-			mListener.onSearchCompleted(results);
+            mListener.onNoCategoriesFound(query);
 		}
-		else if (!performPartialSearch)
+		else
 		{
-			mListener.onNoCategoriesFound(query);
+            mListener.onSearchCompleted(results);
 		}
 	}
 
