@@ -6996,11 +6996,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				final int groupParticipantColumn = c.getColumnIndex(DBConstants.GROUP_PARTICIPANT);
 				final int isHikeMessageColumn = c.getColumnIndex(DBConstants.IS_HIKE_MESSAGE);
 				final int readByColumn = c.getColumnIndex(DBConstants.READ_BY);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
 				final int typeColumn = c.getColumnIndex(DBConstants.MESSAGE_TYPE);
 				final int messageOriginTypeColumn = c.getColumnIndex(DBConstants.MESSAGE_ORIGIN_TYPE);
 				final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
 				final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
 				final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
+
+				Logger.d("convmessage","cursor count "+c.getCount());
 
 				while (c.moveToNext()) {
 					boolean isHikeMessage = true;
@@ -7010,12 +7013,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					message.setReadByArray(c.getString(readByColumn));
 					message.setMessageOriginType(ConvMessage.originTypeValue(c.getInt(messageOriginTypeColumn)));
+					String metadata = c.getString(metadataColumn);
+					try
+					{
+						if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
+							message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext);
+						}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+							message.webMetadata = new WebMetadata(metadata);
+						}else{
+							message.setMetadata(metadata);
+						}
+					}catch (JSONException e)
+					{
+						Logger.w("ravi", "Invalid JSON metadata", e);
+					}
 					return message;
 				}
 			}
 
 		}catch (Exception e){
-			Logger.d("MessageInfo", "exception in creating convmessge");
+			Logger.d("ravi", "exception in creating convmessge"+e.getMessage());
 		}finally{
 			if(c!=null)
 				c.close();

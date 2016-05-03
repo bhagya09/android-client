@@ -1585,12 +1585,14 @@
     <string name="ftue_frn_subtext">Add as a friend</string>
     <string name="profile_pic_display_info_frn">Show only to your Friends</string>
     <string name="recharge_menu">Recharge</string>
+    <string name="message_info">Message Info</string>
     <string name="emptyreadlist">No one has read this </string>
     <string name="emptyseenlist">No one has seen this </string>
     <string name="emptydeliveredlist">No one has been delivered</string>
     <string name="emptyplayedlist">No one played this</string>
     <string name="remaining_items">%1s Remaining</string>
     <string name="read_list">READ</string>
+    <string name="seen_list">SEEN</string>
     <string name="delivered_list">DELIVERED</string>
     <string name="played_list">PLAYED</string>
 

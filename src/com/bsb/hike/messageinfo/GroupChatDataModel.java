@@ -1,6 +1,7 @@
 package com.bsb.hike.messageinfo;
 
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupParticipant;
@@ -51,7 +52,7 @@ public class GroupChatDataModel extends MessageInfoDataModel
 		convMessage=mDb.getMessageFromID(messageID,msisdn);
 		messageInfoMap = mDb.getMessageInfo(messageID);
 
-		oneToNConversation = (GroupConversation) mDb.getConversation(msisdn, 0, false);
+		oneToNConversation = (OneToNConversation) mDb.getConversation(msisdn, 0, false);
 		participantMap = oneToNConversation.getConversationParticipantList();
 
 		Iterator it = participantMap.values().iterator();

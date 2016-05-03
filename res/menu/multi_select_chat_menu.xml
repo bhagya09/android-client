@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
     <item
         android:id="@+id/message_info"
-        android:icon="@drawable/ic_error_outline_white_48dp"
+        android:icon="@drawable/ic_message_info"
         app:showAsAction="always"
-        android:title="@string/delete"/>
+        android:title="@string/message_info"/>
     <item
         android:id="@+id/delete_msgs"
         android:icon="@drawable/actionbar_ic_delete"

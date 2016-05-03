@@ -10,15 +10,16 @@ import com.bsb.hike.adapters.MessageInfoAdapter;
 public class MessageInfoPlayedList extends MessageInfoList {
     public MessageInfoPlayedList(int totalNumberofParticipants,int emptyStateText){
         super(totalNumberofParticipants);
-        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(HikeMessengerApp.getInstance().getString(R.string.played_list), R.drawable.ic_double_tick_r_white);
+        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(HikeMessengerApp.getInstance().getString(R.string.played_list), R.drawable.ic_double_tick_r);
         remainingItem.setEmptyStateText(emptyStateText);
     }
 
     public void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData){
-        if(participantData.hasRead()){
+        if(participantData.hasBeenPlayed()){
             allDisplayedContactItems.add(new MessageInfoItem.MesageInfoParticipantItem(participantData,MessageInfoItem.MesageInfoParticipantItem.PLAYED_CONTACT, MessageInfoAdapter.LIST_ONE_TO_N_CONTACT));
         }else
         {
+            remainingItem.remainingItemList.add(participantData);
         }
     }
 }

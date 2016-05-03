@@ -49,6 +49,7 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -1045,9 +1046,10 @@ public class MqttMessagesManager
 				{
 					long msgId = values.get(0); // max size this list will be of 1 only
 					saveDeliveryReport(msgId, chatMsisdn);
+					if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
 					if(jsonObj.has(HikeConstants.FROM)){
 						saveDeliveryReceipt(msgId,jsonObj.getString(HikeConstants.FROM ),timestamp);
-					}
+					}}
 					Logger.d("MessageInfo", "got delivery report for msgId "+msgId+" timestamp ");
 					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Handling ndr for json: " + jsonObj);
 					MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
@@ -1203,6 +1205,7 @@ public class MqttMessagesManager
 
 			Pair<String, long[]> pair = new Pair<String, long[]>(msisdn, updatedMsgIdsLongArray);
 			Logger.d(AnalyticsConstants.MSG_REL_TAG, "For mr/nmr, firing pubsub MESSAGE_DELIVERED_READ: " + updatedMsgIdsLongArray);
+			if(ChatThreadUtils.isMessageInfoDatabaseEnabled())
 			convDb.setAllDeliveredMessageReceiptsReadforMsisdn(participantMsisdn,updatedMessageIds,timestamp);
 			this.pubSub.publish(HikePubSub.MESSAGE_DELIVERED_READ, pair);
 		}
@@ -1220,6 +1223,7 @@ public class MqttMessagesManager
 			{
 				Pair<Long, String> pair = new Pair<Long, String>(maxMsgId, participantMsisdn);
 				Pair<String, Pair<Long, String>> groupPair = new Pair<String, Pair<Long, String>>(msisdn, pair);
+				if(ChatThreadUtils.isMessageInfoDatabaseEnabled())
 				convDb.setReceiptsReadByGroupMsisdn(participantMsisdn,msgIds,timestamp);
 				this.pubSub.publish(HikePubSub.ONETON_MESSAGE_DELIVERED_READ, groupPair);
 			}
@@ -3037,7 +3041,7 @@ public class MqttMessagesManager
 
 		if(data.has(HikeConstants.PROB_ACTIVITY_OPEN))
 		{
-			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN,HikeConstants.DEFAULT_ACTIVITY_OPEN);
+			int prob=data.optInt(HikeConstants.PROB_ACTIVITY_OPEN, HikeConstants.DEFAULT_ACTIVITY_OPEN);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PROB_ACTIVITY_OPEN,prob);
 		}
 
@@ -3050,6 +3054,16 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED);
+			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE);
+			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{

@@ -1384,6 +1384,10 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String MESSAGE_INFO_ENABLED = "mi";
+
+	public static final String MESSAGE_INFO_ENABLED_DATABASE = "mi_d";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
