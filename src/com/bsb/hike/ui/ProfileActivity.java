@@ -616,7 +616,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					showNameCanNotBeEmptyToast();
 					return;
 				}
-				saveChanges();
+				saveChangesOkhttp();
 				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
 				showingGroupEdit = false;
 				mName.setText(groupName);
@@ -1651,7 +1651,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
 			isBackPressed = true;
-			saveChanges();
+			saveChangesOkhttp();
 		}
 		else if(isActivityVisible())
 		{
@@ -1664,7 +1664,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	public void saveChangesNew()
+	public void saveChangesOkhttp()
 	{
 		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && !TextUtils.isEmpty(mEmailEdit.getText()))
 		{
@@ -1710,7 +1710,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
-	public void saveChanges()
+	public void saveChangesApache()
 	{
 		ArrayList<HikeHttpRequest> requests = new ArrayList<HikeHttpRequest>();
 
