@@ -585,6 +585,7 @@ class HikeUserDatabase extends SQLiteOpenHelper
 			contentValues.put(DBConstants.MSISDN, callerContentModel.getMsisdn());
 			contentValues.put(DBConstants.HIKE_USER.CREATION_TIME, creationTime);
 			contentValues.put(DBConstants.HIKE_USER.EXPIRY_TIME, System.currentTimeMillis());
+			contentValues.put(DBConstants.HIKE_USER.CALLER_METADATA, callerContentModel.getCallerMetadata().toString());
 			Logger.d("c_spam", "HTTP res SUCCESS :- Successfully insert new row in in DB via CHATSPAM" + contentValues);
 			mDb.insertWithOnConflict(DBConstants.HIKE_USER.HIKE_CALLER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 		}
