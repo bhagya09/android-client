@@ -1,7 +1,6 @@
 package com.bsb.hike.chatthemes;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeMessengerApp;
@@ -73,7 +72,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 		String[] assets = theme.getAssets();
 		for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++)
 		{
-			if ((assets[i] != null) && (isAssetRecorded(assets[i])) && mAssets.get(assets[i]).isDownloaded())
+			if ((assets[i] != null) && (isAssetRecorded(assets[i])) && (mAssets.get(assets[i]).isDownloaded() || mAssets.get(assets[i]).isAssetOnApk()))
 			{
 				theme.setAssetDownloadStatus(1 << i);
 			}
@@ -170,7 +169,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener
 				HikeChatThemeAsset asset = mAssets.get(downloadedAssets[i]);
 				if(asset != null)
 				{
-					asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
+					asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
 					downloadedThemeAssets.add(asset);
 				}
 			}

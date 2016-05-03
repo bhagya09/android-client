@@ -10,6 +10,8 @@ public class HikeChatThemeConstants
 
 	public static final int THEME_TYPE_ANIMATED = 1 << 1;
 
+	public static final int THEME_TYPE_CUSTOM = 1 << 2;
+
 	// Identify the type of Asset, if it is an color / Bitmap / Nine Patch / Bease64String (Thumbnail) / Shape. These constants should be in sync with the server packet
 	public static final byte ASSET_TYPE_UNKNOWN = -1;
 
@@ -89,7 +91,9 @@ public class HikeChatThemeConstants
 
 	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADING = 1;
 
-	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADED = 2;
+	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD = 2;
+
+	public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK = 3;
 
 	// File Extension Types
 	public static final String FILEEXTN_9PATCH = "9.png";
@@ -108,6 +112,8 @@ public class HikeChatThemeConstants
 	public static final String JSON_SIGNAL_DEL_THEME = "del_cbg";
 
 	public static final String JSON_SIGNAL_THEME_THEMEID = "theme_id";
+
+	public static final String JSON_SIGNAL_THEME_THEMESTATE = "theme_state";
 
 	public static final String JSON_SIGNAL_THEME_BG_PORTRAIT = "bg_portrait";
 
@@ -161,5 +167,5 @@ public class HikeChatThemeConstants
 
 	public static final String CHATTHEMES_DEFAULT_JSON_FILE_NAME = "chatthemes_data";
 
-	public static final String SHAREDPREF_DEFAULT_SET_RECORDED = "defaultChatThemeSetRecorded";
+	public static final String SHAREDPREF_DEFAULT_SET_RECORDED = "preloadedChatThemeSetRecorded";
 }

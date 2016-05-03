@@ -76,7 +76,7 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult
 	public void doOnSuccess(Object result)
 	{
 		Logger.d(TAG, "chat theme asset download complete");
-		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
+		updateAssetDownloadStatus(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CONTENT_DOWNLOAD_SUCCESS, result);
 	}
 

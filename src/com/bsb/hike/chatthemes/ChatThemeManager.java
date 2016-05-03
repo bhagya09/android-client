@@ -138,7 +138,7 @@ public class ChatThemeManager
 	}
 
 	//MQTT Signal packet processing
-	public void processNewThemeSignal(JSONArray data, boolean downloadAssets)
+	public void processNewThemeSignal(JSONArray data, boolean areTheseAssetsOnApk)
 	{
 		try
 		{
@@ -146,8 +146,6 @@ public class ChatThemeManager
 
 			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
 			ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
-			//to avoid duplicate asset ids
-			HashSet<String> assetIds = new HashSet<>();
 
 			//looping of the n no themes sent in the packet
 			for (int i = 0; i < len; i++)
@@ -157,6 +155,7 @@ public class ChatThemeManager
 
 				String themeID = t.getString(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMEID);
 				theme.setThemeId(themeID);
+				theme.setThemeType(t.getInt(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMESTATE));
 
 				// looping to the no of indexes for a theme
 				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++)
@@ -166,21 +165,22 @@ public class ChatThemeManager
 					String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
 
 					int size = 0;
-					if(assetObj.has(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE))
+					if(assetObj.has(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE)) {
 						size = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
-
+					}
 					theme.setAsset(j, id);
-					if (!assetIds.contains(id))
+					if (!mAssetHelper.isAssetRecorded(id))
 					{
 						HikeChatThemeAsset hcta = new HikeChatThemeAsset(id, type, null, size);
-						assetsList.add(hcta);
-
-						if(type == HikeChatThemeConstants.ASSET_TYPE_COLOR)
-						{
-							hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
+						if(areTheseAssetsOnApk) {
+							hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
+						} else {
+							if(type == HikeChatThemeConstants.ASSET_TYPE_COLOR){
+								hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
+							}
 						}
+						assetsList.add(hcta);
 						mAssetHelper.addDownloadedAsset(id, hcta);
-						assetIds.add(id);
 					}
 				}
 				themeList.add(theme);
@@ -188,12 +188,11 @@ public class ChatThemeManager
 				mChatThemesList.put(themeID, theme);
 			}
 
-			Logger.d(TAG, "unique asset count in MQTT packet :" + assetIds.size());
 			Logger.d(TAG, "unique chat themes in MQTT packet :" + themeList.size());
 			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
 
-			if(downloadAssets) {
+			if(!areTheseAssetsOnApk) {
 				for (HikeChatTheme theme : themeList) {
 					//querying for chat themes data (images) when the packet is received. The call might be removed later.
 					downloadAssetsForTheme(theme.getThemeId());
@@ -242,6 +241,7 @@ public class ChatThemeManager
 		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
 	}
 
+	//TODO CHATTHEME to work downloading themes from server
 	public void downloadThemeAssetsMetadata(String[] themeIds)
 	{
 		ArrayList<String> downloadThemeIds = new ArrayList<String>();
@@ -291,7 +291,7 @@ public class ChatThemeManager
 			if(jsonObj != null) {
 				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-				processNewThemeSignal(themeData, false);
+				processNewThemeSignal(themeData, true);
 			} else {
 				Log.v(TAG, "Unable to load "+HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME+" file from assets");
 			}

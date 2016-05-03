@@ -19,7 +19,7 @@ public class HikeChatTheme
 
 	private int assetDownloadStatus = 0;
 
-	private int themeType;
+	private int themeType = 0;
 
 	private String[] assets;
 
@@ -120,15 +120,20 @@ public class HikeChatTheme
 		return ((this.assetDownloadStatus & assetStatus) > 0);
 	}
 
+	// if a theme is tiled, the first bit of themeType is set
 	public boolean isTiled()
 	{
-		// if a theme is tiled, the first bit of themeType is set
-		return (themeType & 1) > 0;
+		return (themeType & HikeChatThemeConstants.THEME_TYPE_TILED) == HikeChatThemeConstants.THEME_TYPE_TILED;
 	}
 
+	//if a theme is animated, the second bit of themeType is set
 	public boolean isAnimated()
 	{
-		//if a theme is animated, the second bit of themeType is set
-		return (themeType & 2) > 0;
+		return (themeType & HikeChatThemeConstants.THEME_TYPE_ANIMATED) == HikeChatThemeConstants.THEME_TYPE_ANIMATED;
+	}
+
+	public boolean isCustomTheme()
+	{
+		return (themeType & HikeChatThemeConstants.THEME_TYPE_CUSTOM) == HikeChatThemeConstants.THEME_TYPE_CUSTOM;
 	}
 }
