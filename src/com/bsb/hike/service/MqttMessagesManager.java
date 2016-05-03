@@ -51,6 +51,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -129,6 +130,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 /**
  *
@@ -970,7 +972,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage())
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey());
+			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 		}
 
@@ -983,7 +985,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+			NetworkType networkType = FTUtils.getNetworkType(context);
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
 				if ((networkType == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
@@ -2168,6 +2170,11 @@ public class MqttMessagesManager
 			 */
 			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
+		if (data.has(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP))
+		{
+			boolean enableSettingsBackup = data.getBoolean(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, enableSettingsBackup);
+		}
 		if (data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
 			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
@@ -2452,7 +2459,7 @@ public class MqttMessagesManager
 		{
 			String ftHostIps = data.getString(HikeConstants.FT_HOST_IPS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
-			FileTransferManager.getInstance(context).setFThostURIs();
+			HttpManager.setFtHostUris();
 		}
 		if (data.has(HikeConstants.HTTP_HOST_IPS))
 		{
@@ -3128,7 +3135,10 @@ public class MqttMessagesManager
 
 		if(!makeAnEditCall)
 		{
-
+			if(TextUtils.isEmpty(newMsisdn))
+			{
+				return;
+			}
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
 		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
@@ -3667,8 +3677,7 @@ public class MqttMessagesManager
 			// download the protip only if the URL is non empty
 			// also respect the user's auto photo download setting.
 			if (!TextUtils.isEmpty(protip.getImageURL())
-					&& ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FileTransferManager
-							.getInstance(context).getNetworkType() != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
+					&& ((FTUtils.getNetworkType(context) == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FTUtils.getNetworkType(context) != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
 			{
 				autoDownloadProtipImage(statusMessage, true);
 			}
@@ -4651,6 +4660,10 @@ public class MqttMessagesManager
 		{
 			showToast(jsonObj);
 		}
+		else if (ABTest.onRequestReceived(type, jsonObj))
+		{
+			//Do nothing, if its a ABTest message its handled
+		}
 	}
 	
 	private void saveInfraConfig(JSONObject jsonObj)
@@ -4794,8 +4807,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadProfileImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}
@@ -4808,8 +4821,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadGroupImage(String id)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}

@@ -1417,7 +1417,7 @@
     <string name="share_on_timeline">टाइमलाइन वर शेअर करायची?</string>
     <string name="posting_photos_timeline">तुमचे फोटोज टाइमलईंवरपोस्ट केले जात आहेत</string>
     <string name="add_a_caption">कैप्शन सामील</string>
-    <string name="keyboard_shutdown_heading">Hike आपले स्थानिक कीबोर्ड काढत आहे</string>
+    <string name="keyboard_shutdown_heading">Hike चे स्थानिक कीबोर्ड काढले जात आहे</string>
     <string name="keyboard_shutdown_description">तुम्ही तुमचे संभाषण तुमच्या फोनच्या कीबोर्डने चालू ठेऊ शकता किंवा प्लेस्टोअर मधून स्थानिक कीबोर्ड डाउनलोड करू शकता</string>
     <string name="open_phone_keyboard">फोन कीबोर्ड</string>
     <string name="open_google_keyboard">गूगल कीबोर्ड</string>
@@ -1425,4 +1425,5 @@
     <string name="slide_to_cancel">रद्द साठी स्लाईड करा</string>
     <string name="recording_help_text"> रेकॉर्ड करण्यासाठी टॅप धरून ठेवा</string>
     <string name="max_duration_recorded">जास्तीत जास्त कालावधीसाठी रेकॉर्डिंग केले</string>
+    <string name="stream_volume_muted_or_low">कृप्या आवाज वाढवा</string>
 </resources>

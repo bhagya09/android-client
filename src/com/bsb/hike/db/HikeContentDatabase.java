@@ -69,6 +69,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
+		if(mDB == null)
+		{
+			mDB = db;
+		}
 		// CREATE all tables, it is possible that few tables are created in this version
 		String[] updateQueries = getUpdateQueries(oldVersion, newVersion);
 

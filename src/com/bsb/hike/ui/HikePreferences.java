@@ -14,6 +14,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.backup.AccountBackupRestore;
@@ -68,6 +69,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
@@ -100,6 +102,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	
 	private boolean mIsResumed = false;
 	
+	private boolean isSettingChanged = false;
+
 	@Override
 	public Object onRetainNonConfigurationInstance()
 	{
@@ -135,6 +139,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			saveKeyboardPref();
 		}
 
+		setOnChangeForAllPref(getPreferenceScreen());
+
 		addClickPreferences();
 		addSwitchPreferences();
 		addAppLanguagePreference();
@@ -163,6 +169,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		tryToSetupSMSPreferencesScreen();
 		setupToolBar(titleRes);
 
+	}
+
+	private void setOnChangeForAllPref(PreferenceGroup prefGroup)
+	{
+		int prefCount = prefGroup.getPreferenceCount();
+		for(int i = 0; i<prefCount;i++)
+		{
+			Preference prefs = prefGroup.getPreference(i);
+			if(prefs instanceof PreferenceGroup)
+			{
+				setOnChangeForAllPref((PreferenceGroup) prefs);
+			}
+			else
+			{
+				prefs.setOnPreferenceChangeListener(this);
+			}
+		}
 	}
 	
 	private void addSMSCardEnablePref()
@@ -303,28 +326,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			}
 			languagePref.setEntries(entries);
 			languagePref.setEntryValues(entries);
-			languagePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-
+			languagePref.setOnPreferenceClickListener(new OnPreferenceClickListener()
+			{
 				@Override
-				public boolean onPreferenceChange(Preference preference, Object newValue) {
-					for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this)) {
-						if (language.getDisplayName().equalsIgnoreCase((String) newValue)) {
-							LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
-							languagePref.setSummary(language.getDisplayName());
-							//AND-3956 Begin: resetting offline parameters on language change
-							String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
-							OfflineController.getInstance().setConfiguration(offlineParams);
-							//AND-3956 End
-							restartHomeActivity();
-						}
-					}
-					return true;
-				}
-			});
-			//AND-4046 Begin
-			languagePref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
+				public boolean onPreferenceClick(Preference preference)
+				{
 					if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UNSUPPORTED_LANG_TOAST_SHOWN, false))
 					{
 						String unsupportedLanguages = LocalLanguage.getUnsupportedLocaleToastText(HikePreferences.this);
@@ -337,7 +343,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					return false;
 				}
 			});
-			//AND-4046 End
 		}
 	}
 
@@ -654,6 +659,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	protected void onPause() {
 		super.onPause();
 		mIsResumed = false;
+		if(isSettingChanged)
+		{
+			isSettingChanged = false;
+			HikeCloudSettingsManager.getInstance().doBackup();
+		}
 	}
 
 	@Override
@@ -1108,7 +1118,127 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 			return false;
 		}
+		else if(HikeConstants.COLOR_LED_PREF.equals(preference.getKey()))
+		{
+			// Color.parseColor throws an IllegalArgumentException exception
+			// If the string cannot be parsed
+			try
+			{
+				ListPreference preferenceLed = (ListPreference) preference;
+				int index = preferenceLed.findIndexOfValue(newValue.toString());
 
+				if (index >= 0) {
+					preference.setTitle(getString(R.string.led_notification) + ": " + preferenceLed.getEntries()[index]);
+				}
+
+				if(getString(R.string.led_color_none_key).equals(newValue.toString()))
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
+				}
+				else
+				{
+					int finalColor = Color.parseColor(newValue.toString().toLowerCase());
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, finalColor);
+				}
+			}
+			catch (IllegalArgumentException e)
+			{
+				e.printStackTrace();
+				return false;
+			}
+		}
+		else if(HikeConstants.VIBRATE_PREF_LIST.equals(preference.getKey()))
+		{
+			//AND-3843 Begin
+			ListPreference  preferenceVib= (ListPreference) preference;
+			int index = preferenceVib.findIndexOfValue(newValue.toString());
+			if (index >= 0) {
+				preference.setTitle(getString(R.string.vibrate) + ": " + preferenceVib.getEntries()[index]);
+			}
+			//AND-3843 End
+			try
+			{
+				Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
+				if (vibrator != null)
+				{
+					if (getString(R.string.vib_long).equals(newValue.toString()))
+					{
+						// play long
+						vibrator.vibrate(HikeConstants.LONG_VIB_PATTERN, -1);
+					}
+					else if (getString(R.string.vib_short).equals(newValue.toString()))
+					{
+						// play short
+						vibrator.vibrate(HikeConstants.SHORT_VIB_PATTERN, -1);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else if(HikeConstants.LOCAL_LANGUAGE_PREF.equals(preference.getKey()))
+		{
+			final LocalLanguage localLanguage = LocalLanguageUtils.getApplicationLocalLanguage(HikePreferences.this);
+			for (LocalLanguage language : localLanguage.getDeviceSupportedHikeLanguages(HikePreferences.this)) {
+				if (language.getDisplayName().equalsIgnoreCase((String) newValue)) {
+					LocalLanguageUtils.setApplicationLocalLanguage(language, HikeConstants.APP_LANG_CHANGED_SETTINGS);
+					preference.setSummary(language.getDisplayName());
+					//AND-3956 Begin: resetting offline parameters on language change
+					String offlineParams = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.OFFLINE, "{}");
+					OfflineController.getInstance().setConfiguration(offlineParams);
+					//AND-3956 End
+					restartHomeActivity();
+				}
+			}
+		}
+		else if(HikeConstants.LAST_SEEN_PREF_LIST.equals(preference.getKey()))
+		{
+			try
+			{
+				int slectedPrivacyId = Integer.parseInt(newValue.toString());
+				if(slectedPrivacyId == -1)
+				{
+					Toast.makeText(getBaseContext(), R.string.ls_change_failed, Toast.LENGTH_SHORT).show();
+					return false;
+				}
+				String selectedPrivacyValue = "";
+				boolean isLSEnabled = true;
+				String ls_summary = null;
+				switch (HikeConstants.PrivacyOptions.values()[slectedPrivacyId]) {
+					case NOBODY:
+						isLSEnabled = false;
+						selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_nobody_key);
+						ls_summary = getApplicationContext().getString(R.string.ls_nobody_summary);
+						HAManager.logClickEvent(HikeConstants.LogEvent.LS_NOBODY_CLICKED);
+						break;
+					case EVERYONE:
+						selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_everyone_key);
+						ls_summary = getApplicationContext().getString(R.string.ls_everyone_summary);
+						HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
+						break;
+					case FAVORITES:
+						selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+						ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
+						HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
+						break;
+					case MY_CONTACTS:
+						selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
+						ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
+						HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
+						break;
+				}
+				preference.setTitle(getString(R.string.last_seen_header) + ": " + selectedPrivacyValue);
+				preference.setSummary(ls_summary);
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.LAST_SEEN_PREF, isLSEnabled).commit();
+				sendNLSToServer(slectedPrivacyId, isLSEnabled);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 		else if (newValue instanceof Boolean)
 		{
 			boolean isChecked = (Boolean) newValue;
@@ -1362,6 +1492,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				return false;
 			} 
 		}
+
+		isSettingChanged = true;
 		return true;
 	}
 
@@ -1411,6 +1543,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void updatePrivacyPrefView()
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);
+
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
 			lp.setEntries(R.array.privacyPrefKeysFriendsExp);
@@ -1570,43 +1703,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void updateNotifPrefView()
 	{
 		ListPreference lp = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.VIBRATE_PREF_LIST);
-		lp.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-		{
-
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue)
-			{
-				//AND-3843 Begin
-				ListPreference  preferenceVib= (ListPreference) preference;
-				int index = preferenceVib.findIndexOfValue(newValue.toString());
-				if (index >= 0) {
-					preference.setTitle(getString(R.string.vibrate) + ": " + preferenceVib.getEntries()[index]);
-				}
-				//AND-3843 End
-				try
-				{
-					Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-					if (vibrator != null)
-					{
-						if (getString(R.string.vib_long).equals(newValue.toString()))
-						{
-							// play long
-							vibrator.vibrate(HikeConstants.LONG_VIB_PATTERN, -1);
-						}
-						else if (getString(R.string.vib_short).equals(newValue.toString()))
-						{
-							// play short
-							vibrator.vibrate(HikeConstants.SHORT_VIB_PATTERN, -1);
-						}
-					}
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-				return true;
-			}
-		});
                 //AND-3843 Begin
 		if(TextUtils.isEmpty(lp.getEntry())){
 			lp.setValueIndex(1); // 1= DEFAULT, which is default mentioned in notifications_preferences.xml
@@ -1616,42 +1712,6 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		lp.setNegativeButtonText(R.string.CANCEL);
 		
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
-		ledPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-		{
-
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue)
-			{
-				// Color.parseColor throws an IllegalArgumentException exception 
-				// If the string cannot be parsed
-				try
-				{
-					ListPreference preferenceLed = (ListPreference) preference;
-					int index = preferenceLed.findIndexOfValue(newValue.toString());
-
-					if (index >= 0) {
-						preference.setTitle(getString(R.string.led_notification) + ": " + preferenceLed.getEntries()[index]);
-					}
-
-					if(getString(R.string.led_color_none_key).equals(newValue.toString()))
-					{
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, HikeConstants.LED_NONE_COLOR);
-					}
-					else
-					{
-						int finalColor = Color.parseColor(newValue.toString().toLowerCase());
-						HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.LED_NOTIFICATION_COLOR_CODE, finalColor);
-					}
-					return true;
-				}
-				catch (IllegalArgumentException e)
-				{
-					e.printStackTrace();
-					return false;
-				}
-			}
-		});
-		
 
 		String entry = (String) ledPref.getEntry();
 		if (entry == null)

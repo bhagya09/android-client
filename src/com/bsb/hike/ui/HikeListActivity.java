@@ -598,6 +598,7 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 				}
 				HikeMessengerApp.getPubSub().publish(blocked ? HikePubSub.BLOCK_USER : HikePubSub.UNBLOCK_USER, msisdn);
 			}
+			sendBlockAnalyticsOnBackAndSaveEvent(true);
 			finish();
 		}
 	}
@@ -739,12 +740,28 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 	{
 		setResult(RESULT_OK);
 		super.onBackPressed();
+		sendBlockAnalyticsOnBackAndSaveEvent(false);
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
+	}
+
+	private void sendBlockAnalyticsOnBackAndSaveEvent(boolean isBlockChangesSaved) {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.BLOCK_LIST_BACK_PRESS);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.BLOCK_LIST_BACK);
+			json.put(AnalyticsConstants.V2.VAL_INT, isBlockChangesSaved ? 1 : 0);
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.toString();
+		}
 	}
 
 }

@@ -17,7 +17,7 @@ public final class GzipRequestInterceptor implements IRequestInterceptor
 	private static final int THRESHOLD_LENGTH_FOR_GZIP = 250;
 
 	@Override
-	public void intercept(Chain chain)
+	public void intercept(Chain chain) throws Exception
 	{
 		RequestFacade requestFacade = chain.getRequestFacade();
 

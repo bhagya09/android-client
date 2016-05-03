@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 49;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 50;
 
 	public static final int USERS_DATABASE_VERSION = 18;
 
@@ -569,4 +569,6 @@ public interface DBConstants
 	int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

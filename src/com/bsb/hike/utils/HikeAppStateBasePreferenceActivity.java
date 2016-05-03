@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.view.Window;
 
-//Use real Action Bar here not the support one https://www.grokkingandroid.com/migrating-actionbarsherlock-actionbarcompat/
 public abstract class HikeAppStateBasePreferenceActivity extends PreferenceActivity
 {
 	@Override

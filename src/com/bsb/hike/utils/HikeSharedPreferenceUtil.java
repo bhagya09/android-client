@@ -1,19 +1,28 @@
 package com.bsb.hike.utils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-
-import com.bsb.hike.HikeMessengerApp;
-
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.support.annotation.StringDef;
+
+import com.bsb.hike.HikeMessengerApp;
+
 public class HikeSharedPreferenceUtil
 {
+	@Retention(RetentionPolicy.SOURCE)
+	@StringDef({ HikeMessengerApp.ACCOUNT_SETTINGS, HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF, HikeMessengerApp.DEFAULT_SETTINGS_PREF })
+	public @interface SharedPrefFile
+	{
+	}
+
 	private static final String DEFAULT_PREF_NAME = HikeMessengerApp.ACCOUNT_SETTINGS;
 
 	public static final String STRING_EMPTY = "";
@@ -123,8 +132,7 @@ public class HikeSharedPreferenceUtil
 	}
 
 	/**
-	 * It was added on API 11 onwards.
-	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 * It was added on API 11 onwards. Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
 	 */
 	public synchronized boolean saveStringSet(String key, Set<String> stringSet)
 	{
@@ -194,8 +202,7 @@ public class HikeSharedPreferenceUtil
 	}
 
 	/**
-	 * It was added on API 11 onwards.
-	 * Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
+	 * It was added on API 11 onwards. Instead of this, use of getDataSet(String, Set<String>) in all cases is recommended.
 	 */
 	public synchronized Set<String> getStringSet(String key, Set<String> defaultValues)
 	{

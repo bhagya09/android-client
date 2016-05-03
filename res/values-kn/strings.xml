@@ -1422,11 +1422,12 @@
     <string name="posting_photos_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಚಿತ್ರಗಳನ್ನು ಕಳುಹಿಸಿ.</string>
     <string name="add_a_caption">ಕ್ಯಾಪ್ಶನ್ಅನ್ನು ಜೊಡಿಸಿ </string>
     <string name="keyboard_shutdown_heading">Hike ಪ್ರಾದೇಶಿಕ ಕೀಬೋರ್ಡ್ ತಗೆದುಹಾಕಲಾಗಿದೆ</string>
-    <string name="keyboard_shutdown_description">ಫೋನಿನ ಕೀಬೋರ್ಡ್ನೊಂದಿಗೆ ಚಾಟ್ ಮುಂದ್ವರಿಸಬಹುದು ಅಥವಾ ಪ್ಲೇಸ್ಟೋರ ನಿಂದ ಪ್ರಾದೇಶಿಕ ಹೈಕ್ ಕೀಬೋರ್ಡ್ ಡೌನ್ಲೋಡ್ ಮಾಡಬಹುದು</string>
+    <string name="keyboard_shutdown_description">ಫೋನಿನ ಕೀಬೋರ್ಡ್ನೊಂದಿಗೆ ಚಾಟ್ ಮುಂದ್ವರಿಸೀರಿ ಅಥವಾ ಪ್ಲೇಸ್ಟೋರ ನಿಂದ ಹೈಕ್ ಕೀಬೋರ್ಡ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿರಿ</string>
     <string name="open_phone_keyboard">ಫೋನಿನ ಕೀಬೋರ್ಡ್</string>
     <string name="open_google_keyboard">ಗೂಗಲ್ಲಿನ ಕೀಬೋರ್ಡ್ </string>
 
     <string name="slide_to_cancel">ಕ್ಯಾಂಸಲ್ಗೆ ಸ್ಲೈಡ್ ಮಾಡಿ</string>
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
+    <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
 </resources>

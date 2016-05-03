@@ -33,6 +33,7 @@ public class SharedFileImageLoader extends ImageWorker
 		this.context = context;
 		this.size_image = size_image;
 		this.isThumbnail = isThumbnail;
+		mResources = context.getResources();
 	}
 	
 	@Override

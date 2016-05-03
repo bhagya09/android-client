@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="00:00"
-            android:textColor="@color/black"
+            android:textColor="@color/rec_duration_color"
             android:textSize="18sp"
             android:textStyle="bold|italic" />
 
@@ -65,12 +65,12 @@
 
     <ViewStub
         android:id="@+id/walkie_recorder"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="-14dp"
-        android:layout_marginBottom="-12dp"
+        android:layout_marginRight="-21dp"
+        android:layout_marginBottom="-22dp"
         android:layout_gravity="center"
         android:contentDescription="@string/content_des_send_recorded_audio_text_chatting"
         android:gravity="center"
@@ -79,13 +79,13 @@
 
     <ImageView
         android:id="@+id/recording_cancel"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_gravity="center"
-        android:paddingTop="41dp"
-        android:layout_marginLeft="-21dp"
+        android:paddingTop="51.5dp"
+        android:layout_marginLeft="-26.5dp"
         android:background="@null"
         android:gravity="center"
         android:scaleType="centerCrop"

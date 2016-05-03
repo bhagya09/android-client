@@ -25,6 +25,8 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
@@ -54,6 +56,8 @@ public class HttpRequestConstants
 	private static final String BASE_V3 = "/v3";
 
 	private static final String BASE_V4 = "/v4";
+
+	private static final String BASE_V5 = "/v5";
 
 	private static final String BASE_ACCOUNT = "/account";
 
@@ -98,6 +102,8 @@ public class HttpRequestConstants
 	private static final String BASE_BLOCK = "/block";
 
 	private static final String BASE_BLOCKED_LIST = "/blocked_list";
+
+	private static final String HIKE_SETTINGS = "/hikesettings";
 
 	public static synchronized void setUpBase()
 	{
@@ -529,6 +535,31 @@ public class HttpRequestConstants
         }
     }
 
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
+
+	public static String getAnalyticsUrl()
+	{
+		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
+	}
+
     /*
      * Async Method to fetch latest micro app from server for forward card case
      */
@@ -546,12 +577,18 @@ public class HttpRequestConstants
         }
     }
 
-	public static String getAnalyticsUrl() {
-		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
-	}
-
 	public static String getHistoricalStatusUpdatesUrl()
 	{
 		return  BASE_URL + BASE_V1 + "hsu/";
+	}
+
+	public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 }
