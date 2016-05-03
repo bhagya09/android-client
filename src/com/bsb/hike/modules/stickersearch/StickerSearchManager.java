@@ -402,7 +402,7 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		downloadStickerTags(firstTime, state, languagesSet,null);
+		downloadStickerTags(firstTime, state, null, languagesSet);
 	}
 
 	/**
