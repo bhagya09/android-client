@@ -3132,7 +3132,10 @@ public class MqttMessagesManager
 
 		if(!makeAnEditCall)
 		{
-
+			if(TextUtils.isEmpty(newMsisdn))
+			{
+				return;
+			}
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
 		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
