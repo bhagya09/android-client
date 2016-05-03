@@ -3,16 +3,6 @@
  */
 package com.bsb.hike.modules.contactmgr;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -42,7 +32,33 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.modules.iface.ITransientCache;
 import com.bsb.hike.tasks.UpdateAddressBookTask;
-import com.bsb.hike.utils.*;
+import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Gautam & Sidharth
@@ -3147,6 +3163,23 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public boolean isTwoWayFriend(String msisdn)
 	{
 		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
+	}
+
+	public Set<String> getMsisdnForMissingUID() {
+		Set<String> msisdn = new HashSet<>();
+		msisdn.addAll(HikeUserDatabase.getInstance().getMsisdnsForMissingHikeUID());
+
+		List<ContactInfo> oneToOneContacts = getAllConversationContactsSorted(false, true);
+
+		//Active Chats
+		for (ContactInfo ci : oneToOneContacts) {
+			if (TextUtils.isEmpty(ci.getUid())) {
+				msisdn.add(ci.getMsisdn());
+			}
+		}
+
+		return msisdn;
+		//Bots
 	}
 }
 
