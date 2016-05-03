@@ -140,6 +140,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	{
 		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
+            loadingEmptyState.setVisibility(View.GONE);
+            listview.setVisibility(View.GONE);
 			setSearchEmptyState(query);
 			searchFailedState.setVisibility(View.VISIBLE);
 		}
