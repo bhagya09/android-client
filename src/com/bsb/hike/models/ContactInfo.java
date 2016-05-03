@@ -495,7 +495,7 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 		setNum(6, 7, contactInfo.getOffline() + 1);
 	}
 
-	private String getUid() {
+	public String getUid() {
 		return uid;
 	}
 
