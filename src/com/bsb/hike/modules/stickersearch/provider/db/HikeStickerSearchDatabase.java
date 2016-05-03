@@ -225,8 +225,11 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
         if (oldVersion < HikeStickerSearchBaseConstants.VERSION_SHOP_SEARCH_ADDED)
         {
-            String sql = getCategoryTagMappingTableCreateQuery();
-            db.execSQL(sql);
+            if(!Utils.isTableExists(db,HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING))
+            {
+                String sql = getCategoryTagMappingTableCreateQuery();
+                db.execSQL(sql);
+            }
         }
 
 		Logger.i(TAG_UPGRADE,
