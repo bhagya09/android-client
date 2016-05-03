@@ -910,4 +910,6 @@ public class AnalyticsConstants
 
 	public static final String HIDDEN_UK = "hs_hi";
 
+	public static final String INVITE_FRIENDS = "invt_frnds";
+
 }
