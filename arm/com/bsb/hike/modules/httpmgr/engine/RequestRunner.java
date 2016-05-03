@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
@@ -46,6 +47,10 @@ public class RequestRunner
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
+					if (request.getGcmTaskConfig() != null)
+					{
+						HikeGcmNetworkMgr.getInstance().schedule(request.getGcmTaskConfig());
+					}
 				}
 				else
 				{
