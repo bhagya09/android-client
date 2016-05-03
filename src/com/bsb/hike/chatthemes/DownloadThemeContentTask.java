@@ -26,16 +26,16 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 
-public class DownloadAssetIdTask implements IHikeHTTPTask, IHikeHttpTaskResult
+public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskResult
 {
 
     private String[] mThemeIds;
 
     private RequestToken token;
 
-    private final String TAG = "DownloadAssetIdTask";
+    private final String TAG = "DownloadThemeContentTask";
 
-    public DownloadAssetIdTask(String[] themeIds)
+    public DownloadThemeContentTask(String[] themeIds)
     {
         this.mThemeIds = themeIds;
     }
@@ -140,7 +140,7 @@ public class DownloadAssetIdTask implements IHikeHTTPTask, IHikeHttpTaskResult
         try
         {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            ChatThemeManager.getInstance().processNewThemeSignal(data);
+            ChatThemeManager.getInstance().processNewThemeSignal(data, true);
         }
         catch (JSONException e)
         {

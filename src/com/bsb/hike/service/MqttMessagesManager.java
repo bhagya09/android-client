@@ -567,7 +567,7 @@ public class MqttMessagesManager
 					convDb.setChatBackground(groupId, bgId, 0);
 
 					//putting request to download the asset ids for the theme
-					ChatThemeManager.getInstance().downloadAssetIds(new String[]{bgId});
+					ChatThemeManager.getInstance().downloadThemeAssetsMetadata(new String[]{bgId});
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -3820,7 +3820,7 @@ public class MqttMessagesManager
 			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
 
 			//putting a request to downlaod the asset ids for the theme
-			ChatThemeManager.getInstance().downloadAssetIds(new String[]{bgId});
+			ChatThemeManager.getInstance().downloadThemeAssetsMetadata(new String[]{bgId});
 
 			saveStatusMsg(jsonObj, id);
 		}
@@ -3842,7 +3842,7 @@ public class MqttMessagesManager
 			{
 				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-				ChatThemeManager.getInstance().processNewThemeSignal(themeData);
+				ChatThemeManager.getInstance().processNewThemeSignal(themeData, true);
 				return true;
 			}
 			else if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet

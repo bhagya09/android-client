@@ -57,6 +57,12 @@ public class ChatThemeDrawableHelper
 				Log.v(TAG, "Drawable does not exist on SD Card : ");
 			}
 		}
+		if ((theme != null) && (drawable == null)) {
+			drawable = getAPKDrawable(theme, assetIndex);
+			if (drawable == null) {
+				Logger.v(TAG, "Drawable does not exist on APK file (preloaded file) :");
+			}
+		}
 		if (drawable == null)
 		{
 			ChatThemeManager.getInstance().getAssetHelper().setAssetMissing(theme, assetIndex);
@@ -84,6 +90,14 @@ public class ChatThemeDrawableHelper
 			return null;
 		}
 		return getDrawableFromSDCard(asset);
+	}
+
+	private Drawable getAPKDrawable(HikeChatTheme theme, byte assetIndex) {
+		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(theme.getAssetId(assetIndex));
+		if(asset == null) {
+			return null;
+		}
+		return getResourceIdFromName(asset);
 	}
 
 	private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset)
@@ -117,6 +131,28 @@ public class ChatThemeDrawableHelper
 			}
 		}
 		return drawable;
+	}
+
+	private Drawable getResourceIdFromName(HikeChatThemeAsset asset){
+		switch (asset.getType()) {
+			case HikeChatThemeConstants.ASSET_TYPE_JPEG:
+			case HikeChatThemeConstants.ASSET_TYPE_PNG:
+			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
+			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
+				Logger.v(TAG, "value ::: " + asset.getValue());
+				int index = asset.getValue().indexOf('.');
+				String assetName = asset.getValue();
+				if (index > 0) {
+					assetName = asset.getValue().substring(0, index);
+				}
+				Logger.v(TAG, "assetName ::: " + assetName);
+				int resourceId = HikeMessengerApp.getInstance().getApplicationContext().getResources().getIdentifier(assetName, "drawable", HikeMessengerApp.getInstance().getApplicationContext().getPackageName());
+				Logger.v(TAG, "resourceId ::: " + resourceId);
+				return getDrawableFromId(resourceId);
+			case HikeChatThemeConstants.ASSET_TYPE_COLOR:
+				return new ColorDrawable(Color.parseColor("#" + asset.getValue()));
+		}
+		return null;
 	}
 
 	private boolean isFileExists(String path)

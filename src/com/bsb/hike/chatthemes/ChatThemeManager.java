@@ -1,13 +1,10 @@
 package com.bsb.hike.chatthemes;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +13,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -65,8 +63,7 @@ public class ChatThemeManager
 		return mInstance;
 	}
 
-	private void initialize()
-	{
+	private void initialize() {
 		mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
 		mDrawableHelper = new ChatThemeDrawableHelper();
 		mAssetHelper = new ChatThemeAssetHelper();
@@ -74,6 +71,11 @@ public class ChatThemeManager
 		// initialising the default theme
 		defaultChatTheme.setThemeId(defaultChatThemeId);
 		mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, false)) {
+			initializeHikeChatThemesWithDefaultSet();
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, true);
+		}
 	}
 
 	public ChatThemeAssetHelper getAssetHelper()
@@ -136,11 +138,10 @@ public class ChatThemeManager
 	}
 
 	//MQTT Signal packet processing
-	public void processNewThemeSignal(JSONArray data)
+	public void processNewThemeSignal(JSONArray data, boolean downloadAssets)
 	{
 		try
 		{
-
 			int len = data.length();
 
 			ArrayList<HikeChatTheme> themeList = new ArrayList<>();
@@ -192,10 +193,11 @@ public class ChatThemeManager
 			HikeConversationsDatabase.getInstance().saveChatThemes(themeList);
 			HikeConversationsDatabase.getInstance().saveChatThemeAssets(assetsList);
 
-			for(HikeChatTheme theme : themeList)
-			{
-				//querying for chat themes data (images) when the packet is received. The call might be removed later.
-				downloadAssetsForTheme(theme.getThemeId());
+			if(downloadAssets) {
+				for (HikeChatTheme theme : themeList) {
+					//querying for chat themes data (images) when the packet is received. The call might be removed later.
+					downloadAssetsForTheme(theme.getThemeId());
+				}
 			}
 		}
 		catch(JSONException e)
@@ -240,7 +242,7 @@ public class ChatThemeManager
 		return mDrawableHelper.getDrawableForTheme(getTheme(themeId), assetIndex);
 	}
 
-	public void downloadAssetIds(String[] themeIds)
+	public void downloadThemeAssetsMetadata(String[] themeIds)
 	{
 		ArrayList<String> downloadThemeIds = new ArrayList<String>();
 		for(String themeId : themeIds)
@@ -266,11 +268,11 @@ public class ChatThemeManager
 			downloadThemesArr[i] = downloadThemeIds.get(i);
 		}
 
-		DownloadAssetIdTask downloadAssetIds;
+		DownloadThemeContentTask downloadAssetIds;
 
 		if(downloadThemesArr.length > 0)
 		{
-			downloadAssetIds = new DownloadAssetIdTask(downloadThemesArr);
+			downloadAssetIds = new DownloadThemeContentTask(downloadThemesArr);
 			downloadAssetIds.execute();
 		}
 
@@ -281,4 +283,21 @@ public class ChatThemeManager
 		}
 		HikeConversationsDatabase.getInstance().saveChatThemes(updateThemes);
 	}
+
+
+	public void initializeHikeChatThemesWithDefaultSet(){
+		try {
+			JSONObject jsonObj = new JSONObject(Utils.loadJSONFromAsset(HikeMessengerApp.getInstance().getApplicationContext(), HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME));
+			if(jsonObj != null) {
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+				processNewThemeSignal(themeData, false);
+			} else {
+				Log.v(TAG, "Unable to load "+HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME+" file from assets");
+			}
+		}catch(JSONException e){
+			e.printStackTrace();
+		}
+	}
+
 }
