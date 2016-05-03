@@ -408,7 +408,7 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
             Logger.v(TAG, "createCategoryVirtualTable() : Creating virtual table with name: " + tableName);
 
 			sql = "CREATE VIRTUAL TABLE " + tableName + " USING fts4(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ", " + HikeStickerSearchBaseConstants.TAG_REAL_PHRASE
-					+ ", FOREIGN KEY(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ") REFERENCES " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
+					+ ",tokenize=simple, FOREIGN KEY(" + HikeStickerSearchBaseConstants.TAG_GROUP_UNIQUE_ID + ") REFERENCES " + HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING + "("
 					+ HikeStickerSearchBaseConstants.UNIQUE_ID + "))";
 
             mDb.execSQL(sql);
