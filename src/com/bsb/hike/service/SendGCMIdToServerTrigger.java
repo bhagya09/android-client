@@ -134,7 +134,6 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 					requestBody.put(PreloadNotificationSchedular.INCENTIVE_ID, mprefs.getData(PreloadNotificationSchedular.INCENTIVE_ID, "-1"));
 					requestBody.put(GCMIntentService.DEV_TYPE, HikeConstants.ANDROID);
 					requestBody.put(GCMIntentService.DEV_TOKEN, regId);
-					requestBody.put(GCMIntentService.OLD_DEV_TOKEN, regId);
 				}
 				catch (JSONException e)
 				{
@@ -166,7 +165,7 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 
 					Logger.d("pa","old gcm ID is : " + oldGcmId);
 				}
-				catch (JSONException e)
+				catch (Exception e)
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -225,8 +224,12 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 							String pa_token = response.getString("pa_token");
 
 							Logger.d("pa","pa_encryption_key : " + enKey);
+							mprefs.saveData("pa_encryption_key", enKey);
 							Logger.d("pa","pa_uid : " + pa_uid);
-							Logger.d("pa","pa_tokengit : " + pa_token);
+							mprefs.saveData("pa_uid", pa_uid);
+							Logger.d("pa","pa_token : " + pa_token);
+							mprefs.saveData("pa_token", pa_token);
+
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
