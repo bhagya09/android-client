@@ -4,9 +4,11 @@ import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
+import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.gcm.OneoffTask;
 
 /**
  * Created by sidharth on 03/05/16.
@@ -53,6 +55,19 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
             Logger.e(TAG, "google play services not available");
             return;
         }
+
+        OneoffTask task = new OneoffTask.Builder()
+                .setTag(config.getTag())
+                .setService(config.getService())
+                .setExecutionWindow(config.getWindowStart(), config.getWindowEnd())
+                .setExtras(config.getExtras())
+                .setPersisted(config.isPersisted())
+                .setRequiredNetwork(config.getRequiredNetwork())
+                .setUpdateCurrent(config.isUpdateCurrent())
+                .setRequiresCharging(config.getRequiresCharging())
+                .build();
+
+        GcmNetworkManager.getInstance(context).schedule(task);
     }
 
     @Override
