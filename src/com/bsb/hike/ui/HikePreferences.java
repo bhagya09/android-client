@@ -249,6 +249,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		addSslPreferenceChangeListener();
 		addStickerRecommendAutopopupPreferenceChangeListener();
 		addEnableKnownNumberCardPrefListener();
+		addOnPreferenceChangeListeners(HikeConstants.COMPRESS_VIDEO);
+
+		addOnPreferenceChangeListeners(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.MD_AUTO_DOWNLOAD_VIDEO_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.MD_AUTO_DOWNLOAD_AUDIO_PREF);
+
+		addOnPreferenceChangeListeners(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.WF_AUTO_DOWNLOAD_VIDEO_PREF);
+		addOnPreferenceChangeListeners(HikeConstants.WF_AUTO_DOWNLOAD_AUDIO_PREF);
+
 	}
 	
 	private void addEnableKnownNumberCardPrefListener()
@@ -1499,7 +1509,42 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			} else if (HikeConstants.STEALTH_INDICATOR_ENABLED.equals(preference.getKey())) {
 				stealthConfirmPasswordOnPreferenceChange(preference, newValue);
 				return false;
-			} 
+			}
+
+			else if (HikeConstants.COMPRESS_VIDEO.equals(preference.getKey()))
+			{
+				recordVideoCompressionChange(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF.equals(preference.getKey()))
+			{
+				recordImageDownloadMobileDataPref(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.MD_AUTO_DOWNLOAD_AUDIO_PREF.equals(preference.getKey()))
+			{
+				recordAudioDownloadMobileDataPref(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.MD_AUTO_DOWNLOAD_VIDEO_PREF.equals(preference.getKey()))
+			{
+				recordVideoDownloadMobileDataPref(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF.equals(preference.getKey()))
+			{
+				recordImageDownloadWifiPref(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.WF_AUTO_DOWNLOAD_VIDEO_PREF.equals(preference.getKey()))
+			{
+				recordVideoDownloadWifiPref(Boolean.valueOf(newValue.toString()));
+			}
+
+			else if (HikeConstants.WF_AUTO_DOWNLOAD_AUDIO_PREF.equals(preference.getKey()))
+			{
+				recordAudioDownloadWifiPref(Boolean.valueOf(newValue.toString()));
+			}
 		}
 
 		isSettingChanged = true;
@@ -2058,94 +2103,69 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 	private void recordProfilePicPrivacySettings(int avatarSetting)
 	{
-		try
-		{
-			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
-
-			if (json != null)
-			{
-				json.put(AnalyticsConstants.V2.FAMILY, "dp_privacy");
-				json.put(AnalyticsConstants.V2.GENUS, avatarSetting == 1 ? "off" : "on");
-				HAManager.getInstance().recordV2(json);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
+		recordPreferencesAnalytics("dp_privacy", avatarSetting == 1 ? "off" : "on");
 	}
 
 	private void recordStatusAndProiflePicNotifSettings(boolean newSetting)
 	{
-		try
-		{
-			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
-
-			if (json != null)
-			{
-				json.put(AnalyticsConstants.V2.FAMILY, "notif_sudp");
-				json.put(AnalyticsConstants.V2.GENUS, newSetting ? "on" : "off");
-				HAManager.getInstance().recordV2(json);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
+		recordPreferencesAnalytics("notif_sudp", newSetting ? "on" : "off");
 	}
 
 	private void recordVibrationPrefListClick(String newValue)
 	{
-		try
-		{
-			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
-
-			if (json != null)
-			{
-				json.put(AnalyticsConstants.V2.FAMILY, "notif_vbrt");
-				json.put(AnalyticsConstants.V2.GENUS, newValue);
-				HAManager.getInstance().recordV2(json);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
-	}
-
-	private void recordTickSoundPrefChange(String newValue)
-	{
-		try
-		{
-			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
-
-			if (json != null)
-			{
-				json.put(AnalyticsConstants.V2.FAMILY, "notif_conv_tone");
-				json.put(AnalyticsConstants.V2.GENUS, newValue);
-				HAManager.getInstance().recordV2(json);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
+		recordPreferencesAnalytics("notif_vbrt", newValue);
 	}
 
 	private void recordLedPrefChange(String newValue)
 	{
+		recordPreferencesAnalytics("notif_led", newValue);
+	}
+
+	private void recordVideoCompressionChange(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_video_cmp", newValue ? "on" : "off");
+	}
+
+	private void recordImageDownloadMobileDataPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_img_mob", newValue ? "on" : "off");
+	}
+
+	private void recordVideoDownloadMobileDataPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_vid_mob", newValue ? "on" : "off");
+	}
+
+	private void recordAudioDownloadMobileDataPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_aud_mob", newValue ? "on" : "off");
+	}
+
+	private void recordAudioDownloadWifiPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_aud_wifi", newValue ? "on" : "off");
+	}
+
+	private void recordVideoDownloadWifiPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_vid_wifi", newValue ? "on" : "off");
+	}
+
+	private void recordImageDownloadWifiPref(boolean newValue)
+	{
+		recordPreferencesAnalytics("media_img_wifi", newValue ? "on" : "off");
+	}
+
+	private void recordPreferencesAnalytics(String family, String genus)
+	{
 		try
 		{
 			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
 
 			if (json != null)
 			{
-				json.put(AnalyticsConstants.V2.FAMILY, "notif_led");
-				json.put(AnalyticsConstants.V2.GENUS, newValue);
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				json.put(AnalyticsConstants.V2.GENUS, genus);
 				HAManager.getInstance().recordV2(json);
 			}
 		}
