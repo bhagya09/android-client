@@ -726,7 +726,9 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
-		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace);
+		String botMsisdn = message.getMsisdn();
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace, botInfo);
 	}
 
 	/**

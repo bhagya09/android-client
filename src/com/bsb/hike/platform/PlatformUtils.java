@@ -1494,7 +1494,7 @@ public class PlatformUtils
 			if (conv.getPlatformData() != null)
 			{
 				JSONObject sharedData = conv.getPlatformData();
-				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
+				String namespaces = sharedData.getString(HikePlatformConstants.NAMESPACE);
 				if (TextUtils.isEmpty(namespaces))
 				{
 					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
@@ -1509,9 +1509,11 @@ public class PlatformUtils
 					{
 						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
 					}
-					String metadata = sharedData.getString(HikePlatformConstants.EVENT_CARDDATA);
+					JSONObject metadata = new JSONObject(sharedData.getString(HikePlatformConstants.EVENT_CARDDATA));
+					metadata.put(HikePlatformConstants.EVENT_FROM_USER_ID, sharedData.get(HikePlatformConstants.EVENT_FROM_USER_ID));
+					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.get(HikePlatformConstants.PARENT_MSISDN));
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
-					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata, conv.createMessageHash(), state, conv.getSendTimestamp(),
+					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata.toString(), conv.createMessageHash(), state, conv.getSendTimestamp(),
 							mappedEventId);
 					long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 					if (eventId < 0)
@@ -1542,7 +1544,7 @@ public class PlatformUtils
 	 * @param messageHash
 	 * @param nameSpace
 	 */
-	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace)
+	public static void sendPlatformMessageEvent(String eventMetadata, String messageHash, String nameSpace, BotInfo botInfo)
 	{
 		String msisdn = HikeConversationsDatabase.getInstance().getMsisdnFromMessageHash(messageHash);
 		if (TextUtils.isEmpty(msisdn))
@@ -1554,10 +1556,11 @@ public class PlatformUtils
 		try
 		{
 			JSONObject data = new JSONObject(eventMetadata);
-			String cardData = data.getString(HikePlatformConstants.EVENT_CARDDATA);
-			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData, messageHash,
+			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.EVENT_FROM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.PARENT_MSISDN, BotUtils.getParentMsisdnFromBotMsisdn(botInfo.getMsisdn()));
+			JSONObject cardData = new JSONObject(data.getString(HikePlatformConstants.EVENT_CARDDATA));
+			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData.toString(), messageHash,
 					HikePlatformConstants.EventStatus.EVENT_SENT, System.currentTimeMillis());
-
 			HikeMessengerApp.getPubSub().publish(HikePubSub.PLATFORM_CARD_EVENT_SENT, new Pair<MessageEvent, JSONObject>(messageEvent, data));
 		}
 		catch (JSONException e)

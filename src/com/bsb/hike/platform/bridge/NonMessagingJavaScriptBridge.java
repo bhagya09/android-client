@@ -933,7 +933,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 		{
 			JSONObject eventJson = new JSONObject(eventData);
 			eventJson.put(HikePlatformConstants.PARENT_MSISDN, mBotInfo.getMsisdn());
-			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace());
+			PlatformHelper.sendNormalEvent(messageHash, eventJson.toString(), mBotInfo.getNamespace(), mBotInfo);
 		}
 		catch (JSONException e)
 		{	

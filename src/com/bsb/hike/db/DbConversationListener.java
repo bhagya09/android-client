@@ -513,7 +513,7 @@ public class DbConversationListener implements Listener
 					jObj.put(HikeConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
 					jObj.put(HikeConstants.TO, messageEvent.getMsisdn());
 
-					data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT);
+					data.put(HikeConstants.TYPE, HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT_NEW);
 					data.put(HikePlatformConstants.MESSAGE_HASH, messageEvent.getMessageHash());
 					data.put(HikePlatformConstants.NAMESPACE, messageEvent.getNameSpace());
 

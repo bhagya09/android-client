@@ -1121,5 +1121,20 @@ public class BotUtils
 		}
 		return true;
 	}
+
+	public static String getParentMsisdnFromBotMsisdn(String botMsisdn)
+	{
+		if(TextUtils.isEmpty(botMsisdn))
+		{
+			return null;
+		}
+		BotInfo botInfo = getBotInfoForBotMsisdn(botMsisdn);
+		if(botInfo == null)
+		{
+			return null;
+		}
+		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+		return nonMessagingBotMetadata.getParentMsisdn();
+	}
 	
 }

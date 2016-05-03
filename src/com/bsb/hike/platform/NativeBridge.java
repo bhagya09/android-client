@@ -266,7 +266,7 @@ public class NativeBridge
 			@Override
 			public void run()
 			{
-				NormalEvent normalEvent = new NormalEvent(messageHash, eventData, mBotInfo.getNamespace());
+				NormalEvent normalEvent = new NormalEvent(messageHash, eventData, mBotInfo.getNamespace(), mBotInfo.getMsisdn());
 				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 				hikeProcessIntentService.putExtra(HikeProcessIntentService.SEND_NORMAL_EVENT_DATA, normalEvent);
 				activity.startService(hikeProcessIntentService);

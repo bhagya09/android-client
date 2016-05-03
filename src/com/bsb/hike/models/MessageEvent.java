@@ -2,9 +2,17 @@ package com.bsb.hike.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.NonMessagingBotMetadata;
+import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by shobhit on 27/07/15.
@@ -35,6 +43,8 @@ public class MessageEvent implements Parcelable
 	private String parent_msisdn;
 
 	private String hike_message;
+
+	private String fromUserMsisdn;
 
 	public MessageEvent(String eventType, String msisdn, String nameSpace, String eventMetadata, String messageHash, int eventStatus, long timeStamp)
 	{
@@ -68,6 +78,24 @@ public class MessageEvent implements Parcelable
 		this.messageId = messageId;
 		this.parent_msisdn = parent_msisdn;
 		this.hike_message=hike_message;
+
+		try {
+			if(this.eventMetadata !=null)
+            {
+                JSONObject eventMetadataJsonObject = new JSONObject(eventMetadata);
+				if(eventMetadataJsonObject.has(HikePlatformConstants.EVENT_FROM_USER_ID))
+				{
+					this.fromUserMsisdn = eventMetadataJsonObject.getString(HikePlatformConstants.EVENT_FROM_USER_ID);
+				}
+				if(eventMetadataJsonObject.has(HikePlatformConstants.PARENT_MSISDN) && TextUtils.isEmpty(parent_msisdn))
+				{
+					this.parent_msisdn = eventMetadataJsonObject.getString(HikePlatformConstants.PARENT_MSISDN);
+				}
+            }
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public int getEventStatus()
@@ -203,6 +231,11 @@ public class MessageEvent implements Parcelable
 	public String getHikeMessage()
 	{
 		return hike_message;
+	}
+
+	public String getFromUserMsisdn()
+	{
+		return fromUserMsisdn;
 	}
 
 	@Override

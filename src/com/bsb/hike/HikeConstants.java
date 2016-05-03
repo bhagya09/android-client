@@ -2905,6 +2905,8 @@ public class HikeConstants
 	public static final class GeneralEventMessagesTypes
 	{
 		public static final String MESSAGE_EVENT = "me";
+
+		public static final String MESSAGE_EVENT_NEW = "me1";
 		
 		public static final String OFFLINE = "offline";
 

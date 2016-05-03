@@ -1064,6 +1064,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(sql);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
+
+		if(oldVersion < 50)
+		{
+			String alter = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_PARENT_MSISDN + " TEXT";
+			db.execSQL(alter);
+
+			String alter1 = "ALTER TABLE " + DBConstants.MESSAGE_EVENT_TABLE + " ADD COLUMN " + DBConstants.EVENT_FROM_USER_ID + " TEXT";
+			db.execSQL(alter1);
+		}
 	}
 
 	public void reinitializeDB()
@@ -1145,6 +1154,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.TIMESTAMP + " INTEGER, " // Event time stamp
 				+ DBConstants.MAPPED_EVENT_ID + " INTEGER, " // The message id of the message on the sender's side (Only applicable for received messages)
 				+ DBConstants.MSISDN + " TEXT, " // The conversation's msisdn. This will be the msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_PARENT_MSISDN + " TEXT, " // The conversation's parent msisdn. This will be the parent msisdn for one-to-one and the group id for groups
+				+ DBConstants.EVENT_FROM_USER_ID + " TEXT, " // The user id of the person sending the event
 				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
 				+ ")";
@@ -7562,7 +7573,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable",e);
+			Logger.e(getClass().getSimpleName(), "Exception in updateToNewStickerCategoryTable", e);
 		}
 		finally
 		{
@@ -8035,7 +8046,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public String getMetadataOfMessage(long messageId){
 		String selection = DBConstants.MESSAGE_ID + "=?";
-		Cursor c = mDb.query(MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_METADATA }, selection, new String[] { String.valueOf(messageId) }, null, null, null);
+		Cursor c = mDb.query(MESSAGES_TABLE, new String[]{DBConstants.MESSAGE_METADATA}, selection, new String[]{String.valueOf(messageId)}, null, null, null);
 		if(c.moveToFirst()){
 			return c.getString(c.getColumnIndex(MESSAGE_METADATA));
 		}
@@ -8333,7 +8344,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(BOT_CONFIGURATION, configuration);
-		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[]{botMsisdn});
 	}
 
     /**
@@ -8346,7 +8357,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
     {
         ContentValues contentValues = new ContentValues();
         contentValues.put(CONVERSATION_METADATA, metadata);
-        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[]{botMsisdn});
     }
 
 	/**
@@ -8557,7 +8568,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.MSG_STATUS, newState);
 		//Reset the unread count
 		values.put(DBConstants.UNREAD_COUNT, 0);	
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[] { msisdn }, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, values, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public BotInfo getBotInfoForMsisdn(String msisdn)
@@ -8689,13 +8700,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			if (!includeNormalEvent)
 			{
-				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, DBConstants.TIMESTAMP},
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_PARENT_MSISDN, EVENT_FROM_USER_ID, DBConstants.TIMESTAMP},
 						HIKE_CONTENT.NAMESPACE + "=? AND " + DBConstants.EVENT_TYPE + "=?", new String[] { nameSpace,
 								String.valueOf(HikePlatformConstants.EventType.SHARED_EVENT) }, null, null, DBConstants.TIMESTAMP + " DESC");
 			}
 			else
 			{
-				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, DBConstants.TIMESTAMP },
+				c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, MESSAGE_HASH, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_PARENT_MSISDN, EVENT_FROM_USER_ID, EVENT_TYPE, DBConstants.TIMESTAMP },
 						HIKE_CONTENT.NAMESPACE + "=?", new String[] { nameSpace }, null, null, DBConstants.TIMESTAMP + " DESC");
 			}
 
@@ -8710,6 +8721,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
 			int msisdnIndex = c.getColumnIndex(MSISDN);
 			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_ID);
 			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 
 			while (c.moveToNext())
@@ -8720,6 +8733,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				jsonObject.put(HikePlatformConstants.MESSAGE_HASH, c.getString(messageHashIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID , c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_ID, c.getString(fromUserIdx));
 				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
 				if (includeNormalEvent)
 				{
@@ -8749,7 +8764,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		try
 		{
-			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, DBConstants.TIMESTAMP },
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, EVENT_PARENT_MSISDN, EVENT_FROM_USER_ID, DBConstants.TIMESTAMP },
 					MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=?", new String[] { messageHash, namespace }, null, null, DBConstants.TIMESTAMP + " DESC");
 			if (c.getCount() <= 0)
 			{
@@ -8761,6 +8776,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
 			int msisdnIndex = c.getColumnIndex(MSISDN);
 			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_ID);
 			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
 
 			while (c.moveToNext())
@@ -8770,6 +8787,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_ID, c.getString(eventIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_ID, c.getString(fromUserIdx));
 				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
 				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
 				dataList.add(jsonObject);
@@ -8792,7 +8811,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void deleteEvent(String eventId)
 	{
-		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID  + "=?", new String[]{eventId});
+		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID + "=?", new String[]{eventId});
 	}
 
 	public void deleteAllEventsForMessage(String messageHash)
@@ -8815,6 +8834,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.TIMESTAMP, messageEvent.getSentTimeStamp());
 		values.put(DBConstants.MAPPED_EVENT_ID, messageEvent.getMappedEventId());
 		values.put(DBConstants.MSISDN, messageEvent.getMsisdn());
+		values.put(DBConstants.EVENT_PARENT_MSISDN, messageEvent.getParent_msisdn());
+		values.put(DBConstants.EVENT_FROM_USER_ID, messageEvent.getFromUserMsisdn());
 		values.put(HIKE_CONTENT.NAMESPACE, messageEvent.getNameSpace());
 		String eventHash = messageEvent.createEventHash();
 		if (!TextUtils.isEmpty(eventHash))

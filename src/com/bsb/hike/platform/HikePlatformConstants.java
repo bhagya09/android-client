@@ -84,6 +84,7 @@ public interface HikePlatformConstants
 	public static final String RECIPIENT_NAMESPACES = "recipients";
 	public static final String MAPPED_EVENT_ID = "i";
 	public static final String EVENT_CARDDATA = "cd";
+	public static final String EVENT_FROM_USER_ID = "from_user_id";
 	public static final String CLIENT_TIMESTAMP = "c";
 	public static final String MICROAPP_DATA = "mmData";
 	public static final String PARENT_MSISDN = "parent_msisdn";
