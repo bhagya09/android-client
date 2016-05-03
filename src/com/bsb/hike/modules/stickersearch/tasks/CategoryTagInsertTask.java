@@ -4,9 +4,11 @@ import android.text.TextUtils;
 import android.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
@@ -21,7 +23,7 @@ import org.json.JSONObject;
 
 public class CategoryTagInsertTask implements Runnable
 {
-    private final String TAG = CategoryTagInsertTask.class.getSimpleName();
+	private final String TAG = CategoryTagInsertTask.class.getSimpleName();
 
 	private Map<Integer, CategoryTagData> sourceCategoryData;
 
@@ -50,34 +52,37 @@ public class CategoryTagInsertTask implements Runnable
 				CategoryTagData categoryTagData = sourceCategoryData.get(ucid);
 				if (categoryTagData == null)
 				{
-                    Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for null tag data");
+					Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for null tag data");
 					continue;
 				}
 
-                String categoryName = categoryJSON.optString(HikeConstants.CAT_NAME);
+				String categoryName = categoryJSON.optString(HikeConstants.CAT_NAME);
 
-                if(TextUtils.isEmpty(categoryName))
-                {
-                    Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for empty pack name");
-                    continue;
-                }
+				if (TextUtils.isEmpty(categoryName))
+				{
+					Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for empty pack name");
+					continue;
+				}
 
-                categoryTagData.setName(categoryName.toLowerCase().trim());
+				categoryTagData.setName(categoryName.toLowerCase().trim());
 				categoryTagData.setCategoryLastUpdatedTime(categoryJSON.optLong(HikeConstants.TIMESTAMP));
 				categoryTagData.setGender(categoryJSON.optInt(HikeConstants.GENDER));
 
+				JSONObject addedData = categoryJSON.optJSONObject(HikeConstants.ADDED_DATA);
+				JSONObject removedData = categoryJSON.optJSONObject(HikeConstants.REMOVED_DATA);
 
-                JSONObject addedData = categoryJSON.optJSONObject(HikeConstants.ADDED_DATA);
-                JSONObject removedData = categoryJSON.optJSONObject(HikeConstants.REMOVED_DATA);
+				JSONArray categoryThemesAdded = (addedData == null) ? null : addedData.optJSONArray(HikeConstants.THEMES);
+				JSONArray categoryThemesremoved = (removedData == null) ? null : removedData.optJSONArray(HikeConstants.THEMES);
+				JSONArray categoryLanguagedsAdded = (addedData == null) ? null : addedData.optJSONArray(HikeConstants.LANGUAGES);
+				JSONArray categoryLanguagesRemoved = (removedData == null) ? null : removedData.optJSONArray(HikeConstants.LANGUAGES);
+				JSONArray categoryKeywordsAdded = (addedData == null) ? null : addedData.optJSONArray(HikeConstants.TAGS);
+				JSONArray categoryKeywordsremoved = (removedData == null) ? null : removedData.optJSONArray(HikeConstants.TAGS);
 
-				categoryTagData.setThemes(getModifiedFieldList(categoryTagData.getThemes(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.THEMES),
-                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.THEMES)));
-                categoryTagData.setKeywords(getModifiedFieldList(categoryTagData.getKeywords(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.TAGS),
-                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.TAG)));
-                categoryTagData.setLanguages(getModifiedFieldList(categoryTagData.getLanguages(), (addedData == null) ? null : addedData.optJSONArray(HikeConstants.LANGUAGES),
-                        (removedData == null) ? null : removedData.optJSONArray(HikeConstants.LANGUAGES)));
+				categoryTagData.setThemes(getModifiedFieldList(categoryTagData.getThemes(), categoryThemesAdded, categoryThemesremoved));
+				categoryTagData.setKeywords(getModifiedFieldList(categoryTagData.getKeywords(), categoryKeywordsAdded, categoryKeywordsAdded));
+				categoryTagData.setLanguages(getModifiedFieldList(categoryTagData.getLanguages(), categoryLanguagedsAdded, categoryLanguagesRemoved));
 
-                result.add(categoryTagData);
+				result.add(categoryTagData);
 			}
 		}
 
@@ -96,14 +101,17 @@ public class CategoryTagInsertTask implements Runnable
 			currentFieldList = new ArrayList<String>();
 		}
 
+		Set result = new HashSet<String>(currentFieldList);
+
 		if (!Utils.isEmpty(addedFieldList))
 		{
 			for (int i = 0; i < addedFieldList.length(); i++)
 			{
 				String activeField = addedFieldList.optString(i);
-				if (!TextUtils.isEmpty(activeField) && !currentFieldList.contains(activeField))
+
+				if (!TextUtils.isEmpty(activeField))
 				{
-					currentFieldList.add(activeField.toLowerCase().trim());
+					result.add(activeField.toLowerCase().trim());
 				}
 			}
 		}
@@ -113,14 +121,14 @@ public class CategoryTagInsertTask implements Runnable
 			for (int i = 0; i < removedFieldList.length(); i++)
 			{
 				String inActiveField = removedFieldList.optString(i);
-				if (!TextUtils.isEmpty(inActiveField) && currentFieldList.contains(inActiveField))
+				if (!TextUtils.isEmpty(inActiveField))
 				{
-					currentFieldList.remove(inActiveField.toLowerCase().trim());
+					result.remove(inActiveField.toLowerCase().trim());
 				}
 			}
 		}
 
-		return currentFieldList;
+		return new ArrayList<String>(result);
 	}
 
 }

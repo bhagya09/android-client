@@ -24,15 +24,15 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private StickerCategory category;
 
-    private float genderMatchScore = 0;
+	private float genderMatchScore = 0;
 
-    private float packStateScore = 0;
+	private float packStateScore = 0;
 
-    private float stickerCountScore = 0.0f;
+	private float stickerCountScore = 0.0f;
 
-    private float nameMatchScore = 0.0f;
+	private float nameMatchScore = 0.0f;
 
-    private float searchScore = Float.MIN_VALUE;
+	private float searchScore = Float.MIN_VALUE;
 
 	private final float FOR_USER_GENDER_SCORE = 1.0f;
 
@@ -48,11 +48,11 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private final float DEFAULT_STICKER_COUNT_SCORE = 0f;
 
-    private final int GENDER_SCORE_MAP_INDEX = 0;
+	private final int GENDER_SCORE_MAP_INDEX = 0;
 
-    private final int PACK_STATE_SCORE_MAP_INDEX = 1;
+	private final int PACK_STATE_SCORE_MAP_INDEX = 1;
 
-    private final int STICKER_COUNT_SCORE_MAP_INDEX = 2;
+	private final int STICKER_COUNT_SCORE_MAP_INDEX = 2;
 
 	private CategorySearchData(Builder builder)
 	{
@@ -98,14 +98,14 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private float getSearchMatchScore()
 	{
-		if (searchScore != Float.MIN_VALUE)
+		if (Float.compare(searchScore, Float.MIN_VALUE) != 0)
 		{
 			return searchScore;
 		}
 
 		List<Float> categoryScores = CategorySearchManager.getInstance().getCategoryScores(getUcid());
 
-        if (!Utils.isEmpty(categoryScores))
+		if (!Utils.isEmpty(categoryScores))
 		{
 			genderMatchScore = categoryScores.get(GENDER_SCORE_MAP_INDEX);
 			packStateScore = categoryScores.get(PACK_STATE_SCORE_MAP_INDEX);
@@ -113,22 +113,22 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		}
 		else
 		{
-            categoryScores = new ArrayList<Float>(3);
+			categoryScores = new ArrayList<Float>(3);
 
 			int userGender = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0);
 			genderMatchScore = (userGender == forGender) ? FOR_USER_GENDER_SCORE : (forGender == 0) ? FOR_GENERIC_GENDER_SCORE : NOT_FOR_USER_GENDER_SCORE;
-            categoryScores.add(genderMatchScore);
+			categoryScores.add(genderMatchScore);
 
 			StickerCategory category = getCategory();
 
 			packStateScore = category.isDownloaded() ? (category.isUpdateAvailable() ? PACK_DOWNLOADED_UPDATE_AVAILABLE : PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE)
 					: PACK_NOT_DOWNLOADED;
-            categoryScores.add(packStateScore);
+			categoryScores.add(packStateScore);
 
 			stickerCountScore = category.isDownloaded() ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount() / category.getTotalStickers();
-            categoryScores.add(stickerCountScore);
+			categoryScores.add(stickerCountScore);
 
-            CategorySearchManager.getInstance().saveCategoryScores(ucid,  categoryScores);
+			CategorySearchManager.getInstance().saveCategoryScores(ucid, categoryScores);
 		}
 
 		nameMatchScore = CategorySearchManager.getInstance().computeStringMatchScore(matchKeyword, name);
