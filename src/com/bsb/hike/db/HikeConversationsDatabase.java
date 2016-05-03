@@ -10099,9 +10099,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
 		updatePrepStmt.bindLong(17, System.currentTimeMillis());
-		updatePrepStmt.bindString(18, saveTheme.getThemeId());
-		updatePrepStmt.bindLong(19, saveTheme.isVisible() ? 1 : 0);
-		updatePrepStmt.bindLong(20, saveTheme.getThemeOrderIndex());
+		updatePrepStmt.bindLong(18, saveTheme.isVisible() ? 1 : 0);
+		updatePrepStmt.bindLong(19, saveTheme.getThemeOrderIndex());
+		updatePrepStmt.bindString(20, saveTheme.getThemeId());
 
 		long rowsAffected = updatePrepStmt.executeUpdateDelete();
 		updatePrepStmt.clearBindings();
@@ -10309,11 +10309,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @return a map of chat theme objects each of which represents a row in the theme table with key as the unique theme id
 	 * and value as the HikeChatTheme object
 	 */
-	public ConcurrentHashMap<String, HikeChatTheme> getAllChatThemes()
+	public LinkedHashMap<String, HikeChatTheme> getAllChatThemes()
 	{
-		ConcurrentHashMap<String, HikeChatTheme> themes = new ConcurrentHashMap<>();
+		LinkedHashMap<String, HikeChatTheme> themes = new LinkedHashMap<>();
 
-		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" WHERE " + ChatThemes.THEME_COL_VISIBLE + "= 1";
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" ORDER BY "+ChatThemes.THEME_COL_ORDER+" ASC";
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
 		try {
 			if (themeListCursor.moveToFirst()) {

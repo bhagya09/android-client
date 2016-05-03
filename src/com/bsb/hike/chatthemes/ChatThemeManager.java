@@ -6,6 +6,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeConstants;
@@ -35,7 +36,7 @@ public class ChatThemeManager
 	private ChatThemeDrawableHelper mDrawableHelper;
 
 	// Maintains the Map of Chatthemes
-	private ConcurrentHashMap<String, HikeChatTheme> mChatThemesList;
+	private LinkedHashMap<String, HikeChatTheme> mChatThemesList;
 
 	public String defaultChatThemeId = "0";
 
@@ -220,10 +221,10 @@ public class ChatThemeManager
 
 	}
 
+	//TODO CHATTHEME work on optimisation of this method
 	public ArrayList<String> getAvailableThemeIds()
 	{
 		ArrayList<String> availableThemes = new ArrayList<>();
-
 		for(String themeId : mChatThemesList.keySet())
 		{
 			if(isThemeAvailable(themeId))
@@ -231,8 +232,6 @@ public class ChatThemeManager
 				availableThemes.add(themeId);
 			}
 		}
-
-		Collections.sort(availableThemes); // sorting the themes on the basis of themeId currently.
 		return availableThemes;
 	}
 
