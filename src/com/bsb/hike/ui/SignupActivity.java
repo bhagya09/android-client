@@ -1378,6 +1378,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					public void onClick(View v)
 					{
 						// Open PlayStore
+						recordUpdateAppButtonClick();
 						IntentFactory.launchPlayStore(SignupActivity.this.getPackageName(), SignupActivity.this);
 					}
 				});
@@ -2574,6 +2575,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
 						hikeDialog.dismiss();
+						recordStickerRestoreDialogOkClick();
 						openHomeActivity();
 					}
 
@@ -2602,4 +2604,33 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		finish();
 	}
 
+	private void recordStickerRestoreDialogOkClick()
+	{
+		recordBackupRelatedEvents("stk_rstr_popup");
+	}
+
+	private void recordUpdateAppButtonClick()
+	{
+		recordBackupRelatedEvents("upgrade");
+	}
+
+	private void recordBackupRelatedEvents(String whichEvent)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.BACKUP_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.BACKUP_UK);
+			json.put(AnalyticsConstants.V2.ORDER, whichEvent);
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
 }
