@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -28,10 +29,10 @@ import org.json.JSONArray;
 /**
  * Created by akhiltripathi on 13/04/16.
  */
-public enum CategorySearchManager
+public class CategorySearchManager
 {
 
-	INSTANCE;
+	private static volatile CategorySearchManager instance;
 
 	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW";
 
@@ -41,31 +42,55 @@ public enum CategorySearchManager
 
     public static final long DEFAULT_AUTO_SEARCH_TIME = 500L;
 
-	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:1:2";
+	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
     public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 100;
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
-	private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
+	private static Map<String, SortedSet<CategorySearchData>> mCacheForShopSearchKeys;
 
-	private static Map<String, Float> mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+	private static Map<String, Float> mCacheForLocalAnalogousScore;
 
-	private static Map<Integer, StickerCategory> mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
+	private static Map<Integer, StickerCategory> mCacheForSearchedCategories;
 
-	private SearchEngine categorySearchEngine = new SearchEngine();
+    private static Map<Integer, List<Float>> mCacheForCategoryScore;
+
+	private SearchEngine categorySearchEngine;
 
 	private float[] weights;
 
-	/* Get the instance of this class from outside */
-	public static CategorySearchManager getInstance()
-	{
-       if(mCacheForSearchedCategories.size() == 0)
+    private CategorySearchManager()
+    {
+        mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
+
+        mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+
+        mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
+
+        mCacheForCategoryScore = new HashMap<Integer,List<Float>>();
+
+        categorySearchEngine = new SearchEngine();
+
+        this.loadCategoriesForShopSearch();
+    }
+
+    /* Get the instance of this class from outside */
+    public static CategorySearchManager getInstance()
+    {
+        if (instance == null)
         {
-            INSTANCE.loadCategoriesForShopSearch();
+            synchronized (StickerTagCache.class)
+            {
+                if (instance == null)
+                {
+                    instance = new CategorySearchManager();
+                }
+            }
         }
-		return INSTANCE;
-	}
+
+        return instance;
+    }
 
 	public SearchEngine getSearchEngine()
 	{
@@ -105,6 +130,8 @@ public enum CategorySearchManager
 		mCacheForLocalAnalogousScore.clear();
 		mCacheForShopSearchKeys.clear();
         mCacheForSearchedCategories.clear();
+        mCacheForCategoryScore.clear();
+        categorySearchEngine.shutDown();
 	}
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
@@ -199,5 +226,15 @@ public enum CategorySearchManager
 		}
 
 		return weights;
+	}
+
+	public List<Float> getCategoryScores(int categoryUcid)
+	{
+		return mCacheForCategoryScore.get(categoryUcid);
+	}
+
+	public void saveCategoryScores(int categoryUcid, List<Float> categoryScores)
+	{
+		mCacheForCategoryScore.put(categoryUcid, categoryScores);
 	}
 }
