@@ -907,4 +907,6 @@ public class AnalyticsConstants
 	public static final String TIMELINE_UK = "timeline";
 
 	public static final String BACKUP_UK = "backup";
+
+	public static final String HIDDEN_UK = "hs_hi";
 }
