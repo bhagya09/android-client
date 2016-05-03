@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -220,6 +221,10 @@ public class AtomicTipManager
         mHandler.sendMessage(getMessage(ADD_TIP_TO_LIST, tipContentModel));
         mHandler.sendMessage(getMessage(REFRESH_TIPS_LIST, null));
 
+        if(tipContentModel.isShowNotification())
+        {
+            createNotifForTip(tipContentModel);
+        }
 
     }
 
@@ -389,6 +394,20 @@ public class AtomicTipManager
     }
 
     /**
+     * Method to trigger notification for atomic tip based on content from given model
+     * @param tipContentModel
+     */
+    public void createNotifForTip(AtomicTipContentModel tipContentModel)
+    {
+        Logger.d(TAG, "processing notification items for atomic tip");
+        Bundle notifBundle = new Bundle();
+        notifBundle.putString(HikeConstants.NOTIFICATION_TITLE, tipContentModel.getNotifTitle());
+        notifBundle.putString(HikeConstants.NOTIFICATION_TEXT, tipContentModel.getNotifText());
+        notifBundle.putBoolean(HikeConstants.SILENT, tipContentModel.isSilent());
+        notifBundle.putInt(HikeConstants.TIP_ID, tipContentModel.hashCode());
+        Logger.d(TAG, "firing pubsub to create notif for atomic tip");
+        HikeMessengerApp.getPubSub().publish(HikePubSub.ATOMIC_TIP_WITH_NOTIF, notifBundle);
+    }
      * Method to check if any atomic tip exists by checking size of tips array list
      * @return
      */
