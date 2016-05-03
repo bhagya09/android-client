@@ -1264,7 +1264,7 @@ public class HikeDialogFactory
 		dialog.setMessage(context.getString(R.string.sticker_restore_diffdpi_message));
 		dialog.setTitle(context.getString(R.string.sticker_restore_diffdpi_title));
 		dialog.setCancelable(false);
-		dialog.setPositiveButton(R.string.GOT_IT, listener);
+		dialog.setPositiveButton(R.string.OK, listener);
 		dialog.show();
 		return dialog;
 	}
