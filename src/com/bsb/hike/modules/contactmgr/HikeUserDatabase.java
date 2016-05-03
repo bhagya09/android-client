@@ -2732,4 +2732,51 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 	}
 
 
+	public Map<String, FavoriteType> getFavoriteMsisdnFromFavTable()
+	{
+		Cursor c = null;
+
+		Map<String, FavoriteType> favMap = new HashMap<>();
+
+		try
+		{
+			c = mReadDb.query(DBConstants.FAVORITES_TABLE, new String[] { DBConstants.MSISDN, DBConstants.FAVORITE_TYPE }, null, null, null, null, null);
+
+			int msisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
+			int favoriteTypeIdx = c.getColumnIndex(DBConstants.FAVORITE_TYPE);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIdx);
+				FavoriteType favoriteType = FavoriteType.values()[c.getInt(favoriteTypeIdx)];
+				favMap.put(msisdn, favoriteType);
+			}
+
+			return favMap;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+	}
+
+	public void insertFavIntoUserTable(Map<String, FavoriteType> favoriteMsisdnFromFavTable) {
+
+		if (favoriteMsisdnFromFavTable != null && favoriteMsisdnFromFavTable.isEmpty()) {
+			return;
+		}
+
+		for (Entry<String, FavoriteType> entry : favoriteMsisdnFromFavTable.entrySet()) {
+			ContactManager.getInstance().toggleContactFavorite(entry.getKey(), entry.getValue());
+		}
+	}
+
+	public void dropFavTable() {
+		String dropTable=DBConstants.DROP_TABLE + DBConstants.FAVORITES_TABLE;
+		mDb.execSQL(dropTable);
+	}
 }

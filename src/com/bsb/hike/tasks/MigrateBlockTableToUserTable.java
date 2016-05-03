@@ -1,11 +1,14 @@
 package com.bsb.hike.tasks;
 
+import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.HikeUserDatabase;
+import com.bsb.hike.platform.HikeUser;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -24,17 +27,31 @@ public class MigrateBlockTableToUserTable implements Callable<Boolean> {
 
         Logger.d(TAG,"Migration Start");
         List<String> blockedMsisdn = HikeUserDatabase.getInstance().getBlockedMsisdnFromBlockTable();
-        if (Utils.isEmpty(blockedMsisdn)) {
-            return true;
+        if (!Utils.isEmpty(blockedMsisdn)) {
+
+
+            // Move to User Table
+            ContactManager.getInstance().block(blockedMsisdn);
+
+            //Drop Block Table
+            HikeUserDatabase.getInstance().dropBlockTable();
         }
 
-        // Move to User Table
-        ContactManager.getInstance().block(blockedMsisdn);
 
-        //Drop Block Table
-        HikeUserDatabase.getInstance().dropBlockTable();
+
+        // gettong contacts from fav table:
+        Map<String, ContactInfo.FavoriteType> favoriteMsisdnFromFavTable = HikeUserDatabase.getInstance().getFavoriteMsisdnFromFavTable();
+
+        // inserting into User Db
+        HikeUserDatabase.getInstance().insertFavIntoUserTable(favoriteMsisdnFromFavTable);
+
+        //DropFav Tab
+        HikeUserDatabase.getInstance().dropFavTable();
+
         Logger.d(TAG,"Migration END");
         return true;
 
     }
+
+
 }
