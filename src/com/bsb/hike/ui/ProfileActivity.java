@@ -234,7 +234,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public static final String PROFILE_PIC_SUFFIX = "profilePic";
 
-	private static enum ProfileType
+	public static enum ProfileType
 	{
 		USER_PROFILE, // The user profile screen
 		USER_PROFILE_EDIT, // The user profile edit screen
