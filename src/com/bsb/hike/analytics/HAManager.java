@@ -815,7 +815,7 @@ public class HAManager
 		try
 		{
 			metadata.put(HikeConstants.EVENT_KEY, AnalyticsConstants.StickyCallerEvents.STICKY_CALLER);
-			metadata.put(HikeConstants.EVENT_TYPE, eventType);
+			metadata.put(HikeConstants.EVENT_TYPE, eventKey);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.MSISDN, msisdn);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.SOURCE, source);
 			metadata.put(AnalyticsConstants.StickyCallerEvents.CALL_TYPE, callType);

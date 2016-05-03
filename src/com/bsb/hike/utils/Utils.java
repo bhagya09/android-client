@@ -6928,7 +6928,7 @@ public class Utils
 
 	public static void openChatThreadViaFreeSmsButton(CallerContentModel callerContentModel, String msg)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn(), true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance().getApplicationContext(), callerContentModel.getMsisdn(), true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		intent.putExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD, true);

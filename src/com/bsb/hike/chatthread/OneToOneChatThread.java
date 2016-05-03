@@ -111,7 +111,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;CT
+import java.util.Map;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -3857,7 +3857,6 @@ import java.util.Map;CT
 		}
 	}
 
-<<<<<<< HEAD
 	private void spamUnspamUser(boolean isSpam)
 	{
 		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam == true ? 1 : 0);
@@ -3882,7 +3881,7 @@ import java.util.Map;CT
 		}
 
 	}
-=======
+
 	private void inflateAddFriendButtonIfNeeded()
 	{
 		if (!Utils.isFavToFriendsMigrationAllowed())
