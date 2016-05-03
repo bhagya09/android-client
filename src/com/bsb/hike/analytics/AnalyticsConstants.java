@@ -893,4 +893,10 @@ public class AnalyticsConstants
 	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
 
 	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+
+	public static final String HOME_OVERFLOW_MENU = "hs_ovfl";
+
+	public static String HOMESCREEN_KINGDOM = "act_hs";
+
+	public static final String HOME_OVERFLOW_MENU_ITEM = "hs_ovfl_item";
 }
