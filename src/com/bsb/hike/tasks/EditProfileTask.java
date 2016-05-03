@@ -30,6 +30,21 @@ public class EditProfileTask implements IHikeHTTPTask
         this.isBackPressed = isBackPressed;
     }
 
+    public void setNewName(String name)
+    {
+        this.newName = name;
+    }
+
+    public void setNewEmail(String email)
+    {
+        this.newEmail = email;
+    }
+
+    public void setNewGenderType(int genderType)
+    {
+        this.newGenderType = genderType;
+    }
+
     @Override
     public void execute()
     {
