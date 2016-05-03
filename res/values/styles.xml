@@ -1083,4 +1083,20 @@
         <item name="android:windowExitAnimation">@anim/slide_out_right_fast</item>
     </style>
 
+    <style name="AtomicTipHeaderText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/atomic_tip_header_text</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="AtomicTipBodyText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/atomic_tip_body_text</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
 </resources>

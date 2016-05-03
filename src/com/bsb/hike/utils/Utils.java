@@ -5286,19 +5286,6 @@ public class Utils
 	{
 		sendDeviceDetails(context, upgrade, sendBot);
 		SharedPreferences accountPrefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0);
-		if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-		{
-			try
-			{
-				JSONObject metadata = new JSONObject();
-				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-			}
-			catch (JSONException e)
-			{
-				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-			}
-		}
 		if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 		{
 			try
@@ -7344,7 +7331,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0) {
 
 			return true;
 		}
@@ -7357,7 +7344,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists()) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
 			try {
 
@@ -7849,7 +7836,7 @@ public class Utils
 	 * @param order
 	 * @return
 	 */
-	public static JSONObject getCoreChatClickJSON(String uniqueKey, String order)
+	public static JSONObject getCoreChatClickJSON(String uniqueKey, String species, boolean isStealth)
 	{
 		try
 		{
@@ -7858,8 +7845,11 @@ public class Utils
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			if (isStealth)
+				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
 			return json;
 
 		}
@@ -8027,20 +8017,28 @@ public class Utils
 	/**
 	 * Used to toggle mute and unmute for chat
 	 */
-	public static void toggleMuteChat(Context context, Conversation mConversation)
-	{
-		if (mConversation != null)
-		{
+	public static void toggleMuteChat(Context context, Conversation mConversation) {
+		if (mConversation != null) {
 			mConversation.setIsMute(!(mConversation.isMuted()));
 
-			if(mConversation.isMuted())
-			{
+			if (mConversation.isMuted()) {
 				Intent intent = IntentFactory.getIntentForMuteAlarm(mConversation);
 				HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mConversation.getMute().getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
 			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 		}
+	}
+
+	public static String formatDOB(String dobString)
+	{
+		if(TextUtils.isEmpty(dobString))
+		{
+			return "";
+		}
+
+		Birthday dob = new Birthday(dobString);
+		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
 }
 

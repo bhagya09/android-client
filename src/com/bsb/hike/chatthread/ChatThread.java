@@ -1457,7 +1457,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	}
 
 	private void sendWTClickedAnalytic() {
-		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, AnalyticsConstants.WT_CLICKED_TOUCHED);
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, species, mConversation.isStealth());
 		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
@@ -2435,6 +2436,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		try {
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			json.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				json.put(HikeConstants.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+			}
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		} catch (JSONException e) {
 			e.printStackTrace();
