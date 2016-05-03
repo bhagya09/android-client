@@ -4,7 +4,7 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 
 public interface DBConstants
 {
-	public static final int CONVERSATIONS_DATABASE_VERSION = 48;
+	public static final int CONVERSATIONS_DATABASE_VERSION = 50;
 
 	public static final int USERS_DATABASE_VERSION = 19;
 
@@ -272,8 +272,29 @@ public interface DBConstants
 	public static final String FEED_METADATA = "md";
 
 	public static final String FEED_TS = "ts";
-	
 	public static final String FEED_INDEX = "feed_idx";
+	String URL_KEY = "urlKey";
+	String URL_KEY_INDEX = "urlKeyIndex";
+
+	//StickerTable
+
+	public static final String STICKER_TABLE = "sticker_table";
+
+	public static final String STICKER_ID = "st_id";
+
+	public static final String SMALL_STICKER_PATH = "sm_st_path";
+
+	public static final String LARGE_STICKER_PATH = "lr_st_path";
+
+	public static final String WIDTH = "width";
+
+	public static final String HEIGHT = "height";
+
+	public static final String IS_ACTIVE = "is_active";
+
+	public static final int DEFAULT_ACTIVE_STATE = 1;
+
+	public static final int DEFAULT_INACTIVE_STATE = 0;
 
 	public static interface HIKE_CONV_DB
 	{
@@ -303,7 +324,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 6;
+		public static final int DB_VERSION = 8;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -364,6 +385,11 @@ public interface DBConstants
 		
 		public static final String BOT_VERSION = "version";
 		
+		public static final String BOT_TRIGGER_POINT = "trigger_point";
+		
+		public static final String CLIENT_ID = "client_id";
+		
+		public static final String CLIENT_HASH = "client_hash";
 		//Bot Discrovery Table starts here
 		//Bot Discovery Table --> _id , msisdn, name, type, description, updated_version
 		
@@ -372,7 +398,30 @@ public interface DBConstants
 		public static final String UPDATED_VERSION = "u_v";
 		
 		public static final String BOT_DISCOVERY_TABLE = "bot_discovery";
-		// --- Bot Discovery Table ends here ---
+
+        // --- Bot Discovery Table ends here ---
+
+        // ------ MAPP TABLE constants ----------
+        public static final String MAPP_DATA = "mapp_data";
+        public static final String VERSION = "version";
+        public static final String APP_PACKAGE = "app_package";
+
+		//Bot Download state table starts here
+		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
+
+		String DOWNLOAD_STATE = "downloadState";
+		
+		// AUTH TABLE ->auth_table--> microApp_id,token
+		public static final String AUTH_TABLE = "auth_table";
+		public static final String MICROAPP_ID = "microapp_id";
+		public static final String TOKEN = "token";
+
+		// AtomicTip TABLE --> json, starttime, endtime, priority
+		public static final String ATOMIC_TIP_TABLE = "atomic_tip_table";
+		public static final String TIP_STATUS = "tp_stts";
+		public static final String TIP_END_TIME = "tp_et";
+		public static final String TIP_DATA = "tp_data";
+		public static final String TIP_PRIORITY = "tp_prrt";
 
 	}
 	
@@ -463,6 +512,18 @@ public interface DBConstants
 	public static final String CATEGORY_INDEX = "catIndex";
 
 	public static final String CATEGORY_SIZE = "categorySize";
+	
+	public static final String CATEGORY_DESCRIPTION = "categoryDescription";
+
+	public static final String STICKER_LIST = "stickerList";
+
+	public static final String IS_DOWNLOADED = "isDownloaded";
+
+	public static final String SIMILAR_CATEGORIES = "similarCategories";
+
+	public static final String AUTHOR = "author";
+
+	public static final String COPYRIGHT_STRING = "copyRightString";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	
@@ -503,6 +564,15 @@ public interface DBConstants
 	 */
 
 	public static final String SORT_ID_SINGLE_IDX = "srt_Index";
+
+	public static final String URL_TABLE = "urlTable";
+
+	public static final String URL = "url";
+	String LIFE = "life";
+	int SHORT_LIVED = 0;
+	int LONG_LIVED = 1;
 	
 	public static final String[] JOURNAL_MODE_ARRAY = { "DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF" };
+
+	public static final String RECENT_STICKERS_TABLE = "recent_stickers_table";
 }

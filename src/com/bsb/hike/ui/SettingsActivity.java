@@ -1,7 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
@@ -51,6 +49,8 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
 {
@@ -121,14 +121,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 		if (HikeMessengerApp.isLocalisationEnabled())
 		{
-			if (HikeMessengerApp.isCustomKeyboardUsable())
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.settings_localization), R.string.settings_localization, R.drawable.ic_settings_languages));
-			}
-			else
-			{
-				items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
-			}
+			items.add(new SettingsDisplayPojo(getString(R.string.language), R.string.language, R.drawable.ic_settings_languages));
 		}
 		if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(HikeConstants.FREE_SMS_PREF, true))
 		{
@@ -388,7 +381,6 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				IntentFactory.openStickerSettingsActivity(this);
 				break;
 
-			case R.string.settings_localization:
             case R.string.language:
 				IntentFactory.openSettingLocalization(this);
 				break;
@@ -454,7 +446,13 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 	private void addProfileImgInHeader()
 	{
 		// set profile picture
-		Drawable drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		Drawable drawable = null;
+		// workaround for bug AND-461 , if msisdn is null we will show default avatar
+		if (contactInfo.getMsisdn() != null)
+		{
+			drawable = HikeMessengerApp.getLruCache().getIconFromCache(contactInfo.getMsisdn());
+		}
+
 		if (drawable == null)
 		{
 			drawable = HikeBitmapFactory.getDefaultTextAvatar(contactInfo.getMsisdn());

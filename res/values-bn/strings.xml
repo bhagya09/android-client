@@ -359,7 +359,6 @@
     <string name="one_new_message">1 টি নতুন মেসেজ</string>
     <string name="terms">শর্তাবলী</string>
     <string name="get_started">লঞ্চ করুন</string>
-    <string name="got_it">বুঝেছি</string>
     <string name="whats_your_number">হাই! আপনার নম্বর কত?</string>
     <string name="select_country">দেশ বেছে নিন</string>
     <string name="wrong_country">দেশের কোড ভুল</string>
@@ -501,7 +500,6 @@
     <string name="confirm_delete_chat_msg">\”%1$s\” এর সঙ্গে চ্যাট মুছবেন? </string>
     <string name="confirm_delete_group_msg">\”%1$s\” গ্রুপ মুছবেন ও প্রস্থান করবেন?</string>
     <string name="email_chat">চ্যাট ইমেল করুন</string>
-    <string name="change_keyboard">কীবোর্ড পরিবর্তন করুন</string>
     <string name="clear_chat">চ্যাট সাফ করুন</string>
     <string name="add_shortcut">শর্টকাট যোগ করুন</string>
     <string name="timeline">টাইমলাইন</string>
@@ -931,8 +929,6 @@
     <string name="enter_setting_header">এন্টার কী মানে মেসেজ পাঠানো</string>
     <string name="enter_setting_info">এন্টার কী টিপলে মেসেজ পাঠানো হবে</string>
     <string name="settings_chat">চ্যাট সেটিংস</string>
-    <string name="settings_localization">ভাষা &amp; ইনপুট</string>
-    <string name="keyboard_settings_header"> সেটিংস</string>
     <string name="new_line_setting_info">আগে থেকে সেট করা কী টিপলে একটি নতুন লাইন যোগ হবে</string>
     <string name="nudge_toast"> ঠেলা দেওয়া বন্ধ করা হয়েছে। \nআপনি সেটিংস > চ্যাট সেটিংস এ এটি চালু করতে পারেন।</string>
     <string name="select_all_hike">সবগুলি নির্বাচন করুন</string>
@@ -1033,8 +1029,6 @@
     <string name="sms_admin_toast">আপনি SMS ইউজারদের সঙ্গে আপনার প্রশাসনিক অধিকার শেয়ার করতে পারবেন না</string>
     <string name="group_settings_updated">গ্রুপের সেটিংস পরিবর্তন করেছেন</string>
     <string name="you_group_settings_updated">এই গ্রুপের সেটিংস আপনি পরিবর্তন করেছেন</string>
-    <string name="ftue_multiadmin_header">একাধিক অ্যাডমিন</string>
-    <string name="ftue_multiadmin_description">এখন এই গ্রুপের একাধিক সদস্যদেরকে প্রশাসনিক অধিকার শেয়ার করুন</string>
     <string name="unknown_server_error">ফাইল ডাউনলোড করা যাবে না।</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s কথোপকথন থেকে %1$s মেসেজ</string>
@@ -1140,34 +1134,7 @@
     <string name="language_summary">বাংলা</string>
     <string name="language">ভাষা</string>
     <string name="app_language">অ্যাপ্লিকেশন ভাষা</string>
-    <string name="keyboard_summary">Hike কীবোর্ড সক্ষম/অক্ষম করুন</string>
-    <string name="keyboard_title">Hike কীবোর্ড</string>
-    <string name="glide_summary">একটানা ইঙ্গিত টাইপিং</string>
-    <string name="glide_title">গ্লাইড</string>
-    <string name="kpt_adv_summary">অটো সংশোধন, প্রতিক্রিয়ায় স্পর্শ করুন এবং আরো অনেক কিছু</string>
-    <string name="keyboard_preference_title">পছন্দ</string>
-    <string name="text_correction_pref_title">পাঠ্য সংশোধন</string>
-    <string name="kpt_adv_title">উন্নত</string>
-    <string name="advanced_keyboard_settings">উন্নত সেটিংস</string>
-    <string name="private_mode_title">ব্যক্তিগত মোড</string>
-    <string name="private_mode_summary">প্রাইভেট মোডে শেখা শব্দগুলি কেবল প্রাইভেট মোডে উপলব্ধ</string>
-    <string name="auto_correct_title">অটো সংশোধন</string>
-    <string name="auto_correct_summary">ভুল টাইপ করা শব্দগুলি স্বয়ংক্রিয়ভাবে সংশোধন</string>
-    <string name="auto_caps_summary">প্রতিটি বাক্যের প্রথম অক্ষরটি ক্যাপিটালাইজ করুন</string>
-    <string name="auto_caps_title">অটো ক্যাপিটালাইজেশন</string>
-    <string name="auto_spacing_summary">প্রতিটি বাক্যের শুরুতে একটি স্পেস দিন</string>
-    <string name="auto_spacing_title">স্ব্তঃ স্পেসিং</string>
-    <string name="display_suggestion_title">প্রস্তাবনা দেখান</string>
-    <string name="display_suggestion_summary">শব্দ প্রস্তাবনা দেখান</string>
-    <string name="display_accents_title">অ্যাসেন্ট দেখান</string>
-    <string name="display_accents_summary">বর্ণমালা জন্য উপলব্ধ কথা সরিয়ে ফেলা হয়</string>
-    <string name="popup_on_keypress_title">কী টিপলে পপআপ</string>
-    <string name="sound_on_keypress_title">কী টিপলে শব্দ</string>
-    <string name="vibrate_on_keypress_title">কী টেপার সাথে সাথে ভাইবরেট্</string>
     <string name="delete_all">সবগুলি মুছে দিন</string>
-    <string name="long_press_duration_title">দীর্ঘ টেপার স্টেটাসকাল</string>
-    <string name="keypress_sound_vol_title">কী টেপার শব্দের ভলিউম</string>
-    <string name="keypress_vib_duration_title">কী টিপলে কম্পনের স্টেটাসকাল</string>
     <string name="like_count_by_unknow_contacts">%2$s এর +%1$d জন বন্ধু</string>
     <string name="connection_established_inline_msg">Hike ডাইরেক্ট সংযুক্ত।</string>
     <string name="connection_deestablished_inline_msg">Hike ডাইরেক্ট-এর সংযোগ বিচ্ছিন্ন হয়েছে</string>
@@ -1249,13 +1216,6 @@
     <string name="enable_saved_contact_view_side_text">সংরক্ষিত যোগাযোগদের জন্যেও কলারের তথ্য দেখান</string>
     <string name="choose_language">ভাষা বাছুন</string>
     <string name="choose_language_desciption">এখন আপনার প্রিয় ভাষায় আপনার প্রিয় মেসেঞ্জার</string>
-    <string name="system_language">সিস্টেম ভাষা</string>
-    <string name="regional_keyboard">আঞ্চলিক কীবোর্ড</string>
-    <string name="regional_keyboard_subtext">এখন নতুন কীবোর্ডে আপনার প্রিয় ভাষায় চ্যাট করুন</string>
-    <string name="CHOOSE_LANGUAGE">ভাষা বাছুনভাষা বাছুন</string>
-    <string name="apply">প্রয়োগ করুন</string>
-    <string name="keyboad_ftue_swipe">আপনার ভাষার মধ্যে বদলান</string>
-    <string name="setting_up_keyboard">কীবোর্ড সেট করা</string>
     <string name="close_gps">এখন আপনি  ব্যাটারি রক্ষা করতে আপনার অবস্থান বন্ধ করতে পারেন আপনার Hike ডায়রেক্ট সংযোগ ক্ষতিগ্রস্ত হবে না।</string>
     <string name="gps_not_on">দুঃখিত Hike ডায়রেক্ট কাজ করবে না যদি জিপিএস বন্ধ থাকে</string>
     <string name="switch_on_gps">Hike ডায়রেক্ট কাজ করার জন্য দয়া করে  অবস্থান সক্ষম করুন। আপনার করা হয়ে গেলে একবার ব্যাক টিপুন। </string>
@@ -1273,8 +1233,6 @@
     <string name="is_typing">টাইপ করছে...</string>
     <string name="are_typing">টাইপ করছে...</string>
     <string name="you_chat_bg_changed">আপনি চ্যাটের থিম পরিবর্তন করেছেন।</string>
-    <string name="hike_keyboard">Hike কীবোর্ড</string>
-    <string name="system_keyboard">ফোন কীবোর্ড</string>
     <string name="you_posted_pin">আপনি একটি পিন পোস্ট করেছেন</string>
     <string name="voip_hang_up">কেটে দিন</string>
     <string name="voip_decline">প্রত্যাখ্যান করুন</string>
@@ -1291,7 +1249,6 @@
     <string name="no_results_found">কোনো ফলাফল খুঁজে পাওয়া যায়নি</string>
     <string name="APPLY">প্রয়োগ করুন</string>
     <string name="level">লেভেল</string>
-    <string name="milliseconds">ms</string>
     <string name="contact_name">যোগাযোগকারী ব্যক্তির নাম</string>
     <string name="mobile">মোবাইল</string>
     <string name="your_contact">আপনার যোগাযোগের তথ্য</string>
@@ -1421,15 +1378,13 @@
     <string name="try_instead">পরিবর্তে চেষ্টা</string>
     <string name="sms_card_settings_side_text">সমস্ত টেক্সট বার্তা</string>
 
-<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
+	<string name="unsupported_langs_toast">আপনার ফোন %1$s  ভাষা দেখানো তে ব্যর্থ</string>
     <string name="unsupported_language_toast_msg">আপনার ফোন এই ভাষা স্বীকার করে না</string>
     <string name="language_ftue_complete_message">আপনার ভাষা বদলাতে পারেন\n সেটিংস -> ভাষা &amp; ইনপুট গিয়ে</string>
     <string name="error_message_upgrade_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। আপনার বন্ধুর Hike -এর সংস্করণে Hike ডাইরেক্ট নেই।</string>
     <string name="error_message_unsupported_peer">যোগাযোগ সম্ভব না হওয়ায় দুঃখিত। Hike ডাইরেক্ট আপাতত কেবলমাত্র অ্যান্ড্রয়েড ফোনের সাথে চলে।</string>
     <string name="delete_conversation">বার্তালাপ মুছুন</string>
-    <string name="switch_to_old_key">"পুরোনো কীবোর্ড এ ফেরত যান"</string>
-    <string name="switch_to_hike_key">"hike কীবোর্ড ব্যবহার করুন"</string>
-     <string name="admin_error">এই ইউসার আর এই গ্রুপের অংশগ্রাহক নন</string>
+    <string name="admin_error">এই ইউসার আর এই গ্রুপের অংশগ্রাহক নন</string>
 
     <string name="deleting">মুছে ফেলা হচ্ছে</string>
     <string name="sticker_reorder_setting_info">প্যাকগুলো পুনরায় সজ্জিত করুন</string>
@@ -1469,4 +1424,13 @@
     <string name="share_on_timeline">টাইমলাইন-এ শেয়ার করবেন?</string>
     <string name="posting_photos_timeline">আপনার ফোটোস টাইমলাইনে পোস্ট করা হচ্ছে</string>
     <string name="add_a_caption">ক্যাপশন যোগ করুন</string>
+    <string name="keyboard_shutdown_heading">Hike এর রিজিওনাল কীবোর্ড সরিয়ে নেওয়া হচ্ছে</string>
+    <string name="keyboard_shutdown_description"> আপনি ফোনের কীবোর্ডে চ্যাট চালিয়ে যেতে পারেন বা গুগল প্লেস্টোর থেকেও কীবোর্ড ডাউনলোড করতে পারেন।</string>
+    <string name="open_phone_keyboard">ফোন কীবোর্ড</string>
+    <string name="open_google_keyboard">গুগল কীবোর্ড</string>
+
+    <string name="slide_to_cancel">বাতিল করতে স্লাইড করুন</string>
+    <string name="recording_help_text">রেকর্ড করতে স্পর্শ করুন, পাঠাতে ছেড়ে দিন</string>
+    <string name="max_duration_recorded">সর্বোচ্চ সময়ের জন্য রেকর্ড সম্পন্ন হয়েছে</string>
+    <string name="stream_volume_muted_or_low">প্লিস আওয়াজ বাড়ান</string>
 </resources>

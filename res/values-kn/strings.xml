@@ -359,7 +359,6 @@
     <string name="one_new_message">1 ಹೊಸ ಸಂದೇಶ</string>
     <string name="terms">ನಿಯಮಗಳು</string>
     <string name="get_started">ಆರಂಭಿಸಿ</string>
-    <string name="got_it">ಸಿಕ್ಕಿತು</string>
     <string name="whats_your_number">ಹಾಯ್‌! ನಿಮ್ಮ ಸಂಖ್ಯೆ ಯಾವುದು ?</string>
     <string name="select_country">ದೇಶ ಆಯ್ಕೆ</string>
     <string name="wrong_country">ದೇಶದ ಅಮಾನ್ಯ ಕೋಡ್‌</string>
@@ -501,7 +500,6 @@
     <string name="confirm_delete_chat_msg">\”%1$s\”ನೊಂದಿಗೆ ಚಾಟ್‌ ಅಳಿಸುವುದೇ? </string>
     <string name="confirm_delete_group_msg">\”%1$s\” ಗ್ಗುಂಪಿನಲ್ಲಿ ಅಳಿಸಿ ಹೊರಬರುವುದೇ?</string>
     <string name="email_chat">ಇಮೇಲ್ ಚಾಟ್‌</string>
-    <string name="change_keyboard">ಕೀಬೋರ್ಡ‌ ಬದಲಿಸಿ</string>
     <string name="clear_chat">ಚಾಟ್‌ ಕ್ಲಿಯರ್ ಮಾಡಿ</string>
     <string name="add_shortcut">ಶಾರ್ಟ್‌ಕಟ್‌ ಸೇರಿಸಿ</string>
     <string name="timeline">ಟೈಮ್‌ಲೈನ್‌</string>
@@ -932,8 +930,6 @@
     <string name="enter_setting_header">ಕಳುಹಿಸಲು ಎಂಟರ್‌ ಕೀ ಒತ್ತಿ</string>
     <string name="enter_setting_info">ಎಂಟರ್‌ ಕೀ ಒತ್ತುವುದರಿಂದ ಸಂದೇಶ ರವಾನೆಯಾಗುತ್ತದೆ</string>
     <string name="settings_chat">ಚಾಟ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="settings_localization">ಭಾಷೆ &amp; ಇನ್‌ಪುಟ್‌</string>
-    <string name="keyboard_settings_header">ಕೀಬೋರ್ಡ‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
     <string name="new_line_setting_info">ಎಂಟರ್‌ ಕೀ ಒತ್ತುವುದರಿಂದ ಹೊಸ ಲೈನ್‌ ಸೇರಿಕೊಳ್ಳುತ್ತದೆ</string>
     <string name="nudge_toast"> ನಡ್ಜ್‌ಗಳನ್ನು ಕಳುಹಿಸುವುದನ್ನು ಆಫ್‌ ಮಾಡಲಾಗಿದೆ.\nನೀವು ಇದನ್ನು ಸೆಟ್ಟಿಂಗ್ಸ್‌ >  ಚಾಟ್‌ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಆನ್‌ ಮಾಡಬಹುದಾಗಿದೆ.</string>
     <string name="select_all_hike">ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆ ಮಾಡಿ</string>
@@ -1038,8 +1034,6 @@
     <string name="sms_admin_toast">SMS ಬಳಕೆದಾರರೊಂದಿಗೆ ನಿಮ್ಮ ಅಡ್ಮಿನ್‌ ಹಕ್ಕುಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾದು</string>
     <string name="group_settings_updated">ಗುಂಪು ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಬದಲಾಗಿವೆ</string>
     <string name="you_group_settings_updated">ನೀವು ಗುಂಪಿನ‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬದಲಿಸಿದ್ದೀರಿ</string>
-    <string name="ftue_multiadmin_header">ಬಹು ಅಡ್ಮಿನ್‌ಗಳು</string>
-    <string name="ftue_multiadmin_description">ಈ ಗುಂಪಿನ ಹಲವು ಸದಸ್ಯರೊಂದಿಗೆ ಈಗ ನೀವು ನಿಮ್ಮ ಅಡ್ಮಿನ್‌ ಹಕ್ಕುಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</string>
     <string name="unknown_server_error">ಫೈಲ್‌ ಡೌನ್‌ಲೋಡ್‌ ಮಾಡಲು ಅಸಾಧ್ಯ</string>
     <string name="sticker_share_description">www.hike.in</string>
     <string name="num_notification_sub_text_for_multi_msisdn">%2$s ಸಂಭಾಷಣೆಯಿಂದ %1$s ಸಂದೇಶಗಳು</string>
@@ -1147,34 +1141,7 @@
     <string name="language_summary">ಇಂಗ್ಲಿಷ್‌</string>
     <string name="language">ಭಾಷೆ</string>
     <string name="app_language">ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ</string>
-    <string name="keyboard_summary">hike ಕೀಬೋರ್ಡ‌ ಸಕ್ರಿಯ/ನಿಷ್ಕ್ರಿಯ ಮಾಡಿ</string>
-    <string name="keyboard_title">hike ಕೀಬೋರ್ಡ</string>
-    <string name="glide_summary">ನಿರಂತರ ಗೆಶ್ಚರ್ ಟೈಪಿಂಗ್</string>
-    <string name="glide_title">ಗ್ಲೈಡ್‌</string>
-    <string name="kpt_adv_summary">ಸ್ವಯಂ ಸರಿಪಡಿಸುವಿಕೆ, ಫೀಡ್‌ಬ್ಯಾಕ್‌ ಮತ್ತು ಹೆಚ್ಚಿನದನ್ನು ತಟ್ಟುವುದು</string>
-    <string name="keyboard_preference_title">ಆದ್ಯತೆಗಳು</string>
-    <string name="text_correction_pref_title">ಪಠ್ಯ ತಿದ್ದುಪಡಿ</string>
-    <string name="kpt_adv_title">ಸುಧಾರಿತ</string>
-    <string name="advanced_keyboard_settings">ಅಡ್ವಾನ್ಸ್‌ಡ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
-    <string name="private_mode_title">ಪ್ರೈವೇಟ್‌ ಮೋಡ್‌</string>
-    <string name="private_mode_summary">ಪ್ರೈವೇಟ್ ಮೋಡ್‌ನಲ್ಲಿ ಕಲಿತ ಶಬ್ದಗಳು ಪ್ರೈವೇಟ್‌ ಮೋಡ್‌ನಲ್ಲಿ ಮಾತ್ರ ಲಭ್ಯವಿವೆ</string>
-    <string name="auto_correct_title">ಸ್ವಯಂ ಸರಿಪಡಿಸುವಿಕೆ</string>
-    <string name="auto_correct_summary">ತಪ್ಪಾಗಿ ಟೈಪ್‌ ಮಾಡಿದ ಶಬ್ದಗಳನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸರಿಪಡಿಸಿ</string>
-    <string name="auto_caps_summary">ಪ್ರತಿ ವಾಕ್ಯದ ಮೊದಲ ಶಬ್ದ ಕ್ಯಾಪಿಟಲೈಸ್‌ ಮಾಡಿ</string>
-    <string name="auto_caps_title">ಸ್ವಯಂ ಕ್ಯಾಪಿಟಲೈಸೇಶನ್‌</string>
-    <string name="auto_spacing_summary">ಪ್ರತಿ ವಾಕ್ಯದ ಮೊದಲು ಸ್ಪೇಸ್‌ ಸೇರಿಸಿ</string>
-    <string name="auto_spacing_title">ಸ್ವಯಂ ಸ್ಪೇಸಿಂಗ್‌</string>
-    <string name="display_suggestion_title">ಡಿಸ್‌ಪ್ಲೇ ಸಲಹೆಗಳು</string>
-    <string name="display_suggestion_summary">ಶಬ್ದ ಸಲಹೆ ಪ್ರದರ್ಶನ</string>
-    <string name="display_accents_title">ಡಿಸ್‌ಪ್ಲೇ ಅಸೆಂಟ್‌ಗಳು</string>
-    <string name="display_accents_summary">ಅಲ್ಫಾಬೆಟ್‌ಗಳಿಗೆ ಲಭ್ಯ ಅಸೆಂಟ್‌ ತೆಗೆಯಿರಿ</string>
-    <string name="popup_on_keypress_title">ಕೀಪ್ರೆಸ್‌ ಮಾಡಿದಾಗ ಪಾಪ್‌ಅಪ್‌</string>
-    <string name="sound_on_keypress_title">ಕೀಪ್ರೆಸ್‌ ಮಾಡಿದಾಗ ಧ್ವನಿ</string>
-    <string name="vibrate_on_keypress_title">ಕೀಪ್ರೆಸ್‌ ಮಾಡಿದಾಗ ವೈಬ್ರೇಟ್‌</string>
     <string name="delete_all">ಎಲ್ಲವನ್ನೂ ಅಳಿಸಿ</string>
-    <string name="long_press_duration_title">ದೀರ್ಘ ಒತ್ತುವಿಕೆ ಅವಧಿ</string>
-    <string name="keypress_sound_vol_title">ಕೀಪ್ರೆಸ್‌ ಧ್ವನಿ ವಾಲ್ಯೂಮ್‌</string>
-    <string name="keypress_vib_duration_title">ಕೀಪ್ರೆಸ್‌ ವೈಬ್ರೇಶನ್‌ ಅವಧಿ</string>
     <string name="like_count_by_unknow_contacts">%2$s ರ ಸ್ನೇಹಿತರ +%1$d</string>
     <string name="connection_established_inline_msg">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕಿತಗೊಂಡಿದೆ</string>
     <string name="connection_deestablished_inline_msg">Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ</string>
@@ -1256,13 +1223,6 @@
     <string name="enable_saved_contact_view_side_text">ಉಳಿಸಿದ ಸಂಪರ್ಕಗಳಿಗೂ ಕಾಲರ್ ಮಾಹಿತಿ ತೋರಿಸಿ</string>
     <string name="choose_language">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
     <string name="choose_language_desciption">ಈಗ ನಿಮ್ಮ ಇಷ್ಟದ ಮೆಸೆಂಜರ್ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ</string>
-    <string name="system_language">ಸಿಸ್ಟಂ ಭಾಷೆ</string>
-    <string name="regional_keyboard">ಪ್ರಾದೇಶಿಕ ಕೀಬೋರ್ಡ‌</string>
-    <string name="regional_keyboard_subtext">ಹೊಸ ಕೀಬೋರ್ಡ‌ನೊಂದಿಗೆ ನಿಮ್ಮ ಇಷ್ಟವಾದ ಭಾಷೆಯಲ್ಲಿ ಚಾಟ್‌ ಮಾಡಿ</string>
-    <string name="CHOOSE_LANGUAGE">ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ</string>
-    <string name="apply">ಅನ್ವಯಿಸಿ</string>
-    <string name="keyboad_ftue_swipe">ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿನ ಬದಲಾವಣೆಗಾಗಿ ಸ್ವೈಪ್‌ ಮಾಡಿ</string>
-    <string name="setting_up_keyboard">ಕೀಬೋರ್ಡ‌ ಸೆಟ್‌ ಅಪ್‌ ಮಾಡುವುದು</string>
     <string name="close_gps">ಬ್ಯಾಟರಿ ಉಳಿಸಲು ನೀವು ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಆಫ್‌ ಮಾಡಬಹುದಾಗಿದೆ. ನಿಮ್ಮ Hike ಡೈರೆಕ್ಟ್ ಸಂಪರ್ಕದ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುವುದಿಲ್ಲ.</string>
     <string name="gps_not_on">ಕ್ಷಮಿಸಿ ಜಿಪಿಎಸ್‌ ಆನ್‌ ಆಗಿಲ್ಲದಿದ್ದರೆ Hike ಡೈರೆಕ್ಟ್ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ</string>
     <string name="switch_on_gps">ಕೆಲಸ ಮಾಡಲು Hike ಡೈರೆಕ್ಟ್ಗೆ ಸ್ಥಳವನ್ನು ದಯವಿಟ್ಟು ಎನೇಬಲ್‌ ಮಾಡಿ. ಮುಗಿದ ನಂತರ ಬ್ಯಾಕ್‌ ಒತ್ತಿ. </string>
@@ -1276,8 +1236,6 @@
     <string name="is_typing">ಅವರು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
     <string name="are_typing">ಅವರುಗಳು ಟೈಪ್ ಮಾಡುತ್ತಿದ್ದಾರೆ...</string>
     <string name="you_chat_bg_changed">ನೀವು ಚಾಟ್ ಹೆಸರನ್ನು ಬದಲಾಯಿಸಿದ್ದೀರಿ</string>
-    <string name="hike_keyboard">Hike ಕೀಬೋರ್ಡ</string>
-    <string name="system_keyboard">ಫೋನ್ ಕೀಬೋರ್ಡ್</string>
     <string name="you_xyz_posted_pin">ನೀವು ಪಿನ್ ಪೋಸ್ಟ್ ಮಾಡಿದ್ದೀರಿ</string>
     <string name="voip_hang_up">ಹ್ಯಾಂಗ್ ಅಪ್</string>
     <string name="voip_decline">ನಿರಾಕರಿಸಿ</string>
@@ -1291,7 +1249,6 @@
     <string name="no_results_found">ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ</string>
     <string name="APPLY">ಅನ್ವಯಿಸು</string>
     <string name="level">ಮಟ್ಟ</string>
-    <string name="milliseconds">ಮಿಸೆ</string>
     <string name="contact_name">ಸಂಪರ್ಕ ಹೆಸರು</string>
     <string name="mobile">ಮೊಬೈಲ್</string>
     <string name="your_contact">ನಿಮ್ಮ ಸಂಪರ್ಕ</string>
@@ -1424,8 +1381,6 @@
     <string name="error_message_upgrade_peer"> ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ. ನಿಮ್ಮ ಮಿತ್ರ Hike ನೇರ ಹೊಂದಿರುವ  Hikeನ ಹೊಸ ಆವೃತ್ತಿ ಬಳಸುತ್ತಿಲ್ಲ.</string>
     <string name="error_message_unsupported_peer">ಕ್ಷಮಿಸಿ, ಕನೆಕ್ಟ್ ಮಾಡಲು ಆಗಲಿಲ್ಲ.  Hike ಡೈರೆಕ್ಟ್ ಸದ್ಯಕ್ಕೆ ಕೇವಲ ಆಂಡ್ರಾಯ್ಡ್‌ ಫೋನ್ಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ.</string>
     <string name="delete_conversation">ಸಂವಾದವನ್ನು ಅಳಿಸುి</string>
-    <string name="switch_to_old_key">"ನಿಮ್ಮ ಹಳೆಯ ಕೀಬೋರ್ಡ್ ಗೆ ಬದಲಾಯಿಸಿ"</string>
-    <string name="switch_to_hike_key">"ನಿಮ್ಮ ಕೀಬೋರ್ಡ್ hikeಗೆ ಬದಲಾಯಿಸಿ"</string>
     <string name="admin_error">ಈ ವ್ಯಕ್ತಿ  ಗ್ರೂಪ್ ಚಾಟಿನಲ್ಲಿ ಭಾಗವಹಿಸುತ್ತಿಲ್ಲు</string>
 
     <string name="deleting">ಅಳಿಸಲಾಗುತ್ತಿದೆ</string>
@@ -1466,4 +1421,13 @@
     <string name="share_on_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಬೇಕೆ?</string>
     <string name="posting_photos_timeline">ಟೈಮೆಲೈನ್ನಿನಲ್ಲಿ ಚಿತ್ರಗಳನ್ನು ಕಳುಹಿಸಿ.</string>
     <string name="add_a_caption">ಕ್ಯಾಪ್ಶನ್ಅನ್ನು ಜೊಡಿಸಿ </string>
+    <string name="keyboard_shutdown_heading">Hike ಪ್ರಾದೇಶಿಕ ಕೀಬೋರ್ಡ್ ತಗೆದುಹಾಕಲಾಗಿದೆ</string>
+    <string name="keyboard_shutdown_description">ಫೋನಿನ ಕೀಬೋರ್ಡ್ನೊಂದಿಗೆ ಚಾಟ್ ಮುಂದ್ವರಿಸೀರಿ ಅಥವಾ ಪ್ಲೇಸ್ಟೋರ ನಿಂದ ಹೈಕ್ ಕೀಬೋರ್ಡ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿರಿ</string>
+    <string name="open_phone_keyboard">ಫೋನಿನ ಕೀಬೋರ್ಡ್</string>
+    <string name="open_google_keyboard">ಗೂಗಲ್ಲಿನ ಕೀಬೋರ್ಡ್ </string>
+
+    <string name="slide_to_cancel">ಕ್ಯಾಂಸಲ್ಗೆ ಸ್ಲೈಡ್ ಮಾಡಿ</string>
+    <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
+    <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
+    <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
 </resources>

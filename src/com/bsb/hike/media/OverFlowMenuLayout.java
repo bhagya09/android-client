@@ -100,6 +100,13 @@ public class OverFlowMenuLayout implements OnItemClickListener
 				populateViewsForPosition(item, position, convertView);
 				return convertView;
 			}
+
+			@Override
+			public boolean isEnabled(int position)
+			{
+				return getItem(position).enabled;
+			}
+
 		});
 		overFlowListView.setOnItemClickListener(this);
 		return viewToShow;
@@ -117,6 +124,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			itemTextView.setTextColor(context.getResources().getColor(R.color.overflow_item_text_disabled));
 		}
 		itemTextView.setText(item.text);
+		itemTextView.setEnabled(item.enabled);
 
 		if (item.drawableId != 0)
 		{
@@ -146,15 +154,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 			newGamesIndicator.setVisibility(View.VISIBLE);
 		}
 
-		// Disabling click operation for disabled item.
-		if (item.enabled)
-		{
-			convertView.setClickable(false);
-		}
-		else
-		{
-			convertView.setClickable(true);
-		}
+		convertView.setEnabled(item.enabled);
 	}
 
 	@Override

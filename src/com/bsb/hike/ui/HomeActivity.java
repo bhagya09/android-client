@@ -1,28 +1,24 @@
 package com.bsb.hike.ui;
 
 
-import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.app.ProgressDialog;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -33,12 +29,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
@@ -53,7 +50,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -69,6 +65,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
+import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -80,8 +79,6 @@ import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
@@ -92,8 +89,6 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
@@ -105,8 +100,6 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
-import com.bsb.hike.ui.v7.SearchView;
-import com.bsb.hike.ui.v7.SearchView.OnQueryTextListener;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -117,17 +110,12 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
-
 
 import java.lang.ref.WeakReference;
 
-public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, AdaptxtKeyboordVisibilityStatusListner, HikeDialogListener,
+public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
 {
 
@@ -148,15 +136,13 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private View parentLayout;
 	
-	private HikeCustomKeyboard mCustomKeyboard;
-
 	private TextView networkErrorPopUp;
 
 	private Dialog dialog;
 
 	private SharedPreferences accountPrefs;
 
-	private Dialog progDialog, dbCorruptDialog;
+	private Dialog progDialog, dbCorruptDialog, restoreProgDialog;
 
 	private CustomAlertDialog updateAlert;
 
@@ -198,7 +184,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST, HikePubSub.UPDATE_OF_MENU_NOTIFICATION,
 			HikePubSub.SERVICE_STARTED, HikePubSub.UPDATE_PUSH, HikePubSub.REFRESH_FAVORITES, HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.CONTACT_SYNCED, HikePubSub.FAVORITE_COUNT_CHANGED,
 			HikePubSub.STEALTH_UNREAD_TIP_CLICKED,HikePubSub.FTUE_LIST_FETCHED_OR_UPDATED, HikePubSub.STEALTH_INDICATOR, HikePubSub.USER_JOINED_NOTIFICATION, HikePubSub.UPDATE_OF_PHOTOS_ICON,
-			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.KEYBOARD_SWITCHED, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED};
+			HikePubSub.SHOW_NEW_CHAT_RED_DOT, HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE, HikePubSub.OPEN_COMPOSE_CHAT_SCREEN, HikePubSub.STEALTH_MODE_TOGGLED, HikePubSub.BOT_CREATED};
 
 	private String[] progressPubSubListeners = { HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE };
 
@@ -224,14 +210,12 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 	private TextView timelineUpdatesIndicator;
 
-	private AdaptxtEditText searchET;
-	
 	private long time;
 
 	private AccountRestoreAsyncTask restoreAsyncTask;
 
 	private boolean wasFragmentRemoved = false;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -340,6 +324,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
+
+		HikeCloudSettingsManager.getInstance().doRestore(null);
     }
 	
 	@Override
@@ -521,8 +507,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		parentLayout = findViewById(R.id.parent_layout);
 
-		setupCustomKeyboard();
-		
 		networkErrorPopUp = (TextView) findViewById(R.id.network_error);
 
 		if (savedInstanceState != null)
@@ -648,8 +632,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	protected void onDestroy()
 	{
 		Logger.d(TAG, "onDestroy");
-
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.search_src_text);
 		if (progDialog != null)
 		{
 			progDialog.dismiss();
@@ -663,6 +645,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setOnQueryTextListener(null);
+			searchView.clearFocus();
 		}
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_RESET);
 
@@ -745,7 +728,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try
 		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
@@ -768,10 +750,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			searchView.setOnQueryTextListener(onQueryTextListener);
 			searchView.setQueryHint(getString(R.string.search));
 			searchView.clearFocus();
-			searchET = (AdaptxtEditText) searchView.findViewById(R.id.search_src_text);
-			Utils.setEditTextCursorDrawableColor(searchET,R.drawable.edittextcursorsearch);
-			setupSearchTextKeyboard();
-
 			searchOptionID = searchMenuItem.getItemId();
 			MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 			MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
@@ -799,10 +777,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			{
 				if(mainFragment!=null)
 		        {
-					if(mCustomKeyboard!=null && searchET!=null)
-					{
-						mCustomKeyboard.showCustomKeyboard(searchET, false);
-					}
 					mainFragment.removeSearch();
 		        }
 				toggleMenuItems(menu, true);
@@ -855,6 +829,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_TIMELINE_RED_DOT, false);
 					Intent intent = new Intent(HomeActivity.this, TimelineActivity.class);
+					intent.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.HOME_ACTIVITY);
 					startActivity(intent);
 				}
 			});
@@ -896,103 +871,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	private boolean setupCustomKeyboard()
-	{
-		if (mCustomKeyboard == null && !KptUtils.isSystemKeyboard())
-		{
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard = new HikeCustomKeyboard(HomeActivity.this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, null, HomeActivity.this);
-		}
-		return (mCustomKeyboard != null && !KptUtils.isSystemKeyboard()) ? true: false;
-	}
-
-	View.OnTouchListener searchTextOnTouchListener = new View.OnTouchListener()
-	{
-		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			if (MotionEvent.ACTION_UP == event.getAction()){
-				showKeyboard();
-			}
-			return false;
-		}
-	};
-
-	View.OnFocusChangeListener searchTextFocusChangeListener = new View.OnFocusChangeListener()
-	{
-		@Override
-		public void onFocusChange(View v, boolean hasFocus)
-		{
-			if (!KptUtils.isSystemKeyboard()&& mCustomKeyboard!=null)
-			{
-				if (hasFocus)
-				{
-					mCustomKeyboard.showCustomKeyboard(v, true);
-				}
-				else
-				{
-					mCustomKeyboard.showCustomKeyboard(v, false);
-					mCustomKeyboard.updateCore();
-				}
-			}
-			else
-			{
-				if (hasFocus)
-				{
-					Utils.toggleSoftKeyboard(HomeActivity.this.getApplicationContext());
-				}
-			}
-		}
-	};
-	
-	View.OnClickListener searchTextClickChangeListener = new View.OnClickListener()
-	{
-		
-		@Override
-		public void onClick(View v)
-		{
-			
-			showKeyboard();
-		}
-	} ;
-
-
-	private void setupSearchTextKeyboard()
-	{
-		if (searchET == null)
-			return;
-
-		if (setupCustomKeyboard())
-		{
-			mCustomKeyboard.registerEditText(searchET);
-			mCustomKeyboard.init(searchET);
-		}
-		else
-		{
-			resetSearchTextKeyboard();
-		}
-		searchET.setOnFocusChangeListener(searchTextFocusChangeListener);
-		searchET.setOnClickListener(searchTextClickChangeListener);
-		searchET.setOnTouchListener(searchTextOnTouchListener);
-	}
-
-	private void resetSearchTextKeyboard()
-	{
-		if (mCustomKeyboard != null)
-			mCustomKeyboard.unregister(searchET);
-	}
-
-	private void onKeyboardSwitched()
-	{
-		runOnUiThread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				setupCustomKeyboard();
-				setupSearchTextKeyboard();
-			}
-		});
-	}
 
 	private void recordSearchOptionClick()
 	{
@@ -1246,11 +1124,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onResume() {
 		Logger.d(TAG,"onResume");
-		KptUtils.resumeKeyboard(mCustomKeyboard);
-		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
-		{
-			showKeyboard();
-		}
 		super.onResume();
 
 		checkNShowNetworkError();
@@ -1272,20 +1145,9 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		checkAndShowCorruptDbDialog();
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken between onCreate and onResume of HomeActivity = " + (System.currentTimeMillis() - time));
+		recordActivityEndTime();
 	}
 
-	private void showKeyboard()
-	{
-		if (!KptUtils.isSystemKeyboard())
-		{
-			if (mCustomKeyboard != null && searchET != null)
-			{
-				mCustomKeyboard.showCustomKeyboard(searchET, true);
-			}
-		}else{
-			Utils.showSoftKeyboard(getApplicationContext(), searchET);
-		}
-	}
 	
 	private void acceptGroupMembershipConfirmation(Intent intent)
 	{
@@ -1389,9 +1251,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onBackPressed()
 	{
-		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
-		// Instead the activity was exiting.
-		// The following change checks if search mode is still there, and take s action accordingly
+		// The following change checks if search mode is still there, and takes action accordingly
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			searchMenuItem.collapseActionView();
@@ -1403,7 +1263,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard, searchET);
 		Logger.d(TAG,"onPause");
 		String data = getIntent().getDataString();
 		boolean isDataSet = TextUtils.isEmpty(data)  ? false : data.contains(HttpRequestConstants.BASE_LINK_SHARING_URL);
@@ -1623,37 +1482,36 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 		else if (type.equals(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE))
 		{
-			new Thread(new Runnable()
+			runOnUiThread(new Runnable()
 			{
+				@SuppressLint("NewApi")
 				@Override
 				public void run()
 				{
-					runOnUiThread(new Runnable()
+					HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+
+					showingBlockingDialog = false;
+					if (progDialog != null)
 					{
-						@SuppressLint("NewApi")
-						@Override
-						public void run()
-						{
-							HikeMessengerApp.getPubSub().removeListeners(HomeActivity.this, progressPubSubListeners);
+						progDialog.dismiss();
+						progDialog = null;
+					}
 
-							showingBlockingDialog = false;
-							if (progDialog != null)
-							{
-								progDialog.dismiss();
-								progDialog = null;
-							}
+					if (restoreProgDialog != null)
+					{
+						restoreProgDialog.dismiss();
+						restoreProgDialog = null;
+					}
 
-							if (Utils.isDBCorrupt())
-							{
-								showCorruptDBRestoreDialog();
-							}
+					if (Utils.isDBCorrupt())
+					{
+						showCorruptDBRestoreDialog();
+					}
 
-							invalidateOptionsMenu();
-							initialiseHomeScreen(null);
-						}
-					});
+					invalidateOptionsMenu();
+					initialiseHomeScreen(null);
 				}
-			}).start();
+			});
 		}
 		else if (HikePubSub.SMS_SYNC_COMPLETE.equals(type) || HikePubSub.SMS_SYNC_FAIL.equals(type))
 		{
@@ -1743,19 +1601,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try
@@ -1927,16 +1772,38 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		{
 			sendUIMessage(SHOW_NEW_CHAT_RED_DOT, 1000);
 		}
-		else if (HikePubSub.KEYBOARD_SWITCHED.equals(type))
-		{
-			onKeyboardSwitched();
-		}
 		else if (HikePubSub.PRODUCT_POPUP_RECEIVE_COMPLETE.equals(type))
 		{
 			if (isActivityVisible())
 			{
 				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
 			}
+		}else if (HikePubSub.BOT_CREATED.equals(type))
+		{
+			if(object == null || ! (object instanceof Pair) || !(Boolean)((Pair) object).second)
+			{
+				return;
+			}
+			if(((Pair) object).first instanceof BotInfo)
+			{
+			 final BotInfo info = ((BotInfo) ((Pair) object).first);
+			if(info == null)
+			{
+				return;
+			}
+			 if(!info.isConvPresent()&&info.getTriggerPointFormenu()==BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU)
+			 {
+				 runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							ArrayList<OverFlowMenuItem> optionsList = new ArrayList<OverFlowMenuItem>();
+							addBotItem(optionsList,info);
+						}
+					});
+			 }
+		   }
 		}
 	}
 
@@ -2183,6 +2050,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		optionsList.add(new OverFlowMenuItem(getString(R.string.status), 0, 0, R.string.status));
 
 		addEmailLogItem(optionsList);
+		
+		addBotItems(optionsList);
 
 		overFlowWindow = new PopupWindow(this);
 
@@ -2240,6 +2109,18 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					break;
 				case R.string.new_group:
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
+					break;
+				
+                case R.string.wallet_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_WALLET ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
+					break;
+					
+                case R.string.recharge_menu:
+					
+					intent = IntentFactory.getNonMessagingBotIntent(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE ,getApplicationContext());
+					intent.putExtra(AnalyticsConstants.BOT_VIA_MENU, AnalyticsConstants.BOT_VIA_HOME_MENU);
 					break;
 					
 				case R.string.timeline:
@@ -2359,6 +2240,24 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		});
 	}
 
+	private void addBotItem(List<OverFlowMenuItem> overFlowMenuItems, BotInfo info)
+	{
+		if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_WALLET))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.wallet_menu), 0, 0, R.string.wallet_menu));
+		}else if (info.getMsisdn().equalsIgnoreCase(HikeConstants.MicroApp_Msisdn.HIKE_RECHARGE))
+		{
+			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.recharge_menu), 0, 0, R.string.recharge_menu));
+		}
+
+	}
+	
+	private void addBotItems(List<OverFlowMenuItem> overFlowMenuItems)
+	{
+
+		BotUtils.addAllMicroAppMenu(overFlowMenuItems, BotInfo.TriggerEntryPoint.ENTRY_AT_HOME_MENU, getApplicationContext());
+	}
+	
 	private void addEmailLogItem(List<OverFlowMenuItem> overFlowMenuItems)
 	{
 		if (AppConfig.SHOW_SEND_LOGS_OPTION)
@@ -2366,7 +2265,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			overFlowMenuItems.add(new OverFlowMenuItem(getString(R.string.send_logs), 0, 0, R.string.send_logs));
 		}
 	}
-
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState)
 	{
@@ -2404,13 +2302,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onConfigurationChanged(Configuration newConfig)
 	{
-		if (!KptUtils.isSystemKeyboard()&&mCustomKeyboard!=null)
-		{
-			if (mCustomKeyboard != null)
-			{
-				mCustomKeyboard.onConfigurationChanged(newConfig);				
-			}
-		}
 		super.onConfigurationChanged(newConfig);
 		// handle dialogs here
 		if(progDialog != null && progDialog.isShowing())
@@ -2559,48 +2450,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showGlobeKeyView() 
-	{
-		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView() 
-	{
-		KptUtils.onGlobeKeyPressed(HomeActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	private void showCorruptDBRestoreDialog()
 	{
 		dbCorruptDialog = HikeDialogFactory.showDialog(HomeActivity.this, HikeDialogFactory.DB_CORRUPT_RESTORE_DIALOG, this);
@@ -2650,6 +2499,10 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		// Connect to service again
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
+
+        //reset dticker tables to default sticker set
+        StickerManager.getInstance().resetStickerTablesToDefault();
+
 		app.connectToService();
 
 		// Set up the home screen
@@ -2697,6 +2550,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		else
 		{
+			if (restoreProgDialog != null) //Dismiss the rotator!
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
 			checkAndShowCorruptDbDialog(); // Take the user to the same damn dialog until "Skip Restore" is pressed.
 			Toast.makeText(HomeActivity.this, getString(R.string.restore_failure) , Toast.LENGTH_LONG).show();
 			return;
@@ -2706,14 +2564,24 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp app = (HikeMessengerApp) getApplication();
 		app.connectToService();
 
-		// Set up the home screen
-		invalidateOptionsMenu();
-		initialiseHomeScreen(null);
+		// Set up the home screen. First check if we are running upgrade intent service or not.
+
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPGRADING, false))
+		{
+			if (restoreProgDialog != null)
+			{
+				restoreProgDialog.dismiss();
+				restoreProgDialog = null;
+			}
+
+			invalidateOptionsMenu();
+			initialiseHomeScreen(null);
+		}
 	}
 
 	private void showRestoreInProcessDialog()
 	{
-		dbCorruptDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
+		restoreProgDialog = ProgressDialog.show(HomeActivity.this,"", getString(R.string.restore_progress_body), true, false);
 		showingBlockingDialog = true;
 	}
 
@@ -2737,4 +2605,5 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			showCorruptDBRestoreDialog();
 		}
 	}
+
 }

@@ -29,7 +29,7 @@
          android:scaleType="centerInside"
          android:src="@drawable/ic_erase" />
 
-        <com.bsb.hike.view.StickerEmoticonIconPageIndicator
+        <com.bsb.hike.view.EmoticonIconPageIndicator
             android:id="@+id/emoticon_icon_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

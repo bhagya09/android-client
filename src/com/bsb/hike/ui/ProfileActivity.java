@@ -26,6 +26,7 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -33,6 +34,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -52,9 +54,6 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
@@ -79,15 +78,12 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.voip.VoIPUtils;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -124,7 +120,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -132,6 +127,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -142,11 +138,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener, AdaptxtKeyboordVisibilityStatusListner
+		View.OnClickListener
 {
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
 
 	private ImageView mAvatarEdit;
 
@@ -198,6 +191,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private CustomFontEditText mEmailEdit;
 
 	private String emailTxt;
+
+	private CustomFontTextView savedDOB;
+
+	private String dobTxt;
+
+	private boolean dobEdited = false;
 
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
@@ -325,7 +324,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
 		}
-		KptUtils.pauseKeyboardResources(mCustomKeyboard);
 	}
 	
 	@Override
@@ -370,7 +368,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			HikeMessengerApp.getPubSub().removeListeners(this, profilEditPubSubListeners);
 		}
 		
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.name_edit, R.id.name_input, R.id.email_input);
 		super.onDestroy();
 	}
 
@@ -412,14 +409,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState = new ProfileActivityState();
 		}
 
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
-
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
 		{
 			setContentView(R.layout.profile);
 
-			addCustomKeyboard();
-			
 			this.profileType = getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) ? ProfileType.GROUP_INFO : ProfileType.BROADCAST_INFO;
 			setupGroupAndBroadcastProfileScreen();
 			HikeMessengerApp.getPubSub().addListeners(this, groupInfoPubSubListeners);
@@ -460,13 +453,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				// set pubsub listeners
 				setContentView(R.layout.profile_edit);
-
-				addCustomKeyboard();
 				
 				this.profileType = ProfileType.USER_PROFILE_EDIT;
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.EDIT_PROFILE.ordinal();
+				if(getIntent().getBooleanExtra(HikeConstants.Extras.PROFILE_DOB, false))
+				{
+					showDatePickerDialog();
+				}
 			}
 			else
 			{
@@ -500,47 +495,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		
 	}
 
-	private void addCustomKeyboard()
-	{
-		if (!systemKeyboard)
-		{
-			LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-			mCustomKeyboard= new HikeCustomKeyboard(this, viewHolder, KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener, ProfileActivity.this);
-		}
-	}
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			if (profileType == ProfileType.USER_PROFILE_EDIT){
-				if (mCustomKeyboard.isCustomKeyboardVisible())
-				{
-					if(mEmailEdit!=null && mEmailEdit.hasFocus()){
-						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-					}else if(mNameEdit!=null &&mNameEdit.hasFocus()){
-						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-					}
-					
-				}
-			}else if(profileType == ProfileType.GROUP_INFO){
-				if(showingGroupEdit){
-					mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-				}
-			}
-		}
-	};
-	private void initCustomKeyboard(View parent)
-	{
-		if (!systemKeyboard)
-		{
-			ViewGroup parentView = (ViewGroup) parent.getParent();
-			mNameEdit = (CustomFontEditText) parentView.findViewById(R.id.name_edit);
-			mCustomKeyboard.registerEditText(R.id.name_edit);
-			mCustomKeyboard.init(mNameEdit);
-		}
-	}
-	
 	private void setGroupNameFields(View parent)
 	{
 		showingGroupEdit = true;
@@ -556,17 +510,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		mNameEdit.requestFocus();
 		mNameEdit.setText(oneToNConversation.getLabel());
 		mNameEdit.setSelection(mNameEdit.getText().toString().length());
-		mNameEdit.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				showKeyboard();
-			}
-		});
-
+		Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
 		mNameEdit.addTextChangedListener(nameWatcher);
-
-		showKeyboard();
 		setupGroupNameEditActionBar();
 	}
 
@@ -603,18 +548,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	};
 
-	private void showKeyboard()
-	{
-		if (!systemKeyboard&&!mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, mCustomKeyboard.getKeyBoardAndCVHeight());
-		}else if (KptUtils.isSystemKeyboard())
-		{
-			Utils.showSoftKeyboard(mNameEdit, InputMethodManager.SHOW_FORCED);
-		}
-	}
-	
 	private void setupActionBar()
 	{
 		ActionBar actionBar = getSupportActionBar();
@@ -690,7 +623,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					return;
 				}
 				saveChanges();
-				hideKeyboard();
+				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
 				showingGroupEdit = false;
 				mName.setText(groupName);
 				mName.setVisibility(View.VISIBLE);
@@ -715,27 +648,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		invalidateOptionsMenu();
 	}
 
-	private void hideKeyboard()
-	{
-		if (systemKeyboard)
-		{
-			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
-		}
-		else
-		{
-			mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
-		}
-	}
-	
 	public void closeGroupNameEdit()
 	{
 		if(showingGroupEdit)
 		{
 			showingGroupEdit = false;
 			mActivityState.edittedGroupName = null;
-			hideKeyboard();
+			Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
 			mName.setText(oneToNConversation.getLabel());
 			mName.setVisibility(View.VISIBLE);
 			mNameEdit.setVisibility(View.GONE);
@@ -753,7 +672,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	protected void onResume()
 	{
 		super.onResume();
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 		if (profileAdapter != null)
 		{
 			profileAdapter.getTimelineImageLoader().setExitTasksEarly(false);
@@ -766,11 +684,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			}
 			profileAdapter.notifyDataSetChanged();
 		}
-		
-		if (showingGroupEdit)
-		{
-			showKeyboard();
+
+		if (showingGroupEdit) {
+
+			Utils.showSoftKeyboard(getApplicationContext(), mNameEdit);
 		}
+		
 	}
 
 	@Override
@@ -850,7 +769,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 							&& !OfflineUtils.isConnectedToSameMsisdn(contactInfo.getMsisdn()))
 					{
 						friendItem.setVisible(true);
-						friendItem.setTitle(R.string.remove_from_favorites);
+						friendItem.setTitle(Utils.isFavToFriendsMigrationAllowed() ? R.string.remove_from_friends : R.string.remove_from_favorites);
 					}
 					else
 					{
@@ -1016,7 +935,14 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			dualText = (TextView) headerView.findViewById(R.id.add_fav_tv_2);
 
 			String infoSubText = getString(Utils.isLastSeenSetToFavorite() ? R.string.both_ls_status_update : R.string.status_updates_proper_casing);
-			((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			if (Utils.isFavToFriendsMigrationAllowed())
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.sent_you_friend_req));
+			}
+			else
+			{
+				((TextView) headerView.findViewById(R.id.update_text)).setText(getString(R.string.add_fav_msg, infoSubText));
+			}
 			msisdn = contactInfo.getMsisdn();
 			name = TextUtils.isEmpty(contactInfo.getName()) ? contactInfo.getMsisdn() : contactInfo.getName();
 			text.setText(name);
@@ -1041,14 +967,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				{	
 					// Show add/not now screen.
 					req_layout.setVisibility(View.VISIBLE);
+					if (Utils.isFavToFriendsMigrationAllowed())
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.GONE);
+						((Button)req_layout.findViewById(R.id.yes)).setText(R.string.ACCEPT);
+					}
+					else
+					{
+						req_layout.findViewById(R.id.no).setVisibility(View.VISIBLE);
+					}
 				}
 				
 				else if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED && !contactInfo.isUnknownContact())
 				{	
 					fav_layout.setVisibility(View.VISIBLE);  //Simply show add to fav view if contact is unsaved
-					extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-					extraInfo.setText(getResources().getString(R.string.add_fav));
-					smallIcon.setImageResource(R.drawable.ic_add_friend);
+					extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+					extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+					smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 				}
 				
 				if (contactInfo.isUnknownContact())
@@ -1056,6 +991,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						if(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)
 						{
 							dual_layout.setVisibility(View.VISIBLE);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
@@ -1077,14 +1015,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 						{
 							// Show dual layout
 							dual_layout.setVisibility(View.VISIBLE);
+							dualText.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							dualText.setText(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIconFrame.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 						else
 						{
 							dual_layout.setVisibility(View.GONE);
 							fav_layout.setVisibility(View.VISIBLE);
-							extraInfo.setTextColor(getResources().getColor(R.color.add_fav));
-							extraInfo.setText(getResources().getString(R.string.add_fav));
-							smallIcon.setImageResource(R.drawable.ic_add_friend);
+							extraInfo.setTextColor(getResources().getColor(Utils.isFavToFriendsMigrationAllowed() ? R.color.blue_color_span : R.color.add_fav));
+							extraInfo.setText(getResources().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_frn : R.string.add_fav));
+							smallIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_add_friend : R.drawable.ic_add_favourite);
 						}
 					}
 					else if (contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT || contactInfo.getFavoriteType() == FavoriteType.REQUEST_SENT_REJECTED)
@@ -1195,7 +1136,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		StatusMessageType[] statusMessagesTypesToFetch = {StatusMessageType.TEXT};
 		StatusMessage status = HikeConversationsDatabase.getInstance().getLastStatusMessage(statusMessagesTypesToFetch, contactInfo);
-		if(status != null)
+		if((Utils.isFavToFriendsMigrationAllowed() && contactInfo.getFavoriteType() != FavoriteType.FRIEND)
+			|| status == null)
+		{
+			status = StatusMessage.getJoinedHikeStatus(contactInfo);
+			setStatusText(status, subText, name);
+		}
+		else
 		{
 			if (status.hasMood())  //Adding mood image for status
 			{
@@ -1207,11 +1154,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				statusMood.setVisibility(View.GONE);
 			}
 			subText.setText(smileyParser.addSmileySpans(status.getText(), true));
-			return;
 		}
-		
-		status = StatusMessage.getJoinedHikeStatus(contactInfo);
-		setStatusText(status, subText, name);
 	}
 	
 	private void setStatusText(StatusMessage status,final TextView subText, TextView name)
@@ -1224,21 +1167,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			subText.setVisibility(View.INVISIBLE);
 			Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up_hike_joined);
 			name.startAnimation(animation);
-			animation.setAnimationListener(new AnimationListener()
-			{
+			animation.setAnimationListener(new AnimationListener() {
 				@Override
-				public void onAnimationStart(Animation animation)
-				{
+				public void onAnimationStart(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationRepeat(Animation animation)
-				{
+				public void onAnimationRepeat(Animation animation) {
 				}
 
 				@Override
-				public void onAnimationEnd(Animation animation)
-				{
+				public void onAnimationEnd(Animation animation) {
 					subText.setVisibility(View.VISIBLE);
 				}
 			});
@@ -1300,8 +1239,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean showContactsUpdates(ContactInfo contactInfo)
 	{
-		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND) && (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
-				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED) && (contactInfo.isOnhike());
+		return (contactInfo.getFavoriteType() != FavoriteType.NOT_FRIEND)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT)
+				&& (contactInfo.getFavoriteType() != FavoriteType.REQUEST_SENT_REJECTED)
+				&& (contactInfo.isOnhike());
 	}
 
 	private void setupGroupAndBroadcastProfileScreen()
@@ -1473,79 +1414,70 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			sharedMediaItem.addSharedMediaFiles((List<HikeSharedFile>) hCDB.getSharedMedia(mLocalMSISDN, maxMediaToShow * MULTIPLIER , -1, true));
 	}
 
+	private DatePickerDialog.OnDateSetListener dobDateListener = new DatePickerDialog.OnDateSetListener()
+	{
+		@Override
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+		{
+			Birthday dobEntered = new Birthday(dayOfMonth, monthOfYear +1, year);
+			dobTxt = dobEntered.toJsonString();
+			savedDOB.setText(Utils.formatDOB(dobTxt));
+			dobEdited = true;
+		}
+	};
+
+	private void showDatePickerDialog()
+	{
+		Logger.d(getClass().getSimpleName(), "creating date picker dialog");
+		int year, month, day;
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			year = Birthday.DEFAULT_YEAR;
+			month = Birthday.DEFAULT_MONTH;
+			day = Birthday.DEFAULT_DAY;
+		}
+		else
+		{
+			Birthday currDOB = new Birthday(dobTxt);
+			year = currDOB.year;
+			month = currDOB.month - 1;
+			day = currDOB.day;
+		}
+		DatePickerDialog dialog = new DatePickerDialog(this, dobDateListener, year, month, day);
+		Logger.d(getClass().getSimpleName(), "overriding negative button on date picker dialog");
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if(which == DialogInterface.BUTTON_NEGATIVE)
+				{
+					Logger.d(TAG, "cancelling date picker dialog");
+					dialog.dismiss();
+					dobEdited = false;
+				}
+			}
+		});
+		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
+		dialog.show();
+	}
+
 	private void setupEditScreen()
 	{
 		ViewGroup name = (ViewGroup) findViewById(R.id.name);
 		ViewGroup phone = (ViewGroup) findViewById(R.id.phone);
+		ViewGroup birthday = (ViewGroup) findViewById(R.id.birthday);
 		ViewGroup email = (ViewGroup) findViewById(R.id.email);
 		ViewGroup gender = (ViewGroup) findViewById(R.id.gender);
 		ViewGroup picture = (ViewGroup) findViewById(R.id.photo);
 
 		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
 		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
-
-		if (!systemKeyboard)
-		{
-			mCustomKeyboard.registerEditText(R.id.name_input);
-			mCustomKeyboard.registerEditText(R.id.email_input);
-			mCustomKeyboard.init(mNameEdit);
-			mNameEdit.setOnClickListener(new View.OnClickListener()
-			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					if (!mCustomKeyboard.isCustomKeyboardVisible())
-					{
-						mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
-					}
-					
-					
-				}
-			});
-			mEmailEdit.setOnFocusChangeListener(new View.OnFocusChangeListener()
-			{
-				
-				@Override
-				public void onFocusChange(View v, boolean hasFocus)
-				{
-					if (mCustomKeyboard.isCustomKeyboardVisible())
-					{
-						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-					}
-					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);					
-				}
-			});
-			mNameEdit.setOnClickListener(new OnClickListener()
-			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					if (mCustomKeyboard.isCustomKeyboardVisible())
-					{
-						mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-					}
-					mCustomKeyboard.showCustomKeyboard(mNameEdit, true);
-				}
-			});
-			mEmailEdit.setOnClickListener(new OnClickListener()
-			{
-				
-				@Override
-				public void onClick(View v)
-				{
-					if (mCustomKeyboard.isCustomKeyboardVisible())
-					{
-						mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-					}
-					mCustomKeyboard.showCustomKeyboard(mEmailEdit, true);
-				}
-			});
-		}
+		savedDOB = ((CustomFontTextView) birthday.findViewById(R.id.birthday_stored));
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
+		((TextView) birthday.findViewById(R.id.birthday_edit_field)).setText(R.string.edit_profile_birthday);
 		((TextView) email.findViewById(R.id.email_edit_field)).setText(R.string.email);
 		((TextView) gender.findViewById(R.id.gender_edit_field)).setText(R.string.gender);
 		((TextView) picture.findViewById(R.id.photo_edit_field)).setText(R.string.edit_picture);
@@ -1558,6 +1490,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onClick(View v)
 			{				
 				changeProfilePicture();
+			}
+		});
+
+		savedDOB.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				showDatePickerDialog();
 			}
 		});
 		
@@ -1573,6 +1514,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		mNameEdit.setText(nameTxt);
 		mEmailEdit.setText(emailTxt);
+		savedDOB.setText(Utils.formatDOB(dobTxt));
 
 		mNameEdit.setSelection(nameTxt.length());
 		mEmailEdit.setSelection(emailTxt.length());
@@ -1747,6 +1689,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
+		dobTxt = preferences.getString(HikeConstants.DOB, "");
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			int day = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_DAY, 0);
+			int month = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_MONTH, 0);
+			int year = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_YEAR, 0);
+			if(day != 0 && month != 0 && year != 0)
+			{
+				dobTxt = new Birthday(day, month, year).toJsonString();
+			}
+		}
 	}
 
 	@Override
@@ -1757,17 +1710,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	private void backPressed(boolean actionBarBackPressed)
 	{
-		if (!actionBarBackPressed)
-		{
-			if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-			{
-				mCustomKeyboard.showCustomKeyboard(mNameEdit, false);
-				mCustomKeyboard.showCustomKeyboard(mEmailEdit, false);
-				KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
-				KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
-				return;
-			}
-		}
 		
 		if(showingGroupEdit)
 		{
@@ -1909,6 +1851,52 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			catch (JSONException e)
 			{
 				Logger.e("ProfileActivity", "Could not set email or gender", e);
+			}
+			requests.add(request);
+		}
+
+		if(dobEdited)
+		{
+			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/dob", RequestType.OTHER, new HikeHttpRequest.HikeHttpCallback()
+			{
+				public void onFailure()
+				{
+					if (isBackPressed)
+					{
+						Logger.d(getClass().getSimpleName(), "DoB update request failed");
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+
+				public void onSuccess(JSONObject response)
+				{
+					Logger.d(getClass().getSimpleName(), "DoB updated request successful");
+					Editor editor = preferences.edit();
+					editor.putString(HikeConstants.DOB, dobTxt);
+					editor.commit();
+					if (isBackPressed)
+					{
+						// finishEditing();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+			});
+			JSONObject payload = new JSONObject();
+			try
+			{
+				Logger.d(getClass().getSimpleName(), "Profile details DOB: " + savedDOB.getText());
+				Birthday updatedDOB = new Birthday(dobTxt);
+				JSONObject dobJSON = new JSONObject();
+				dobJSON.put(HikeConstants.DAY, updatedDOB.day);
+				dobJSON.put(HikeConstants.MONTH, (updatedDOB.month));
+				dobJSON.put(HikeConstants.YEAR, updatedDOB.year);
+				payload.put(HikeConstants.DOB, dobJSON);
+				Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + payload.toString());
+				request.setJSONData(payload);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), "Could not update DoB");
 			}
 			requests.add(request);
 		}
@@ -2059,7 +2047,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 			}
 
-			Utils.addFavorite(this, contactInfo, false);
+			Utils.addFavorite(this, contactInfo, false, HikeConstants.AddFriendSources.PROFILE_SCREEN);
 		}
 		else
 		{
@@ -2159,7 +2147,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void openChatThread(ContactInfo contactInfo)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(this, contactInfo, true, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		//Add anything else which is need to the intent
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		if (getIntent().getBooleanExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, false))
@@ -2172,7 +2160,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	public void onProfileSmallLeftBtnClick(View v)
 	{
 		Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.ADD_PARTICIPANT);
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false);
+		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(ProfileActivity.this, mLocalMSISDN, false, false, ChatThreadActivity.ChatThreadOpenSources.PROFILE_SCREEN);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 
@@ -2235,7 +2223,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	{
 		if(!showingGroupEdit){
 		View parent = (View) v.getParent();
-		initCustomKeyboard(parent);
 		setGroupNameFields(parent);
 		}
 	}
@@ -3662,6 +3649,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void callBtnClicked(View v)
 	{
+		if (Utils.isNotMyOneWayFriend(contactInfo)) //If Not one way friend, no need to initiate Voip
+		{
+			String messageToDisplay = getString(R.string.voip_friend_error, contactInfo.getFirstNameAndSurname());
+			Toast.makeText(this, messageToDisplay, Toast.LENGTH_LONG).show();
+			return;
+		}
+
 		Utils.onCallClicked(this, mLocalMSISDN, VoIPUtils.CallSource.PROFILE_ACTIVITY);
 	}
 	
@@ -3780,55 +3774,4 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		super.setLocalMsisdn(mLocalMSISDN);
 	}
 
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height)
-	{
-		if (kptVisible)
-		{
-			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, height);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, height);
-		}
-		else
-		{
-			KptUtils.updatePadding(ProfileActivity.this, R.id.edit_profile, 0);
-			KptUtils.updatePadding(ProfileActivity.this, R.id.parent_layout, 0);
-		}
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(ProfileActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }

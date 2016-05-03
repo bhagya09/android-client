@@ -907,20 +907,20 @@ public class StickyCaller {
 						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				break;
 			case R.id.block_contact:
+				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
+						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
 				Intent intent = new Intent(HikeMessengerApp.getInstance().getApplicationContext(), BlockCallerActivity.class);
 				CallerContentModel contentModel = ContactManager.getInstance().getCallerContentModelFromMsisdn(v.getTag().toString());
 				if (v.getTag() != null && contentModel != null && contentModel.getFullName() != null)
 				{
 					intent.putExtra(HikeConstants.MSISDN, v.getTag().toString());
 					intent.putExtra(HikeConstants.NAME, contentModel.getFullName());
+					intent.putExtra(HikeConstants.CALL_TYPE, getCallEventFromCallType(CALL_TYPE));
 				}
 				ChatHeadUtils.insertHomeActivitBeforeStarting(intent);
 				IncomingCallReceiver.callReceived = true;
 				CALL_TYPE = NONE;
 				Utils.killCall();
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
-						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
-
 				break;
 			/*  When "Write your own" button is clicked on Quick reply card */
 			case R.id.caller_free_layout:

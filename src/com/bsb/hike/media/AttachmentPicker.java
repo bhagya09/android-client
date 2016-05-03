@@ -26,13 +26,20 @@ import android.widget.Toast;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThread;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.chatthread.IChannelSelector;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AttachmentPicker extends OverFlowMenuLayout
 {
@@ -56,6 +63,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	public static final int EDITOR = 320;
 
 	public static final int APPS = 321;
+
+	public static final int ATTACHMENT_PICKER = -1;
 
 	private boolean startRespectiveActivities;
 
@@ -223,6 +232,8 @@ public class AttachmentPicker extends OverFlowMenuLayout
 				{
 					Logger.e(TAG, "intent is null !!");
 				}
+
+				sendClickAnalytics(getType(item.id)); // recording the event on item click at Attachment Picker
 			}
 		});
 		return viewToShow;
@@ -279,4 +290,51 @@ public class AttachmentPicker extends OverFlowMenuLayout
 	{
 		return context.getString(id);
 	}
+
+	private void sendClickAnalytics(String type)
+	{
+		JSONObject json = Utils.getCoreChatClickJSON(type, ChatThreadUtils.getChatThreadType(msisdn), StealthModeManager.getInstance().isStealthMsisdn(msisdn));
+		if (json != null)
+		{
+			HAManager.getInstance().recordV2(json);
+		}
+	}
+
+	/**
+	 * method to get the type of key for the click event
+	 * @param code
+	 * @return a string representing the key of the event
+	 */
+	private String getType(int code)
+	{
+		switch(code)
+		{
+			case CAMERA:
+				return AnalyticsConstants.CAMERA_ICON_CLICK;
+			case VIDEO:
+				return AnalyticsConstants.VIDEO_ICON_CLICK;
+			case AUDIO:
+				return AnalyticsConstants.AUDIO_ICON_CLICK;
+			case LOCATION:
+				return AnalyticsConstants.LOCATION_ICON_CLICK;
+			case CONTACT:
+				return AnalyticsConstants.CONTACT_ICON_CLICK;
+			case FILE:
+				return AnalyticsConstants.FILE_ICON_CLICK;
+			case GALLERY:
+				return AnalyticsConstants.GALLERY_ICON_CLICK;
+			case APPS:
+				return AnalyticsConstants.APPS_ICON_CLICK;
+			default:
+				return AnalyticsConstants.ATTACHMENT_PICKER_CLICK;
+		}
+	}
+
+	@Override
+	public void show(int width, int height, int xOffset, int yOffset, View anchor, int inputMethodMode)
+	{
+		sendClickAnalytics(AnalyticsConstants.ATTACHMENT_PICKER_CLICK); // recording the showing of attachment picker
+		super.show(width, height, xOffset, yOffset, anchor, inputMethodMode);
+	}
+
 }

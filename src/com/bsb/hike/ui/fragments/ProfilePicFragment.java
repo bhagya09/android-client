@@ -372,6 +372,7 @@ public class ProfilePicFragment extends Fragment implements FinishableEvent, IHa
 					if (isAdded() && mUploadStatus == UPLOAD_COMPLETE && isResumed())
 					{
 						Intent in = new Intent(getActivity(), TimelineActivity.class);
+						in.putExtra(TimelineActivity.TIMELINE_SOURCE, TimelineActivity.TimelineOpenSources.PROFILE_PIC_FRAGMENT);
 						in.putExtra(HikeConstants.HikePhotos.HOME_ON_BACK_PRESS, true);
 						getActivity().startActivity(in);
 						getActivity().finish();

@@ -26,6 +26,12 @@
 	<dimen name="photos_filters_preview_padding">7dp</dimen>
 	<dimen name="photos_selector_top_padding">4dp</dimen>
 	<dimen name="preview_brush_width">38dp</dimen>
+
     <dimen name="gallery_selection_item_size">79dp</dimen>
     <dimen name="gallery_selected_grid_height">110dp</dimen>
+    <dimen name="slide_to_cancel_arrow_width">24dp</dimen>
+    <dimen name="slide_to_cancel_margin">28dp</dimen>
+    <dimen name="db_dialog_width">282dp</dimen>
+    <dimen name="friends_ftue_tip_margin">32dp</dimen>
+
 </resources>

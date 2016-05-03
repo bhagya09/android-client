@@ -42,6 +42,7 @@ import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -594,7 +595,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 		{
 
 			Intent intent = IntentFactory.createChatThreadIntentFromContactInfo(TimelineSummaryActivity.this, ContactManager.getInstance()
-					.getContact(mStatusMessage.getMsisdn(),true,true), false, false);
+					.getContact(mStatusMessage.getMsisdn(),true,true), false, false, ChatThreadActivity.ChatThreadOpenSources.TIMELINE);
 			// Add anything else to the intent
 			intent.putExtra(HikeConstants.Extras.FROM_CENTRAL_TIMELINE, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -821,7 +822,7 @@ public class TimelineSummaryActivity extends HikeAppStateBaseFragmentActivity im
 					@Override
 					public void positiveClicked(HikeDialog hikeDialog)
 					{
-						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false);
+						Utils.toggleFavorite(TimelineSummaryActivity.this.getApplicationContext(), profileContactInfo, false, HikeConstants.AddFriendSources.UNKNOWN);
 						if (hikeDialog != null && hikeDialog.isShowing())
 						{
 							hikeDialog.dismiss();

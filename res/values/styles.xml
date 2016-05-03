@@ -6,7 +6,6 @@
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
     
     <style name="ChatLabelStyle" parent="@android:style/TextAppearance.Medium.Inverse">
@@ -1064,5 +1063,35 @@
 	 <style name="WebView.Theme.ActionBar.Overlay.NoShadow" parent = "WebView.Theme.ActionBar.Overlay">
 	     <item name="android:windowContentOverlay">@null</item>
 	 </style>
-	 
+
+    <style name="CustomInfoTipDown">
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="WalkietalkieAnim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_right_fast</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_right_fast</item>
+    </style>
+
+    <style name="AtomicTipHeaderText">
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/atomic_tip_header_text</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="AtomicTipBodyText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/atomic_tip_body_text</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
 </resources>

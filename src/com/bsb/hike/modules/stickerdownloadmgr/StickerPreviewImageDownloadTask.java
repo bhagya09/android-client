@@ -30,13 +30,16 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 
 	private String categoryId;
 
+	private int previewType;
+
 	String previewImagePath;
 	
 	private RequestToken token;
 
-	public StickerPreviewImageDownloadTask(String categoryId)
+	public StickerPreviewImageDownloadTask(String categoryId, int previewType)
 	{
 		this.categoryId = categoryId;
+		this.previewType = previewType;
 	}
 
 	@Override
@@ -78,7 +81,7 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 		{
 
 			@Override
-			public void intercept(Chain chain)
+			public void intercept(Chain chain) throws Exception
 			{
 				String dirPath = StickerManager.getInstance().getStickerDirectoryForCategoryId(categoryId);
 				if (dirPath == null)
@@ -135,7 +138,7 @@ public class StickerPreviewImageDownloadTask implements IHikeHTTPTask, IHikeHttp
 					}
 
 					String stickerData = data.getString(HikeConstants.PREVIEW_IMAGE);
-					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, StickerManager.PREVIEW_IMAGE_TYPE));
+					HikeMessengerApp.getLruCache().remove(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(categoryId, previewType));
 					Utils.saveBase64StringToFile(new File(previewImagePath), stickerData);
 					doOnSuccess(null);
 				}

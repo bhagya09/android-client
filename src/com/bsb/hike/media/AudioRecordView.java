@@ -38,13 +38,6 @@ import com.bsb.hike.utils.Utils;
 
 public class AudioRecordView
 {
-	public interface AudioRecordListener
-	{
-		public void audioRecordSuccess(String filePath, long duration);
-
-		public void audioRecordCancelled();
-	}
-	
 	private static final int AUDIO_RECORD_VIEW_ID = 121;
 
 	// DIALOG STATES
@@ -73,7 +66,7 @@ public class AudioRecordView
 
 	private UpdateRecordingDuration updateRecordingDuration;
 
-	private AudioRecordListener listener;
+	private HikeAudioRecordListener listener;
 
 	private static final long MIN_DURATION = 1000;
 
@@ -82,7 +75,7 @@ public class AudioRecordView
 	 * 
 	 * @generated
 	 */
-	public AudioRecordView(Activity activity, AudioRecordListener listener)
+	public AudioRecordView(Activity activity, HikeAudioRecordListener listener)
 	{
 		this.activity = activity;
 		this.listener = listener;
@@ -101,7 +94,7 @@ public class AudioRecordView
 		else
 		{
 			Toast.makeText(activity, R.string.card_unmount, Toast.LENGTH_SHORT).show();
-			listener.audioRecordCancelled();
+			listener.audioRecordCancelled(HikeAudioRecordListener.AUDIO_CANCELLED_NOSPACE);
 		}
 	}
 
@@ -241,7 +234,7 @@ public class AudioRecordView
 				{
 					selectedFile.delete();
 				}
-				listener.audioRecordCancelled();
+				listener.audioRecordCancelled(HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER);
 			}
 		});
 

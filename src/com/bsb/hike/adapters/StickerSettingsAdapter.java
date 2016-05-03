@@ -1,9 +1,5 @@
 package com.bsb.hike.adapters;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +12,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
 import com.bsb.hike.DragSortListView.DragSortListView;
 import com.bsb.hike.DragSortListView.DragSortListView.DragSortListener;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.R;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -31,6 +27,10 @@ import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.tasks.DeleteStickerPackAsyncTask;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class StickerSettingsAdapter extends BaseAdapter implements DragSortListener, OnClickListener
 {
@@ -260,7 +260,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 		viewHolder.updateButton.setTag(category);
 		viewHolder.categoryName.setText(category.getCategoryName());
 		viewHolder.checkBox.setSelected(category.isVisible());
-		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
+		stickerOtherIconLoader.loadImage(StickerManager.getInstance().getCategoryOtherAssetLoaderKey(category.getCategoryId(), StickerManager.PREVIEW_IMAGE_SHOP_TYPE), viewHolder.categoryPreviewImage, isListFlinging);
 		stickerOtherIconLoader.setImageSize(StickerManager.PREVIEW_IMAGE_SIZE, StickerManager.PREVIEW_IMAGE_SIZE);
 		return convertView;
 	}
@@ -492,7 +492,7 @@ public class StickerSettingsAdapter extends BaseAdapter implements DragSortListe
 					break;
 
 				case R.id.update_button:
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, mContext);
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(DownloadSource.SETTINGS));
 					StickerManager.getInstance().sendPackUpdateAnalytics(HikeConstants.LogEvent.STICKER_PACK_UPDATE, category.getCategoryId());
 					sendDownloadClicked(category);
 					this.notifyDataSetChanged();

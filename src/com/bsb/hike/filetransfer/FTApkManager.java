@@ -80,7 +80,7 @@ public class FTApkManager
                         JSONObject jo = new JSONObject(hfPref);
                         HikeFile hfOld = new HikeFile(jo, false);
 
-                        if (FileTransferManager.getInstance(context).getDownloadFileState(-100, hfOld.getFile()).getTotalSize() > 0) {
+                        if (FileTransferManager.getInstance(context).getDownloadFileState(-100, hfOld).getTotalSize() > 0) {
                             Logger.d("AUTOAPK", "File already exists");
                             String oldDownloadingApkVersion = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_VERSION, "");
                             try {
@@ -96,7 +96,7 @@ public class FTApkManager
                         }
                         if (shouldStartNewDownload) {
                             Logger.d("AUTOAPK", "on receive of new apk, the version name was found to be higher, hence cancelling and downloading");
-                            FileTransferManager.getInstance(context).cancelTask(-100, hfOld.getFile(), false, hfOld.getFileSize());
+                            FileTransferManager.getInstance(context).cancelTask(-100, hfOld, false, hfOld.getFileSize());
                             Logger.d("AUTOAPK", "also deleting the already downloaded file if it exists");
                             if (hfOld.getFile() != null && hfOld.getFile().exists()) {
                                 hfOld.getFile().delete();
@@ -105,7 +105,7 @@ public class FTApkManager
                             Logger.d("AUTOAPK", " download will start after network check, saving vargs");
                             HikeFile hf = new HikeFile(apkName, HikeFile.HikeFileType.toString(HikeFile.HikeFileType.APK), apkVersion, apkSize, apkDownloadUrl);
 
-                            Logger.d("AUTOAPK", FileTransferManager.getInstance(context).getDownloadFileState(-100, hf.getFile()).toString());
+                            Logger.d("AUTOAPK", FileTransferManager.getInstance(context).getDownloadFileState(-100, hf).toString());
 
                             JSONObject hfApk = hf.serialize();
                             HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
@@ -415,12 +415,12 @@ public class FTApkManager
                 float apkSizeMultiplier = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.APK_SIZE_MULTIPLIER, 3.0f );
                 long apkSize = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.AutoApkDownload.NEW_APK_SIZE, 0l);
                 long freeSdCardSpace = PhoneSpecUtils.getSDCardMem().get("free");
-                long downloadedApkSize = FileTransferManager.getInstance(context).getDownloadFileState(-100, hf.getFile()).getTotalSize();
+                long downloadedApkSize = FileTransferManager.getInstance(context).getDownloadFileState(-100, hf).getTotalSize();
                 boolean spaceAvailable = freeSdCardSpace > (apkSizeMultiplier * apkSize) - downloadedApkSize;
                 boolean timeExceeded =  System.currentTimeMillis() - timeStamp >= 1000 * 60 *60 * mprefs.getData(HikeConstants.DOWNLOAD_TIME, 72);
                 if(timeExceeded || !spaceAvailable)
                 {
-                    FileTransferManager.getInstance(context).cancelTask(-100, hf.getFile(), false, hf.getFileSize());
+                    FileTransferManager.getInstance(context).cancelTask(-100, hf, false, hf.getFileSize());
 
                     Logger.d("AUTOAPK", "delete apk and vars on connection retry");
                     if(hf.getFile()!=null && hf.getFile().exists()) {

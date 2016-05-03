@@ -25,6 +25,8 @@ public class HttpRequestConstants
 	
 	public static final String STICKERS_PRODUCTION_API = "stickers.im.hike.in";
 
+	public static final String FT_PRODUCTION_API = "ft.im.hike.in";
+
 	public static final String STICKERS_CDN_PRODUCTION_API = "staticstickers.im.hike.in";
 	
 	public static final String BASE_LINK_SHARING_URL = HTTP + "hike.in";
@@ -55,6 +57,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_V4 = "/v4";
 
+	private static final String BASE_V5 = "/v5";
+
 	private static final String BASE_ACCOUNT = "/account";
 
 	private static final String BASE_USER = "/user";
@@ -65,7 +69,13 @@ public class HttpRequestConstants
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
 	
-	public static final String BASE_SDK_STAGING = "stagingoauth.im.hike.in/o/oauth2/";
+	public static final String BASE_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_STAGING = "http://stagingoauth.im.hike.in/o/oauth2/";
+	
+	public static final String BASE_AUTH_SDK_PROD = "http://oauth.platform.hike.in/o/oauth2/";
+
+	private static String BASE_AUTH_SDK = HTTP + BASE_AUTH_SDK_PROD;
 	
 	private static String BASE_SDK = HTTP + BASE_SDK_PROD;
 
@@ -97,6 +107,8 @@ public class HttpRequestConstants
 
 	private static final String FETCH_UNKNOWN_CHAT_USER_INFO = "/v1/spam/userinfo";
 
+	private static final String HIKE_SETTINGS = "/hikesettings";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -109,6 +121,7 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
 	public static synchronized void toggleSSL()
@@ -117,8 +130,15 @@ public class HttpRequestConstants
 		changeBaseUrl();
 		changeBasePlatformUrl();
 		changeBaseStickersUrl();
+		changeBaseAuthUrl();
 	}
 
+	private static void changeBaseAuthUrl()
+	{
+		BASE_AUTH_SDK = "";
+		BASE_AUTH_SDK += (isSSL) ? HTTPS : HTTP;
+		BASE_AUTH_SDK += (isProduction) ? BASE_AUTH_SDK_PROD : BASE_AUTH_SDK_STAGING;
+	}
 	private static void changeBaseUrl()
 	{
 		BASE_URL = "";
@@ -232,7 +252,17 @@ public class HttpRequestConstants
 	{
 		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/tags";
 	}
+
+	public static String getForcedStickersUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_STICKER + "/force_stickers";
+	}
 	
+	public static String stickerCategoryDetailsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
+	}
+
 	public static String lastSeenUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_USER + "/lastseen";
@@ -335,9 +365,24 @@ public class HttpRequestConstants
 
 	public static String authSDKBaseUrl()
 	{
-		return BASE_SDK;
+		return BASE_SDK_STAGING;
+	}
+	
+	
+	public static String authBaseUrl()
+	{
+		return BASE_AUTH_SDK+"authorize" + "?" ;
 	}
 
+	public static String registerBrandUrl()
+	{
+		return BASE_SDK_STAGING+"registerbrand";
+	}
+	
+	public static String clientIdUrl()
+	{
+		return BASE_SDK_STAGING+"createnewclientid";
+	}
 	public static String groupProfileBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + "/group/";
@@ -426,20 +471,6 @@ public class HttpRequestConstants
 		// TODO Add complete url here
 		return BASE_PLATFORM_URL;
 	}
-	
-	public static String getBotDownloadUrl()
-	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/install.json";
-		
-		if (isProduction)
-		{
-			return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
-		}
-		else
-		{
-			return HTTPS + QA_CONTENT + suffix ;
-		}
-	}
 
 	public static String getLanguageDictionaryBaseUrl()
 	{
@@ -485,7 +516,7 @@ public class HttpRequestConstants
 
 	public static String getMicroAppLoggingUrl(boolean isSuccess)
 	{
-		String suffix = "/mapps/api" + BASE_V1 + "/apps/ack/" + (isSuccess ? "success" : "failure");
+		String suffix = "/mapps/api" + BASE_V2 + "/apps/ack/" + (isSuccess ? "success" : "failure");
 
 		if (isProduction)
 		{
@@ -507,7 +538,29 @@ public class HttpRequestConstants
             return HTTP + STAGING_API  + BASE_V1 + "/android";
         }
     }
-	public static String getAnalyticsUrl() {
+
+	public static String getUploadFileBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/pft/";
+	}
+
+	public static String getValidateFileKeyBaseUrl()
+	{
+		return AccountUtils.fileTransferBaseDownloadUrl;
+	}
+
+	public static String getFastFileUploadBaseUrl()
+	{
+		return AccountUtils.fastFileUploadUrl;
+	}
+
+	public static String getUploadContactOrLocationBaseUrl()
+	{
+		return AccountUtils.fileTransferBase + "/user/ft";
+	}
+
+	public static String getAnalyticsUrl()
+	{
 		return  BASE_URL + BASE_V1 + ANALYTICS_UPLOAD_PATH;
 	}
 
@@ -523,15 +576,43 @@ public class HttpRequestConstants
 		}
 	}
 
-	public static String getUrlForFetchingUnknownChatUserInfo()
-	{
-		if (isProduction)
-		{
-			return PRODUCTION_HIKECALLER_API+ FETCH_UNKNOWN_CHAT_USER_INFO;
-		}
-		else
-		{
+	public static String getUrlForFetchingUnknownChatUserInfo() {
+		if (isProduction) {
+			return PRODUCTION_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
+		} else {
 			return STAGING_HIKECALLER_API + FETCH_UNKNOWN_CHAT_USER_INFO;
 		}
+	}
+
+    /*
+     * Async Method to fetch latest micro app from server for forward card case
+     */
+    public static String getBotDownloadUrlV2()
+    {
+        String suffix = "/mapps/api" + BASE_V2 + "/apps/install.json";
+
+        if (isProduction)
+        {
+            return HTTPS + "mapps." + PLATFORM_PRODUCTION_API + suffix;
+        }
+        else
+        {
+            return HTTPS + QA_CONTENT + suffix ;
+        }
+    }
+
+	public static String getHistoricalStatusUpdatesUrl()
+	{
+		return  BASE_URL + BASE_V1 + "hsu/";
+	}
+
+	public static String getSettingsUploadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getSettingsDownloadUrl()
+	{
+		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
 	}
 }

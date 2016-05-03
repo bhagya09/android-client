@@ -8,9 +8,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -41,14 +38,13 @@ import com.bsb.hike.models.AccountInfo;
 import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.contactmgr.ContactUtils;
+import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
 import com.bsb.hike.modules.signupmgr.RegisterAccountTask;
 import com.bsb.hike.modules.signupmgr.SetProfileTask;
 import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
@@ -124,7 +120,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS
 	};
 
 	public class StateValue
@@ -445,9 +441,9 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
 			//Check for crash reporting tool
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 			{
-				Crashlytics.setUserIdentifier(accountInfo.getMsisdn());
+				Crashlytics.setUserIdentifier(accountInfo.getUid());
 			}
 			String hikeUID = accountInfo.getUid();
 			String hikeToken = accountInfo.getToken();
@@ -509,7 +505,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			String token = settings.getString(HikeMessengerApp.TOKEN_SETTING, null);
 			ContactManager conMgr = ContactManager.getInstance();
 			List<ContactInfo> contactinfos = null;
-			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
+			if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.HIDE_DELETED_CONTACTS, false))
 			{
 				contactinfos = conMgr.getContacts(this.context);
 			}
@@ -527,44 +523,12 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			{
 				Logger.d("Signup", "Starting AB scanning");
 				Map<String, List<ContactInfo>> contacts = conMgr.convertToMap(contactinfos);
-				
-				if (Utils.isAddressbookCallsThroughHttpMgrEnabled())
-				{
-					boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
-					if (addressBookPosted == false)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-				}
-				else
-				{
-					JSONObject jsonForAddressBookAndBlockList = AccountUtils.postAddressBook(token, contacts);
 
-					List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contacts);
-					List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
-
-					if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
-					{
-						JSONObject prefJson = jsonForAddressBookAndBlockList.getJSONObject(HikeConstants.PREF);
-						JSONArray contactsArray = prefJson.optJSONArray(HikeConstants.CONTACTS);
-						if (contactsArray != null)
-						{
-							Editor editor = settings.edit();
-							editor.putString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, contactsArray.toString());
-							editor.commit();
-						}
-					}
-					// List<>
-					// TODO this exception should be raised from the postAddressBook
-					// code
-					if (addressbook == null)
-					{
-						publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
-						return Boolean.FALSE;
-					}
-					Logger.d("SignupTask", "about to insert addressbook");
-					ContactManager.getInstance().setAddressBookAndBlockList(addressbook, blockList);
+				boolean addressBookPosted = new PostAddressBookTask(contacts).execute();
+				if (addressBookPosted == false)
+				{
+					publishProgress(new StateValue(State.ERROR, HikeConstants.ADDRESS_BOOK_ERROR));
+					return Boolean.FALSE;
 				}
 			}
 			catch (Exception e)
@@ -780,6 +744,22 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 				return Boolean.FALSE;
 			}
 		}
+
+		try
+		{
+			// Fetch user settings from server
+			publishProgress(new StateValue(State.RESTORING_CLOUD_SETTINGS, null));
+			synchronized (this)
+			{
+				this.wait();
+			}
+		}
+		catch (InterruptedException iex)
+		{
+			iex.printStackTrace();
+			Logger.e("SignupTask","Interrupted while waiting for returning user's setting restore");
+		}
+
 		Logger.d("SignupTask", "Publishing Token_Created");
 
 		/* tell the service to start listening for new messages */

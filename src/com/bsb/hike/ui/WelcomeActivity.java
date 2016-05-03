@@ -142,11 +142,12 @@ public class WelcomeActivity extends HikeAppStateBaseFragmentActivity implements
 
 		SharedPreferences sharedPreferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
 		boolean production = !sharedPreferences.getBoolean(HikeMessengerApp.PRODUCTION, true);
+
         /*
-         * Change Platform content storage path based on change of isProduction variable
+         * Change Platform content storage path based on change of is production variable
          */
         PlatformContent.init(production);
-		
+
 		Editor editor = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE).edit();
 		editor.putBoolean(HikeMessengerApp.PRODUCTION, production);
 		editor.putInt(HikeMessengerApp.PRODUCTION_HOST_TOGGLE, production ? AccountUtils._PRODUCTION_HOST : AccountUtils._STAGING_HOST);

@@ -24,6 +24,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -74,6 +76,8 @@ public class ConversationTip implements OnClickListener
 	public static final int UPDATE_NORMAL_TIP = 17;
 	
 	public static final int INVITE_TIP = 18;
+
+	public static final int ATOMIC_TIP = 19;
 	
 	public static final int REQUEST_CODE_URL_OPEN = 101;
 	
@@ -280,6 +284,19 @@ public class ConversationTip implements OnClickListener
             HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
                     AnalyticsConstants.INVITE_TIP_SHOWN, AnalyticsConstants.VIEW_EVENT);
 			return v;
+		case ATOMIC_TIP:
+			AtomicTipManager atomicTipManager = AtomicTipManager.getInstance();
+			atomicTipManager.updateCurrentlyShowing();
+			v = atomicTipManager.getAtomicTipView();
+			if(v != null)
+			{
+				v.findViewById(R.id.all_content).setOnClickListener(this);
+				if(atomicTipManager.isTipCancellable())
+				{
+					v.findViewById(R.id.close_tip).setOnClickListener(this);
+				}
+			}
+			return v;
 		default:
 			tipType = NO_TIP;
 			return null;
@@ -423,6 +440,7 @@ public class ConversationTip implements OnClickListener
 			case UPDATE_CRITICAL_TIP:
 			case UPDATE_NORMAL_TIP:
 			case INVITE_TIP:
+			case ATOMIC_TIP:
 				if(mListener != null)
 				{
 					mListener.clickTip(tipType);

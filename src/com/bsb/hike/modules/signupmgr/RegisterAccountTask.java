@@ -1,13 +1,5 @@
 package com.bsb.hike.modules.signupmgr;
 
-import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.registerAccountRequest;
-
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
@@ -22,8 +14,17 @@ import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.registerAccountRequest;
 
 public class RegisterAccountTask
 {
@@ -46,7 +47,7 @@ public class RegisterAccountTask
 
 	public AccountInfo execute()
 	{
-		RequestToken requestToken = registerAccountRequest(getPostObject(), getRequestListener());
+		RequestToken requestToken = registerAccountRequest(getPostObject(), getRequestListener(), new SignUpHttpRetryPolicy(SignUpHttpRetryPolicy.MAX_RETRY_COUNT, BasicRetryPolicy.DEFAULT_RETRY_DELAY, BasicRetryPolicy.DEFAULT_BACKOFF_MULTIPLIER));
 		requestToken.execute();
 		return resultAccountInfo;
 	}
@@ -96,10 +97,6 @@ public class RegisterAccountTask
 				if (response.has(HikeConstants.LOCALIZATION_ENABLED))
 				{
 					Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
-				}
-				if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-				{
-					Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 				}
 
 

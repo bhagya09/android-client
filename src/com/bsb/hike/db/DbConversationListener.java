@@ -100,6 +100,7 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_DOWNLOAD_SUCCESS, this);
 		mPubSub.addListener(HikePubSub.BOT_DISCOVERY_TABLE_FLUSH, this);
 		mPubSub.addListener(HikePubSub.ADD_NM_BOT_CONVERSATION, this);
+		mPubSub.addListener(HikePubSub.ADD_INLINE_FRIEND_MSG, this);
 	}
 
 	@Override
@@ -565,6 +566,18 @@ public class DbConversationListener implements Listener
 		else if (HikePubSub.ADD_NM_BOT_CONVERSATION.equals(type))
 		{
 			HikeConversationsDatabase.getInstance().addNonMessagingBotconversation((BotInfo) object);
+		}
+
+		else if (HikePubSub.ADD_INLINE_FRIEND_MSG.equals(type))
+		{
+			ConvMessage msg = (ConvMessage) object;
+
+			if (msg != null)
+			{
+				HikeConversationsDatabase.getInstance().addConversationMessages(msg, false);
+				// Update the CT back as well.
+				HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_THREAD, msg);
+			}
 		}
 	}
 

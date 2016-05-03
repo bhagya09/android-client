@@ -6,12 +6,11 @@
 
 package com.bsb.hike.modules.stickersearch.datamodel;
 
-import java.util.ArrayList;
-
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.provider.StickerEventSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
-import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
+
+import java.util.ArrayList;
 
 public class StickerAppositeDataContainer implements Comparable<StickerAppositeDataContainer>
 {
@@ -65,14 +64,21 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 		mRecommendationScore = 0.0f;
 	}
 
+	public StickerAppositeDataContainer(String stickerCode,  String overallFrequencyFunction,  int momentCode, int stickerAvailability,int age)
+	{
+		mStickerCode = stickerCode;
+		mOverallFrequencyFunction = overallFrequencyFunction;
+		mOverallFrequencies = StickerSearchUtility.getIndividualNumericValues(mOverallFrequencyFunction, StickerSearchConstants.FREQUENCY_DIVISION_SLOT_PER_STICKER_COUNT, Float.class);
+		mMomentCode = momentCode;
+		mStickerAvailability = stickerAvailability;
+		mMatchingScore = 0.0f;
+		mRecommendationScore = 0.0f;
+		mAge = age;
+	}
+
 	public String getStickerCode()
 	{
 		return mStickerCode;
-	}
-
-	public boolean getStickerAvailabilityStatus()
-	{
-		return (mStickerAvailability == HikeStickerSearchBaseConstants.DECISION_STATE_YES);
 	}
 
 	public String getStickerTag()
@@ -139,6 +145,16 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 	{
 		mMatchingScore = matchingScore;
 		mRecommendationScore = overallScore;
+	}
+
+	public int getAge()
+	{
+		return mAge;
+	}
+
+	public void setLanguageFunction(String languageFunction)
+	{
+		this.mLanguageFunction = mLanguageFunction;
 	}
 
 	public float getTrendingFrequency()
@@ -402,5 +418,25 @@ public class StickerAppositeDataContainer implements Comparable<StickerAppositeD
 				+ "><tfr_fn=" + mOverallFrequencyFunction + "><thm_fn=" + mStoryThemeFunction + "><ext_match_ord=" + mExactMatchOrder + "><mnt_cd=" + mMomentCode + "><event_rk="
 				+ mNowCastEventRank + "><age=" + mAge + "><+ve_usage=" + mStringsUsedWithSticker + "><-ve_usage=" + mStringsNotUsedWithSticker + "><match_scr=" + mMatchingScore
 				+ "><sr_scr=" + mRecommendationScore + ">]";
+	}
+
+	public float getCumalativeNormalisedFrequency(float maxLocalFrequency,float maxTrendingFrequency,float maxGlobalFrequency)
+	{
+		if(maxLocalFrequency == 0.0f)
+		{
+			maxLocalFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		if(maxTrendingFrequency == 0.0f)
+		{
+			maxTrendingFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		if(maxGlobalFrequency == 0.0f)
+		{
+			maxGlobalFrequency = StickerSearchConstants.DEFAULT_FREQUENCY_VALUE;
+		}
+
+		return (this.getLocalFrequency()/maxLocalFrequency + this.getTrendingFrequency()/maxTrendingFrequency + this.getGlobalFrequency()/maxGlobalFrequency);
 	}
 }

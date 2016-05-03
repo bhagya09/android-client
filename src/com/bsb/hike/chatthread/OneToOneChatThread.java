@@ -75,6 +75,7 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
@@ -100,6 +101,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,7 +111,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map;CT
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -170,8 +172,10 @@ import java.util.Map;
 
 	private static final int UPDATE_ADD_FRIEND_VIEWS = 120;
 
-	private static final int UPDATE_UNKNOWN_USER_INFO = 121;
+	private static final int HIDE_FRIENDS_VIEW = 121;
 
+	private static final int UPDATE_UNKNOWN_USER_INFO = 122;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -224,6 +228,8 @@ import java.util.Map;
 	private boolean gpsDialogShown = false;
 
 	private boolean shouldinitialteConnectionFragment=false;
+
+	boolean friendsFtueAnimationShown = false;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -240,6 +246,7 @@ import java.util.Map;
 	{
 		super.onResume();
 		checkOfflineConnectionStatus();
+		activity.recordActivityEndTime();
 	};
 	
 	@Override
@@ -443,13 +450,6 @@ import java.util.Map;
 	}
 
 	@Override
-	protected void showOverflowTip(int stringResId)
-	{
-		if (noNetworkCardView == null || noNetworkCardView.getVisibility() != View.VISIBLE)
-			super.showOverflowTip(stringResId);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		Logger.i(TAG, "menu item click" + item.getItemId());
@@ -461,7 +461,11 @@ import java.util.Map;
 				Toast.makeText(activity.getApplicationContext(), activity.getString(R.string.block_overlay_message, mConversation.getLabel()), Toast.LENGTH_SHORT).show();
 			return false;
 		}
-		
+
+		if(item.getItemId() != android.R.id.home) {
+			if(isWalkieTalkieShowing()) return true;
+		}
+
 		switch (item.getItemId())
 		{
 			case R.id.voip_call:
@@ -487,24 +491,25 @@ import java.util.Map;
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
-		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, true, R.string.block_title));
-		
+
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
 			list.add(item);
 		}
 
-		if (mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
+		if ((!Utils.isFavToFriendsMigrationAllowed()) && mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
-			list.add(new OverFlowMenuItem(getString(R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
+			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
+
+		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
 		return list;
 	}
 
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = mConversationDb.getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
 
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
 
@@ -566,13 +571,18 @@ import java.util.Map;
 		{
 			addAllUndeliverdMessages(messages);
 		}
-	
+
+		//Hide all Possible Buttons for interaction here if user is not a friend.
+		if (!mConversation.isBlocked() && (!mContactInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn()))) //If conv is blocked, no need to show add as friend button
+		{
+			doSetupForAddFriend();
+		}
 	}
 
 	private void showTips()
 	{
 		mTips = new ChatThreadTips(activity.getBaseContext(), activity.findViewById(R.id.chatThreadParentLayout), new int[] { ChatThreadTips.ATOMIC_ATTACHMENT_TIP,
-				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP }, sharedPreference);
+				ChatThreadTips.ATOMIC_STICKER_TIP, ChatThreadTips.ATOMIC_CHAT_THEME_TIP, ChatThreadTips.STICKER_TIP, ChatThreadTips.STICKER_RECOMMEND_TIP, ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP,  ChatThreadTips.WT_RECOMMEND_TIP }, sharedPreference);
 		mTips.showTip();
 	}
 
@@ -917,7 +927,18 @@ import java.util.Map;
 			return;
 		}
 		
-		this.mContactInfo.setFavoriteType(favoriteType);		
+		this.mContactInfo.setFavoriteType(favoriteType);
+
+		if (mContactInfo.isFriendRequestReceivedForMe() || mContactInfo.isNotMyFriend())
+		{
+			// Just received a request. Change the UI to show request accept button instead.
+			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, true);
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
+		{
+			sendUIMessage(UPDATE_ADD_FRIEND_VIEWS, false);
+		}
 	}
 
 	private void onUserMarkedAsSpam()
@@ -1057,6 +1078,12 @@ import java.util.Map;
 			break;
 		case UPDATE_UNKNOWN_USER_INFO:
 			updateUnknownUserInfoViews(msg.obj);
+		case UPDATE_ADD_FRIEND_VIEWS:
+			updateAddFriendViews((Boolean) msg.obj);
+			break;
+		case HIDE_FRIENDS_VIEW:
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -1441,7 +1468,8 @@ import java.util.Map;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 
 		// 1) user clicked sticker in Sticker Pallete i.e Sending Sticker
 		channelSelector.startMessageRelLogging(convMessage, MessageType.STICKER);
@@ -1710,7 +1738,7 @@ import java.util.Map;
 			showThemePicker(R.string.chat_theme_tip);
 			break;
 		case R.string.add_as_favorite_menu:
-			addFavorite();
+			addFavorite(false);
 			break;
 		case R.string.scan_free_hike:
 			if (item.text.equals(getString(R.string.scan_free_hike)))
@@ -1967,6 +1995,12 @@ import java.util.Map;
 	 */
 	private void onCallClicked()
 	{
+		if (isNotMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.voip_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return; //If not atleast 1-way friend, do not even make a voip call!
+		}
 		Utils.onCallClicked(activity.getApplicationContext(), msisdn, VoIPUtils.CallSource.CHAT_THREAD);
 	}
 
@@ -2330,6 +2364,9 @@ import java.util.Map;
 		case R.id.sms_toggle_view_stub:
 			setUpSMSViews();
 			break;
+
+		case R.id.addFriendViewStub:
+			setUpAddFriendViews();
 		default:
 			break;
 		}
@@ -2628,6 +2665,11 @@ import java.util.Map;
 		{
 			return;
 		}
+
+		if (isNotMyOneWayFriend())
+		{
+			return;
+		}
 		
 		//User online and actionBarView is not null
 		
@@ -2845,6 +2887,10 @@ import java.util.Map;
 			break;
 		case R.id.free_hike_no_netwrok_btn:
 			handleNetworkCardClick(false);
+			break;
+		case R.id.add_friend_view:
+		case R.id.add_friend_ftue_button:
+			handleAddFavoriteButtonClick(v.getId());
 			break;
 		default:
 			super.onClick(v);
@@ -3389,6 +3435,11 @@ import java.util.Map;
 			return false;
 		}
 
+		if (isNotMyOneWayFriend())
+		{
+			return false; //If not atleast 1-way friend, do not even send a nudge!
+		}
+
 		if (!mConversation.isOnHike() && mCredits <= 0)
 		{
 			if (!Utils.getSendSmsPref(activity.getApplicationContext()))
@@ -3429,11 +3480,24 @@ import java.util.Map;
 	/*
 	 * Adding user as favorite
 	 */
-	private void addFavorite()
+	private void addFavorite(boolean fromFtueBtn)
 	{
 		FavoriteType favoriteType = FavoriteType.REQUEST_SENT;
+		if (mContactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED)
+		{
+			favoriteType = FavoriteType.FRIEND;
+			Utils.incrementOrDecrementFriendRequestCount(HikeSharedPreferenceUtil.getInstance().getPref(), -1);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.FAVORITE_COUNT_CHANGED, null);
+		}
+
+		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 		mContactInfo.setFavoriteType(favoriteType);
-		Utils.addFavorite(activity, mContactInfo, false);
+
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
+			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
+		}
 	}
 	
 	@Override
@@ -3468,14 +3532,19 @@ import java.util.Map;
 				
 				
 			case R.string.view_profile:
-			case R.string.chat_theme:
 				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				break;
+			case R.string.chat_theme:
+				overFlowMenuItem.enabled = shouldEnableChatTheme();
+				break;
+
 			case R.string.block_title:
 				overFlowMenuItem.text = mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title);
 				break;
 			case R.string.scan_free_hike:
-				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()) && 
+				overFlowMenuItem.enabled = shouldEnableHikeDirect();
+
+				if (!OfflineUtils.isConnectedToSameMsisdn(mConversation.getMsisdn()) &&
 						!OfflineUtils.isConnectingToSameMsisdn(mConversation.getMsisdn()))
 				{
 					overFlowMenuItem.text = getString(R.string.scan_free_hike);
@@ -3488,7 +3557,6 @@ import java.util.Map;
 				{
 					overFlowMenuItem.text = getString(R.string.cancel_offline_connection);
 				}
-				overFlowMenuItem.enabled = !mConversation.isBlocked();
 				if (!sharedPreference.getData(OfflineConstants.CT_HIKE_DIRECT_CLICKED, false) && overFlowMenuItem.enabled)
 				{
 					overFlowMenuItem.drawableId = R.drawable.ftue_hike_direct_logo_red_dot;
@@ -3501,7 +3569,7 @@ import java.util.Map;
 			}
 		}
 	}
-	
+
 	@Override
 	protected String getBlockedUserLabel()
 	{
@@ -3528,6 +3596,7 @@ import java.util.Map;
 		if (isBlocked)
 		{
 			hideLastSeenText();
+			removeKeyboardShutdownIfShowing();	// AND-5155
 		}
 
 		else
@@ -3536,6 +3605,10 @@ import java.util.Map;
 			{
 				checkAndStartLastSeenTask();
 			}
+
+			initKeyboardOffBoarding();	//AND-5154
+
+			doSetupForAddFriend(); // Hey, if the user is not a 1-way friend, even after unblocking, we can't allow messaging
 		}
 	}
 
@@ -3554,6 +3627,8 @@ import java.util.Map;
 	@Override
 	public void connectedToMsisdn(String connectedDevice)
 	{
+        super.connectedToMsisdn(connectedDevice);
+
 		Logger.d(TAG,"connected to MSISDN"+connectedDevice);
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn))
 		{
@@ -3589,7 +3664,8 @@ import java.util.Map;
 	@Override
 	public void onDisconnect(ERRORCODE errorCode)
 	{
-		
+        super.onDisconnect(errorCode);
+
 		HikeNotification.getInstance().cancelNotification(HikeNotification.OFFLINE_REQUEST_ID);
         
 		Logger.d("OfflineManager", "disconnect Called " + errorCode +  "excetion code"+ errorCode.getErrorCode().getReasonCode()+ " time- "  + System.currentTimeMillis());
@@ -3771,14 +3847,17 @@ import java.util.Map;
 	}
 
 	@Override
-	public void onPostResume() {
+	public void onPostResume()
+	{
 		super.onPostResume();
-		if (shouldinitialteConnectionFragment && Utils.isLocationEnabled(activity.getApplicationContext())) {
+		if (shouldinitialteConnectionFragment && Utils.isLocationEnabled(activity.getApplicationContext()))
+		{
 			shouldinitialteConnectionFragment = false;
 			startFreeHikeConversation(true);
 		}
 	}
 
+<<<<<<< HEAD
 	private void spamUnspamUser(boolean isSpam)
 	{
 		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam == true ? 1 : 0);
@@ -3803,4 +3882,472 @@ import java.util.Map;
 		}
 
 	}
+=======
+	private void inflateAddFriendButtonIfNeeded()
+	{
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
+		{
+			return; //If I am 1-way or 2-way friends, do not inflate these views
+		}
+
+		ViewStub viewStub = (ViewStub) activity.findViewById(R.id.addFriendViewStub);
+
+		/**
+		 * Inflating it only once when needed on demand.
+		 */
+		if (viewStub != null)
+		{
+			viewStub.setLayoutResource(getFriendsTipLayoutToInflate());
+			viewStub.setOnInflateListener(this);
+			viewStub.inflate();
+		}
+
+		/**
+		 * Duh! The view is already inflated
+		 */
+		else
+		{
+			setUpAddFriendViews();
+		}
+
+	}
+
+	private void setUpAddFriendViews()
+	{
+		// Hide the compose panel below
+		activity.findViewById(R.id.compose_container).setVisibility(View.GONE);
+
+		View addFriendView = activity.findViewById(R.id.add_friend_view);
+
+		// There can be a crash here, if this method is called again after adding friends, to prevent the crash, we might have to show the ftue again in the same chat for a while
+		if (wasFriendFtuePreviouslyShown(addFriendView) || (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FTUE_FRIENDS_COUNT, HikeConstants.DEFAULT_FRIENDS_FTUE_COUNT) > 0))
+		{
+			setupAddFriendFTUETipViews(addFriendView);
+		}
+
+		else
+		{
+			setupAddFriendButtonViews(addFriendView);
+		}
+	}
+
+	private void handleAddFavoriteButtonClick(int viewResId)
+	{				//From FTUE?
+		addFavorite(viewResId == R.id.add_friend_ftue_button);
+
+		//If now we can show the last seen, we should
+		if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+		{
+			checkAndStartLastSeenTask();
+		}
+
+		removeAddFriendViews(viewResId == R.id.add_friend_ftue_button);
+
+		setMessagesRead(); //If any previous messages were marked as unread, now is a good time to send MR
+	}
+
+	@Override
+	protected void showAttchmentPicker()
+	{
+		if (isNotMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.attachment_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return; //If not atleast 1-way friend, do not even allow attachments to open!
+		}
+		super.showAttchmentPicker();
+	}
+
+	protected void doSetupForAddFriend()
+	{
+		if (!Utils.isFavToFriendsMigrationAllowed())
+		{
+			return; // Do nothing here!
+		}
+
+		else if (mContactInfo.isMyOneWayFriend())
+		{
+			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
+		}
+
+		if (mContactInfo.isFriendRequestReceivedForMe())
+		{
+			showFriendReqPendingAsLastSeen();
+		}
+
+		else if(!mContactInfo.isMyTwoWayFriend())
+		{
+			hideLastSeenText();
+		}
+
+		inflateAddFriendButtonIfNeeded();
+	}
+
+	private void showFriendReqPendingAsLastSeen()
+	{
+		String lastSeenString = activity.getString(R.string.friend_req_pending);
+
+		sendUIMessage(UPDATE_LAST_SEEN, lastSeenString);
+	}
+
+	@Override
+	protected void publishReadByForMessage(ConvMessage message, String msisdn, IChannelSelector channelSelector)
+	{
+		if (isNotMyOneWayFriend())
+		{
+			return; // Do not send MR if not a 1-way friend atleast
+		}
+		super.publishReadByForMessage(message, msisdn, channelSelector);
+	}
+	
+	private void updateAddFriendViews(Boolean showAddFriendbutton)
+	{
+		if (showAddFriendbutton)
+		{
+			doSetupForAddFriend();
+		}
+
+		else
+		{
+			//If now we can show the last seen, we should
+			if (ChatThreadUtils.shouldShowLastSeen(msisdn, activity.getApplicationContext(), mConversation.isOnHike(), mConversation.isBlocked()))
+			{
+				checkAndStartLastSeenTask();
+			}
+
+			else
+			{
+				hideLastSeenText();
+			}
+
+			View addFriendView = activity.findViewById(R.id.add_friend_view);
+			// Check if there's any anim going on for the ftue view
+			if (addFriendView != null)
+			{
+				sendUIMessage(HIDE_FRIENDS_VIEW, isThereAnyAnimationOnFriendsFtue(addFriendView) ? 400 : 0, null); //400 msec is the animation duration for FTUE tip, so scheduling it after 400 msec
+			}
+		}
+	}
+
+	private void removeAddFriendViews(boolean isFtueView)
+	{
+		if (isFtueView)
+		{
+			animateAndHideFriendsFtueTip();
+		}
+
+		else
+		{
+			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+
+			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+		}
+		
+		decrementFriendsFTUECountIfNeeded();
+	}
+
+	@Override
+	protected boolean shouldEnableHikeKeyboard()
+	{
+		boolean isNotFriend = (isNotMyOneWayFriend());
+
+		return ((!isNotFriend) && super.shouldEnableHikeKeyboard());
+	}
+
+	private boolean shouldEnableHikeDirect()
+	{
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * If we still have a positive friends ftue count, we show the ftue tip, else we show the add friend button
+	 *
+	 * @return
+	 */
+	private int getFriendsTipLayoutToInflate()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FTUE_FRIENDS_COUNT, HikeConstants.DEFAULT_FRIENDS_FTUE_COUNT) > 0)
+		{
+			return R.layout.friends_ftue_tip;
+		}
+
+		return R.layout.add_friend_btn_view;
+	}
+
+	private void setupAddFriendButtonViews(View addFriendView)
+	{
+		addFriendView.setVisibility(View.VISIBLE);
+
+		addFriendView.setOnClickListener(this);
+
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		setupAddFriendTextView(addFriendTv);
+
+	}
+
+	private void setupAddFriendFTUETipViews(View addFriendView)
+	{
+		addFriendView.setVisibility(View.VISIBLE);
+
+		if (isThereAnyAnimationOnFriendsFtue(addFriendView))
+		{
+			// Remove the anim. This is causing : https://hikeapp.atlassian.net/browse/HS-387
+			removeFriendsFtueAnim(addFriendView);
+		}
+
+		TextView addFriendTv = (TextView) addFriendView.findViewById(R.id.add_friend_button_tv);
+
+		addFriendView.findViewById(R.id.add_friend_ftue_button).setOnClickListener(this);
+
+		TextView ftueSubText = (TextView) addFriendView.findViewById(R.id.ftue_friends_subtitle);
+
+		ftueSubText.setText(activity.getString(R.string.friends_ftue_subtext, mContactInfo.getFirstName()));
+
+		setupAddFriendTextView(addFriendTv);
+
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (!friendsFtueAnimationShown)
+		{
+			animateFriendsFTUETip(tipView);
+		}
+	}
+
+	private void setupAddFriendTextView(TextView addFriendTv)
+	{
+		String btnText = getString(R.string.ADD_FRIEND);
+
+		if (mContactInfo.isFriendRequestReceivedForMe())
+		{
+			btnText = getString(R.string.ACCEPT_REQUEST);
+		}
+
+		addFriendTv.setText(btnText);
+	}
+
+	private void decrementFriendsFTUECountIfNeeded()
+	{
+		int originalCount = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FTUE_FRIENDS_COUNT, HikeConstants.DEFAULT_FRIENDS_FTUE_COUNT);
+
+		if (originalCount > 0)
+		{
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FTUE_FRIENDS_COUNT, (originalCount - 1));
+		}
+	}
+
+	/**
+	 * First checks for the Fav to friends flag before checking the contact info object.
+	 *
+	 * @return
+	 */
+	protected boolean isNotMyOneWayFriend()
+	{
+		if (mContactInfo.getMsisdn().equals(ContactManager.getInstance().getSelfMsisdn()))
+		{
+			return false; //Self obsessed 1-way friend
+		}
+		return Utils.isNotMyOneWayFriend(mContactInfo);
+	}
+
+	@Override
+	protected boolean shouldShowKeyboard()
+	{
+		if (isNotMyOneWayFriend())
+		{
+			return false; //Not showing the keyboard even, if the user is not a 1-way friend
+		}
+
+		return super.shouldShowKeyboard();
+	}
+
+	private boolean shouldEnableChatTheme()
+	{
+		if (mConversation.isBlocked() || isNotMyOneWayFriend())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean wasFriendFtuePreviouslyShown(View view)
+	{
+		if (view != null)
+		{
+			return (view.findViewById(R.id.ftue_friends_title) != null); // Friends FTUE View
+		}
+
+		return false;
+	}
+
+	@Override
+	protected void sendMessage(ConvMessage convMessage)
+	{
+		if (isNotMyOneWayFriend())
+		{
+			String messageToDisplay = activity.getString(R.string.msg_friend_error, mContactInfo.getFirstNameAndSurname());
+			Toast.makeText(activity, messageToDisplay, Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		super.sendMessage(convMessage);
+	}
+
+	@Override
+	protected void blockUser(Object object, boolean isBlocked)
+	{
+		String mMsisdn = (String) object;
+
+		/**
+		 * Proceeding only if the blocked user's msisdn is that of the current chat thread
+		 */
+		if (mMsisdn.equals(getMsisdnMainUser()))
+		{
+			// HS-204 Contact info was having stale data as regards to friendship status and possibly other stuff.
+			// Updating it's reference from ContactManager again.
+			mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+		}
+
+		super.blockUser(object, isBlocked);
+	}
+
+	@Override
+	protected JSONObject getChatThreadOpenJSON()
+	{
+		JSONObject json = super.getChatThreadOpenJSON();
+
+		addFavoriteTypeTypeFromContactInfo(json);
+
+		return json;
+	}
+
+	protected void addFavoriteTypeTypeFromContactInfo(JSONObject json)
+	{
+		try
+		{
+			json.put(AnalyticsConstants.V2.GENUS, mContactInfo.getFavoriteType().toString());
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	protected void initKeyboardOffBoarding()
+	{
+		if (!mConversation.isBlocked())
+			super.initKeyboardOffBoarding();
+	}
+
+	private void animateFriendsFTUETip(final View tipView)
+	{
+		if (tipView == null)
+		{
+			return;
+		}
+
+		if (tipView.getVisibility() == View.INVISIBLE)
+		{
+			/**
+			 * If the view was initially gone, we animate the label view in order to make lastSeenView visible
+			 */
+				Animation animation = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_anim);
+				tipView.startAnimation(animation);
+
+				animation.setAnimationListener(new AnimationListener()
+				{
+					@Override
+					public void onAnimationStart(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation)
+					{
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation)
+					{
+						tipView.setVisibility(View.VISIBLE);
+						friendsFtueAnimationShown = true;
+					}
+				});
+		}
+	}
+
+	private void animateAndHideFriendsFtueTip()
+	{
+		final View ftueView = activity.findViewById(R.id.add_friend_view);
+
+		final View tipView = ftueView.findViewById(R.id.ftue_friends_tips);
+
+		final View bottomView = ftueView.findViewById(R.id.add_friend_ftue_button);
+
+		Animation fadeOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_fade_out);
+
+		final Animation alphaOutAnim = AnimationUtils.loadAnimation(activity.getApplicationContext(), R.anim.friends_ftue_alpha_out);
+
+		tipView.setAnimation(fadeOutAnim);
+		tipView.startAnimation(fadeOutAnim);
+
+		fadeOutAnim.setAnimationListener(new AnimationListener()
+		{
+			@Override
+			public void onAnimationStart(Animation animation)
+			{
+				bottomView.startAnimation(alphaOutAnim);
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation)
+			{
+				ftueView.setVisibility(View.GONE);
+				activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
+			}
+	
+			@Override
+			public void onAnimationRepeat(Animation animation)
+			{
+
+			}
+		});
+	}
+
+	private boolean isThereAnyAnimationOnFriendsFtue(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView == null || tipView.getAnimation() == null || tipView.getAnimation().hasEnded())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private void removeFriendsFtueAnim(View addFriendView)
+	{
+		View tipView = addFriendView.findViewById(R.id.ftue_friends_tips);
+
+		if (tipView.getAnimation() != null)
+		{
+			tipView.setAnimation(null);
+		}
+	}
+
 }

@@ -25,7 +25,6 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.kpt.adaptxt.beta.RemoveDialogData;
 
 /**
  * @author piyush
@@ -121,7 +120,7 @@ public class BroadcastChatThread extends OneToNChatThread
 			openProfileScreen();
 			break;
 		case R.string.add_shortcut:
-			Utils.createShortcut(activity, oneToNConversation.getConvInfo());
+			Utils.createShortcut(activity, oneToNConversation.getConvInfo(), true);
 			break;
 		default:
 		}

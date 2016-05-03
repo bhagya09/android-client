@@ -58,7 +58,7 @@ public class LastSeenRetryPolicy extends BasicRetryPolicy
 	 * @see IRetryPolicy#getRetryCount()
 	 */
 	@Override
-	public int getRetryCount()
+	public int getNumOfRetries()
 	{
 		return retryCount;
 	}

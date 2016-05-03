@@ -1,10 +1,5 @@
 package com.bsb.hike.ui.fragments;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -22,29 +18,37 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v4.app.Fragment;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.adapters.StickerShopAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
-public class StickerShopFragment extends Fragment implements OnScrollListener, Listener
+import org.json.JSONArray;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class StickerShopFragment extends Fragment implements OnScrollListener, Listener, AdapterView.OnItemClickListener
 {
 	private String[] pubSubListeners = {HikePubSub.STICKER_CATEGORY_MAP_UPDATED, HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE};
 
@@ -73,6 +77,8 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	TextView loadingFailedEmptyStateMainText, loadingFailedEmptyStateSubText;
 	
 	private int currentCategoriesCount;
+
+	private static final String TAG = StickerShopFragment.class.getSimpleName();
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -213,6 +219,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 		listview.setOnScrollListener(this);
 		listview.removeFooterView(loadingFooterView);
 		listview.removeFooterView(downloadFailedFooterView);
+		listview.setOnItemClickListener(this);
 		
 		downloadFailedFooterView.setOnClickListener(new OnClickListener()
 		{
@@ -547,5 +554,17 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	{
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
 	}
-	
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+	{
+		if(position <= 0 || position > mAdapter.getCount())
+		{
+			Logger.d(TAG, "position is less than 0. wrong item clicked");
+			return ;
+		}
+		String categoryId = mAdapter.getItem(position - 1);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
+		mAdapter.setShownPackPreviewFtue();
+	}
 }

@@ -73,14 +73,14 @@ public class RequestListenerNotifier
 
 	private void sendSuccess(Request<?> request, Response response)
 	{
-		if (request.isCancelled())
-		{
-			return;
-		}
-		
 		try
 		{
-			postProcessResponse(request, response);
+            if (request.isCancelled())
+            {
+                return;
+            }
+
+            postProcessResponse(request, response);
 
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
@@ -201,13 +201,13 @@ public class RequestListenerNotifier
 
 	private void sendFailure(Request<?> request, HttpException ex)
 	{
-		if (request.isCancelled())
-		{
-			return;
-		}
-		
 		try
 		{
+            if (request.isCancelled())
+            {
+                return;
+            }
+
 			CopyOnWriteArrayList<IRequestListener> listeners = request.getRequestListeners();
 			for (IRequestListener listener : listeners)
 			{

@@ -37,6 +37,8 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
@@ -66,6 +68,7 @@ import java.util.*;
 
 public class HikeNotification
 {
+	private final SharedPreferences appPrefs;
 	private String VIB_OFF, VIB_DEF, VIB_SHORT, VIB_LONG;
 
 	private String NOTIF_SOUND_OFF, NOTIF_SOUND_DEFAULT, NOTIF_SOUND_HIKE;
@@ -165,6 +168,7 @@ public class HikeNotification
 		this.defaultSharedPrefs = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0); // We will use this pref to check for Notif Block. Earlier we were checking from the wrong prefs.
 		this.hikeNotifMsgStack = HikeNotificationMsgStack.getInstance();
 		this.platformNotificationMsgStack= PlatformNotificationMsgStack.getInstance();
+		this.appPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		this.mBadgeCountManager=new HikeBadgeCountManager();
 
 		if (VIB_DEF == null)
@@ -457,6 +461,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.MSISDN, contactInfo.getMsisdn());
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(contactInfo.getMsisdn()));
 		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		notificationIntent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadActivity.ChatThreadOpenSources.VOIP);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		/*
@@ -791,6 +796,7 @@ public class HikeNotification
 		notificationIntent.putExtra(HikeConstants.Extras.NAME, (nameMap.get(firstMsisdn)));
 		notificationIntent.putExtra(HikeConstants.Extras.WHICH_CHAT_THREAD, ChatThreadUtils.getChatThreadType(firstMsisdn));
 		notificationIntent.putExtra(HikeConstants.Extras.CHAT_INTENT_TIMESTAMP, System.currentTimeMillis());
+		notificationIntent.putExtra(ChatThreadActivity.CHAT_THREAD_SOURCE, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		notificationIntent.setData((Uri.parse("custom://" + notificationId)));
@@ -894,9 +900,9 @@ public class HikeNotification
 
 		final String key = (contactInfo != null && !TextUtils.isEmpty(contactInfo.getName())) ? contactInfo.getName() : msisdn;
 
-		final String message = context.getString(R.string.add_as_favorite_notification_line);
+		final String message = context.getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_notification_line : R.string.add_as_favorite_notification_line);
 
-		final String text = context.getString(R.string.add_as_favorite_notification, key);
+		final String text = context.getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_req_inline_msg_received : R.string.add_as_favorite_notification, key);
 
 		// if notification message stack is empty, add to it and proceed with single notification display
 		// else add to stack and notify clubbed messages
@@ -1399,7 +1405,7 @@ public class HikeNotification
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 			final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions)
 	{
-		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions,false);
+		showBigTextStyleNotification(notificationIntent, icon, timestamp, notificationId, text, key, message, msisdn, subMessage, argAvatarDrawable, shouldNotPlaySound, retryCount, actions, false);
 	}
 	public void showBigTextStyleNotification(final Intent notificationIntent, final int icon, final long timestamp, final int notificationId, final CharSequence text,
 											 final String key, final String message, final String msisdn, String subMessage, Drawable argAvatarDrawable, boolean shouldNotPlaySound, int retryCount, Action[] actions,boolean isSilentNotification, boolean isPlatformNotif){
@@ -1506,7 +1512,6 @@ public class HikeNotification
 			setNotificationIntentForBuilder(mBuilder, notificationIntent, notificationId, retryCount);
 		}
 
-		setNotificationIntentForBuilder(mBuilder, notificationIntent,notificationId,retryCount);
 		
 		if (!defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
@@ -1562,7 +1567,7 @@ public class HikeNotification
 		try
 		{
 			final Drawable avatarDrawable = Utils.getAvatarDrawableForNotification(context, msisdn, false);
-			final Intent notifIntent = IntentFactory.getIntentForBots(context, msisdn)!=null?IntentFactory.getIntentForBots(context, msisdn):IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false);
+			final Intent notifIntent = IntentFactory.getIntentForBots(context, msisdn)!=null?IntentFactory.getIntentForBots(context, msisdn):IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, false, false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 
 			// Adding the notif tracker to bot notifications
 			notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_NOTIFICATION);
@@ -1592,31 +1597,37 @@ public class HikeNotification
 				{
 					notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
 				}
-				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,false);
-				if(TextUtils.isEmpty(bitmapString)){
-					String url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
-					if(TextUtils.isEmpty(url)){
-						return;
+				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture, false);
+				String bitmap_url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
+				if(TextUtils.isEmpty(bitmapString) && !TextUtils.isEmpty(bitmap_url)){
+					FileTransferManager.NetworkType networkType = FTUtils.getNetworkType(context);
+					if ((networkType == FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+							|| (networkType != FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+					{
+						RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(bitmap_url, new IRequestListener() {
+							@Override
+							public void onRequestFailure(HttpException httpException) {
+								httpException.printStackTrace();
+								showAnalyticsForRichNotifImageShow(false, AnalyticsConstants.REQUEST_FAILURE);
+							}
+
+							@Override
+							public void onRequestSuccess(Response result) {
+								Bitmap bigPicture = (Bitmap)result.getBody().getContent();
+								notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
+								showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,true);
+								showAnalyticsForRichNotifImageShow(true,null);
+							}
+
+							@Override
+							public void onRequestProgressUpdate(float progress) {
+
+							}
+						});
+						bitmapDownloadRequestToken.execute();
+					}else{
+						showAnalyticsForRichNotifImageShow(false,AnalyticsConstants.AUTO_DOWNLOAD_OFF);
 					}
-					RequestToken bitmapDownloadRequestToken = HttpRequests.downloadBitmapTaskRequest(url, new IRequestListener() {
-						@Override
-						public void onRequestFailure(HttpException httpException) {
-							httpException.printStackTrace();
-						}
-
-						@Override
-						public void onRequestSuccess(Response result) {
-                            Bitmap bigPicture = (Bitmap)result.getBody().getContent();
-							notifIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER,AnalyticsConstants.PLATFORM_RICH_NOTIF);
-							showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture,true);
-						}
-
-						@Override
-						public void onRequestProgressUpdate(float progress) {
-
-						}
-					});
-					bitmapDownloadRequestToken.execute();
 				}
 
 			}
@@ -1633,8 +1644,25 @@ public class HikeNotification
 
 	}
 
+	private void showAnalyticsForRichNotifImageShow(boolean success, String reason){
+		//{"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1460008590298,"fld1":"autoDownloadOff/requestFailure","ek":"micro_app","event":"platformRichNotifs","fld4":"success/fail"},"cts":1460008340211,"tag":"plf"},"t":"le_android"}
+		JSONObject json = new JSONObject();
+		try
+		{
+			json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+			json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.PLATFORM_RICH_NOTIFS);
+			json.putOpt(AnalyticsConstants.LOG_FIELD_4, success ? AnalyticsConstants.BITMAP_DOWNLOAD_SUCCESS : AnalyticsConstants.BITMAP_DOWNLOAD_UNSUCESSFULL);
+            if(!TextUtils.isEmpty(reason)){
+				json.put(AnalyticsConstants.LOG_FIELD_1, reason);
+			}
+		} catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+
+		HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+	}
 	//Used only for platform notifications
-    
 	private void showNotification(final Intent notificationIntent, final int notificationId, final JSONObject jsonObject, final String msisdn, Drawable avatarDrawable, Bitmap bigPicture,Boolean isReplay)
 	{
 		showNotification(notificationIntent, System.currentTimeMillis(), notificationId, getTickerText(msisdn, jsonObject.optString(HikeConstants.BODY)),

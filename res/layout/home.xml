@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <RelativeLayout
-        android:id="@+id/parent_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/home_bg"
-        android:orientation="vertical" >
+    android:layout_height="match_parent"
+    android:background="@color/home_bg"
+    android:orientation="vertical" >
 
         <View
             android:id="@+id/overflow_anchor"
@@ -58,8 +54,5 @@
             android:layout_marginRight="40dp"
             android:inflatedId="@+id/stealth_indicator_inflated"
             android:layout="@layout/tool_tip" />
-    </RelativeLayout>
-
-    <include layout="@layout/kpt_keyboard_viewholder" />
 
 </RelativeLayout>

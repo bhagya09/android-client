@@ -168,15 +168,20 @@ public class ToastListener implements Listener
 			}
 			HikeMessengerApp.getInstance().getPubSub().publish(HikePubSub.BADGE_COUNT_TIMELINE_UPDATE_CHANGED, null);
 
-			if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+			
+			if (PreferenceManager.getDefaultSharedPreferences(this.context).getInt(HikeConstants.STATUS_PREF, 0) == 0)
 			{
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
-				this.toaster.notifyStealthMessage(NotificationType.HIDDEN,statusMessage.getMsisdn());
-			}
-			else
-			{
-				toaster.notifyStatusMessage(statusMessage, notificationType);
+				// Is from Stealth contact? Show stealth notif
+				if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()) && !StealthModeManager.getInstance().isActive())
+				{
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_SHOW_ONCE, true);
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STEALTH_INDICATOR_ANIM_ON_RESUME, HikeConstants.STEALTH_INDICATOR_RESUME_EXPIRED);
+					this.toaster.notifyStealthMessage(NotificationType.HIDDEN, statusMessage.getMsisdn());
+				}
+				else
+				{
+					toaster.notifyStatusMessage(statusMessage, notificationType);
+				}
 			}
 		}
 		else if (HikePubSub.ACTIVITY_UPDATE_NOTIF.equals(type))
@@ -694,7 +699,7 @@ public class ToastListener implements Listener
 		if (convMessage.isStickerMessage())
 		{
 			final Sticker sticker = convMessage.getMetadata().getSticker();
-			final String filePath = sticker.getStickerPath();
+			final String filePath = sticker.getLargeStickerPath();
 			if (!TextUtils.isEmpty(filePath))
 			{
 				bigPictureImage = HikeBitmapFactory.decodeFile(filePath);

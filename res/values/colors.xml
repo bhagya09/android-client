@@ -333,8 +333,15 @@
     <color name="update_tip_body_text">#e6f7f8f9</color>
     <color name="crop_actionbar_bg">#0f0f0f</color>
     <color name="block_contact">#C70000</color>
+
+    <color name="rec_progress_alpha">#c4ef554e</color>
+    <color name="view_all_btn_pressed">#f1f1f1</color>
     <color name="default_update_tip_bg">#04c687</color>
     <color name="unknown_user_info_ct">#FFFFFF</color>
     <color name="unknown_user_info_ct_bg">#676460</color>
+    <color name="white_90">#E6FFFFFF</color>
+
+    <color name="atomic_tip_header_text">#f7f8f9</color>
+    <color name="atomic_tip_body_text">#e6f7f8f9</color>
+    <color name="rec_duration_color">#3D475B</color>
 </resources>
-	

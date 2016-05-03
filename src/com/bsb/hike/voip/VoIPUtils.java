@@ -48,6 +48,7 @@ import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.protobuf.VoIPSerializer;
+import com.bsb.hike.chatthread.ChatThreadActivity;
 
 public class VoIPUtils {
 
@@ -281,15 +282,6 @@ public class VoIPUtils {
 		return callActive;
 	}
 	
-	public static int getAudioSource(boolean speakerPhone) {
-		int source = MediaRecorder.AudioSource.MIC;
-		
-		if (speakerPhone == true)
-			source = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
-		
-		return source;
-	}
-
 	/**
 	 * Whether to show the ratings popup or not. It is controlled by -
 	 * 1. There is a upper limit on how many times we can ask a user to rate. This is hard coded
@@ -343,7 +335,7 @@ public class VoIPUtils {
 
 	public static NotificationCompat.Action[] getMissedCallNotifActions(Context context, String msisdn)
 	{
-		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false);
+		Intent messageIntent = IntentFactory.createChatThreadIntentFromMsisdn(context, msisdn, true,false, ChatThreadActivity.ChatThreadOpenSources.NOTIF);
 		PendingIntent messagePendingIntent = PendingIntent.getActivity(context, 0, messageIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationCompat.Action actions[] = null;
@@ -604,11 +596,17 @@ public class VoIPUtils {
 				if (subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_NOT_UPGRADABLE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_DOES_NOT_SUPPORT_CONFERENCE) ||
 						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_ALREADY_IN_CALL) ||
-						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE)) 
+						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CALLEE_INCOMPATIBLE_UPGRADABLE) ||
+						subType.equals(HikeConstants.MqttMessageTypes.VOIP_ERROR_CUSTOM_MESSAGE))
 				{
 					Intent i = new Intent(context, VoIPService.class);
 					i.putExtra(VoIPConstants.Extras.ACTION, subType);
 					i.putExtra(VoIPConstants.Extras.MSISDN, jsonObj.getString(HikeConstants.FROM));
+
+					// Parse the custom error message that _might_ be included
+					if (jsonObj.has(HikeConstants.DATA) && jsonObj.getJSONObject(HikeConstants.DATA).has(HikeConstants.CUSTOM_MESSAGE))
+						i.putExtra(VoIPConstants.Extras.CUSTOM_MESSAGE, jsonObj.getJSONObject(HikeConstants.DATA).getString(HikeConstants.CUSTOM_MESSAGE));
+
 					context.startService(i);
 				}
 			}
@@ -774,15 +772,17 @@ public class VoIPUtils {
 		return packetData;
 	}
 
-	public static VoIPDataPacket getPacketFromUDPData(byte[] data) {
-		VoIPDataPacket dp = null;
+	public static VoIPDataPacket getPacketFromUDPData(byte[] data, int dataLength) {
+		VoIPDataPacket dp;
 		byte prefix = data[0];
-		byte[] packetData = new byte[data.length - 1];
-		System.arraycopy(data, 1, packetData, 0, packetData.length);
 
 		if (prefix == VoIPConstants.PP_PROTOCOL_BUFFER) {
-			dp = (VoIPDataPacket) VoIPSerializer.deserialize(packetData);
+			dp = (VoIPDataPacket) VoIPSerializer.deserialize(data, dataLength);
 		} else {
+			// This code path should no longer be used, except when communicating with a very old
+			// client.
+			byte[] packetData = new byte[dataLength - 1];
+			System.arraycopy(data, 1, packetData, 0, packetData.length);
 			dp = new VoIPDataPacket(PacketType.AUDIO_PACKET);
 			dp.setData(packetData);
 			if (prefix == VoIPConstants.PP_ENCRYPTED_VOICE_PACKET)

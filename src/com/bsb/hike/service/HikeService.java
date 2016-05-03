@@ -1,12 +1,5 @@
 package com.bsb.hike.service;
 
-import java.io.File;
-import java.util.Calendar;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -61,6 +54,13 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Calendar;
+import java.util.List;
 
 public class HikeService extends Service
 {
@@ -615,10 +615,6 @@ public class HikeService extends Service
 						if (response.has(HikeConstants.LOCALIZATION_ENABLED))
 						{
 							Utils.setLocalizationEnable(response.optBoolean(HikeConstants.LOCALIZATION_ENABLED));
-						}
-						if (response.has(HikeConstants.CUSTOM_KEYBOARD_ENABLED))
-						{
-							Utils.setCustomKeyboardEnable(response.optBoolean(HikeConstants.CUSTOM_KEYBOARD_ENABLED));
 						}
 					}
 					editor.commit();

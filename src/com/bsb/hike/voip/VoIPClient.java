@@ -619,12 +619,6 @@ public class VoIPClient  {
 					
 					sendPacketsWaitingForAck();
 					
-					// Drop packets if getting left behind
-					while (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
-						Logger.d(tag, "Dropping to_encode packet.");
-						samplesToEncodeQueue.poll();
-					}
-					
 					while (samplesToDecodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
 						Logger.d(tag, "Dropping to_decode packet.");
 						samplesToDecodeQueue.poll();
@@ -834,6 +828,8 @@ public class VoIPClient  {
 						sendAnalyticsEvent(HikeConstants.LogEvent.VOIP_PARTNER_ANSWER_TIMEOUT);
 						VoIPDataPacket dp = new VoIPDataPacket(PacketType.END_CALL);
 						sendPacket(dp, true);
+
+						stop();
 					}
 				} catch (InterruptedException e) {
 					// Do nothing, all is good
@@ -1189,29 +1185,26 @@ public class VoIPClient  {
 			
 			@Override
 			public void run() {
-//				Logger.w(logTag, "Receiving thread starting and listening on: " + socket.getLocalPort());
 				byte[] buffer = new byte[50000];
+				DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
 				while (keepRunning) {
 
 					if (Thread.currentThread().isInterrupted()) {
 						break;
 					}
 					
-					DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 					try {
 						socket.setSoTimeout(0);
 						socket.receive(packet);
 						totalBytesReceived += packet.getLength();
 						totalPacketsReceived++;
-//						Logger.d(tag, "Received " + packet.getLength() + " bytes.");
-						
+
 					} catch (IOException e) {
 						break;
 					}
 					
-					byte[] realData = new byte[packet.getLength()];
-					System.arraycopy(packet.getData(), 0, realData, 0, packet.getLength());
-					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(realData);
+					VoIPDataPacket dataPacket = VoIPUtils.getPacketFromUDPData(packet.getData(), packet.getLength());
 					
 					if (dataPacket == null)
 						continue;
@@ -1518,12 +1511,12 @@ public class VoIPClient  {
 						
 					case RTT_RESPONSE:
 						if (rttSent) {
-							long newRtt = System.currentTimeMillis() - rttSentAt; 
+							long newRtt = System.currentTimeMillis() - rttSentAt;
+//							Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 							if (newRtt > VoIPConstants.MAX_RTT * 1000) {
 								Logger.w(tag, "Discarding excessive RTT: " + newRtt);
 								rttTooHigh = true;
 							} else {
-//								Logger.d(tag, "Round Trip Time. Was: " + rtt + " ms, Is: " + newRtt + " ms.");
 								rtt = newRtt;
 								if (minimumDecodedQueueSize > 0)
 									setAudioLatency();
@@ -1997,7 +1990,8 @@ public class VoIPClient  {
 		// Introduce an artificial lag if there is packet loss
 		if (decodedBuffersQueue.size() < minimumDecodedQueueSize &&
 				!isSpeaking()) {
-			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size());
+			Logger.d(tag, "Stalling. Current queue size: " + decodedBuffersQueue.size()
+			+ ", want: " + minimumDecodedQueueSize);
 			return null;
 		}
 
@@ -2106,7 +2100,7 @@ public class VoIPClient  {
 
 		if (minimumDecodedQueueSize != newQueueSize) {
 			minimumDecodedQueueSize = newQueueSize;
-			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
+//			Logger.d(tag, "New audio latency: " + minimumDecodedQueueSize * 60 + " ms, frames: " + minimumDecodedQueueSize);
 		}
 	}
 	
@@ -2306,6 +2300,12 @@ public class VoIPClient  {
 		if (!isCallActive())
 			return;
 
+		// Drop packets if getting left behind
+		if (samplesToEncodeQueue.size() > VoIPConstants.MAX_SAMPLES_BUFFER) {
+			Logger.d(tag, "Dropping to_encode packet.");
+			return;
+		}
+
 		samplesToEncodeQueue.add(dp);
 	}
 	
@@ -2410,6 +2410,7 @@ public class VoIPClient  {
 		bitrateAdjustment = 0;
 		audioFramesPerUDPPacket = 1;
 		decodedBuffersQueue.clear();
+		voicePacketsCache.clear();
 		measureRTT();
 		sendMessageToService(VoIPConstants.CONNECTION_ESTABLISHED_FIRST_TIME);
 	}

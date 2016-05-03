@@ -67,6 +67,7 @@ public class ProductPopupsConstants
 
 	public static final String RECEIVED = "rec";
 
+	public static final String RECEIVED_NOT_SHOWN = "recv_not_shown";
 	
 	public static enum PopupStateEnum
 	{
@@ -297,7 +298,14 @@ public class ProductPopupsConstants
 			{
 				return "edit_profile";
 			}
-		},
+		},PROFILE_DOB{
+
+		@Override
+		public String toString()
+		{
+			return "profile_dob";
+		}
+	},
 		HELP
 		{
 			@Override

@@ -37,11 +37,25 @@
                 android:indeterminateDrawable="@drawable/loading"
                 android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/image"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/mini_loader"
+                    android:layout_width="@dimen/sticker_mini_loader"
+                    android:layout_height="@dimen/sticker_mini_loader"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="Progress Bar"
+                    android:indeterminateDrawable="@drawable/circular_double_spinner_thin"
+                    android:visibility="gone" />
+            </RelativeLayout>
         </LinearLayout>
 
         <include

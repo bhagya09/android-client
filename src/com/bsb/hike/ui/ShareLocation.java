@@ -23,12 +23,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -37,17 +35,13 @@ import android.widget.Toast;
 import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
@@ -63,10 +57,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +67,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, AdaptxtKeyboordVisibilityStatusListner
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
 {
 
 	private GoogleMap map;
@@ -101,7 +91,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private String searchStr;
 	
-	private HikeCustomKeyboard mCustomKeyboard;
 
 	// max
 	private final int MAX_PLACES = 20;// most returned from google
@@ -148,8 +137,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 
 	private TextView title;
 
-	private CustomFontEditText searchET;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -188,11 +175,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{ // Google Play Services are available
 
 			setContentView(R.layout.share_location);
-			searchET = (CustomFontEditText)findViewById(R.id.search);
-			if (!isSystemKeyboard())
-			{
-				initCustomKeyboard();
-			}
 			gpsDialogShown = savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.GPS_DIALOG_SHOWN);
 			listview = (ListView) findViewById(R.id.itemListView);
 			list = new ArrayList<ItemDetails>();
@@ -248,20 +230,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				searchStr = savedInstanceState.getString(HikeConstants.Extras.HTTP_SEARCH_STR);
 				executeTask(new GetPlaces(), searchStr);
 			}
-			searchET.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					if (isSystemKeyboard())
-					{
-						Utils.showSoftKeyboard(searchET, InputMethodManager.SHOW_FORCED);
-					}
-					else
-					{
-						mCustomKeyboard.showCustomKeyboard(searchET, true);
-					}
-				}
-			});
 		}
 
 		Button fullScreenButton = (Button) findViewById(R.id.full_screen_button);
@@ -387,7 +355,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		{
 			mLocationClient.disconnect();
 		}
-		KptUtils.destroyKeyboardResources(mCustomKeyboard,R.id.search);
 		super.onDestroy();
 	}
 
@@ -433,10 +400,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 
 	}
-	public boolean isSystemKeyboard()
-	{
-		return HikeMessengerApp.isSystemKeyboard();
-	}
+
 	@Override
 	public void onConnected(Bundle arg0)
 	{
@@ -903,16 +867,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		}
 
 	}
-	protected void initCustomKeyboard()
-	{	
-		LinearLayout parentView = (LinearLayout)findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard= new HikeCustomKeyboard(this, parentView,KPTConstants.MULTILINE_LINE_EDITOR, null,ShareLocation.this);
-		if (!KptUtils.isSystemKeyboard())
-		{
-    		mCustomKeyboard.registerEditText(R.id.search);
-    		mCustomKeyboard.init(searchET);
-		}
-	}
+
 	private void updateLocationAddress(final double lat, final double lng, final Marker userMarker)
 	{
 		/*
@@ -971,88 +926,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	}
 	
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) 
-	{
-		if(item.getItemId()==android.R.id.home)
-		{
-			hideKeyboard(searchET);
-			onBackPressed();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	
-	public void hideKeyboard(CustomFontEditText editText)
-	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(editText, false);
-			KptUtils.updatePadding(ShareLocation.this, R.id.screen, 0);
-		}
-	}
-	
-	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			hideKeyboard(searchET);
-			return;
-		}
 		finish();
 	}
 	
-	public void onConfigurationChanged(Configuration newConfig)
-	{
-		if (mCustomKeyboard != null)
-		{
-			mCustomKeyboard.onConfigurationChanged(newConfig);
-		}
-		super.onConfigurationChanged(newConfig);
-	}
-
-	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean kptVisible, int height) {
-		if (kptVisible)
-		{
-			KptUtils.updatePadding(ShareLocation.this,R.id.screen, height);
-		}
-		
-	}
-
-	@Override
-	public void showGlobeKeyView() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showQuickSettingView() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 }

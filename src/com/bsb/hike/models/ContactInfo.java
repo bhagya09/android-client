@@ -632,4 +632,39 @@ public class ContactInfo implements JSONSerializable, Comparable<ContactInfo>
 	{
 		return ContactManager.getInstance().isBlocked(msisdn);
 	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isMyOneWayFriend()
+	{
+		FavoriteType favoriteType = this.getFavoriteType();
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isMyTwoWayFriend());
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isMyTwoWayFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.FRIEND;
+	}
+
+	public boolean isFriendRequestReceivedForMe()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED;
+	}
+
+	public boolean isNotMyFriend()
+	{
+		return this.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED || this.getFavoriteType() == FavoriteType.NOT_FRIEND;
+	}
+
 }

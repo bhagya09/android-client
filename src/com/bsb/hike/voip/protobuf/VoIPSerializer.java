@@ -10,7 +10,10 @@ import com.bsb.hike.voip.VoIPDataPacket.PacketType;
 import com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket;
 import com.bsb.hike.voip.protobuf.DataPacketProtoBuf.DataPacket.BroadcastHost;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.IOException;
 
 public class VoIPSerializer {
 	
@@ -60,34 +63,37 @@ public class VoIPSerializer {
 	}
 
 	
-	public static Object deserialize(byte[] bytes) {
+	public static Object deserialize(byte[] bytes, int length) {
 
 		VoIPDataPacket dp = new VoIPDataPacket();
 
-		try {
-			DataPacket protoBuf = DataPacket.parseFrom(bytes);
-			
-			dp.setPacketType(PacketType.fromValue(protoBuf.getPacketType()));
-			dp.setEncrypted(protoBuf.getEncrypted());
-			dp.setData(protoBuf.getData().toByteArray());
-			dp.setDestinationIP(protoBuf.getDestinationIP());
-			dp.setDestinationPort(protoBuf.getDestinationPort());
-			dp.setPacketNumber(protoBuf.getPacketNumber());
-			dp.setRequiresAck(protoBuf.getRequiresAck());
-			dp.setVoicePacketNumber(protoBuf.getVoicePacketNumber());
-			dp.setTimestamp(protoBuf.getTimestamp());
-			dp.setVoice(protoBuf.getIsVoice());
+		// Our byte stream has a one-byte prefix that we need to ignore while parsing the protobuf.
+		CodedInputStream codedInputStream = CodedInputStream.newInstance(bytes, 1, length - 1);
 
-			if (protoBuf.getDataListCount() > 0) {
-				for (ByteString data : protoBuf.getDataListList()) {
-					dp.addToDataList(data.toByteArray());
-				}
-			}
-			
-		} catch (InvalidProtocolBufferException e) {
-			Log.e("VoIP Serializer", "Error decoding protocol buffer packet");
-		}
-		
+		DataPacket protoBuf = null;
+		try {
+            protoBuf = DataPacket.parseFrom(codedInputStream);
+        } catch (IOException e) {
+            Logger.w(VoIPConstants.TAG, "VoIPSerializer IOException : " + e.toString());
+        }
+
+		dp.setPacketType(PacketType.fromValue(protoBuf.getPacketType()));
+		dp.setEncrypted(protoBuf.getEncrypted());
+		dp.setData(protoBuf.getData().toByteArray());
+		dp.setDestinationIP(protoBuf.getDestinationIP());
+		dp.setDestinationPort(protoBuf.getDestinationPort());
+		dp.setPacketNumber(protoBuf.getPacketNumber());
+		dp.setRequiresAck(protoBuf.getRequiresAck());
+		dp.setVoicePacketNumber(protoBuf.getVoicePacketNumber());
+		dp.setTimestamp(protoBuf.getTimestamp());
+		dp.setVoice(protoBuf.getIsVoice());
+
+		if (protoBuf.getDataListCount() > 0) {
+            for (ByteString data : protoBuf.getDataListList()) {
+                dp.addToDataList(data.toByteArray());
+            }
+        }
+
 		return dp;
 	}
 }

@@ -541,24 +541,4 @@ public class KeyboardPopupLayout21 extends KeyboardPopupLayout
 		}
 	}
 
-	@Override
-	protected void interpretHeightInPortraitMode(int temp)
-	{
-		int bottomNavBArThreshold = shouldApplyNavBarOffset() ? HikeMessengerApp.bottomNavBarHeightPortrait : 0;
-		
-		if (temp > bottomNavBArThreshold)
-		{
-			isKeyboardOpen = true;
-			if (isShowing())
-			{
-				updatePadding(0);
-			}
-			updateDimension(LayoutParams.MATCH_PARENT, temp);
-		}
-		else
-		{
-			isKeyboardOpen = false;
-		}
-	}
-
 }

@@ -23,6 +23,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadTips;
 import com.bsb.hike.models.Sticker;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
@@ -63,7 +64,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 
 	private Fragment fragment;
 
-	private Fragment fragmentFtue;
+	private StickerRecommendationFtueFragment fragmentFtue;
 
 	private int count;
 
@@ -72,6 +73,8 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	private boolean shownStickerRecommendFtueTip;
 
 	private boolean shownStickerRecommendFtue;
+
+    private int undownloadedStickerToDisplayCount;
 
 	public StickerTagWatcher(HikeAppStateBaseFragmentActivity activity, ChatThread chathread, EditText editText, int color)
 	{
@@ -89,6 +92,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		this.count = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.STICKER_RECOMMEND_SCROLL_FTUE_COUNT, SHOW_SCROLL_FTUE_COUNT);
 		this.shownStickerRecommendFtue = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_FTUE, false);
 		this.shownStickerRecommendFtueTip = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.SHOWN_STICKER_RECOMMEND_TIP, false);
+        refreshUndownloadedStickerWatcher(StickerManager.getInstance().isMiniStickersEnabled());
 		StickerSearchManager.getInstance().addStickerSearchListener(this);
 	}
 
@@ -244,7 +248,7 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 				dismissTip(ChatThreadTips.STICKER_RECOMMEND_AUTO_OFF_TIP);
 				stickerRecommendView.setVisibility(View.VISIBLE);
 
-				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList);
+				Pair<Boolean, List<Sticker>> result = StickerSearchUtils.shouldShowStickerFtue(stickerList, undownloadedStickerToDisplayCount);
 
 				if (shouldShowFtue(result)) // no available stickers present show ftue
 				{
@@ -366,6 +370,9 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 	{
 		Logger.v(TAG, "stickerSelected(" + word + ", " + phrase + ", " + sticker + ", " + selectedIndex + "," + recommendedListSize + "," + source + "," + dismissAndClear + ")");
 
+        StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker, (selectedIndex + 1), recommendedListSize,
+                StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
+
 		sendSticker(sticker, source, dismissAndClear);
 
 		if (StickerSearchManager.getInstance().isAutoPoupTrialRunning() && StickerSearchManager.getInstance().isFromAutoRecommendation())
@@ -398,9 +405,6 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 			}
 		}
 
-		// Send analytics
-		StickerManager.getInstance().sendRecommendationSelectionAnalytics(source, sticker.getStickerId(), sticker.getCategoryId(), (selectedIndex + 1), recommendedListSize,
-				StickerSearchManager.getInstance().getNumStickersVisibleAtOneTime(), word, phrase);
 	}
 
 	@Override
@@ -610,5 +614,15 @@ public class StickerTagWatcher implements TextWatcher, IStickerSearchListener, O
 		}
 		
 		return colorSpanPool;
+	}
+
+	public void refreshUndownloadedStickerWatcher(boolean loadMini)
+	{
+		this.undownloadedStickerToDisplayCount = StickerSearchUtils.getUndownloadedStickerToDisplayCount();
+
+		if (fragmentFtue != null)
+		{
+			fragmentFtue.setupStickerLoader(loadMini);
+		}
 	}
 }

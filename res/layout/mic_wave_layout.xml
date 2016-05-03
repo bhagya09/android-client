@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pulsatingDot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:foregroundGravity="center">
+
+    <ImageView
+        android:id="@+id/ring2"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_gravity="center"
+        android:background="@null"
+        android:gravity="center"
+        android:layout_marginTop="-2dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/circle_walkie_ring_outer"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/mic_image"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginTop="-1dp"
+        android:layout_gravity="center"
+        android:background="@null"
+        android:gravity="center"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_walkie_talkie_with_container" />
+
+</FrameLayout>

@@ -45,4 +45,14 @@
         <item>@string/privacy_favorites</item>
         <item>@string/privacy_nobody</item>
     </string-array>
+
+    <string-array name="privacyPrefKeysFriendsExp">
+        <item>@string/privacy_friends_key</item>
+        <item>@string/privacy_nobody_key</item>
+    </string-array>
+
+    <string-array name="privacyPrefValuesFriendsExp">
+        <item>@string/privacy_favorites</item>
+        <item>@string/privacy_nobody</item>
+    </string-array>
 </resources>

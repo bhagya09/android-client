@@ -21,6 +21,8 @@ public interface IBridgeCallback
 	public void openFullPageWithTitle(String url, String title);
 
 	public void openFullPageWithTitle(String url, String title, String interceptUrlJson);
+	
+	public void openFullPageWithTitle(String url, String title, String interceptUrlJson,String back);
 
 	public void changeActionBarTitle(String title);
 	

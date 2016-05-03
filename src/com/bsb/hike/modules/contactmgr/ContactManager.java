@@ -282,6 +282,26 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		{
 			name = transientCache.getName(msisdn);
 		}
+		if (null == name)
+		{
+			// fetch from db if not found
+			if (OneToNConversationUtils.isOneToNConversation(msisdn))
+			{
+				GroupDetails grpDetails = getGroupDetails(msisdn);
+				if (grpDetails != null)
+				{
+					name = grpDetails.getGroupName();
+				}
+			}
+			else
+			{
+				ContactInfo contact = getContact(msisdn, true, false);
+				if (contact != null)
+				{
+					name = contact.getName();
+				}
+			}
+		}
 		if (null == name && !returnNullIfNotFound)
 			return msisdn;
 		return name;
@@ -1539,7 +1559,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}
@@ -3115,9 +3135,32 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 		return selfMsisdn.equals(outsideMsisdn);
 	}
 
-	public void toggleChatSpam(String msisdn, int markSpam)
-	{
+	public void toggleChatSpam(String msisdn, int markSpam) {
 		HikeUserDatabase.getInstance().toggleChatSpamUser(msisdn, markSpam);
+	}
+
+	/**
+	 * From now on we classify a friend as :
+	 * 1. The person whom I have added as a friend. Irrespective of the status of the request at the other end
+	 *
+	 * @return
+	 */
+	public boolean isOneWayFriend(String msidn)
+	{
+		FavoriteType favoriteType = getFriendshipStatus(msidn);
+		return (favoriteType == FavoriteType.REQUEST_SENT ||
+				favoriteType == FavoriteType.REQUEST_SENT_REJECTED ||
+				isTwoWayFriend(msidn));
+	}
+
+	/**
+	 * 2 Way friend works if a user added someone as a friend and the other person also added the user as a friend
+	 *
+	 * @return
+	 */
+	public boolean isTwoWayFriend(String msisdn)
+	{
+		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
 }
 

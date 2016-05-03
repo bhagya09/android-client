@@ -43,7 +43,6 @@ public class RequestRunner
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
-				com.bsb.hike.modules.httpmgr.engine.RequestProcessor.removeRequest(request);
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);

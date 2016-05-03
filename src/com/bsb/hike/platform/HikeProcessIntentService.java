@@ -6,15 +6,18 @@ import android.app.IntentService;
 import android.app.usage.UsageEvents;
 import android.content.Intent;
 import android.os.Bundle;
+import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.AppState;
 import com.bsb.hike.models.EventData;
 import com.bsb.hike.models.LogAnalyticsEvent;
 import com.bsb.hike.models.NormalEvent;
+import com.bsb.hike.models.NotifData;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -36,6 +39,10 @@ public class HikeProcessIntentService extends IntentService
 	public static final String SEND_APP_STATE = "sendAppState";
 
 	public static final String EVENT_DELETE="eventDelete";
+
+	public static final String NOTIF_DATA_DELETE = "notifDataDelete";
+
+	public static final String NOTIF_DATA_PARTIAL_DELETE = "notifDataPartialDelete";
 
 	public HikeProcessIntentService()
 	{
@@ -103,6 +110,20 @@ public class HikeProcessIntentService extends IntentService
 							Logger.e(TAG, "Data passed is not parcelable");
 						}
 						break;
+					case NOTIF_DATA_DELETE:
+						deleteNotifData(bundleData.getString(NOTIF_DATA_DELETE));
+						break;
+					case NOTIF_DATA_PARTIAL_DELETE:
+						if( bundleData.getParcelable(NOTIF_DATA_PARTIAL_DELETE) instanceof NotifData)
+						{
+							NotifData notifData = bundleData.getParcelable(NOTIF_DATA_PARTIAL_DELETE);
+							deletePartialNotifData(notifData);
+						}
+						else
+						{
+							Logger.e(TAG, "Data passed is not parcelable");
+						}
+						break;
 
 
 				}
@@ -164,5 +185,18 @@ public class HikeProcessIntentService extends IntentService
 			PlatformHelper.deleteEvent(eventData.id);
 		else
 			PlatformHelper.deleteAllEventsForMessage(eventData.id);
+	}
+
+	public void deleteNotifData(String msisdn)
+	{
+		HikeConversationsDatabase.getInstance().deleteAllNotifDataForMicroApp(msisdn);
+	}
+
+	/**
+	 * Call this function to delete partial notif data pertaining to a microApp. The key is the timestamp provided by Native
+	 */
+	public void deletePartialNotifData(NotifData notifData)
+	{
+		HikeConversationsDatabase.getInstance().deletePartialNotifData(notifData.key, notifData.msisdn);
 	}
 }

@@ -12,6 +12,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -33,6 +34,11 @@ public class ConnectionChangeReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
+		int networktype = Utils.getNetworkShortinOrder(Utils.getNetworkTypeAsString(context));
+		if (networktype >= 0)
+		{
+			PlatformUtils.retryPendingDownloadsIfAny(networktype); // Retrying only if internet is connected
+		}
 
 		FTApkManager.handleRetryOnConnectionChange(mprefs);
 

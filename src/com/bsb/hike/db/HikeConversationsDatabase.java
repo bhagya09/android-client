@@ -1,5 +1,24 @@
 package com.bsb.hike.db;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -55,10 +74,12 @@ import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.models.Protip;
+import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -82,23 +103,6 @@ import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBConstants, HIKE_CONV_DB
 {
@@ -329,10 +333,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.NAMESPACE + " TEXT, "         //namespace of a bot for caching purpose.
 				+ HIKE_CONTENT.NOTIF_DATA + " TEXT, "       //notif data used for notifications pertaining to the microapp
 				+ HIKE_CONTENT.HELPER_DATA + " TEXT DEFAULT '{}', "  //helper data
-				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0"   //bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0,"//bot version for bot upgrade scenario
+				+ HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0, " //by default ... its hould be 0 as not any trigger point
+				+ HIKE_CONTENT.CLIENT_ID + " TEXT, "  
+				+ HIKE_CONTENT.CLIENT_HASH + " TEXT "  
 				+ ")";
 		db.execSQL(sql);
-
 		sql = getActionsTableCreateQuery();
 		db.execSQL(sql);
 		
@@ -349,12 +355,21 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		db.execSQL(getMsisdnAndSortingIdIndex()); //This index is for querying the messages table
 		db.execSQL(getSortingIndexQuery()); //This index enables O(1) access for max sort id query, which will be used frequently
 
+		sql = getURLTableCreateStatement();
+		db.execSQL(sql);
+
 		// to be aware of the users for whom db upgrade should not be done in future to fix AND-704
 		saveCurrentConvDbVersionToPrefs();
-		
+
 		String sqlIndex = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.FEED_INDEX + " ON " + DBConstants.FEED_TABLE + " ( " + DBConstants.FEED_ACTION_ID + ", "
 				+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
 		db.execSQL(sqlIndex);
+
+        sql = getStickerTableCreateQuery();
+        db.execSQL(sql);
+
+		sql = getRecentStickersTableCreateQuery();
+		db.execSQL(sql);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -382,6 +397,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
+		mDb.delete(DBConstants.URL_TABLE, null, null);
+		mDb.delete(DBConstants.STICKER_TABLE, null, null);
+		mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
 	}
 
 	@Override
@@ -931,8 +949,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			Logger.d("HikeConversationsDatabase", "Time taken to create indices for sortingId : " + (System.currentTimeMillis() - time));
 		}
 
-
-		if(oldVersion < 48)
+		if (oldVersion < 48)
 		{
 			try
 			{
@@ -947,9 +964,96 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						+ DBConstants.FEED_OBJECT_ID + ", " + DBConstants.FEED_ACTOR + " ) ";
 				db.execSQL(sqlIndex);
 			}
+		
 		}
 
+		if(oldVersion < 49)
+        {
+			String alter = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0";
+			db.execSQL(alter);
 
+			String sql = getURLTableCreateStatement();
+			db.execSQL(sql);
+
+			sql = "CREATE UNIQUE INDEX IF NOT EXISTS " + DBConstants.URL_KEY_INDEX + " ON " + DBConstants.URL_TABLE + " ( " + DBConstants.URL_KEY + " )";
+			db.execSQL(sql);
+			
+			sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.CLIENT_ID + " TEXT";
+			db.execSQL(sql);
+			
+			sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + HIKE_CONTENT.CLIENT_HASH + " TEXT";
+			db.execSQL(sql);
+
+            if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.CATEGORY_DESCRIPTION))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.CATEGORY_DESCRIPTION + " TEXT";
+				db.execSQL(alter1);
+			}
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.STICKER_LIST))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.STICKER_LIST + " TEXT";
+				db.execSQL(alter2);
+			}
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.IS_DOWNLOADED))
+			{
+				String alter3 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.IS_DOWNLOADED + " INTEGER DEFAULT 0";
+				db.execSQL(alter3);
+			}
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.SIMILAR_CATEGORIES))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.SIMILAR_CATEGORIES + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.AUTHOR))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.AUTHOR + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_CATEGORIES_TABLE, DBConstants.COPYRIGHT_STRING))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_CATEGORIES_TABLE + " ADD COLUMN " + DBConstants.COPYRIGHT_STRING + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.CATEGORY_DESCRIPTION))
+			{
+				String alter1 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.CATEGORY_DESCRIPTION + " TEXT";
+				db.execSQL(alter1);
+			}
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.STICKER_LIST))
+			{
+				String alter2 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.STICKER_LIST + " TEXT";
+				db.execSQL(alter2);
+			}
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.SIMILAR_CATEGORIES))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.SIMILAR_CATEGORIES + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.AUTHOR))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.AUTHOR + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			if(!Utils.isColumnExistsInTable(db, DBConstants.STICKER_SHOP_TABLE, DBConstants.COPYRIGHT_STRING))
+			{
+				String alter4 = "ALTER TABLE " + DBConstants.STICKER_SHOP_TABLE + " ADD COLUMN " + DBConstants.COPYRIGHT_STRING + " TEXT";
+				db.execSQL(alter4);
+			}
+
+			 sql = getStickerTableCreateQuery();
+			db.execSQL(sql);
+        }
+
+		if(oldVersion < 50)
+		{
+			String sql = getRecentStickersTableCreateQuery();
+			db.execSQL(sql);
+		}
 	}
 
 	public void reinitializeDB()
@@ -2075,6 +2179,36 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return sql;
 	}
 
+	private String getStickerTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.STICKER_TABLE
+				+ "("
+				+ DBConstants.STICKER_ID + " TEXT, "
+				+ DBConstants.CATEGORY_ID + " TEXT, "
+				+ DBConstants.WIDTH + " INTEGER, "
+				+ DBConstants.HEIGHT + " INTEGER, "
+				+ DBConstants.LARGE_STICKER_PATH + " TEXT, "
+				+ DBConstants.SMALL_STICKER_PATH + " TEXT, "
+				+ DBConstants.IS_ACTIVE + " INTEGER DEFAULT " + DBConstants.DEFAULT_ACTIVE_STATE + ", "
+                + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
+				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
+				+ " )";
+
+		return sql;
+	}
+
+	private String getRecentStickersTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.RECENT_STICKERS_TABLE
+				+ " ( "
+				+ DBConstants.STICKER_ID + " TEXT, "
+				+ DBConstants.CATEGORY_ID + " TEXT, "
+				+ "PRIMARY KEY ( " + DBConstants.CATEGORY_ID + " , " + DBConstants.STICKER_ID + " ) "
+				+ " ) ";
+
+		return sql;
+	}
+
 	private void addThumbnailStringToMetadata(MessageMetadata metadata, String thumbnailString)
 	{
 		if (TextUtils.isEmpty(thumbnailString))
@@ -3106,8 +3240,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.NAMESPACE, botInfo.getNamespace());
 		values.put(HIKE_CONTENT.HELPER_DATA, botInfo.getHelperData());
 		values.put(HIKE_CONTENT.BOT_VERSION, botInfo.getVersion());
+		values.put(HIKE_CONTENT.BOT_TRIGGER_POINT, botInfo.getTriggerPointFormenu());
+		values.put(HIKE_CONTENT.CLIENT_ID, botInfo.getClientId());
+		values.put(HIKE_CONTENT.CLIENT_HASH, botInfo.getClientHash());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		
 	}
 
 	public boolean isBotMuted(String msisdn)
@@ -5618,9 +5754,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * Called from multi sticker download task
+	 * 
+	 * @param categoryId
+	 * @param totalNum
+	 */
 	public void updateStickerCountForStickerCategory(String categoryId, int totalNum)
 	{
-		updateStickerCategoryData(categoryId, null, totalNum, -1);
+		updateStickerCategoryData(categoryId, null, totalNum, -1, null, null);
 	}
 
 	public void removeStickerCategory(String categoryId, boolean removeFromShopTable)
@@ -5631,7 +5773,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize)
+	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize, String description, String stickerListString)
 	{
 		ContentValues contentValues = new ContentValues();
 		if(updateAvailable != null)
@@ -5645,6 +5787,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(categorySize != -1)
 		{
 			contentValues.put(DBConstants.CATEGORY_SIZE, categorySize);
+		}
+		if (description != null)
+		{
+			contentValues.put(DBConstants.CATEGORY_DESCRIPTION, description);
+		}
+		if (stickerListString != null)
+		{
+			contentValues.put(DBConstants.STICKER_LIST, stickerListString);
 		}
 
 		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { categoryId });
@@ -5668,30 +5818,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		try
 		{
-			String selection = DBConstants.IS_VISIBLE + "=?";
-			String[] selectionArgs = { isVisible ? Integer.toString(1) : Integer.toString(0) };
+			String selection = DBConstants.IS_VISIBLE + "=?" + " AND " + DBConstants.IS_DOWNLOADED + "=?";
+			String[] selectionArgs = { isVisible ? Integer.toString(1) : Integer.toString(0), Integer.toString(1) };  // all categories which are downloaded
 
-			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null , selection, selectionArgs, null, null, null);
-			stickerDataMap = parseStickerCategoriesCursor(c);
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-		return stickerDataMap;
-	}
-
-	public LinkedHashMap<String, StickerCategory> getAllStickerCategories()
-	{
-		Cursor c = null;
-		LinkedHashMap<String, StickerCategory> stickerDataMap;
-
-		try
-		{
-			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null , null, null, null, null, null);
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null, selection, selectionArgs, null, null, null);
 			stickerDataMap = parseStickerCategoriesCursor(c);
 		}
 		finally
@@ -5717,24 +5847,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
 				boolean isVisible = c.getInt(c.getColumnIndex(DBConstants.IS_VISIBLE)) == 1;
 				boolean isCustom = c.getInt(c.getColumnIndex(DBConstants.IS_CUSTOM)) == 1;
+				boolean isDownloaded = c.getInt(c.getColumnIndex(DBConstants.IS_DOWNLOADED)) == 1;
 				int catIndex = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_INDEX));
 				int categorySize = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_SIZE));
 				int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
+				String categoryDescription = c.getString(c.getColumnIndex(DBConstants.CATEGORY_DESCRIPTION));
+				String stickerListJSONString = c.getString(c.getColumnIndex(DBConstants.STICKER_LIST));
+				String similarPacksJSONString = c.getString(c.getColumnIndex(DBConstants.SIMILAR_CATEGORIES));
+				String author = c.getString(c.getColumnIndex(DBConstants.AUTHOR));
+				String copyRightString = c.getString(c.getColumnIndex(DBConstants.COPYRIGHT_STRING));
 
 				StickerCategory s;
 				/**
-				 * Making sure that Recents category is added as CustomStickerCategory only. 
-				 * This is being done to avoid ClassCast exception on the PlayStore. 
+				 * Making sure that Recents category is added as CustomStickerCategory only. This is being done to avoid ClassCast exception on the PlayStore.
 				 */
-				if(isCustom || categoryId.equals(StickerManager.RECENT))
+				if (isCustom || categoryId.equals(StickerManager.RECENT))
 				{
-					s = new CustomStickerCategory(categoryId, categoryName, updateAvailable, isVisible, isCustom, true, catIndex, totalStickers,
-						categorySize);
+
+					s = new CustomStickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setCategorySize(categorySize).setTotalStickers(totalStickers)
+							.setUpdateAvailable(updateAvailable).setIsVisible(isVisible).setIsCustom(isCustom).setIsAdded(true).setCatIndex(catIndex).build();
 				}
 				else
 				{
-					s = new StickerCategory(categoryId, categoryName, updateAvailable, isVisible, isCustom, true, catIndex, totalStickers,
-							categorySize);
+					s = new StickerCategory.Builder().setCategoryId(categoryId).setCategoryName(categoryName).setCategorySize(categorySize).setCategoryDesc(categoryDescription)
+							.setTotalStickers(totalStickers).setUpdateAvailable(updateAvailable).setIsVisible(isVisible).setIsCustom(isCustom).setIsAdded(true)
+							.setIsDownloaded(isDownloaded).setCatIndex(catIndex).setAllStickerListString(stickerListJSONString).setSimilarPacksString(similarPacksJSONString).setAuthor(author).setCopyRightString(copyRightString).build();
 				}
 				stickerDataMap.put(categoryId, s);
 			}
@@ -7442,28 +7579,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	public String getStickerCategoryTableCreateQuery()
 	{
 		/**
-		 * creating new Sticker category table with updated schema
-		 * Category Id : Id of this category
-		 * Category Name : Category name to show for this category
-		 * Total Number : total number of stickers available in this category
-		 * Reached End : weather we have downloaded all the stickers in this category or Not
-		 * Update available : weather there is an update available for this category 
-		 * IS_VISIBLE : weather this category is visible
-		 * IS_CUSTOM : weather this is a custom category 
-		 * category index : order of this category among all the categories
-		 * metadata : other metadata associated with this category 
+		 * creating new Sticker category table with updated schema Category Id : Id of this category Category Name : Category name to show for this category Total Number : total
+		 * number of stickers available in this category Reached End : weather we have downloaded all the stickers in this category or Not Update available : weather there is an
+		 * update available for this category IS_VISIBLE : weather this category is visible IS_CUSTOM : weather this is a custom category category index : order of this category
+		 * among all the categories metadata : other metadata associated` with this category
 		 */
-		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.STICKER_CATEGORIES_TABLE + " (" + DBConstants._ID + " TEXT PRIMARY KEY, " + DBConstants.CATEGORY_NAME
-				+ " TEXT, " + DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.UPDATE_AVAILABLE + " INTEGER DEFAULT 0," + DBConstants.IS_VISIBLE + " INTEGER DEFAULT 0,"
-				+ DBConstants.IS_CUSTOM + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_INDEX + " INTEGER," + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0 " + " )";
+		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.STICKER_CATEGORIES_TABLE + " (" + DBConstants._ID + " TEXT PRIMARY KEY, " + DBConstants.CATEGORY_NAME + " TEXT, "
+				+ DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.UPDATE_AVAILABLE + " INTEGER DEFAULT 0," + DBConstants.IS_VISIBLE + " INTEGER DEFAULT 0,"
+				+ DBConstants.IS_CUSTOM + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_INDEX + " INTEGER," + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0,"
+				+ DBConstants.CATEGORY_DESCRIPTION + " TEXT," + DBConstants.STICKER_LIST + " TEXT, " + DBConstants.IS_DOWNLOADED + " INTEGER DEFAULT 0, " + DBConstants.SIMILAR_CATEGORIES + " TEXT, " + DBConstants.AUTHOR + " TEXT, " + DBConstants.COPYRIGHT_STRING + " TEXT " + " )";
 		return sql;
 	}
 
-
 	public String getStickerShopTableCreateQuery()
 	{
-		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.STICKER_SHOP_TABLE + " (" + DBConstants._ID + " TEXT PRIMARY KEY, " + DBConstants.CATEGORY_NAME
-				+ " TEXT, " + DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0 " + " )";
+		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.STICKER_SHOP_TABLE + " (" + DBConstants._ID + " TEXT PRIMARY KEY, " + DBConstants.CATEGORY_NAME + " TEXT, "
+				+ DBConstants.TOTAL_NUMBER + " INTEGER, " + DBConstants.CATEGORY_SIZE + " INTEGER DEFAULT 0," + DBConstants.CATEGORY_DESCRIPTION + " TEXT,"
+				+ DBConstants.STICKER_LIST + " TEXT, " + DBConstants.SIMILAR_CATEGORIES + " TEXT, " + DBConstants.AUTHOR + " TEXT, " + DBConstants.COPYRIGHT_STRING + " TEXT " + " )";
 
 		return sql;
 	}
@@ -7583,7 +7715,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
 
-		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { stickerCategory.getCategoryId() });
+		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{stickerCategory.getCategoryId()});
 	}
 
 	public void insertInToStickerCategoriesTable(StickerCategory stickerCategory)
@@ -7597,9 +7729,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.CATEGORY_SIZE, stickerCategory.getCategorySize());
 		contentValues.put(DBConstants.IS_VISIBLE, stickerCategory.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, stickerCategory.getCategoryIndex());
+		contentValues.put(DBConstants.CATEGORY_DESCRIPTION, stickerCategory.getDescription());
+		contentValues.put(DBConstants.STICKER_LIST, stickerCategory.getAllStickerListString());
+		contentValues.put(DBConstants.SIMILAR_CATEGORIES, stickerCategory.getSimilarPacksString());
+		contentValues.put(DBConstants.AUTHOR, stickerCategory.getAuthor());
+		contentValues.put(DBConstants.COPYRIGHT_STRING, stickerCategory.getCopyRightString());
+		contentValues.put(DBConstants.IS_DOWNLOADED, stickerCategory.isDownloaded());
 
-		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues,
-				SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	/*
@@ -7610,31 +7747,29 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		try
 		{
 			mDb.beginTransaction();
-			for (int i=0; i<jsonArray.length(); i++)
+			for (int i = 0; i < jsonArray.length(); i++)
 			{
-				JSONObject jsonObj  = jsonArray.getJSONObject(i);
-				String catId = jsonObj.optString(StickerManager.CATEGORY_ID);
-
-				if(TextUtils.isEmpty(catId))
+				StickerCategory category = StickerManager.getInstance().parseStickerCategoryMetadata(jsonArray.getJSONObject(i));
+				if(category == null)
 				{
 					continue;
 				}
 				ContentValues contentValues = new ContentValues();
-				contentValues.put(DBConstants._ID, catId);
-				if(jsonObj.has(HikeConstants.CAT_NAME))
-				{
-					contentValues.put(DBConstants.CATEGORY_NAME, jsonObj.getString(HikeConstants.CAT_NAME));
-				}
-				if(jsonObj.has(HikeConstants.NUMBER_OF_STICKERS))
-				{
-					contentValues.put(DBConstants.TOTAL_NUMBER, jsonObj.getInt(HikeConstants.NUMBER_OF_STICKERS));
-				}
-				if(jsonObj.has(HikeConstants.SIZE))
-				{
-					contentValues.put(DBConstants.CATEGORY_SIZE, jsonObj.getInt(HikeConstants.SIZE));
-				}
+				contentValues.put(DBConstants._ID, category.getCategoryId());
+				contentValues.put(DBConstants.CATEGORY_NAME, category.getCategoryName());
+				contentValues.put(DBConstants.TOTAL_NUMBER, category.getTotalStickers());
+				contentValues.put(DBConstants.CATEGORY_SIZE, category.getCategorySize());
+				contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
+				contentValues.put(DBConstants.STICKER_LIST, category.getAllStickerListString());
+				contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
+				contentValues.put(DBConstants.AUTHOR, category.getAuthor());
+				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
 
-				mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { catId });
+				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[]{category.getCategoryId()});
+				if(rowsAffected <= 0)
+				{
+					mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
+				}
 				mDb.insertWithOnConflict(DBConstants.STICKER_SHOP_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 			}
 			mDb.setTransactionSuccessful();
@@ -7662,19 +7797,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.CATEGORY_NAME, category.getCategoryName());
 				contentValues.put(DBConstants.TOTAL_NUMBER, category.getTotalStickers());
 				contentValues.put(DBConstants.CATEGORY_SIZE, category.getCategorySize());
-				
+
 				/*
 				 * Adding extra fields as per stickerCategoriesTable
 				 */
 				contentValues.put(DBConstants.IS_VISIBLE, category.isVisible());
 				contentValues.put(DBConstants.CATEGORY_INDEX, category.getCategoryIndex());
+				contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
+				contentValues.put(DBConstants.STICKER_LIST, category.getAllStickerListString());
+				contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
+				contentValues.put(DBConstants.AUTHOR, category.getAuthor());
+				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
+				contentValues.put(DBConstants.IS_DOWNLOADED, category.isDownloaded());
 
 				int rowsAffected = mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, DBConstants._ID + "=?", new String[] { category.getCategoryId() });
 				/*
-				 * if row is not there in stickerCategoriesTable and server specifically tells us to switch on the visibility 
-				 * then we need to insert this item in stickerCategoriesTable
+				 * if row is not there in stickerCategoriesTable and server specifically tells us to switch on the visibility then we need to insert this item in
+				 * stickerCategoriesTable
 				 */
-				if(category.isVisible() && rowsAffected == 0)
+				if (category.isVisible() && rowsAffected == 0)
 				{
 					mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
 				}
@@ -7761,13 +7902,17 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.CATEGORY_SIZE, category.getCategorySize());
 		contentValues.put(DBConstants.IS_VISIBLE, category.isVisible());
 		contentValues.put(DBConstants.CATEGORY_INDEX, category.getCategoryIndex());
+		contentValues.put(DBConstants.CATEGORY_DESCRIPTION, category.getDescription());
+		contentValues.put(DBConstants.STICKER_LIST, category.getAllStickerListString());
+		contentValues.put(DBConstants.SIMILAR_CATEGORIES, category.getSimilarPacksString());
+		contentValues.put(DBConstants.AUTHOR, category.getAuthor());
+		contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
+		contentValues.put(DBConstants.IS_DOWNLOADED, category.isDownloaded());
 
 		rowId = (int) mDb.insert(DBConstants.STICKER_CATEGORIES_TABLE, null, contentValues);
 
 		return rowId < 0 ? false : true;
 	}
-
-
 
 	/**
 	 * Used to persist the changes made to the {@link StickerCategory#isUpdateAvailable()} flag
@@ -7842,11 +7987,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			boolean updateAvailable = c.getInt(c.getColumnIndex(DBConstants.UPDATE_AVAILABLE)) == 1;
 			boolean isVisible = c.getInt(c.getColumnIndex(DBConstants.IS_VISIBLE)) == 1;
 			boolean isCustom = c.getInt(c.getColumnIndex(DBConstants.IS_CUSTOM)) == 1;
+			boolean isDownloaded = c.getInt(c.getColumnIndex(DBConstants.IS_DOWNLOADED)) == 1;
 			int catIndex = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_INDEX));
 			int categorySize = c.getInt(c.getColumnIndex(DBConstants.CATEGORY_SIZE));
 			int totalStickers = c.getInt(c.getColumnIndex(DBConstants.TOTAL_NUMBER));
+			String categoryDescription = c.getString(c.getColumnIndex(DBConstants.CATEGORY_DESCRIPTION));
+			String stickerListJSONString = c.getString(c.getColumnIndex(DBConstants.STICKER_LIST));
+			String similarPacksJSONString = c.getString(c.getColumnIndex(DBConstants.SIMILAR_CATEGORIES));
+			String author = c.getString(c.getColumnIndex(DBConstants.AUTHOR));
+			String copyRightString = c.getString(c.getColumnIndex(DBConstants.COPYRIGHT_STRING));
 
-			stickerCategory = new StickerCategory(categoryId, categoryName, updateAvailable, isVisible, isCustom, true, catIndex, totalStickers, categorySize);
+			stickerCategory = new StickerCategory.Builder()
+					.setCategoryId(categoryId)
+					.setCategoryName(categoryName)
+					.setCategorySize(categorySize)
+					.setCategoryDesc(categoryDescription)
+					.setTotalStickers(totalStickers)
+					.setUpdateAvailable(updateAvailable)
+					.setIsVisible(isVisible)
+					.setIsCustom(isCustom)
+					.setIsAdded(true)
+					.setIsPreview(false)
+					.setIsDownloaded(isDownloaded)
+					.setCatIndex(catIndex)
+					.setAllStickerListString(stickerListJSONString)
+					.setSimilarPacksString(similarPacksJSONString)
+					.setAuthor(author)
+					.setCopyRightString(copyRightString)
+					.build();
 		}
 
 		return stickerCategory;
@@ -8060,7 +8228,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	{
 		String where = DBConstants.MSISDN + "=? and " + DBConstants.HIKE_CONTENT.CONTENT_ID + "=? and " + HIKE_CONTENT.NAMESPACE + "=?";
-		Cursor c = mDb.query(DBConstants.MESSAGES_TABLE, new String[] { DBConstants.MESSAGE_ID }, where, new String[] { msisdn, contentId, nameSpace }, null, null, null);
+		Cursor c = mDb.query(DBConstants.MESSAGES_TABLE, new String[]{DBConstants.MESSAGE_ID}, where, new String[]{msisdn, contentId, nameSpace}, null, null, null);
 		try
 		{
 			boolean toReturn = c.moveToFirst();
@@ -8169,6 +8337,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(BOT_CONFIGURATION, configuration);
 		mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
 	}
+
+    /**
+     * Utility method to Update the config data in BotTable
+     *
+     * @param msisdn
+     * @param metadata
+     */
+    public void updateBotMetaData(String botMsisdn, String metadata)
+    {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONVERSATION_METADATA, metadata);
+        mDb.update(BOT_TABLE, contentValues, MSISDN + "=?", new String[] { botMsisdn });
+    }
 
 	/**
 	 * Calling this function will update the notif data. The notif data is a JSON Object to enable the app to have
@@ -8363,8 +8544,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MSG_STATUS, convMessage.getState().ordinal());
 		contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 
-		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?",
-				new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.updateWithOnConflict(DBConstants.CONVERSATIONS_TABLE, contentValues, MSISDN + "=?", new String[]{msisdn}, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 	
 	/**
@@ -8399,6 +8579,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 			int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 			int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+			int triggerIdx = c.getColumnIndex(HIKE_CONTENT.BOT_TRIGGER_POINT);
+			int clientIdIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_ID);
+			int clientHashIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_HASH);
 
 			if (c.moveToFirst())
 			{
@@ -8412,8 +8595,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				String notifData = c.getString(notifDataIdx);
 				String helperData = c.getString(helperDataIdx);
 				int version = c.getInt(versionIdx);
+				int trigger = c.getInt(triggerIdx);
+				String clientId = c.getString(clientIdIdx);
+				String clientHash = c.getString(clientHashIdx);
 				BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+						.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setTriggerPoint(trigger).setClientid(clientId).setClientHash(clientHash).build();
+               
 				
 				botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 				return botInfo;
@@ -8444,6 +8631,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		int notifDataIdx = c.getColumnIndex(HIKE_CONTENT.NOTIF_DATA);
 		int helperDataIdx = c.getColumnIndex(HIKE_CONTENT.HELPER_DATA);
 		int versionIdx = c.getColumnIndex(HIKE_CONTENT.BOT_VERSION);
+		int triggerIdx = c.getColumnIndex(HIKE_CONTENT.BOT_TRIGGER_POINT);
+		int clientIdIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_ID);
+		int clientHashIdx = c.getColumnIndex(HIKE_CONTENT.CLIENT_HASH);
 
 		String name = c.getString(nameIdx);
 		int config = c.getInt(configurationIdx);
@@ -8455,8 +8645,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		String notifData = c.getString(notifDataIdx);
 		String helperData = c.getString(helperDataIdx);
 		int version = c.getInt(versionIdx);
+		int trigger = c.getInt(triggerIdx);
+		String clientId = c.getString(clientIdIdx);
+		String clientHash = c.getString(clientHashIdx);
+	   int mAppVersionCode = 0;
+        // Keeping default bot type as web micro apps
+        byte nmBotType = HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS;
+
+		// Get mAppVersionCode from the metadata to store in Bot Info Object
+		if (!TextUtils.isEmpty(metadata))
+		{
+			try
+			{
+				JSONObject mdJsonObject = new JSONObject(metadata);
+
+				if (mdJsonObject != null)
+				{
+                    String nonMessagingBotType = mdJsonObject.optString(HikePlatformConstants.NON_MESSAGING_BOT_TYPE);
+
+                    if(!TextUtils.isEmpty(nonMessagingBotType) && nonMessagingBotType.equals(HikePlatformConstants.NATIVE_MODE))
+                        nmBotType = HikePlatformConstants.PlatformBotType.NATIVE_APPS;
+
+                    JSONObject cardObjectJson = mdJsonObject.optJSONObject(HikePlatformConstants.CARD_OBJECT);
+					if (cardObjectJson != null)
+						mAppVersionCode = cardObjectJson.optInt(HikePlatformConstants.MAPP_VERSION_CODE);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+        
 		BotInfo botInfo = new BotInfo.HikeBotBuilder(msisdn).setConvName(name).setConfig(config).setType(botType).setMetadata(metadata).setIsMute(mute == 1)
-				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).build();
+				.setNamespace(namespace).setConfigData(configData).setHelperData(helperData).setNotifData(notifData).setVersion(version).setMAppVersionCode(mAppVersionCode).setBotType(nmBotType).setTriggerPoint(trigger).setClientid(clientId).setClientHash(clientHash).build();
 
 		botInfo.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		return botInfo;
@@ -8767,7 +8989,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-				DatabaseUtils.sqlEscapeString(objectType));
+                DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -9011,7 +9233,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.CONV_DB_VERSION_PREF, DBConstants.CONVERSATIONS_DATABASE_VERSION);
 	}
 
-
 	/**
 	 * This does only for the last message values for convmessage.I t return convmessage only with fields reqd for last message.
 	 * @param msgHash
@@ -9170,5 +9391,357 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		return -1;
 	}
+	//Sql statement to maintain Infra URL table
 
+	private String getURLTableCreateStatement()
+	{
+		return CREATE_TABLE + DBConstants.URL_TABLE
+				+ " ("
+				+ DBConstants.URL_KEY + " TEXT PRIMARY KEY , "
+				+ DBConstants.URL + " TEXT , "        //URL THAT IS RELATED TO THIS KEY.
+				+ DBConstants.LIFE + " INTEGER"       //This column specifies if the particular service access token is short lived(0) or long lived(1).
+				+  ")";
+	}
+	// Function to insert URL in URL table in an encrypted manner
+
+	public long insertURL(String urlKey, String url, int life)
+	{
+		try
+		{
+			java.net.URL u = new java.net.URL(url);
+		}
+		catch (MalformedURLException e)
+		{
+			return -1;
+		}
+		try
+		{
+
+			ContentValues values = new ContentValues();
+			values.put(DBConstants.URL_KEY, urlKey);
+			values.put(DBConstants.URL, Utils.encrypt(url));
+			values.put(DBConstants.LIFE, life);
+			return mDb.insertWithOnConflict(DBConstants.URL_TABLE, null, values,SQLiteDatabase.CONFLICT_REPLACE);
+		}
+		catch (Exception e)
+		{
+			Logger.e("HikeConversationsDatabase", "Error in Inserting URL " + e.toString());
+			return -1;
+		}
+	}
+
+	// Function to get URL and returns decrypted URL
+
+	public Cursor getURL(String urlKey)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.URL_TABLE, new String[] { DBConstants.URL, DBConstants.LIFE }, DBConstants.URL_KEY + "=?", new String[] { urlKey }, null, null, null);
+
+			if (!c.moveToFirst())
+			{
+				return null;
+			}
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			Logger.e(getClass().getSimpleName(), "Exception in getURL", e);
+		}
+	
+		return c;
+
+
+	}
+
+	public void deleteURL(String urlKey)
+	{
+		mDb.delete(DBConstants.URL_TABLE, DBConstants.URL_KEY + "=?", new String[]{urlKey});
+	}
+
+
+	public void markAllCategoriesAsDownloaded()
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.IS_DOWNLOADED, true);
+		mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, contentValues, null, null);
+	}
+
+	public boolean upgradeForStickerTable()
+	{
+		boolean result;
+		try
+		{
+			moveStickerInfoToStickerTable();
+			result = true;
+		}
+		catch(Exception e)
+		{
+			Logger.e(getClass().getSimpleName(), "Exception in upgradeForStickerTable : ", e);
+			result = false;
+		}
+		return result;
+	}
+
+	private void moveStickerInfoToStickerTable()
+	{
+		List<Sticker> stickerSet = StickerManager.getInstance().getAllStickers();
+		insertStickersToDB(stickerSet, StickerConstants.StickerType.LARGE);
+	}
+
+	public Sticker getStickerFromStickerTable(Sticker sticker)
+	{
+		if(sticker == null || TextUtils.isEmpty(sticker.getStickerId()) || TextUtils.isEmpty(sticker.getCategoryId()))
+		{
+			return null;
+		}
+
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_TABLE, null, DBConstants.STICKER_ID + " =?" + " AND " + DBConstants.CATEGORY_ID + "=?", new String[] {sticker.getStickerId(), sticker.getCategoryId()}, null,
+					null, null, null);
+
+			int largestickerpathIdx = c.getColumnIndex(DBConstants.LARGE_STICKER_PATH);
+			int smallstickerpathIdx = c.getColumnIndex(DBConstants.SMALL_STICKER_PATH);
+            int stickerWidthIdx = c.getColumnIndex(DBConstants.WIDTH);
+            int stickerHeightIdx = c.getColumnIndex(DBConstants.HEIGHT);
+
+			if (c.moveToFirst())
+			{
+				sticker.setSmallStickerPath(c.getString(smallstickerpathIdx));
+				sticker.setLargeStickerPath(c.getString(largestickerpathIdx));
+                sticker.setWidth(c.getInt(stickerWidthIdx));
+                sticker.setHeight(c.getInt(stickerHeightIdx));
+			}
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+
+		return sticker;
+	}
+
+	public List<String> getStickerIdsForCatgeoryId(String catId,StickerConstants.StickerType stickerType)
+	{
+		Cursor c = null;
+		List<String> stickerIdsList;
+		try
+		{
+			c = mDb.query(
+                    DBConstants.STICKER_TABLE,
+                    new String[] { DBConstants.STICKER_ID },
+                    DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.IS_ACTIVE + "=?" + " AND " + DBConstants.TYPE + "=?",
+                    new String[] { catId, Integer.toString(DBConstants.DEFAULT_ACTIVE_STATE),Integer.toString(stickerType.ordinal())},
+                    null, null, null, null);
+
+			int stidIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+
+			stickerIdsList = new ArrayList<>(c.getCount());
+
+			while(c.moveToNext())
+			{
+				String stickerId = c.getString(stidIdx);
+				stickerIdsList.add(stickerId);
+			}
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
+		return stickerIdsList;
+	}
+
+	public void insertStickersToDB(List<Sticker> stickers, StickerConstants.StickerType stickerType)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (Sticker sticker : stickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+
+                if(!TextUtils.isEmpty(sticker.getLargeStickerPath(true)))
+                {
+                    contentValues.put(DBConstants.LARGE_STICKER_PATH, sticker.getLargeStickerPath());
+                    contentValues.put(DBConstants.SMALL_STICKER_PATH, sticker.getSmallStickerPath());
+                }
+
+				contentValues.put(DBConstants.WIDTH, sticker.getWidth());
+				contentValues.put(DBConstants.HEIGHT, sticker.getHeight());
+                contentValues.put(DBConstants.TYPE,stickerType.ordinal());
+
+				long rowId = mDb.insertWithOnConflict(DBConstants.STICKER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+
+	}
+
+	public void deactivateStickerFromDB(List<Sticker> stickers)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (Sticker sticker : stickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
+						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void deactivateStickersForCategories(List<StickerCategory> categories)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (StickerCategory category : categories)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public void deleteStickersForCategories(List<StickerCategory> categories)
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			ContentValues contentValues = new ContentValues();
+			for (StickerCategory category : categories)
+			{
+				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public List<StickerCategory> getAllStickerCategories()
+	{
+		Cursor c = null;
+		LinkedHashMap<String, StickerCategory> stickerDataMap;
+
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null, null, null, null, null, null);
+			stickerDataMap = parseStickerCategoriesCursor(c);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		List<StickerCategory> catList = new ArrayList<StickerCategory>(stickerDataMap.values());
+		Collections.sort(catList);
+		return catList;
+	}
+
+	public Set<Sticker> getRecentStickers()
+	{
+		Cursor c = null;
+		Set<Sticker> stickerSet = null;
+		try
+		{
+			c = mDb.query(DBConstants.RECENT_STICKERS_TABLE, null, null, null, null, null, null);
+			int stIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+			int catIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+
+			stickerSet = Collections.synchronizedSet(new LinkedHashSet<Sticker>(c.getCount()));
+
+			while(c.moveToNext())
+			{
+				String stickerId = c.getString(stIdIdx);
+				String categoryId = c.getString(catIdIdx);
+				stickerSet.add(new Sticker(categoryId, stickerId));
+			}
+		}
+		finally
+		{
+			if( null != c)
+			{
+				c.close();
+			}
+		}
+		return stickerSet;
+	}
+
+	public void saveRecentStickers(Set<Sticker> recentStickers)
+	{
+		if(Utils.isEmpty(recentStickers))
+		{
+			Logger.d("recent sticker", "empty or null recent sticker set. cant save to table");
+			return;
+		}
+		try
+		{
+			mDb.beginTransaction();
+
+			/**
+			 * First clear recents table
+			 */
+			mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
+
+			/**
+			 * now insert recent stickers
+			 */
+			ContentValues contentValues = new ContentValues();
+			for(Sticker sticker : recentStickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+				mDb.insertWithOnConflict(DBConstants.RECENT_STICKERS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
 }

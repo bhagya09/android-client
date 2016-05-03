@@ -15,7 +15,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.platform.PlatformAlarmManager;
+import com.bsb.hike.platform.MessagingBotAlarmManager;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 
@@ -49,7 +49,7 @@ public class MessagingBotBridgeHelper
 	{
 		try
 		{
-			PlatformAlarmManager.setAlarm(context, new JSONObject(json), messageId, Long.valueOf(timeInMills));
+			MessagingBotAlarmManager.setAlarm(context, new JSONObject(json), messageId, Long.valueOf(timeInMills));
 		}
 		catch(NumberFormatException ne)
 		{

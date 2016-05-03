@@ -14,9 +14,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.modules.kpt.HikeAdaptxtEditTextEventListner;
-import com.bsb.hike.modules.kpt.HikeCustomKeyboard;
-import com.bsb.hike.modules.kpt.KptUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -24,11 +21,6 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
-import com.kpt.adaptxt.beta.KPTAddonItem;
-import com.kpt.adaptxt.beta.RemoveDialogData;
-import com.kpt.adaptxt.beta.util.KPTConstants;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText;
-import com.kpt.adaptxt.beta.view.AdaptxtEditText.AdaptxtKeyboordVisibilityStatusListner;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,22 +36,16 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity implements AdaptxtKeyboordVisibilityStatusListner, View.OnClickListener
+public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
 {
-	private HikeCustomKeyboard mCustomKeyboard;
-	
-	private boolean systemKeyboard;
-	
 	private SharedPreferences preferences;
 
 	private String convId;
@@ -110,13 +96,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		setupActionBar();
 
 		preferences = getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, MODE_PRIVATE);
-		systemKeyboard = HikeMessengerApp.isSystemKeyboard();
 
-		if (!systemKeyboard)
-		{
-			initCustomKeyboard();
-		}
-		
 		if (savedInstanceState != null)
 		{
 			setConversationId(savedInstanceState.getString(HikeConstants.Extras.CONVERSATION_ID));
@@ -168,23 +148,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		}
 	}
 
-	private void initCustomKeyboard()
-	{
-		LinearLayout viewHolder = (LinearLayout) findViewById(R.id.keyboardView_holder);
-		mCustomKeyboard = new HikeCustomKeyboard(this, viewHolder,
-				KPTConstants.MULTILINE_LINE_EDITOR, kptEditTextEventListener,CreateNewGroupOrBroadcastActivity.this);
-		mCustomKeyboard.registerEditText((convType == ConvType.GROUP) ? R.id.group_name : R.id.broadcast_name);
-		mCustomKeyboard.init(convName);
-		convName.setOnClickListener(this);
-	}
-	HikeAdaptxtEditTextEventListner kptEditTextEventListener = new HikeAdaptxtEditTextEventListner()
-	{
-		@Override
-		public void onReturnAction(int i, AdaptxtEditText adaptxtEditText)
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, false);
-		}
-	};
 	/**
 	 * This method sets the OneToNConversation type to be handled
 	 */
@@ -197,7 +160,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	protected void onResume()
 	{
 		super.onResume();
-		KptUtils.resumeKeyboard(mCustomKeyboard);
 	}
 	
 	private void createView() {
@@ -320,12 +282,6 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	@Override
 	public void onBackPressed()
 	{
-		if (mCustomKeyboard != null && mCustomKeyboard.isCustomKeyboardVisible())
-		{
-			mCustomKeyboard.showCustomKeyboard(convName, false);
-			return;
-		}
-		
 		/**
 		 * Deleting the temporary file, if it exists.
 		 */
@@ -500,79 +456,17 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	}
 
 	@Override
-	public void analyticalData(KPTAddonItem kptAddonItem)
-	{
-		KptUtils.generateKeyboardAnalytics(kptAddonItem);
-	}
-
-	@Override
-	public void onInputViewCreated()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onInputviewVisbility(boolean arg0, int arg1)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showGlobeKeyView()
-	{
-		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
-	}
-
-	@Override
-	public void showQuickSettingView()
-	{
-		KptUtils.onGlobeKeyPressed(CreateNewGroupOrBroadcastActivity.this, mCustomKeyboard);
-	}
-
-	@Override
 	protected void onPause()
 	{
-		KptUtils.pauseKeyboardResources(mCustomKeyboard);
-		
 		super.onPause();
 	}
 	
 	@Override
 	protected void onDestroy()
 	{
-		KptUtils.destroyKeyboardResources(mCustomKeyboard, R.id.group_name, R.id.broadcast_name);
-
 		super.onDestroy();
 	}
 
-	@Override
-	public void onClick(View v)
-	{
-		switch (v.getId())
-		{
-		case R.id.group_name:
-		case R.id.broadcast_name:
-			mCustomKeyboard.showCustomKeyboard(convName, true);
-			break;
-		default:
-			break;
-		}
-	}
-
-	@Override
-	public void dismissRemoveDialog() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void showRemoveDialog(RemoveDialogData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	public String getGroupName()
 	{
 		return convName.getText().toString();
