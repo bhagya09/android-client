@@ -1961,6 +1961,8 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String PROFILE_DOB = "profile_dob";
+
     }
 
 	public static final class LogEvent
@@ -4177,4 +4179,12 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

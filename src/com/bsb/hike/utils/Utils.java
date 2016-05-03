@@ -8030,6 +8030,17 @@ public class Utils
 			}
 		}
 	}
+
+	public static String formatDOB(String dobString)
+	{
+		if(TextUtils.isEmpty(dobString))
+		{
+			return "";
+		}
+
+		Birthday dob = new Birthday(dobString);
+		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+	}
 }
 
 
