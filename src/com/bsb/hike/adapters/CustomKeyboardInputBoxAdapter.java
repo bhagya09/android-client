@@ -68,6 +68,8 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 	private StickerPickerListener stickerPickerListener;
 
+	private BotsStickerAdapter botsStickerAdapter;
+
 	/**
 	 * Instantiates a new Custom keyboard input box adapter.
 	 *
@@ -113,26 +115,26 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 		{
 			horizontalLayout = new LinearLayout(mContext);
 
-            int textKeyArrayListSize = textKeyArrayList.size(),maxLengthOfTextButton;
+			int textKeyArrayListSize = textKeyArrayList.size(), maxLengthOfTextButton;
 
-            switch (textKeyArrayListSize)
-            {
-                case HikePlatformConstants.BotsTextKeyboardNumCols.ONE_COL:
-                    maxLengthOfTextButton = 30;
-                    break;
-                case HikePlatformConstants.BotsTextKeyboardNumCols.TWO_COLS:
-                    maxLengthOfTextButton = 15;
-                    break;
-                case HikePlatformConstants.BotsTextKeyboardNumCols.THREE_COLS:
-                    maxLengthOfTextButton = 10;
-                    break;
-                default:
-                    maxLengthOfTextButton = 10;
-            }
+			switch (textKeyArrayListSize)
+			{
+			case HikePlatformConstants.BotsTextKeyboardNumCols.ONE_COL:
+				maxLengthOfTextButton = HikePlatformConstants.KeyboardColsMaxCharLimit.ONE_COL;
+				break;
+			case HikePlatformConstants.BotsTextKeyboardNumCols.TWO_COLS:
+				maxLengthOfTextButton = HikePlatformConstants.KeyboardColsMaxCharLimit.TWO_COLS;
+				break;
+			case HikePlatformConstants.BotsTextKeyboardNumCols.THREE_COLS:
+				maxLengthOfTextButton = HikePlatformConstants.KeyboardColsMaxCharLimit.THREE_COLS;
+				break;
+			default:
+				maxLengthOfTextButton = HikePlatformConstants.KeyboardColsMaxCharLimit.THREE_COLS;
+			}
 
 			for (TextKey textKey : textKeyArrayList)
 			{
-                button = new Button(mContext);
+				button = new Button(mContext);
 
 				button.setText(textKey.getText());
 
@@ -141,9 +143,9 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 				button.setLayoutParams(params);
 
-				// Set button text size to 12 sp
-				button.setTextSize(12);
-                button.setFilters(new InputFilter[] {new InputFilter.LengthFilter(maxLengthOfTextButton)});
+				// Set button text size to predefined size
+				button.setTextSize(HikePlatformConstants.keyboardsButtonsTextSize);
+				button.setFilters(new InputFilter[] { new InputFilter.LengthFilter(maxLengthOfTextButton) });
 				button.setSingleLine(true);
 				button.setEllipsize(TextUtils.TruncateAt.END);
 
@@ -219,24 +221,32 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 		stickerGridView.setNumColumns(stickerGridNumCols);
 		List<Sticker> stickersList = new ArrayList<>();
+		List<StickerPageAdapterItem> stickerPageList = new ArrayList<>();
 
 		Iterator<StkrKey> customKeyboardStickerKeysIterator = customKeyboardStickerKeys.iterator();
 		while (customKeyboardStickerKeysIterator.hasNext())
 		{
-            StkrKey customKeyboardStickerKey = customKeyboardStickerKeysIterator.next();
-            Sticker customKeyboardSticker = new Sticker(customKeyboardStickerKey.getCatId(),customKeyboardStickerKey.getStkrId());
-            stickersList.add(customKeyboardSticker);
+			StkrKey customKeyboardStickerKey = customKeyboardStickerKeysIterator.next();
+			Sticker customKeyboardSticker = new Sticker(customKeyboardStickerKey.getCatId(), customKeyboardStickerKey.getStkrId());
+			if (customKeyboardSticker.isStickerAvailable())
+			{
+				stickerPageList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, customKeyboardSticker));
+			}
+			else
+			{
+				stickerPageList.add(new StickerPageAdapterItem(StickerPageAdapterItem.DOWNLOADING, customKeyboardSticker));
+				StickerManager.getInstance().initiateSingleStickerDownloadTask(customKeyboardStickerKey.getStkrId(), customKeyboardStickerKey.getCatId(), null);
+			}
+			stickersList.add(customKeyboardSticker);
 		}
 
-        if(stickersList.size() == 0)
-            return stickerViewToDisplay;
-
-		List<StickerPageAdapterItem> stickerPageList = StickerManager.getInstance().generateStickerPageAdapterItemList(stickersList);
+		if (stickersList.size() == 0)
+			return stickerViewToDisplay;
 
 		worker = new StickerLoader.Builder().downloadLargeStickerIfNotFound(true).downloadMiniStickerIfNotFound(true)
-				.setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.shop_placeholder)).build();
+				.setDefaultBitmap(HikeBitmapFactory.decodeResource(mContext.getResources(), R.drawable.art_sticker_shape)).build();
 
-		final BotsStickerAdapter botsStickerAdapter = new BotsStickerAdapter(mContext, stickerPageList, worker, stickerGridView, stickerPickerListener, stickerSize, stickerGridNumCols);
+		botsStickerAdapter = new BotsStickerAdapter(mContext, stickerPageList, worker, stickerGridView, stickerPickerListener, stickerSize, stickerGridNumCols);
 		stickerGridView.setAdapter(botsStickerAdapter);
 		return stickerViewToDisplay;
 	}
@@ -246,4 +256,14 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 	{
 		textPickerListener.onTextClicked((String) v.getTag());
 	}
+
+	/**
+	 * Release resources.
+	 */
+	public void releaseResources()
+	{
+		if (botsStickerAdapter != null)
+			botsStickerAdapter.unregisterListeners();
+	}
+
 }

@@ -5,6 +5,10 @@ package com.bsb.hike.adapters;
  */
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -13,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.media.StickerPickerListener;
 import com.bsb.hike.models.Sticker;
@@ -21,6 +27,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.smartImageLoader.StickerLoader;
 import com.bsb.hike.ui.utils.RecyclingImageView;
+import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
@@ -29,7 +36,7 @@ import java.util.List;
 /**
  * The Bots type sticker adapter.
  */
-public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListener
+public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListener, HikePubSub.Listener
 {
 
 	/**
@@ -37,7 +44,30 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	 */
 	public enum ViewType
 	{
-		STICKER, UPDATE, DOWNLOADING, RETRY, DONE, PLACE_HOLDER
+		/**
+		 * Sticker view type.
+		 */
+		STICKER,
+		/**
+		 * Update view type.
+		 */
+		UPDATE,
+		/**
+		 * Downloading view type.
+		 */
+		DOWNLOADING,
+		/**
+		 * Retry view type.
+		 */
+		RETRY,
+		/**
+		 * Done view type.
+		 */
+		DONE,
+		/**
+		 * Place holder view type.
+		 */
+		PLACE_HOLDER
 	}
 
 	private int sizeEachImage;
@@ -48,11 +78,15 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 
 	private StickerLoader stickerLoader;
 
-	private boolean isListFlinging;
-
 	private StickerPickerListener mStickerPickerListener;
 
 	private String stickerSize;
+
+	private LayoutInflater inflater;
+
+	private static final int REFRESH_ADAPTER = 1;
+
+	private String[] pubSubListeners = { HikePubSub.STICKER_DOWNLOADED };
 
 	/**
 	 * The Abs list view.
@@ -72,6 +106,8 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	 *            the abs list view
 	 * @param listener
 	 *            the listener
+	 * @param stickerSize
+	 *            the sticker size
 	 * @param numItemsRow
 	 *            the num items row
 	 */
@@ -84,7 +120,14 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		this.stickerLoader = worker;
 		this.absListView = absListView;
 		this.stickerSize = stickerSize;
+		this.inflater = LayoutInflater.from(mContext);
 		calculateSizeOfStickerImage(numItemsRow);
+		registerListener();
+	}
+
+	private void registerListener()
+	{
+		HikeMessengerApp.getPubSub().addListeners(this, pubSubListeners);
 	}
 
 	/**
@@ -132,7 +175,32 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 	@Override
 	public int getItemViewType(int position)
 	{
-		return ViewType.STICKER.ordinal();
+		ViewType viewType = ViewType.STICKER; // Default value.
+		StickerPageAdapterItem item = getItem(position);
+		int itemId = item.getType();
+		switch (itemId)
+		{
+		case StickerPageAdapterItem.STICKER:
+			viewType = ViewType.STICKER;
+			break;
+		case StickerPageAdapterItem.UPDATE:
+			viewType = ViewType.UPDATE;
+			break;
+		case StickerPageAdapterItem.DOWNLOADING:
+			viewType = ViewType.DOWNLOADING;
+			break;
+		case StickerPageAdapterItem.RETRY:
+			viewType = ViewType.RETRY;
+			break;
+		case StickerPageAdapterItem.DONE:
+			viewType = ViewType.DONE;
+			break;
+		case StickerPageAdapterItem.PLACE_HOLDER:
+			viewType = ViewType.PLACE_HOLDER;
+			break;
+		}
+
+		return viewType.ordinal();
 	}
 
 	@Override
@@ -146,11 +214,24 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		if (convertView == null)
 		{
 			viewHolder = new ViewHolder();
-			convertView = new RecyclingImageView(mContext);
-			int padding = (int) (5 * Utils.scaledDensityMultiplier);
-			convertView.setLayoutParams(ll);
-			((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-			(convertView).setPadding(padding, padding, padding, padding);
+			switch (viewType)
+			{
+			case STICKER:
+				convertView = new RecyclingImageView(mContext);
+				int padding = (int) (5 * Utils.scaledDensityMultiplier);
+				convertView.setLayoutParams(ll);
+				((ImageView) convertView).setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				(convertView).setPadding(padding, padding, padding, padding);
+				break;
+			case DOWNLOADING:
+				convertView = inflater.inflate(R.layout.update_sticker_set, null);
+				convertView.setLayoutParams(ll);
+				viewHolder.text = (TextView) convertView.findViewById(R.id.new_number_stickers);
+				viewHolder.image = (ImageView) convertView.findViewById(R.id.update_btn);
+				viewHolder.progress = (ProgressBar) convertView.findViewById(R.id.download_progress);
+				viewHolder.tickImage = (ImageView) convertView.findViewById(R.id.sticker_placeholder);
+			}
+
 			convertView.setTag(viewHolder);
 		}
 		else
@@ -158,27 +239,30 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		Sticker sticker = item.getSticker();
-        if (!sticker.isStickerAvailable())
-        {
-            StickerManager.getInstance().initiateSingleStickerDownloadTask(sticker.getStickerId(), sticker.getCategoryId(), null);
-            notifyDataSetChanged();
-        }
-
-		switch (stickerSize)
+		switch (viewType)
 		{
-		case HikePlatformConstants.BotsStickerSize.MEDIUM:
-		case HikePlatformConstants.BotsStickerSize.LARGE:
-			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), isListFlinging);
+		case STICKER:
+			Sticker sticker = item.getSticker();
+			switch (stickerSize)
+			{
+			case HikePlatformConstants.BotsStickerSize.MEDIUM:
+			case HikePlatformConstants.BotsStickerSize.LARGE:
+				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), false);
+				break;
+			case HikePlatformConstants.BotsStickerSize.SMALL:
+				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ((ImageView) convertView), false);
+				break;
+			default:
+				stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), false);
+			}
+			convertView.setOnClickListener(this);
 			break;
-		case HikePlatformConstants.BotsStickerSize.SMALL:
-            stickerLoader.loadSticker(sticker, StickerConstants.StickerType.SMALL, ((ImageView) convertView), isListFlinging);
+		case DOWNLOADING:
+			viewHolder.progress.setVisibility(View.VISIBLE);
+			viewHolder.text.setVisibility(View.GONE);
+			viewHolder.tickImage.setVisibility(View.GONE);
 			break;
-		default:
-			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, ((ImageView) convertView), isListFlinging);
 		}
-
-		convertView.setOnClickListener(this);
 
 		viewHolder.position = position;
 		return convertView;
@@ -203,23 +287,74 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 
 	}
 
-	/**
-	 * Sets is list flinging.
-	 *
-	 * @param b
-	 *            the b
-	 */
-	public void setIsListFlinging(boolean b)
+	private void refreshStickers(Object data)
 	{
-		boolean notify = b != isListFlinging;
-
-		isListFlinging = b;
-
-		if (notify && !isListFlinging)
+		if (data instanceof Sticker)
 		{
-			notifyDataSetChanged();
+			Sticker sticker = (Sticker) data;
+			StickerPageAdapterItem item = new StickerPageAdapterItem(StickerPageAdapterItem.DOWNLOADING, sticker);
+			itemList.remove(item);
+			itemList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
+            notifyDataSetChanged();
 		}
 	}
+
+	/**
+	 * Unregister listeners.
+	 */
+	public void unregisterListeners()
+	{
+		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+	}
+
+	@Override
+	public void onEventReceived(String type, Object object)
+	{
+		switch (type)
+		{
+		case HikePubSub.STICKER_DOWNLOADED:
+			sendUIMessage(REFRESH_ADAPTER, object);
+			break;
+		}
+	}
+
+	private void handleUIMessage(android.os.Message msg)
+	{
+		switch (msg.what)
+		{
+		case REFRESH_ADAPTER:
+			refreshStickers(msg.obj);
+			break;
+		default:
+			Logger.d(getClass().getSimpleName(), "Did not find any matching event for msg.what : " + msg.what);
+			break;
+		}
+	}
+
+	private void sendUIMessage(int what, Object data)
+	{
+		Message message = Message.obtain();
+		message.what = what;
+		message.obj = data;
+		uiHandler.sendMessage(message);
+	}
+
+	private Handler uiHandler = new Handler(Looper.getMainLooper())
+	{
+		public void handleMessage(android.os.Message msg)
+		{
+			/**
+			 * Defensive check
+			 */
+			if (msg == null)
+			{
+				Logger.e(getClass().getSimpleName(), "Getting a null message in bots sticker Adapter");
+				return;
+			}
+			handleUIMessage(msg);
+		}
+
+	};
 
 	private class ViewHolder
 	{

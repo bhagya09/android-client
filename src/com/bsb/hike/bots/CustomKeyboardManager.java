@@ -203,4 +203,13 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	{
 		textPickerListener.onTextClicked(string);
 	}
+
+	/**
+	 * Release resources.
+	 */
+	public void releaseResources()
+    {
+        customKeyboardInputBoxAdapter.releaseResources();
+    }
+
 }

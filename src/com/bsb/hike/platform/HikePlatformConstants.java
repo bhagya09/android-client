@@ -461,4 +461,15 @@ public interface HikePlatformConstants
         int TWO_COLS = 2;
         int THREE_COLS = 3;
     }
+
+    @IntDef({BotsTextKeyboardNumCols.ONE_COL,BotsTextKeyboardNumCols.TWO_COLS,BotsTextKeyboardNumCols.THREE_COLS})
+    @interface KeyboardColsMaxCharLimit
+    {
+        int ONE_COL = 30;
+        int TWO_COLS = 15;
+        int THREE_COLS = 10;
+    }
+
+    int keyboardsButtonsTextSize = 12;
+
 }

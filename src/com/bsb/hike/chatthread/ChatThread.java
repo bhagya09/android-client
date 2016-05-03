@@ -4520,6 +4520,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 		releaseStickerSearchResources();
 
+        releaseBotsKeyboardResources();
+
 		// removing touch listener to stop receiving callback after onDestroy as we are getting a NPE in onTouch as mSharaeableLayout is null
 		if(mComposeView!=null)
 		{
@@ -4537,8 +4539,13 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			tipVisibilityAnimator = null;
 		}
 	}
-	
-	private void releaseShareablePopUpResources()
+
+    private void releaseBotsKeyboardResources()
+    {
+        CustomKeyboardManager.getInstance().releaseResources();
+    }
+
+    private void releaseShareablePopUpResources()
 	{
 		if(mShareablePopupLayout != null)
 		{
