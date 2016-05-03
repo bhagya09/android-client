@@ -97,7 +97,7 @@ public class EditProfileTask implements IHikeHTTPTask
 		JSONObject json = new JSONObject();
 		try
 		{
-			json.put("name", newName);
+			json.put(HikeConstants.NAME, newName);
 
 			if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO)
 			{
