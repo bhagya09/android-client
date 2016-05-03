@@ -33,6 +33,12 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private int newGenderType;
 
+    private String currName;
+
+    private String currEmail;
+
+    private int currGenderType;
+
     private boolean isBackPressed;
 
     private SharedPreferences prefs;
@@ -50,6 +56,9 @@ public class EditProfileTask implements IHikeHTTPTask
         this.newGenderType = newGenderType;
         this.isBackPressed = isBackPressed;
         this.prefs = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+        this.currName = prefs.getString(HikeMessengerApp.NAME_SETTING, "");
+        this.currEmail = prefs.getString(HikeConstants.Extras.EMAIL, "");
+        this.currGenderType = prefs.getInt(HikeConstants.Extras.GENDER, 0);
     }
 
     public void setNewName(String name)
@@ -70,7 +79,15 @@ public class EditProfileTask implements IHikeHTTPTask
     @Override
     public void execute()
     {
+        if (!TextUtils.isEmpty(newName) && !currName.equals(newName))
+        {
+            editProfileName();
+        }
 
+        if (!TextUtils.isEmpty(newEmail) && (!newEmail.equals(currEmail) || newGenderType != currGenderType))
+        {
+            editProfileEmailGender();
+        }
     }
 
     private void editProfileName()
@@ -125,11 +142,11 @@ public class EditProfileTask implements IHikeHTTPTask
 		try
 		{
 			Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
-			if (!TextUtils.isEmpty(newEmail) && newEmail.equals(prefs.getString(HikeConstants.Extras.EMAIL, "")))
+			if (!TextUtils.isEmpty(newEmail) && newEmail.equals(currEmail))
 			{
 				obj.put(HikeConstants.EMAIL, newEmail);
 			}
-			if (newGenderType != prefs.getInt(HikeConstants.Extras.GENDER, 0))
+			if (newGenderType != currGenderType)
 			{
 				obj.put(HikeConstants.GENDER, newGenderType == 1 ? "m" : newGenderType == 2 ? "f" : "");
 			}
