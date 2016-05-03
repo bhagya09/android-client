@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -2612,7 +2613,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					if (!TextUtils.isEmpty(spamCoutString))
 					{
 						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
-						((CustomFontTextView) convertView.findViewById(R.id.unknown_user_spam_info)).setText(spamCoutString);
+						((CustomFontTextView) convertView.findViewById(R.id.unknown_user_spam_info)).setText(Html.fromHtml(spamCoutString));
+					}
+					else
+					{
+						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.GONE);
 					}
 				}
 			}

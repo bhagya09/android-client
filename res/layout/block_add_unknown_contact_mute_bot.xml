@@ -7,7 +7,7 @@
     <RelativeLayout
         android:id="@+id/unknown_user_info_view"
         android:layout_width="match_parent"
-        android:layout_height="65.5dp"
+        android:layout_height="95.5dp"
         android:visibility="gone"
         android:background="@color/unknown_user_info_ct_bg">
 
@@ -39,7 +39,6 @@
             android:layout_below="@id/unknown_user_info_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginBottom="9dp"
             android:textColor="@color/unknown_user_info_ct"
             android:textSize="12sp"
