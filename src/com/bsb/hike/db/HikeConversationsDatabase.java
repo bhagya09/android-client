@@ -6457,6 +6457,56 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public Object[] getChatProperties(String msisdn)
+	{
+		Mute mute = new Mute.InitBuilder(msisdn).build();
+		ChatTheme chatTheme = ChatTheme.DEFAULT;
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.BG_ID }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
+
+			if (c.moveToNext())
+			{
+				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
+				long muteTimestamp;
+				mute.setIsMute(isMute);
+				mute.setMuteDuration(muteDuration);
+
+				try
+				{
+					muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+				}
+				catch (IllegalArgumentException e)
+				{
+					muteTimestamp = 0;
+				}
+				mute.setMuteTimestamp(muteTimestamp);
+
+				try
+				{
+					chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+				}
+				catch (IllegalArgumentException e)
+				{
+					/*
+					 * For invalid theme id, we return the default id.
+					 */
+					chatTheme = ChatTheme.DEFAULT;
+				}
+			}
+			return new Object[] {chatTheme, mute};
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 	public void removeChatThemeForMsisdn(String msisdn)
 	{
 		ContentValues values = new ContentValues();
