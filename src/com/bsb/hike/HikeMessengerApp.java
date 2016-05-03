@@ -1112,7 +1112,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	private void initTwinPrime()
 	{
-		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE, 1) == 1)
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE, 0) == 1)
 		{
 			new TwinPrimeSDK(getApplicationContext(), HikeConstants.TP_API_KEY);
 		}
