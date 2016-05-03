@@ -132,6 +132,14 @@ public class CategorySearchManager
         mCacheForSearchedCategories.clear();
         mCacheForCategoryScore.clear();
         categorySearchEngine.shutDown();
+
+        mCacheForLocalAnalogousScore = null;
+        mCacheForShopSearchKeys = null;
+        mCacheForSearchedCategories = null;
+        mCacheForCategoryScore = null;
+        categorySearchEngine = null;
+        
+        instance = null;
 	}
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
