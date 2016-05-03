@@ -3,10 +3,12 @@ package com.bsb.hike.tasks;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -19,6 +21,8 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by sidharth on 03/05/16.
@@ -48,7 +52,11 @@ public class EditProfileTask implements IHikeHTTPTask
     private RequestToken editNameRequestToken;
 
     private RequestToken editEmailGenderRequestToken;
-    
+
+    private AtomicInteger editProfileRequestsCount;
+
+    private Context applicationCtx;
+
     public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, boolean isBackPressed)
     {
         this.msisdn = msisdn;
@@ -57,7 +65,8 @@ public class EditProfileTask implements IHikeHTTPTask
         this.newEmail = newEmail;
         this.newGenderType = newGenderType;
         this.isBackPressed = isBackPressed;
-        this.prefs = HikeMessengerApp.getInstance().getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
+        this.applicationCtx = HikeMessengerApp.getInstance().getApplicationContext();
+        this.prefs = applicationCtx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
         this.currName = prefs.getString(HikeMessengerApp.NAME_SETTING, "");
         this.currEmail = prefs.getString(HikeConstants.Extras.EMAIL, "");
         this.currGenderType = prefs.getInt(HikeConstants.Extras.GENDER, 0);
@@ -83,11 +92,13 @@ public class EditProfileTask implements IHikeHTTPTask
     {
         if (!TextUtils.isEmpty(newName) && !currName.equals(newName))
         {
+            editProfileRequestsCount.incrementAndGet();
             editProfileName();
         }
 
         if (!TextUtils.isEmpty(newEmail) && (!newEmail.equals(currEmail) || newGenderType != currGenderType))
         {
+            editProfileRequestsCount.incrementAndGet();
             editProfileEmailGender();
         }
     }
@@ -133,6 +144,10 @@ public class EditProfileTask implements IHikeHTTPTask
 					editor.commit();
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_NAME_CHANGED, null);
 				}
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                }
 				if (isBackPressed)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -147,6 +162,12 @@ public class EditProfileTask implements IHikeHTTPTask
             @Override
             public void onRequestFailure(HttpException httpException)
 			{
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                    showErrorToast(R.string.update_profile_failed, Toast.LENGTH_LONG);
+                }
+
 				if (isBackPressed)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -187,6 +208,11 @@ public class EditProfileTask implements IHikeHTTPTask
             @Override
             public void onRequestFailure(HttpException httpException)
             {
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                    showErrorToast(R.string.update_profile_failed, Toast.LENGTH_LONG);
+                }
                 if (isBackPressed)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -203,6 +229,10 @@ public class EditProfileTask implements IHikeHTTPTask
                 }
                 editor.putInt(HikeConstants.Extras.GENDER, newGenderType);
                 editor.commit();
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                }
                 if (isBackPressed)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
@@ -228,5 +258,11 @@ public class EditProfileTask implements IHikeHTTPTask
         {
             editEmailGenderRequestToken.cancel();
         }
+    }
+
+    private void showErrorToast(int stringResId, int duration)
+    {
+        Toast toast = Toast.makeText(applicationCtx, stringResId, duration);
+        toast.show();
     }
 }
