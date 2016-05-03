@@ -1,5 +1,20 @@
 package com.bsb.hike.chatthread;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -75,7 +90,6 @@ import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.lastseenmgr.FetchLastSeenTask;
-import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.offline.OfflineAnalytics;
 import com.bsb.hike.offline.OfflineConstants;
@@ -98,20 +112,6 @@ import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -339,6 +339,7 @@ import java.util.Map;
 		else
 		{
 			Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel + ", so going for HTTP, with updationg old");
+			Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
 			FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
 		}
 	}
@@ -658,6 +659,7 @@ import java.util.Map;
 				else if(System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
 				{
 					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
+					Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
 					// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
 					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
 				}
