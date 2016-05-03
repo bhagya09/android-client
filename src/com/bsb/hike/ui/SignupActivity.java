@@ -218,8 +218,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 		public long timeLeft = 0;
 
-		public boolean fbConnected = false;
-
 		public Boolean isFemale = null;
 
 		public Birthday birthday = null;
@@ -471,10 +469,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				Utils.setSSLAllowed(countryCode);
 				Editor accountEditor = accountPrefs.edit();
 				accountEditor.putBoolean(HikeMessengerApp.JUST_SIGNED_UP, true);
-				if (mActivityState != null)
-				{
-					accountEditor.putBoolean(HikeMessengerApp.FB_SIGNUP, mActivityState.fbConnected);
-				}
 				accountEditor.commit();
 
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);

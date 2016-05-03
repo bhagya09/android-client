@@ -343,8 +343,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String HIDE_FTUE_SUGGESTIONS = "hideFtueSuggestions";
 
-	public static final String FB_SIGNUP = "fbSignup";
-
 	public static final String BIRTHDAY_DAY = "birthdayDay";
 
 	public static final String BIRTHDAY_MONTH = "birthdayMonth";
