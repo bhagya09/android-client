@@ -797,7 +797,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			onProfileLargeBtnClick(null);
 			break;
 		case R.id.mute_group:
-			onProfileSmallRightBtnClick(null);
+			onProfileSmallRightBtnClick(item.getTitle().toString());
 			break;
 		case R.id.new_update:
 			onProfileLargeBtnClick(null);
@@ -2034,11 +2034,34 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	}
 
-	public void onProfileSmallRightBtnClick(View v)
+	public void onProfileSmallRightBtnClick(String text)
 	{
-		oneToNConversation.setIsMute(!oneToNConversation.isMuted());
+		if ((getString(R.string.mute_group)).equals(text))
+		{
+			HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+				}
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, oneToNConversation.getMute());
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation);
+					hikeDialog.dismiss();
+				}
+
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog) {
+
+				}
+			}, oneToNConversation.getMute());
+		}
+		else
+		{
+			Utils.toggleMuteChat(getApplicationContext(), oneToNConversation);
+		}
 		invalidateOptionsMenu();
 	}
 
