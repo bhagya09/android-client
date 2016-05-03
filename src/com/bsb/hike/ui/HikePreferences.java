@@ -1275,6 +1275,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					object.put(HikeConstants.DATA, data);
 
 					HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+
+					recordProfilePicPrivacySettings(avatarSetting);
+
 				} catch (JSONException e) {
 					Logger.w(getClass().getSimpleName(), "Invalid json", e);
 				}
@@ -2043,6 +2046,28 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			
 			pref.setTitle(titleString);
 			pref.setSummary(summaryString);
+		}
+	}
+
+	private void recordProfilePicPrivacySettings(int avatarSetting)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SETTINGS_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SETTINGS_ORDER);
+			json.put(AnalyticsConstants.V2.FAMILY, "dp_privacy");
+			json.put(AnalyticsConstants.V2.GENUS, avatarSetting == 1 ? "off" : "on");
+
+			HAManager.getInstance().recordV2(json);
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
 		}
 	}
 

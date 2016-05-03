@@ -899,4 +899,8 @@ public class AnalyticsConstants
 	public static String HOMESCREEN_KINGDOM = "act_hs";
 
 	public static final String HOME_OVERFLOW_MENU_ITEM = "hs_ovfl_item";
+
+	public static final String SETTINGS_UK = "settings";
+
+	public static final String SETTINGS_ORDER = "sttng";
 }
