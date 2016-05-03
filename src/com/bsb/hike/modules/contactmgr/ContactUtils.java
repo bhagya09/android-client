@@ -104,10 +104,12 @@ public class ContactUtils
 			for (int i = 0; i < entries.length(); ++i)
 			{
 				JSONObject entry = entries.optJSONObject(i);
-				String msisdn = entry.optString("msisdn");
-				boolean onhike = entry.optBoolean("onhike");
-				String platformId = entry.optString(HikePlatformConstants.PLATFORM_USER_ID);
-				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId);
+				String msisdn = entry.optString("m");
+				boolean onhike = entry.optBoolean("oh");
+				String platformId = entry.optString("pu");
+				String uid=entry.optString("u");
+				Logger.d("AddressBookPost","MSISDN : "+ msisdn + " UID : "+ uid + "ON HIKE STATUS : "+ onhike);
+				ContactInfo info = new ContactInfo(id, msisdn, cList.get(i).getName(), cList.get(i).getPhoneNum(), onhike, platformId,uid);
 				server_contacts.add(info);
 			}
 		}
