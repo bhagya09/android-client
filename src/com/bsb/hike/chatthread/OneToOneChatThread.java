@@ -1078,6 +1078,7 @@ import java.util.Map;
 			break;
 		case UPDATE_UNKNOWN_USER_INFO:
 			updateUnknownUserInfoViews(msg.obj);
+			break;
 		case UPDATE_ADD_FRIEND_VIEWS:
 			updateAddFriendViews((Boolean) msg.obj);
 			break;
