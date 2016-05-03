@@ -1,6 +1,7 @@
 package com.bsb.hike.messageinfo;
 
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -76,7 +77,17 @@ public abstract class MessageInfoDataModel
 			this.readTimeStamp = readTimeStamp;
 
 		}
+		public int getDrawableMessageState(){
+			if(hasBeenPlayed()){
+				return R.drawable.ic_double_tick_r_blue;
 
+			}else if(hasRead()){
+				return R.drawable.ic_double_tick_r_blue;
+			}else if(hasBeenDelivered()){
+				return R.drawable.ic_double_tick_black;
+			}else
+				return R.drawable.ic_single_tick;
+		}
 		public void setPlayedTimeStamp(long playedTimeStamp)
 		{
 			this.playedTimeStamp = playedTimeStamp;

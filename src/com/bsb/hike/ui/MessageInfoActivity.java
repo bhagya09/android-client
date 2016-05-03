@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,9 @@ import android.view.View;
 import android.view.ViewStub;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,8 +40,12 @@ import com.bsb.hike.messageinfo.MessageInfoItem;
 import com.bsb.hike.messageinfo.MessageInfoList;
 import com.bsb.hike.messageinfo.MessageInfoPlayedList;
 import com.bsb.hike.messageinfo.MessageInfoReadList;
+import com.bsb.hike.messageinfo.MessageInfoView;
 import com.bsb.hike.messageinfo.OnetoOneDataModel;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -59,6 +66,13 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	View headerView;
 
+	Conversation conversation;
+
+	private static final int NOTIFY_ADAPTER=1;
+
+	boolean refreshinginProgress = false;
+
+	public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
 
 	protected Handler uiHandler = new Handler()
 	{
@@ -79,18 +93,23 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	public void handleUIMessage(Message msg)
 	{
-		if (msg.what == 1)
+		if (msg.what == NOTIFY_ADAPTER)
 		{
-			messageInfoAdapter.notifyDataSetChanged();
-			Logger.d("refresh", " adapter count" + messageInfoAdapter.getCount());
 
-			Logger.d("refresh", " list count" + messageInfoItemList.size());
+			messageInfoAdapter.notifyDataSetChanged();
+			parentListView.setAdapter(messageInfoAdapter);
+			Logger.d("refresha", " adapter count" + messageInfoAdapter.getCount());
+
+			Logger.d("refresha", " list count" + messageInfoItemList.size());
+			for (MessageInfoItem item : messageInfoItemList)
+			{
+				Logger.d("refresha", "item " + item);
+			}
 
 		}
 	}
 
-	private List<MessageInfoItem> messageInfoItemList = new ArrayList<MessageInfoItem>();
-
+	private List<MessageInfoItem> messageInfoItemList = Collections.synchronizedList(new ArrayList<MessageInfoItem>());
 
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
@@ -115,6 +134,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		setDataModelsandControllers();
 
 		chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
+		conversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
 		setupActionBar();
 		addMessageHeaderView(controller.getConvMessage());
 		Toast.makeText(this, "Message Info " + populateMessageInfo(), Toast.LENGTH_LONG).show();
@@ -129,19 +149,19 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		if (type == HikeConstants.MESSAGE_INFO.GROUP || type == HikeConstants.MESSAGE_INFO.BROADCAST)
 		{
 			isGroupChat = true;
-			if(dataModel==null)
-			dataModel = new GroupChatDataModel(msisdn, messageID);
-			if(controller==null)
-			controller = new MessageInfoControllerGroup(dataModel);
+			if (dataModel == null)
+				dataModel = new GroupChatDataModel(msisdn, messageID);
+			if (controller == null)
+				controller = new MessageInfoControllerGroup(dataModel);
 
 		}
 		else
 		{
 			isOnetoOne = true;
-			if(dataModel==null)
-			dataModel = new OnetoOneDataModel(msisdn, messageID);
-			if(controller==null)
-			controller = new MessageInfoControllerOnetoOne(dataModel);
+			if (dataModel == null)
+				dataModel = new OnetoOneDataModel(msisdn, messageID);
+			if (controller == null)
+				controller = new MessageInfoControllerOnetoOne(dataModel);
 		}
 		controller.init();
 
@@ -151,6 +171,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		setContentView(R.layout.message_info_try);
 		parentListView = (ListView) findViewById(R.id.profile_content);
+		messageInfoAdapter = new MessageInfoAdapter(MessageInfoActivity.this, messageInfoItemList);
+		parentListView.setAdapter(messageInfoAdapter);
 		headerView = null;
 		mContext = HikeMessengerApp.getInstance().getApplicationContext();
 
@@ -169,9 +191,8 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			this.dataModel = dataModel;
 		}
 
-		public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
-
 		MessageInfoList readList, deliveredList, playedList;
+
 		ConvMessage convMessage;
 
 		public abstract void refreshData();
@@ -181,26 +202,25 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			dataModel.fetchAllParticipantsInfo();
 			convMessage = dataModel.getConvMessage();
 			addItems();
-
-			messageInfoAdapter = new MessageInfoAdapter(MessageInfoActivity.this, messageInfoItemList, isGroupChat);
-
-			parentListView.setAdapter(messageInfoAdapter);
+			notifyAdapter();
 			HikeMessengerApp.getPubSub().addListeners(this, listeners);
 
 		}
 
 		void onDestroy()
 		{
-			if (controller != null)
-				controller.onDestroy();
+			HikeMessengerApp.getPubSub().removeListeners(this, listeners);
 		}
-		public ConvMessage getConvMessage(){
+
+		public ConvMessage getConvMessage()
+		{
 			return convMessage;
 		}
+
 		@Override
 		public void onEventReceived(String type, Object object)
 		{
-			//Holding it for now
+			// Holding it for now
 			refreshData();
 		}
 
@@ -227,46 +247,44 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			dataModel.fetchAllParticipantsInfo();
 			addItems();
+			notifyAdapter();
 
 		}
 
 		@Override
 		protected void notifyAdapter()
 		{
-			uiHandler.sendEmptyMessageDelayed(1,5000);
+			uiHandler.sendEmptyMessage(NOTIFY_ADAPTER);
 		}
 
 		@Override
-		public void addItems() {
+		public void addItems()
+		{
 			Logger.d("MessageInfo", "Adding Items One to One");
 			messageInfoItemList.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
-			MessageInfoDataModel.MessageInfoParticipantData participantData=null;
-			if(iterator.hasNext())
-			 participantData=iterator.next();
-			//Creating readList
-			MessageInfoItem.MessageInfoItemOnetoOne readList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.read_list),R.drawable.ic_double_tick_r);
-			if(!participantTreeMap.isEmpty()){
-				if(participantData!=null)
-				readList.setTimeStamp(participantData.getReadTimeStamp());
+			MessageInfoDataModel.MessageInfoParticipantData participantData = null;
+			if (iterator.hasNext())
+				participantData = iterator.next();
+			// Creating readList
+			MessageInfoItem.MessageInfoItemOnetoOne readList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.read_list), R.drawable.ic_double_tick_r);
+			if (!participantTreeMap.isEmpty())
+			{
+				if (participantData != null)
+					readList.setTimeStamp(participantData.getReadTimeStamp());
 			}
-			//Creating deliveredList
-			MessageInfoItem.MessageInfoItemOnetoOne deliveredList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.delivered_list),R.drawable.ic_double_tick);
-			if(!participantTreeMap.isEmpty()){
-				if(participantData!=null)
+			// Creating deliveredList
+			MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list), R.drawable.ic_double_tick);
+			if (!participantTreeMap.isEmpty())
+			{
+				if (participantData != null)
 					deliveredList.setTimeStamp(participantData.getDeliveredTimeStamp());
 			}
-			//Creating playedList
-			MessageInfoItem.MessageInfoItemOnetoOne playedList=new MessageInfoItem.MessageInfoItemOnetoOne(0,getString(R.string.delivered_list),R.drawable.ic_double_tick_r);
-			if(!participantTreeMap.isEmpty()){
-				if(participantData!=null)
-					playedList.setTimeStamp(participantData.getDeliveredTimeStamp());
-			}
+
 			messageInfoItemList.add(readList);
 			messageInfoItemList.add(deliveredList);
 		}
-
 
 	}
 
@@ -283,18 +301,20 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		{
 			dataModel.fetchAllParticipantsInfo();
 			addItems();
-			Iterator<MessageInfoItem> ite=messageInfoItemList.iterator();
-			while(ite.hasNext()){
-				Logger.d("refresh"," messageInfoItemList "+ite.next().toString());
+			Iterator<MessageInfoItem> ite = messageInfoItemList.iterator();
+			while (ite.hasNext())
+			{
+				Logger.d("refresh", " messageInfoItemList " + ite.next().toString());
 			}
 			notifyAdapter();
+
 		}
 
 		@Override
 		protected void notifyAdapter()
 		{
 
-			uiHandler.sendEmptyMessageDelayed(1,5000);
+			uiHandler.sendEmptyMessage(NOTIFY_ADAPTER);
 
 		}
 
@@ -319,8 +339,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			}
 		}
 
-
-
 		@Override
 		public synchronized void addItems()
 		{
@@ -329,9 +347,10 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			listsToBedisplayed.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			Iterator iterator = participantTreeMap.values().iterator();
-			readList = new MessageInfoReadList(participantTreeMap.size(),getResources().getString(R.string.read_list),R.string.emptyreadlist);
-			deliveredList = new MessageInfoDeliveredList(participantTreeMap.size(),R.string.emptydeliveredlist);
-			playedList = new MessageInfoPlayedList(participantTreeMap.size(),R.string.emptyplayedlist);
+			readList = new MessageInfoReadList(participantTreeMap.size(), getResources().getString(R.string.read_list), R.string.emptyreadlist);
+			deliveredList = new MessageInfoDeliveredList(participantTreeMap.size(), R.string.emptydeliveredlist);
+			//Disabling played list as of now
+			//playedList = new MessageInfoPlayedList(participantTreeMap.size(), R.string.emptyplayedlist);
 			while (iterator.hasNext())
 			{
 
@@ -339,14 +358,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 				readList.addParticipant(participantData);
 				deliveredList.addParticipant(participantData);
-				if (shouldAddPlayedList())
-				{
-					playedList.addParticipant(participantData);
-				}
-			}
-			if (shouldAddPlayedList())
-			{
-				listsToBedisplayed.add(playedList);
 
 			}
 			listsToBedisplayed.add(readList);
@@ -376,7 +387,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		actionBarView.findViewById(R.id.seprator).setVisibility(View.GONE);
 
 		TextView title = (TextView) actionBarView.findViewById(R.id.title);
-		title.setText("Message Info");
+		title.setText(getString(R.string.message_info));
 
 		actionBar.setCustomView(actionBarView);
 		Toolbar parent = (Toolbar) actionBarView.getParent();
@@ -421,6 +432,17 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	}
 
 	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		if (controller != null)
+		{
+			controller.onDestroy();
+			controller = null;
+		}
+	}
+
+	@Override
 	protected void setStatusBarColor(Window window, String color)
 	{
 		// TODO Auto-generated method stub
@@ -449,14 +471,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	private void addMessageHeaderView(ConvMessage convMessage)
 	{
 
-		headerView = getLayoutInflater().inflate(R.layout.messageinfo_sent_text, null);
-
-		TextView tv = (TextView) headerView.findViewById(R.id.text);
-		// tv.setText(message);
-		ViewStub viewStub = (ViewStub) findViewById(R.id.textMessage);
-		View v = viewStub.inflate();
-		TextView t = (TextView) v.findViewById(R.id.text);
-		t.setText(convMessage.getMessage());
+		LinearLayout relativeLayout = (LinearLayout) findViewById(R.id.message_container_layout);
+		MessageInfoView messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, conversation);
+		relativeLayout.addView(messageInfoView.getView(convMessage));
 		View messageView = findViewById(R.id.relativeLayout);
 		messageView.setBackgroundResource(chatTheme.bgResId());
 		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
@@ -475,4 +492,5 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 
 	}
+
 }

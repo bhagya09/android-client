@@ -45,6 +45,10 @@ public abstract class MessageInfoItem
 
 	private Object text;
 
+	public void onClick(){
+		return;
+	}
+
 	public MessageInfoItem(int itemId, Object text, int viewType)
 	{
 		this.itemId = itemId;
@@ -318,6 +322,11 @@ public abstract class MessageInfoItem
 		{
 			this.emptyStateText = emptyStateText;
 		}
+
+		public boolean shouldshowList(){
+			return remainingItemList.size()!=countTotal;
+		}
+
 
 	}
 

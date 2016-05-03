@@ -149,4 +149,6 @@
 	<dimen name="slide_to_cancel_margin">30dp</dimen>
 	<dimen name="sticker_mini_loader">38dp</dimen>
 	<dimen name="four_dp_corner_radius">4dp</dimen>
+	<dimen name="icon_picture_size_messageinfo">40dp</dimen>
+	<dimen name="message_info_contact_avatar">40dp</dimen>
 </resources>

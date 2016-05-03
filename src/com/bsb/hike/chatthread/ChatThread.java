@@ -3608,8 +3608,26 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		mActionMode.showHideMenuItem(R.id.share_msgs, shareableMessagesCount == 1 && mAdapter.getSelectedCount() == 1);
 
 		mActionMode.showHideMenuItem(R.id.forward_msgs, !(selectedNonForwadableMsgs > 0));
+
+		mActionMode.showHideMenuItem(R.id.message_info, shouldShowMessageInfo());
 	}
 
+	public boolean shouldShowMessageInfo(){
+
+		if(!ChatThreadUtils.isMessageInfoEnabled()){
+			return false;
+		}
+		if(mAdapter.getSelectedCount()==1){
+			HashMap<Long, ConvMessage> selectedMessagesMap = mAdapter.getSelectedMessagesMap();
+			ConvMessage convMessage=selectedMessagesMap.values().iterator().next();
+			if(convMessage.isSent()) {
+				return true;
+			}
+
+		}
+		return false;
+
+	}
 	protected void destroyActionMode()
 	{
 		resetSelectedMessageCounters();
@@ -5628,6 +5646,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 					if(convMessage.isSent()){
 						openMessageInfoScreen(convMessage);
 					}
+					mActionMode.finish();
 				}
 				return true;
 

@@ -4,7 +4,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="54dp"
         android:background="@drawable/conversation_list_item"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -12,8 +12,8 @@
         android:paddingRight="@dimen/conv_item_padding" >
 
         <FrameLayout
-            android:layout_width="@dimen/conv_item_avatar"
-            android:layout_height="@dimen/conv_item_avatar">
+            android:layout_width="@dimen/message_info_contact_avatar"
+            android:layout_height="@dimen/message_info_contact_avatar">
 
             <com.bsb.hike.view.RoundedImageView
                 android:id="@+id/avatar"
