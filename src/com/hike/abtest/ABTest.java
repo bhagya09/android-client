@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.hike.abtest.dataPersist.DataPersist;
 import com.hike.abtest.dataparser.DataParser;
@@ -215,13 +216,18 @@ public class ABTest {
             Logger.d(TAG,"requestType: " + requestType);
             Logger.d(TAG,"requestPayload: " + requestPayload.toString());
             try {
-                requestPayload = requestPayload.getJSONObject("md");
+                if(requestPayload.has(HikeConstants.DATA) &&
+                        requestPayload.getJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA)) {
+                    requestPayload = requestPayload.getJSONObject(HikeConstants.DATA)
+                            .getJSONObject(HikeConstants.METADATA);
+                    Logger.d(TAG, "AB Request Payload: " + requestPayload);
+                    UpdateExperimentService.onRequestReceived(mContext, requestType, requestPayload.toString(),
+                            getInstance().getDataPersist());
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
+                Logger.e(TAG, "Error Parsing AB Request packet!!!");
             }
-            Logger.d(TAG, "AB Request Payload: " + requestPayload);
-            UpdateExperimentService.onRequestReceived(mContext, requestType, requestPayload.toString(),
-                    getInstance().getDataPersist());
             result = true;
         }
 

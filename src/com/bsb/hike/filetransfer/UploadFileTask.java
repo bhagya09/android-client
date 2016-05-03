@@ -69,15 +69,11 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ContactInfo> contactList;
 
-	private int okHttpResCode;
-
-	private String okHttpRes;
-
-	private String caption;
-
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";
+
+	private int retryCount = 0;
 
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
@@ -162,9 +158,17 @@ public class UploadFileTask extends FileTransferBase
 
 				if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					fileKey = null;
-					verifyMd5(false);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						fileKey = null;
+						verifyMd5(false);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -222,6 +226,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 
+		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
 		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
@@ -449,6 +454,7 @@ public class UploadFileTask extends FileTransferBase
 			return;
 		}
 
+		retryCount = 0;
 		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
@@ -469,8 +475,16 @@ public class UploadFileTask extends FileTransferBase
 				}
 				else if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					uploadFile(selectedFile);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						uploadFile(selectedFile);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -572,9 +586,19 @@ public class UploadFileTask extends FileTransferBase
 
 	public void uploadFile(File sourceFile)
 	{
+		uploadFile(sourceFile, false);
+	}
+
+	public void uploadFile(File sourceFile, boolean retry)
+	{
 		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
 		{
 			return;
+		}
+
+		if (!retry)
+		{
+			retryCount = 0;
 		}
 
 		if (requestToken == null || !requestToken.isRequestRunning())
@@ -632,8 +656,42 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
-						deleteStateFile();
-						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							deleteStateFile();
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
+					}
+					else if (httpException.getErrorCode() / 100 > 0)
+					{
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
 					}
 					else if (httpException.getErrorCode() == HttpException.REASON_CODE_MALFORMED_URL)
 					{
