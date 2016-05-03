@@ -1039,7 +1039,12 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	public void block(List<String> msisdns)
 	{
 		persistenceCache.block(msisdns);
-		hDb.addBlockList(msisdns);
+		List<PairModified<String,String>> list=new ArrayList<>(msisdns.size());
+		for (String s:msisdns)
+		{
+			list.add(new PairModified<String, String>(s,null));
+		}
+		hDb.addBlockList(list);
 	}
 
 	/**
@@ -1279,9 +1284,14 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	 * @param blockedMsisdns
 	 * @throws DbException
 	 */
-	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
+	public void setAddressBookAndBlockList(List<ContactInfo> contacts, List<PairModified<String,String>> blockedMsisdns) throws DbException
 	{
-		persistenceCache.block(blockedMsisdns);
+		List<String> blockList=new ArrayList<>(blockedMsisdns.size());
+		for(PairModified<String,String> pm:blockedMsisdns)
+		{
+			blockList.add(pm.getFirst());
+		}
+		persistenceCache.block(blockList);
 		hDb.setAddressBookAndBlockList(contacts, blockedMsisdns);
 	}
 
