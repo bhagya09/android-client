@@ -171,6 +171,13 @@ public class EditProfileTask implements IHikeHTTPTask
     @Override
     public void cancel()
     {
-
+        if (editNameRequestToken != null)
+        {
+            editNameRequestToken.cancel();
+        }
+        if (editEmailGenderRequestToken != null)
+        {
+            editEmailGenderRequestToken.cancel();
+        }
     }
 }
