@@ -1609,7 +1609,7 @@ import java.util.Map;
 			}
 			else
 			{
-				toggleMuteChat();
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
 			}
 			break;
 		case R.string.scan_free_hike:

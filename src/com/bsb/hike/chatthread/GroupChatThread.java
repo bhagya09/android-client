@@ -305,7 +305,7 @@ public class GroupChatThread extends OneToNChatThread
 			}
 			else
 			{
-				toggleMuteChat();
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
 			}
 			break;
 		case R.string.group_profile:
@@ -1027,7 +1027,7 @@ public class GroupChatThread extends OneToNChatThread
 				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				break;
 			case R.string.mute_group:
-				overFlowMenuItem.enabled = oneToNConversation.isConversationAlive();
+				overFlowMenuItem.enabled = !checkForDeadOrBlocked();
 				overFlowMenuItem.text = oneToNConversation.isMuted() ? activity.getString(R.string.unmute_group) : activity.getString(R.string.mute_group);
 				break;
 			}

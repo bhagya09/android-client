@@ -2353,7 +2353,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 
 		case HikeDialogFactory.MUTE_CHAT_DIALOG:
-			toggleMuteChat();
+			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
 			dialog.dismiss();
 			break;
 		}
@@ -6750,22 +6750,5 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		}
 		return mConversation.isMuted();
 	}
-
-	/**
-	 * Used to toggle mute and unmute for chat
-	 */
-	protected void toggleMuteChat()
-	{
-		mConversation.setIsMute(!(mConversation.isMuted()));
-
-		if(mConversation.isMuted())
-		{
-			Intent intent = IntentFactory.getIntentForMuteAlarm(mConversation);
-			HikeAlarmManager.setAlarmwithIntentPersistance(activity.getApplicationContext(), mConversation.getMute().getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
-		}
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
-	}
-
 
 }

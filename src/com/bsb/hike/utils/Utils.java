@@ -210,6 +210,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
@@ -8020,6 +8021,25 @@ public class Utils
 				}
 				rootDir.renameTo(mFile);
 			}
+		}
+	}
+
+	/**
+	 * Used to toggle mute and unmute for chat
+	 */
+	public static void toggleMuteChat(Context context, Conversation mConversation)
+	{
+		if (mConversation != null)
+		{
+			mConversation.setIsMute(!(mConversation.isMuted()));
+
+			if(mConversation.isMuted())
+			{
+				Intent intent = IntentFactory.getIntentForMuteAlarm(mConversation);
+				HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mConversation.getMute().getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
+			}
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 		}
 	}
 }

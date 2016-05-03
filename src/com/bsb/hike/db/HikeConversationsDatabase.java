@@ -4989,7 +4989,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
 		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
 
-		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
+		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+		if (id < 0)
+		{
+			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
+		}
 	}
 
 	public int setGroupName(String groupId, String groupname)
@@ -6362,7 +6366,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(DBConstants.BG_ID, bgId);
 		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
-		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		if (id < 0)
+		{
+			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		}
 	}
 
 	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
@@ -6478,7 +6486,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			contentValues.put(DBConstants.MSISDN, msisdn);
 			contentValues.put(DBConstants.BG_ID, bgId);
 
-			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+			if (id < 0)
+			{
+				mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			}
 
 			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
 		}
