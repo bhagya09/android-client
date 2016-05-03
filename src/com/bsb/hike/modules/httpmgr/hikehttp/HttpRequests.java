@@ -1388,4 +1388,16 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken editGroupProfileNameRequest(JSONObject json, IRequestListener requestListener, String groupId)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/name")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 }
