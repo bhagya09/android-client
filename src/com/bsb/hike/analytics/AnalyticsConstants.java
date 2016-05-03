@@ -903,4 +903,6 @@ public class AnalyticsConstants
 	public static final String SETTINGS_UK = "settings";
 
 	public static final String SETTINGS_ORDER = "sttng";
+
+	public static final String TIMELINE_UK = "timeline";
 }
