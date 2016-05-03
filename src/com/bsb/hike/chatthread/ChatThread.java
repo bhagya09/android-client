@@ -2418,10 +2418,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mediaPlayer.setDataSource(filePath);
 			mediaPlayer.prepare();
 			duration = mediaPlayer.getDuration()/1000;
-			if (mediaPlayer != null) {
-				mediaPlayer.release();
-				mediaPlayer = null;
-			}
+			mediaPlayer.release();
+			mediaPlayer = null;
 		} catch (Exception e){
 			e.printStackTrace();
 		}
