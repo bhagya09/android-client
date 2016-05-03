@@ -20,6 +20,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
@@ -100,6 +101,8 @@ public abstract class Request<T> implements IRequestFacade
 
 	protected int chunkSize;
 
+	private Config gcmTaskConfig;
+
 	protected Request(Init<?> builder)
 	{
 		this.defaultId = builder.id;
@@ -114,6 +117,7 @@ public abstract class Request<T> implements IRequestFacade
 		addRequestListeners(builder.requestListeners);
 		this.responseOnUIThread = builder.responseOnUIThread;
 		this.asynchronous = builder.asynchronous;
+		this.gcmTaskConfig = builder.gcmTaskConfig;
 		ensureSaneDefaults();
 		setHostUris();
 	}
@@ -411,6 +415,11 @@ public abstract class Request<T> implements IRequestFacade
 	public boolean isAsynchronous()
 	{
 		return asynchronous;
+	}
+
+	public Config getGcmTaskConfig()
+	{
+		return gcmTaskConfig;
 	}
 
 	/**
@@ -725,6 +734,8 @@ public abstract class Request<T> implements IRequestFacade
 
 		private boolean asynchronous = true;
 
+		private Config gcmTaskConfig;
+
 		protected abstract S self();
 
 		/**
@@ -959,6 +970,18 @@ public abstract class Request<T> implements IRequestFacade
 		public S setAsynchronous(boolean async)
 		{
 			this.asynchronous = async;
+			return self();
+		}
+
+		/**
+		 * Sets the properties of request which will be used for scheduling the task {@link com.google.android.gms.gcm.OneoffTask} in Gcm network manager
+		 *
+		 * @param config
+		 * @return
+		 */
+		public S setGcmTaskConfig(Config config)
+		{
+			this.gcmTaskConfig = config;
 			return self();
 		}
 
