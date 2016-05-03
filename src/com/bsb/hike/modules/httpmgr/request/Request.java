@@ -21,6 +21,8 @@ import android.text.TextUtils;
 import com.bsb.hike.filetransfer.FileSavedState;
 import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
+import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestState;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
@@ -692,6 +694,11 @@ public abstract class Request<T> implements IRequestFacade
 		if (this.requestCancellationListener != null)
 		{
 			this.requestCancellationListener.onCancel();
+		}
+
+		if (this.gcmTaskConfig != null)
+		{
+			HikeGcmNetworkMgr.getInstance().cancelTask(gcmTaskConfig.getTag(), gcmTaskConfig.getService());
 		}
 	}
 
