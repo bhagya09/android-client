@@ -466,7 +466,7 @@ public class ConversationsAdapter extends BaseAdapter
 			conversationsMsisdns.add(conv.getMsisdn());
 		}
 		FetchPhoneBookContactsTask fetchContactsTask = new FetchPhoneBookContactsTask();
-		Utils.executeAsyncTask(fetchContactsTask);
+		fetchContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**

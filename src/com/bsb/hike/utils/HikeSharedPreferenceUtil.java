@@ -142,31 +142,7 @@ public class HikeSharedPreferenceUtil
 
 	public synchronized boolean saveDataSet(String key, Set<String> value)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			editor.putStringSet(key, value);
-		}
-		else
-		{
-			if (value != null)
-			{
-				StringBuilder sb = new StringBuilder(STRING_EMPTY);
-				for (String s : value)
-				{
-					sb.append(s);
-					sb.append(STRING_SEPARATOR);
-				}
-				// do not remove last separator, as it would not be able to determine, if last element of set was empty string
-				// at same time, if set argument has no element, then equivalent string will empty without having any separator
-				editor.putString(key, sb.toString());
-			}
-			// value is null, i.e. remove the key as same as Android standard behavior
-			else
-			{
-				editor.remove(key);
-			}
-		}
-
+		editor.putStringSet(key, value);
 		return editor.commit();
 	}
 
@@ -211,43 +187,7 @@ public class HikeSharedPreferenceUtil
 
 	public synchronized Set<String> getDataSet(String key, Set<String> defaultValues)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			return hikeSharedPreferences.getStringSet(key, defaultValues);
-		}
-		else
-		{
-			String transformedValue = hikeSharedPreferences.getString(key, null);
-			// return default value, if no such key is present
-			if (transformedValue == null)
-			{
-				return defaultValues;
-			}
-			// return empty set, if empty set (equivalent to empty string) was saved
-			else if (transformedValue.length() == 0)
-			{
-				return new HashSet<String>(0);
-			}
-			// return set built by values (determined by splitting equivalent string)
-			else
-			{
-				String[] values = transformedValue.split(STRING_SEPARATOR);
-				HashSet<String> result = new HashSet<String>(values.length);
-
-				for (String value : values)
-				{
-					result.add(value);
-				}
-
-				// if saved set contained empty string as its last element, then equivalent string would have been ended with 2 separators.
-				if (transformedValue.endsWith(STRING_SEPARATOR + STRING_SEPARATOR))
-				{
-					result.add(STRING_EMPTY);
-				}
-
-				return result;
-			}
-		}
+		return hikeSharedPreferences.getStringSet(key, defaultValues);
 	}
 
 	public synchronized float getData(String key, float defaultValue)

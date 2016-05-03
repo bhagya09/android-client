@@ -533,7 +533,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				notifyDataSetChanged();
 			}
 		};
-		Utils.executeAsyncTask(getLastSentMessagePositionTask);
+		getLastSentMessagePositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -3067,15 +3067,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), 0);
 			}
-			if (Utils.isHoneycombOrHigher())
-			{
-				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-			}
-			else
-			{
-				holder.circularProgress.setProgress(animatedProgress);
-			}
+
+			holder.circularProgress.stopAnimation();
+			holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
@@ -3083,8 +3077,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 			if (fss.getFTState() == FTState.IN_PROGRESS)
 			{
 				float animatedProgress = 5 * 0.01f;
@@ -3092,26 +3085,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), progress);
 				}
-				if (Utils.isHoneycombOrHigher())
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 				{
-					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+				}
+				else if(progress == 100)
+				{
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+				}
+				else
+				{
+					if((progress + (int) (animatedProgress * 100)) > 100)
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
-					}
-					else if(progress == 100)
-					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 					else
 					{
-						if((progress + (int) (animatedProgress * 100)) > 100)
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
-						else
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 				}
 			}
@@ -4656,8 +4646,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 
 			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
 					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
@@ -4668,15 +4657,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher())
+			if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 			{
-				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
-				{
-					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
-				}
-				else
-					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+				holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
 			}
+			else
+				holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}

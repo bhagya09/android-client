@@ -1211,7 +1211,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			}
 
 		};
-		Utils.executeAsyncTask(automateMessages);
+		automateMessages.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
@@ -5405,7 +5405,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (messages != null && messages.size() > 0)
 		{
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
-			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
+			emailTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mConversation.getConvInfo());
 		}
 		else
 		{
