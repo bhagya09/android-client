@@ -3080,7 +3080,7 @@ public class HikeConstants
 	public static interface ConvMessagePacketKeys
 	{
 
-		public static final String CONTENT_TYPE = "c";
+		public static final String CONTENT_TYPE = "nc";
 
 		public static final String PIN_TYPE = "pin";
 

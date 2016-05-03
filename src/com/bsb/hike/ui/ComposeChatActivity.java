@@ -2853,7 +2853,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		}
 		return convMessage;
 	}
-
 	private ArrayList<ContactInfo> updateContactInfoOrdering(ArrayList<ContactInfo> arrayList){
 		Set<ContactInfo> set = new HashSet<ContactInfo>(arrayList);
 		ArrayList<ContactInfo> toReturn = new ArrayList<ContactInfo>();

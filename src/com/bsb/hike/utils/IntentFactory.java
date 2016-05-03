@@ -1086,7 +1086,33 @@ public class IntentFactory
 
 		return new Intent();
 	}
+    public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage){
+		Intent intent = new Intent(context, ComposeChatActivity.class);
+		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
+		JSONArray multipleMsgArray = new JSONArray();
+		JSONObject multiMsgFwdObject = new JSONObject();
+		JSONObject metadata = convMessage.platformMessageMetadata.getJSON();
+		try
+		{
+			multiMsgFwdObject.put(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE, convMessage.getMessageType());
+			if (metadata != null)
+			{
+				multiMsgFwdObject.put(HikeConstants.METADATA, metadata);
+			}
 
+			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
+
+			multipleMsgArray.put(multiMsgFwdObject);
+		}
+		catch (JSONException e)
+		{
+			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
+		}
+		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
+		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
+
+		return intent;
+	}
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);

@@ -99,6 +99,7 @@ import com.bsb.hike.offline.OfflineConstants;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.CardRenderer;
+import com.bsb.hike.platform.NativeCardRenderer;
 import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.HighQualityThumbLoader;
 import com.bsb.hike.smartImageLoader.IconLoader;
@@ -349,7 +350,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private HighQualityThumbLoader hqThumbLoader;
 
-	private CardRenderer mChatThreadCardRenderer;
+	private NativeCardRenderer mChatThreadCardRenderer;
 
 	private WebViewCardRenderer mWebViewCardRenderer;
 
@@ -403,7 +404,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
                         .stretchMini(useMiniSticker)
                         .build();
 
-		this.mChatThreadCardRenderer = new CardRenderer(context);
+		this.mChatThreadCardRenderer = new NativeCardRenderer(context);
 		this.mWebViewCardRenderer = new WebViewCardRenderer(activity, convMessages,this);
 		this.messageTextMap = new HashMap<Long, CharSequence>();
 
