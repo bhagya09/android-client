@@ -447,7 +447,11 @@ import java.util.Map;
 		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
 		Logger.d(TAG, "Calling setchattheme from createConversation");
 		mConversation.setChatTheme(chatTheme);
-
+		Mute mute = mConversationDb.getChatMute(msisdn);
+		if (mute.getMuteEndTime() > System.currentTimeMillis())
+		{
+			mConversation.setIsMute(mute.isMute());
+		}
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 

@@ -4943,6 +4943,34 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public Mute getChatMute(String msisdn)
+	{
+		Mute mute = new Mute.InitBuilder(msisdn).build();
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
+
+			while (c.moveToNext())
+			{
+				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				long muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
+				mute.setIsMute(isMute);
+				mute.setMuteTimestamp(muteTimestamp);
+				mute.setMuteDuration(muteDuration);
+			}
+			return mute;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 	public boolean shouldShowNotifForMutedChat(String msisdn)
 	{
 		Cursor c = null;
