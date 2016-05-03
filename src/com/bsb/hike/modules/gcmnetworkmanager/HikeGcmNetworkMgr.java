@@ -3,6 +3,7 @@ package com.bsb.hike.modules.gcmnetworkmanager;
 import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.Logger;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -47,12 +48,20 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
     @Override
     public void schedule(Config config)
     {
-
+        if (!isGooglePlayServicesAvailable())
+        {
+            Logger.e(TAG, "google play services not available");
+            return;
+        }
     }
 
     @Override
     public void cancelTask(String tag, GcmTaskService gcmTaskService)
     {
-
+        if (!isGooglePlayServicesAvailable())
+        {
+            Logger.e(TAG, "google play services not available");
+            return;
+        }
     }
 }
