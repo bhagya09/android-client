@@ -78,5 +78,7 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
             Logger.e(TAG, "google play services not available");
             return;
         }
+
+        GcmNetworkManager.getInstance(context).cancelTask(tag, gcmTaskService);
     }
 }
