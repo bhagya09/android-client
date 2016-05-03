@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.google.android.gms.gcm.GcmTaskService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 /**
  * Created by sidharth on 03/05/16.
@@ -34,6 +36,12 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
             }
         }
         return _instance;
+    }
+
+    public boolean isGooglePlayServicesAvailable()
+    {
+        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+        return resultCode == ConnectionResult.SUCCESS;
     }
 
     @Override
