@@ -8080,7 +8080,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0) {
 
 			return true;
 		}
@@ -8093,7 +8093,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists()) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
 			try {
 
