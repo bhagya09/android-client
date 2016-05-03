@@ -378,14 +378,17 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.settings_chat:
+				recordChatclick();
 				IntentFactory.openSettingChat(this);
 				break;
 
 			case R.string.settings_sticker:
+				recordStickerSettingsClick();
 				IntentFactory.openStickerSettingsActivity(this);
 				break;
 
             case R.string.language:
+				recordLanguageClick();
 				IntentFactory.openSettingLocalization(this);
 				break;
 				
@@ -630,24 +633,30 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 	private void recordNotificationClick()
 	{
-		try
-		{
-			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
-
-			if (json != null)
-			{
-				json.put(AnalyticsConstants.V2.FAMILY, "notif");
-				HAManager.getInstance().recordV2(json);
-			}
-		}
-
-		catch (JSONException e)
-		{
-			e.toString();
-		}
+		recordPreferencesPageOpen("notif");
 	}
 
 	private void recordMediaClick()
+	{
+		recordPreferencesPageOpen("media");
+	}
+
+	private void recordChatclick()
+	{
+		recordPreferencesPageOpen("chat_stng");
+	}
+
+	private void recordStickerSettingsClick()
+	{
+		recordPreferencesPageOpen("stk_stng");
+	}
+
+	private void recordLanguageClick()
+	{
+		recordPreferencesPageOpen("lng_stng");
+	}
+
+	private void recordPreferencesPageOpen(String whichPage)
 	{
 		try
 		{
@@ -655,7 +664,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 
 			if (json != null)
 			{
-				json.put(AnalyticsConstants.V2.FAMILY, "media");
+				json.put(AnalyticsConstants.V2.FAMILY, whichPage);
 				HAManager.getInstance().recordV2(json);
 			}
 		}
