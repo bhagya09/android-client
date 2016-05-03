@@ -771,7 +771,6 @@ public class HikeConstants
 
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
-<<<<<<< HEAD
 	public static final String CALLER_QUICK_REPLY_SET = "c_q_r_s";
 
 	public static final String SRC_CALLER_QUICK_REPLY_CARD = "src_quick_reply";
@@ -785,7 +784,7 @@ public class HikeConstants
 	public static final String SHOW_UNKNOWN_USER_INFO_INSIDE_ONE_TO_ONE_CHAT = "showUnknownUserInfo";
 
 	public static long NO_OF_MILISECONDS_IN_1_DAY = 24 * 60 * 60 * 1000;
-=======
+
 	public static final String CALL_TYPE = "call_type";
 
 	public class Shortcut
@@ -802,7 +801,6 @@ public class HikeConstants
 	public static final String CONTACT_NAME = "cntct_nm";
 	
 	public static final String CONTACT_NUMBER_OLD = "cntct_no_old";
->>>>>>> d9f0d8fb9d3338448b3af7e43b93389aea997511
 
 	public class InviteSection
 	{
