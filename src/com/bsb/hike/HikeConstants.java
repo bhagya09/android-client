@@ -289,10 +289,6 @@ public class HikeConstants
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
 
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
-
 	public static final String TIME_OF_DAY = "timeofday";
 
 	public static final String REQUEST_PENDING = "requestpending";
@@ -2180,9 +2176,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
