@@ -486,7 +486,7 @@ public interface DBConstants
 
 		public static final int CHAT_THEME_ASSET_TABLE_COL_COUNT = 5;
 
-		public static final int CHAT_THEME_TABLE_COL_COUNT = 17;
+		public static final int CHAT_THEME_TABLE_COL_COUNT = 19;
 
 		//Columns for CHAT_THEME_ASSET_TABLE
 
@@ -534,6 +534,10 @@ public interface DBConstants
 		public static final String THEME_COL_METADATA = "metadata";
 
 		public static final String THEME_COL_STATUS_BAR_COL = "statusBarColor";
+
+		public static final String THEME_COL_VISIBLE = "visible";
+
+		public static final String THEME_COL_ORDER = "themeOrder";
 
 		// Extra Columns for CHAT_BG_TABLE
 

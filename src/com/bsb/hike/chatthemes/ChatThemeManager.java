@@ -157,6 +157,16 @@ public class ChatThemeManager
 				theme.setThemeId(themeID);
 				theme.setThemeType(t.getInt(HikeChatThemeConstants.JSON_SIGNAL_THEME_THEMESTATE));
 
+				if(t.has(HikeChatThemeConstants.JSON_SIGNAL_THEME_VISIBILITY)) {
+					boolean visible = t.getBoolean(HikeChatThemeConstants.JSON_SIGNAL_THEME_VISIBILITY);
+					theme.setVisibilityStatus(visible);
+				}
+
+				if(t.has(HikeChatThemeConstants.JSON_SIGNAL_THEME_ORDER)) {
+					int order = t.getInt(HikeChatThemeConstants.JSON_SIGNAL_THEME_ORDER);
+					theme.setThemeOrderIndex(order);
+				}
+
 				// looping to the no of indexes for a theme
 				for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++)
 				{

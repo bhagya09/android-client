@@ -3,6 +3,9 @@
     "theme_data": [
       {
         "theme_id": "42",
+        "visibility": true,
+        "order": 5,
+        "name": "COFFEEBEAN",
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_custom_theme.png",
@@ -72,6 +75,9 @@
       },
       {
         "theme_id": "41",
+        "visibility": true,
+        "order": 4,
+        "name": "TRACK",
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_custom_theme_2x.png",
@@ -141,6 +147,9 @@
       },
       {
         "theme_id": "0",
+        "visibility": true,
+        "order": 1,
+        "name": "DEFAULT",
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_default_theme.png",
@@ -210,6 +219,9 @@
       },
       {
         "theme_id": "39",
+        "visibility": true,
+        "order": 22,
+        "name": "INDEPENDENCE",
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_custom_theme_3x.png",
@@ -279,6 +291,9 @@
       },
       {
         "theme_id": "40",
+        "visibility": true,
+        "order": 15,
+        "name": "LOVE_2",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -348,6 +363,9 @@
       },
       {
         "theme_id": "29",
+        "visibility": true,
+        "order": 18,
+        "name": "RAIN2",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -417,6 +435,9 @@
     },
     {
         "theme_id": "36",
+        "visibility": true,
+        "order": 6,
+        "name": "SLEEPINGDOG",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -486,6 +507,9 @@
       },
       {
         "theme_id": "37",
+        "visibility": true,
+        "order": 6,
+        "name": "PEACOCKGLORY",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -555,6 +579,9 @@
       },
       {
         "theme_id": "38",
+        "visibility": true,
+        "order": 8,
+        "name": "NOWHERE",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -624,6 +651,9 @@
       },
       {
         "theme_id": "20",
+        "visibility": true,
+        "order": 14,
+        "name": "VALENTINES_2",
         "theme_state": 3,
         "header": {
           "type": 1,
@@ -693,6 +723,9 @@
       },
       {
         "theme_id": "28",
+        "visibility": true,
+        "order": 11,
+        "name": "FRIENDS",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -762,6 +795,9 @@
       },
       {
         "theme_id": "26",
+        "visibility": true,
+        "order": 19,
+        "name": "BEACH_2",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -831,6 +867,9 @@
       },
       {
         "theme_id": "22",
+        "visibility": true,
+        "order": 17,
+        "name": "NIGHT",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -900,6 +939,9 @@
       },
       {
         "theme_id": "24",
+        "visibility": true,
+        "order": 24,
+        "name": "SPRING",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -969,6 +1011,9 @@
       },
       {
         "theme_id": "21",
+        "visibility": true,
+        "order": 12,
+        "name": "NIGHT_PATTERN",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -1038,6 +1083,9 @@
       },
       {
         "theme_id": "30",
+        "visibility": true,
+        "order": 9,
+        "name": "GUITAR",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -1107,6 +1155,9 @@
       },
       {
         "theme_id": "4",
+        "visibility": true,
+        "order": 31,
+        "name": "STARRY",
         "theme_state": 1,
         "header": {
           "type": 1,
@@ -1176,6 +1227,9 @@
       },
       {
         "theme_id": "23",
+        "visibility": true,
+        "order": 13,
+        "name": "OWL",
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -1245,6 +1299,9 @@
       },
       {
         "theme_id": "15",
+        "visibility": true,
+        "order": 34,
+        "name": "BEACH",
         "theme_state": 1,
         "header": {
           "type": 1,
@@ -1313,8 +1370,11 @@
         }
       },
 
-  {
+        {
         "theme_id": "11",
+        "visibility": true,
+        "order": 35,
+        "name": "FOREST",
         "theme_state": 1,
         "header": {
           "type": 1,
@@ -1384,6 +1444,9 @@
       },
       {
         "theme_id": "32",
+        "visibility": true,
+        "order": 16,
+        "name": "HIKIN_COUPLE",
         "theme_state": 0,
         "header": {
           "type": 1,

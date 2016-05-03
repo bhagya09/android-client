@@ -25,6 +25,8 @@ public class HikeChatTheme
 
 	private String metadata;
 
+	private int themeOrderIndex;
+
 	public HikeChatTheme()
 	{
 		assets = new String[HikeChatThemeConstants.ASSET_INDEX_COUNT];
@@ -135,5 +137,13 @@ public class HikeChatTheme
 	public boolean isCustomTheme()
 	{
 		return (themeType & HikeChatThemeConstants.THEME_TYPE_CUSTOM) == HikeChatThemeConstants.THEME_TYPE_CUSTOM;
+	}
+
+	public int getThemeOrderIndex() {
+		return themeOrderIndex;
+	}
+
+	public void setThemeOrderIndex(int themeOrderIndex) {
+		this.themeOrderIndex = themeOrderIndex;
 	}
 }

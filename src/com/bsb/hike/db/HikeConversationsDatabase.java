@@ -9841,7 +9841,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		StringBuilder createThemeTableQuery = new StringBuilder();
 		createThemeTableQuery = createThemeTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_TABLE + " (")
-				.append(ChatThemes.THEME_COL_BG_ID 					  + COLUMN_TYPE_TEXT + " PRIMARY KEY" 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BG_ID + COLUMN_TYPE_TEXT + " PRIMARY KEY" + COMMA_SEPARATOR)
 				.append(ChatThemes.THEME_COL_TYPE                        + COLUMN_TYPE_INTEGER 				+ COMMA_SEPARATOR)
 				.append(ChatThemes.THEME_COL_BG_PORTRAIT                 + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
 				.append(ChatThemes.THEME_COL_BG_LANDSCAPE                + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
@@ -9855,9 +9855,11 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				.append(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
 				.append(ChatThemes.THEME_COL_THUMBNAIL 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
 				.append(ChatThemes.CHAT_THEME_TIMESTAMP_COL			  + COLUMN_TYPE_INTEGER					+ COMMA_SEPARATOR)
-				.append(ChatThemes.THEME_COL_METADATA 					  + COLUMN_TYPE_TEXT					+ COMMA_SEPARATOR)
-				.append(ChatThemes.THEME_COL_STATUS_BAR_COL 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-				.append(ChatThemes.THEME_COL_BUBBLE_BG 				  + COLUMN_TYPE_TEXT)
+				.append(ChatThemes.THEME_COL_STATUS_BAR_COL 			+ COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BUBBLE_BG 					+ COLUMN_TYPE_TEXT					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_VISIBLE 					+ COLUMN_TYPE_INTEGER					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_ORDER 					+ COLUMN_TYPE_INTEGER					 + COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_METADATA + COLUMN_TYPE_TEXT)
 				.append(")");
 
 		return createThemeTableQuery.toString();
@@ -10098,6 +10100,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		updatePrepStmt.bindLong(16, saveTheme.getThemeType());
 		updatePrepStmt.bindLong(17, System.currentTimeMillis());
 		updatePrepStmt.bindString(18, saveTheme.getThemeId());
+		updatePrepStmt.bindLong(19, saveTheme.isVisible() ? 1 : 0);
+		updatePrepStmt.bindLong(20, saveTheme.getThemeOrderIndex());
 
 		long rowsAffected = updatePrepStmt.executeUpdateDelete();
 		updatePrepStmt.clearBindings();
@@ -10178,6 +10182,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			insertPrepStmt.bindLong(16, saveTheme.getThemeType());
 			insertPrepStmt.bindLong(17, System.currentTimeMillis());
+			insertPrepStmt.bindLong(18, saveTheme.isVisible() ? 1 : 0);
+			insertPrepStmt.bindLong(19, saveTheme.getThemeOrderIndex());
 
 			long rowInserted = insertPrepStmt.executeInsert();
 			insertPrepStmt.clearBindings();
@@ -10245,7 +10251,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ ChatThemes.THEME_COL_THUMBNAIL + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_STATUS_BAR_COL + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_TYPE + COMMA_SEPARATOR
-				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL
+				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_VISIBLE + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_ORDER
 				+ ") VALUES (" ;
 
 		//placeholders for values
@@ -10284,7 +10292,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ ChatThemes.THEME_COL_THUMBNAIL 					+  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_STATUS_BAR_COL				+  " = ?" + COMMA_SEPARATOR
 				+ ChatThemes.THEME_COL_TYPE 						+  " = ?" + COMMA_SEPARATOR
-				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL 				+  " = ?"
+				+ ChatThemes.CHAT_THEME_TIMESTAMP_COL 				+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_VISIBLE						+  " = ?" + COMMA_SEPARATOR
+				+ ChatThemes.THEME_COL_ORDER 				+  " = ?"
 				+ " WHERE " + ChatThemes.THEME_COL_BG_ID + " = ?;";
 
 		if(mDb == null)
@@ -10303,7 +10313,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		ConcurrentHashMap<String, HikeChatTheme> themes = new ConcurrentHashMap<>();
 
-		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE;
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" WHERE " + ChatThemes.THEME_COL_VISIBLE + "= 1";
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
 		try {
 			if (themeListCursor.moveToFirst()) {
@@ -10392,6 +10402,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		int type = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_TYPE));
 		long timestamp = themeDbRow.getLong(themeDbRow.getColumnIndex(ChatThemes.CHAT_THEME_TIMESTAMP_COL));
+		boolean isVisible = (themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_VISIBLE)) == 1) ? true : false;
+		int order = themeDbRow.getInt(themeDbRow.getColumnIndex(ChatThemes.THEME_COL_ORDER));
 
 		//loading into the object
 		HikeChatTheme chatTheme = new HikeChatTheme();
@@ -10411,6 +10423,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		chatTheme.setAsset(ASSET_INDEX_THUMBNAIL, thumbnail);
 		chatTheme.setThemeType(type);
 		chatTheme.setMetadata(meta);
+		chatTheme.setVisibilityStatus(isVisible);
+		chatTheme.setThemeOrderIndex(order);
 
 		return chatTheme;
 	}
