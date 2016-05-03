@@ -1376,6 +1376,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 				StickerManager.getInstance().sendRecommendationAutopopupSettingsStateAnalytics(StickerManager.FROM_CHAT_SETTINGS, isChecked);
 			} else if (HikeConstants.SSL_PREF.equals(preference.getKey())) {
+				record128BitSSLSettingsChange(Boolean.valueOf(newValue.toString()));
 				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.SSL_PREF, isChecked).commit();
 				Utils.setupUri();
 				HttpRequestConstants.toggleSSL();
@@ -2174,6 +2175,11 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			e.toString();
 		}
+	}
+
+	private void record128BitSSLSettingsChange(boolean newValue)
+	{
+		recordPreferencesAnalytics("ssl", newValue ? "on" : "off");
 	}
 
 }
