@@ -399,11 +399,11 @@ public class StickerManager
 		initiateFetchCategoryRanksAndDataTask();
 }
 
-	public void fetchCategoryMetadataTask(List<StickerCategory> list)
+	public void fetchCategoryMetadataTask(List<StickerCategory> list, short requestType, int priority, boolean toPublish)
 	{
 		if (!Utils.isEmpty(list))
 		{
-			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list);
+			FetchCategoryMetadataTask fetchCategoryMetadataTask = new FetchCategoryMetadataTask(list, requestType, priority, toPublish);
 			fetchCategoryMetadataTask.execute();
 		}
 	}
@@ -462,7 +462,7 @@ public class StickerManager
 
 	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
-		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
+		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId);
         StickerCategory removedCategory = stickerCategoriesMap.remove(removedCategoryId);
 
         if(removedCategory == null)
@@ -1775,18 +1775,6 @@ public class StickerManager
 		category.setCategoryIndex(catIdx == -1 ? stickerCategoriesMap.size() : (catIdx + 1));
 		stickerCategoriesMap.put(category.getCategoryId(), category);
 		HikeConversationsDatabase.getInstance().insertInToStickerCategoriesTable(category);
-	}
-
-	public boolean stickerShopUpdateNeeded()
-	{
-		long lastUpdateTime = HikeSharedPreferenceUtil.getInstance().getData(LAST_STICKER_SHOP_UPDATE_TIME, 0L);
-		boolean updateNeeded = (lastUpdateTime + STICKER_SHOP_REFRESH_TIME) < System.currentTimeMillis();
-
-		if (updateNeeded && HikeSharedPreferenceUtil.getInstance().getData(STICKER_SHOP_DATA_FULLY_FETCHED, true))
-		{
-			HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, false);
-		}
-		return lastUpdateTime + STICKER_SHOP_REFRESH_TIME < System.currentTimeMillis();
 	}
 
 	public boolean moreDataAvailableForStickerShop()

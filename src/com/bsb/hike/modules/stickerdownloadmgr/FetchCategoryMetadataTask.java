@@ -1,6 +1,8 @@
 package com.bsb.hike.modules.stickerdownloadmgr;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -34,15 +36,23 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private String ucids = "";
 
-    public FetchCategoryMetadataTask(List<StickerCategory> list)
-    {
-        this.list = list;
-        createRequestJsonBody();
-    }
+	private short requestType;
 
+	private int priority;
 
-    private void createRequestJsonBody()
-    {
+	private boolean toPublish;
+
+	public FetchCategoryMetadataTask(List<StickerCategory> list, short requestType, int priority, boolean toPublish)
+	{
+		this.list = list;
+		this.requestType = requestType;
+		this.priority = priority;
+		this.toPublish = toPublish;
+		createRequestJsonBody();
+	}
+
+	private void createRequestJsonBody()
+	{
 		requestJsonBody = new JSONObject();
 		JSONObject jsonObject;
 		JSONArray array = new JSONArray();
@@ -77,6 +87,11 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			public void onRequestFailure(HttpException httpException)
 			{
 				doOnFailure(httpException);
+
+				if (toPublish)
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_FAILURE, httpException);
+				}
 			}
 
 			@Override
@@ -104,6 +119,11 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					JSONArray jsonArray = resultData.optJSONArray(HikeConstants.PACKS);
 					HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(jsonArray, false);
 					HikeConversationsDatabase.getInstance().updateIsPackMetadataUpdated(list);
+
+					if (toPublish)
+					{
+						HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
+					}
 				}
 				catch (Exception e)
 				{
@@ -128,7 +148,7 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 		{
 			return;
 		}
-		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener());
+		token = HttpRequests.fetchCategoryData(getCategoryFetchRequestId(), requestJsonBody, getRequestListener(), requestType, priority);
 		if (!token.isRequestRunning())
 		{
 			token.execute();

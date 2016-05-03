@@ -223,7 +223,7 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener)
+	public static RequestToken fetchCategoryData(String requestId, JSONObject json, IRequestListener requestListener, short requestType, int priority)
 	{
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -231,8 +231,8 @@ public class HttpRequests
 				.setId(requestId)
 				.post(body)
 				.setRequestListener(requestListener)
-				.setRequestType(REQUEST_TYPE_LONG)
-				.setPriority(PRIORITY_LOW)
+				.setRequestType(requestType)
+				.setPriority(priority)
 				.build();
 		return requestToken;
 	}
