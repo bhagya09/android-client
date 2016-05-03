@@ -49,7 +49,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
@@ -366,6 +368,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			switch (holder.id)
 			{
 			case R.string.notifications:
+				recordNotificationClick();
 				IntentFactory.openSettingNotification(this);
 				break;
 
@@ -623,4 +626,24 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		this.msisdn = msisdn;
 		super.setLocalMsisdn(this.msisdn);			
 	}
+
+	private void recordNotificationClick()
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }

@@ -1,22 +1,22 @@
 package com.bsb.hike.utils;
 
-import java.util.List;
+import android.content.Context;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.MqttConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
+import com.bsb.hike.service.HikeMqttManagerNew;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.MqttConstants;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.service.HikeMqttManagerNew;
+import java.util.List;
 
 public class HikeAnalyticsEvent
 {
@@ -235,6 +235,26 @@ public class HikeAnalyticsEvent
 		catch (JSONException e)
 		{
 			e.toString();
+		}
+	}
+
+	public static JSONObject getSettingsAnalyticsJSON()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SETTINGS_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SETTINGS_ORDER);
+			return json;
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+			return null;
 		}
 	}
 }

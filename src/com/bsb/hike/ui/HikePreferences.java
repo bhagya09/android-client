@@ -79,6 +79,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.bsb.hike.view.IconPreference;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 
 public class HikePreferences extends HikeAppStateBasePreferenceActivity implements OnPreferenceClickListener, 
 							OnPreferenceChangeListener, DeleteAccountListener, BackupAccountListener, RingtoneFetchListener
@@ -866,6 +867,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				jsonObject.put(HikeConstants.DATA, data);
 				jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 				HikeMqttManagerNew.getInstance().sendMessage(jsonObject, MqttConstants.MQTT_QOS_ONE);
+
+				recordStatusAndProiflePicNotifSettings(statusIntPreference == 0 ? false : true);
 			}
 			catch (JSONException e)
 			{
@@ -1127,6 +1130,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				ListPreference preferenceLed = (ListPreference) preference;
 				int index = preferenceLed.findIndexOfValue(newValue.toString());
 
+				recordLedPrefChange(newValue.toString());
+
 				if (index >= 0) {
 					preference.setTitle(getString(R.string.led_notification) + ": " + preferenceLed.getEntries()[index]);
 				}
@@ -1152,6 +1157,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			//AND-3843 Begin
 			ListPreference  preferenceVib= (ListPreference) preference;
 			int index = preferenceVib.findIndexOfValue(newValue.toString());
+			recordVibrationPrefListClick(newValue.toString());
 			if (index >= 0) {
 				preference.setTitle(getString(R.string.vibrate) + ": " + preferenceVib.getEntries()[index]);
 			}
@@ -1713,7 +1719,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		lp.setTitle(lp.getTitle() + ": " + lp.getEntry());
                 //AND-3843 End
 		lp.setNegativeButtonText(R.string.CANCEL);
-		
+
+		lp.setOnPreferenceChangeListener(this);
 		ListPreference ledPref = (ListPreference) getPreferenceScreen().findPreference(HikeConstants.COLOR_LED_PREF);
 
 		String entry = (String) ledPref.getEntry();
@@ -2053,16 +2060,94 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	{
 		try
 		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SETTINGS_UK);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SETTINGS_ORDER);
-			json.put(AnalyticsConstants.V2.FAMILY, "dp_privacy");
-			json.put(AnalyticsConstants.V2.GENUS, avatarSetting == 1 ? "off" : "on");
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
 
-			HAManager.getInstance().recordV2(json);
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "dp_privacy");
+				json.put(AnalyticsConstants.V2.GENUS, avatarSetting == 1 ? "off" : "on");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordStatusAndProiflePicNotifSettings(boolean newSetting)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif_sudp");
+				json.put(AnalyticsConstants.V2.GENUS, newSetting ? "on" : "off");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordVibrationPrefListClick(String newValue)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif_vbrt");
+				json.put(AnalyticsConstants.V2.GENUS, newValue);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordTickSoundPrefChange(String newValue)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif_conv_tone");
+				json.put(AnalyticsConstants.V2.GENUS, newValue);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	private void recordLedPrefChange(String newValue)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "notif_led");
+				json.put(AnalyticsConstants.V2.GENUS, newValue);
+				HAManager.getInstance().recordV2(json);
+			}
 		}
 
 		catch (JSONException e)
