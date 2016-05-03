@@ -7,6 +7,11 @@ import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.squareup.okhttp.internal.Util;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by akhiltripathi on 12/04/16.
@@ -19,19 +24,35 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private StickerCategory category;
 
-	private final int FOR_USER_GENDER_SCORE = 1;
+    private float genderMatchScore = 0;
 
-	private final int FOR_GENERIC_GENDER_SCORE = 0;
+    private float packStateScore = 0;
 
-	private final int NOT_FOR_USER_GENDER_SCORE = -1;
+    private float stickerCountScore = 0.0f;
 
-	private final int PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE = -1;
+    private float nameMatchScore = 0.0f;
 
-	private final int PACK_NOT_DOWNLOADED = 0;
+    private float searchScore = Float.MIN_VALUE;
 
-	private final int PACK_DOWNLOADED_UPDATE_AVAILABLE = 1;
+	private final float FOR_USER_GENDER_SCORE = 1.0f;
+
+	private final float FOR_GENERIC_GENDER_SCORE = 0f;
+
+	private final float NOT_FOR_USER_GENDER_SCORE = -1.0f;
+
+	private final float PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE = -1.0f;
+
+	private final float PACK_NOT_DOWNLOADED = 0f;
+
+	private final float PACK_DOWNLOADED_UPDATE_AVAILABLE = 1.0f;
 
 	private final float DEFAULT_STICKER_COUNT_SCORE = 0f;
+
+    private final int GENDER_SCORE_MAP_INDEX = 0;
+
+    private final int PACK_STATE_SCORE_MAP_INDEX = 1;
+
+    private final int STICKER_COUNT_SCORE_MAP_INDEX = 2;
 
 	private CategorySearchData(Builder builder)
 	{
@@ -77,21 +98,44 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 	private float getSearchMatchScore()
 	{
-		int userGender = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 1);
-		int genderMatchScore = (userGender == forGender) ? FOR_USER_GENDER_SCORE : (forGender == 0) ? FOR_GENERIC_GENDER_SCORE : NOT_FOR_USER_GENDER_SCORE;
+		if (searchScore != Float.MIN_VALUE)
+		{
+			return searchScore;
+		}
 
-		StickerCategory category = getCategory();
+		List<Float> categoryScores = CategorySearchManager.getInstance().getCategoryScores(getUcid());
 
-		int packStateScore = category.isDownloaded() ? (category.isUpdateAvailable() ? PACK_DOWNLOADED_UPDATE_AVAILABLE : PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE)
-				: PACK_NOT_DOWNLOADED;
+        if (!Utils.isEmpty(categoryScores))
+		{
+			genderMatchScore = categoryScores.get(GENDER_SCORE_MAP_INDEX);
+			packStateScore = categoryScores.get(PACK_STATE_SCORE_MAP_INDEX);
+			stickerCountScore = categoryScores.get(STICKER_COUNT_SCORE_MAP_INDEX);
+		}
+		else
+		{
+            categoryScores = new ArrayList<Float>(3);
 
-		float stickerCountScore = category.isDownloaded() ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount() / category.getTotalStickers();
+			int userGender = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0);
+			genderMatchScore = (userGender == forGender) ? FOR_USER_GENDER_SCORE : (forGender == 0) ? FOR_GENERIC_GENDER_SCORE : NOT_FOR_USER_GENDER_SCORE;
+            categoryScores.add(genderMatchScore);
 
-		float nameMatchScore = CategorySearchManager.getInstance().computeStringMatchScore(matchKeyword, name);
+			StickerCategory category = getCategory();
+
+			packStateScore = category.isDownloaded() ? (category.isUpdateAvailable() ? PACK_DOWNLOADED_UPDATE_AVAILABLE : PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE)
+					: PACK_NOT_DOWNLOADED;
+            categoryScores.add(packStateScore);
+
+			stickerCountScore = category.isDownloaded() ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount() / category.getTotalStickers();
+            categoryScores.add(stickerCountScore);
+
+            CategorySearchManager.getInstance().saveCategoryScores(ucid,  categoryScores);
+		}
+
+		nameMatchScore = CategorySearchManager.getInstance().computeStringMatchScore(matchKeyword, name);
 
 		float[] featureWeights = CategorySearchManager.getInstance().getFeatureWeights();
 
-		float searchScore = (featureWeights[0] * genderMatchScore) + (featureWeights[1] * packStateScore) + (featureWeights[2] * stickerCountScore)
+		searchScore = (featureWeights[0] * genderMatchScore) + (featureWeights[1] * packStateScore) + (featureWeights[2] * stickerCountScore)
 				+ (featureWeights[3] * nameMatchScore);
 
 		Logger.i(TAG, "Scores for " + ucid + " ( " + name + " ) : genderMatchScore = " + genderMatchScore + " packStateScore = " + packStateScore + " stickerCountScore = "
