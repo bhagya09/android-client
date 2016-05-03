@@ -15,6 +15,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -186,13 +187,26 @@ public class EditProfileTask implements IHikeHTTPTask
             @Override
             public void onRequestFailure(HttpException httpException)
             {
-
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
             }
 
             @Override
             public void onRequestSuccess(Response result)
             {
-
+                SharedPreferences.Editor editor = prefs.edit();
+                if (Utils.isValidEmail(newEmail))
+                {
+                    editor.putString(HikeConstants.Extras.EMAIL, newEmail);
+                }
+                editor.putInt(HikeConstants.Extras.GENDER, newGenderType);
+                editor.commit();
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
             }
 
             @Override
