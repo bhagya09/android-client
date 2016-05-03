@@ -49,11 +49,9 @@ public class FetchUknownHikeUserInfo
 
 					Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel);
 
-					if (TextUtils.isEmpty(updatedCallerContentModel.getFullName())
-							&& TextUtils.isEmpty(updatedCallerContentModel.getLocation())
-							&& updatedCallerContentModel.getCallerMetadata().getChatSpamCount() == 0)
+					if (TextUtils.isEmpty(updatedCallerContentModel.getFullName()))
 					{
-						Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name, Locations not known + spam count = 0, so npt showing " );
+						Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name is not known, so not showing view" );
 						HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
 					}
 					else

@@ -2617,15 +2617,26 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
 			{
 				Logger.d("c_spam", "filling values in user_info view as callercontentmodel is " + callerContentModel);
+
 				// set UI (Name, Location, Spam)
 				convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
-				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
 				convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+
+				if(!TextUtils.isEmpty(callerContentModel.getLocation()))
+				{
+					convertView.findViewById(R.id.unknown_user_info_location).setVisibility(View.VISIBLE);
+					((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
+				}
+				else
+				{
+					convertView.findViewById(R.id.unknown_user_info_location).setVisibility(View.GONE);
+				}
+
 				if (callerContentModel.getCallerMetadata() != null)
 				{
 					String spamCoutString = context.getString(R.string.unknown_user_spam_info, callerContentModel.getCallerMetadata().getChatSpamCount());
-					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() +" and text is " + spamCoutString);
+					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() + " and text is " + spamCoutString);
 					if (!TextUtils.isEmpty(spamCoutString) && callerContentModel.getCallerMetadata().getChatSpamCount() > 0 )
 					{
 						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
