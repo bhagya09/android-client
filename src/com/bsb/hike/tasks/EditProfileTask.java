@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -119,9 +120,23 @@ public class EditProfileTask implements IHikeHTTPTask
         {
             @Override
             public void onRequestSuccess(Response result)
-            {
-
-            }
+			{
+				if (profileType != ProfileActivity.ProfileType.GROUP_INFO && profileType != ProfileActivity.ProfileType.BROADCAST_INFO)
+				{
+					/*
+					 * if the request was successful, update the shared preferences and the UI
+					 */
+					String name = newName;
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString(HikeMessengerApp.NAME_SETTING, name);
+					editor.commit();
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_NAME_CHANGED, null);
+				}
+				if (isBackPressed)
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+				}
+			}
 
             @Override
             public void onRequestProgressUpdate(float progress)
@@ -130,9 +145,12 @@ public class EditProfileTask implements IHikeHTTPTask
 
             @Override
             public void onRequestFailure(HttpException httpException)
-            {
-
-            }
+			{
+				if (isBackPressed)
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+				}
+			}
         };
     }
 
