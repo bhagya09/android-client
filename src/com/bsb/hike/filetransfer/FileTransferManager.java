@@ -53,7 +53,7 @@ public class FileTransferManager
 
 	public static final int MAX_RETRY_COUNT = 3;
 
-	public static final int RETRY_DELAY = 1;
+	public static final int RETRY_DELAY = 1 * 1000;
 
 	public static final int RETRY_BACKOFF_MULTIPLIER = 2;
 
