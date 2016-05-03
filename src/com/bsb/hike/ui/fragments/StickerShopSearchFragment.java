@@ -122,7 +122,12 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onSearchCompleted(List<StickerCategory> categories)
 	{
-		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
+		if (!isAdded())
+		{
+			return;
+		}
+
+        if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			loadingEmptyState.setVisibility(View.GONE);
 			searchFailedState.setVisibility(View.GONE);
@@ -138,6 +143,11 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public void onNoCategoriesFound(String query)
 	{
+		if (!isAdded())
+		{
+			return;
+		}
+
 		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
             loadingEmptyState.setVisibility(View.GONE);
@@ -207,7 +217,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
 	private void setSearchEmptyState(String query)
 	{
-		String emptyText = String.format(getActivity().getString(R.string.no_sticker_pack_match_found), query);
+		String emptyText = String.format(HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.no_sticker_pack_match_found), query);
 		if (!TextUtils.isEmpty(query))
 		{
 			SpannableString spanEmptyText = new SpannableString(emptyText);
