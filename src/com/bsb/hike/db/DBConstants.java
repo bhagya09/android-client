@@ -338,7 +338,7 @@ public interface DBConstants
 	 *
 	 */
 	public static interface HIKE_CONTENT{
-		public static final int DB_VERSION = 7;
+		public static final int DB_VERSION = 8;
 		public static final String DB_NAME = "hike_content_db";
 		// CONTENT TABLE -> _id,content_id,love_id,channel_id,timestamp,metadata
 		public static final String CONTENT_TABLE = "content";
@@ -429,6 +429,13 @@ public interface DBConstants
 		public static final String AUTH_TABLE = "auth_table";
 		public static final String MICROAPP_ID = "microapp_id";
 		public static final String TOKEN = "token";
+
+		// AtomicTip TABLE --> json, starttime, endtime, priority
+		public static final String ATOMIC_TIP_TABLE = "atomic_tip_table";
+		public static final String TIP_STATUS = "tp_stts";
+		public static final String TIP_END_TIME = "tp_et";
+		public static final String TIP_DATA = "tp_data";
+		public static final String TIP_PRIORITY = "tp_prrt";
 
 	}
 	
