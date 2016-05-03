@@ -28,8 +28,9 @@ public class BackupMetadata {
     public static final String VERSION = "version";
     public static final String MSISDN = "msisdn";
     public static final String DENSITY_DPI = "dpi";
+    public static final int NO_DPI = -1;
 
-    private int mDensityDPI;
+    private int mDensityDPI = NO_DPI;
     private Context mContext;
 
     private int mAppVersion;
@@ -115,5 +116,10 @@ public class BackupMetadata {
     public String getMsisdn()
     {
         return mMsisdn;
+    }
+
+    public int getDensityDPI()
+    {
+        return mDensityDPI;
     }
 }

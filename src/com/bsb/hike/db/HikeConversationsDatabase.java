@@ -120,6 +120,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -394,6 +395,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
         sql = getStickerTableCreateQuery();
         db.execSQL(sql);
 
+		sql = getRecentStickersTableCreateQuery();
+		db.execSQL(sql);
+
 		//creating tables for OTA ChatThemes
 		String assetTableQuery = getAssetTableCreateQuery();
 		db.execSQL(assetTableQuery);
@@ -429,6 +433,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
+		mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
 	}
 
 	@Override
@@ -1076,7 +1081,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
 
 		if(oldVersion < 50)
@@ -1089,6 +1093,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				db.execSQL(addPrevThemeIdCol);
 			}
 
+			String sql = getRecentStickersTableCreateQuery();
+			db.execSQL(sql);
+
 			//creating tables for OTA ChatThemes
 			String assetTableQuery = getAssetTableCreateQuery();
 			db.execSQL(assetTableQuery);
@@ -1096,7 +1103,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String themeTableQuery = getThemeTableCreateQuery();
 			db.execSQL(themeTableQuery);
 		}
-
 	}
 
 	public void reinitializeDB()
@@ -2236,6 +2242,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
                 + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
 				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
+
+		return sql;
+	}
+
+	private String getRecentStickersTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.RECENT_STICKERS_TABLE
+				+ " ( "
+				+ DBConstants.STICKER_ID + " TEXT, "
+				+ DBConstants.CATEGORY_ID + " TEXT, "
+				+ "PRIMARY KEY ( " + DBConstants.CATEGORY_ID + " , " + DBConstants.STICKER_ID + " ) "
+				+ " ) ";
 
 		return sql;
 	}
@@ -9038,7 +9056,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		//Add object type (su,card, channel)
 		selection.append(" AND " + DBConstants.ACTION_OBJECT_TYPE + " = " +
-                DatabaseUtils.sqlEscapeString(objectType));
+				DatabaseUtils.sqlEscapeString(objectType));
 
 		Cursor c = null;
 		try
@@ -9677,7 +9695,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				contentValues.clear();
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
-				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -9706,6 +9724,95 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public List<StickerCategory> getAllStickerCategories()
+	{
+		Cursor c = null;
+		LinkedHashMap<String, StickerCategory> stickerDataMap;
+
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null, null, null, null, null, null);
+			stickerDataMap = parseStickerCategoriesCursor(c);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		List<StickerCategory> catList = new ArrayList<StickerCategory>(stickerDataMap.values());
+		Collections.sort(catList);
+		return catList;
+	}
+
+	public Set<Sticker> getRecentStickers()
+	{
+		Cursor c = null;
+		Set<Sticker> stickerSet = null;
+		try
+		{
+			c = mDb.query(DBConstants.RECENT_STICKERS_TABLE, null, null, null, null, null, null);
+			int stIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+			int catIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+
+			stickerSet = Collections.synchronizedSet(new LinkedHashSet<Sticker>(c.getCount()));
+
+			while(c.moveToNext())
+			{
+				String stickerId = c.getString(stIdIdx);
+				String categoryId = c.getString(catIdIdx);
+				stickerSet.add(new Sticker(categoryId, stickerId));
+			}
+		}
+		finally
+		{
+			if( null != c)
+			{
+				c.close();
+			}
+		}
+		return stickerSet;
+	}
+
+
+	public void saveRecentStickers(Set<Sticker> recentStickers)
+	{
+		if(Utils.isEmpty(recentStickers))
+		{
+			Logger.d("recent sticker", "empty or null recent sticker set. cant save to table");
+			return;
+		}
+		try
+		{
+			mDb.beginTransaction();
+
+			/**
+			 * First clear recents table
+			 */
+			mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
+
+			/**
+			 * now insert recent stickers
+			 */
+			ContentValues contentValues = new ContentValues();
+			for(Sticker sticker : recentStickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+				mDb.insertWithOnConflict(DBConstants.RECENT_STICKERS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+
 	//Methods to create the query for table creation for OTA Chat Themes
 	/**
 	 * Method to create a query for creating CHAT_THEME_ASSET_TABLE in the database
@@ -9715,13 +9822,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		StringBuilder createAssetTableQuery = new StringBuilder();
 		createAssetTableQuery = createAssetTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_ASSET_TABLE + " (")
-													 .append(ChatThemes.ASSET_COL_ID 				+ COLUMN_TYPE_TEXT 		+ " PRIMARY KEY" + COMMA_SEPARATOR)
-													 .append(ChatThemes.ASSET_COL_TYPE 				+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
-													 .append(ChatThemes.ASSET_COL_VAL 				+ COLUMN_TYPE_TEXT 		+ COMMA_SEPARATOR)
-													 .append(ChatThemes.ASSET_COL_IS_DOWNLOADED 	+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
-													 .append(ChatThemes.ASSET_COL_SIZE				+ COLUMN_TYPE_INTEGER	+ COMMA_SEPARATOR)
-													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL + COLUMN_TYPE_INTEGER)
-													 .append(")");
+				.append(ChatThemes.ASSET_COL_ID 				+ COLUMN_TYPE_TEXT 		+ " PRIMARY KEY" + COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_TYPE 				+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_VAL 				+ COLUMN_TYPE_TEXT 		+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_IS_DOWNLOADED 	+ COLUMN_TYPE_INTEGER 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.ASSET_COL_SIZE				+ COLUMN_TYPE_INTEGER	+ COMMA_SEPARATOR)
+				.append(ChatThemes.CHAT_THEME_TIMESTAMP_COL + COLUMN_TYPE_INTEGER)
+				.append(")");
 
 		return createAssetTableQuery.toString();
 	}
@@ -9734,24 +9841,24 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		StringBuilder createThemeTableQuery = new StringBuilder();
 		createThemeTableQuery = createThemeTableQuery.append(CREATE_TABLE + ChatThemes.CHAT_THEME_TABLE + " (")
-													 .append(ChatThemes.THEME_COL_BG_ID 					  + COLUMN_TYPE_TEXT + " PRIMARY KEY" 	+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_TYPE                        + COLUMN_TYPE_INTEGER 				+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_BG_PORTRAIT                 + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_BG_LANDSCAPE                + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_BUBBLE                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_HEADER                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_SEND_NUDGE 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_RECEIVE_NUDGE 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_INLINE_UPDATE_BG 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_SMS_BG 					  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR	  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_THUMBNAIL 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.CHAT_THEME_TIMESTAMP_COL			  + COLUMN_TYPE_INTEGER					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_METADATA 					  + COLUMN_TYPE_TEXT					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_STATUS_BAR_COL 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
-													 .append(ChatThemes.THEME_COL_BUBBLE_BG 				  + COLUMN_TYPE_TEXT)
-													 .append(")");
+				.append(ChatThemes.THEME_COL_BG_ID 					  + COLUMN_TYPE_TEXT + " PRIMARY KEY" 	+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_TYPE                        + COLUMN_TYPE_INTEGER 				+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BG_PORTRAIT                 + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BG_LANDSCAPE                + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BUBBLE                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_HEADER                      + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_SEND_NUDGE 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_RECEIVE_NUDGE 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_INLINE_UPDATE_BG 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_SMS_BG 					  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_MULTI_SELECT_BUBBLE_COLOR	  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_OFFLINE_MESSAGE_TEXT_COLOR  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_THUMBNAIL 				  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.CHAT_THEME_TIMESTAMP_COL			  + COLUMN_TYPE_INTEGER					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_METADATA 					  + COLUMN_TYPE_TEXT					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_STATUS_BAR_COL 			  + COLUMN_TYPE_TEXT 					+ COMMA_SEPARATOR)
+				.append(ChatThemes.THEME_COL_BUBBLE_BG 				  + COLUMN_TYPE_TEXT)
+				.append(")");
 
 		return createThemeTableQuery.toString();
 	}
@@ -9865,12 +9972,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	private SQLiteStatement prepStmtForChatThemeAssetInsert()
 	{
 		String sqlQuery = "INSERT INTO " + ChatThemes.CHAT_THEME_ASSET_TABLE + "("
-						  + ChatThemes.ASSET_COL_ID + COMMA_SEPARATOR
-						  + ChatThemes.ASSET_COL_TYPE + COMMA_SEPARATOR
-						  + ChatThemes.ASSET_COL_VAL + COMMA_SEPARATOR
-						  + ChatThemes.ASSET_COL_SIZE + COMMA_SEPARATOR
-						  + ChatThemes.ASSET_COL_IS_DOWNLOADED
-						  + ") VALUES (" ;
+				+ ChatThemes.ASSET_COL_ID + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_TYPE + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_VAL + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_SIZE + COMMA_SEPARATOR
+				+ ChatThemes.ASSET_COL_IS_DOWNLOADED
+				+ ") VALUES (" ;
 
 		//placeholders for values
 		String insertValues = Utils.repeatString("?,", ChatThemes.CHAT_THEME_ASSET_TABLE_COL_COUNT);
@@ -10149,7 +10256,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		if(mDb == null)
 			return null;
-		
+
 		SQLiteStatement stmt = mDb.compileStatement(sqlQuery);
 		return stmt;
 	}
@@ -10198,13 +10305,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE;
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
-		try
-		{
-			if (themeListCursor.moveToFirst())
-			{
+		try {
+			if (themeListCursor.moveToFirst()) {
 				//loading all themes (theme id and assets) from the datsabase to the memory
-				while (!themeListCursor.isAfterLast())
-				{
+				while (!themeListCursor.isAfterLast()) {
 					HikeChatTheme chatTheme = makeChatThemeFromDbRow(themeListCursor);
 					themes.put(chatTheme.getThemeId(), chatTheme);
 					themeListCursor.moveToNext();
@@ -10352,20 +10456,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	 * @param assetDbCursor cursor to the asset to be loaded
 	 * @return a chat theme asset object corresponding to the row the cursor points to
 	 */
-	private HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor)
-	{
+	private HikeChatThemeAsset makeAssetFromDbRow(Cursor assetDbCursor) {
 		String assetId = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_ID));
 		int assetType = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_TYPE));
 
 		String assetVal = null;
-		if(!assetDbCursor.isNull(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL)))
+		if (!assetDbCursor.isNull(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL)))
 			assetVal = assetDbCursor.getString(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_VAL));
 
 		int assetSize = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_SIZE));
 		int isDownloaded = assetDbCursor.getInt(assetDbCursor.getColumnIndex(ChatThemes.ASSET_COL_IS_DOWNLOADED));
 
 		HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, assetType, assetVal, assetSize);
-		asset.setIsDownloaded((byte)isDownloaded);
+		asset.setIsDownloaded((byte) isDownloaded);
 
 		return asset;
 	}

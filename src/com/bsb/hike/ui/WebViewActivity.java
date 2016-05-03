@@ -228,7 +228,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				e.printStackTrace();
 			}
-			Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT,AnalyticsConstants.MICRO_APP_OPENED,json);
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
@@ -817,7 +817,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 
-					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_LOADED,json);
                     uiHandler.post(new Runnable() {
                         @Override
                         public void run() {

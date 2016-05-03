@@ -28,9 +28,11 @@ import com.bsb.hike.backup.impl.PrefBackupRestore;
 import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.db.BackupState;
 import com.bsb.hike.db.DBConstants;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -78,6 +80,11 @@ public class AccountBackupRestore
 	public static final String DATA = "data";
 
 	private static volatile AccountBackupRestore _instance = null;
+
+	/**
+	 *If backup is taken below and/or on this version, and restored on a future build, sticker backup will not work.
+	 */
+	public static int STICKER_BACKUP_THRESHHOLD_VERSION = 1687;
 
 	private final Context mContext;
 
@@ -157,7 +164,7 @@ public class AccountBackupRestore
 				}
 			}
 
-			backupUserData();
+			BackupUtils.backupUserData();
 		}
 		catch (Exception e)
 		{
@@ -182,30 +189,6 @@ public class AccountBackupRestore
 		return result;
 	}
 
-	private void backupUserData() throws Exception
-	{
-		BackupMetadata backupMetadata = new BackupMetadata(mContext);
-		String dataString = backupMetadata.toString();
-		File userDataFile = getMetadataFile();
-		BackupUtils.writeToFile(dataString, userDataFile);
-	}
-
-	private BackupMetadata getBackupMetadata() {
-		BackupMetadata userData;
-		try
-		{
-			File userDataFile = getMetadataFile();
-			String userDataString = BackupUtils.readStringFromFile(userDataFile);
-			userData = new BackupMetadata(mContext, userDataString);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-		return userData;
-	}
-
 	/**
 	 * Restores the complete backup of chats and the specified preferences.
 	 *
@@ -225,7 +208,7 @@ public class AccountBackupRestore
 
 		String backupToken = getBackupToken();
 		BackupState state = getBackupState();
-		BackupMetadata backupMetadata = getBackupMetadata();
+		BackupMetadata backupMetadata = BackupUtils.getBackupMetadata();
 
 		if (state == null && backupMetadata == null)
 		{
@@ -406,7 +389,7 @@ public class AccountBackupRestore
 	{
 		Long backupTime = (long) -1;
 		BackupState state = getBackupState();
-		BackupMetadata userData = getBackupMetadata();
+		BackupMetadata userData = BackupUtils.getBackupMetadata();
 		if (userData != null)
 		{
 			backupTime = userData.getBackupTime();
@@ -440,7 +423,7 @@ public class AccountBackupRestore
 			e.printStackTrace();
 		}
 		getBackupStateFile().delete();
-		getMetadataFile().delete();
+		BackupUtils.getMetadataFile().delete();
 	}
 
 	private File getBackupStateFile()
@@ -504,11 +487,6 @@ public class AccountBackupRestore
 			prefUpdated = false;
 		}
 		return prefUpdated;
-	}
-
-	private File getMetadataFile() {
-		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
-		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, DATA);
 	}
 
 	/**

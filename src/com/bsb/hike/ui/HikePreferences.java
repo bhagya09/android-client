@@ -69,6 +69,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
@@ -138,11 +139,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			saveKeyboardPref();
 		}
 
-		int prefCount = getPreferenceScreen().getPreferenceCount();
-		for(int i = 0; i<prefCount;i++)
-		{
-			getPreferenceScreen().getPreference(i).setOnPreferenceChangeListener(this);
-		}
+		setOnChangeForAllPref(getPreferenceScreen());
 
 		addClickPreferences();
 		addSwitchPreferences();
@@ -172,6 +169,23 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		tryToSetupSMSPreferencesScreen();
 		setupToolBar(titleRes);
 
+	}
+
+	private void setOnChangeForAllPref(PreferenceGroup prefGroup)
+	{
+		int prefCount = prefGroup.getPreferenceCount();
+		for(int i = 0; i<prefCount;i++)
+		{
+			Preference prefs = prefGroup.getPreference(i);
+			if(prefs instanceof PreferenceGroup)
+			{
+				setOnChangeForAllPref((PreferenceGroup) prefs);
+			}
+			else
+			{
+				prefs.setOnPreferenceChangeListener(this);
+			}
+		}
 	}
 	
 	private void addSMSCardEnablePref()
@@ -1529,7 +1543,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void updatePrivacyPrefView()
 	{
 		IconListPreference lp = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.LAST_SEEN_PREF_LIST);
-		lp.setOnPreferenceChangeListener(this);
+
 		if (Utils.isFavToFriendsMigrationAllowed())
 		{
 			lp.setEntries(R.array.privacyPrefKeysFriendsExp);
@@ -1541,6 +1555,59 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			lp.setEntries(R.array.privacyPrefKeys);
 			lp.setEntryValues(R.array.privacyPrefValues);
 		}
+
+		lp.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
+		{
+
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue)
+			{
+				try
+				{
+					int slectedPrivacyId = Integer.parseInt(newValue.toString());
+					if(slectedPrivacyId == -1)
+					{
+						Toast.makeText(getBaseContext(), R.string.ls_change_failed, Toast.LENGTH_SHORT).show();
+						return false;
+					}
+					String selectedPrivacyValue = "";
+					boolean isLSEnabled = true;
+					String ls_summary = null;
+					switch (HikeConstants.PrivacyOptions.values()[slectedPrivacyId]) {
+						case NOBODY:
+							isLSEnabled = false;
+							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_nobody_key);
+							ls_summary = getApplicationContext().getString(R.string.ls_nobody_summary);
+							HAManager.logClickEvent(HikeConstants.LogEvent.LS_NOBODY_CLICKED);
+							break;
+						case EVERYONE:
+							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_everyone_key);
+							ls_summary = getApplicationContext().getString(R.string.ls_everyone_summary);
+							HAManager.logClickEvent(HikeConstants.LogEvent.LS_EVERYONE_CLICKED);
+							break;
+						case FAVORITES:
+							selectedPrivacyValue = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+							ls_summary = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_friends_summary : R.string.ls_favorites_summary);
+							HAManager.logClickEvent(HikeConstants.LogEvent.LS_FAVOURITES_CLICKED);
+							break;
+						case MY_CONTACTS:
+							selectedPrivacyValue = getApplicationContext().getString(R.string.privacy_my_contacts_key);
+							ls_summary = getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.ls_my_contacts_summary_frn : R.string.ls_my_contacts_summary);
+							HAManager.logClickEvent(HikeConstants.LogEvent.LS_MY_CONTACTS_CLICKED);
+							break;
+					}
+					preference.setTitle(getString(R.string.last_seen_header) + ": " + selectedPrivacyValue);
+					preference.setSummary(ls_summary);
+					PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(HikeConstants.LAST_SEEN_PREF, isLSEnabled).commit();
+					sendNLSToServer(slectedPrivacyId, isLSEnabled);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				return true;
+			}
+		});
 
 		lp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override

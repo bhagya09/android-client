@@ -1555,7 +1555,7 @@
     <string name="db_corrupt_notif_msg">You have a new notification</string>
     <string name="recording_help_text">Tap and hold to record, release to send</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
-    <string name="bummer">Bummer</string>
+    <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
     <string name="voip_friend_error">Please add %1$s as friend to call. </string>
@@ -1586,4 +1586,8 @@
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
+    <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
+    <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
+    <string name="atomic_tip_http_failure">Some error occured. Please try again</string>
+    <string name="edit_profile_birthday">Birth Date</string>
 </resources>
