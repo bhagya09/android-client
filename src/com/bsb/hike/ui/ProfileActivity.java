@@ -70,6 +70,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -616,7 +617,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 					showNameCanNotBeEmptyToast();
 					return;
 				}
-				saveChangesOkhttp();
+				saveChanges();
 				Utils.hideSoftKeyboard(ProfileActivity.this, mNameEdit);
 				showingGroupEdit = false;
 				mName.setText(groupName);
@@ -1651,7 +1652,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		if (this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
 			isBackPressed = true;
-			saveChangesOkhttp();
+			saveChanges();
 		}
 		else if(isActivityVisible())
 		{
@@ -1661,6 +1662,18 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			//consume this event as the activity is not visible and now its safe as activity is shutting down.so if super is called,
 			//then its going to crash.
+		}
+	}
+
+	public void saveChanges()
+	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, true))
+		{
+			saveChangesOkhttp();
+		}
+		else
+		{
+			saveChangesApache();
 		}
 	}
 
