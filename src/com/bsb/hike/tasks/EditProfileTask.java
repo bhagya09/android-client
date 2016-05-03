@@ -2,7 +2,9 @@ package com.bsb.hike.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -37,6 +39,8 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private RequestToken editNameRequestToken;
 
+    private RequestToken editEmailGenderRequestToken;
+    
     public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, boolean isBackPressed)
     {
         this.msisdn = msisdn;
@@ -109,6 +113,55 @@ public class EditProfileTask implements IHikeHTTPTask
 
             @Override
             public void onRequestFailure(HttpException httpException)
+            {
+
+            }
+        };
+    }
+
+    private void editProfileEmailGender()
+	{
+		JSONObject obj = new JSONObject();
+		try
+		{
+			Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
+			if (!TextUtils.isEmpty(newEmail) && newEmail.equals(prefs.getString(HikeConstants.Extras.EMAIL, "")))
+			{
+				obj.put(HikeConstants.EMAIL, newEmail);
+			}
+			if (newGenderType != prefs.getInt(HikeConstants.Extras.GENDER, 0))
+			{
+				obj.put(HikeConstants.GENDER, newGenderType == 1 ? "m" : newGenderType == 2 ? "f" : "");
+			}
+			Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
+
+			editEmailGenderRequestToken = HttpRequests.editProfileEmailGenderRequest(obj, getEditEmailGenderRequestListener());
+			editEmailGenderRequestToken.execute();
+		}
+		catch (JSONException e)
+		{
+			Logger.e("ProfileActivity", "Could not set email or gender", e);
+		}
+	}
+
+    private IRequestListener getEditEmailGenderRequestListener()
+    {
+        return new IRequestListener()
+        {
+            @Override
+            public void onRequestFailure(HttpException httpException)
+            {
+
+            }
+
+            @Override
+            public void onRequestSuccess(Response result)
+            {
+
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress)
             {
 
             }
