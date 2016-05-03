@@ -81,4 +81,16 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 
         GcmNetworkManager.getInstance(context).cancelTask(tag, gcmTaskService);
     }
+
+    @Override
+    public void cancelAllTasks(Class<? extends GcmTaskService> gcmTaskService)
+    {
+        if (!isGooglePlayServicesAvailable())
+        {
+            Logger.e(TAG, "google play services not available");
+            return;
+        }
+
+        GcmNetworkManager.getInstance(context).cancelAllTasks(gcmTaskService);
+    }
 }

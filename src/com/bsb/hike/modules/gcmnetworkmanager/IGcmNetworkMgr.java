@@ -10,4 +10,6 @@ public interface IGcmNetworkMgr
     void schedule(Config config);
 
     void cancelTask(String tag, Class<? extends GcmTaskService> gcmTaskService);
+
+    void cancelAllTasks(Class<? extends GcmTaskService> gcmTaskService);
 }
