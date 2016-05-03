@@ -1613,7 +1613,7 @@ import java.util.Map;
 			}
 			else
 			{
-				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 			}
 			break;
 		case R.string.scan_free_hike:
