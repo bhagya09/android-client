@@ -40,7 +40,7 @@ public class CategorySearchManager
 
     public static final String AUTO_SEARCH_TIME = "a_s_tm";
 
-    public static final long DEFAULT_AUTO_SEARCH_TIME = 500L;
+    public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L;
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 

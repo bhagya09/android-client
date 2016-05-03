@@ -300,7 +300,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		@Override
 		public void onAnimationRepeat(Animation animation)
 		{
-			if (count++ % 2 != 0)
+			if (count++ % 2 == 0)
 			{
 				searchLayout.setPressed(true);
 				searchLayout.setPressed(false);
