@@ -78,6 +78,8 @@ public class AtomicTipManager
 
     private final int DEFAULT_BG_COLOR = R.color.credits_blue;
 
+    private boolean isTipFromNotif;
+
     //currentlyShowing is maintained primarily for handling click actions
     private AtomicTipContentModel currentlyShowing;
 
@@ -98,6 +100,7 @@ public class AtomicTipManager
         };
         tipContentModels = new ArrayList<>();
         currentlyShowing = null;
+        isTipFromNotif = false;
     }
 
     public static AtomicTipManager getInstance()
@@ -408,6 +411,37 @@ public class AtomicTipManager
         Logger.d(TAG, "firing pubsub to create notif for atomic tip");
         HikeMessengerApp.getPubSub().publish(HikePubSub.ATOMIC_TIP_WITH_NOTIF, notifBundle);
     }
+
+    /**
+     * Method to process tip creation originating from notification click
+     * @param tipId - id of the tip whose notification was clicked
+     */
+    public void processAtomicTipFromNotif(int tipId)
+    {
+        Logger.d(TAG, "notif clicked for atomic tip: " + tipId);
+        isTipFromNotif = true;
+        currentlyShowing = getTipFromId(tipId);
+    }
+
+    /**
+     * Method to retrieve tip model from list for given id
+     * @param tipId
+     * @return
+     */
+    public AtomicTipContentModel getTipFromId(int tipId)
+    {
+        for(AtomicTipContentModel tipModel : tipContentModels)
+        {
+            if(tipModel.hashCode() == tipId)
+            {
+                return tipModel;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Method to check if any atomic tip exists by checking size of tips array list
      * @return
      */
