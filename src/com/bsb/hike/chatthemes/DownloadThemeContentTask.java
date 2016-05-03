@@ -140,7 +140,7 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
         try
         {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            ChatThemeManager.getInstance().processNewThemeSignal(data, true);
+            ChatThemeManager.getInstance().processNewThemeSignal(data, false);
         }
         catch (JSONException e)
         {

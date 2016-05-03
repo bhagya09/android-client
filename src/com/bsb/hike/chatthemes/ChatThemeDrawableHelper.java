@@ -97,7 +97,7 @@ public class ChatThemeDrawableHelper
 		if(asset == null) {
 			return null;
 		}
-		return getResourceIdFromName(asset);
+		return getResourceDrawableFromName(asset);
 	}
 
 	private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset)
@@ -133,17 +133,17 @@ public class ChatThemeDrawableHelper
 		return drawable;
 	}
 
-	private Drawable getResourceIdFromName(HikeChatThemeAsset asset){
+	private Drawable getResourceDrawableFromName(HikeChatThemeAsset asset){
 		switch (asset.getType()) {
 			case HikeChatThemeConstants.ASSET_TYPE_JPEG:
 			case HikeChatThemeConstants.ASSET_TYPE_PNG:
 			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
 			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
-				Logger.v(TAG, "value ::: " + asset.getValue());
-				int index = asset.getValue().indexOf('.');
-				String assetName = asset.getValue();
+				Logger.v(TAG, "value ::: " + asset.getAssetId());
+				int index = asset.getAssetId().indexOf('.');
+				String assetName = asset.getAssetId();
 				if (index > 0) {
-					assetName = asset.getValue().substring(0, index);
+					assetName = asset.getAssetId().substring(0, index);
 				}
 				Logger.v(TAG, "assetName ::: " + assetName);
 				int resourceId = HikeMessengerApp.getInstance().getApplicationContext().getResources().getIdentifier(assetName, "drawable", HikeMessengerApp.getInstance().getApplicationContext().getPackageName());

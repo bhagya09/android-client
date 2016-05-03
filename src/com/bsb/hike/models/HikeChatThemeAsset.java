@@ -67,7 +67,7 @@ public class HikeChatThemeAsset
 
 	public boolean isDownloaded()
 	{
-		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED);
+		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
 	}
 
 	public boolean isDownloadingInProgress()
@@ -78,6 +78,11 @@ public class HikeChatThemeAsset
 	public boolean isAssetMissing()
 	{
 		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+	}
+
+	public boolean isAssetOnApk()
+	{
+		return (isDownloaded == HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
 	}
 
 	public void setIsDownloaded(byte status)

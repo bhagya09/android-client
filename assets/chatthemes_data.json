@@ -10,7 +10,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_coffeebean_2.jpg",
+          "value": "bg_ct_coffeebean.jpg",
           "size": 34
         },
         "offline_message_color": {
@@ -79,7 +79,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_track_2.jpg",
+          "value": "bg_ct_track.jpg",
           "size": 44
         },
         "offline_message_color": {
@@ -217,7 +217,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_independence_2.jpg",
+          "value": "bg_ct_independence.jpg",
           "size": 44
         },
         "offline_message_color": {
@@ -297,7 +297,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_love_2_2.jpg",
+          "value": "bg_ct_love_2.jpg",
           "size": 44
         },
         "chat_bubble": {
@@ -366,7 +366,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_rain_2_2.jpg",
+          "value": "bg_ct_rain_2.jpg",
           "size": 44
         },
         "chat_bubble": {
@@ -435,7 +435,7 @@
         },
         "bg_landscape": {
           "type": 2,
-          "value": "bg_ct_sleepingdog_2.jpg",
+          "value": "bg_ct_sleepingdog.jpg",
           "size": 44
         },
         "chat_bubble": {
@@ -481,6 +481,1042 @@
         "status_bar": {
           "type": 0,
           "value": "644f38",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "37",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_peacockglory_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_peacockglory.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_peacockglory.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "10080b",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "38",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_nowhere_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_nowhere.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_nowhere.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "565c54",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "20",
+        "theme_state": 3,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_valentine_2_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_valentines_2_tile.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_valentines_2_tile.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_smiley_geometric1_independence.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_valentines_2.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom_valentines_2.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "ffffcd",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "421308",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "28",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_friends_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_friends.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_friends.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_chatty_beachy_techy.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_chatty_beachy_techy.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_2x.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "b9fffb",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e33ccff",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "253636",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "26",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_beach2_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_beach_2.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_beach_2.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_beach_2.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_beach_2.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_2x.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "b2e5ff",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "0e284e",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "22",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "bg_ct_night_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_night.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_night.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_night.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_night.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_dark.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "91d8fa",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e33ccff",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "000000",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "24",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_spring_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_spring.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_spring.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_forest_study_sporty_fifa_nature.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_forest_study_sporty_fifa_nature.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "dcffa0",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "49695d",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "21",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_night_pattern_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_night_pattern.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_night_pattern.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_night.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_night.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_dark.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "91d8fa",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e33ccff",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "000000",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "30",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_guitar_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_guitar.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_guitar.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme_2x.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "0c0505",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "4",
+        "theme_state": 1,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_starry_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_starry_tile.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_starry_tile.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_starry_space.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_starry_space.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "a7d3fe",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "0a3054",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "23",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "bg_ct_owl_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_owl.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_owl.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_owl.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_owl.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "7acdc8",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e33ccff",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "122424",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "15",
+        "theme_state": 1,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_beach_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_beach_tile.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_beach_tile.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_chatty_beachy_techy.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_chatty_beachy_techy.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "b9fffb",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "035c66",
+          "size": 0
+        }
+      },
+
+  {
+        "theme_id": "11",
+        "theme_state": 1,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_forest_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_forest_tile.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_forest_tile.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_forest_study_sporty_fifa_nature.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_forest_study_sporty_fifa_nature.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "dcffa0",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "1a5f1a",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "32",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_hikin_couple_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_hikin_couple.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_hikin_couple.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_mr_right_exam.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "ic_nudge_sent_custom_mr_right_exam.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "ic_nudge_receive_custom.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "ffd7ac",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme_2x.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "3e000000",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "644b30",
+          "size": 0
+        }
+      },
+      {
+        "theme_id": "25",
+        "theme_state": 0,
+        "header": {
+          "type": 1,
+          "value": "bg_header_transparent_2x.png",
+          "size": 0
+        },
+        "thumbnail": {
+          "type": 1,
+          "value": "ic_ct_swivel_preview.png",
+          "size": 6
+        },
+        "bg_portrait": {
+          "type": 2,
+          "value": "bg_ct_swivel.jpg",
+          "size": 44
+        },
+        "bg_landscape": {
+          "type": 2,
+          "value": "bg_ct_swivel.jpg",
+          "size": 44
+        },
+        "chat_bubble": {
+          "type": 1,
+          "value": "ic_bubble_default.9.png",
+          "size": 0
+        },
+        "send_nudge": {
+          "type": 1,
+          "value": "nudge_sent.png",
+          "size": 2
+        },
+        "receive_nudge": {
+          "type": 1,
+          "value": "nudge_received.png",
+          "size": 2
+        },
+        "inline_update_bg": {
+          "type": 1,
+          "value": "bg_status_chat_thread_custom_theme_3x.png",
+          "size": 0
+        },
+        "bubble_color": {
+          "type": 0,
+          "value": "d4feff",
+          "size": 0
+        },
+        "sms_bg": {
+          "type": 1,
+          "value": "bg_sms_toggle_custom_theme.9.png",
+          "size": 0
+        },
+        "multi_select_bubble": {
+          "type": 0,
+          "value": "9A33b5e5",
+          "size": 0
+        },
+        "offline_message_color": {
+          "type": 0,
+          "value": "FFFFFF",
+          "size": 0
+        },
+        "status_bar": {
+          "type": 0,
+          "value": "5e1643",
           "size": 0
         }
       }
