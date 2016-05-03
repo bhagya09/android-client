@@ -33,6 +33,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
 import org.json.JSONArray;
@@ -486,6 +487,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 				cv.put(DBConstants.PLATFORM_USER_ID, contact.getPlatformId());
 				cv.put(DBConstants.FAVORITE_TYPE, contact.getFavoriteType() != null ? contact.getFavoriteType().ordinal() : FavoriteType.NOT_FRIEND.ordinal());
 				cv.put(DBConstants.BLOCK_STATUS,contact.getBlockedStatus());
+				cv.put(DBConstants.HIKE_UID,contact.getUid());
 				if (!isFirstSync)
 				{
 					String selection = Phone.CONTACT_ID + " =? " + " AND " + Phone.NUMBER + " =? ";
@@ -660,7 +662,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return 0;
 	}
 
-	public void addBlockList(List<String> msisdns)
+	public void addBlockList(List<PairModified<String,String>> msisdns)
 	{
 		Logger.d(TAG, "Going to insert into block into User Table");
 		if (Utils.isEmpty(msisdns)) {
@@ -670,11 +672,14 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		ContentValues cv = new ContentValues();
 		mDb.beginTransaction();
 		try {
-			for (String msisdn : msisdns) {
+			for (PairModified<String,String> msisdn : msisdns) {
 				Logger.d(TAG, "Adding msisdb to block" + msisdn);
-				cv.put(DBConstants.MSISDN, msisdn);
+				cv.put(DBConstants.MSISDN, msisdn.getFirst());
+				if (!TextUtils.isEmpty(msisdn.getSecond())) {
+					cv.put(DBConstants.HIKE_UID, msisdn.getSecond());
+				}
 				cv.put(DBConstants.BLOCK_STATUS, DBConstants.STATUS_BLOCKED);
-				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn});
+				long value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{msisdn.getFirst()});
 				if (value == -1 || value == 0) {
 
 					value = mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
@@ -697,7 +702,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 	 * @param contacts
 	 *            list of contacts to set/add
 	 */
-	void setAddressBookAndBlockList(List<ContactInfo> contacts, List<String> blockedMsisdns) throws DbException
+	void setAddressBookAndBlockList(List<ContactInfo> contacts, List<PairModified<String,String>> blockedMsisdns) throws DbException
 	{
 		/* delete all existing entries from database */
 		mDb.delete(DBConstants.USERS_TABLE, null, null);
@@ -1806,8 +1811,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		{
 			return;
 		}
-		List<String> blockedContact=new ArrayList(1);
-		blockedContact.add(msisdn);
+		List<PairModified<String,String>> blockedContact=new ArrayList(1);
+		blockedContact.add(new PairModified<String, String>(msisdn,null));
 		addBlockList(blockedContact);
 	}
 
