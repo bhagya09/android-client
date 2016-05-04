@@ -3164,22 +3164,5 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return getFriendshipStatus(msisdn) == FavoriteType.FRIEND;
 	}
-
-	public Set<String> getMsisdnForMissingUID() {
-		Set<String> msisdn = new HashSet<>();
-		msisdn.addAll(HikeUserDatabase.getInstance().getMsisdnsForMissingHikeUID());
-
-		List<ContactInfo> oneToOneContacts = getAllConversationContactsSorted(false, true);
-
-		//Active Chats
-		for (ContactInfo ci : oneToOneContacts) {
-			if (TextUtils.isEmpty(ci.getUid())) {
-				msisdn.add(ci.getMsisdn());
-			}
-		}
-
-		return msisdn;
-		//Bots
-	}
 }
 
