@@ -70,7 +70,6 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.ChatThreadActivity;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -111,6 +110,7 @@ import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.PhotoViewerFragment;
+import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.EmoticonTextWatcher;
 import com.bsb.hike.utils.IntentFactory;
@@ -140,7 +140,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import com.bsb.hike.chatthread.ChatThreadActivity;
 
 
 public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnLongClickListener, OnCheckedChangeListener
@@ -1005,7 +1004,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if (metadata.getNudgeAnimationType() != NudgeAnimationType.NONE)
 				{
 					metadata.setNudgeAnimationType(NudgeAnimationType.NONE);
-					int animId = -1; // TODO CHATTHEME
+					int animId = getChatThemeAnimationId(chatThemeId); // TODO CHATTHEME
 					if(animId != -1)
 					{
 						nudgeHolder.nudge.startAnimation(AnimationUtils.loadAnimation(context, animId));
@@ -2644,6 +2643,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			broadcastIndicator.setVisibility(View.GONE);
 		}
+	}
+
+	// TODO CHATTHEME, The animation id is currently hard coded, need to rework on Chat theme framework for animations
+	private int getChatThemeAnimationId(String chatThemeId){
+		if(chatThemeId.equalsIgnoreCase(ChatTheme.VALENTINES_2.bgId())) {//VALENTINES_2
+			return R.anim.valetines_nudge_anim;
+		} else if(chatThemeId.equalsIgnoreCase(ChatTheme.VALENTINES_2016.bgId())) {//VALENTINES_2016
+			return R.anim.valentines_2016_nudge_anim;
+		}
+		return -1;
 	}
 
 
