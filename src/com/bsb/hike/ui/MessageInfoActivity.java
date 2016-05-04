@@ -268,14 +268,14 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			if (iterator.hasNext())
 				participantData = iterator.next();
 			// Creating readList
-			MessageInfoItem.MessageInfoItemOnetoOne readList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.read_list), R.drawable.ic_double_tick_r);
+			MessageInfoItem.MessageInfoItemOnetoOne readList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.read_list), R.drawable.ic_double_tick_r_blue);
 			if (!participantTreeMap.isEmpty())
 			{
 				if (participantData != null)
 					readList.setTimeStamp(participantData.getReadTimeStamp());
 			}
 			// Creating deliveredList
-			MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list), R.drawable.ic_double_tick);
+			MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list), R.drawable.ic_double_tick_blue);
 			if (!participantTreeMap.isEmpty())
 			{
 				if (participantData != null)
@@ -360,7 +360,9 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 				deliveredList.addParticipant(participantData);
 
 			}
+
 			listsToBedisplayed.add(readList);
+			if(deliveredList.shouldAddList())
 			listsToBedisplayed.add(deliveredList);
 
 			updateItemsinList();
