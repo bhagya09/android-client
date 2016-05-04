@@ -14,7 +14,6 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.Logger;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FetchUknownHikeUserInfo
@@ -43,38 +42,32 @@ public class FetchUknownHikeUserInfo
 					return;
 				}
 
-				try {
-					JSONObject jsonObject = (JSONObject) result.getBody().getContent();
-					CallerContentModel updatedCallerContentModel = ChatHeadUtils.getUpdatedCallerContentModelFromResponse(callerContentModel, jsonObject, msisdn);
+				JSONObject jsonObject = (JSONObject) result.getBody().getContent();
+				CallerContentModel updatedCallerContentModel = ChatHeadUtils.getUpdatedCallerContentModelFromResponse(callerContentModel, jsonObject, msisdn);
 
-					Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel);
+				Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel);
 
-					if (TextUtils.isEmpty(updatedCallerContentModel.getFullName()))
+				if (TextUtils.isEmpty(updatedCallerContentModel.getFullName()))
+				{
+					Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name is not known, so not showing view" );
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
+				}
+				else
+				{
+					// Insert new row with Creation time = 0
+					if (insertNewRow)
 					{
-						Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name is not known, so not showing view" );
-						HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
+						Logger.d("c_spam", "HTTP res SUCCESS :- going insert new row in in DB");
+						ContactManager.getInstance().insertIntoCallerTable(updatedCallerContentModel, false, false, 0);
 					}
 					else
 					{
-						// Insert new row with Creation time = 0
-						if (insertNewRow)
-						{
-							Logger.d("c_spam", "HTTP res SUCCESS :- going insert new row in in DB");
-							ContactManager.getInstance().insertIntoCallerTable(updatedCallerContentModel, false, false, 0);
-						}
-						else
-						{
-							// Update md, expiry time for this msisdn in table
-							Logger.d("c_spam", "HTTP res SUCCESS :- updating md, expiry time in in DB");
-							ContactManager.getInstance().updateMdIntoCallerTable(updatedCallerContentModel);
-						}
-						Logger.d("c_spam", "HTTP res SUCCESS :- Firing pubsub " + HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW + " data:- " + updatedCallerContentModel);
-						HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, updatedCallerContentModel);
+						// Update md, expiry time for this msisdn in table
+						Logger.d("c_spam", "HTTP res SUCCESS :- updating md, expiry time in in DB");
+						ContactManager.getInstance().updateMdIntoCallerTable(updatedCallerContentModel);
 					}
-				}
-				catch (JSONException ex)
-				{
-					ex.printStackTrace();
+					Logger.d("c_spam", "HTTP res SUCCESS :- Firing pubsub " + HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW + " data:- " + updatedCallerContentModel);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, updatedCallerContentModel);
 				}
 			}
 
