@@ -64,7 +64,7 @@ public class CategoryTagInsertTask implements Runnable
 					continue;
 				}
 
-				if (TextUtils.isEmpty(categoryName))
+				if (!TextUtils.isEmpty(categoryName))
 				{
 					categoryTagData.setName(categoryName.toLowerCase().trim());
 				}
