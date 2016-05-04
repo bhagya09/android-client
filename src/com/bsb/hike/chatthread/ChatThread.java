@@ -1717,7 +1717,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		else if (!mAdapter.getChatThemeId().equals(themeId))
 		{
-			removeChatThemeFromCache();
 			Logger.i(TAG, "update ui for theme " + themeId);
 			if (mAdapter.getChatThemeId().equals(ChatThemeManager.getInstance().defaultChatThemeId))
 				setChatBackground(REMOVE_CHAT_BACKGROUND);
@@ -1727,15 +1726,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			setConversationTheme(themeId);
 			ColorDrawable statusBarColor = (ColorDrawable) ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_STATUS_BAR_BG);
 			setStatusBarColorValue(statusBarColor.getColor());
-		}
-	}
-
-	private void removeChatThemeFromCache()
-	{
-		if (HikeMessengerApp.getLruCache().getChatTheme(mAdapter.getChatThemeId() + getOrientationPrefix()) != null)
-		{
-			Logger.d(TAG,"Removing from cache in case of chatThemeupdate .. ");
-			HikeMessengerApp.getLruCache().removeChatTheme(mAdapter.getChatThemeId());
 		}
 	}
 
@@ -1760,38 +1750,13 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
 			backgroundImage.setScaleType(ChatThemeManager.getInstance().getTheme(themeId).isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
-			Drawable drawable = loadChatTheme(themeId);
+			Drawable drawable = Utils.getChatTheme(themeId, activity);
 			if(!ChatThemeManager.getInstance().getTheme(themeId).isTiled())
 			{
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
-	}
-
-	/**
-	 *
-	 * @param theme
-	 * @return ChatTheme Drawable if found in cache good else load from apk bundled resources
-	 */
-	private Drawable loadChatTheme(String themeId)
-	{
-		// Now we are first fetching from Cache
-		Drawable drawable = HikeMessengerApp.getLruCache().getChatTheme(themeId + getOrientationPrefix());
-		if (drawable == null)
-		{
-			Logger.d(TAG, "Did not found in cached Fetching from APK");
-			// Not found in cache load from apk
-			drawable = Utils.getChatTheme(themeId, activity);
-
-			// insert into cached
-			HikeMessengerApp.getLruCache().saveChatTheme(themeId + getOrientationPrefix(), (BitmapDrawable) drawable);
-		}
-		else
-		{
-			Logger.d(TAG, "Bitmap Chat Theme found in cache");
-		}
-		return drawable;
 	}
 
 	@Override

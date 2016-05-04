@@ -2,6 +2,7 @@ package com.bsb.hike.media;
 
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -331,38 +332,17 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
-		((ArrayAdapter<String>) grid.getAdapter()).clear();
-		((ArrayAdapter<String>) grid.getAdapter()).addAll(availableThemes);
+		((ArrayAdapter<String>) grid.getAdapter()).notifyDataSetChanged();
 	}
 	
 	public void setOrientation(int orientation)
 	{
-		if(orientation != currentConfig || dataChanged())
+		if(orientation != currentConfig)
 		{
 			this.currentConfig = orientation;
 			refreshViews();
 		}
 
-	}
-
-	public boolean dataChanged()
-	{
-		ArrayList<String> candidateThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
-		if(availableThemes.size() != candidateThemes.size())
-		{
-			availableThemes = candidateThemes;
-			return true;
-		}
-
-		for(int i=0;i<availableThemes.size(); i++)
-		{
-			if(!availableThemes.get(i).equals(candidateThemes.get(i)))
-			{
-				availableThemes = candidateThemes;
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public int getThemePosition(ArrayList<String> themeIds, String searchTheme)

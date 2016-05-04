@@ -141,6 +141,7 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -4755,32 +4756,34 @@ public class Utils
 
 	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		/*
-		 * for xhdpi and above we should not scale down the chat theme nodpi asset for hdpi and below to save memory we should scale it down
-		 */
-		int inSampleSize = 1;
-		if (ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled() && Utils.scaledDensityMultiplier < 2)
-		{
-			inSampleSize = 2;
+		//TODO CHATTHEME please remove this hack, at the time of removing chat themes from apk
+		ChatTheme[] themes = ChatTheme.THEME_PICKER;
+		for(int i = 0 ; i < themes.length; i++) {
+			Log.v(TAG, "Remove later " + themes[i].bgResId());
+			Log.v(TAG, "Remove later " + themes[i].headerBgResId());
+			Log.v(TAG, "Remove later " + themes[i].previewResId());
+			Log.v(TAG, "Remove later " + themes[i].headerBgResId());
+			Log.v(TAG, "Remove later " + themes[i].sentNudgeResId());
+			Log.v(TAG, "Remove later " + themes[i].receivedNudgeResId());
+			Log.v(TAG, "Remove later " + themes[i].bubbleResId());
+			Log.v(TAG, "Remove later " + themes[i].inLineUpdateBGResId());
+			Log.v(TAG, "Remove later " + themes[i].smsToggleBgRes());
 		}
 
 		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
-		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE)
-		{
+		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
 			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
 		}
-
-		// TODO CHATTHEME (did not consider lowering the resolution of image for different phones)
-		BitmapDrawable bd = (BitmapDrawable) ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
-
-		Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
-
-		if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled())
-		{
-			bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		Drawable drawable = ChatThemeManager.getInstance().getDrawableForTheme(chatThemeId, asset);
+		if(drawable instanceof BitmapDrawable) {
+			BitmapDrawable bd = (BitmapDrawable) drawable;
+			Logger.d(context.getClass().getSimpleName(), "chat themes bitmap size= " + BitmapUtils.getBitmapSize(bd.getBitmap()));
+			if (bd != null && ChatThemeManager.getInstance().getTheme(chatThemeId).isTiled()) {
+				bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+			}
+			return bd;
 		}
-
-		return bd;
+		return drawable;
 	}
 
 	public static void resetPinUnreadCount(OneToNConversation conv)

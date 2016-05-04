@@ -3,12 +3,15 @@ package com.bsb.hike.chatthemes;
 import java.io.File;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeChatTheme;
@@ -60,7 +63,7 @@ public class ChatThemeDrawableHelper
 		if ((theme != null) && (drawable == null)) {
 			drawable = getAPKDrawable(theme, assetIndex);
 			if (drawable == null) {
-				Logger.v(TAG, "Drawable does not exist on APK file (preloaded file) :");
+				Log.v(TAG, "Drawable does not exist on APK file (preloaded file) :");
 			}
 		}
 		if (drawable == null)
@@ -124,7 +127,8 @@ public class ChatThemeDrawableHelper
 				String path = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath() + File.separator + asset.getAssetId();
 				if (isFileExists(path))
 				{
-					BitmapDrawable bmp = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), path);
+					Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+					BitmapDrawable bmp = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), b);
 					HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), bmp);
 					drawable = bmp;
 				}
@@ -139,16 +143,20 @@ public class ChatThemeDrawableHelper
 			case HikeChatThemeConstants.ASSET_TYPE_PNG:
 			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
 			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
-				Logger.v(TAG, "value ::: " + asset.getAssetId());
-				int index = asset.getAssetId().indexOf('.');
-				String assetName = asset.getAssetId();
-				if (index > 0) {
-					assetName = asset.getAssetId().substring(0, index);
-				}
-				Logger.v(TAG, "assetName ::: " + assetName);
-				int resourceId = HikeMessengerApp.getInstance().getApplicationContext().getResources().getIdentifier(assetName, "drawable", HikeMessengerApp.getInstance().getApplicationContext().getPackageName());
-				Logger.v(TAG, "resourceId ::: " + resourceId);
-				return getDrawableFromId(resourceId);
+				//BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
+				//if(drawable == null) {
+					int index = asset.getAssetId().indexOf('.');
+					String assetName = asset.getAssetId();
+					if (index > 0) {
+						assetName = asset.getAssetId().substring(0, index);
+					}
+					Context context = HikeMessengerApp.getInstance().getApplicationContext();
+					int resourceId = context.getResources().getIdentifier(assetName, "drawable", HikeMessengerApp.getInstance().getApplicationContext().getPackageName());
+					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.RGB_565);
+					BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
+					//HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
+				//}
+				return drawable;
 			case HikeChatThemeConstants.ASSET_TYPE_COLOR:
 				return new ColorDrawable(Color.parseColor("#" + asset.getValue()));
 		}
