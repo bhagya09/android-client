@@ -141,7 +141,6 @@ import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -4756,20 +4755,6 @@ public class Utils
 
 	public static Drawable getChatTheme(String chatThemeId, Context context)
 	{
-		//TODO CHATTHEME please remove this hack, at the time of removing chat themes from apk
-		ChatTheme[] themes = ChatTheme.THEME_PICKER;
-		for(int i = 0 ; i < themes.length; i++) {
-			Log.v(TAG, "Remove later " + themes[i].bgResId());
-			Log.v(TAG, "Remove later " + themes[i].headerBgResId());
-			Log.v(TAG, "Remove later " + themes[i].previewResId());
-			Log.v(TAG, "Remove later " + themes[i].headerBgResId());
-			Log.v(TAG, "Remove later " + themes[i].sentNudgeResId());
-			Log.v(TAG, "Remove later " + themes[i].receivedNudgeResId());
-			Log.v(TAG, "Remove later " + themes[i].bubbleResId());
-			Log.v(TAG, "Remove later " + themes[i].inLineUpdateBGResId());
-			Log.v(TAG, "Remove later " + themes[i].smsToggleBgRes());
-		}
-
 		byte asset = HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT;
 		if(context.getResources().getConfiguration().orientation == context.getResources().getConfiguration().ORIENTATION_LANDSCAPE) {
 			asset = HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE;
