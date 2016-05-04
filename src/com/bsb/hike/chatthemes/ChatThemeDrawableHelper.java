@@ -3,15 +3,21 @@ package com.bsb.hike.chatthemes;
 import java.io.File;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.NinePatch;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeChatTheme;
@@ -85,11 +91,9 @@ public class ChatThemeDrawableHelper
 	 * @return the Drawable
 	 *
 	 */
-	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex)
-	{
+	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex) {
 		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(theme.getAssetId(assetIndex));
-		if(asset == null)
-		{
+		if(asset == null) {
 			return null;
 		}
 		return getDrawableFromSDCard(asset);
@@ -103,64 +107,81 @@ public class ChatThemeDrawableHelper
 		return getResourceDrawableFromName(asset);
 	}
 
-	private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset)
-	{
-		Drawable drawable = null;
-		if (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_COLOR)
-		{
-			// java.lang.NumberFormatException: Invalid long: "#1E131C"
-			String color = asset.getAssetId(); //assetId are equivalent to values for colors
-			if (color.charAt(0) == '#')
-			{
-				drawable = new ColorDrawable(Color.parseColor(color));
-			}
-			else
-			{
-				drawable = new ColorDrawable(Color.parseColor("#" + color));
-			}
-		}
-		else
-		{
-			drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
-			if (drawable == null)
-			{
-				String path = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath() + File.separator + asset.getAssetId();
-				if (isFileExists(path))
-				{
-					Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
-					BitmapDrawable bmp = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), b);
-					HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), bmp);
-					drawable = bmp;
-				}
-			}
-		}
-		return drawable;
-	}
-
-	private Drawable getResourceDrawableFromName(HikeChatThemeAsset asset){
+	private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset) {
+		String path = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath() + File.separator + asset.getAssetId();
 		switch (asset.getType()) {
 			case HikeChatThemeConstants.ASSET_TYPE_JPEG:
 			case HikeChatThemeConstants.ASSET_TYPE_PNG:
-			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
 			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
-				//BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
-				//if(drawable == null) {
-					int index = asset.getAssetId().indexOf('.');
-					String assetName = asset.getAssetId();
-					if (index > 0) {
-						assetName = asset.getAssetId().substring(0, index);
+				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
+				if (drawable == null) {
+					if (TextUtils.isEmpty(path) && isFileExists(path)) {
+						Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+						drawable = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), b);
+						HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
+						b = null;
 					}
-					Context context = HikeMessengerApp.getInstance().getApplicationContext();
-					int resourceId = context.getResources().getIdentifier(assetName, "drawable", context.getPackageName());
-					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.RGB_565);
-					BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
-					//HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
-				//}
+				}
 				return drawable;
+			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
+				if (TextUtils.isEmpty(path) && isFileExists(path)) {
+					Bitmap bitmap = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+					byte[] chunk = bitmap.getNinePatchChunk();
+					boolean result = NinePatch.isNinePatchChunk(chunk);
+					if(result) {
+						return new NinePatchDrawable(HikeMessengerApp.getInstance().getResources(), bitmap, chunk, new Rect(), null);
+					}
+				}
+				return null;
 			case HikeChatThemeConstants.ASSET_TYPE_COLOR:
-				return new ColorDrawable(Color.parseColor("#" + asset.getValue()));
+				return getColorDrawable(asset.getAssetId());
 		}
 		return null;
+	}
+
+	private Drawable getResourceDrawableFromName(HikeChatThemeAsset asset) {
+		int index = asset.getAssetId().indexOf('.');
+		String assetName = asset.getAssetId();
+		if (index > 0) {
+			assetName = asset.getAssetId().substring(0, index);
+		}
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		int resourceId = context.getResources().getIdentifier(assetName, "drawable", context.getPackageName());
+
+		Log.v(TAG, "assetName ::: "+assetName+" :: resourceId:: "+resourceId+ " :: asset.getType() :: "+asset.getType());
+		switch (asset.getType()) {
+			case HikeChatThemeConstants.ASSET_TYPE_JPEG:
+			case HikeChatThemeConstants.ASSET_TYPE_PNG:
+			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
+				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId() + getOrientationPrefix(context));
+				if(drawable == null) {
+					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.RGB_565);
+					drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
+					HikeMessengerApp.getLruCache().putInCache(asset.getAssetId() + getOrientationPrefix(context), drawable);
+					b = null;
+				}
+				return drawable;
+			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
+				return (NinePatchDrawable) getDrawableFromId(resourceId);
+			case HikeChatThemeConstants.ASSET_TYPE_COLOR:
+				return getColorDrawable(asset.getAssetId());
+		}
+		return null;
+	}
+
+	private ColorDrawable getColorDrawable(String color) {
+		// java.lang.NumberFormatException: Invalid long: "#1E131C"
+		ColorDrawable cDrawable = null;
+		if (color.charAt(0) == '#') {
+			cDrawable = new ColorDrawable(Color.parseColor(color));
+		} else {
+			cDrawable = new ColorDrawable(Color.parseColor("#" + color));
+		}
+		return cDrawable;
+	}
+
+	private String getOrientationPrefix(Context context) {
+		return (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
 	}
 
 	private boolean isFileExists(String path)
