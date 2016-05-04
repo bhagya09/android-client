@@ -1,7 +1,5 @@
 package com.bsb.hike.modules.httpmgr.requeststate;
 
-import org.json.JSONException;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,8 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Singleton class for database calls on http request state db used for storing http request states for upload and download requests. This will be later used for persistent retries
@@ -245,5 +249,41 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 	{
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, null, null);
 		mDb.delete(GCM_NETWORK_MANAGER_TABLE, null, null);
+	}
+
+	public List<Config> getPendingGcmTaskConfigs()
+	{
+		List<Config> pendingConfigs = null;
+
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(GCM_NETWORK_MANAGER_TABLE, null, null, null, null, null, null);
+
+			if (null != c)
+			{
+				pendingConfigs = new ArrayList<Config>(c.getCount());
+
+				int bundleIdx = c.getColumnIndex(BUNDLE);
+
+				while (c.moveToNext())
+				{
+					byte[] bundleBytes = c.getBlob(bundleIdx);
+
+					pendingConfigs.add(Config.fromBundle(Utils.getBundleFromBytes(bundleBytes)));
+				}
+			}
+		}
+
+		finally
+		{
+			if (null != c)
+			{
+				c.close();
+			}
+		}
+
+		return pendingConfigs;
 	}
 }
