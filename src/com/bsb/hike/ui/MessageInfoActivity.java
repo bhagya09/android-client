@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -478,6 +479,14 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		relativeLayout.addView(messageInfoView.getView(convMessage));
 		View messageView = findViewById(R.id.relativeLayout);
 		messageView.setBackgroundResource(chatTheme.bgResId());
+		final ScrollView sv=(ScrollView)findViewById(R.id.scrollviewmessagecontainer);
+		sv.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				sv.fullScroll(ScrollView.FOCUS_DOWN);
+			}
+		},0);
 		StatusBarColorChanger.setStatusBarColor(this, chatTheme.statusBarColor());
 		if (chatTheme != ChatTheme.DEFAULT)
 		{
