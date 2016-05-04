@@ -575,16 +575,7 @@ public class AtomicTipManager
         if(currentlyShowing.isBgColor())
         {
             Logger.d(TAG, "atomic tip background is single color. processing it!");
-            try
-            {
-                tipView.findViewById(R.id.all_content).setBackgroundColor(Color.parseColor(currentlyShowing.getBgColor()));
-            }
-            catch (IllegalArgumentException iae)
-            {
-                Logger.d(TAG, "error in setting bg color. possibly wrong color value received");
-                return null;
-            }
-
+            tipView.findViewById(R.id.all_content).setBackgroundColor(Color.parseColor(currentlyShowing.getBgColor()));
         }
         else
         {
