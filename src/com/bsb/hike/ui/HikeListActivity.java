@@ -141,9 +141,8 @@ public class HikeListActivity extends HikeAppStateBaseFragmentActivity implement
 			break;
 		}
 		setupActionBar();
-		Utils.executeContactListResultTask(new SetupContactList());
+		new SetupContactList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-		
 		
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.INVITE_SMS.ordinal());
 	}
