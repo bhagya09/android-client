@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class Config
 {
+	public static final String LOG_TAG = "Config";
+
 	public static final String TAG = "tag";
 
 	public static final String NUM_OF_RETRIES = "num_of_retries";
@@ -186,11 +188,11 @@ public class Config
 				}
 				catch (ClassNotFoundException e)
 				{
-					Logger.e("Config", "Class not found exception occurred while getting class from string ", e);
+					Logger.e(LOG_TAG, "Class not found exception occurred while getting class from string ", e);
 				}
 				catch (ClassCastException e)
 				{
-					Logger.e("Config", "Class cast execption occurred while getting class from string ", e);
+					Logger.e(LOG_TAG, "Class cast execption occurred while getting class from string ", e);
 				}
 			}
 		}
