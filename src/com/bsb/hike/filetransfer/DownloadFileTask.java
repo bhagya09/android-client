@@ -97,7 +97,7 @@ public class DownloadFileTask extends FileTransferBase
 		if (requestToken == null)
 		{
 			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
-					new FileTransferChunkSizePolicy(context), fileTypeString);
+					new FileTransferChunkSizePolicy(context), fileTypeString, fileKey);
 		}
 		requestToken.execute();
 	}

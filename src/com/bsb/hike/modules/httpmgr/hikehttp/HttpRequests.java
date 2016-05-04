@@ -1154,7 +1154,7 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString)
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString, String fileKey)
 	{
 		RequestToken token = new FileDownloadRequest.Builder()
 				.setUrl(url)
@@ -1163,6 +1163,7 @@ public class HttpRequests
 				.setFile(destFilePath)
 				.setFileTypeString(fileTypeString)
 				.setChunkSizePolicy(chunkSizePolicy)
+				.setFileKey(fileKey)
 				.setId(String.valueOf(msgId))
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.build();
