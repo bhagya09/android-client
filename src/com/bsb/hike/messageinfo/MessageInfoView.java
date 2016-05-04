@@ -127,7 +127,7 @@ public class MessageInfoView
 			ImageView stickerImage = (ImageView) v.findViewById(R.id.image);
 
 			stickerImage.setVisibility(View.VISIBLE);
-			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerImage, true, true);
+			stickerLoader.loadSticker(sticker, StickerConstants.StickerType.LARGE, stickerImage, false, true);
 			setTimeNStatus(detailViewHolder, true);
 			return v;
 		}

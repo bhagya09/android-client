@@ -3,7 +3,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/parent_layout">
-
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="151dp"
+                android:layout_alignParentTop="true"
+                android:id="@+id/scrollviewmessagecontainer"
+                android:fadeScrollbars="true"
+               >
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="151dp"
@@ -30,10 +36,11 @@
         </LinearLayout>
 
     </RelativeLayout>
+    </ScrollView>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/relativeLayout"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/scrollviewmessagecontainer"
         android:background="@color/white"
         >
         <ListView

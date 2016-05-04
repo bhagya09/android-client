@@ -2,6 +2,7 @@
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
           android:id="@+id/remainingitem_list"
           android:layout_width="fill_parent"
-          android:layout_height="fill_parent" >
+          android:layout_height="fill_parent"
+          android:layout_marginTop="4dp">
 
 </ListView>

@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="42dp"
-              android:orientation="horizontal"
-              android:background="@color/white" >
+              android:layout_height="54dp"
+              android:background="@color/white"
+              android:orientation="horizontal">
 
 
     <FrameLayout
-        android:layout_width="@dimen/conv_item_avatar"
-        android:layout_height="@dimen/conv_item_avatar"
-        android:layout_marginLeft="16dp">
+        android:layout_width="@dimen/message_info_contact_avatar"
+        android:layout_height="@dimen/message_info_contact_avatar"
+        android:layout_marginBottom="7dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="7dp">
 
         <com.bsb.hike.view.RoundedImageView
             android:id="@+id/avatar"
-            style="@style/AvatarStyle.MorePadding" />
+            style="@style/AvatarStyle.MorePadding"/>
     </FrameLayout>
+
     <RelativeLayout
         android:id="@+id/section_view"
         style="@style/ListSectionHeaderMargins"
-        android:layout_marginTop="18dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp">
 
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/contactName"
             style="@style/ListSectionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/friends"
-            android:textSize="14sp"/>
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold|italic"/>
 
         <ImageView
             android:id="@+id/messagestatus"
-            android:contentDescription="@string/content_des_message_send_rec_read_status"
             android:layout_width="24.5dp"
             android:layout_height="10dp"
-            android:src="@drawable/ic_tick"
+            android:layout_alignParentRight="true"
             android:layout_marginBottom="3dp"
             android:layout_marginLeft="3dp"
-            android:layout_alignParentRight="true"
+            android:contentDescription="@string/content_des_message_send_rec_read_status"
+            android:src="@drawable/ic_tick"
             />
     </RelativeLayout>
-
 
 
 </LinearLayout>
