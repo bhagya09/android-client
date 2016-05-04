@@ -15,7 +15,7 @@ public class HikeChatTheme
 
 	private Bitmap thumbnailBmp;
 
-	private boolean themeVisibilityStatus;
+	private boolean themeVisibilityStatus = true;
 
 	private int assetDownloadStatus = 0;
 
@@ -24,6 +24,8 @@ public class HikeChatTheme
 	private String[] assets;
 
 	private String metadata;
+
+	private int themeOrderIndex = 0;
 
 	public HikeChatTheme()
 	{
@@ -135,5 +137,13 @@ public class HikeChatTheme
 	public boolean isCustomTheme()
 	{
 		return (themeType & HikeChatThemeConstants.THEME_TYPE_CUSTOM) == HikeChatThemeConstants.THEME_TYPE_CUSTOM;
+	}
+
+	public int getThemeOrderIndex() {
+		return themeOrderIndex;
+	}
+
+	public void setThemeOrderIndex(int themeOrderIndex) {
+		this.themeOrderIndex = themeOrderIndex;
 	}
 }

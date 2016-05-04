@@ -113,6 +113,10 @@ public class HikeChatThemeConstants
 
 	public static final String JSON_SIGNAL_THEME_THEMEID = "theme_id";
 
+	public static final String JSON_SIGNAL_THEME_VISIBILITY = "visibility";
+
+	public static final String JSON_SIGNAL_THEME_ORDER = "order";
+
 	public static final String JSON_SIGNAL_THEME_THEMESTATE = "theme_state";
 
 	public static final String JSON_SIGNAL_THEME_BG_PORTRAIT = "bg_portrait";
