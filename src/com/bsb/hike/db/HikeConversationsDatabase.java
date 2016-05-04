@@ -7884,7 +7884,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.put(DBConstants.COPYRIGHT_STRING, category.getCopyRightString());
 				if (!insertInShopTable)
 				{
-					contentValues.put(DBConstants.IS_DISABLED, category.isDisabled());
+					contentValues.put(DBConstants.IS_DISABLED, category.isDisabled() ? 1 : 0);
 					contentValues.put(DBConstants.UPDATED_METADATA_TIMESTAMP, category.getPackUpdationTime());
 					contentValues.put(DBConstants.UCID, category.getUcid());
 				}
@@ -8190,7 +8190,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			String similarPacksJSONString = c.getString(c.getColumnIndex(DBConstants.SIMILAR_CATEGORIES));
 			String author = c.getString(c.getColumnIndex(DBConstants.AUTHOR));
 			String copyRightString = c.getString(c.getColumnIndex(DBConstants.COPYRIGHT_STRING));
-
+			boolean isDisabled = c.getInt(c.getColumnIndex(DBConstants.IS_DISABLED)) == 1 ;
+			int updatedMetadataTs = c.getInt(c.getColumnIndex(DBConstants.UPDATED_METADATA_TIMESTAMP));
+			int ucid = c.getInt(c.getColumnIndex(DBConstants.UCID));
 			stickerCategory = new StickerCategory.Builder()
 					.setCategoryId(categoryId)
 					.setCategoryName(categoryName)
@@ -8208,6 +8210,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					.setSimilarPacksString(similarPacksJSONString)
 					.setAuthor(author)
 					.setCopyRightString(copyRightString)
+					.setUcid(ucid)
+					.setIsDiabled(isDisabled)
+					.setPackUpdationTime(updatedMetadataTs)
 					.build();
 		}
 

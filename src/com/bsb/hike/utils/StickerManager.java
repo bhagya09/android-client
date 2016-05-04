@@ -1653,8 +1653,13 @@ public class StickerManager
 			String catId = jsonObj.getString(StickerManager.CATEGORY_ID);
 
 			StickerCategory category = stickerCategoriesMap.get(catId);
-			if (category == null) {
-				category = new StickerCategory.Builder().setCategoryId(catId).build();
+			if (category == null)
+			{
+				category = HikeConversationsDatabase.getInstance().getStickerCategoryforId(catId);
+				if (category == null)
+				{
+					category = new StickerCategory.Builder().setCategoryId(catId).build();
+				}
 			}
 
 			category.setCategoryName(jsonObj.getString(HikeConstants.CAT_NAME));
