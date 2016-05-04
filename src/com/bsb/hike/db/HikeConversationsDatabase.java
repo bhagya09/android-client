@@ -218,15 +218,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " ) ";
 
 		db.execSQL(sql);
-		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.RECEIPTS_TABLE
-			+ " ( "
-			+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
-			+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
-			+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
-			+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
-			+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
-			+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
-			+ " ) ";
+		sql=getReceiptsTableCreateStatement();
 		db.execSQL(sql);
 		sql = DBConstants.CREATE_INDEX + DBConstants.MESSAGE_TABLE_CONTENT_INDEX + " ON " + DBConstants.MESSAGES_TABLE + " ( " + DBConstants.HIKE_CONTENT.CONTENT_ID + " ) ";
 		db.execSQL(sql);
@@ -430,6 +422,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
 		mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
+		mDb.delete(DBConstants.RECEIPTS_TABLE,null,null);
 	}
 
 	@Override
@@ -1087,17 +1080,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		if(oldVersion<51){
 
-			//Adding Receipts Table
-
-			String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.RECEIPTS_TABLE
-				+ " ( "
-				+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
-				+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
-				+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
-				+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
-				+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
-				+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
-				+ " ) ";
+			String sql=getReceiptsTableCreateStatement();
 			db.execSQL(sql);
         }
 
@@ -1377,6 +1360,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.READ_TIMESTAMP, timestamp);
 		int numRows = mDb.update(DBConstants.RECEIPTS_TABLE, contentValues, initialWhereClause, null);
+		Logger.d("delivery","Got read receipt numRows updated is "+numRows);
+
 
 	}
 	public void setReceiptsReadByGroupMsisdn(String msisdn,ArrayList<Long> messageIdsTobeUpdated,long timestamp){
@@ -1384,7 +1369,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			return ;
 		}
 		//Only for testing will be disabled later on
-		Logger.d("messageInfoData","logging in database msisdn readby group "+msisdn);
+		Logger.d("delivery","logging in database msisdn readby group "+msisdn);
 		String initialWhereClause = DBConstants.MESSAGE_ID + " in " + Utils.valuesToCommaSepratedString(messageIdsTobeUpdated);
 		initialWhereClause = initialWhereClause
 			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
@@ -3156,10 +3141,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		try
 		{
 			mDb.beginTransaction();
-			mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			mDb.delete(DBConstants.CONVERSATIONS_TABLE, DBConstants.MSISDN + "=?", new String[]{msisdn});
 			mDb.delete(DBConstants.MESSAGES_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
 			mDb.delete(DBConstants.SHARED_MEDIA_TABLE, DBConstants.MSISDN + "=?", new String[]{msisdn});
-			
+			mDb.delete(DBConstants.RECEIPTS_TABLE, DBConstants.MSISDN + "=?", new String[]{msisdn});
 			if (OneToNConversationUtils.isOneToNConversation(msisdn))
 			{
 				mDb.delete(DBConstants.GROUP_MEMBERS_TABLE, DBConstants.GROUP_ID + " =?", new String[] { msisdn });
@@ -9781,7 +9766,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				contentValues.clear();
 				contentValues.put(DBConstants.IS_ACTIVE, DBConstants.DEFAULT_INACTIVE_STATE);
 				mDb.update(DBConstants.STICKER_TABLE, contentValues, DBConstants.CATEGORY_ID + "=?" + " AND " + DBConstants.STICKER_ID + "=?",
-						new String[] { sticker.getCategoryId(), sticker.getStickerId() });
+					new String[]{sticker.getCategoryId(), sticker.getStickerId()});
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -9821,7 +9806,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			ContentValues contentValues = new ContentValues();
 			for (StickerCategory category : categories)
 			{
-				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[]{category.getCategoryId()});
 			}
 			mDb.setTransactionSuccessful();
 		}
@@ -9916,5 +9901,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.endTransaction();
 		}
+	}
+	public String getReceiptsTableCreateStatement(){
+		String sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.RECEIPTS_TABLE
+			+ " ( "
+			+ DBConstants.MESSAGE_ID + " INTEGER, " // The message id (Unique)
+			+ DBConstants.RECEIVER_MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
+			+ DBConstants.MSISDN + " TEXT, " // The msisdn of the receiver for which the report is received
+			+ DBConstants.MSG_STATUS + " INTEGER, " // Whether the message is sent or not. Plus also tells us the current state of the message.
+			+ DBConstants.READ_TIMESTAMP + " INTEGER, " // Read Time when the message was read by the recepient.
+			+ DBConstants.DELIVERY_TIMESTAMP + " INTEGER, " // Delivery Time when the message was delivered to the recepient.
+			+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
+			+ " ) ";
+		return sql;
 	}
 }

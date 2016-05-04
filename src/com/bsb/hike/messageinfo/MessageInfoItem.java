@@ -37,7 +37,7 @@ public abstract class MessageInfoItem
 
 	private int type = DELIVEREDLIST;
 
-	public int viewType = MessageInfoAdapter.DEFAULT;
+	public int viewType ;
 
 	protected Context mContext = HikeMessengerApp.getInstance().getApplicationContext();
 

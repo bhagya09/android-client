@@ -1027,7 +1027,7 @@ public class MqttMessagesManager
 		long serverID;
 		long timestamp = jsonObj.optLong(HikeConstants.TIMESTAMP);
 
-		Logger.d("MessageInfo", "got delivery report from msisdn "+jsonObj.getString(HikeConstants.FROM)+" pretty time "+Utils.getFormattedTime(false,context,timestamp));
+		Logger.d("delivery", "got delivery report from msisdn "+jsonObj.getString(HikeConstants.FROM)+" pretty time "+Utils.getFormattedTime(false,context,timestamp));
 		try
 		{
 			serverID = Long.parseLong(id);
@@ -1051,20 +1051,22 @@ public class MqttMessagesManager
 					saveDeliveryReport(msgId, chatMsisdn);
 					if(ChatThreadUtils.isMessageInfoDatabaseEnabled()){
 					if(jsonObj.has(HikeConstants.FROM)){
-						saveDeliveryReceipt(msgId,jsonObj.getString(HikeConstants.FROM ),timestamp);
+						Logger.d("delivery", "got delivery report for msgId "+msgId+" timestamp ");
+						saveDeliveryReceipt(msgId,jsonObj.getString(HikeConstants.FROM ),timestamp,msisdn);
 					}}
-					Logger.d("MessageInfo", "got delivery report for msgId "+msgId+" timestamp ");
+
 					Logger.d(AnalyticsConstants.MSG_REL_TAG, "Handling ndr for json: " + jsonObj);
 					MsgRelLogManager.logMsgRelDR(jsonObj, MsgRelEventType.DR_SHOWN_AT_SENEDER_SCREEN);
 				}
 			}
 		}
 	}
-	private void saveDeliveryReceipt(long msgId,String fromMsisdn,long timestamp){
+	private void saveDeliveryReceipt(long msgId,String fromMsisdn,long timestamp,String toGroupOrSingleMsisdn){
 		ContentValues contentValues=new ContentValues();
 		contentValues.put(DBConstants.MESSAGE_ID,msgId);
 		contentValues.put(DBConstants.RECEIVER_MSISDN,fromMsisdn);
 		contentValues.put(DBConstants.DELIVERY_TIMESTAMP,timestamp);
+		contentValues.put(DBConstants.MSISDN,toGroupOrSingleMsisdn);
 		convDb.executeMessageDeliveryReceipt(contentValues);
 	}
 	private void saveDeliveryReceipt(long msgId,String fromMsisdn,long read_timestamp,long delivery_timeStamp){
