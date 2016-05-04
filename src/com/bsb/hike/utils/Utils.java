@@ -522,6 +522,16 @@ public class Utils
         return path.toString();
     }
 
+
+    public static boolean isConversationMuted(String msisdn)
+    {
+        if (HikeConversationsDatabase.getInstance().isChatMuted(msisdn))
+        {
+            return true;
+        }
+        return false;
+    }
+    
 	public static boolean showNotifForMutedConversation(String msisdn)
 	{
 		return (HikeConversationsDatabase.getInstance().shouldShowNotifForMutedChat(msisdn));
@@ -4536,19 +4546,6 @@ public class Utils
         view.measure(measuredWidth, measuredHeight);
         view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         return viewToBitmap(view);
-    }
-
-    public static boolean isConversationMuted(String msisdn) {
-        if ((OneToNConversationUtils.isGroupConversation(msisdn))) {
-            if (HikeConversationsDatabase.getInstance().isGroupMuted(msisdn)) {
-                return true;
-            }
-        } else if (BotUtils.isBot(msisdn)) {
-            if (HikeConversationsDatabase.getInstance().isBotMuted(msisdn)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static boolean isLastSeenSetToFavorite() {
