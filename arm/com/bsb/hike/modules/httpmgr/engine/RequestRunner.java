@@ -1,11 +1,14 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
 import com.bsb.hike.modules.gcmnetworkmanager.HikeGcmNetworkMgr;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
 import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.modules.httpmgr.response.Response;
 
 /**
@@ -44,18 +47,31 @@ public class RequestRunner
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
+				final Config gcmTaskConfig = request.getGcmTaskConfig();
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
-					if (request.getGcmTaskConfig() != null)
+					if (gcmTaskConfig != null)
 					{
-						HikeGcmNetworkMgr.getInstance().schedule(request.getGcmTaskConfig());
+						HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
 					}
 				}
 				else
 				{
 					requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
 				}
+
+				HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						if (gcmTaskConfig != null)
+						{
+							HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
+						}
+					}
+				});
 			}
 		});
 		requestExecuter.execute();
