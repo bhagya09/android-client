@@ -7,7 +7,7 @@ public class HomeAnalyticsConstants
 {
 	public static final String HOME_OVERFLOW_MENU = "hs_ovfl";
 
-	public static String HOMESCREEN_KINGDOM = "act_hs";
+	public static final String HOMESCREEN_KINGDOM = "act_hs";
 
 	public static final String HOME_OVERFLOW_MENU_ITEM = "hs_ovfl_item";
 
