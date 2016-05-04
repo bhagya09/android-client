@@ -53,7 +53,8 @@ public class RequestRunner
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
 					if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
 					{
-						// todo update retry count in db and memory
+						gcmTaskConfig.decrementRetries();
+						updateGcmTaskConfigInDB(gcmTaskConfig);
 						HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
 					}
 					else
@@ -81,6 +82,21 @@ public class RequestRunner
 				if (gcmTaskConfig != null)
 				{
 					HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
+				}
+			}
+		});
+	}
+
+	private void updateGcmTaskConfigInDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gcmTaskConfig != null)
+				{
+					HttpRequestStateDB.getInstance().insertBundleToDb(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
 				}
 			}
 		});
