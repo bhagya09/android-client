@@ -32,6 +32,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -413,13 +414,13 @@ public class ToastListener implements Listener
 		else if(HikePubSub.ATOMIC_TIP_WITH_NOTIF.equals(type))
 		{
 			Logger.d(getClass().getSimpleName(), "Recived pubsub to show notif for atomic tip");
-			if (object != null && object instanceof Bundle)
+			if (object != null && object instanceof AtomicTipContentModel)
 			{
-				Bundle bundle = (Bundle) object;
-				String notifTitle = bundle.getString(HikeConstants.NOTIFICATION_TITLE);
-				String notifText = bundle.getString(HikeConstants.NOTIFICATION_TEXT);
-				int tipId = bundle.getInt(HikeConstants.TIP_ID);
-				boolean isSilent = bundle.getBoolean(HikeConstants.SILENT);
+				AtomicTipContentModel tipContentModel = (AtomicTipContentModel) object;
+				String notifTitle = tipContentModel.getNotifTitle();
+				String notifText = tipContentModel.getNotifText();
+				int tipId = tipContentModel.hashCode();
+				boolean isSilent = tipContentModel.isSilent();
 				if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
 				{
 					Intent notificationIntent;

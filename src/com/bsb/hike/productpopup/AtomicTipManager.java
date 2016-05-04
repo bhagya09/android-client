@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -76,9 +75,9 @@ public class AtomicTipManager
 
     public static final int REMOVE_EXPIRED_TIPS = 10;
 
-    private final int DEFAULT_BG_COLOR = R.color.credits_blue;
+    private final int DEFAULT_TIP_FROM_NTOIF_ID = -1;
 
-    private boolean isTipFromNotif;
+    private int atomicTipFromNotifId;
 
     //currentlyShowing is maintained primarily for handling click actions
     private AtomicTipContentModel currentlyShowing;
@@ -100,7 +99,7 @@ public class AtomicTipManager
         };
         tipContentModels = new ArrayList<>();
         currentlyShowing = null;
-        isTipFromNotif = false;
+        atomicTipFromNotifId = DEFAULT_TIP_FROM_NTOIF_ID;
     }
 
     public static AtomicTipManager getInstance()
@@ -402,14 +401,8 @@ public class AtomicTipManager
      */
     public void createNotifForTip(AtomicTipContentModel tipContentModel)
     {
-        Logger.d(TAG, "processing notification items for atomic tip");
-        Bundle notifBundle = new Bundle();
-        notifBundle.putString(HikeConstants.NOTIFICATION_TITLE, tipContentModel.getNotifTitle());
-        notifBundle.putString(HikeConstants.NOTIFICATION_TEXT, tipContentModel.getNotifText());
-        notifBundle.putBoolean(HikeConstants.SILENT, tipContentModel.isSilent());
-        notifBundle.putInt(HikeConstants.TIP_ID, tipContentModel.hashCode());
         Logger.d(TAG, "firing pubsub to create notif for atomic tip");
-        HikeMessengerApp.getPubSub().publish(HikePubSub.ATOMIC_TIP_WITH_NOTIF, notifBundle);
+        HikeMessengerApp.getPubSub().publish(HikePubSub.ATOMIC_TIP_WITH_NOTIF, tipContentModel);
     }
 
     /**
@@ -419,8 +412,7 @@ public class AtomicTipManager
     public void processAtomicTipFromNotif(int tipId)
     {
         Logger.d(TAG, "notif clicked for atomic tip: " + tipId);
-        isTipFromNotif = true;
-        currentlyShowing = getTipFromId(tipId);
+        atomicTipFromNotifId = tipId;
     }
 
     /**
@@ -504,9 +496,10 @@ public class AtomicTipManager
      */
     public void updateCurrentlyShowing()
     {
-        if(isTipFromNotif)
+        if(atomicTipFromNotifId != DEFAULT_TIP_FROM_NTOIF_ID)
         {
-            Logger.d(TAG, "already updated to show atomic tip from notif");
+            Logger.d(TAG, "updating currently showing to tip referenced from notif");
+            currentlyShowing = getTipFromId(atomicTipFromNotifId);
             return;
         }
         mHandler.sendMessage(getMessage(REMOVE_EXPIRED_TIPS, null));
@@ -551,7 +544,7 @@ public class AtomicTipManager
         Logger.d(TAG, "inflating atomic tip view");
 
         //resetting flag in case it was set for tip from notif case
-        isTipFromNotif = false;
+        atomicTipFromNotifId = DEFAULT_TIP_FROM_NTOIF_ID;
 
         if(currentlyShowing == null)
         {
