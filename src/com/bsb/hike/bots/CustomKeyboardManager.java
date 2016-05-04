@@ -16,6 +16,7 @@ import com.bsb.hike.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -162,9 +163,14 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 */
 	public CustomKeyboard getCustomKeyboardObject(String msisdn)
     {
-        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(msisdn, HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
-        JsonParser parser = new JsonParser();
-        JsonObject keyboardJsonObj = (JsonObject) parser.parse(keyboardDataJson);
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(getKeyboardKey(msisdn), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        JsonParser jsonParser = new JsonParser();
+        JsonObject keyboardJsonObj = null;
+        try {
+            keyboardJsonObj = (jsonParser.parse(keyboardDataJson)).getAsJsonObject();
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        }
         CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
         return customKeyboard;
     }

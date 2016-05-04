@@ -132,6 +132,11 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 				maxLengthOfTextButton = HikePlatformConstants.KeyboardColsMaxCharLimit.THREE_COLS;
 			}
 
+            int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
+            int textButtonPadding = 2 * mContext.getResources().getDimensionPixelSize(R.dimen.chat_theme_palette_margin);
+            int actualSpace = (screenWidth - textButtonPadding);
+            int sizeEachButton = actualSpace/textKeyArrayListSize;
+
 			for (TextKey textKey : textKeyArrayList)
 			{
 				button = new Button(mContext);
@@ -142,6 +147,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 						(int) (4 * Utils.densityMultiplier));
 
 				button.setLayoutParams(params);
+                button.setWidth(sizeEachButton);
 
 				// Set button text size to predefined size
 				button.setTextSize(HikePlatformConstants.keyboardsButtonsTextSize);

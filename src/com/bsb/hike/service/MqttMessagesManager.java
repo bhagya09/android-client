@@ -47,6 +47,7 @@ import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboard;
 import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
@@ -130,6 +131,9 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.hike.abtest.ABTest;
 
 /**
@@ -875,14 +879,19 @@ public class MqttMessagesManager
             convMessage.setPrivateData(messagePrivateData);
         }
 
-        //check if message had platform data in the "pt" packet
+        //Check if message had platform data in the "pt" packet
         if(convMessage.getPlatformData() != null)
         {
-            JSONObject keyboardJson = convMessage.getPlatformData().getJSONObject(HikeConstants.KEYBOARD_DATA);
+            JSONObject keyboardJson = convMessage.getPlatformData().optJSONObject(HikeConstants.KEYBOARD_DATA);
             if(keyboardJson != null)
             {
+                // Create custom keyboard object from keyboard json received in message
+                JsonParser parser = new JsonParser();
+                JsonObject keyboardJsonObj = (JsonObject) parser.parse(keyboardJson.toString());
+                CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
+
                 // Delete previous keyboard data from shared pref is the remove previous keyboard is set as true
-                if(keyboardJson.optBoolean(HikePlatformConstants.REMOVE_PREVIOUS_KEYBOARD,false))
+                if(customKeyboard != null && customKeyboard.getRemove())
                     CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
                 else
                     CustomKeyboardManager.getInstance().saveToSharedPreferences(convMessage.getMsisdn(), convMessage.getPlatformData());
@@ -891,18 +900,9 @@ public class MqttMessagesManager
         else
         {
             // Delete keyboard data from shared pref if the keyboard type is not persistent
-            String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(CustomKeyboardManager.getKeyboardKey(convMessage.getMsisdn()), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
-            try
-            {
-                boolean isKeyBoardPersistent = new JSONObject(keyboardDataJson).optBoolean(HikePlatformConstants.IS_KEYBOARD_PERSISTENT, false);
-                if (!isKeyBoardPersistent)
-                    CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-            }
-
+            CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(convMessage.getMsisdn());
+            if(!customKeyboard.getKeep())
+                CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
         }
 
 		/*
