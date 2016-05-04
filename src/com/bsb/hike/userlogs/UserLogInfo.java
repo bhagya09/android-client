@@ -493,7 +493,7 @@ public class UserLogInfo {
 					@Override
 					public void onRequestFailure(HttpException httpException)
 					{
-						Logger.d(TAG, "failure");
+						Logger.d(TAG, "failure : " + errorResponse.getBody().getErrorString());
 					}
 				};
 
