@@ -3,12 +3,16 @@ package com.bsb.hike.modules.gcmnetworkmanager;
 import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.models.HikeHandlerUtil;
+import com.bsb.hike.modules.httpmgr.requeststate.HttpRequestStateDB;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.OneoffTask;
+
+import java.util.List;
 
 /**
  * Created by sidharth on 03/05/16.
@@ -93,4 +97,29 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 
         GcmNetworkManager.getInstance(context).cancelAllTasks(gcmTaskService);
     }
+
+	public void triggerPendingGcmNetworkCalls()
+	{
+		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
+		mThread.startHandlerThread();
+		mThread.postRunnableWithDelay(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Logger.d(TAG, "MAKING PENDING CALLS ON APP START");
+				List<Config> getPendingTaskConfigs = HttpRequestStateDB.getInstance().getPendingGcmTaskConfigs();
+
+				if (Utils.isEmpty(getPendingTaskConfigs))
+				{
+					return;
+				}
+
+				for (Config config : getPendingTaskConfigs)
+				{
+					HikeGcmNetworkMgr.getInstance().schedule(config);
+				}
+			}
+		}, 0);
+	}
 }
