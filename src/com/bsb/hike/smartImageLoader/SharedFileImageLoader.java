@@ -109,7 +109,7 @@ public class SharedFileImageLoader extends ImageWorker
 		
 		BitmapResolutionState initState = BitmapResolutionState.STATE_3;
 
-		if(Utils.isHoneycombOrHigher() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, true))
 		{
 			initState = BitmapResolutionState.INIT_STATE;
 		}

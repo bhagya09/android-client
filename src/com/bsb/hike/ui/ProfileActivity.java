@@ -1664,14 +1664,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 
 			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
+
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -1683,12 +1677,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
 			profileAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 		}
-		/*
-		 * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
-		 * on scroll to help with performance if (!Utils.hasHoneycomb()) { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(true);
-		 * profileAdapter.getIconImageLoader().setPauseWork(true); } } } else { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(false);
-		 * profileAdapter.getIconImageLoader().setPauseWork(false); } }
-		 */
 	}
 
 	private void fetchPersistentData()
@@ -1916,7 +1904,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			Utils.executeHttpTask(mActivityState.task, r);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else if (isBackPressed)
 		{

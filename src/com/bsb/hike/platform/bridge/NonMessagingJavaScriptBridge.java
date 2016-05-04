@@ -13,13 +13,12 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
 import android.webkit.JavascriptInterface;
-import com.bsb.hike.ui.WebViewActivity;
 
-import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.adapters.ConversationsAdapter;
@@ -48,9 +47,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
-import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -1575,7 +1572,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		SendLogsTask logsTask = new SendLogsTask(mContext);
-		Utils.executeAsyncTask(logsTask);
+		logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
