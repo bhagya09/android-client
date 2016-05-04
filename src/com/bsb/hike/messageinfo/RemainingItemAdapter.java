@@ -81,7 +81,7 @@ public class RemainingItemAdapter extends BaseAdapter
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 		RemainingListItem item = (RemainingListItem) getItem(position);
-		iconLoader.loadImage(item.msisdn, viewHolder.contactAvatar);
+		iconLoader.loadImage(item.msisdn, viewHolder.contactAvatar,false,true);
 		viewHolder.messageStatus.setImageResource(item.drawableStatus);
 		viewHolder.contactName.setText(item.name);
 		return convertView;
