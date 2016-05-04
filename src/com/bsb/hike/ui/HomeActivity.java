@@ -547,8 +547,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
-		Utils.executeContactInfoListResultTask(getFTUEContactsTask);
-
+		getFTUEContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void setupFestivePopup()
@@ -1652,7 +1651,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				public void run()
 				{
 					GetFTUEContactsTask ftueContactsTask = new GetFTUEContactsTask();
-					Utils.executeContactInfoListResultTask(ftueContactsTask);
+					ftueContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			});
 		}
@@ -2178,7 +2177,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 				case R.string.send_logs:
 					SendLogsTask logsTask = new SendLogsTask(HomeActivity.this);
-					Utils.executeAsyncTask(logsTask);
+					logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					break;
 					
 				case R.string.new_broadcast:
@@ -2528,8 +2527,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void startRestoreProcess()
 	{
 		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
-
-		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+		restoreAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override
