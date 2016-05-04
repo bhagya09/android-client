@@ -193,6 +193,11 @@ public class AtomicTipManager
         Logger.d(TAG, "parsing new tip packet");
 
         //creating model from JSON
+        if(!tipJSON.has(HikeConstants.TIP_ID))
+        {
+            Logger.d(TAG, "didnot receive id for tip. aborting");
+            return;
+        }
         AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(tipJSON);
         Logger.d(TAG, "new tip hash: " + tipContentModel.hashCode());
 

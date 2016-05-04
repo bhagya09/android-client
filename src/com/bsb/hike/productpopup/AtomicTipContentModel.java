@@ -15,6 +15,8 @@ import java.util.Comparator;
  */
 public class AtomicTipContentModel
 {
+    private String tipId;
+
     private String header;
 
     private String body;
@@ -69,6 +71,7 @@ public class AtomicTipContentModel
 
     private AtomicTipContentModel(JSONObject tipContentJSON)
     {
+        this.tipId = tipContentJSON.optString(HikeConstants.TIP_ID);
         this.header = tipContentJSON.optString(HikeConstants.HEADER, "");
         this.body = tipContentJSON.optString(HikeConstants.BODY, "");
         this.icon = tipContentJSON.optString(HikeConstants.ICON, "");
@@ -143,7 +146,7 @@ public class AtomicTipContentModel
     {
         if(hashCode == -1)
         {
-            hashCode = new String(getStartTime() + getEndTime() + getPriority() + getHeader() + "").hashCode();
+            hashCode = tipId.hashCode();
         }
         return hashCode;
     }
@@ -168,6 +171,11 @@ public class AtomicTipContentModel
     public boolean isSilent()
     {
         return isSilent;
+    }
+
+    public String getTipId()
+    {
+        return tipId;
     }
 
     public String getHeader()
