@@ -1,8 +1,5 @@
 package com.bsb.hike.ui.utils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +18,9 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.haibison.android.lockpattern.LockPatternActivity;
 import com.haibison.android.lockpattern.util.Settings;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class LockPattern
 {
@@ -120,11 +120,15 @@ public class LockPattern
 			switch (resultCode)
 			{
 			case Activity.RESULT_OK:
+				//Record Successful attempt
+				recordPasswordEnterAttempt(true);
 				LockPattern.createNewPattern(activity, true, HikeConstants.ResultCodes.CREATE_LOCK_PATTERN);
 				break;
 			case Activity.RESULT_CANCELED:
 			case LockPatternActivity.RESULT_FAILED:
 			default:
+				//Record Failed Attempt
+				recordPasswordEnterAttempt(false);
 				break;
 			}
 			break;
@@ -152,7 +156,7 @@ public class LockPattern
 		HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, EventPriority.HIGH, metadata);
 
 	}
-	
+
 	private static void markStealthMsisdn(Bundle stealthBundle)
 	{
 		if(stealthBundle != null && stealthBundle.containsKey(HikeConstants.STEALTH_MSISDN))
@@ -232,6 +236,85 @@ public class LockPattern
 		Intent i = confirmPatternIntent(activity, isResetPassword, requestCode);
 		activity.startActivityForResult(i, requestCode);
 	}
-	
 
+	private static void recordPasswordEnterAttempt(boolean successful)
+	{
+		recordHiddenModeResetClicks("hdn_cng_pwd", successful ? "correct" : "incorrect");
+	}
+
+	public static void recordCancelClickForResetPassword(String family)
+	{
+		recordHiddenModeResetClicks(family, "cancel");
+	}
+
+	public static void recordConfirmOnResetPassword(String family)
+	{
+		recordHiddenModeResetClicks(family, "confirm");
+	}
+
+	public static void recordRetryClickForResetPassword(String family)
+	{
+		recordHiddenModeResetClicks(family, "retry");
+	}
+
+	private static void recordHiddenModeResetClicks(String family, String species)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				json.put(AnalyticsConstants.V2.GENUS, StealthModeManager.getInstance().isPinAsPassword() ? "pin" : "pattern");
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	public static void recordResetPopupButtonClick(String genus, String species)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "hdn_reset_popup");
+				json.put(AnalyticsConstants.V2.GENUS, genus);
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	public static void recordResetStealthTipEvent(String family)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
 }

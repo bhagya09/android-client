@@ -49,7 +49,9 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.Utils;
-
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class SettingsActivity extends ChangeProfileImageBaseActivity implements OnItemClickListener, OnClickListener, android.content.DialogInterface.OnClickListener
@@ -366,27 +368,33 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 			switch (holder.id)
 			{
 			case R.string.notifications:
+				recordNotificationClick();
 				IntentFactory.openSettingNotification(this);
 				break;
 
 			case R.string.settings_media:
+				recordMediaClick();
 				IntentFactory.openSettingMedia(this);
 				break;
 
 			case R.string.settings_chat:
+				recordChatclick();
 				IntentFactory.openSettingChat(this);
 				break;
 
 			case R.string.settings_sticker:
+				recordStickerSettingsClick();
 				IntentFactory.openStickerSettingsActivity(this);
 				break;
 
             case R.string.language:
+				recordLanguageClick();
 				IntentFactory.openSettingLocalization(this);
 				break;
 				
 			case R.string.sms_with_settings:
 			case R.string.sms:
+				recordSMSClick();
 				IntentFactory.openSettingSMS(this);
 				break;
 
@@ -395,6 +403,7 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 				break;
 
 			case R.string.manage_account:
+				recordAccountClick();
 				IntentFactory.openSettingAccount(this);
 				break;
 
@@ -623,4 +632,60 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		this.msisdn = msisdn;
 		super.setLocalMsisdn(this.msisdn);			
 	}
+
+	private void recordNotificationClick()
+	{
+		recordPreferencesPageOpen("notif");
+	}
+
+	private void recordMediaClick()
+	{
+		recordPreferencesPageOpen("media");
+	}
+
+	private void recordChatclick()
+	{
+		recordPreferencesPageOpen("chat_stng");
+	}
+
+	private void recordStickerSettingsClick()
+	{
+		recordPreferencesPageOpen("stk_stng");
+	}
+
+	private void recordLanguageClick()
+	{
+		recordPreferencesPageOpen("lng_stng");
+	}
+
+	private void recordAccountClick()
+	{
+		recordPreferencesPageOpen("account");
+	}
+
+	private void recordSMSClick()
+	{
+		recordPreferencesPageOpen("sms");
+	}
+
+
+	private void recordPreferencesPageOpen(String whichPage)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, whichPage);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
 }
