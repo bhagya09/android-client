@@ -101,7 +101,6 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 	public void triggerPendingGcmNetworkCalls()
 	{
 		HikeHandlerUtil mThread = HikeHandlerUtil.getInstance();
-		mThread.startHandlerThread();
 		mThread.postRunnableWithDelay(new Runnable()
 		{
 			@Override
