@@ -13,6 +13,9 @@ public abstract class MessageInfoList {
     public List<MessageInfoItem.MesageInfoParticipantItem> allDisplayedContactItems;
     public MessageInfoItem.MesageInfoRemainingItem remainingItem;
     public MessageInfoItem.MessageStatusHeader messageStatusHeader;
+    public boolean shouldAddList(){
+        return !(getRemainingItemCount()==0&&allDisplayedContactItems.size()==0);
+    }
     public int totalNumberofParticipants;
     public abstract void addParticipant(MessageInfoDataModel.MessageInfoParticipantData participantData);
     public MessageInfoList(int totalNumberofParticipants){
