@@ -54,7 +54,7 @@ import java.util.Map;
 public class StickerShopFragment extends StickerShopBaseFragment implements OnScrollListener, AdapterView.OnItemClickListener
 {
 
-	private static final String TAG = StickerShopFragment.class.getSimpleName();
+	public static final String TAG = StickerShopFragment.class.getSimpleName();
 
 	StickerShopAdapter mAdapter;
 
