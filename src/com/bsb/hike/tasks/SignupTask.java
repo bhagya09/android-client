@@ -120,8 +120,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS
-	};
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS, SHOW_STICKER_RESTORE_DIALOG
+	}
 
 	public class StateValue
 	{
@@ -706,7 +706,21 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					{
 						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
+
+//						if (BackupUtils.isDeviceDpiDifferent())
+						{
+							synchronized (this)
+							{
+								this.wait(600); //This is the duration of the success animation. Need to wait for that much amount so as to not interrupt the animation
+							}
+							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
+							synchronized (this)
+							{
+								this.wait(); // We will show a sticker dialog here since, the user has restored stickers on a diff device
+							}
+						}
 					}
+
 					else
 					{
 						BotUtils.initBots();
@@ -871,7 +885,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		getSignupTask(activity);
 		if (!signupTask.isRunning())
 		{
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}
@@ -890,7 +904,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			 * auto auth
 			 */
 			SignupTask.isAlreadyFetchingNumber = true;
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}

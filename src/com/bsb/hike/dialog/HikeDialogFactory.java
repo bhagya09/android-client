@@ -151,6 +151,8 @@ public class HikeDialogFactory
 
 	public static final int DB_CORRUPT_RESTORE_DIALOG = 52;
 
+	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 53;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -246,6 +248,8 @@ public class HikeDialogFactory
 
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
+		case STICKER_RESTORE_DIFF_DPI_DIALOG:
+			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1250,6 +1254,17 @@ public class HikeDialogFactory
 		dialog.setPositiveButton(R.string.RESTORE_CAP, listener);
 		dialog.setNegativeButton(R.string.SKIP_RESTORE, listener);
 
+		dialog.show();
+		return dialog;
+	}
+
+	private static HikeDialog showStickerRestoreDiffDpiDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
+	{
+		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+		dialog.setMessage(context.getString(R.string.sticker_restore_diffdpi_message));
+		dialog.setTitle(context.getString(R.string.sticker_restore_diffdpi_title));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.GOT_IT, listener);
 		dialog.show();
 		return dialog;
 	}

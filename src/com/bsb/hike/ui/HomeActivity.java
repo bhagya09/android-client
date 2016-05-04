@@ -545,8 +545,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
-		Utils.executeContactInfoListResultTask(getFTUEContactsTask);
-
+		getFTUEContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void setupFestivePopup()
@@ -1601,19 +1600,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try
@@ -1663,7 +1649,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				public void run()
 				{
 					GetFTUEContactsTask ftueContactsTask = new GetFTUEContactsTask();
-					Utils.executeContactInfoListResultTask(ftueContactsTask);
+					ftueContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			});
 		}
@@ -2186,7 +2172,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 				case R.string.send_logs:
 					SendLogsTask logsTask = new SendLogsTask(HomeActivity.this);
-					Utils.executeAsyncTask(logsTask);
+					logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					break;
 					
 				case R.string.new_broadcast:
@@ -2535,8 +2521,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void startRestoreProcess()
 	{
 		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
-
-		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+		restoreAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override

@@ -81,6 +81,8 @@ public class HikeConstants
 
 	public static final String SPECIES = "s";
 
+	public static final String VARIETY = "v";
+
 	public static final String METADATA_DND = "dnd";
 
 	public static final String ANALYTICS_EVENT = "ae";
@@ -286,10 +288,6 @@ public class HikeConstants
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
-
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -1005,10 +1003,6 @@ public class HikeConstants
 	public static final int MAX_RECENTS_TO_SHOW = 10;
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
-
-	// Had to add this constant since its only available in the android API for
-	// Honeycomb and higher.
-	public static final int FLAG_HARDWARE_ACCELERATED = 16777216;
 
 	public static final int LOCAL_CLEAR_TYPING_TIME = 6 * 1000;
 
@@ -1959,6 +1953,8 @@ public class HikeConstants
 
         public static final String RESULT_CODE = "result_code";
 
+		public static final String PROFILE_DOB = "profile_dob";
+
     }
 
 	public static final class LogEvent
@@ -2176,9 +2172,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
@@ -4177,4 +4170,12 @@ public class HikeConstants
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 
 	public static final int DEFAULT_RETRIES_GCM_NW_MANAGER = 5;
+
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

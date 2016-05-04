@@ -2890,11 +2890,8 @@ public class StickerManager
 
 	public void toggleStickerRecommendation(boolean state)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			Logger.d(TAG, "Toggling SR enable status to " + state);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
-		}
+		Logger.d(TAG, "Toggling SR enable status to " + state);
+		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_RECOMMENDATION_ENABLED, state);
 	}
 
 	public void resetStickerShopLastUpdateTime()
@@ -3422,23 +3419,13 @@ public class StickerManager
 
 	public void handleDifferentDpi()
 	{
-		BackupMetadata metadata = BackupUtils.getBackupMetadata();
-
-		if (metadata != null)
+		if (BackupUtils.isDeviceDpiDifferent())
 		{
-			if (metadata.getDensityDPI() == BackupMetadata.NO_DPI)
-			{
-				return; // No DPI presently recorded so return. Perhaps checking an old backup file
-			}
-
-			else if (metadata.getDensityDPI() != Utils.getDeviceDensityDPI())
-			{
-				// Genuine case of device change or alteration in densityDPI value
-				// 1. Flush Sticker Table
-				// 2. Remove Sticker Assets. They are no longer useful
-				HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
-				deleteStickers();
-			}
+			// Genuine case of device change or alteration in densityDPI value
+			// 1. Flush Sticker Table
+			// 2. Remove Sticker Assets. They are no longer useful
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE);
+			deleteStickers();
 		}
 	}
 

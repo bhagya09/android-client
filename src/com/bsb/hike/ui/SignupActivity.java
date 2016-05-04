@@ -46,6 +46,9 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.cropimage.HikeCropActivity;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
+import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.imageHttp.HikeImageDownloader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.localisation.LocalLanguage;
@@ -217,8 +220,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		public String userName = null;
 
 		public long timeLeft = 0;
-
-		public boolean fbConnected = false;
 
 		public Boolean isFemale = null;
 
@@ -471,10 +472,6 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				Utils.setSSLAllowed(countryCode);
 				Editor accountEditor = accountPrefs.edit();
 				accountEditor.putBoolean(HikeMessengerApp.JUST_SIGNED_UP, true);
-				if (mActivityState != null)
-				{
-					accountEditor.putBoolean(HikeMessengerApp.FB_SIGNUP, mActivityState.fbConnected);
-				}
 				accountEditor.commit();
 
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -2297,6 +2294,9 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 			// Fetch user settings from server
 			HikeCloudSettingsManager.getInstance().doRestoreSkipEnableCheck(null);
 			break;
+
+		case SHOW_STICKER_RESTORE_DIALOG:
+			showStickerRestoreDialog();
 		}
 		setListeners();
 	}
@@ -2557,6 +2557,35 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 	{
 		// TODO Auto-generated method stub
 		return true;
+	}
+
+	private void showStickerRestoreDialog()
+	{
+		HikeDialogFactory.showDialog(SignupActivity.this,
+				HikeDialogFactory.STICKER_RESTORE_DIFF_DPI_DIALOG, new HikeDialogListener()
+				{
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+
+					}
+
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+						if (mTask != null)
+						{
+							mTask.addUserInput("");
+						}
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog)
+					{
+
+					}
+				}, null);
 	}
 
 }

@@ -42,17 +42,9 @@ public class StickerSearchEngine
 				Utils.threadFactory("sticker_query_thread", false),
 				Utils.rejectedExecutionHandler());
 
-		if (Utils.isGingerbreadOrHigher())
-		{
-			backgroundSearchExecuter.allowCoreThreadTimeOut(true);
-			backgroundQueryExecuter.allowCoreThreadTimeOut(true);
-		}
-	}
 
-	public void removeAllTasks()
-	{
-		Logger.d(StickerTagWatcher.TAG, " clearing queue of size : " + searchQueue.size());
-		searchQueue.clear();
+		backgroundSearchExecuter.allowCoreThreadTimeOut(true);
+		backgroundQueryExecuter.allowCoreThreadTimeOut(true);
 	}
 
 	public void runOnSearchThread(Runnable task, long delay)

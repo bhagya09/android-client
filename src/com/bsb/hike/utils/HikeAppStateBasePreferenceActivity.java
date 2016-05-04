@@ -47,13 +47,6 @@ public abstract class HikeAppStateBasePreferenceActivity extends PreferenceActiv
 	}
 
 	@Override
-	protected void onPause()
-	{
-		HikeAppStateUtils.onPause(this);
-		super.onPause();
-	}
-
-	@Override
 	protected void onStop()
 	{
 		HikeAppStateUtils.onStop(this);

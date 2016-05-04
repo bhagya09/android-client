@@ -116,14 +116,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	
 	private void executeFetchCursorTask(FetchCursorTask fetchCursorTask)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchCursorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchCursorTask.execute();
-		}
+		fetchCursorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	private class FetchCursorTask extends AsyncTask<Void, Void, Pair<Cursor,Drawable>>

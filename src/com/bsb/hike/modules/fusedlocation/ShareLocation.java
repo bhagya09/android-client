@@ -172,7 +172,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 			{
 				isTextSearch = savedInstanceState.getBoolean(HikeConstants.Extras.IS_TEXT_SEARCH);
 				searchStr = savedInstanceState.getString(HikeConstants.Extras.HTTP_SEARCH_STR);
-				executeTask(new GetPlaces(), searchStr);
+				new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
 			}
 		}
 
@@ -226,7 +226,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 																																// KEY
 						isTextSearch = true;
 
-						executeTask(new GetPlaces(), searchStr);
+						new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
+
 					}
 				}
 				catch (UnsupportedEncodingException e)
@@ -435,19 +436,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 
 			isTextSearch = false;
 		}
-		executeTask(new GetPlaces(), searchStr);
-	}
-
-	private void executeTask(AsyncTask<String, Void, Integer> asyncTask, String... strings)
-	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, strings);
-		}
-		else
-		{
-			asyncTask.execute(strings);
-		}
+		new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
 	}
 
 	private class GetPlaces extends AsyncTask<String, Void, Integer>
@@ -808,14 +797,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements I
 				adapter.notifyDataSetChanged();
 			}
 		};
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
+		asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	public static String getAddressFromPosition(double lat, double lng)
