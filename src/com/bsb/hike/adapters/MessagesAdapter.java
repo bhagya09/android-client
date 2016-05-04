@@ -4059,6 +4059,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			try
 			{
 				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
 				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
