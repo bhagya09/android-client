@@ -42,7 +42,7 @@ public class RequestProcessor
 	{
 		if(request.isWrongRequest())
 		{
-			requestListenerNotifier.notifyListenersOfRequestFailure(request, new HttpException(request.getWrongRequestErrorCode()));
+			requestListenerNotifier.notifyListenersOfRequestFailure(request, null, new HttpException(request.getWrongRequestErrorCode()));
 			return;
 		}
 

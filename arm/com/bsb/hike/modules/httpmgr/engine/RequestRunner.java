@@ -43,7 +43,7 @@ public class RequestRunner
 			@Override
 			public void onResponse(Response response, HttpException ex)
 			{
-				if (null == response)
+				if (null == response || response.getBody() == null || response.getBody().getContent() == null)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, response, ex);
 				}
