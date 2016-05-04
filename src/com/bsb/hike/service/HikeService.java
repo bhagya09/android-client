@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -323,7 +324,7 @@ public class HikeService extends Service
 		{
 			Logger.d(getClass().getSimpleName(), "SYNCING");
 			SyncContactExtraInfo syncContactExtraInfo = new SyncContactExtraInfo();
-			Utils.executeAsyncTask(syncContactExtraInfo);
+			syncContactExtraInfo.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		
 		/*  If user swiped his app while receiving files in OfflineMode we need to remove those files from the user's ui 
@@ -751,22 +752,6 @@ public class HikeService extends Service
 			scheduleNextUserStatsSending();
 		}
 	};
-
-	private Runnable checkForUpdates = new Runnable()
-	{
-
-		@Override
-		public void run()
-		{
-			CheckForUpdateTask checkForUpdateTask = new CheckForUpdateTask(HikeService.this);
-			Utils.executeBoolResultAsyncTask(checkForUpdateTask);
-		}
-	};
-
-	public boolean appIsConnected()
-	{
-		return mApp != null;
-	}
 
 	public class PostGreenBlueDetails extends BroadcastReceiver
 	{

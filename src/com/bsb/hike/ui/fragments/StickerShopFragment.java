@@ -34,6 +34,7 @@ import com.bsb.hike.adapters.StickerShopAdapter;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerShopDownloadTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -115,14 +116,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 	
 	private void executeFetchCursorTask(FetchCursorTask fetchCursorTask)
 	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchCursorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchCursorTask.execute();
-		}
+		fetchCursorTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	private class FetchCursorTask extends AsyncTask<Void, Void, Pair<Cursor,Drawable>>
@@ -563,7 +557,7 @@ public class StickerShopFragment extends Fragment implements OnScrollListener, L
 			return ;
 		}
 		String categoryId = mAdapter.getItem(position - 1);
-		IntentFactory.openPackPreviewIntent(getActivity(), categoryId);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
 		mAdapter.setShownPackPreviewFtue();
 	}
 }

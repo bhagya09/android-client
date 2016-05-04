@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1655"
-    android:versionName="4.2.5.82.105.10.messageinfo" >
+    android:versionCode="1696"
+    android:versionName="4.2.5.82.109" >
+
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -167,11 +168,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.AddFriendsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
         </activity>
 
         <activity
@@ -618,6 +614,9 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.hike.abtest.UpdateExperimentService"
+            android:exported="false" />
 </application>
 
 </manifest>

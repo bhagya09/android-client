@@ -466,7 +466,7 @@ public class ConversationsAdapter extends BaseAdapter
 			conversationsMsisdns.add(conv.getMsisdn());
 		}
 		FetchPhoneBookContactsTask fetchContactsTask = new FetchPhoneBookContactsTask();
-		Utils.executeAsyncTask(fetchContactsTask);
+		fetchContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -998,6 +998,7 @@ public class ConversationsAdapter extends BaseAdapter
 					&& (message.getTypingNotification() == null)
 					&& convInfo.getUnreadCount() > 0
 					&& !message.isSent()
+					&& (message.getParticipantInfoState() != ParticipantInfoState.FRIEND_REQUSET_STATUS)
 					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
 							.getUnreadCount() > 0))
 			{
@@ -1030,6 +1031,7 @@ public class ConversationsAdapter extends BaseAdapter
 					&& (message.getTypingNotification() == null)
 					&& convInfo.getUnreadCount() > 0
 					&& !message.isSent()
+					&& (message.getParticipantInfoState() != ParticipantInfoState.FRIEND_REQUSET_STATUS)
 					|| (message.getParticipantInfoState() == ParticipantInfoState.VOIP_CALL_SUMMARY && message.getMetadata() != null && !message.getMetadata().isVoipInitiator() && convInfo
 					.getUnreadCount() > 0) || (message.getParticipantInfoState() == ParticipantInfoState.STATUS_MESSAGE &&
 							message.getMetadata() != null && convInfo.getUnreadCount() > 0))
@@ -1052,12 +1054,20 @@ public class ConversationsAdapter extends BaseAdapter
 			messageView.setLayoutParams(lp);
 		}
 
+		/**
+		 * Fix begins for HS-365
+		 */
+		if (message.getParticipantInfoState() == ParticipantInfoState.FRIEND_REQUSET_STATUS)
+		{
+			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));
+		}
 		
-		if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
+		else if (message.getState() == ConvMessage.State.RECEIVED_UNREAD || isNuxLocked)
 		{
 			/* set NUX waiting or unread messages to BLUE */
 			messageView.setTextColor(context.getResources().getColor(R.color.unread_message));
 		}
+
 		else
 		{
 			messageView.setTextColor(context.getResources().getColor(R.color.conv_item_last_msg_color));

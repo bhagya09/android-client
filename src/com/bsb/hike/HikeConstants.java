@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -76,6 +78,10 @@ public class HikeConstants
 	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
+
+	public static final String SPECIES = "s";
+
+	public static final String VARIETY = "v";
 
 	public static final String METADATA_DND = "dnd";
 
@@ -282,10 +288,6 @@ public class HikeConstants
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
-
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -818,7 +820,7 @@ public class HikeConstants
 	public static final long MESSAGE_RETRY_INTERVAL = 15 * 1000;
 
 	/* quiet period of no changes(in seconds) before actually updating the db */
-	public static final long CONTACT_UPDATE_TIMEOUT = 60;
+	public static final long CONTACT_UPDATE_TIMEOUT = 5;
 
 	/* how often to ping the server */
 	public static final short KEEP_ALIVE = 5 * 60; /* 10 minutes */
@@ -1001,10 +1003,6 @@ public class HikeConstants
 	public static final int MAX_RECENTS_TO_SHOW = 10;
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
-
-	// Had to add this constant since its only available in the android API for
-	// Honeycomb and higher.
-	public static final int FLAG_HARDWARE_ACCELERATED = 16777216;
 
 	public static final int LOCAL_CLEAR_TYPING_TIME = 6 * 1000;
 
@@ -1903,6 +1901,8 @@ public class HikeConstants
 
 		public static final String ENABLE_PHOTOS = "ph_en";
 
+		public static final String ENABLE_CLOUD_SETTING_BACKUP = "rux_stg_bkup";
+
 		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
 
 		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
@@ -1956,6 +1956,8 @@ public class HikeConstants
         public static final String FUNCTION_ID = "function_id";
 
         public static final String RESULT_CODE = "result_code";
+
+		public static final String PROFILE_DOB = "profile_dob";
 
     }
 
@@ -2174,9 +2176,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
@@ -2262,6 +2261,12 @@ public class HikeConstants
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
 
         public static final String EMOTICON_SENT = "eSnt";
+
+        public static final String EMOTICON_DATA = "eD";
+
+        public static final String EMOTICON_NAME = "eName";
+
+        public static final String EMOTICON_COUNT = "eCnt";
 
 		public static final String STKR_SHOP_BTN_CLICKED = "shopBtnClicked";
 
@@ -2862,6 +2867,14 @@ public class HikeConstants
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
+
+		/**
+		 * VoIP custom error message.
+		 * The server will include the error text to display to the user.
+		 * Usage (15 Apr, 2016) - To let a user know if the person they are calling is on a
+		 * carrier that prohibits VoIP.
+		 */
+		public static final String VOIP_ERROR_CUSTOM_MESSAGE = "e4";
 
 		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
 
@@ -4074,6 +4087,32 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static class BackupRestore
+	{
+		public static final String OS = "os";
+
+		public static final String FROM = "f";
+
+		public static final String TIMESTAMP = "ts";
+
+		public static final String VERSION = "ver";
+
+		public static final String DATA = "d";
+
+		public static final String VALUE = "v";
+
+		public static final String DATA_TYPE = "dt";
+
+		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
+
+		public static final String RUX_BACKUP_PENDING = "ruxbkuppending";
+
+		public static final String KEY_SETTINGS = "settings";
+
+		public static final String KEY_MOVED_STICKER_EXTERNAL = "movdstckrext";
+
+	}
+
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
 	public static final String IS_NEW_USER = "is_new_user";
@@ -4113,4 +4152,39 @@ public class HikeConstants
 	public static final String DISK_CACHE_SIZE = "disk_cache_size";
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
+
+	public static final class AddFriendSources
+	{
+		public static final String CHAT_FTUE = "chat_ftue_screen";
+
+		public static final String CHAT_ADD_FRIEND = "chat_add_friend_Screen";
+
+		public static final String FRIENDS_SCREEN = "friends_screen";
+
+		public static final String PROFILE_SCREEN = "profile_screen";
+
+		public static final String TIMELINE_FTUE_SCREEN = "timeline_ftue_screen";
+
+		public static final String FORWARD_SCREEN = "fwd_screen";
+
+		public static final String UNKNOWN = "unknown";
+	}
+
+	public static final String LAST_SEEN_TEMP_PREF = "ls_temp";
+
+	public static final String SHOW_RECOMMENDED_PACKS = "shw_rec_pcks";
+
+    public static final String STICKER_DOWNLOAD_ATTEMPTED_SET = "s_d_f_s";
+
+	public static final String POSITION = "pos";
+
+	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

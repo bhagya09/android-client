@@ -274,8 +274,7 @@
                 <FrameLayout
                     android:id="@+id/bottom_panel"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white">
+                    android:layout_height="wrap_content">
 
                     <ViewStub
                         android:id="@+id/addFriendViewStub"
@@ -289,6 +288,7 @@
                         android:id="@+id/compose_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@color/white"
                         android:minHeight="48dp">
 
                         <LinearLayout
@@ -323,6 +323,15 @@
                                 android:visibility="gone" />
 
                         </LinearLayout>
+
+                        <ViewStub
+                            android:id="@+id/pulsatingDotViewStub_WT"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_alignTop="@id/send_msg_audio"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginRight="20dp"
+                            android:layout="@layout/pulsating_dot" />
 
                         <ImageButton
                             android:id="@+id/sticker_btn"

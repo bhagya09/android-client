@@ -500,6 +500,11 @@ public class CropImageView extends FrameLayout {
         }
     }
 
+    public boolean isCropOverlayVisible()
+    {
+        return mCropOverlayView.getVisibility() == View.VISIBLE;
+    }
+
     /**
      * Determines the specs for the onMeasure function. Calculates the width or height
      * depending on the mode.

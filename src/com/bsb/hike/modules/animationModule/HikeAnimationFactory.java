@@ -60,21 +60,6 @@ public class HikeAnimationFactory
 		return animSet;
 	}
 
-	public static Animation getScaleInAnimation(int initialOffset)
-	{
-		AnimationSet animSet = new AnimationSet(true);
-		float a = 1f;
-		float pivotX = 0.5f;
-		float pivotY = 0.75f;
-
-		Animation anim0 = new ScaleAnimation(a, 0.0f, a,0.0f, Animation.RELATIVE_TO_SELF, pivotX, Animation.RELATIVE_TO_SELF, pivotY);
-		anim0.setStartOffset(initialOffset);
-		anim0.setDuration(200);
-		animSet.addAnimation(anim0);
-
-		return anim0;
-	}
-
 	public static AnimationSet getHikeActionBarLogoAnimation(Context context)
 	{
 		anim_repeat_count = 2;

@@ -35,6 +35,7 @@ import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerRequestTy
 import com.bsb.hike.modules.stickersearch.StickerLanguagesManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -208,11 +209,9 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					if (type.equals(StickerConstants.StickerType.MINI.getValue()))
 					{
 
-                        StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
-
 						if(saveMiniSticker(sticker, stickerImage))
 						{
-
+                            StickerManager.getInstance().saveMiniStickerSetFromJSON(stickers, categoryId);
 							doOnSuccess(sticker);
 						}
 						else
@@ -222,15 +221,17 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 					}
 					else
 					{
-						StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
-
 						boolean failed = !saveFullSticker(stickerImage, stickerData);
 
                         if (!failed)
                         {
+                            StickerManager.getInstance().saveStickerSetFromJSON(stickers, categoryId);
+
                             getStickerTags(data);
 
-                            StickerManager.getInstance().sendResponseTimeAnalytics(result, RequestConstants.GET);
+							boolean cdn = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SINGLE_STICKER_CDN, true);
+
+                            StickerManager.getInstance().sendResponseTimeAnalytics(result, cdn ? HikeConstants.SINGLE_STICKER_CDN : HikeConstants.SINGLE_STICKER, categoryId, stickerId);
 
                             StickerManager.getInstance().checkAndRemoveUpdateFlag(categoryId);
 
@@ -322,7 +323,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 	private void getStickerTags(JSONObject data)
 	{
-		StickerManager.getInstance().saveInStickerTagSet(stickerId, categoryId);
+		StickerManager.getInstance().saveInStickerTagSet(new Sticker(categoryId, stickerId));
 
 		if (imageOnly)
 		{

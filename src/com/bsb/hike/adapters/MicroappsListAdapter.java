@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
@@ -220,6 +221,7 @@ public class MicroappsListAdapter extends RecyclerView.Adapter<MicroappsListAdap
             // Put apps JsonObject in the final json
             json.put(HikePlatformConstants.APPS, appsJsonObject);
             json.put(HikePlatformConstants.PLATFORM_VERSION, HikePlatformConstants.CURRENT_VERSION);
+            json.put(HikeConstants.SOURCE, HikePlatformConstants.BOT_DISCOVERY);
         }
         catch (JSONException e)
         {

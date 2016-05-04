@@ -86,6 +86,8 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private int downloadButtonMaxWidth = Integer.MAX_VALUE;
 
+	private int categoryPosition;
+
 	public PackPreviewFragment()
 	{
 		stickerOtherIconLoader = new StickerOtherIconLoader(HikeMessengerApp.getInstance(), true);
@@ -94,11 +96,12 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	}
 
-	public static PackPreviewFragment newInstance(String catId)
+	public static PackPreviewFragment newInstance(String catId, int position)
 	{
 		PackPreviewFragment fragment = new PackPreviewFragment();
 		Bundle args = new Bundle();
 		args.putString(HikeConstants.STICKER_CATEGORY_ID, catId);
+		args.putInt(HikeConstants.POSITION, position);
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -109,6 +112,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		super.onCreate(savedInstanceState);
 		Bundle args = getArguments();
 		catId = args.getString(HikeConstants.STICKER_CATEGORY_ID);
+		categoryPosition = args.getInt(HikeConstants.POSITION);
 	}
 
 	@Nullable
@@ -155,15 +159,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private void executeFetchCategoryDetailsTask(FetchCategoryDetailsTask fetchCategoryDetailsTask)
 	{
 		loadingView.setVisibility(View.VISIBLE);
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchCategoryDetailsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchCategoryDetailsTask.execute();
-		}
+		fetchCategoryDetailsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	protected void initView(View parent)
@@ -300,12 +296,12 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	{
 		List<Pair<Integer, BasePackPreviewAdapterItem>> footerList = new ArrayList<>(3);
 
-		if(viewAllButton.getVisibility() == View.GONE)
+		if(isViewAllClicked())
 		{
 			BasePackPreviewAdapterItem packAuthorFooterItem = new PackAuthorFooterItem(getActivity(), stickerCategory.getAuthor(), stickerCategory.getCopyRightString());
 			footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_AUTHOR_FOOTER, packAuthorFooterItem));
 
-			if(!Utils.isEmpty(stickerCategory.getSimilarPacks()))
+			if(!Utils.isEmpty(stickerCategory.getSimilarPacks()) && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_RECOMMENDED_PACKS, false))
 			{
 				BasePackPreviewAdapterItem recommendedPacksFooterItem = new RecommendedPacksFooterItem(getActivity(), getActivity(), stickerCategory);
 				footerList.add(new Pair<>(PackPreviewAdapter.VIEW_TYPE_RECOMMENDED_PACKS_FOOTER, recommendedPacksFooterItem));
@@ -643,9 +639,15 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private void viewAllClicked()
 	{
+		if(mAdapter == null)
+		{
+			Logger.wtf(TAG, "view all clicked with no adapter");
+			return;
+		}
 		viewAllButton.setVisibility(View.GONE);
 		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
 		mAdapter.notifyDataSetChanged();
+		StickerManager.getInstance().sendViewAllClickAnalytics(stickerCategory.getCategoryId());
 	}
 
 	private void loadingFailedClicked()
@@ -665,13 +667,13 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 					StickerManager.getInstance().setShowLastCategory(true);
 					StickerPalleteImageDownloadTask stickerPalleteImageDownloadTask = new StickerPalleteImageDownloadTask(stickerCategory.getCategoryId());
 					stickerPalleteImageDownloadTask.execute();
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW,
-							StickerConstants.DownloadType.NEW_CATEGORY, HikeMessengerApp.getInstance());
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory,
+							StickerConstants.DownloadType.NEW_CATEGORY, StickerManager.getInstance().getPackDownloadBodyJson(StickerConstants.DownloadSource.PREVIEW, categoryPosition, isViewAllClicked()));
 				}
 				break;
 			case StickerCategory.UPDATE:
 			case StickerCategory.RETRY:
-				StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerConstants.DownloadSource.PREVIEW, HikeMessengerApp.getInstance());
+				StickerManager.getInstance().initialiseDownloadStickerPackTask(stickerCategory, StickerManager.getInstance().getPackDownloadBodyJson(StickerConstants.DownloadSource.PREVIEW, categoryPosition, isViewAllClicked()));
 				break;
 			default:
 				break;
@@ -686,5 +688,10 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 		{
 			stickerCategory.setUpdateAvailable(false);
 		}
+	}
+
+	private boolean isViewAllClicked()
+	{
+		return viewAllButton.getVisibility() == View.GONE;
 	}
 }

@@ -172,15 +172,7 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		}
 
 		FetchUnreadFeedsTask fetchUnreadFeedsTask = new FetchUnreadFeedsTask();
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchUnreadFeedsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchUnreadFeedsTask.execute();
-		}
+		fetchUnreadFeedsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 		sendTimeLineOpenAnalytics();
 	}
@@ -799,10 +791,11 @@ public class TimelineActivity extends HikeAppStateBaseFragmentActivity implement
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.TIME_LINE_OPEN);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.TIMELINE_OPEN);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.TIME_LINE_OPEN);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.GENUS, getTimelineOpenSource(getIntent().getIntExtra(TIMELINE_SOURCE, UNKNOWN)));
 

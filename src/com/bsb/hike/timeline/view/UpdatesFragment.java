@@ -324,14 +324,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 						}
 					};
-					if (Utils.isHoneycombOrHigher())
-					{
-						asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-					}
-					else
-					{
-						asyncTask.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-					}
+					asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
+
 				}
 				else
 				{
@@ -358,15 +352,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 		}
 
 		fetchUpdates = new FetchUpdates();
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-		}
-		else
-		{
-			fetchUpdates.execute(mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
-		}
+		fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mMsisdnArray.toArray(new String[mMsisdnArray.size()]));
 	}
 
 	private boolean isLastMsgJoinTime()

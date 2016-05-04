@@ -440,6 +440,11 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							allImages = true;
 							startActivityForResult(multiIntent, GallerySelectionViewer.MULTI_EDIT_REQUEST_CODE);
 						}
+						else
+						{
+							// If the MIME type of shared media is anything other than image, discard caption
+							messageToShare = null;
+						}
 					}
 				}
 				// Image is not present. Is there a message to forward?
@@ -965,7 +970,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask convertToJsonArrayTask = new ConvertToJsonArrayTask(this,contactInfos,true);
-            Utils.executeJSONArrayResultTask(convertToJsonArrayTask);
+			convertToJsonArrayTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             return;
         }
 
@@ -1128,7 +1133,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 	{
 		if (!OneToNConversationUtils.isOneToNConversation(info.getMsisdn()))
 		{
-			info.setFavoriteType(Utils.toggleFavorite(this, info, false));
+			info.setFavoriteType(Utils.toggleFavorite(this, info, false, HikeConstants.AddFriendSources.FORWARD_SCREEN));
 			if (info.isMyTwoWayFriend())
 				Toast.makeText(this, R.string.friend_request_sent, Toast.LENGTH_SHORT).show();
 		}
@@ -1797,7 +1802,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		dialog.setTitle(getResources().getString(R.string.please_wait));
 		dialog.setMessage(getResources().getString(R.string.loading_data));
 		ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
-		Utils.executeJSONArrayResultTask(task);
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
@@ -2316,7 +2321,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							{
 								fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileTransferList, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT,
 										intent);
-								Utils.executeAsyncTask(fileTransferTask);
+								fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 								progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 
@@ -2324,7 +2329,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							else if (!fileTransferList.isEmpty())
 							{
 								prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-								Utils.executeAsyncTask(prefileTransferTask);
+								prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 							}
 						}
 				
@@ -2533,7 +2538,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				platformAnalyticsJson.put(HikePlatformConstants.CARD_TYPE, platformCards);
 				if(!fileTransferList.isEmpty()){
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent,null, false,FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}else{
 					// if file trasfer started then it will show toast
 					Toast.makeText(getApplicationContext(), getString(R.string.messages_sent_succees), Toast.LENGTH_LONG).show();
@@ -2725,7 +2730,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (!fileTransferList.isEmpty() && ((offlineContact != null && arrayList.size() == 1) || (arrayList.size() > 1)))
 				{
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 				
 			}
@@ -3237,8 +3242,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		prefileTransferTask = new PreFileTransferAsycntask(arrayList,null,
 				contactJson, newConvIfnotExist,CONTACT_TRANSFER);
-		Utils.executeAsyncTask(prefileTransferTask);
-
+		prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	

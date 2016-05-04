@@ -251,7 +251,7 @@ public class StickerPageAdapter extends BaseAdapter implements OnClickListener
 
 	private void initialiseDownloadStickerTask(DownloadSource source)
 	{
-		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, source, mContext);
+		StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(source));
 		replaceDownloadingatTop();
 	}
 

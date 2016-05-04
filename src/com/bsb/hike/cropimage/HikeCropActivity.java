@@ -45,6 +45,7 @@ import com.bsb.hike.photos.HikePhotosUtils;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 
 /**
  * The activity can crop specific region of interest from an image.
@@ -211,9 +212,17 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 		doneContainer.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v) {
+			public void onClick(View v)
+			{
 				doneClicked = true;
-				mCropFragment.crop();
+				if (mCropFragment.isInCropMode())
+				{
+					mCropFragment.crop();
+				}
+				else
+				{
+					sendCropResult();
+				}
 			}
 		});
 
@@ -239,24 +248,16 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 			BitmapUtils.saveBitmapToFile(new File(mCropImagePath), argBmp, CompressFormat.JPEG, mCropCompression == null ? 85 : mCropCompression.getQuality());
 
+			mInterimImagePath = mCropImagePath;
+
 			if (doneClicked)
 			{
-				Intent resultIntent = new Intent();
-				resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
-				resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
-				Bundle extras = getIntent().getExtras();
-				if (extras != null)
-				{
-					resultIntent.putExtras(extras);
-				}
-				setResult(RESULT_OK, resultIntent);
-				finish();
+				sendCropResult();
 			}
 			else
 			{
 				mCropFragment.setSourceImagePath(mCropImagePath);
 				mCropFragment.loadBitmap();
-				mInterimImagePath = mCropImagePath;
 			}
 		}
 		catch (IOException e)
@@ -264,6 +265,36 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			e.printStackTrace();
 			onCropFailed();
 		}
+	}
+
+	private void sendCropResult()
+	{
+		File cropResult = new File(mCropImagePath);
+		if(!cropResult.exists())
+		{
+			try
+			{
+				BitmapUtils.saveBitmapToFile(new File(mCropImagePath), mCropFragment.getImageBitmap(), CompressFormat.JPEG,
+						mCropCompression == null ? 85 : mCropCompression.getQuality());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				onCropFailed();
+				return;
+			}
+		}
+
+		Intent resultIntent = new Intent();
+		resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
+		resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
+		Bundle extras = getIntent().getExtras();
+		if (extras != null)
+		{
+			resultIntent.putExtras(extras);
+		}
+		setResult(RESULT_OK, resultIntent);
+		finish();
 	}
 
 	private void onCropFailed()
@@ -296,6 +327,10 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 		if(!isEventConsumed)
 		{
+			if(!TextUtils.isEmpty(mInterimImagePath))
+			{
+				Utils.deleteFile(new File(mInterimImagePath));
+			}
 			super.onBackPressed();
 		}
 	}

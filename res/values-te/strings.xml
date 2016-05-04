@@ -1413,8 +1413,13 @@
     <string name="share_on_timeline">టైమ్ లైన్ మీద పంచుకోవాలా?</string>
     <string name="posting_photos_timeline">ఫొటోస్ టైంలైన్ కి పోస్టింగ్ అవుతున్నాయి</string>
     <string name="add_a_caption">ఒక క్యాప్షన్ ను జత చేయ్యండి.  </string>
-    <string name="keyboard_shutdown_heading">ప్రాంతీయ స్టికర్స్ కి మద్దతు తొలగించడం</string>
-    <string name="keyboard_shutdown_description">మీరు ఎల్లప్పుడూ  ఫోన్ కీబోర్డ్ తో చాట్ చేయవచ్చు లేదా ప్లేస్టోర్ నుండి డౌన్లోడ్ చేసుకోవచ్చు</string>
+    <string name="keyboard_shutdown_heading">Hike ప్రాంతీయ కీబోర్డ్ కి మద్దతు తొలగిస్తున్నాము</string>
+    <string name="keyboard_shutdown_description">మీరు చాట్ చేయడానికి ఫోన్ కీబోర్డ్ తో కొనసాగించవచ్చు లేదా ప్లేస్టోర్ నుండి గూగుల్ ప్రాంతీయ కీబోర్డ్ డౌన్లోడ్  చేసుకోగలరు</string>
     <string name="open_phone_keyboard">ఫోన్ కీబోర్డ్ </string>
     <string name="open_google_keyboard">గూగుల్ కీబోర్డ్ </string>
+
+    <string name="slide_to_cancel">క్యాన్సిల్ కు స్లయిడ్ చేయు</string>
+    <string name="recording_help_text">రికార్డింగ్ కొరకు నోక్కి ఉంచు, పంపుటకు రిలీజ్ చేయు</string>
+    <string name="max_duration_recorded">రికార్డింగ్ టైం పరిమితి మించినది</string>
+    <string name="stream_volume_muted_or_low">దయచేసి వాల్యూమ్ పెంచండి</string>
 </resources>

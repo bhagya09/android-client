@@ -188,7 +188,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 				isUpdateAllTapped = false;
 				for(StickerCategory category : updateStickerSet)
 				{
-					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, getActivity());
+					StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(DownloadSource.SETTINGS));
 				}
 				
 				try
@@ -590,7 +590,7 @@ public class StickerSettingsFragment extends Fragment implements Listener, DragS
 		if((category.getState() == StickerCategory.RETRY) && (stickerSettingsTask == StickerSettingsTask.STICKER_UPDATE_TASK))
 		{
 			category.setState(StickerCategory.DOWNLOADING);
-			StickerManager.getInstance().initialiseDownloadStickerPackTask(category, DownloadSource.SETTINGS, getActivity());
+			StickerManager.getInstance().initialiseDownloadStickerPackTask(category, StickerManager.getInstance().getPackDownloadBodyJson(DownloadSource.SETTINGS));
 			mAdapter.notifyDataSetChanged();
 		}
 		else

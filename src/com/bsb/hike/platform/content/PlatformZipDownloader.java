@@ -261,6 +261,7 @@ public class PlatformZipDownloader
 			{
                 PlatformUtils.deleteDirectory(originalPath);
                 PlatformUtils.deleteDirectory(unzipPath + File.separator+ mRequest.getContentData().getId());
+                PlatformUtils.deleteDirectory(unzipPath + File.separator+ PlatformContentConstants.MICROAPPS_MACOSX_DIR);
                 dest.renameTo(originalDir);
 				replaceSuccess = true;
 			}
@@ -401,7 +402,7 @@ public class PlatformZipDownloader
 	 */
 	private String getUnZipPath()
 	{
-		String unzipPath = PlatformUtils.getMicroAppContentRootFolder() + PlatformContentConstants.TEMP_DIR_NAME + File.separator;
+		String unzipPath = PlatformUtils.getMicroAppContentRootFolder();
 
 		// To determine the path for unzipping zip files based on request type
 		switch (mRequest.getBotType())
@@ -420,7 +421,7 @@ public class PlatformZipDownloader
 			break;
 		}
 
-		return unzipPath;
+		return unzipPath + PlatformContentConstants.TEMP_DIR_NAME + File.separator;
 	}
 
 	/**

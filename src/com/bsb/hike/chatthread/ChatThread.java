@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -104,6 +105,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
@@ -116,6 +118,7 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
@@ -562,10 +565,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		case SCROLL_LISTENER_ATTACH:
 			mConversationsView.setOnScrollListener(this);
+			break;
 		case OPEN_PICKER:
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
+			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
 			break;
@@ -983,6 +988,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "on activity result " + requestCode + " result " + resultCode);
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
+			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
+				recordMediaShareAnalyticEvent(ChatAnalyticConstants.LOCATION_SHARING_CANCELLED);
+			}
 			return;
 		}
 		switch (requestCode)
@@ -1016,6 +1024,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			 */
 			if (data != null)
 			{
+				Logger.d("FileSelect", "Processing the request for file sharing.");
 				channelSelector.onShareFile(activity.getApplicationContext(), msisdn, data, mConversation.isOnHike());
 			}
 			break;
@@ -1035,11 +1044,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				}
 				else
 				{
+					final int numOfImagesCaptioned = (imageCaptions != null) ? imageCaptions.size() : 0;
+					final ArrayList<String> editedImages = data.getStringArrayListExtra(HikeConstants.EDITED_IMAGE_PATHS);
+					final int numOfImagesEdited = (editedImages != null && !TextUtils.isEmpty(editedImages.get(0))) ? 1 : 0;
+
 					ImageParser.showSMODialog(activity, new File(imagePathArrayList.get(0).getPath()), new ImageParserListener()
 					{
 						@Override
 						public void imageParsed(Uri uri)
 						{
+
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, uri.getPath(), HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1047,6 +1062,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						@Override
 						public void imageParsed(String imagePath)
 						{
+							recordImageShareAnalyticEvent(imagePathArrayList.size(), numOfImagesCaptioned, numOfImagesEdited);
+
 							channelSelector.uploadFile(activity.getApplicationContext(), msisdn, imagePath, HikeFileType.IMAGE, mConversation.isOnHike(),
 									FTAnalyticEvents.CAMERA_ATTACHEMENT, imageCaptions == null ? null : imageCaptions.get(0));
 						}
@@ -1104,6 +1121,34 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
 
+		}
+	}
+
+	private void recordImageShareAnalyticEvent(int numberTotal, int numOfImagesCaptions, int numOfEditedImages){
+		String species = ChatThreadUtils.getChatThreadType(msisdn);
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.SHARE_IMAGES);
+			if (mConversation.isStealth()) {
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			json.put(AnalyticsConstants.V2.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
+			json.put(AnalyticsConstants.V2.RACE, numberTotal);
+			json.put(AnalyticsConstants.V2.BREED, numOfEditedImages);
+			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatAnalyticConstants.IMAGE_SOURCE_CAMERA);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
+					HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1168,7 +1213,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			}
 
 		};
-		Utils.executeAsyncTask(automateMessages);
+		automateMessages.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
@@ -1182,6 +1227,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CHAT_OVRFLW_ITEM).put(ITEM, itemText);
+			//CE-602 : Add new fields to existing overflow menu events
+			metadata.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				metadata.put(HikeConstants.FROM, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
 		catch (JSONException e)
@@ -1252,12 +1302,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onClick(View v)
 	{
-		// Eat/Discard the click event when the WT recording is in progress
-		if(isWalkieTalkieShowing()) return;
+		if(useWTRevamped) {
+			if(v.getId() == R.id.msg_compose && !isKeyboardOpen()){ //CE-492
+				inProcessOfShowingPopup = true;
+			}
+			// Eat/Discard the click event when the WT recording is in progress
+			if(isWalkieTalkieShowing()) {
+				if(inProcessOfShowingPopup) dismissWalkieTalkie();
+				return;
+			}
+		}
+
 		switch (v.getId())
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
 			stickerClicked();
@@ -1267,6 +1327,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			{// previous task is running don't accept this event
 				return;
 			}
+			inProcessOfShowingPopup = true;
 			setStickerButtonSelected(false);
 			setEmoticonButtonSelected(true);
 			emoticonClicked();
@@ -1393,11 +1454,20 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void audioRecordClicked()
 	{
 		showAudioRecordView();
+		sendWTClickedAnalytic();
+	}
+
+	private void sendWTClickedAnalytic() {
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		JSONObject json = Utils.getCoreChatClickJSON(ChatAnalyticConstants.WT_CLICKED_TOUCHED, species, mConversation.isStealth());
+		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
 	protected void showAudioRecordView()
 	{
-		audioRecordView.show();
+		//CE-171: Avoid showing the old WT, when the new WT UI is enabled.
+		if(!useWTRevamped) audioRecordView.show();
+		else showRecordingErrorTip(R.string.recording_help_text);
 	}
 
 	protected void stickerClicked()
@@ -1405,6 +1475,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (mShareablePopupLayout.isBusyInOperations()) {//  previous task is running don't accept this event
 			return;
 		}
+		inProcessOfShowingPopup = true;
 		setEmoticonButtonSelected(false);
 		setStickerButtonSelected(true);
 
@@ -1413,7 +1484,11 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 		closeStickerTip();
 		StickerManager.getInstance().logStickerButtonPressAnalytics();
-		
+
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
+
 		if (mShareablePopupLayout.togglePopup(mStickerPicker, activity.getResources().getConfiguration().orientation))
 		{
 			activity.showProductPopup(ProductPopupsConstants.PopupTriggerPoints.STKBUT_BUT.ordinal());
@@ -1422,6 +1497,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			if (!retryToInflateStickers())
 			{
+				inProcessOfShowingPopup = false;
 				setStickerButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
 			}
@@ -1437,7 +1513,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mTips.setTipSeen(ChatThreadTips.STICKER_TIP);
 		}
 	}
-	
+
+	protected void closeWTTip() {
+		if (mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP) || (!mTips.seenTip(ChatThreadTips.WT_RECOMMEND_TIP))) {
+			mTips.setTipSeen(ChatThreadTips.WT_RECOMMEND_TIP);
+			showRecordingErrorTip(R.string.recording_help_text);
+			mComposeViewWatcher.setSendBtnChangeListener(null);
+		}
+	}
+
 	public void showStickerRecommendTip()
 	{
 		mTips.showStickerRecommendFtueTip();
@@ -1487,12 +1571,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Long time = System.currentTimeMillis();
 		initEmoticonPicker();
 
+		if(mShareablePopupLayout.isShowing()) {
+			inProcessOfShowingPopup = false;
+		}
 		if (!mShareablePopupLayout.togglePopup(mEmoticonPicker, activity.getResources().getConfiguration().orientation))
 		{
 			if (!retryToInflateEmoticons())
 			{
 				setEmoticonButtonSelected(false);
 				Toast.makeText(activity.getApplicationContext(), R.string.some_error, Toast.LENGTH_SHORT).show();
+				inProcessOfShowingPopup = false;
 			}
 		}
 
@@ -1575,7 +1663,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	public void themeClicked(ChatTheme theme)
 	{
 		Logger.i(TAG, "theme clicked " + theme);
-
+		postTrialsAnalytic(theme.bgId());
 		updateUIAsPerTheme(theme);
 	}
 
@@ -1597,6 +1685,23 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			updateUIAsPerTheme(chatTheme);
 			currentTheme = chatTheme;
 			sendChatThemeMessage();
+		}
+	}
+
+	private void postTrialsAnalytic(String themeId){
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_USERS);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CHAT_BACKGROUND_TRIAL);
+			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
+			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
+			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
+			metadata.put(AnalyticsConstants.V2.FAMILY, Utils.applyOffsetToMakeTimeServerSync(activity, System.currentTimeMillis()));
+			HAManager.getInstance().recordV2(metadata);
+		} catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
 	}
 
@@ -2136,6 +2241,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.VIDEO_SENT);
 			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
@@ -2156,6 +2262,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		}
 
+	}
+
+	private void recordMediaShareAnalyticEvent(String uniqueKey_order){
+		recordMediaShareAnalyticEvent(uniqueKey_order, null, null);
+	}
+
+	public void recordMediaShareAnalyticEvent(String uniqueKey_order, String genus, String family){
+		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
+		Utils.recordCoreAnalyticsForShare(uniqueKey_order, species, msisdn, mConversation.isStealth(), genus, family);
 	}
 
 	protected void onShareLocation(Intent data)
@@ -2298,6 +2413,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void audioRecordSuccess(String filePath, long duration)
 	{
+		//CE-44: Incorrect time is shown in voice message
+		try {
+			MediaPlayer mediaPlayer = new MediaPlayer();
+			mediaPlayer.setDataSource(filePath);
+			mediaPlayer.prepare();
+			duration = mediaPlayer.getDuration()/1000;
+			mediaPlayer.release();
+			mediaPlayer = null;
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		Logger.i(TAG, "Audio Recorded " + filePath + "--" + duration);
 		channelSelector.sendAudioRecording(activity.getApplicationContext(),filePath,duration,msisdn,mConversation.isOnHike());
 	}
@@ -2308,6 +2434,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		Logger.i(TAG, "Audio Recorded failed");
 		if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_MINDURATION){
 			showRecordingErrorTip(R.string.recording_help_text);
+		} else if(cause == HikeAudioRecordListener.AUDIO_CANCELLED_BY_USER){
+			sendAnalyticsUserCancelledRecording();
+		}
+	}
+
+	private void sendAnalyticsUserCancelledRecording() {
+		try {
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
+			json.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
+			if(mConversation.isStealth()) {
+				json.put(HikeConstants.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			}
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -2673,6 +2815,22 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		/* check if the send button should be enabled */
 		mComposeViewWatcher.setBtnEnabled();
+		//Begin CE-487: FTUE red-dot of WT also appears on send message button
+		boolean isWTTipShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+		if (useWTRevamped && isWTTipShown) {
+			mComposeViewWatcher.setSendBtnChangeListener(
+					new ComposeViewWatcher.SendBtnChangedListener() {
+						@Override
+						public void onSendBtnChanged(boolean enabled) {
+							if (enabled) {
+								mTips.hideTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							} else {
+								mTips.showHiddenTip(ChatThreadTips.WT_RECOMMEND_TIP);
+							}
+						}
+					});
+		}
+		//End CE-487
 		mComposeView.requestFocus();
 
 	}
@@ -3764,9 +3922,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				return mShareablePopupLayout.onEditTextTouch(v, event);
 			}
 			case R.id.send_message_audio:
+				if(inProcessOfShowingPopup) return true;
 				if (tipVisibilityAnimator != null && !tipVisibilityAnimator.isTipShownForMinDuration()) {
 					return true;
 				}
+				boolean isWTShown = mTips.isGivenTipShowing(ChatThreadTips.WT_RECOMMEND_TIP);
+				if (isWTShown) {
+					if (event.getAction() == MotionEvent.ACTION_UP) closeWTTip();
+					return true;
+				}
+
 				switch (event.getAction()) {
 					case MotionEvent.ACTION_DOWN:
 						v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
@@ -3775,6 +3940,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						}
 						walkieView.initialize(activity.findViewById(R.id.bottom_panel), mShareablePopupLayout.isShowing() || isKeyboardOpen());
 						walkieView.update(v,event);
+						sendWTClickedAnalytic();
 						break;
 					case MotionEvent.ACTION_MOVE:
 						walkieView.update(v, event);
@@ -4037,6 +4203,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
         		sendUIMessage(MESSAGE_SENT, msg);
         	}
         	break;
+		case HikePubSub.CLEAR_CONVERSATION:
+			FileTransferManager.getInstance(activity).clearConversation(msisdn);
+			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
 			//TODO Proper handling in next release. It is safe to comment this out for now.
 			//onGeneralEventStateChange(object);
@@ -4277,7 +4446,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -4330,7 +4499,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		releaseMessageAdapterResources();
 
-		StickerManager.getInstance().saveCustomCategories();
+		StickerManager.getInstance().saveRecents();
 
 		releaseMessageMap();
 		
@@ -4458,6 +4627,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (shouldShowKeyboard())
 		{
 			tryToDismissAnyOpenPanels();
+			inProcessOfShowingPopup = true;
 			Utils.showSoftKeyboard(activity, mComposeView);
 		}
 
@@ -4577,7 +4747,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	/* cancel the current recording and dismiss the walkie talkie, if it was currently showing */
 	private boolean dismissWalkieTalkie(){
 		if(walkieView != null && walkieView.isShowing()){
-			walkieView.cancelAndDismissAudio();
+			walkieView.cancelAndDismissAudio(false);
 			return true;
 		}
 		return false;
@@ -5027,9 +5197,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				hikeFile.delete(activity.getApplicationContext());
 			}
             HikeConversationsDatabase.getInstance().reduceRefCount(key);
-			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), file, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
+			FileTransferManager.getInstance(activity.getApplicationContext()).cancelTask(convMessage.getMsgID(), hikeFile, convMessage.isSent(), hikeFile.getFileSize(), hikeFile.getAttachmentSharedAs());
 			mAdapter.notifyDataSetChanged();
-
 		}
 
 		if (convMessage.getMessageType() == HikeConstants.MESSAGE_TYPE.CONTENT)
@@ -5193,7 +5362,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected void sendSticker(Sticker sticker, String source)
 	{
 		ConvMessage convMessage = Utils.makeConvMessage(msisdn, StickerManager.STICKER_MESSAGE_TAG, mConversation.isOnHike());
-		ChatThreadUtils.setStickerMetadata(convMessage, sticker.getCategoryId(), sticker.getStickerId(), source);
+		ChatThreadUtils.setStickerMetadata(convMessage, sticker, source);
 		sendMessage(convMessage);
 		
 	}
@@ -5255,7 +5424,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			mMessageMap.clear();
 		}
-
+		
 		mAdapter.notifyDataSetChanged();
 		Logger.d(TAG, "Clearing conversation");
 	}
@@ -5268,7 +5437,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (messages != null && messages.size() > 0)
 		{
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
-			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
+			emailTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mConversation.getConvInfo());
 		}
 		else
 		{
@@ -5920,6 +6089,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 		if ((view == mComposeView))
 		{
+			//CE-497:Samsung duos2, in landscape mode when DONE is pressed onHidden method isn't called
+			if(useWTRevamped && inProcessOfShowingPopup) inProcessOfShowingPopup = false;
 	     // On some phones (like: micromax A120) "actionId" always comes 0, so added one more optional check (view.getId() ==R.id.msg_compose) & (view.getId() ==R.id.search_text)
 			if ((actionId == EditorInfo.IME_ACTION_SEND)
 					|| ((view.getId() == R.id.msg_compose) && PreferenceManager
@@ -6055,6 +6226,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onShown()
 	{
+		inProcessOfShowingPopup = false;
 		/**
 		 * If the last message was visible before opening the keyboard it can be hidden hence we need to scroll to bottom.
 		 */
@@ -6074,7 +6246,21 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void onHidden()
 	{
+		//CE-497, as in landscape mode onShown isn't called when keyboard is completely up
+		if (useWTRevamped && inProcessOfShowingPopup) {
+			inProcessOfShowingPopup = false;
+		}
 	}
+
+	@Override
+	public void onHiddingPreviouslyShown(){
+		//CE-513: In some devices onBackPressed is not called when the keyboard was open
+		if (useWTRevamped && !isKeyboardOpen() && !mShareablePopupLayout.isShowing()) {
+			if (isWalkieTalkieShowing()) dismissWalkieTalkie();
+		}
+	}
+
+	private boolean inProcessOfShowingPopup = false;
 
 	public void dismissResidualAcitonMode()
 	{
@@ -6522,7 +6708,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.ACT_LOG_2);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_OPEN);
 			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG_2);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
