@@ -559,4 +559,9 @@ public class HttpRequestConstants
 	{
 		return  BASE_URL + BASE_V1 + "hsu/";
 	}
+
+	public static String fetchUIDForMissingMsisdnUrl()
+	{
+		return BASE_URL + BASE_V2 + "/user-identifier-update-graph";
+	}
 }
