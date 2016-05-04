@@ -54,7 +54,8 @@ public class PackPreviewActivity extends HikeAppStateBaseFragmentActivity
 		
 		Intent intent = getIntent();
 		String catId = intent.getStringExtra(HikeConstants.STICKER_CATEGORY_ID);
-		PackPreviewFragment stickerPreviewFragment = PackPreviewFragment.newInstance(catId);
+		int position = intent.getIntExtra(HikeConstants.POSITION, -1);
+		PackPreviewFragment stickerPreviewFragment = PackPreviewFragment.newInstance(catId, position);
 		getSupportFragmentManager().beginTransaction().replace(R.id.sticker_preview_parent, stickerPreviewFragment).commit();
 	}
 	

@@ -1543,7 +1543,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			return result;
 		}
 
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, false))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.ENABLE_AB_SYNC_CHANGE, true))
 		{
 			result = syncUpdates(newContacts, transientCache.getAllContactsForSyncing());
 		}

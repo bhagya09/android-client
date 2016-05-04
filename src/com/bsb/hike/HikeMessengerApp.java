@@ -48,6 +48,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.db.HikeMqttPersistence;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.diskcache.Cache;
@@ -64,6 +65,7 @@ import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformContentConstants;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.RegisterToGCMTrigger;
@@ -80,6 +82,7 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.abtest.ABTest;
 import com.crashlytics.android.Crashlytics;
 
 import io.fabric.sdk.android.Fabric;
@@ -94,6 +97,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		OPENED, RESUMED, BACKGROUNDED, CLOSED, NEW_ACTIVITY, BACK_PRESSED, NEW_ACTIVITY_IN_BG, OLD_ACTIVITY, NEW_ACTIVITY_INTERNAL
 	}
+
+	public static final String DEFAULT_SETTINGS_PREF = "com.bsb.hike_preferences";
 
 	public static final String ACCOUNT_SETTINGS = "accountsettings";
 
@@ -339,8 +344,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String HIDE_FTUE_SUGGESTIONS = "hideFtueSuggestions";
 
-	public static final String FB_SIGNUP = "fbSignup";
-
 	public static final String BIRTHDAY_DAY = "birthdayDay";
 
 	public static final String BIRTHDAY_MONTH = "birthdayMonth";
@@ -521,8 +524,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String UPGRADE_LANG_ORDER = "upgradeLanguageOrder";
 
-	public static final String UPGRADE_FOR_STICKER_TABLE = "upgradeForStickerTable";
-
 	public static final String EXCEPTION_ANALYTIS_ENABLED = "exceptionAnalaticsEnabled";
 
 	public static final String MAX_REPLY_RETRY_NOTIF_COUNT = "maxReplyRetryNotifCount";
@@ -597,6 +598,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	public static final String STICKER_FOLDER_LOCKED_ERROR_OCCURED = "stickerFolderLockedErrorOccured";
 
 	public static final String SHOWN_PACK_PREVIEW_FTUE = "shownPackPreviewFtue";
+
+	public static final String MIGRATE_RECENT_STICKER_TO_DB = "migrateRecentStickersToDb";
 
 	// =========================================================================================Constants for sticker search]]
 
@@ -699,7 +702,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	/*
 	 * Implement a Custom report sender to add our own custom msisdn and token for the username and password
 	 */
-	private class CustomReportSender implements ReportSender
+	public class CustomReportSender implements ReportSender
 	{
 		@Override
 		public void send(Context arg0, CrashReportData crashReportData) throws ReportSenderException
@@ -854,9 +857,19 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		// if the setting value is 1 , this means the DB onUpgrade was called
 		// successfully.
-		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
-				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0 || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
+		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1)
+				|| settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
+				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1
+				|| settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1
+				|| settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1
+				|| settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1
+				||settings.getInt(UPGRADE_LANG_ORDER,0)==0
+				|| settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false
+				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
+				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
+				|| settings.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false) == false
+				|| TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -951,7 +964,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			replaceGBKeys();
 		}
 
-		validateHikeRootDir();
+		validateCriticalDirs();
+
 		makeNoMediaFiles();
 
 		HikeMessengerApp.getPubSub().addListener(HikePubSub.CONNECTED_TO_MQTT, this);
@@ -973,13 +987,40 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		bottomNavBarHeightPortrait = Utils.getBottomNavBarHeight(getApplicationContext());
 		bottomNavBarWidthLandscape = Utils.getBottomNavBarWidth(getApplicationContext());
 		PlatformUtils.resumeLoggingLocationIfRequired();
-		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+		//Init AB-Testing framework
+		ABTest.apply(getApplicationContext());
 		CustomTabsHelper.getPackageNameToUse(this);
+		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+
 	}
 
-	private void initCrashReportingTool()
+	private void validateCriticalDirs()
 	{
-		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				Utils.validateDirectory(HikeConstants.HIKE_DIRECTORY_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.IMAGE_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.VIDEO_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.VIDEO_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_RECORDING_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.AUDIO_RECORDING_ROOT + HikeConstants.SENT_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.OTHER_ROOT);
+				Utils.validateDirectory(HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.OTHER_ROOT + HikeConstants.SENT_ROOT);
+			}
+		});
+	}
+
+	public void initCrashReportingTool()
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL,HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 		{
 			Logger.d("HikeMessangerApp","Initializing Crashlytics");
 			Fabric.with(this, new Crashlytics());
@@ -993,6 +1034,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			ErrorReporter.getInstance().setReportSender(customReportSender);
 		}
 	}
+
 	private void initImportantAppComponents(SharedPreferences prefs)
 	{
 		// we're basically banking on the fact here that init() would be
@@ -1031,6 +1073,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 		ProductInfoManager.getInstance().init();
 
+		AtomicTipManager.getInstance().init();
+
         // Set default path as internal storage on production host
         PlatformContentConstants.PLATFORM_CONTENT_DIR = PlatformContentConstants.MICRO_APPS_VERSIONING_PROD_CONTENT_DIR;
 
@@ -1058,7 +1102,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		initCrashReportingTool();
 	}
 
-	private void logUser() {
+	public void logUser() {
 		// TODO: Use the current user's information
 		// You can call any combination of these three methods
 		String uId = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null);
@@ -1148,31 +1192,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		 * Contact Manager getInstance will initialize contact manager if already not initialized and returns the ContactManager's instance
 		 */
 		ContactManager.getInstance();
-	}
-
-	/**
-	 * Validate the hike root directory is corrupted or not. If it is corrupted then rename the corrupt dir.
-	 */
-	private void validateHikeRootDir()
-	{
-		File rootDir = new File(HikeConstants.HIKE_DIRECTORY_ROOT);
-		/*
-		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
-		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
-		 * Caused mainly by app like clean master, native memory optimization etc.
-		 */
-		if(rootDir != null && rootDir.exists())
-		{
-			if(!rootDir.isDirectory() && rootDir.isFile())
-			{
-				int count = 0;
-				File mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + count);
-				while (mFile.exists()) {
-					mFile = new File(HikeConstants.HIKE_DIRECTORY_ROOT + "_" + ++count);
-				}
-				rootDir.renameTo(mFile);
-			}
-		}
 	}
 
 	private void makeNoMediaFiles()
@@ -1378,6 +1397,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
         HikeAlarmManager.setAlarmwithIntentPersistance(HikeMessengerApp.getInstance(), scheduleTime, HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS, false, IntentFactory.getPersistantAlarmIntent(), true);
 
         HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.DAILY_ANALYTICS_ALARM_STATUS, true);
+    }
+
+    public static void clearDiskCache()
+    {
+        diskCache = null;
     }
 
 }

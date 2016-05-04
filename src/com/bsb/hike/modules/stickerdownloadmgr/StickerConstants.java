@@ -54,6 +54,18 @@ public class StickerConstants
 			return value;
 		}
 
+		public static DownloadSource fromValue(int value) throws IllegalArgumentException
+		{
+			try
+			{
+				return DownloadSource.values()[value];
+			}
+			catch (ArrayIndexOutOfBoundsException e)
+			{
+				throw new IllegalArgumentException("Unknown enum value :" + value);
+			}
+		}
+
 	}
 
 	public enum HttpRequestType
@@ -94,6 +106,24 @@ public class StickerConstants
 			return this.label;
 		}
 	};
+
+
+	public enum PackPreviewClickSource
+	{
+		SHOP("shop"), RECOMMENDATION("reco"), NOTIFICATION("notif"), BANNER("banner");
+
+		private String value;
+
+		PackPreviewClickSource(String value)
+		{
+			this.value = value;
+		}
+
+		public String getValue()
+		{
+			return value;
+		}
+	}
 
 	public static final int DEFAULT_STICKER_THRESHOLD_FOR_CDN = 5;
 

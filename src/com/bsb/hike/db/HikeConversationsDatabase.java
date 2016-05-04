@@ -118,6 +118,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -396,6 +397,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
         sql = getStickerTableCreateQuery();
         db.execSQL(sql);
+
+		sql = getRecentStickersTableCreateQuery();
+		db.execSQL(sql);
 	}
 
 	private void createIndexOverServerIdField(SQLiteDatabase db)
@@ -425,6 +429,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, null, null);
 		mDb.delete(DBConstants.URL_TABLE, null, null);
 		mDb.delete(DBConstants.STICKER_TABLE, null, null);
+		mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
 	}
 
 	@Override
@@ -1072,10 +1077,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			 sql = getStickerTableCreateQuery();
 			db.execSQL(sql);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
+
 
         }
-		if(oldVersion<50){
+		if(oldVersion < 50)
+		{
+			String sql = getRecentStickersTableCreateQuery();
+			db.execSQL(sql);
+		}
+		if(oldVersion<51){
 
 			//Adding Receipts Table
 
@@ -1089,7 +1099,9 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.PLAYED_TIMESTAMP + " INTEGER " // Delivery Time when the message was delivered to the recepient.
 				+ " ) ";
 			db.execSQL(sql);
-		}
+        }
+
+
 	}
 
 	public void reinitializeDB()
@@ -2262,6 +2274,18 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
                 + DBConstants.TYPE + " INTEGER DEFAULT " + StickerConstants.StickerType.LARGE.ordinal() + ", "
 				+ "PRIMARY KEY ("+DBConstants.CATEGORY_ID +" , "+ DBConstants.STICKER_ID +" )"
 				+ " )";
+
+		return sql;
+	}
+
+	private String getRecentStickersTableCreateQuery()
+	{
+		String sql = CREATE_TABLE + DBConstants.RECENT_STICKERS_TABLE
+				+ " ( "
+				+ DBConstants.STICKER_ID + " TEXT, "
+				+ DBConstants.CATEGORY_ID + " TEXT, "
+				+ "PRIMARY KEY ( " + DBConstants.CATEGORY_ID + " , " + DBConstants.STICKER_ID + " ) "
+				+ " ) ";
 
 		return sql;
 	}
@@ -9798,6 +9822,93 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			for (StickerCategory category : categories)
 			{
 				mDb.delete(DBConstants.STICKER_TABLE, DBConstants.CATEGORY_ID + "=?", new String[] { category.getCategoryId() });
+			}
+			mDb.setTransactionSuccessful();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
+	public List<StickerCategory> getAllStickerCategories()
+	{
+		Cursor c = null;
+		LinkedHashMap<String, StickerCategory> stickerDataMap;
+
+		try
+		{
+			c = mDb.query(DBConstants.STICKER_CATEGORIES_TABLE, null, null, null, null, null, null);
+			stickerDataMap = parseStickerCategoriesCursor(c);
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+
+		List<StickerCategory> catList = new ArrayList<StickerCategory>(stickerDataMap.values());
+		Collections.sort(catList);
+		return catList;
+	}
+
+	public Set<Sticker> getRecentStickers()
+	{
+		Cursor c = null;
+		Set<Sticker> stickerSet = null;
+		try
+		{
+			c = mDb.query(DBConstants.RECENT_STICKERS_TABLE, null, null, null, null, null, null);
+			int stIdIdx = c.getColumnIndex(DBConstants.STICKER_ID);
+			int catIdIdx = c.getColumnIndex(DBConstants.CATEGORY_ID);
+
+			stickerSet = Collections.synchronizedSet(new LinkedHashSet<Sticker>(c.getCount()));
+
+			while(c.moveToNext())
+			{
+				String stickerId = c.getString(stIdIdx);
+				String categoryId = c.getString(catIdIdx);
+				stickerSet.add(new Sticker(categoryId, stickerId));
+			}
+		}
+		finally
+		{
+			if( null != c)
+			{
+				c.close();
+			}
+		}
+		return stickerSet;
+	}
+
+	public void saveRecentStickers(Set<Sticker> recentStickers)
+	{
+		if(Utils.isEmpty(recentStickers))
+		{
+			Logger.d("recent sticker", "empty or null recent sticker set. cant save to table");
+			return;
+		}
+		try
+		{
+			mDb.beginTransaction();
+
+			/**
+			 * First clear recents table
+			 */
+			mDb.delete(DBConstants.RECENT_STICKERS_TABLE, null, null);
+
+			/**
+			 * now insert recent stickers
+			 */
+			ContentValues contentValues = new ContentValues();
+			for(Sticker sticker : recentStickers)
+			{
+				contentValues.clear();
+				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
+				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());
+				mDb.insertWithOnConflict(DBConstants.RECENT_STICKERS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 			}
 			mDb.setTransactionSuccessful();
 		}

@@ -111,7 +111,7 @@
                         android:textStyle="bold" />
 
                     <com.bsb.hike.ui.utils.RecyclingImageView
-                        android:id="@+id/remove_ftue"
+                        android:id="@+id/ftue_fav_icon"
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_centerVertical="true"

@@ -1,9 +1,11 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -13,8 +15,11 @@ import com.bsb.hike.modules.httpmgr.interceptor.IRequestInterceptor;
 import com.bsb.hike.modules.httpmgr.interceptor.IResponseInterceptor;
 import com.bsb.hike.modules.httpmgr.request.BitmapRequest;
 import com.bsb.hike.modules.httpmgr.request.ByteArrayRequest;
+import com.bsb.hike.modules.httpmgr.request.FileDownloadRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequest;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
+import com.bsb.hike.modules.httpmgr.request.FileUploadRequest;
+import com.bsb.hike.modules.httpmgr.request.IGetChunkSize;
 import com.bsb.hike.modules.httpmgr.request.JSONArrayRequest;
 import com.bsb.hike.modules.httpmgr.request.JSONObjectRequest;
 import com.bsb.hike.modules.httpmgr.request.Request;
@@ -47,6 +52,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +66,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBase
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBotdiscoveryTableUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getDeleteStatusBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getFastFileUploadBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getForcedStickersUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getGroupBaseUrlForLinkSharing;
@@ -68,6 +75,9 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getPost
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStaticAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStatusBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getStickerTagsUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadContactOrLocationBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getUploadFileBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getValidateFileKeyBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.groupProfileBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.httpNetworkTestUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.languageListUrl;
@@ -97,10 +107,12 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateA
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_LONG;
 import static com.bsb.hike.modules.httpmgr.request.Request.REQUEST_TYPE_SHORT;
+
 
 public class HttpRequests
 {
@@ -637,6 +649,31 @@ public class HttpRequests
 
 	}
 
+    public static RequestToken forwardCardsMISPostRequest(String url, JSONObject json, IRequestListener requestListener, String id)
+    {
+        if(json==null)
+        {
+            return null;
+        }
+        else
+        {
+            JsonBody body = new JsonBody(json);
+            RequestToken requestToken = new StringRequest.Builder()
+                    .setUrl(url)
+                    .setRequestType(Request.REQUEST_TYPE_SHORT)
+                    .addHeader(PlatformUtils.getHeaders())
+                    .setRequestListener(requestListener)
+                    .setRetryPolicy(new BasicRetryPolicy(HikePlatformConstants.NUMBER_OF_RETRIES, HikePlatformConstants.RETRY_DELAY, HikePlatformConstants.BACK_OFF_MULTIPLIER))
+                    .post(body)
+                    .setId(id)
+                    .build();
+
+            return requestToken;
+        }
+
+
+    }
+
 	public static RequestToken microAppGetRequest(String url, IRequestListener requestListener)
 	{
 
@@ -1118,6 +1155,37 @@ public class HttpRequests
 
 	}
 
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString)
+	{
+		RequestToken token = new FileDownloadRequest.Builder()
+				.setUrl(url)
+				.setRequestListener(requestListener)
+				.addHeader(new Header("Accept-Encoding", "musixmatch"))
+				.setFile(destFilePath)
+				.setFileTypeString(fileTypeString)
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setId(String.valueOf(msgId))
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
+				.build();
+		return token;
+	}
+	
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
+	{
+		RequestToken requestToken = new FileUploadRequest.Builder()
+				.setUrl(getUploadFileBaseUrl())
+				.setId(String.valueOf(msgId))
+				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
+				.setChunkSizePolicy(chunkSizePolicy)
+				.setRequestListener(requestListener)
+				.setFile(filePath)
+				.build();
+
+		requestToken.getRequestInterceptors().addFirst("uploadFileInterceptor", interceptor);
+		return requestToken;
+	}
+
 	public static RequestToken getAnalyticsUploadRequestToken(IRequestListener requestListener, IRequestInterceptor requestInterceptor, String requestId, int retryCount, int delayBeforeRetry)
 	{
         RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -1132,6 +1200,7 @@ public class HttpRequests
         requestToken.getRequestInterceptors().addFirst("analytics", requestInterceptor);
         return requestToken;
     }
+
 	public static RequestToken getForcedDownloadListRequest(String requestId, IRequestListener requestListener, JSONObject json)
 	{
 		JsonBody body = new JsonBody(json);
@@ -1177,6 +1246,155 @@ public class HttpRequests
 		}
 
 
+	}
+	
+	public static RequestToken validateFileKey(String fileKey, IRequestListener requestListener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(getValidateFileKeyBaseUrl() + fileKey)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken verifyMd5(long msgId, IRequestListener requestListener, IRequestInterceptor initFileUploadInterceptor)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(getFastFileUploadBaseUrl())  // url is changed in interceptor processing as we calculate md5 of file in interceptor
+				.setId(String.valueOf(msgId))
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.head()
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, 0, 1))
+				.build();
+		requestToken.getRequestInterceptors().addFirst("initFileUpload", initFileUploadInterceptor);
+		return requestToken;
+	}
+
+	public static RequestToken uploadContactOrLocation(String fileName, JSONObject json, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor)
+	{
+		List<Header> headers = new ArrayList<>();
+		headers.add(new Header("Content-Name", fileName));
+		headers.add(new Header("Content-Type", TextUtils.isEmpty(fileType) ? "" : fileType));
+		headers.add(new Header("X-Thumbnail-Required", "0"));
+		
+		JsonBody body = new JsonBody(json);
+		
+ 		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getUploadContactOrLocationBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.addHeader(headers)
+				.put(body)
+				.build();
+		requestToken.getRequestInterceptors().addFirst("uploadContactOrLocationPreProcess", interceptor);
+		return requestToken;
+	}
+
+	public static RequestToken uploadChunk(URL url, byte[] fileBytes, String BOUNDARY, List<Header> headers, String id, IRequestListener listener)
+	{
+		ByteArrayBody body = new ByteArrayBody("multipart/form-data; boundary=" + BOUNDARY, fileBytes);
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.post(body)
+				.setId(id)
+				.setHeaders(headers)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
+				.setAsynchronous(false)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getBytesFromServer(URL url, String sessionId, IRequestListener listener)
+	{
+		RequestToken requestToken = new ByteArrayRequest.Builder()
+				.setUrl(url)
+				.addHeader(new Header("X-SESSION-ID", sessionId))
+				.setAsynchronous(false)
+				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
+				.setRequestListener(listener)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getHistoricSUToken(String userMsisdn, IRequestListener listener)
+	{
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getHistoricalStatusUpdatesUrl() + userMsisdn)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.build();
+		requestToken.execute();
+		return requestToken;
+	}
+
+	public static RequestToken atomicTipRequestGet(String url, IRequestListener listener)
+	{
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener, boolean addHeader) {
+		JsonBody jsonBody = new JsonBody(payload);
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.post(jsonBody)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		if (addHeader) {
+			builder.addHeader(PlatformUtils.getHeaders());
+		}
+		return builder.build();
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener, int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	{
+
+		JSONObject settingsJSON = new JSONObject();
+		try
+		{
+			settingsJSON.put(HikeConstants.BackupRestore.KEY_SETTINGS, payloadJSON);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		JsonBody jsonBody = new JsonBody(settingsJSON);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
+				.setRequestListener(requestListener)
+				.setId(Utils.StringToMD5(settingsJSON.toString()))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.post(jsonBody)
+				.build();
+//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken downloadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry)
+	{
+		//Since user settings will always be common. Define constant local var as id
+		String downloadSettingsID = "dnwloadSettings";
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
+				.setRequestListener(requestListener)
+				.setId(downloadSettingsID)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.build();
+		return requestToken;
 	}
 
 }

@@ -172,6 +172,8 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 
 		TextView ftueBottomText;
 
+		ImageView favIcon;
+
 		public ViewHolder(View convertView, int viewType)
 		{
 			super(convertView);
@@ -220,6 +222,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 				ftueShow = convertView.findViewById(R.id.ftue_show);
 				cancelFTUE = (ImageView) convertView.findViewById(R.id.remove_ftue);
 				ftueBottomText = (TextView) convertView.findViewById(R.id.addfavtext);
+				favIcon = (ImageView) convertView.findViewById(R.id.ftue_fav_icon);
 				break;
 			case USER_PROFILE_HEADER:
 				largeProfilePic = (ImageView) convertView.findViewById(R.id.profile_pic);
@@ -800,6 +803,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			viewHolder.ftueShow.setTag(viewType);
 			viewHolder.ftueShow.setOnClickListener(ftueListItemClickListener);
 			viewHolder.ftueBottomText.setText(Utils.isFavToFriendsMigrationAllowed() ? R.string.timeline_add_as_frn : R.string.timeline_add_as_fav);
+			viewHolder.favIcon.setImageResource(Utils.isFavToFriendsMigrationAllowed() ? R.drawable.ic_84_addfriend : R.drawable.icon_favorites);
 			int imageSize = mContext.getResources().getDimensionPixelSize(R.dimen.timeine_big_picture_size);
 			profileLoader = new ProfileImageLoader(mContext, contact.getMsisdn(), viewHolder.largeProfilePic, imageSize, false, true);
 			profileLoader.setLoaderListener(new ProfileImageLoader.LoaderListener()
@@ -1515,7 +1519,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 							@Override
 							public void positiveClicked(HikeDialog hikeDialog)
 							{
-								Utils.toggleFavorite(mContext, profileContactInfo, false);
+								Utils.toggleFavorite(mContext, profileContactInfo, false, HikeConstants.AddFriendSources.UNKNOWN);
 								if (hikeDialog != null && hikeDialog.isShowing())
 								{
 									hikeDialog.dismiss();
@@ -1599,7 +1603,7 @@ public class TimelineCardsAdapter extends RecyclerView.Adapter<TimelineCardsAdap
 			if (addFav && (contact.getFavoriteType()!=null && contact.getFavoriteType() != FavoriteType.FRIEND))
 			{
 				Logger.d("tl_ftue", "Adding " + contact.getMsisdn() +" as friend");
-				Utils.toggleFavorite(mContext, contact, true);
+				Utils.toggleFavorite(mContext, contact, true, HikeConstants.AddFriendSources.TIMELINE_FTUE_SCREEN);
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ANY_TIMELINE_FTUE_FAV_CLICKED, true);
 			}
 			removeFTUEItemIfExists(FTUE_CARD_FAV);

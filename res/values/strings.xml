@@ -1532,8 +1532,8 @@
     <string name="image_intercept_settings_content">Notify when a picture is taken</string>
     <string name="video_intercept_settings_header">Video notification</string>
     <string name="video_intercept_settings_content">Notify to share when a video is recorded</string>
-    <string name="keyboard_shutdown_heading">Removing support for Regional Keyboards</string>
-    <string name="keyboard_shutdown_description">You can always chat with your phone keyboard or download one from the playstore</string>
+    <string name="keyboard_shutdown_heading">Upgrade Your Keyboard</string>
+    <string name="keyboard_shutdown_description">We encourage you to try out the Google Indic keyboard from Play Store. It\'s really good :)</string>
     <string name="open_phone_keyboard">PHONE KEYBOARD</string>
     <string name="open_google_keyboard">GOOGLE KEYBOARD</string>
     <string name="max_duration_recorded">Recording done for Max duration</string>
@@ -1553,26 +1553,24 @@
     <string name="restore_success">Chats restored successfully!</string>
     <string name="restore_failure">Some error occured. Could not restore your chats</string>
     <string name="db_corrupt_notif_msg">You have a new notification</string>
-
     <string name="recording_help_text">Tap and hold to record, release to send</string>
-    <string name="restore_msisdn_error">You seem to have a backup file of someone else!</string>
     <string name="restore_version_error">Your backup was taken on a newer version of hike. Update your app to the latest version and try again.</string>
-    <string name="bummer">Bummer</string>
+    <string name="restore_failed">Restore failed</string>
     <string name="ADD_FRIEND">ADD FRIEND</string>
     <string name="ACCEPT_REQUEST">ACCEPT REQUEST</string>
-    <string name="voip_friend_error">Please add %1$s as friend to initiate call. </string>
-    <string name="attachment_friend_error">Please add %1$s as friend to send attachment. </string>
+    <string name="voip_friend_error">Please add %1$s as friend to call. </string>
+    <string name="attachment_friend_error">Please add %1$s as friend to send file. </string>
     <string name="friend_req_pending">Friend request pending</string>
     <string name="friend_req_inline_msg_sent">You added %1$s as a friend.</string>
     <string name="friend_req_inline_msg_received">%1$s added you as a friend.</string>
-    <string name="friends_ftue_heading">Hike is more fun with friends</string>
-    <string name="friends_ftue_subtext">Add %1$s as your friend to continue chatting</string>
+    <string name="friends_ftue_heading">Add friend</string>
+    <string name="friends_ftue_subtext">Add %1$s as your friend to chat and do more on hike</string>
     <string name="friend_request_sent">Added as a friend</string>
     <string name="friend_request_sent_multiple">Added as friends</string>
     <string name="add_as_friend_notification_line">Added you as a friend</string>
     <string name="add_as_friend_menu">Add Friend</string>
     <string name="remove_from_friends">Remove Friend</string>
-    <string name="add_frn">Add to friends</string>
+    <string name="add_frn">Add friend</string>
     <string name="timeline_add_as_frn">ADD AS FRIEND</string>
     <string name="ls_friends_summary">Last seen is visible only to your friends</string>
     <string name="privacy_friends_key">Friends</string>
@@ -1581,10 +1579,11 @@
     <string name="friends_upper_case">FRIENDS</string>
     <string name="add_frn_upper_case">ADD FRIENDS</string>
     <string name="msg_friend_error">Please add %1$s as friend to send message. </string>
-    <string name="sent_you_friend_req">Sent you a friend request</string>
+    <string name="sent_you_friend_req">Sent you a friend request. Accept request to chat and do more on Hike</string>
     <string name="ftue_frn_subtext">Add as a friend</string>
     <string name="profile_pic_display_info_frn">Show only to your Friends</string>
     <string name="recharge_menu">Recharge</string>
+
     <string name="message_info">Message Info</string>
     <string name="emptyreadlist">No one has read this </string>
     <string name="emptyseenlist">No one has seen this </string>
@@ -1596,5 +1595,13 @@
     <string name="delivered_list">DELIVERED</string>
     <string name="played_list">PLAYED</string>
 
+    <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
+    <string name="ACCEPT">ACCEPT</string>
+    <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
+    <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
+    <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
+    <string name="atomic_tip_http_failure">Some error occured. Please try again</string>
+    <string name="edit_profile_birthday">Birth Date</string>
 
+    <string name="stream_volume_muted_or_low">Please turn up the volume</string>
 </resources>

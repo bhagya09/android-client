@@ -41,6 +41,7 @@ import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.UpgradeIntentService;
@@ -1515,11 +1516,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId)
+	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
+		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
+		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, previewClickSource);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)
