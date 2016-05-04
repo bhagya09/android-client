@@ -152,9 +152,9 @@ public class FileDownloadRequest extends Request<File>
 				state.setTotalSize(totalSize);
 			}
 
+			int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
 			while (state.getFTState() != FTState.PAUSED)
 			{
-				int chunkPolicy = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHUNK_SIZE_POLICY, FileTransferChunkSizePolicy.DEFAULT_CHUNK_POLICY);
 				chunkSize = chunkSizePolicy.getChunkSize(chunkPolicy);
 				if (chunkSize <= 0)
 				{
@@ -210,6 +210,10 @@ public class FileDownloadRequest extends Request<File>
 				boolean isCompleted = len == -1 ? true : false;
 				String contentRange = "bytes " + transferredSize + "-" + (transferredSize + byteRead) + "/" + totalSize;
 				int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
+				if(chunkPolicy == FileTransferChunkSizePolicy.NET_SPEED_BASED_CHUNK_POLICY)
+				{
+					chunkSizePolicy.setNetworkSpeed((System.currentTimeMillis() - time), byteRead);
+				}
 				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
 				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time) + "  , isCompleted - " + isCompleted);
 				time = System.currentTimeMillis();
