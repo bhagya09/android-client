@@ -4060,6 +4060,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				mediaPlayer = new MediaPlayer();
 				mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+				mActivity.setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
 				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
@@ -4113,7 +4114,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		public void informUserIfVolumeLowOrMuted() {
 			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
 			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
-			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
 			if(currentVol == 0){
 				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
@@ -4171,6 +4172,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			unregisterProximitySensor();
 			unregisterHeadserReceiver();
+			mActivity.setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 		}
 
 		@Override
