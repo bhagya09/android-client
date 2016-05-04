@@ -8828,6 +8828,57 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public String getEventsForMessageHashFromUser(String messageHash, String namespace, String fromUserId)
+	{
+		Cursor c = null;
+
+		try
+		{
+			c = mDb.query(MESSAGE_EVENT_TABLE, new String[] { EVENT_ID, EVENT_METADATA, MSISDN, EVENT_STATUS, EVENT_TYPE, EVENT_PARENT_MSISDN, EVENT_FROM_USER_ID, DBConstants.TIMESTAMP },
+					MESSAGE_HASH + "=? AND " + HIKE_CONTENT.NAMESPACE + "=? AND " + EVENT_FROM_USER_ID + "=?", new String[] { messageHash, namespace, fromUserId }, null, null, DBConstants.TIMESTAMP + " DESC");
+			if (c.getCount() <= 0)
+			{
+				return "{}";
+			}
+
+			ArrayList<JSONObject> dataList = new ArrayList<>();
+			int eventIdx = c.getColumnIndex(DBConstants.EVENT_ID);
+			int eventMetadataIdx = c.getColumnIndex(DBConstants.EVENT_METADATA);
+			int msisdnIndex = c.getColumnIndex(MSISDN);
+			int eventStatusIdx = c.getColumnIndex(EVENT_STATUS);
+			int parentMsisdnIdx = c.getColumnIndex(EVENT_PARENT_MSISDN);
+			int fromUserIdx = c.getColumnIndex(EVENT_FROM_USER_ID);
+			int timestampIdx = c.getColumnIndex(DBConstants.TIMESTAMP);
+
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(msisdnIndex);
+				JSONObject jsonObject = PlatformUtils.getPlatformContactInfo(msisdn);
+				jsonObject.put(HikePlatformConstants.EVENT_DATA, c.getString(eventMetadataIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_ID, c.getString(eventIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_STATUS, c.getInt(eventStatusIdx));
+				jsonObject.put(EVENT_PARENT_MSISDN, c.getString(parentMsisdnIdx));
+				jsonObject.put(EVENT_FROM_USER_ID, c.getString(fromUserIdx));
+				jsonObject.put(HikeConstants.TIMESTAMP, c.getInt(timestampIdx));
+				jsonObject.put(HikePlatformConstants.EVENT_TYPE, c.getInt(c.getColumnIndex(EVENT_TYPE)));
+				dataList.add(jsonObject);
+			}
+			return dataList.toString();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return "{}";
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 	public void deleteEvent(String eventId)
 	{
 		mDb.delete(DBConstants.MESSAGE_EVENT_TABLE, DBConstants.EVENT_ID + "=?", new String[]{eventId});

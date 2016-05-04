@@ -666,6 +666,17 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 
 	}
 
+	@JavascriptInterface
+	public void getAllEventsForMessageHashFromUser(String functionId, String messageId ,String messageHash, String fromUser)
+	{
+		if(isCorrectMessage(messageId, "getAllEventsData"))
+		{
+			String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHashFromUser(messageHash, message.getNameSpace(), fromUser);
+			callbackToJS(functionId, eventData);
+		}
+
+	}
+
 	/**
 	 * Platform Version 6
 	 * Call this function to send a shared message to the contacts of the user. This function when forwards the data, returns with the contact details of
@@ -726,7 +737,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void sendNormalEvent(String messageHash, String namespace, String eventData)
 	{
-		String botMsisdn = message.getMsisdn();
+		String botMsisdn = message.webMetadata.getParentMsisdn();
 		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
 		PlatformUtils.sendPlatformMessageEvent(eventData, messageHash, namespace, botInfo);
 	}

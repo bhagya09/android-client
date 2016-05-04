@@ -261,6 +261,18 @@ public class PlatformHelper
 		return eventData;
 	}
 
+	public static String getAllEventsForMessageHashFromUser(String messageHash, String namespace, String fromUserId)
+	{
+		if (TextUtils.isEmpty(messageHash) || TextUtils.isEmpty(fromUserId))
+		{
+			Logger.e(TAG, "can't return all events as the message hash is " + messageHash);
+			Logger.e(TAG, "can't return all events as the fromUserId is " + fromUserId);
+			return null;
+		}
+		String eventData = HikeConversationsDatabase.getInstance().getEventsForMessageHashFromUser(messageHash, namespace, fromUserId);
+		return eventData;
+	}
+
 	public static String getAllEventsData(String namespace)
 	{
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, true);

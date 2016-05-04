@@ -111,11 +111,9 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	@JavascriptInterface
 	public void onLoadFinished(String height)
 	{
-		mHandler.post(new Runnable()
-		{
+		mHandler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				init();
 			}
 		});
@@ -895,6 +893,13 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 	public void getAllEventsForMessageHash(String functionId, String messageHash)
 	{
 		String eventData =PlatformHelper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
+		callbackToJS(functionId, eventData);
+	}
+
+	@JavascriptInterface
+	public void getAllEventsForMessageHashFromUser(String functionId, String messageHash, String fromUserId)
+	{
+		String eventData =PlatformHelper.getAllEventsForMessageHashFromUser(messageHash, mBotInfo.getNamespace(), fromUserId);
 		callbackToJS(functionId, eventData);
 	}
 

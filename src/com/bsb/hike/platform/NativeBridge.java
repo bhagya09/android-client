@@ -337,6 +337,29 @@ public class NativeBridge
 		});
 	}
 
+	public void getAllEventsForMessageHashFromUser(final String functionId, final String messageHash, final String fromUserId)
+	{
+		if (mThread == null)
+			return;
+		mThread.postRunnable(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				final String returnedData = helper.getAllEventsForMessageHashFromUser(messageHash, mBotInfo.getNamespace(), fromUserId);
+				activity.runOnGLThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						activity.platformCallback(functionId, returnedData);
+					}
+				});
+			}
+		});
+	}
+
 	/**
 	 * Platform Version 7 Call this function to get all the event messages data. The data is a stringified list that contains event id, message hash and the data.
 	 * <p/>
@@ -820,7 +843,7 @@ public class NativeBridge
 	 */
 	public String getNotifData()
 	{
-		if(msisdn == null)
+		if (msisdn == null)
 			return "";
 		BotInfo botinfo = HikeConversationsDatabase.getInstance().getBotInfoForMsisdn(msisdn);
 		try
