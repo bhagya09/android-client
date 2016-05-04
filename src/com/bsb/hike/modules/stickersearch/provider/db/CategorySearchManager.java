@@ -143,14 +143,14 @@ public class CategorySearchManager
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
 	{
-		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, false);
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
 		categorySearchEngine.runOnSearchThread(categorySearchTask, 0);
 		return true;
 	}
 
 	public boolean onQueryTextChange(String query, CategorySearchListener listener)
 	{
-		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, true);
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
 		categorySearchTask.run();
 		return true;
 	}
