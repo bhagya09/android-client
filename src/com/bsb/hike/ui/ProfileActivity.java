@@ -198,6 +198,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private boolean dobEdited = false;
 
+	private boolean extrasClearedOut = false;
+
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
 	private ProfileType profileType;
@@ -324,8 +326,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
 		}
+		if(getIntent().hasExtra(HikeConstants.Extras.PROFILE_DOB))
+		{
+			extrasClearedOut = true;
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
+		}
 	}
-	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	protected void onDestroy()
 	{
@@ -407,6 +423,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			mActivityState = new ProfileActivityState();
+		}
+
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
+		{
+
+			Logger.d(TAG, " making extra TRUE");
+			//this means that singleTop activity has been re-spawned after being destroyed
+			extrasClearedOut = true;
+		}
+
+		if(extrasClearedOut)
+		{
+			Logger.d(TAG, "clearing all data");
+			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned,
+			//android system uses the old intent to fire it, and it will contain unwanted extras.
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
 		}
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
