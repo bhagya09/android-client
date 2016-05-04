@@ -3,7 +3,6 @@
     "theme_data": [
       {
         "theme_id": "42",
-        "visibility": true,
         "order": 5,
         "name": "COFFEEBEAN",
         "inline_update_bg": {
@@ -75,7 +74,6 @@
       },
       {
         "theme_id": "41",
-        "visibility": true,
         "order": 4,
         "name": "TRACK",
         "inline_update_bg": {
@@ -147,7 +145,6 @@
       },
       {
         "theme_id": "0",
-        "visibility": true,
         "order": 1,
         "name": "DEFAULT",
         "inline_update_bg": {
@@ -219,7 +216,6 @@
       },
       {
         "theme_id": "39",
-        "visibility": true,
         "order": 22,
         "name": "INDEPENDENCE",
         "inline_update_bg": {
@@ -291,7 +287,6 @@
       },
       {
         "theme_id": "40",
-        "visibility": true,
         "order": 15,
         "name": "LOVE_2",
         "theme_state": 0,
@@ -363,7 +358,6 @@
       },
       {
         "theme_id": "29",
-        "visibility": true,
         "order": 18,
         "name": "RAIN2",
         "theme_state": 0,
@@ -435,7 +429,6 @@
     },
     {
         "theme_id": "36",
-        "visibility": true,
         "order": 6,
         "name": "SLEEPINGDOG",
         "theme_state": 0,
@@ -507,7 +500,6 @@
       },
       {
         "theme_id": "37",
-        "visibility": true,
         "order": 7,
         "name": "PEACOCKGLORY",
         "theme_state": 0,
@@ -579,7 +571,6 @@
       },
       {
         "theme_id": "38",
-        "visibility": true,
         "order": 8,
         "name": "NOWHERE",
         "theme_state": 0,
@@ -651,7 +642,6 @@
       },
       {
         "theme_id": "20",
-        "visibility": true,
         "order": 14,
         "name": "VALENTINES_2",
         "theme_state": 3,
@@ -723,7 +713,6 @@
       },
       {
         "theme_id": "28",
-        "visibility": true,
         "order": 11,
         "name": "FRIENDS",
         "theme_state": 0,
@@ -795,7 +784,6 @@
       },
       {
         "theme_id": "26",
-        "visibility": true,
         "order": 19,
         "name": "BEACH_2",
         "theme_state": 0,
@@ -867,7 +855,6 @@
       },
       {
         "theme_id": "22",
-        "visibility": true,
         "order": 17,
         "name": "NIGHT",
         "theme_state": 0,
@@ -939,7 +926,6 @@
       },
       {
         "theme_id": "24",
-        "visibility": true,
         "order": 24,
         "name": "SPRING",
         "theme_state": 0,
@@ -1011,7 +997,6 @@
       },
       {
         "theme_id": "21",
-        "visibility": true,
         "order": 12,
         "name": "NIGHT_PATTERN",
         "theme_state": 0,
@@ -1083,7 +1068,6 @@
       },
       {
         "theme_id": "30",
-        "visibility": true,
         "order": 9,
         "name": "GUITAR",
         "theme_state": 0,
@@ -1155,7 +1139,6 @@
       },
       {
         "theme_id": "4",
-        "visibility": true,
         "order": 31,
         "name": "STARRY",
         "theme_state": 1,
@@ -1227,7 +1210,6 @@
       },
       {
         "theme_id": "23",
-        "visibility": true,
         "order": 13,
         "name": "OWL",
         "theme_state": 0,
@@ -1299,7 +1281,6 @@
       },
       {
         "theme_id": "15",
-        "visibility": true,
         "order": 34,
         "name": "BEACH",
         "theme_state": 1,
@@ -1372,7 +1353,6 @@
 
         {
         "theme_id": "11",
-        "visibility": true,
         "order": 35,
         "name": "FOREST",
         "theme_state": 1,
@@ -1444,7 +1424,6 @@
       },
       {
         "theme_id": "32",
-        "visibility": true,
         "order": 16,
         "name": "HIKIN_COUPLE",
         "theme_state": 0,
@@ -1516,7 +1495,6 @@
       },
       {
         "theme_id": "25",
-        "visibility": true,
         "order": 10,
         "name": "SWIVEL",
         "theme_state": 0,
@@ -1588,7 +1566,6 @@
       },
       {
         "theme_id": "1",
-        "visibility": true,
         "order": 21,
         "name": "LOVE",
         "theme_state": 1,
@@ -1660,7 +1637,6 @@
       },
       {
         "theme_id": "3",
-        "visibility": true,
         "order": 37,
         "name": "GIRLY",
         "theme_state": 1,
@@ -1732,7 +1708,6 @@
       },
       {
         "theme_id": "31",
-        "visibility": true,
         "order": 26,
         "name": "MR_RIGHT",
         "theme_state": 0,
@@ -1804,7 +1779,6 @@
       },
       {
         "theme_id": "7",
-        "visibility": true,
         "order": 36,
         "name": "SMILEY",
         "theme_state": 1,
@@ -1876,7 +1850,6 @@
       },
       {
         "theme_id": "2",
-        "visibility": true,
         "order": 30,
         "name": "CHATTY",
         "theme_state": 1,
@@ -1948,7 +1921,6 @@
       },
       {
         "theme_id": "8",
-        "visibility": true,
         "order": 20,
         "name": "CREEPY",
         "theme_state": 1,
@@ -2020,7 +1992,6 @@
       },
       {
         "theme_id": "18",
-        "visibility": true,
         "order": 27,
         "name": "VALENTINES",
         "theme_state": 1,
@@ -2092,7 +2063,6 @@
       },
       {
         "theme_id": "14",
-        "visibility": true,
         "order": 25,
         "name": "KISSES",
         "theme_state": 1,
@@ -2164,7 +2134,6 @@
       },
       {
         "theme_id": "17",
-        "visibility": true,
         "order": 28,
         "name": "STUDY",
         "theme_state": 1,
@@ -2236,7 +2205,6 @@
       },
       {
         "theme_id": "13",
-        "visibility": true,
         "order": 33,
         "name": "TECHY",
         "theme_state": 1,
@@ -2308,7 +2276,6 @@
       },
       {
         "theme_id": "9",
-        "visibility": true,
         "order": 32,
         "name": "CELEBRATION",
         "theme_state": 1,
@@ -2380,7 +2347,6 @@
       },
       {
         "theme_id": "10",
-        "visibility": true,
         "order": 29,
         "name": "FLORAL",
         "theme_state": 1,
@@ -2453,7 +2419,6 @@
 
   {
         "theme_id": "44",
-        "visibility": true,
         "order": 3,
         "name": "PURPLE_FLOWER",
         "theme_state": 0,
@@ -2525,7 +2490,6 @@
       },
       {
         "theme_id": "43",
-        "visibility": true,
         "order": 23,
         "name": "CHRISTMAS",
         "theme_state": 0,
@@ -2597,7 +2561,6 @@
       },
       {
         "theme_id": "45",
-        "visibility": true,
         "order": 2,
         "name": "VALENTINES_2016",
         "theme_state": 2,

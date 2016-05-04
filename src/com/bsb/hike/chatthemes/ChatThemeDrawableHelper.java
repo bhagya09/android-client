@@ -151,7 +151,7 @@ public class ChatThemeDrawableHelper
 						assetName = asset.getAssetId().substring(0, index);
 					}
 					Context context = HikeMessengerApp.getInstance().getApplicationContext();
-					int resourceId = context.getResources().getIdentifier(assetName, "drawable", HikeMessengerApp.getInstance().getApplicationContext().getPackageName());
+					int resourceId = context.getResources().getIdentifier(assetName, "drawable", context.getPackageName());
 					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.RGB_565);
 					BitmapDrawable drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
 					//HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
