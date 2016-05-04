@@ -27,7 +27,6 @@
             android:layout_below="@id/unknown_user_info_name"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
-            android:layout_marginBottom="9dp"
             android:textColor="@color/unknown_user_info_ct"
             android:textSize="12sp"
             android:layout_marginLeft="20.5dp"
