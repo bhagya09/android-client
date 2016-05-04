@@ -1734,10 +1734,6 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		chatlayout.setBackgroundResource(colorResID);
 	}
 
-	protected String getOrientationPrefix()
-	{
-		return getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE ? HikeConstants.ORIENTATION_LANDSCAPE : HikeConstants.ORIENTATION_PORTRAIT;
-	}
 	protected void setBackground(String themeId)
 	{
 		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
