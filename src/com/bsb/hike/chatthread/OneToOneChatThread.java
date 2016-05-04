@@ -305,10 +305,11 @@ import com.bsb.hike.voip.VoIPUtils;
 		{
 			return;
 		}
-		else
+		else if(!intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG))
 		{
 			showUserInfoView(callerContentModel);
 		}
+
 	}
 
 	/**
