@@ -2354,7 +2354,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			break;
 
 		case HikeDialogFactory.MUTE_CHAT_DIALOG:
-			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
+			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 			dialog.dismiss();
 			break;
 		}

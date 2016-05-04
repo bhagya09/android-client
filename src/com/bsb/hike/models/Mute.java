@@ -108,6 +108,11 @@ public class Mute
         return muteEndTime;
     }
 
+    public void setMuteTimestamp(long muteTimestamp)
+    {
+        this.muteTimestamp = muteTimestamp;
+    }
+
     public static class InitBuilder
     {
 

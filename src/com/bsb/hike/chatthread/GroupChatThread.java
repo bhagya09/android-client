@@ -305,7 +305,7 @@ public class GroupChatThread extends OneToNChatThread
 			}
 			else
 			{
-				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 			}
 			break;
 		case R.string.group_profile:

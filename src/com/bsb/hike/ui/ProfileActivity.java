@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -44,6 +45,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -86,6 +88,7 @@ import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -134,8 +137,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import android.app.DatePickerDialog;
-import android.widget.DatePicker;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
@@ -761,6 +762,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO:
 			MenuItem friendItem = menu.findItem(R.id.unfriend);
 			MenuItem overflow = menu.findItem(R.id.overflow_menu);
+			MenuItem chatMuteItem = menu.findItem(R.id.mute_chat);
 
 			if (friendItem != null)
 			{
@@ -781,6 +783,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				overflow.setVisible(false);
 			}
+
+			if (chatMuteItem != null)
+			{
+				chatMuteItem.setTitle(HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN).isMute() ? R.string.unmute_chat : R.string.mute_chat);
+			}
+
 			return true;
 		case GROUP_INFO:
 			MenuItem muteItem = menu.findItem(R.id.mute_group);
@@ -810,6 +818,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case R.id.leave_group:
 			onProfileLargeBtnClick(null);
 			break;
+		case R.id.mute_chat:
 		case R.id.mute_group:
 			onProfileSmallRightBtnClick(item.getTitle().toString());
 			break;
@@ -2168,32 +2177,67 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void onProfileSmallRightBtnClick(String text)
 	{
-		if ((getString(R.string.mute_group)).equals(text))
+		if (OneToNConversationUtils.isOneToNConversation(mLocalMSISDN))
 		{
-			HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
-				@Override
-				public void negativeClicked(HikeDialog hikeDialog)
-				{
-					hikeDialog.dismiss();
-				}
+			if ((getString(R.string.mute_group)).equals(text))
+			{
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+					}
 
-				@Override
-				public void positiveClicked(HikeDialog hikeDialog)
-				{
-					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation);
-					hikeDialog.dismiss();
-				}
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+						hikeDialog.dismiss();
+					}
 
-				@Override
-				public void neutralClicked(HikeDialog hikeDialog) {
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
 
-				}
-			}, oneToNConversation.getMute());
+					}
+				}, oneToNConversation.getMute());
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+			}
 		}
 		else
 		{
-			Utils.toggleMuteChat(getApplicationContext(), oneToNConversation);
+			final Mute mute = HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN);
+
+			if ((getString(R.string.mute_chat)).equals(text))
+			{
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+					}
+
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						Utils.toggleMuteChat(getApplicationContext(), mute);
+						hikeDialog.dismiss();
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
+
+					}
+				}, mute);
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), mute);
+			}
 		}
+
 		invalidateOptionsMenu();
 	}
 

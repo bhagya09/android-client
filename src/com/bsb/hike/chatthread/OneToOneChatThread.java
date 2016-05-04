@@ -444,10 +444,16 @@ import java.util.Map;
 			mConversation.setMessages(HikeConversationsDatabase.getInstance().getConversationThread(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, mConversation, -1, -1));
 		}
 
-		ChatTheme chatTheme = mConversationDb.getChatThemeForMsisdn(msisdn);
+		Object[] chatProperties = mConversationDb.getChatProperties(msisdn);
+
 		Logger.d(TAG, "Calling setchattheme from createConversation");
-		mConversation.setChatTheme(chatTheme);
-		mConversation.setIsMute(mConversationDb.isChatMuted(msisdn));
+		mConversation.setChatTheme((ChatTheme) chatProperties[0]);
+		
+		Mute mute = (Mute) chatProperties[1];
+		if (mute.getMuteEndTime() > System.currentTimeMillis())
+		{
+			mConversation.setIsMute(mute.isMute());
+		}
 		mConversation.setBlocked(ContactManager.getInstance().isBlocked(msisdn));
 		mCredits = activity.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getInt(HikeMessengerApp.SMS_SETTING, 0);
 
@@ -1609,7 +1615,7 @@ import java.util.Map;
 			}
 			else
 			{
-				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation);
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 			}
 			break;
 		case R.string.scan_free_hike:
