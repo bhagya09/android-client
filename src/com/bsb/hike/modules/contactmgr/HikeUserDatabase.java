@@ -30,6 +30,7 @@ import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -2837,12 +2838,12 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 	 * Function to get the hike Id of missing Msisdn from DB
 	 * @return
      */
-	Set<String> getMsisdnsForMissingHikeUID() {
+	public Set<String> getMsisdnsForMissingHikeUID() {
 		Cursor c = null;
 		Set<String> msisdns = new HashSet<>();
 		try {
 
-			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from " + DBConstants.USERS_TABLE + " where " + DBConstants.ONHIKE + "=1 AND " + DBConstants.HIKE_UID + "=''", null);
+			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from " + DBConstants.USERS_TABLE + " where " + DBConstants.ONHIKE + "=1 AND " + DBConstants.HIKE_UID + "='' OR " + DBConstants.HIKE_UID + " is null", null);
 
 
 			while (c.moveToNext()) {
@@ -2856,4 +2857,23 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 
 		return msisdns;
 	}
+
+    public void updateContactUid(Set<FetchUIDTaskPojo> data) {
+        if (data == null) {
+            return;
+        }
+        mDb.beginTransaction();
+        try {
+            for (FetchUIDTaskPojo d : data) {
+                ContentValues cv = new ContentValues();
+                cv.put(DBConstants.HIKE_UID, d.getUid());
+
+                long rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{d.getMsisdn()});
+                Logger.d(TAG, "Update Exceuted " + rows);
+            }
+            mDb.setTransactionSuccessful();
+        } finally {
+            mDb.endTransaction();
+        }
+    }
 }
