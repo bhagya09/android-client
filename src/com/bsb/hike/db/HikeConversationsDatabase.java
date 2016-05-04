@@ -1357,6 +1357,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(messageIdsTobeUpdated==null||messageIdsTobeUpdated.isEmpty()){
 			return ;
 		}
+		//Only for testing will be disabled later on
+		Logger.d("messageinfodata","logging in database msisdn "+msisdn);
 		String initialWhereClause = DBConstants.MESSAGE_ID + " in " + Utils.valuesToCommaSepratedString(messageIdsTobeUpdated);
 		initialWhereClause = initialWhereClause
 			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
@@ -1369,6 +1371,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		if(messageIdsTobeUpdated==null||messageIdsTobeUpdated.isEmpty()){
 			return ;
 		}
+		//Only for testing will be disabled later on
+		Logger.d("messageInfoData","logging in database msisdn readby group "+msisdn);
 		String initialWhereClause = DBConstants.MESSAGE_ID + " in " + Utils.valuesToCommaSepratedString(messageIdsTobeUpdated);
 		initialWhereClause = initialWhereClause
 			+ (!TextUtils.isEmpty(msisdn) ? (" AND " + DBConstants.RECEIVER_MSISDN + " =" + DatabaseUtils.sqlEscapeString(msisdn)) : "");
@@ -1692,6 +1696,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 	 public long executeMessageDeliveryReceipt(ContentValues contentValues){
+		 //Only for testing will be disabled later on
+		 Logger.d("messageinfodata","logging in database messagedeliveryreceipt execute " );
 		return mDb.insertWithOnConflict(DBConstants.RECEIPTS_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
 
 	 }
