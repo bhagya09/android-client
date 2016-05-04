@@ -1502,7 +1502,7 @@ public class PlatformUtils
 			if (conv.getPlatformData() != null)
 			{
 				JSONObject sharedData = conv.getPlatformData();
-				String namespaces = sharedData.getString(HikePlatformConstants.NAMESPACE);
+				String namespaces = sharedData.getString(HikePlatformConstants.RECIPIENT_NAMESPACES);
 				if (TextUtils.isEmpty(namespaces))
 				{
 					Logger.e(HikePlatformConstants.TAG, "no namespaces defined.");
@@ -1518,8 +1518,10 @@ public class PlatformUtils
 						mappedEventId = sharedData.getLong(HikePlatformConstants.MAPPED_EVENT_ID);
 					}
 					JSONObject metadata = new JSONObject(sharedData.getString(HikePlatformConstants.EVENT_CARDDATA));
-					metadata.put(HikePlatformConstants.EVENT_FROM_USER_ID, sharedData.get(HikePlatformConstants.EVENT_FROM_USER_ID));
-					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.get(HikePlatformConstants.PARENT_MSISDN));
+
+					metadata.put(HikePlatformConstants.EVENT_FROM_USER_ID, sharedData.optString(HikePlatformConstants.EVENT_FROM_USER_ID, conv.getSenderMsisdn()));
+					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.optString(HikePlatformConstants.PARENT_MSISDN, ""));
+
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
 					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata.toString(), conv.createMessageHash(), state, conv.getSendTimestamp(),
 							mappedEventId);

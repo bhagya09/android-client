@@ -228,18 +228,11 @@ public class PlatformHelper
 			JSONObject sharedDataJson = new JSONObject(sharedData);
 			sharedDataJson.put(HikePlatformConstants.EVENT_FROM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
 
-			String botNamespace = mBotInfo.getNamespace();
 			NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
-			String parentBotNamespace = BotUtils.getBotInfoForBotMsisdn(nonMessagingBotMetadata.getParentMsisdn()).getNamespace();
-			String namespace = botNamespace + "," + parentBotNamespace;
 
 			sharedDataJson.put(HikePlatformConstants.PARENT_MSISDN, nonMessagingBotMetadata.getParentMsisdn());
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
-			if(sharedDataJson.has(HikePlatformConstants.RECIPIENT_NAMESPACES))
-			{
-				sharedDataJson.put(HikePlatformConstants.NAMESPACE, namespace);
-				sharedDataJson.remove(HikePlatformConstants.RECIPIENT_NAMESPACES); //removing to ensure that there is backward compatibilty of games with new challenge card flow
-			}
+
 			message.setPlatformData(sharedDataJson);
 			message.setNameSpace(mBotInfo.getNamespace());
 			pickContactAndSend(message, activity, hashcode, isGroupFirst, composeExcludedList);

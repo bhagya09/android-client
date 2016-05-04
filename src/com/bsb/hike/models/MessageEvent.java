@@ -83,13 +83,11 @@ public class MessageEvent implements Parcelable
 			if(this.eventMetadata !=null)
             {
                 JSONObject eventMetadataJsonObject = new JSONObject(eventMetadata);
-				if(eventMetadataJsonObject.has(HikePlatformConstants.EVENT_FROM_USER_ID))
+				this.fromUserMsisdn = eventMetadataJsonObject.optString(HikePlatformConstants.EVENT_FROM_USER_ID,msisdn);
+
+				if(TextUtils.isEmpty(parent_msisdn))
 				{
-					this.fromUserMsisdn = eventMetadataJsonObject.getString(HikePlatformConstants.EVENT_FROM_USER_ID);
-				}
-				if(eventMetadataJsonObject.has(HikePlatformConstants.PARENT_MSISDN) && TextUtils.isEmpty(parent_msisdn))
-				{
-					this.parent_msisdn = eventMetadataJsonObject.getString(HikePlatformConstants.PARENT_MSISDN);
+					this.parent_msisdn = eventMetadataJsonObject.optString(HikePlatformConstants.PARENT_MSISDN, "");
 				}
             }
 
