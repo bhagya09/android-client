@@ -37,6 +37,8 @@ public class FileDownloadRequest extends Request<File>
 
 	private String fileTypeString;
 
+	private String fileKey;
+
 	private final int DOWNLOAD_CHUNK_SIZE = 4 * 1024;
 
 	private long time = 0;
@@ -47,6 +49,7 @@ public class FileDownloadRequest extends Request<File>
 		this.filePath = init.filePath;
 		this.chunkSizePolicy = init.chunkSizePolicy;
 		this.fileTypeString = init.fileTypeString;
+		this.fileKey = init.fileKey;
 	}
 
 	protected static abstract class Init<S extends Init<S>> extends Request.Init<S>
@@ -56,6 +59,8 @@ public class FileDownloadRequest extends Request<File>
 		private IGetChunkSize chunkSizePolicy;
 
 		private String fileTypeString;
+
+		private String fileKey;
 
 		public S setFile(String filePath)
 		{
@@ -72,6 +77,12 @@ public class FileDownloadRequest extends Request<File>
 		public S setFileTypeString(String type)
 		{
 			fileTypeString = type;
+			return self();
+		}
+
+		public S setFileKey(String fileKey)
+		{
+			this.fileKey = fileKey;
 			return self();
 		}
 
@@ -199,7 +210,7 @@ public class FileDownloadRequest extends Request<File>
 				boolean isCompleted = len == -1 ? true : false;
 				String contentRange = "bytes " + transferredSize + "-" + (transferredSize + byteRead) + "/" + totalSize;
 				int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
-				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, state.getFileKey(), isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
+				FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.DOWNLOAD_FILE_TASK, fileKey, isCompleted, byteRead, (System.currentTimeMillis() - time), contentRange, netType, fileTypeString);
 				LogFull.d("downloaded size : " + byteRead + " time taken : " + (System.currentTimeMillis() - time) + "  , isCompleted - " + isCompleted);
 				time = System.currentTimeMillis();
 				transferredSize += byteRead;

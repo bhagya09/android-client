@@ -241,6 +241,20 @@ public class FileUploadRequest extends Request<JSONObject>
 					throw exception;
 				}
 
+				if (response != null)
+				{
+					int statusCode = response.getStatusCode();
+					boolean isCompleted = statusCode == HttpURLConnection.HTTP_OK;
+					int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
+					if (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_CREATED)
+					{
+						String fileExtension = Utils.getFileExtension(filePath);
+						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
+						LogFull.d("content range  : " + contentRange + " time taken : " + time);
+					}
+				}
+
 				if (end == (length - 1) && response != null)
 				{
 					bytesTransferred += chunkSize;
@@ -322,19 +336,6 @@ public class FileUploadRequest extends Request<JSONObject>
 					chunkSize = end - start + 1;
 				}
 
-				if (response != null)
-				{
-					int statusCode = response.getStatusCode();
-					boolean isCompleted = statusCode == HttpURLConnection.HTTP_OK;
-					int netType = Utils.getNetworkType(HikeMessengerApp.getInstance());
-					if (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_CREATED)
-					{
-						String fileExtension = Utils.getFileExtension(filePath);
-						String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-						FTAnalyticEvents.logFTProcessingTime(FTAnalyticEvents.UPLOAD_FILE_TASK, X_SESSION_ID, isCompleted, fileBytes.length, (System.currentTimeMillis() - time), contentRange, netType, fileType);
-						LogFull.d("content range  : " + contentRange + " time taken : " + time);
-					}
-				}
 				fileBytes = setupFileBytes(boundaryMesssage, boundary, chunkSize);
 				publishProgress((float) bytesTransferred / length);
 			}
