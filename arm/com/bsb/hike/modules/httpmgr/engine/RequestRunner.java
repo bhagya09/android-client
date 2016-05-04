@@ -59,22 +59,26 @@ public class RequestRunner
 				else
 				{
 					requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
+					removeGcmTaskConfigFromDB(gcmTaskConfig);
 				}
-
-				HikeHandlerUtil.getInstance().postAtFront(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						if (gcmTaskConfig != null)
-						{
-							HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
-						}
-					}
-				});
 			}
 		});
 		requestExecuter.execute();
+	}
+
+	private void removeGcmTaskConfigFromDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gcmTaskConfig != null)
+				{
+					HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
+				}
+			}
+		});
 	}
 
 	/**
