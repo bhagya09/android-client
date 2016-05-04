@@ -65,6 +65,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -2615,11 +2617,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.HOME_OVERFLOW_MENU);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.HOME_OVERFLOW_MENU);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HOME_OVERFLOW_MENU);
 
 			HAManager.getInstance().recordV2(json);
 		}
@@ -2650,8 +2652,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, whichItem);
@@ -2670,11 +2672,11 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.HIDDEN_UK);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HIDDEN_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.HIDDEN_UK);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.HIDDEN_UK);
 
 			HAManager.getInstance().recordV2(json);
 		}

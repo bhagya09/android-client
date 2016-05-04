@@ -50,6 +50,7 @@ import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 
 public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Listener, OnItemClickListener
 {
@@ -563,11 +564,11 @@ public class TellAFriend extends HikeAppStateBaseFragmentActivity implements Lis
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.HOME_OVERFLOW_MENU_ITEM);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.INVITE_FRIENDS);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.INVITE_FRIENDS);
 			json.put(AnalyticsConstants.V2.FAMILY, family);
 
 			HAManager.getInstance().recordV2(json);

@@ -7,6 +7,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.content.PlatformContent;
@@ -243,11 +244,11 @@ public class HikeAnalyticsEvent
 		try
 		{
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SETTINGS_UK);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.SETTINGS_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SETTINGS_ORDER);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.SETTINGS_ORDER);
 			return json;
 		}
 
