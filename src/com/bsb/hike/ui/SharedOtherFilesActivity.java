@@ -170,14 +170,7 @@ public class SharedOtherFilesActivity extends HikeAppStateBaseFragmentActivity i
 					mLoadingMoreFiles = false;
 				}
 			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	
 	}

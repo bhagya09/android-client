@@ -772,10 +772,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			@Override
 			public void run()
 			{
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-				{
-					// TODO Add animations here if required
-				}
 
 				argViewHolder.cardFadeScreen.setVisibility(View.VISIBLE);
 				argViewHolder.loadingSpinner.setVisibility(View.GONE);

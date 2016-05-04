@@ -1212,7 +1212,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			}
 
 		};
-		Utils.executeAsyncTask(automateMessages);
+		automateMessages.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void recordOverflowItemClicked(OverFlowMenuItem item)
@@ -5412,7 +5412,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		if (messages != null && messages.size() > 0)
 		{
 			EmailConversationsAsyncTask emailTask = new EmailConversationsAsyncTask(activity, null);
-			Utils.executeConvAsyncTask(emailTask, mConversation.getConvInfo());
+			emailTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mConversation.getConvInfo());
 		}
 		else
 		{

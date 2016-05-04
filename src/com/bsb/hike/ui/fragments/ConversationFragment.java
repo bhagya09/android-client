@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -302,38 +303,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "changeFooterState");
 		if (!NUXManager.getInstance().isReminderReceived())
 		{
-			if (!Utils.isHoneycombOrHigher())
+			llInviteOptions.post(new Runnable()
 			{
-				llChatReward.setVisibility(View.GONE);
-				llInviteOptions.setVisibility(View.GONE);
-			}
-			else
-			{
-				/**
-				 * Adding an Global Listener to close the footer on opening ...
-				 */
-				// llInviteOptions.addOnLayoutChangeListener(new OnLayoutChangeListener()
-				// {
-				//
-				// @Override
-				// public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
-				// {
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
-				// llInviteOptions.removeOnLayoutChangeListener(this);
-				// }
-				// });
 
-				llInviteOptions.post(new Runnable()
+				@Override
+				public void run()
 				{
+					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
 
-					@Override
-					public void run()
-					{
-						ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).setDuration(0).start();
-
-					}
-				});
-			}
+				}
+			});
 		}
 		else
 		{
@@ -491,44 +470,16 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if (footerState.getEnum() == footerState.OPEN)
 		{
-			if (Utils.isHoneycombOrHigher())
-
+			llInviteOptions.post(new Runnable()
 			{
 
-				// This is done to handle the footer on home button pressed when the view is already inflated.
-				// if (llInviteOptions.getHeight()>0)
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-				// else
-				// {
-				// llInviteOptions.addOnLayoutChangeListener(new OnLayoutChangeListener()
-				// {
-				//
-				// @Override
-				// public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
-				// {
-				// ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-				//
-				// llInviteOptions.removeOnLayoutChangeListener(this);
-				// }
-				// });
-				// }
-
-				llInviteOptions.post(new Runnable()
+				@Override
+				public void run()
 				{
+					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
 
-					@Override
-					public void run()
-					{
-						ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).setDuration(0).start();
-
-					}
-				});
-			}
-
-			else
-			{
-				llInviteOptions.setVisibility(View.GONE);
-			}
+				}
+			});
 
 			chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
 
@@ -557,15 +508,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				 */
 				Logger.d("Footer", "open");
 
-				if (Utils.isHoneycombOrHigher())
-				{
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).start();
-				}
-				else
-				{
-					llChatReward.setVisibility(View.GONE);
-					llInviteOptions.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llChatReward.getHeight() + llInviteOptions.getHeight()).start();
 
 				footerState.setEnumState(footerState.CLOSED);
 				changeFooterControllerBackground(footerState.CLOSED);
@@ -578,19 +521,13 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				}
 				catch (JSONException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 				break;
 			case HALFOPEN:
 
-				if (Utils.isHoneycombOrHigher())
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llNuxFooter.getHeight() - footercontroller.getHeight() - llShadow.getHeight()).start();
-				else
-				{
-					llChatReward.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llNuxFooter.getHeight() - footercontroller.getHeight() - llShadow.getHeight()).start();
 				footerState.setEnumState(footerState.CLOSED);
 				changeFooterControllerBackground(footerState.CLOSED);
 
@@ -625,13 +562,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					}
 					progressNux.setProgress(NUXManager.getInstance().getCountUnlockedContacts() / mmDetails.getMin());
 				}
-				if (Utils.isHoneycombOrHigher())
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).start();
-				else
-				{
-					llChatReward.setVisibility(View.VISIBLE);
-					llInviteOptions.setVisibility(View.GONE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", llInviteOptions.getHeight()).start();
 
 				footerState.setEnumState(footerState.HALFOPEN);
 				changeFooterControllerBackground(footerState.HALFOPEN);
@@ -666,15 +597,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			else
 			{
 				chatProgress.setText(NUXManager.getInstance().getNuxChatRewardPojo().getDetailsText());
-
-				if (Utils.isHoneycombOrHigher())
-				{
-					ObjectAnimator.ofFloat(llNuxFooter, "translationY", 0).start();
-				}
-				else
-				{
-					llInviteOptions.setVisibility(View.VISIBLE);
-				}
+				ObjectAnimator.ofFloat(llNuxFooter, "translationY", 0).start();
 
 				footerState.setEnumState(footerState.OPEN);
 				changeFooterControllerBackground(footerState.OPEN);
@@ -1653,7 +1576,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				else if (getString(R.string.email_conversations).equals(option))
 				{
 					EmailConversationsAsyncTask task = new EmailConversationsAsyncTask(getActivity(), ConversationFragment.this);
-					Utils.executeConvAsyncTask(task, conv);
+					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, conv);
 
 					if (BotUtils.isBot(conv.getMsisdn()))
 					{

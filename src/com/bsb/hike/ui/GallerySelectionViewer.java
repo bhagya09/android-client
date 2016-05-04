@@ -526,7 +526,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 						{
 							recordImageShareAnalyticEvent(msisdn);
 							fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
-							Utils.executeAsyncTask(fileTransferTask);
+							fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 							if(!OfflineUtils.isConnectedToSameMsisdn(msisdn))
 								progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 							hikeDialog.dismiss();
@@ -543,7 +543,7 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 				{
 					recordImageShareAnalyticEvent(msisdn);
 					fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.GALLERY_ATTACHEMENT, intent);
-					Utils.executeAsyncTask(fileTransferTask);
+					fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					progressDialog = ProgressDialog.show(GallerySelectionViewer.this, null, getResources().getString(R.string.multi_file_creation));
 				}
 			}
