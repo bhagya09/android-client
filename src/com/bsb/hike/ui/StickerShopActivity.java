@@ -84,7 +84,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
-		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment).addToBackStack(null).commit();
+		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment, StickerShopSearchFragment.TAG).addToBackStack(null).commit();
+        getSupportFragmentManager().executePendingTransactions();
 
 	}
 
