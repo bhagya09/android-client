@@ -21,7 +21,7 @@
             android:gravity="center"
             android:text="00:00"
             android:textColor="@color/rec_duration_color"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:textStyle="bold|italic" />
 
         <LinearLayout
@@ -48,7 +48,7 @@
                 android:maxLines="1"
                 android:text="@string/slide_to_cancel"
                 android:textColor="@color/standard_light_grey2"
-                android:textSize="16sp" />
+                android:textSize="16dp" />
         </LinearLayout>
 
     </LinearLayout>

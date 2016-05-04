@@ -885,7 +885,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		getSignupTask(activity);
 		if (!signupTask.isRunning())
 		{
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}
@@ -904,7 +904,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			 * auto auth
 			 */
 			SignupTask.isAlreadyFetchingNumber = true;
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}

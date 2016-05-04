@@ -357,13 +357,7 @@ public class VoIPUtils {
 	
 	public static boolean useAEC(Context context)
 	{
-		boolean useAec = false;
-		// Disable AEC on <= 2.3 devices
-		if (Utils.isHoneycombOrHigher())
-		{
-			useAec = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_AEC_ENABLED, true);
-		}
-		return useAec;
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.VOIP_AEC_ENABLED, true);
 	}
 	
 	public static boolean isConferencingEnabled(Context context) 
