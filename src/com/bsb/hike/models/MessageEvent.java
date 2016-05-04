@@ -4,10 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.db.DBConstants;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
 
@@ -83,7 +79,7 @@ public class MessageEvent implements Parcelable
 			if(this.eventMetadata !=null)
             {
                 JSONObject eventMetadataJsonObject = new JSONObject(eventMetadata);
-				this.fromUserMsisdn = eventMetadataJsonObject.optString(HikePlatformConstants.EVENT_FROM_USER_ID,msisdn);
+				this.fromUserMsisdn = eventMetadataJsonObject.optString(HikePlatformConstants.EVENT_FROM_USER_MSISDN, msisdn);
 
 				if(TextUtils.isEmpty(parent_msisdn))
 				{

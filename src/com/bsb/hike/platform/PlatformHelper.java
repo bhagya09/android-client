@@ -2,6 +2,9 @@ package com.bsb.hike.platform;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,20 +13,25 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
-import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.platform.bridge.JavascriptBridge;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.IActivityPopup;
@@ -36,7 +44,9 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
+import com.google.gson.Gson;
 
 public class PlatformHelper
 {
@@ -226,7 +236,7 @@ public class PlatformHelper
 
 			message.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
 			JSONObject sharedDataJson = new JSONObject(sharedData);
-			sharedDataJson.put(HikePlatformConstants.EVENT_FROM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+			sharedDataJson.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
 
 			NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
 
@@ -283,6 +293,55 @@ public class PlatformHelper
 	{
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, false);
 		return messageData;
+	}
+
+	public static String getGroupDetails(String groupId)
+	{
+		try {
+			GroupDetails groupDetails = ContactManager.getInstance().getGroupDetails(groupId);
+			JSONObject groupDetailsJson = new JSONObject();
+			groupDetailsJson.put("name", groupDetails.getGroupName());
+			BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(groupId);
+			if(bitmap !=null)
+			{
+				String picture = Utils.drawableToString(bitmap);
+				groupDetailsJson.put("picture" , picture);
+			}
+			else
+			{
+				groupDetailsJson.put("picture" , "");
+			}
+
+			Map<String, JSONObject> msisdnDetailsMap = new HashMap<>();
+			Iterator<PairModified<GroupParticipant, String>> iterator = ContactManager.getInstance().getGroupParticipants(groupId, false, false).iterator();
+			while(iterator.hasNext())
+			{
+				PairModified<GroupParticipant, String> pairModified = iterator.next();
+				String msisdn = pairModified.getFirst().getContactInfo().getMsisdn();
+				String name = pairModified.getSecond();
+
+				JSONObject nameJSON = new JSONObject();
+				nameJSON.put("name", name);
+				BitmapDrawable participantBitmap = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+				if(participantBitmap !=null)
+				{
+					String picture = Utils.drawableToString(participantBitmap);
+					nameJSON.put("picture", picture);
+				}
+				else
+				{
+					nameJSON.put("picture", "");
+				}
+				msisdnDetailsMap.put(msisdn, nameJSON);
+			}
+
+			JSONObject groupParticipants = new JSONObject(new Gson().toJson(msisdnDetailsMap));
+			groupDetailsJson.put("participants", groupParticipants);
+			return groupDetailsJson.toString();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void pickContactAndSend(ConvMessage message, final Activity activity, int hashcode)

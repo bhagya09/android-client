@@ -1519,7 +1519,7 @@ public class PlatformUtils
 					}
 					JSONObject metadata = new JSONObject(sharedData.getString(HikePlatformConstants.EVENT_CARDDATA));
 
-					metadata.put(HikePlatformConstants.EVENT_FROM_USER_ID, sharedData.optString(HikePlatformConstants.EVENT_FROM_USER_ID, conv.getSenderMsisdn()));
+					metadata.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, sharedData.optString(HikePlatformConstants.EVENT_FROM_USER_MSISDN, conv.getSenderMsisdn()));
 					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.optString(HikePlatformConstants.PARENT_MSISDN, ""));
 
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
@@ -1566,7 +1566,7 @@ public class PlatformUtils
 		try
 		{
 			JSONObject data = new JSONObject(eventMetadata);
-			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.EVENT_FROM_USER_ID, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
 			data.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.PARENT_MSISDN, BotUtils.getParentMsisdnFromBotMsisdn(botInfo.getMsisdn()));
 			JSONObject cardData = new JSONObject(data.getString(HikePlatformConstants.EVENT_CARDDATA));
 			MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, msisdn, nameSpace, cardData.toString(), messageHash,

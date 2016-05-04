@@ -241,7 +241,7 @@ public interface DBConstants
 
 	public static final String EVENT_TYPE = "eventType";
 
-	public static final String EVENT_FROM_USER_ID = "eventFromUserId";
+	public static final String EVENT_FROM_USER_MSISDN = "eventFromUserMsisdn";
 
 	public static final String EVENT_PARENT_MSISDN = "eventParentMsisdn";
 
