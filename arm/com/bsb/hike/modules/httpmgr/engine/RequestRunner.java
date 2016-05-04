@@ -51,9 +51,14 @@ public class RequestRunner
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
-					if (gcmTaskConfig != null)
+					if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
 					{
+						// todo update retry count in db and memory
 						HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
+					}
+					else
+					{
+						removeGcmTaskConfigFromDB(gcmTaskConfig);
 					}
 				}
 				else
