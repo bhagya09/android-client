@@ -986,6 +986,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if(HikeConstants.CHANGE_STEALTH_PASSCODE.equals(preference.getKey()))
 		{
+			recordChangePasswordTap();
 			LockPattern.confirmPattern(HikePreferences.this, true, HikeConstants.ResultCodes.CONFIRM_AND_ENTER_NEW_PASSWORD);
 		}
 		else if(HikeConstants.NOTIF_SOUND_PREF.equals(preference.getKey()))
@@ -1012,6 +1013,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 		else if(HikeConstants.STEALTH_MODE_PREF.equals(preference.getKey()))
 		{
+			recordHiddenModeSettingsClick();
 			startActivity(Utils.getIntentForHiddenSettings(HikePreferences.this));
 		}
 		
@@ -2186,6 +2188,16 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	private void recordBlockedListClickPref()
 	{
 		recordPreferencesAnalytics("blocked", "");
+	}
+
+	private void recordHiddenModeSettingsClick()
+	{
+		recordPreferencesAnalytics("hidden", "");
+	}
+
+	private void recordChangePasswordTap()
+	{
+		recordPreferencesAnalytics("hdn_cng_pwd", "");
 	}
 
 }
