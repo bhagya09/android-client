@@ -4,8 +4,8 @@ import android.content.Context;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.OneoffTask;
@@ -43,7 +43,7 @@ public class HikeGcmNetworkMgr implements IGcmNetworkMgr
 
     public boolean isGooglePlayServicesAvailable()
     {
-        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+        int resultCode = Utils.getPlayServicesAvailableCode(context);
         return resultCode == ConnectionResult.SUCCESS;
     }
 
