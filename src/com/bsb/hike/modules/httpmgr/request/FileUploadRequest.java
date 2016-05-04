@@ -49,7 +49,7 @@ public class FileUploadRequest extends Request<JSONObject>
 
 	private IGetChunkSize chunkSizePolicy;
 
-	private final int DEFAULT_CHUNK_SIZE = 4 * 1024;
+	private final int DEFAULT_CHUNK_SIZE = 50 * 1024;
 
 	private Response response;
 

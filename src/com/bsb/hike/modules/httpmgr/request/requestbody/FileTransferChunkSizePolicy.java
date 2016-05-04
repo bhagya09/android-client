@@ -26,7 +26,11 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 	private final String SEPARATOR = "_";
 	private final String DEFAULT_VALUE = "NA";
 	private int mNetSpeed;
-	private final int DEFAULT_CHUNK_SIZE = 50 * 1024;
+	private final int DEFAULT_CHUNK_SIZE = 50 * 1024; //kb
+	private final int THRESHOLD_2G_SPEED = 10; //kbps
+	private final int THRESHOLD_3G_SPEED = 32; //kbps
+	private final int THRESHOLD_4G_SPEED = 64; //kbps
+	private final int THRESHOLD_WIFI_SPEED = 128; //kbps
 
 	public FileTransferChunkSizePolicy(Context ctx)
 	{
@@ -101,7 +105,14 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 					if(proceed)
 					{
 						this.mNetSpeed = nSpeed;
-						chunkSize = evaluateChunkSizeBasedOnNetSpeed();
+						if(isAboveThresholdSpeed(nSpeed, networkType))
+						{
+							chunkSize = evaluateChunkSizeBasedOnNetSpeed();
+						}
+						else
+						{
+							chunkSize = calculateSizeBasedOnDisplayMetrics(networkType);
+						}
 					}
 					else
 					{
@@ -277,5 +288,40 @@ public class FileTransferChunkSizePolicy implements IGetChunkSize
 		default:
 			return FileTransferManager.NetworkType.TWO_G;
 		}
+	}
+
+	private boolean isAboveThresholdSpeed(int speed, FileTransferManager.NetworkType networkType)
+	{
+		boolean result = false;
+		switch (networkType) {
+			case WIFI:
+				if(speed > THRESHOLD_WIFI_SPEED)
+				{
+					result = true;
+				}
+				break;
+			case FOUR_G:
+				if(speed > THRESHOLD_4G_SPEED)
+				{
+					result = true;
+				}
+				break;
+			case THREE_G:
+				if(speed > THRESHOLD_3G_SPEED)
+				{
+					result = true;
+				}
+				break;
+			case TWO_G:
+				if(speed > THRESHOLD_2G_SPEED)
+				{
+					result = true;
+				}
+				break;
+			default:
+				result = false;
+				break;
+		}
+		return result;
 	}
 }
