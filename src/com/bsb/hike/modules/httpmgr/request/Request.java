@@ -687,16 +687,6 @@ public abstract class Request<T> implements IRequestFacade
 		}
 		this.isCancelled = true;
 
-		if (future != null)
-		{
-			future.cancel(true);
-		}
-
-		if (this.requestCancellationListener != null)
-		{
-			this.requestCancellationListener.onCancel();
-		}
-
 		if (gcmTaskConfig != null)
 		{
 			final String tag = gcmTaskConfig.getTag();
@@ -710,6 +700,16 @@ public abstract class Request<T> implements IRequestFacade
 			});
 
 			HikeGcmNetworkMgr.getInstance().cancelTask(tag, gcmTaskConfig.getService());
+		}
+
+		if (future != null)
+		{
+			future.cancel(true);
+		}
+
+		if (this.requestCancellationListener != null)
+		{
+			this.requestCancellationListener.onCancel();
 		}
 	}
 
