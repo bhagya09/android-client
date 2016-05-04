@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -2411,6 +2412,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void audioRecordSuccess(String filePath, long duration)
 	{
+		//CE-44: Incorrect time is shown in voice message
+		try {
+			MediaPlayer mediaPlayer = new MediaPlayer();
+			mediaPlayer.setDataSource(filePath);
+			mediaPlayer.prepare();
+			duration = mediaPlayer.getDuration()/1000;
+			mediaPlayer.release();
+			mediaPlayer = null;
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		Logger.i(TAG, "Audio Recorded " + filePath + "--" + duration);
 		channelSelector.sendAudioRecording(activity.getApplicationContext(),filePath,duration,msisdn,mConversation.isOnHike());
 	}
