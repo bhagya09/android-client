@@ -41,6 +41,7 @@ import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -371,6 +372,7 @@ public class HikeNotification
 
 			Intent intent = Utils.getHomeActivityIntent(context);
 			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			intent.putExtra(HikeConstants.TIP_ID, ConversationTip.UPDATE_CRITICAL_TIP);
 			mBuilder.setContentIntent(PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT));
 			notifyNotification(APP_UPDATE_AVAILABLE_ID, mBuilder);
 
