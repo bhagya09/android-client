@@ -1360,88 +1360,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return contactInfos;
 	}
 
-	private List<ContactInfo> getContactInfo(String query, FavoriteType favoriteType, boolean ignoreUnknownContacts)
-	{
-		String favoriteMsisdnColumnName = "tempMsisdn";
-		Cursor c = null;
-		try
-		{
-			c = mDb.rawQuery(query, null);
-
-			int idx = c.getColumnIndex(DBConstants.ID);
-			int userMsisdnIdx = c.getColumnIndex(DBConstants.MSISDN);
-			int favoriteMsisdnIdx = c.getColumnIndex(favoriteMsisdnColumnName);
-			int nameIdx = c.getColumnIndex(DBConstants.NAME);
-			int onhikeIdx = c.getColumnIndex(DBConstants.ONHIKE);
-			int phoneNumIdx = c.getColumnIndex(DBConstants.PHONE);
-			int msisdnTypeIdx = c.getColumnIndex(DBConstants.MSISDN_TYPE);
-			int lastMessagedIdx = c.getColumnIndex(DBConstants.LAST_MESSAGED);
-			int hasCustomPhotoIdx = c.getColumnIndex(DBConstants.HAS_CUSTOM_PHOTO);
-			int lastSeenIdx = c.getColumnIndex(DBConstants.LAST_SEEN);
-			int isOfflineIdx = c.getColumnIndex(DBConstants.IS_OFFLINE);
-			int inviteTimeIdx = c.getColumnIndex(DBConstants.INVITE_TIMESTAMP);
-			int favoriteTypeIdx = c.getColumnIndex(DBConstants.FAVORITE_TYPE);
-
-			Set<String> msisdnSet = null;
-
-			msisdnSet = new HashSet<String>();
-
-			List<ContactInfo> contactInfos = new ArrayList<ContactInfo>();
-			while (c.moveToNext())
-			{
-				String msisdn = c.getString(favoriteType == FavoriteType.NOT_FRIEND ? userMsisdnIdx : favoriteMsisdnIdx);
-				if (msisdnSet.contains(msisdn))
-				{
-					continue;
-				}
-				msisdnSet.add(msisdn);
-
-				ContactInfo contactInfo;
-
-				String userMsisdn = c.getString(userMsisdnIdx);
-
-				if (TextUtils.isEmpty(userMsisdn))
-				{
-					if (ignoreUnknownContacts)
-					{
-						continue;
-					}
-					contactInfo = new ContactInfo(msisdn, msisdn, null, msisdn);
-				}
-				else
-				{
-					contactInfo = new ContactInfo(c.getString(idx), userMsisdn, c.getString(nameIdx), c.getString(phoneNumIdx), c.getInt(onhikeIdx) != 0,
-							c.getString(msisdnTypeIdx), c.getLong(lastMessagedIdx), c.getInt(hasCustomPhotoIdx) == 1);
-
-					contactInfo.setOffline(c.getInt(isOfflineIdx));
-					contactInfo.setLastSeenTime(c.getLong(lastSeenIdx));
-					contactInfo.setInviteTime(c.getLong(inviteTimeIdx));
-				}
-
-				if (favoriteType == null && favoriteTypeIdx != -1)
-				{
-					contactInfo.setFavoriteType(FavoriteType.values()[c.getInt(favoriteTypeIdx)]);
-				}
-				else
-				{
-					contactInfo.setFavoriteType(favoriteType);
-				}
-
-				contactInfos.add(contactInfo);
-			}
-
-			Collections.sort(contactInfos);
-
-			return contactInfos;
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
 
 	Map<String, ContactInfo> getNOTFRIENDScontactsFromDB(Set<String> blockSet,int onHike, String myMsisdn, boolean nativeSMSOn, boolean ignoreUnknownContacts)
 	{
@@ -1516,37 +1434,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		return null;
 	}
 
-	private StringBuilder getQueryTOFetchContactInfo(String toAppend, int onHike, FavoriteType favoriteType, boolean nativeSMSOn)
-	{
-		StringBuilder queryBuilder = new StringBuilder("SELECT " + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + ", " + DBConstants.ID + ", " + DBConstants.NAME + ", "
-				+ DBConstants.ONHIKE + ", " + DBConstants.PHONE + ", " + DBConstants.MSISDN_TYPE + ", " + DBConstants.HAS_CUSTOM_PHOTO + ", " + DBConstants.LAST_MESSAGED + ", "
-				+ DBConstants.LAST_SEEN + ", " + DBConstants.IS_OFFLINE + ", " + DBConstants.INVITE_TIMESTAMP);
-		queryBuilder.append(toAppend);
-		String favoriteMsisdnColumnName = "tempMsisdn";
-		if (onHike != HikeConstants.BOTH_VALUE)
-		{
-			queryBuilder.append(" AND " + DBConstants.ONHIKE + " = " + onHike);
-			if (onHike == HikeConstants.NOT_ON_HIKE_VALUE)
-			{
-				queryBuilder.append(" AND ((" + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + " LIKE '+91%')");
-				if (favoriteType != FavoriteType.NOT_FRIEND)
-				{
-					queryBuilder.append(" OR (" + favoriteMsisdnColumnName + " LIKE '+91%')");
-				}
-				queryBuilder.append(")");
-			}
-		}
-		else if (!nativeSMSOn)
-		{
-			queryBuilder.append(" AND ((" + DBConstants.ONHIKE + " =1) OR  (" + DBConstants.USERS_TABLE + "." + DBConstants.MSISDN + " LIKE '+91%')");
-			if (favoriteType != FavoriteType.NOT_FRIEND)
-			{
-				queryBuilder.append(" OR (" + favoriteMsisdnColumnName + " LIKE '+91%')");
-			}
-			queryBuilder.append(")");
-		}
-		return queryBuilder;
-	}
+
 
 	void deleteMultipleRows(Collection<String> ids)
 	{
@@ -2480,105 +2368,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public ContactInfo getChatThemeFTUEContact(Context context, boolean newUser)
-	{
-		ContactInfo contactInfo;
-		if (newUser)
-		{
-			/*
-			 * For new users, we first try to get a recommended hike contact.
-			 */
-			String recommendedContactsString = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.SERVER_RECOMMENDED_CONTACTS, null);
-			try
-			{
-				JSONArray recommendedContactsArray = new JSONArray(recommendedContactsString);
-				if (recommendedContactsArray.length() != 0)
-				{
-					for (int i = 0; i < recommendedContactsArray.length(); i++)
-					{
-						String msisdn = recommendedContactsArray.getString(i);
-
-						if (ContactManager.getInstance().isBlocked(msisdn))
-						{
-							continue;
-						}
-
-						contactInfo = getContactInfoFromMSISDN(msisdn, false);
-
-						if (contactInfo != null)
-						{
-							return contactInfo;
-						}
-					}
-				}
-			}
-			catch (JSONException e)
-			{
-			}
-
-			/*
-			 * If we didn't find any, we pick a hike contact
-			 */
-			contactInfo = getMostRecentContact(HikeConstants.ON_HIKE_VALUE);
-			if (contactInfo != null)
-			{
-				return contactInfo;
-			}
-
-			/*
-			 * If we didn't find any there as well, we pick an SMS contact that is most contacted by the user.
-			 */
-			List<ContactInfo> contactList = ContactManager.getInstance().getNonHikeMostContactedContacts(1);
-			if (contactList.isEmpty())
-			{
-				contactInfo = null;
-			}
-			else
-			{
-				contactInfo = contactList.get(0);
-			}
-		}
-		else
-		{
-			/*
-			 * For an existing user, we first try to pick his last contacted hike contact.
-			 */
-			contactInfo = getMostRecentContact(HikeConstants.ON_HIKE_VALUE);
-			if (contactInfo != null)
-			{
-				return contactInfo;
-			}
-
-			/*
-			 * Else we fetch his last contacted SMS contact.
-			 */
-			contactInfo = getMostRecentContact(HikeConstants.NOT_ON_HIKE_VALUE);
-		}
-		return contactInfo;
-	}
-
-	public List<ContactInfo> fetchAllContacts(String myMsisdn)
-	{
-		Cursor c = null;
-		List<ContactInfo> contactInfos = null;
-		try
-		{
-			c = mReadDb.query(DBConstants.USERS_TABLE, new String[] { DBConstants.MSISDN, "max(" + DBConstants.ID + ") as " + DBConstants.ID, DBConstants.NAME, DBConstants.ONHIKE,
-					DBConstants.PHONE, DBConstants.MSISDN_TYPE, DBConstants.LAST_MESSAGED, DBConstants.HAS_CUSTOM_PHOTO }, DBConstants.MSISDN + " != ?", new String[] { myMsisdn },
-					DBConstants.MSISDN, null, DBConstants.NAME + " COLLATE NOCASE");
-
-			contactInfos = extractContactInfo(c, true);
-
-			return contactInfos;
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
 
 	
 	public Set<String> getBlockedMsisdnSet()
@@ -2769,12 +2558,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		}
 	}
 
-	public void addToBlockTable(String msisdn)
-	{
-		ContentValues values = new ContentValues();
-		values.put(DBConstants.MSISDN, msisdn);
-		mDb.insert(DBConstants.BLOCK_TABLE, null, values);
-	}
 
 	public void dropBlockTable() {
 		String dropTable=DBConstants.DROP_TABLE + DBConstants.BLOCK_TABLE;
