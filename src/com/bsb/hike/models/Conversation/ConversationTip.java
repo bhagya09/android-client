@@ -36,6 +36,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationTip implements OnClickListener
 {
@@ -434,6 +435,7 @@ public class ConversationTip implements OnClickListener
 			case RESET_STEALTH_TIP:
 				if (mListener != null)
 				{
+					LockPattern.recordResetStealthTipEvent("hdn_reset_comp");
 					mListener.clickTip(tipType);
 				}
 				break;
@@ -467,6 +469,7 @@ public class ConversationTip implements OnClickListener
 			switch (tipType)
 			{
 			case RESET_STEALTH_TIP:
+				LockPattern.recordResetStealthTipEvent("hdn_reset_cancel");
 				resetCountDownSetter();
 				Utils.cancelScheduledStealthReset();
 

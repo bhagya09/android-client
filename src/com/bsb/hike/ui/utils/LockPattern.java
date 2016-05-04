@@ -277,4 +277,44 @@ public class LockPattern
 			e.toString();
 		}
 	}
+
+	public static void recordResetPopupButtonClick(String genus, String species)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "hdn_reset_popup");
+				json.put(AnalyticsConstants.V2.GENUS, genus);
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
+
+	public static void recordResetStealthTipEvent(String family)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.toString();
+		}
+	}
 }

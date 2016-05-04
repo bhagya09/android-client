@@ -947,6 +947,8 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 
 						StealthModeManager.getInstance().setTipVisibility(true, ConversationTip.RESET_STEALTH_TIP);
 
+						LockPattern.recordResetPopupButtonClick("confirm", "setting");
+
 						preference.setTitle(R.string.resetting_complete_stealth_header);
 						preference.setSummary(R.string.resetting_complete_stealth_info);
 
@@ -977,6 +979,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					@Override
 					public void negativeClicked(HikeDialog hikeDialog)
 					{
+						LockPattern.recordResetPopupButtonClick("cancel", "setting");
 						hikeDialog.dismiss();
 					}
 
