@@ -34,7 +34,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		AdapterView.OnItemClickListener
 {
 
-	private static final String TAG = StickerShopSearchFragment.class.getSimpleName();
+	public static final String TAG = StickerShopSearchFragment.class.getSimpleName();
 
 	private CategorySearchWatcher searchWatcher;
 

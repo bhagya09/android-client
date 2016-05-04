@@ -3085,7 +3085,8 @@ public class StickerManager
 
     public boolean isShopSearchEnabled()
     {
-        return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true);
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_ALLOWED, false)
+				&& HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true);
     }
 
 	public void saveSticker(Sticker sticker, StickerConstants.StickerType stickerType)
@@ -3535,4 +3536,15 @@ public class StickerManager
 
 		return null;
 	}
+
+    public void updateStickerShopSearchAllowedStatus()
+    {
+        if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false)
+                && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
+        {
+            Logger.v(TAG, "Sticker Search marked allowed");
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_ALLOWED, true);
+        }
+    }
+
 }

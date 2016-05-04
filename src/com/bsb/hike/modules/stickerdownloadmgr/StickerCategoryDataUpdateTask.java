@@ -62,6 +62,8 @@ public class StickerCategoryDataUpdateTask implements Runnable
 			updateCategoryTagdata(HikeStickerSearchDatabase.getInstance().getStickerCategoriesForTagDataUpdate(stickerCategoriesTagdataList));
 		}
 
+        StickerManager.getInstance().updateStickerShopSearchAllowedStatus();
+
 	}
 
 	private void updateCategoryMetadata(List<StickerCategory> stickerCategoriesMetadataList)

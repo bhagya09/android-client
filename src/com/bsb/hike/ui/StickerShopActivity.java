@@ -60,6 +60,9 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 	{
 		if (savedInstanceState != null)
 		{
+			getSupportFragmentManager().popBackStack(0, android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            stickerShopFragment = null;
+            stickerShopSearchFragment = null;
 			return;
 		}
 
@@ -84,7 +87,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
-		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment).addToBackStack(null).commit();
+		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopSearchFragment, StickerShopSearchFragment.TAG).addToBackStack(null).commit();
+        getSupportFragmentManager().executePendingTransactions();
 
 	}
 
@@ -100,7 +104,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 			return;
 		}
 
-		getSupportFragmentManager().beginTransaction().add(R.id.sticker_shop_parent, stickerShopFragment).commit();
+		getSupportFragmentManager().beginTransaction().replace(R.id.sticker_shop_parent, stickerShopFragment, StickerShopFragment.TAG).commit();
 
 	}
 

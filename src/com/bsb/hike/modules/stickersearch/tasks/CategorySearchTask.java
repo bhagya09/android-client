@@ -13,13 +13,10 @@ public class CategorySearchTask implements Runnable
 
 	private CategorySearchListener mListener;
 
-	private boolean performPartialSearch;
-
-	public CategorySearchTask(String query, CategorySearchListener listener, boolean partialSearch)
+	public CategorySearchTask(String query, CategorySearchListener listener)
 	{
 		this.query = preProcessQuery(query);
 		this.mListener = listener;
-		this.performPartialSearch = partialSearch;
 	}
 
 	@Override
@@ -27,21 +24,7 @@ public class CategorySearchTask implements Runnable
 	{
 		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
 
-		if (!performPartialSearch)
-		{
-			sendResponse(results);
-			return;
-		}
-
-		if (Utils.isEmpty(results) && query.indexOf(' ') > 0)
-		{
-			sendResponse(CategorySearchManager.getInstance().searchForPacks(query.substring(0, query.lastIndexOf(' '))));
-		}
-		else
-		{
-			sendResponse(results);
-		}
-
+		sendResponse(results);
 	}
 
 	private void sendResponse(List<StickerCategory> results)

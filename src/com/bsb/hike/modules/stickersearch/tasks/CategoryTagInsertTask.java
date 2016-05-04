@@ -58,15 +58,23 @@ public class CategoryTagInsertTask implements Runnable
 
 				String categoryName = categoryJSON.optString(HikeConstants.CAT_NAME);
 
-				if (TextUtils.isEmpty(categoryName))
+				if (TextUtils.isEmpty(categoryName) && TextUtils.isEmpty(categoryTagData.getName()))
 				{
 					Logger.e(TAG, "Ignoring pack tag data for ucid = " + ucid + " for empty pack name");
 					continue;
 				}
 
-				categoryTagData.setName(categoryName.toLowerCase().trim());
+				if (!TextUtils.isEmpty(categoryName))
+				{
+					categoryTagData.setName(categoryName.toLowerCase().trim());
+				}
+
 				categoryTagData.setCategoryLastUpdatedTime(categoryJSON.optLong(HikeConstants.TIMESTAMP));
-				categoryTagData.setGender(categoryJSON.optInt(HikeConstants.GENDER));
+
+				if (categoryJSON.has(HikeConstants.GENDER))
+				{
+					categoryTagData.setGender(categoryJSON.optInt(HikeConstants.GENDER));
+				}
 
 				JSONObject addedData = categoryJSON.optJSONObject(HikeConstants.ADDED_DATA);
 				JSONObject removedData = categoryJSON.optJSONObject(HikeConstants.REMOVED_DATA);
