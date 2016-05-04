@@ -3536,4 +3536,15 @@ public class StickerManager
 
 		return null;
 	}
+
+    public void updateStickerShopSearchAllowedStatus()
+    {
+        if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_METADATA, false)
+                && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.UPDATED_ALL_CATEGORIES_TAGDATA, false))
+        {
+            Logger.v(TAG, "Sticker Search marked allowed");
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_ALLOWED, true);
+        }
+    }
+
 }
