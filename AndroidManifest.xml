@@ -6,6 +6,7 @@
     android:versionCode="1696"
     android:versionName="4.2.5.82.109" >
 
+
    <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17"
