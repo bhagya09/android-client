@@ -1,16 +1,43 @@
 package com.bsb.hike.modules.gcmnetworkmanager;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.utils.Logger;
 import com.google.android.gms.gcm.GcmTaskService;
+
+import java.util.List;
 
 /**
  * Created by anubhavgupta on 28/04/16.
  */
 public class Config
 {
+	public static final String TAG = "tag";
+
+	public static final String NUM_OF_RETRIES = "num_of_retries";
+
+	public static final String UPDATE_CURRENT = "update_current";
+
+	public static final String PERSISTED = "persisted";
+
+	public static final String SERVICE = "service";
+
+	public static final String REQUIRED_NETWORK = "requiredNetwork";
+
+	public static final String REQUIRES_CHARGING = "requiresCharging";
+
+	public static final String EXTRAS = "extras";
+
+	public static final String WINDOW_START = "window_start";
+
+	public static final String WINDOW_END = "window_end";
+
 	private int numRetries = HikeConstants.DEFAULT_RETRIES_GCM_NW_MANAGER;
 
 	private long windowStartDelaySeconds;
@@ -107,6 +134,67 @@ public class Config
 	public Bundle getExtras()
 	{
 		return this.mExtras;
+	}
+
+	public Bundle toBundle() 
+	{
+		Bundle bundle = new Bundle();
+		bundle.putString(TAG, this.mTag);
+		bundle.putInt(NUM_OF_RETRIES, this.numRetries);
+		bundle.putBoolean(UPDATE_CURRENT, this.updateCurrent);
+		bundle.putBoolean(PERSISTED, this.persisted);
+		bundle.putString(SERVICE, this.gcmTaskService.getName());
+		bundle.putInt(REQUIRED_NETWORK, this.requiredNetworkType);
+		bundle.putBoolean(REQUIRES_CHARGING, this.requiresCharging);
+		bundle.putBundle(EXTRAS, this.mExtras);
+		bundle.putLong(WINDOW_START, this.windowStartDelaySeconds);
+		bundle.putLong(WINDOW_END, this.windowEndDelaySeconds);
+		return bundle;
+	}
+
+	public static Config fromBundle(Bundle bundle)
+	{
+		Class<? extends GcmTaskService> gcmTaskService = getClassFromString(bundle.getString(SERVICE));
+		Config config = new Config.Builder()
+				.setTag(bundle.getString(TAG))
+				.setNumRetries(bundle.getInt(NUM_OF_RETRIES))
+				.setService(gcmTaskService)
+				.setUpdateCurrent(bundle.getBoolean(UPDATE_CURRENT))
+				.setPersisted(bundle.getBoolean(PERSISTED))
+				.setRequiredNetwork(bundle.getInt(REQUIRED_NETWORK))
+				.setRequiresCharging(bundle.getBoolean(REQUIRES_CHARGING))
+				.setExtras(bundle.getBundle(EXTRAS))
+				.setExecutionWindow(bundle.getLong(WINDOW_START), bundle.getLong(WINDOW_END))
+				.build();
+		return config;
+	}
+
+	private static Class<? extends GcmTaskService> getClassFromString(String name)
+	{
+		Intent intent = new Intent("com.google.android.gms.gcm.ACTION_TASK_READY");
+		intent.setPackage(HikeMessengerApp.getInstance().getPackageName());
+		PackageManager packageManager = HikeMessengerApp.getInstance().getPackageManager();
+		List<ResolveInfo> resolveInfos = packageManager.queryIntentServices(intent, 0);
+		Class<? extends GcmTaskService> gcmTaskService = null;
+		for (ResolveInfo info : resolveInfos)
+		{
+			if (info.serviceInfo.name.equals(name))
+			{
+				try
+				{
+					gcmTaskService = (Class<? extends GcmTaskService>) Class.forName(name);
+				}
+				catch (ClassNotFoundException e)
+				{
+					Logger.e("Config", "Class not found exception occurred while getting class from string ", e);
+				}
+				catch (ClassCastException e)
+				{
+					Logger.e("Config", "Class cast execption occurred while getting class from string ", e);
+				}
+			}
+		}
+		return gcmTaskService;
 	}
 
 	public static class Builder
