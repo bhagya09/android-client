@@ -77,20 +77,15 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 		this.textPickerListener = textPickerListener;
 		this.stickerPickerListener = stickerPickerListener;
 		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, textPickerListener, stickerPickerListener);
-		String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CUSTOM_INPUT_BOX_KEY).getData(getKeyboardKey(msisdn), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
 
-		// Create custom keyboard object from keyboard json received in message
-		JsonParser parser = new JsonParser();
-		JsonObject keyboardJsonObj = (JsonObject) parser.parse(keyboardDataJson);
-		CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
-
-		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboard.getType().equals("text"))
+        CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
+		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals("text"))
 		{
 			ArrayList<ArrayList<TextKey>> customKeyboardTextKeys = customKeyboard.getTextKeys();
 
 			viewToDisplay = customKeyboardInputBoxAdapter.initTextKeyboardView(customKeyboardTextKeys);
 		}
-		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboard.getType().equals("stickers"))
+		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals("stickers"))
 		{
 			ArrayList<StkrKey> customKeyboardStkrKeys = customKeyboard.getStkrKeys();
 
@@ -159,7 +154,21 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	{
 		this.isInputBoxButtonShowing = isInputBoxButtonShowing;
 	}
-
+    
+	/**
+	 * Gets custom keyboard object.
+	 *
+	 * @return the custom keyboard object
+	 */
+	public CustomKeyboard getCustomKeyboardObject(String msisdn)
+    {
+        String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(msisdn, HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+        JsonParser parser = new JsonParser();
+        JsonObject keyboardJsonObj = (JsonObject) parser.parse(keyboardDataJson);
+        CustomKeyboard customKeyboard = new Gson().fromJson(keyboardJsonObj, CustomKeyboard.class);
+        return customKeyboard;
+    }
+    
 	/**
 	 * Save to shared preferences.
 	 *
@@ -209,7 +218,8 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	 */
 	public void releaseResources()
     {
-        customKeyboardInputBoxAdapter.releaseResources();
+        if(customKeyboardInputBoxAdapter != null)
+            customKeyboardInputBoxAdapter.releaseResources();
     }
 
 }
