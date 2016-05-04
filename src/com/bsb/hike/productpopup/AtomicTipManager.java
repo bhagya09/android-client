@@ -75,6 +75,8 @@ public class AtomicTipManager
 
     public static final int REMOVE_EXPIRED_TIPS = 10;
 
+    public static final int PARSE_NEW_PACKET = 11;
+
     private final int DEFAULT_TIP_FROM_NTOIF_ID = -1;
 
     private int atomicTipFromNotifId;
@@ -141,6 +143,9 @@ public class AtomicTipManager
             case REMOVE_EXPIRED_TIPS:
                 checkAndRemoveExpiredTips();
                 break;
+            case PARSE_NEW_PACKET:
+                parseNewPacket((JSONObject) msg.obj);
+                break;
 
         }
     }
@@ -190,6 +195,12 @@ public class AtomicTipManager
      */
     public void parseAtomicTipPacket(JSONObject tipJSON)
     {
+        mHandler.sendMessage(getMessage(PARSE_NEW_PACKET, tipJSON));
+
+    }
+
+    private void parseNewPacket(JSONObject tipJSON)
+    {
         Logger.d(TAG, "parsing new tip packet");
 
         //creating model from JSON
@@ -222,17 +233,16 @@ public class AtomicTipManager
         }
 
         //saving model in DB
-        mHandler.sendMessage(getMessage(SAVE_TIP_TO_DB, tipContentModel));
+        saveNewTip(tipContentModel);
 
         //adding model to tips list and refreshing list
-        mHandler.sendMessage(getMessage(ADD_TIP_TO_LIST, tipContentModel));
-        mHandler.sendMessage(getMessage(REFRESH_TIPS_LIST, null));
+        addTipToList(tipContentModel);
+        refreshTipsList();
 
         if(tipContentModel.isShowNotification())
         {
             createNotifForTip(tipContentModel);
         }
-
     }
 
     /**
