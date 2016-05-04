@@ -34,6 +34,7 @@ import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
@@ -257,7 +258,7 @@ public class ChatThreadUtils
 		if (HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
-			Utils.recordEventMaxSizeToastShown(AnalyticsConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
+			Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, getChatThreadType(msisdn), msisdn, file.length());
 			FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_1_3, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitialiseFileTransfer - Max size limit reached.");
 			return;
 		}

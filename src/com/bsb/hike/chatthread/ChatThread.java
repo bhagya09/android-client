@@ -105,6 +105,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
@@ -988,7 +989,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
 			if (requestCode == AttachmentPicker.LOCATION) { //CE-212
-				recordMediaShareAnalyticEvent(AnalyticsConstants.LOCATION_SHARING_CANCELLED);
+				recordMediaShareAnalyticEvent(ChatAnalyticConstants.LOCATION_SHARING_CANCELLED);
 			}
 			return;
 		}
@@ -1127,20 +1128,20 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		String species = ChatThreadUtils.getChatThreadType(msisdn);
 		try {
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SHARE_IMAGES);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.SHARE_IMAGES);
 			if (mConversation.isStealth()) {
-				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			}
 			json.put(AnalyticsConstants.V2.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
 			json.put(AnalyticsConstants.V2.RACE, numberTotal);
 			json.put(AnalyticsConstants.V2.BREED, numOfEditedImages);
 			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
-			json.put(AnalyticsConstants.V2.SOURCE, AnalyticsConstants.IMAGE_SOURCE_CAMERA);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatAnalyticConstants.IMAGE_SOURCE_CAMERA);
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
 			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
 					HikeMessengerApp.getInstance().getApplicationContext()));
@@ -1229,7 +1230,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			//CE-602 : Add new fields to existing overflow menu events
 			metadata.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			if(mConversation.isStealth()) {
-				metadata.put(HikeConstants.FROM, AnalyticsConstants.STEALTH_CHAT_THREAD);
+				metadata.put(HikeConstants.FROM, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			}
 			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 		}
@@ -1316,7 +1317,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 		case R.id.overflowmenu:
 			showOverflowMenu();
-			recordMediaShareAnalyticEvent(AnalyticsConstants.OVERFLOW_MENU_CLICKED);
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.OVERFLOW_MENU_CLICKED);
 			break;
 		case R.id.sticker_btn:
 			stickerClicked();
@@ -1458,7 +1459,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	private void sendWTClickedAnalytic() {
 		String species = activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD);
-		JSONObject json = Utils.getCoreChatClickJSON(AnalyticsConstants.WT_CLICKED_TOUCHED, species, mConversation.isStealth());
+		JSONObject json = Utils.getCoreChatClickJSON(ChatAnalyticConstants.WT_CLICKED_TOUCHED, species, mConversation.isStealth());
 		if (json != null) HAManager.getInstance().recordV2(json);
 	}
 
@@ -1692,7 +1693,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		{
 			JSONObject metadata = new JSONObject();
 			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_USERS);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_BACKGROUND_TRIAL);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.CHAT_BACKGROUND_TRIAL);
 			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.CHAT_BACKGROUND);
 			metadata.put(AnalyticsConstants.V2.SPECIES, themeId);
 			metadata.put(AnalyticsConstants.V2.FROM_USER, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, ""));
@@ -2240,7 +2241,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			channelSelector.sendAudio(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		case AttachmentPicker.VIDEO:
-			recordMediaShareAnalyticEvent(AnalyticsConstants.VIDEO_SENT);
+			recordMediaShareAnalyticEvent(ChatAnalyticConstants.VIDEO_SENT);
 			channelSelector.sendVideo(activity.getApplicationContext(),msisdn,filePath,mConversation.isOnHike());
 			break;
 		}
@@ -2444,7 +2445,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			json.put(AnalyticsConstants.EVENT_KEY, HikeConstants.LogEvent.WT_RECORDING_CANCELLED_BY_USER);
 			json.put(HikeConstants.SPECIES, activity.getIntent().getStringExtra(HikeConstants.Extras.WHICH_CHAT_THREAD));
 			if(mConversation.isStealth()) {
-				json.put(HikeConstants.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+				json.put(HikeConstants.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			}
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, json);
 		} catch (JSONException e) {
