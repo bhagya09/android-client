@@ -62,6 +62,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.ListPreference;
@@ -760,7 +761,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 			BackupAccountTask task = new BackupAccountTask(getApplicationContext(), HikePreferences.this);
 			blockingTaskType = BlockingTaskType.BACKUP_ACCOUNT;
 			setBlockingTask(task);
-			Utils.executeBoolResultAsyncTask(task);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else if (preference.getKey().equals(HikeConstants.UNLINK_PREF))
 		{
@@ -1003,7 +1004,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 					RingtoneFetcherTask task = new RingtoneFetcherTask(HikePreferences.this, false, getApplicationContext());
 					blockingTaskType = BlockingTaskType.FETCH_RINGTONE;
 					setBlockingTask(task);
-					Utils.executeAsyncTask(task);
+					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			}
 		}

@@ -231,14 +231,6 @@ public class ProfileImageLoader implements LoaderCallbacks<Boolean>
 
 	private void setImageDrawable(Drawable drawable)
 	{
-		if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB){
-			if((drawable != null) && drawable instanceof BitmapDrawable){
-				if(((BitmapDrawable) drawable).getBitmap().isRecycled()){
-					return;
-				}
-			}
-		}
-		
 		if(imageView.get() != null)
 		{
 			imageView.get().setImageDrawable(drawable);
