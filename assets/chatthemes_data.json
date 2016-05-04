@@ -47,7 +47,7 @@
           "size": 2
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -57,7 +57,7 @@
           "size": 2
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_3x.9.png",
           "size": 0
         },
@@ -113,7 +113,7 @@
           "size": 2
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -123,7 +123,7 @@
           "size": 2
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_3x.9.png",
           "size": 0
         },
@@ -189,7 +189,7 @@
           "size": 2
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_blue.9.png",
           "size": 0
         },
@@ -199,7 +199,7 @@
           "size": 2
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle.9.png",
           "size": 0
         },
@@ -255,7 +255,7 @@
           "size": 2
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_smiley_geometric1_independence.9.png",
           "size": 0
         },
@@ -265,7 +265,7 @@
           "size": 2
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_3x.9.png",
           "size": 0
         },
@@ -311,7 +311,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -336,7 +336,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_2x.9.png",
           "size": 0
         },
@@ -382,7 +382,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_rain2.9.png",
           "size": 0
         },
@@ -407,7 +407,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_2x.9.png",
           "size": 0
         },
@@ -453,7 +453,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -478,7 +478,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -524,7 +524,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -549,7 +549,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -595,7 +595,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -620,7 +620,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -666,7 +666,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_smiley_geometric1_independence.9.png",
           "size": 0
         },
@@ -691,7 +691,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -737,7 +737,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_chatty_beachy_techy.9.png",
           "size": 0
         },
@@ -762,7 +762,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -808,7 +808,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_beach_2.9.png",
           "size": 0
         },
@@ -833,7 +833,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -879,7 +879,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_night.9.png",
           "size": 0
         },
@@ -904,7 +904,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -950,7 +950,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_forest_study_sporty_fifa_nature.9.png",
           "size": 0
         },
@@ -975,7 +975,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1021,7 +1021,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_night.9.png",
           "size": 0
         },
@@ -1046,7 +1046,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1092,7 +1092,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -1117,7 +1117,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_2x.9.png",
           "size": 0
         },
@@ -1163,7 +1163,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_starry_space.9.png",
           "size": 0
         },
@@ -1188,7 +1188,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1234,7 +1234,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_owl.9.png",
           "size": 0
         },
@@ -1259,7 +1259,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1305,7 +1305,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_chatty_beachy_techy.9.png",
           "size": 0
         },
@@ -1330,7 +1330,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1377,7 +1377,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_forest_study_sporty_fifa_nature.9.png",
           "size": 0
         },
@@ -1402,7 +1402,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1448,7 +1448,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_mr_right_exam.9.png",
           "size": 0
         },
@@ -1473,7 +1473,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme_2x.9.png",
           "size": 0
         },
@@ -1519,7 +1519,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_default.9.png",
           "size": 0
         },
@@ -1544,7 +1544,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1590,7 +1590,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -1615,7 +1615,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1661,7 +1661,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -1686,7 +1686,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1732,7 +1732,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_hikin_couple_mountain.9.png",
           "size": 0
         },
@@ -1757,7 +1757,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1803,7 +1803,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_smiley_geometric1_independence.9.png",
           "size": 0
         },
@@ -1828,7 +1828,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1874,7 +1874,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_chatty_beachy_techy.9.png",
           "size": 0
         },
@@ -1899,7 +1899,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -1945,7 +1945,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_creepy.9.png",
           "size": 0
         },
@@ -1970,7 +1970,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2016,7 +2016,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -2041,7 +2041,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2087,7 +2087,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -2112,7 +2112,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2158,7 +2158,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_forest_study_sporty_fifa_nature.9.png",
           "size": 0
         },
@@ -2183,7 +2183,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2229,7 +2229,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_chatty_beachy_techy.9.png",
           "size": 0
         },
@@ -2254,7 +2254,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2300,7 +2300,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_celebration_space.9.png",
           "size": 0
         },
@@ -2325,7 +2325,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2371,7 +2371,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_love_floral_kisses_valentines_girly_ipl_blurredlight_love2.9.png",
           "size": 0
         },
@@ -2396,7 +2396,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2443,7 +2443,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_blue.9.png",
           "size": 0
         },
@@ -2468,7 +2468,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2514,7 +2514,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_blue.9.png",
           "size": 0
         },
@@ -2539,7 +2539,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },
@@ -2585,7 +2585,7 @@
           "size": 44
         },
         "chat_bubble": {
-          "type": 1,
+          "type": 3,
           "value": "ic_bubble_blue.9.png",
           "size": 0
         },
@@ -2610,7 +2610,7 @@
           "size": 0
         },
         "sms_bg": {
-          "type": 1,
+          "type": 3,
           "value": "bg_sms_toggle_custom_theme.9.png",
           "size": 0
         },

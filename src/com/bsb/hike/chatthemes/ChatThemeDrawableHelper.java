@@ -91,11 +91,9 @@ public class ChatThemeDrawableHelper
 	 * @return the Drawable
 	 *
 	 */
-	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex)
-	{
+	private Drawable getDrawableFromSDCard(HikeChatTheme theme, byte assetIndex) {
 		HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getAssetIfRecorded(theme.getAssetId(assetIndex));
-		if(asset == null)
-		{
+		if(asset == null) {
 			return null;
 		}
 		return getDrawableFromSDCard(asset);
@@ -118,7 +116,7 @@ public class ChatThemeDrawableHelper
 				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
 				if (drawable == null) {
 					if (TextUtils.isEmpty(path) && isFileExists(path)) {
-						Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.ARGB_8888);
+						Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
 						drawable = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), b);
 						HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
 						b = null;
@@ -127,7 +125,7 @@ public class ChatThemeDrawableHelper
 				return drawable;
 			case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
 				if (TextUtils.isEmpty(path) && isFileExists(path)) {
-					Bitmap bitmap = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.ARGB_8888);
+					Bitmap bitmap = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
 					byte[] chunk = bitmap.getNinePatchChunk();
 					boolean result = NinePatch.isNinePatchChunk(chunk);
 					if(result) {
@@ -142,7 +140,7 @@ public class ChatThemeDrawableHelper
 	}
 
 	private Drawable getResourceDrawableFromName(HikeChatThemeAsset asset) {
-		int index = asset.getAssetId().lastIndexOf('.');
+		int index = asset.getAssetId().indexOf('.');
 		String assetName = asset.getAssetId();
 		if (index > 0) {
 			assetName = asset.getAssetId().substring(0, index);
@@ -150,13 +148,14 @@ public class ChatThemeDrawableHelper
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
 		int resourceId = context.getResources().getIdentifier(assetName, "drawable", context.getPackageName());
 
+		Log.v(TAG, "assetName ::: "+assetName+" :: resourceId:: "+resourceId+ " :: asset.getType() :: "+asset.getType());
 		switch (asset.getType()) {
 			case HikeChatThemeConstants.ASSET_TYPE_JPEG:
 			case HikeChatThemeConstants.ASSET_TYPE_PNG:
 			case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
 				BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId() + getOrientationPrefix(context));
 				if(drawable == null) {
-					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.ARGB_8888);
+					Bitmap b = HikeBitmapFactory.decodeBitmapFromResource(context.getResources(), resourceId, Bitmap.Config.RGB_565);
 					drawable = HikeBitmapFactory.getBitmapDrawable(context.getResources(), b);
 					HikeMessengerApp.getLruCache().putInCache(asset.getAssetId() + getOrientationPrefix(context), drawable);
 					b = null;
