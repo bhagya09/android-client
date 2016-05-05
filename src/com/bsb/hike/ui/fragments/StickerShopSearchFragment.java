@@ -109,7 +109,10 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
-		// loadingEmptyState.setVisibility(View.VISIBLE);
+        searchFailedState.setVisibility(View.GONE);
+        loadingFailedEmptyState.setVisibility(View.GONE);
+        loadingEmptyState.setVisibility(View.VISIBLE);
+        listview.setVisibility(View.GONE);
 		return searchWatcher.onQueryTextSubmit(query);
 	}
 
