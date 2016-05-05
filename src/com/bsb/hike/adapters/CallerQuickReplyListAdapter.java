@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+import com.bsb.hike.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,7 @@ public class CallerQuickReplyListAdapter extends BaseAdapter {
     @Override
     public int getCount()
     {
-        if(quickReplyList!=null)
+        if (!Utils.isEmpty(quickReplyList))
         {
             return quickReplyList.size();
         }
@@ -38,7 +39,7 @@ public class CallerQuickReplyListAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position)
     {
-        if (quickReplyList != null)
+        if (!Utils.isEmpty(quickReplyList))
         {
             return quickReplyList.get(position);
         }

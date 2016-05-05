@@ -47,7 +47,6 @@
                 android:cacheColorHint="#00000000"
                 android:divider="@null"
                 android:fadingEdge="none"
-                android:visibility="visible"
                 android:listSelector="@android:color/transparent">
             </ListView>
 

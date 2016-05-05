@@ -860,4 +860,35 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final String CALLER_FREE_SMS_CROSS= "frSms_cross";
+
+	public static final String CALLER_FREE_SMS_QUICK_REPLY_MSG= "frSms_msg";
+
+	public static final String ACT_LOG = "act_log";
+
+	public static final String STICKY_CALLER = "stkyClr";
+
+	public static final String CALLER_CARD = "crd";
+
+	public static final String CALLER_FREE_SMS = "frSms";
+
+	public static final String CROSS = "cross";
+
+	public static final String CHAT_THREAD = "chat_thread";
+
+	public static final String CHAT_THREAD_SAVE = "chat_thread_save";
+
+	public static final String CHAT_THREAD_BLOCK = "chat_thread_block";
+
+	public static final String CHAT_THREAD_FLAG = "chat_thread_flag";
+
+	public static final String YES = "yes";
+
+	public static final String NO = "no";
+
+	public static final String BLOCK = "block";
+
+	public static final String SAVE = "save";
+
+
 }

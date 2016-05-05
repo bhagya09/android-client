@@ -2880,6 +2880,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			if ( null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
 			{
 				Utils.addToContacts(activity, msisdn);
+				recordSaveChatUserFromUnknownOverlay();
 			}
 			break;
 			
@@ -2957,6 +2958,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	private void onBlockClicked()
 	{
 		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, null);
+		recordBlockChatUserConfirmationPopup();
 	}
 
 	/**
@@ -3159,6 +3161,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			{
 				sendUIMessage(SPAM_UNSPAM_USER, true);
 			}
+			recordBlockChatUserBlocked(((CustomAlertDialog) dialog).isChecked(), AnalyticsConstants.YES);
 			break;
 
 		default:
@@ -3175,6 +3178,12 @@ import com.bsb.hike.voip.VoIPUtils;
 			dialog.dismiss();
 			Utils.setReceiveSmsSetting(activity.getApplicationContext(), false);
 			this.dialog = null;
+			break;
+
+		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
+			dialog.dismiss();
+			this.dialog = null;
+			recordBlockChatUserBlocked(((CustomAlertDialog) dialog).isChecked(), AnalyticsConstants.NO);
 			break;
 
 		default:
@@ -4353,4 +4362,67 @@ import com.bsb.hike.voip.VoIPUtils;
 		}
 	}
 
+	public void recordSaveChatUserFromUnknownOverlay()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_SAVE);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SAVE);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			Logger.d("c_spam_logs", " Add to contact via unknown overlay are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void recordBlockChatUserConfirmationPopup()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_BLOCK);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.BLOCK);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			Logger.d("c_spam_logs", " Block Popup Shown logs are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void recordBlockChatUserBlocked(boolean isSpamSelected, String optionSelected)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_FLAG);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
+			json.put(AnalyticsConstants.V2.ORDER, optionSelected);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.SPECIES, isSpamSelected);
+			Logger.d("c_spam_logs", " Block Popup yes/NO selected are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

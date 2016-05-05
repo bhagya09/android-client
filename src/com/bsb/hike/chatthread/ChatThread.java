@@ -2316,11 +2316,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
-		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
 			break;
-			
+
 		}
 	}
 

@@ -702,7 +702,7 @@ public class StickyCaller {
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_quick_reply_layout, null);
 		final ListView defaultQuickReplyListView = (ListView)stickyCallerView.findViewById(R.id.caller_quick_reply_list);
 		HashSet<String> set = (HashSet<String>)HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.CALLER_QUICK_REPLY_SET, new HashSet<String>(Arrays.asList(context.getResources().getStringArray(R.array.caller_quick_reply_items))));
-		BaseAdapter adapter = new CallerQuickReplyListAdapter(context, new ArrayList<String>(set));
+		final BaseAdapter adapter = new CallerQuickReplyListAdapter(context, new ArrayList<String>(set));
 		defaultQuickReplyListView.setAdapter(adapter);
 		defaultQuickReplyListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -722,8 +722,7 @@ public class StickyCaller {
 				}
 
 				Utils.openChatThreadViaFreeSmsButton(callerContentModel, itemValue);
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.STATIC_QUICK_REPLY_BUTTON, number,
-						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE), textJSON);
+				recordQuickReplyCardItemSelected(position, adapter.getCount(), itemValue);
 			}
 		});
 
@@ -903,8 +902,7 @@ public class StickyCaller {
 				break;
 			/*  When cross button is clicked on Quick reply card */
 			case R.id.qr_caller_close_button:
-				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.QUICK_REPLY_CLOSE_BUTTON, getPhoneNumberFromTag(v),
-						AnalyticsConstants.StickyCallerEvents.CARD, getCallEventFromCallType(CALL_TYPE));
+				recordQuickReplyCrossButtonClicked();
 				break;
 			case R.id.block_contact:
 				HAManager.getInstance().stickyCallerAnalyticsUIEvent(AnalyticsConstants.StickyCallerEvents.BLOCK, getPhoneNumberFromTag(v),
@@ -938,5 +936,51 @@ public class StickyCaller {
 			}
 		}
 	};
+
+	private static void recordQuickReplyCrossButtonClicked()
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CALLER_FREE_SMS_CROSS);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CALLER_CARD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CALLER_FREE_SMS);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, AnalyticsConstants.CROSS);
+			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private static void recordQuickReplyCardItemSelected(int position, int totalItem, String text)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CALLER_FREE_SMS_QUICK_REPLY_MSG);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CALLER_CARD);
+			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CALLER_FREE_SMS);
+			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
+			json.put(AnalyticsConstants.V2.SPECIES, position + 1); //as list starts with 0
+			json.put(AnalyticsConstants.V2.RACE, text);
+			json.put(AnalyticsConstants.V2.BREED, totalItem);
+			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
+			HAManager.getInstance().recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 }
