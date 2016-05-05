@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1696"
-    android:versionName="4.2.5.82.109" >
+    android:versionName="4.2.5.82.109.1.atomic_tips" >
 
    <uses-sdk
         android:minSdkVersion="14"
