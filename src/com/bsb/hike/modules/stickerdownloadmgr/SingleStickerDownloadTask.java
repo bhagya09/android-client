@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import com.bsb.hike.BitmapModule.BitmapUtils;
@@ -97,7 +98,10 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 
 		if (imageOnly)
 		{
-			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener());
+			Bundle extras = new Bundle();
+			extras.putString(HikeConstants.STICKER_ID, stickerId);
+			extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener(), extras);
 		}
 		else
 		{

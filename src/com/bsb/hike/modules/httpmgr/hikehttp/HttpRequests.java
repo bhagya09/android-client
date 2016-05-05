@@ -1,11 +1,15 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.modules.gcmnetworkmanager.Config;
+import com.bsb.hike.modules.gcmnetworkmanager.GcmNwMgrService;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -42,6 +46,7 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.google.android.gms.gcm.Task;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
@@ -129,8 +134,17 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener)
+	public static RequestToken singleStickerImageDownloadRequest(String requestId, String stickerId, String categoryId, boolean miniStk, IRequestListener requestListener, Bundle extras)
 	{
+		Config config = new Config.Builder()
+				.setExecutionWindow(0, 1)
+				.setPersisted(true)
+				.setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+				.setTag(GcmTaskConstants.SINGLE_STICKER_GCM_TASK + HikeConstants.DELIMETER + stickerId + HikeConstants.DELIMETER + categoryId)
+				.setService(GcmNwMgrService.class)
+				.setExtras(extras)
+				.build();
+
 		miniStk = miniStk & StickerManager.getInstance().isMiniStickersEnabled();
 		String url = singleStickerImageDownloadBase() + "?catId=" + categoryId + "&stId=" + stickerId + "&resId=" + Utils.getResolutionId() + "&mini_stk=" + miniStk;
 		RequestToken requestToken = new JSONObjectRequest.Builder()
@@ -139,6 +153,7 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_SHORT)
 				.setPriority(PRIORITY_HIGH)
+				.setGcmTaskConfig(config)
 				.build();
 		return requestToken;
 	}
