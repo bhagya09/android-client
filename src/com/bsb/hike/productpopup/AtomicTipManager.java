@@ -27,6 +27,7 @@ import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -560,6 +561,7 @@ public class AtomicTipManager
 
         //resetting flag in case it was set for tip from notif case
         atomicTipFromNotifId = DEFAULT_TIP_FROM_NTOIF_ID;
+        HikeNotification.getInstance().cancelNotification(HikeNotification.NOTIFICATION_PRODUCT_POPUP);
 
         if(currentlyShowing == null)
         {
