@@ -23,6 +23,7 @@ import com.bsb.hike.platform.CardComponent.VideoComponent;
 import com.bsb.hike.utils.Utils;
 
 public class PlatformMessageMetadata implements HikePlatformConstants {
+    private final String CONTENT_UID = "contentUid";
     public int layoutId;
     public int loveId;
     public String notifText = "";
@@ -38,6 +39,8 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
     private JSONObject json;
     public boolean showShare;
     public String backgroundColor;
+    public String contentId;
+
     public PlatformMessageMetadata(String jsonString, Context context) throws JSONException {
         this(new JSONObject(jsonString), context);
     }
@@ -54,6 +57,7 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
             showShare = getBoolean(metadata, SHOW_SHARE);
             notifText = getString(metadata, NOTIF_TEXT);
             clickTrackUrl = getString(metadata, CLICK_TRACK_URL);
+            contentId = getString(metadata,CONTENT_UID);
 
             if (metadata.has(CHANNEL_SOURCE)) {
                 channelSource = metadata.optString(CHANNEL_SOURCE);
