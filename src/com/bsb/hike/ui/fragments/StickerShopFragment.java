@@ -257,6 +257,11 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 
 	public void showBanner(boolean visible)
 	{
+		if (listview == null)
+		{
+			return;
+		}
+        
 		if (visible)
 		{
 			listview.addHeaderView(headerView);
