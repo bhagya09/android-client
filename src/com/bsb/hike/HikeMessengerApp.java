@@ -234,6 +234,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String LAST_BACK_OFF_TIME = "lastBackOffTime";
 
+	public static final String LAST_BACK_OFF_TIME_USER_LOGS = "lastBackOffTimeUserLogs";
+
 	public static final String FACEBOOK_TOKEN = "facebookToken";
 
 	public static final String FACEBOOK_TOKEN_EXPIRES = "facebookTokenExpires";

@@ -27,6 +27,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.CallLog;
 import android.text.TextUtils;
 
@@ -109,6 +110,8 @@ public class UserLogInfo {
 	private final static byte FOREGROUND_TASK_BIT = 1;
 	
 	private static int flags;
+
+	private static HikeHandlerUtil mHikeHandler = HikeHandlerUtil.getInstance();
 	
 	public static class SessionLogPojo{
 		final String packageName;
@@ -465,42 +468,112 @@ public class UserLogInfo {
 		return true;
 	}
 	
-	public static void sendLogs(int flags) throws JSONException
+	public static void sendLogs(final int flags) throws JSONException
 	{
 
-		JSONArray jsonLogArray = collectLogs(flags);
+		final JSONArray jsonLogArray = collectLogs(flags);
 		// if nothing is logged we do not send anything
 		if (jsonLogArray != null)
 		{
-			JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
+			final JSONObject jsonLogObj = getEncryptedJSON(jsonLogArray, flags);
 
 			if (jsonLogObj != null)
 			{
-				IRequestListener requestListener = new IRequestListener()
-				{
-					@Override
-					public void onRequestSuccess(Response result)
-					{
-						JSONObject response = (JSONObject) result.getBody().getContent();
-						Logger.d(TAG, response.toString());
-					}
 
+				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {
 					@Override
-					public void onRequestProgressUpdate(float progress)
-					{
-					}
+					public void run() {
 
-					@Override
-					public void onRequestFailure(HttpException httpException)
-					{
-						Logger.d(TAG, "failure : " + errorResponse.getBody().getErrorString());
-					}
-				};
+						IRequestListener requestListener = getRequestListener();
+						HikeSharedPreferenceUtil.getInstance().saveData(getLogKey(flags), jsonLogObj.toString());
 
-				RequestToken token = HttpRequests.sendUserLogInfoRequest(getLogKey(flags), jsonLogObj, requestListener);
-				token.execute();
+						RequestToken token = HttpRequests.sendUserLogInfoRequest(getLogKey(flags), jsonLogObj, requestListener);
+						token.execute();
+					}
+				});
+
+
 			}
 		}
+	}
+
+
+	private static IRequestListener getRequestListener()
+	{
+		return new IRequestListener()
+		{
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				JSONObject response = (JSONObject) result.getBody().getContent();
+				Logger.d(TAG, response.toString());
+
+				String url = result.getUrl();
+				String logType = url.substring(url.lastIndexOf("/") + 1);
+				HikeSharedPreferenceUtil.getInstance().removeData(logType);
+
+
+				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+			}
+
+			@Override
+			public void onRequestFailure(@Nullable final Response errorResponse, final HttpException httpException)
+			{
+
+				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, new Runnable() {
+					@Override
+					public void run() {
+						String url = errorResponse.getUrl();
+
+						String logType = url.substring(url.lastIndexOf("/") + 1);
+						IRequestListener requestListener = getRequestListener();
+
+						String encryptedJsonString = HikeSharedPreferenceUtil.getInstance().getData(logType,"");
+
+						if(!TextUtils.isEmpty(encryptedJsonString))
+						{
+
+							try {
+								JSONObject jsonLogObject = null;
+								jsonLogObject = new JSONObject(encryptedJsonString);
+
+								RequestToken token = HttpRequests.sendUserLogInfoRequest(logType, jsonLogObject, requestListener);
+								token.execute();
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+						}
+
+
+					}
+				});
+
+				Logger.d(TAG, "failure : " + errorResponse.getBody().getErrorString());
+			}
+		};
+	};
+
+	private static void scheduleNextSendToServerAction(String lastBackOffTimePref, Runnable postRunnableReference)
+	{
+
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
+		Logger.d(TAG, "Scheduling next " + lastBackOffTimePref + " send");
+
+		int lastBackOffTime = mprefs.getData(lastBackOffTimePref, 0);
+
+		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.RECONNECT_TIME : (lastBackOffTime * 2);
+		lastBackOffTime = Math.min(HikeConstants.MAX_RECONNECT_TIME, lastBackOffTime);
+
+		Logger.d(TAG, "Scheduling the next disconnect");
+
+		mHikeHandler.removeRunnable(postRunnableReference);
+		mHikeHandler.postRunnableWithDelay(postRunnableReference, lastBackOffTime * 1000);
+		mprefs.saveData(lastBackOffTimePref, lastBackOffTime);
 	}
 
 	public static void requestUserLogs(final int flags) throws JSONException
