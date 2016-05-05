@@ -893,4 +893,19 @@ public class AnalyticsConstants
 	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
 
 	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
+
+	public static final class GCEvents
+	{
+
+		public static final String GC_CLICK_NEW_GROUP = "newGrp";
+
+		public static final String GC_CLICK_NEXT = "nxtGrp";
+
+		public static final String GC_CLICK_CREATE_GROUP = "createGrp";
+
+		public static final String CANCEL_SRC_CROSS = "cross";
+
+		public static final String CANCEL_SRC_OTHERS = "others";
+
+	}
 }

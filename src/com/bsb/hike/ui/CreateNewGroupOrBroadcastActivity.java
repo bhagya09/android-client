@@ -1,27 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.R;
-import com.bsb.hike.BitmapModule.BitmapUtils;
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
-import com.bsb.hike.modules.contactmgr.ContactManager;
-import com.bsb.hike.productpopup.ProductPopupsConstants;
-import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
@@ -38,11 +16,33 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bsb.hike.BitmapModule.BitmapUtils;
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.modules.contactmgr.ContactManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
+import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 
 public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseActivity
 {
@@ -67,6 +67,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 	private int defAvBgColor;
 
 	private TextView groupNote;
+
+	private boolean convImageSet = false;
 	
 	/**
 	 * @author anubansal
@@ -379,6 +381,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				else
 				{
 					addMembersViaHike();
+					HikeAnalyticsEvent.recordAnalyticsForGCFlow(AnalyticsConstants.GCEvents.GC_CLICK_NEXT, getGroupName(), convImageSet?1:0, getGSSettings(), -1, null);
+
 				}
 				break;
 		}
@@ -420,6 +424,8 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
         if (editImageIcon != null) {
             editImageIcon.setImageResource(R.drawable.ic_edit_group);
         }
+
+		convImageSet = true;
 
         /*
          * Saving the icon in the DB.
