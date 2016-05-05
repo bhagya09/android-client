@@ -1835,6 +1835,7 @@ public class HikeConstants
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
+		public static final String BYPASS_GALLERY = "bypassGallery";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes

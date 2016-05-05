@@ -2929,6 +2929,17 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 					{
 						sendPoke();
 					}
+					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
+						// as we will be changing msisdn and hike status while inserting in DB
+						ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
+						convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
+						convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
+						convMessage.platformMessageMetadata.addThumbnailsToMetadata();
+						convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
+
+						sendMessage(convMessage);
+
+					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.FILE_PATH))
 					{
 						String fileKey = null;
@@ -2965,7 +2976,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 						Logger.d("ChatThread", "isCloudMediaUri" + Utils.isPicasaUri(filePath));
 						channelSelector.sendFile(activity.getApplicationContext(), msisdn, filePath, fileKey, hikeFileType, fileType, isRecording,
-									recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
+								recordingDuration, true, mConversation.isOnHike(), attachmentType, caption);
 					}
 					else if (msgExtrasJson.has(HikeConstants.Extras.LATITUDE) && msgExtrasJson.has(HikeConstants.Extras.LONGITUDE)
 							&& msgExtrasJson.has(HikeConstants.Extras.ZOOM_LEVEL))
@@ -3000,17 +3011,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 						intent.removeExtra(StickerManager.FWD_CATEGORY_ID);
 					}
 
-                    else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.CONTENT){
-                        // as we will be changing msisdn and hike status while inserting in DB
-                        ConvMessage convMessage = Utils.makeConvMessage(msisdn, mConversation.isOnHike());
-                        convMessage.setMessageType(HikeConstants.MESSAGE_TYPE.CONTENT);
-                        convMessage.platformMessageMetadata = new PlatformMessageMetadata(msgExtrasJson.optString(HikeConstants.METADATA), activity.getApplicationContext());
-                        convMessage.platformMessageMetadata.addThumbnailsToMetadata();
-                        convMessage.setMessage(convMessage.platformMessageMetadata.notifText);
 
-                        sendMessage(convMessage);
-
-                    }
 
 					else if(msgExtrasJson.optInt(HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || msgExtrasJson.optInt(
 							HikeConstants.MESSAGE_TYPE.MESSAGE_TYPE) == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){

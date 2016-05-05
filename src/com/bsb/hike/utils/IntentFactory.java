@@ -1105,6 +1105,7 @@ public class IntentFactory
 			{
 				//intent.putExtra((Intent.EXTRA_STREAM),fileUri);
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "img/jpg");
 				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE,true);
 			}
 			multipleMsgArray.put(multiMsgFwdObject);
@@ -1115,7 +1116,7 @@ public class IntentFactory
 		}
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
-
+        intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
 		return intent;
 	}
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )

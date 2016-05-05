@@ -19,6 +19,8 @@ public interface HikePlatformConstants
 	String KEY = "key";
 	String SUBTYPE = "st";
 	String TEXT = "title";
+	String TEXT_COLOR = "color";
+	String TEXT_SIZE = "size";
 	String THUMBNAIL = "thumbnail";
 	String URL = "url";
 	String MEDIA_SIZE = "size";

@@ -112,8 +112,7 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         for (int i = 0; i < total; i++) {
             try {
                 JSONObject obj = json.getJSONObject(i);
-                TextComponent textCom = new TextComponent(obj.optString(TAG),
-                        obj.optString(TEXT));
+                TextComponent textCom = new TextComponent.Builder(obj.optString(TAG)).setText(obj.optString(TEXT)).setTextColor(obj.optString(TEXT_COLOR)).setTextSize(obj.optInt(TEXT_SIZE)).build();
                 textComponents.add(textCom);
             } catch (JSONException e) {
 // TODO Auto-generated catch block

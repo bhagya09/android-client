@@ -2,7 +2,11 @@ package com.bsb.hike.platform;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +61,7 @@ public class ViewHolderFactory
 
     public abstract  class ViewHolder extends ShareViewHolder
     {
-        HashMap<String, View> viewHashMap;
+        protected HashMap<String, View> viewHashMap;
         protected ConvMessage convMessage;
         public void initializeHolder(View view, ConvMessage convMessage)
         {
@@ -134,6 +138,12 @@ public class ViewHolderFactory
 
     public  class HikeDailyViewHolder extends ViewHolder
     {
+        private LinearLayout cardContainer;
+        public void initializeHolder(View view, ConvMessage convMessage)
+        {
+            super.initializeHolder(view,convMessage);
+            cardContainer = (LinearLayout)view.findViewById(R.id.card_container);
+        }
         public void clearViewHolder(View view){
             if(shareStubInflated != null){
                 shareStubInflated.setVisibility(View.GONE);
@@ -142,11 +152,20 @@ public class ViewHolderFactory
             t1Text.setVisibility(View.GONE);
             TextView t2Text = (TextView)view.findViewWithTag("T2");
             t2Text.setVisibility(View.GONE);
+
         }
 
         @Override
         public void processViewHolder(View view) {
-
+            if(!TextUtils.isEmpty(convMessage.platformMessageMetadata.backgroundColor)){
+                LayerDrawable bgDrawable = (LayerDrawable)cardContainer.getBackground();
+                final GradientDrawable shape = (GradientDrawable)bgDrawable.findDrawableByLayerId(R.id.shape_drawable);
+                shape.setColor(Color.parseColor(convMessage.platformMessageMetadata.backgroundColor));
+            }else{
+                LayerDrawable bgDrawable = (LayerDrawable)cardContainer.getBackground();
+                final GradientDrawable shape = (GradientDrawable)bgDrawable.findDrawableByLayerId(R.id.shape_drawable);
+                shape.setColor(Color.parseColor("#00ffffff"));
+            }
         }
 
         @Override
@@ -166,7 +185,9 @@ public class ViewHolderFactory
             }
             ImageView i1Image = (ImageView)view.findViewWithTag("I1");
             i1Image.setVisibility(View.GONE);
-            TextView t2Text = (TextView)view.findViewWithTag("T1");
+            TextView t1Text = (TextView)view.findViewWithTag("T1");
+            t1Text.setVisibility(View.GONE);
+            TextView t2Text = (TextView)view.findViewWithTag("T2");
             t2Text.setVisibility(View.GONE);
         }
 

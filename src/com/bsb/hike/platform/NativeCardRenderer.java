@@ -81,10 +81,6 @@ public class NativeCardRenderer implements View.OnLongClickListener
     }
     private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder)
     {
-        if(!TextUtils.isEmpty(convMessage.platformMessageMetadata.backgroundColor)){
-            Utils.setRectangularBackground(viewHolder.messageContainer,Color.parseColor(convMessage.platformMessageMetadata.backgroundColor) );
-//           viewHolder.messageContainer.setBackgroundColor(Color.parseColor(convMessage.platformMessageMetadata.backgroundColor));
-        }
         for (CardComponent.TextComponent textComponent : convMessage.platformMessageMetadata.textComponents)
         {
             String tag = textComponent.getTag();
@@ -96,6 +92,17 @@ public class NativeCardRenderer implements View.OnLongClickListener
                 {
                     tv.setVisibility(View.VISIBLE);
                     tv.setText(textComponent.getText());
+                    try{
+                        if(!TextUtils.isEmpty(textComponent.color)){
+                            tv.setTextColor(Color.parseColor(textComponent.color));
+                        }
+                    }catch (IllegalArgumentException ex){
+                        //Arises in case of color is niether of format #AARRGGBB nor #RRGGBB
+                    }
+
+                    if(textComponent.size > 0){
+                        tv.setTextSize((float)textComponent.size);
+                    }
                 }
             }
 
