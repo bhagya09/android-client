@@ -18,6 +18,9 @@ import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import static com.bsb.hike.analytics.AnalyticsConstants.AtomicTipsAnalyticsConstants.*;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.Conversation.ConversationTip;
@@ -838,4 +841,63 @@ public class AtomicTipManager
             });
         }
     };
+
+    public JSONObject getJSONForTipAnalytics(String unqKey, String cls, String family, boolean genus, String species, String variety)
+    {
+        JSONObject json = new JSONObject();
+        try
+        {
+            json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_EXPERIMENT);
+            json.put(AnalyticsConstants.V2.PHYLUM, TIPS);
+            json.put(AnalyticsConstants.V2.FORM, HOME_SCREEN);
+            json.put(AnalyticsConstants.V2.UNIQUE_KEY, unqKey);
+            json.put(AnalyticsConstants.V2.CLASS, cls);
+            json.put(AnalyticsConstants.V2.ORDER, unqKey);
+            json.put(AnalyticsConstants.V2.FAMILY, family);
+            json.put(AnalyticsConstants.V2.GENUS, genus);
+            if(!TextUtils.isEmpty(species))
+            {
+                json.put(AnalyticsConstants.V2.SPECIES, species);
+            }
+            if(!TextUtils.isEmpty(variety))
+            {
+                json.put(AnalyticsConstants.V2.VARIETY, variety);
+            }
+
+        }
+        catch (JSONException jse)
+        {
+            Logger.d(TAG, "error in preparing analytics json");
+            jse.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    public void recordTipsAnalytics(JSONObject tipEventJSON)
+    {
+        Logger.d(TAG, "tip analytics json: " + tipEventJSON.toString());
+        if(tipEventJSON != null)
+        {
+            HAManager.getInstance().recordV2(tipEventJSON);
+        }
+    }
+
+    public void tipFromNotifAnalytics(String uniqueKey, String tipId, boolean isCancellable)
+    {
+        recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, FUNNEL, tipId, isCancellable, null, null));
+    }
+
+    public void tipUiEventAnalytics(String uniqueKey)
+    {
+        if(currentlyShowing != null)
+        {
+            recordTipsAnalytics(getJSONForTipAnalytics(uniqueKey, AnalyticsConstants.UI_EVENT, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null));
+        }
+    }
+
+    public void recordExpiredTip(AtomicTipContentModel tipContentModel)
+    {
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), String.valueOf(tipContentModel.getStartTime()), String.valueOf(tipContentModel.getEndTime())));
+    }
 }

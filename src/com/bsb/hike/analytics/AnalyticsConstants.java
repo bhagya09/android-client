@@ -825,6 +825,8 @@ public class AnalyticsConstants
 
 	public static final String ACT_ABTEST_LOGS = "act_ab";
 
+	public static final String ACT_EXPERIMENT = "act_exp";
+
 	public static final String CHAT_OPEN = "chat_open";
 
 	public static final String ADD_FRIEND = "add_friend";
@@ -850,4 +852,23 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
+	public static final class AtomicTipsAnalyticsConstants
+	{
+		public static final String TIPS = "tips";
+		public static final String TIP_RECEIVED = "tip_rcvd";
+		public static final String TIP_DECODED = "tip_dcod";
+		public static final String TIP_VALIDITY = "tip_vldt";
+		public static final String TIP_EXPIRY = "tip_expr";
+		public static final String TIP_DISPLAYED = "tip_disp";
+		public static final String TIP_CLICKED = "tip_clk";
+		public static final String TIP_CROSSED = "tip_crss";
+		public static final String TIP_NOTIF_CREATED = "tip_ntf_crt";
+		public static final String TIP_NOTIF_CLICKED = "tip_ntf_clk";
+		public static final String TIP_NOTIF_SWIPED = "tip_ntf_swp";
+		public static final String TIP_VALID = "valid";
+		public static final String TIP_INVALID = "invalid";
+		public static final String HOME_SCREEN = "home_scrn";
+		public static final String FUNNEL = "funnel";
+
+	}
 }
