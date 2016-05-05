@@ -1149,4 +1149,23 @@ public class ChatHeadUtils
 		}
 		return callerContentModel;
 	}
+
+	/**
+	 * Checks String is NOt valid
+	 * 1. Empty/Null
+	 * 2. contains only Number
+	 *
+	 * @param fullName
+	 * @return
+	 */
+	public static boolean isFullNameValid(String fullName)
+	{
+		boolean valid = true;
+
+		if(TextUtils.isEmpty(fullName) || fullName.matches("^[0-9]$"))
+		{
+			valid = false;
+		}
+		return valid;
+	}
 }

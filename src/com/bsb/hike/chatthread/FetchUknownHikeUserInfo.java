@@ -47,7 +47,7 @@ public class FetchUknownHikeUserInfo
 
 				Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel);
 
-				if (TextUtils.isEmpty(updatedCallerContentModel.getFullName()))
+				if (ChatHeadUtils.isFullNameValid(updatedCallerContentModel.getFullName()))
 				{
 					Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name is not known, so not showing view" );
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
