@@ -398,7 +398,10 @@ public class NUXManager
 	
 	Logger.d("ContactManager.getInstance()",ContactManager.getInstance().getAllContacts(true).size()+"");
 		
-		if (mmDetails.getMin() == 0 || mmDetails.getMax() == 0 || mmDetails.getMin() > mmDetails.getMax()||ContactManager.getInstance().getAllContacts(true).size()<mmDetails.getMin()||!Utils.isHoneycombOrHigher())
+		if (mmDetails.getMin() == 0
+				|| mmDetails.getMax() == 0
+				|| mmDetails.getMin() > mmDetails.getMax()
+				||ContactManager.getInstance().getAllContacts(true).size()<mmDetails.getMin())
 		{
 			return false;
 		}
