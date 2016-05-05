@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.SearchEngine;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
@@ -243,5 +244,17 @@ public class CategorySearchManager
 	public void saveCategoryScores(int categoryUcid, List<Float> categoryScores)
 	{
 		mCacheForCategoryScore.put(categoryUcid, categoryScores);
+	}
+
+	public static void removeShopSearchTagsForCategory(final Set<Integer> ucids)
+	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeStickerSearchDatabase.getInstance().deleteCategoryTagFromCategorySearchTable(ucids);
+			}
+		});
 	}
 }

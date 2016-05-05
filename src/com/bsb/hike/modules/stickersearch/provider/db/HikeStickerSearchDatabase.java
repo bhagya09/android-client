@@ -933,15 +933,15 @@ public class HikeStickerSearchDatabase extends SQLiteOpenHelper
 
     }
 
-    public void deleteTagForCategories(List<String> categories)
+    public void deleteCategoryTagFromCategorySearchTable(Set<Integer> categoryUcids)
     {
         try
         {
             mDb.beginTransaction();
 
-            for (String category : categories)
+            for (Integer ucid : categoryUcids)
             {
-                mDb.delete(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, HikeStickerSearchBaseConstants.CATEGORY_ID + "=?", new String[]{category});
+				mDb.delete(HikeStickerSearchBaseConstants.TABLE_CATEGORY_TAG_MAPPING, HikeStickerSearchBaseConstants.UNIQUE_ID + "=?", new String[] { Integer.toString(ucid) });
             }
             mDb.setTransactionSuccessful();
         }

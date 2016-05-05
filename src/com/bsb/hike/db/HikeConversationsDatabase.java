@@ -5799,10 +5799,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void removeStickerCategory(String categoryId, boolean removeFromShopTable)
 	{
-		mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
-		if (removeFromShopTable) {
-			mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[]{categoryId});
+		if (removeFromShopTable)
+		{
+			mDb.delete(DBConstants.STICKER_CATEGORIES_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
+			mDb.delete(DBConstants.STICKER_SHOP_TABLE, DBConstants._ID + "=?", new String[] { categoryId });
 		}
+		else
+		{
+			mDb.update(DBConstants.STICKER_CATEGORIES_TABLE, getDefaultStickerCategoryValues(categoryId), DBConstants._ID + "=?", new String[] { categoryId });
+		}
+	}
+
+	private ContentValues getDefaultStickerCategoryValues(String categoryId)
+	{
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants._ID, categoryId);
+		contentValues.put(DBConstants.IS_DOWNLOADED, 0);
+		contentValues.put(DBConstants.IS_VISIBLE, 0);
+		contentValues.put(DBConstants.CATEGORY_INDEX, -1);
+		contentValues.put(DBConstants.UPDATE_AVAILABLE, 0);
+		return contentValues;
 	}
 
 	public void updateStickerCategoryData(String categoryId, Boolean updateAvailable, int totalStickerCount, int categorySize, String description, String stickerListString)

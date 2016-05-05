@@ -53,6 +53,7 @@ import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.StickerSearchUtils;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
@@ -455,11 +456,19 @@ public class StickerManager
 	public void removeCategory(String removedCategoryId, boolean forceRemoveCategory)
 	{
 		HikeConversationsDatabase.getInstance().removeStickerCategory(removedCategoryId, forceRemoveCategory);
-		stickerCategoriesMap.remove(removedCategoryId);
-		StickerCategory cat = new StickerCategory.Builder().setCategoryId(removedCategoryId).build(); // creating new instance because of invisible category
-		Set<String> removedSet = new HashSet<String>();
+        StickerCategory removedCategory = stickerCategoriesMap.remove(removedCategoryId);
 
-		if (!cat.isCustom())
+        if(removedCategory == null)
+        {
+            removedCategory = new StickerCategory.Builder().setCategoryId(removedCategoryId).build(); // creating new instance because of invisible category
+        }
+
+        int removedUcid = removedCategory.getUcid();
+
+		Set<String> removedSet = new HashSet<String>();
+        Set<Integer> removedUcids = new HashSet<Integer>();
+
+		if (!removedCategory.isCustom())
 		{
 			String categoryDirPath = getStickerDirectoryForCategoryId(removedCategoryId);
 			if (categoryDirPath != null)
@@ -495,13 +504,15 @@ public class StickerManager
 		if (forceRemoveCategory)
 		{
 			removedSet.add(removedCategoryId);
+            removedUcids.add(removedUcid);
 			StickerSearchManager.getInstance().removeDeletedStickerTags(removedSet, StickerSearchConstants.REMOVAL_BY_CATEGORY_DELETED);
-            deleteStickerForCategory(cat);
+            CategorySearchManager.removeShopSearchTagsForCategory(removedUcids);
+            deleteStickerForCategory(removedCategory);
 		}
 		else
 		{
 			removeTagForDeletedStickers(removedSet);
-            deactivateStickerForCategory(cat);
+            deactivateStickerForCategory(removedCategory);
 		}
 	}
 
