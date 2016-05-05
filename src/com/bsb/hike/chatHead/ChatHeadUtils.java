@@ -1162,7 +1162,7 @@ public class ChatHeadUtils
 	{
 		boolean valid = true;
 
-		if(TextUtils.isEmpty(fullName) || fullName.matches("^[+]?[0-9]{10,12}$"))
+		if(TextUtils.isEmpty(fullName) || fullName.trim().matches("^[+]?[0-9]{10,12}"))
 		{
 			valid = false;
 		}
