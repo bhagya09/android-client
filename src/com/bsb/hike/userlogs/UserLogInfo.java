@@ -427,21 +427,7 @@ public class UserLogInfo {
 	}
 	
 	private static List<LocLogPojo> getLocLogs(){
-		Location bestLocation = null;
-		Context ctx = HikeMessengerApp.getInstance().getApplicationContext();
-		LocationManager locManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-		List<String> locProviders = locManager.getProviders(true);
-		if (locProviders == null || locProviders.isEmpty())
-			return null;
-		for(String provider : locManager.getProviders(true)){
-			Location location = locManager.getLastKnownLocation(provider);
-			if(location == null)
-				continue;
-			if (bestLocation == null || 
-					(location.hasAccuracy() && location.getAccuracy() < bestLocation.getAccuracy())){
-				bestLocation = location;
-			}
-		}
+		Location bestLocation = Utils.getPassiveLocation();
 		if(bestLocation == null)
 			return null;
 		LocLogPojo locLog = new LocLogPojo(bestLocation.getLatitude(), bestLocation.getLongitude(), 
