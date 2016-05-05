@@ -441,7 +441,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			/* save the new msisdn */
 			Utils.savedAccountCredentials(accountInfo, settings.edit());
 			//Check for crash reporting tool
-			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.CRASHLYTICS).equals(HikeConstants.CRASHLYTICS))
+			if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CRASH_REPORTING_TOOL, HikeConstants.ACRA).equals(HikeConstants.CRASHLYTICS))
 			{
 				Crashlytics.setUserIdentifier(accountInfo.getUid());
 			}
@@ -871,7 +871,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 		getSignupTask(activity);
 		if (!signupTask.isRunning())
 		{
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}
@@ -890,7 +890,7 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 			 * auto auth
 			 */
 			SignupTask.isAlreadyFetchingNumber = true;
-			Utils.executeSignupTask(signupTask);
+			signupTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		return signupTask;
 	}

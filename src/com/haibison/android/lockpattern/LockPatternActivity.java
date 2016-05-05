@@ -371,33 +371,6 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
         return super.onKeyDown(keyCode, event);
     }// onKeyDown()
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        /*
-         * Support canceling dialog on touching outside in APIs < 11.
-         * 
-         * This piece of code is copied from android.view.Window. You can find
-         * it by searching for methods shouldCloseOnTouch() and isOutOfBounds().
-         */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                && event.getAction() == MotionEvent.ACTION_DOWN
-                && getWindow().peekDecorView() != null) {
-            final int x = (int) event.getX();
-            final int y = (int) event.getY();
-            final int slop = ViewConfiguration.get(this)
-                    .getScaledWindowTouchSlop();
-            final View decorView = getWindow().getDecorView();
-            boolean isOutOfBounds = (x < -slop) || (y < -slop)
-                    || (x > (decorView.getWidth() + slop))
-                    || (y > (decorView.getHeight() + slop));
-            if (isOutOfBounds) {
-                finishWithNegativeResult(RESULT_CANCELED);
-                return true;
-            }
-        }// if
-
-        return super.onTouchEvent(event);
-    }// onTouchEvent()
 
     /**
      * Loads settings, either from manifest or {@link Settings}.

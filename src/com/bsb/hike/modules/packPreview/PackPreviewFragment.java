@@ -159,15 +159,7 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 	private void executeFetchCategoryDetailsTask(FetchCategoryDetailsTask fetchCategoryDetailsTask)
 	{
 		loadingView.setVisibility(View.VISIBLE);
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchCategoryDetailsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchCategoryDetailsTask.execute();
-		}
+		fetchCategoryDetailsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	protected void initView(View parent)
@@ -647,6 +639,11 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private void viewAllClicked()
 	{
+		if(mAdapter == null)
+		{
+			Logger.wtf(TAG, "view all clicked with no adapter");
+			return;
+		}
 		viewAllButton.setVisibility(View.GONE);
 		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
 		mAdapter.notifyDataSetChanged();

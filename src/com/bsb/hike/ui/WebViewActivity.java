@@ -228,7 +228,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 			{
 				e.printStackTrace();
 			}
-			Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
+			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT,AnalyticsConstants.MICRO_APP_OPENED,json);
 			if (filterNonMessagingBot(msisdn))
 			{
 				initBot();
@@ -377,6 +377,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView.loadUrl(botMetaData.getUrl());
 		webView.setWebViewClient(new HikeWebViewClient());
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
+        webView.getSettings().setDomStorageEnabled(true);
 	}
 
 	private void setServerControlledWebUrlMode()
@@ -410,6 +411,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
 		webView.setWebViewClient(mClient);
 		webView.loadUrl(url);
+        webView.getSettings().setDomStorageEnabled(true);
 	}
 
 	private void initView()
@@ -491,6 +493,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.setWebViewClient(client);
 		webView.setWebChromeClient(new HikeWebChromeClient(allowLoc));
+        webView.getSettings().setDomStorageEnabled(true);
 		if(handleURLLoadInWebView(webView, urlToLoad)){
 			setupActionBar(title);
 		}else {
@@ -759,9 +762,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			color = R.color.blue_hike;
 		}
-		
-		updateActionBarColor(color !=-1 ? new ColorDrawable(getResources().getColor(color)) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
-		
+
+		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setMicroAppStatusBarColor();
 		
 		setAvatar();
@@ -817,7 +819,7 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 						e.printStackTrace();
 					}
 
-					Utils.sendLogEvent(json, AnalyticsConstants.NON_UI_EVENT, null);
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_LOADED,json);
                     uiHandler.post(new Runnable() {
                         @Override
                         public void run() {

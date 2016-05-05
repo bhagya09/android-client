@@ -13,8 +13,8 @@ public class AnalyticsConstants
 	public static final int DAY_IN_SECONDS = 24 * 60 * 60;
 	public static final Object FILE_DOWNLOADED ="FileDownloaded" ;
 	public static final String RESULT_CODE = "resultCode";
-	public static final Object MICRO_APP_LOADED ="microAppLoaded";
-	public static final Object MICRO_APP_OPENED ="microAppOpened" ;
+	public static final String MICRO_APP_LOADED ="microAppLoaded";
+	public static final String MICRO_APP_OPENED ="microAppOpened" ;
 	public static final String USER_GOOGLE_ACCOUNTS_SENT = "userAccountsSent";
 	public static final String ACCOUNT_TYPE_GOOGLE = "com.google";
 	public static final String EVENTS_TO_UPLOAD_COUNT = "events_to_upload";
@@ -289,6 +289,16 @@ public class AnalyticsConstants
 		public static final String NETWORK = "nw";
 
 		public static final String SOURCE = "src";
+
+		public static final String SERIES = "ser";
+
+		public static final String CENSUS = "cs";
+
+		public static final String BREED = "b";
+
+		public static final String RACE = "ra";
+
+		public static final String POPULATION = "pop";
 	}
 
 	// Edit picture flags and events
@@ -812,9 +822,9 @@ public class AnalyticsConstants
 
 	public static final String ACT_USERS = "act_users";
 
-	public static final String ACT_CORE_LOGS = "act_core";
-
 	public static final String ACT_STICKER_LOGS = "act_stck";
+
+	public static final String ACT_ABTEST_LOGS = "act_ab";
 
 	public static final String CHAT_OPEN = "chat_open";
 
@@ -829,26 +839,6 @@ public class AnalyticsConstants
 	public static final String AUTO_DOWNLOAD_OFF = "autoDownloadOff";
 	public static final String REQUEST_FAILURE = "requestFailure";
 
-
-	public static final String CAMERA_ICON_CLICK = "camicon";
-	public static final String AUDIO_ICON_CLICK  = "audicon";
-	public static final String VIDEO_ICON_CLICK  = "vidicon";
-	public static final String LOCATION_ICON_CLICK = "locicon";
-	public static final String FILE_ICON_CLICK = "fileicon";
-	public static final String GALLERY_ICON_CLICK = "galicon";
-	public static final String APPS_ICON_CLICK = "appsicon";
-	public static final String CONTACT_ICON_CLICK = "cntcticon";
-
-	public static final String ATTACHMENT_PICKER_CLICK = "atchicon";
-
-	public static final String CHAT_BACKGROUND_TRIAL = "cbg_trial";
-
-	public static final String WT_CLICKED_TOUCHED = "wticon";
-
-	public static final String LOCATION_SHARING_CANCELLED= "cnclLoc";
-
-	public static final String STEALTH_CHAT_THREAD = "stealth";
-
 	public static final String TIME_LINE_OPEN = "TL_open";
 
 	public static final String PACK_PREVIEW = "pckPrvw";
@@ -856,18 +846,6 @@ public class AnalyticsConstants
 	public static final String VIEW_ALL = "viewAll";
 
 	public static final String STICKER_DOWNLOAD_TIME = "stdnt";
-
-	public static final String VIDEO_SENT = "sendVid";
-
-	public static final String VIDEO_UPLOAD_PAUSE_MANUALLY = "pauseVid";
-
-	public static final String VIDEO_RECEIVER_DOWNLOAD_MANUALLY = "vidDwnld";
-
-	public static final String MEDIA_UPLOAD_DOWNLOAD_RETRY = "mediaRetry";
-
-	public static final String UPLOAD_MEDIA = "upload";
-
-	public static final String DOWNLOAD_MEDIA = "download";
 
 	public static final String BLOCK_LIST_BACK_PRESS = "blckPriv";
 
