@@ -256,7 +256,7 @@ public class ChatThreadUtils
 		Logger.d(TAG, "File size: " + file.length() + " File name: " + file.getName());
 
 		boolean skipMaxSizeCheck = (isBigVideoSharingEnabled() && hikeFileType == HikeFileType.VIDEO);
-		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE != -1 && HikeConstants.MAX_FILE_SIZE < file.length())
+		if (!skipMaxSizeCheck && HikeConstants.MAX_FILE_SIZE < file.length())
 		{
 			Toast.makeText(context, R.string.max_file_size, Toast.LENGTH_SHORT).show();
 			if (hikeFileType == HikeFileType.VIDEO) {
