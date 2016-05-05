@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -463,6 +464,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
              */
             bundle.setClassLoader(GalleryItem.class.getClassLoader());
             bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
+			bundle.putString(HikeConstants.Extras.GENUS, HomeAnalyticsConstants.SU_GENUS_GALLERY);
+			Bundle extras = getIntent().getExtras();
+			if (extras != null)
+			{
+				bundle.putAll(extras);
+			}
             intent.putExtras(bundle);
 
             if (hasDelegateActivities()) {
@@ -681,6 +688,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			intent.putExtra(HikeConstants.Extras.MSISDN, msisdn);
 			intent.putExtra(HikeConstants.Extras.ON_HIKE, getIntent().getBooleanExtra(HikeConstants.Extras.ON_HIKE, true));
 			intent.putExtra(DISABLE_MULTI_SELECT_KEY, disableMultiSelect);
+
+			String sourceSpecies = getIntent().getStringExtra(HikeConstants.Extras.SPECIES);
+			if(!TextUtils.isEmpty(sourceSpecies))
+			{
+				intent.putExtra(HikeConstants.Extras.SPECIES, sourceSpecies);
+			}
 			
 			if(hasDelegateActivities())
 			{

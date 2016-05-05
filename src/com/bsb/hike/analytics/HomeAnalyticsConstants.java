@@ -39,6 +39,8 @@ public class HomeAnalyticsConstants
 
 	public static final String SU_TYPE_TEXT_IMAGE = "text_image";
 
+	public static final String SU_TYPE_DP = "dp";
+
 	public static final String SU_TYPE_OTHER = "other";
 
 	@StringDef({ SU_GENUS_CAMERA, SU_GENUS_GALLERY, SU_GENUS_OTHER })
@@ -61,5 +63,21 @@ public class HomeAnalyticsConstants
 
 	public static final String SU_SPECIES_TIMELINE_TEXT_BUTTON = "suSpTxtBtn";
 
-	public static final String SU_SPECIES_OTHER = "suSpOther";
+	public static final String SU_SPECIES_OTHER = "other";
+
+	@StringDef({ DP_SPECIES_MY_PROFILE, DP_SPECIES_EDIT_PROFILE, DP_SPECIES_FULL_VIEW, DP_SPECIES_EXTERNAL_APP, DP_SPECIES_SIGN_UP, DP_SPECIES_OTHER})
+	@Retention(RetentionPolicy.SOURCE)
+	public @interface ProfilePicUpdateSpecies{}
+
+	public static final String DP_SPECIES_MY_PROFILE = "my_profile";
+
+	public static final String DP_SPECIES_EDIT_PROFILE = "edit_profile";
+
+	public static final String DP_SPECIES_FULL_VIEW = "dp_full_view";
+
+	public static final String DP_SPECIES_EXTERNAL_APP = "ext_set_dp";
+
+	public static final String DP_SPECIES_SIGN_UP = "sign_up";
+
+	public static final String DP_SPECIES_OTHER = "other";
 }
