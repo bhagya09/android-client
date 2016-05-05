@@ -413,14 +413,6 @@
                      android:host="bots"
                      android:pathPrefix="/"
                      android:scheme="hike" />
-                 <data
-                     android:host="staging.im.hike.in"
-                     android:pathPrefix="/"
-                     android:scheme="http" />
-                 <data
-                     android:host="staging.im.hike.in"
-                     android:pathPrefix="/"
-                     android:scheme="https" />
             </intent-filter>
         </activity>
          
