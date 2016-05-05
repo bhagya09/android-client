@@ -2,6 +2,9 @@ package com.bsb.hike.platform;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
@@ -57,7 +60,7 @@ public class ViewHolderFactory
 
     public abstract  class ViewHolder extends ShareViewHolder
     {
-        HashMap<String, View> viewHashMap;
+        protected HashMap<String, View> viewHashMap;
         protected ConvMessage convMessage;
         public void initializeHolder(View view, ConvMessage convMessage)
         {
@@ -146,7 +149,11 @@ public class ViewHolderFactory
 
         @Override
         public void processViewHolder(View view) {
-
+            if(!TextUtils.isEmpty(convMessage.platformMessageMetadata.backgroundColor)){
+                LayerDrawable bgDrawable = (LayerDrawable)view.findViewById(R.id.card_container).getBackground();
+                final GradientDrawable shape = (GradientDrawable)bgDrawable.findDrawableByLayerId(R.id.shape_drawable);
+                shape.setColor(Color.parseColor(convMessage.platformMessageMetadata.backgroundColor));
+            }
         }
 
         @Override
@@ -166,7 +173,9 @@ public class ViewHolderFactory
             }
             ImageView i1Image = (ImageView)view.findViewWithTag("I1");
             i1Image.setVisibility(View.GONE);
-            TextView t2Text = (TextView)view.findViewWithTag("T1");
+            TextView t1Text = (TextView)view.findViewWithTag("T1");
+            t1Text.setVisibility(View.GONE);
+            TextView t2Text = (TextView)view.findViewWithTag("T2");
             t2Text.setVisibility(View.GONE);
         }
 

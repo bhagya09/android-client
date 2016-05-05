@@ -62,6 +62,19 @@
                     android:visibility="gone"
                     android:layout_marginBottom="9.5dp"
                     />
+                <com.bsb.hike.view.CustomFontTextView
+                    android:id="@+id/author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    android:tag="T2"
+                    app:maxLines ="1"
+                    android:layout_marginBottom="24dp"
+                    android:layout_below="@id/text"
+                    android:textColor="#FFFFFF"
+                    android:layout_gravity="center_vertical"
+                    />
             </LinearLayout>
             <ViewStub
                 android:id="@+id/share_stub"
