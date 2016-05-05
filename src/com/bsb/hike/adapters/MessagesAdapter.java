@@ -69,6 +69,7 @@ import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -2617,6 +2618,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
 			{
+				if(!ChatHeadUtils.isFullNameValid(callerContentModel.getFullName()))
+				{
+					Logger.d("c_spam", "As full name in callerContentModel is not valid, so not showing view " + callerContentModel);
+					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+					return;
+				}
+
 				Logger.d("c_spam", "filling values in user_info view as callercontentmodel is " + callerContentModel);
 
 				// set UI (Name, Location, Spam)
