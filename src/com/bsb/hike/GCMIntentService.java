@@ -18,6 +18,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -73,6 +74,20 @@ public class GCMIntentService extends GCMBaseIntentService
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
 			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
+			JSONObject logType = null;
+			try
+			{
+				logType = new JSONObject(intent.getStringExtra("user_logs"));
+				if(logType != null)
+				{
+					UserLogInfo.requestUserLogs(logType);
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
 			return;
 		}
 
