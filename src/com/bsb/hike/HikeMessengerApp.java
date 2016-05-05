@@ -1119,6 +1119,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			new TwinPrimeSDK(getApplicationContext(), HikeConstants.TP_API_KEY);
 			// Setting passive location if found for tracking
 			Location loc = Utils.getPassiveLocation();
+			Logger.d("TwinPrime","PassiveLocation is "+ loc);
 			if (loc != null)
 				TwinPrimeSDK.setLocation(loc);
 		}

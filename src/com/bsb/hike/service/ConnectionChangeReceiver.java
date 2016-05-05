@@ -3,23 +3,17 @@ package com.bsb.hike.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.location.Location;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FTApkManager;
-import com.bsb.hike.filetransfer.FileTransferManager;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.platform.PlatformUtils;
-import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.twinprime.TwinPrimeSDK.TwinPrimeSDK;
 
 /**
  * class to listen to network changes
@@ -58,6 +52,15 @@ public class ConnectionChangeReceiver extends BroadcastReceiver
 			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
 			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
 		}
-	}
 
+		//Update TwinPrime Location
+
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE, 0) == 1) {
+			Location loc = Utils.getPassiveLocation();
+			Logger.d("TwinPrime", "PassiveLocation is " + loc);
+			if (loc != null)
+				TwinPrimeSDK.setLocation(loc);
+		}
+	}
 }
+
