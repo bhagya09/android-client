@@ -1519,8 +1519,8 @@ public class PlatformUtils
 					}
 					JSONObject metadata = new JSONObject(sharedData.getString(HikePlatformConstants.EVENT_CARDDATA));
 
-					metadata.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, sharedData.optString(HikePlatformConstants.EVENT_FROM_USER_MSISDN, conv.getSenderMsisdn()));
-					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.optString(HikePlatformConstants.PARENT_MSISDN, ""));
+					metadata.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, sharedData.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).optString(HikePlatformConstants.EVENT_FROM_USER_MSISDN, conv.getSenderMsisdn()));
+					metadata.put(HikePlatformConstants.PARENT_MSISDN, sharedData.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).optString(HikePlatformConstants.PARENT_MSISDN, ""));
 
 					int state = conv.isSent() ? HikePlatformConstants.EventStatus.EVENT_SENT : HikePlatformConstants.EventStatus.EVENT_RECEIVED;
 					MessageEvent messageEvent = new MessageEvent(eventType, conv.getMsisdn(), namespace, metadata.toString(), conv.createMessageHash(), state, conv.getSendTimestamp(),

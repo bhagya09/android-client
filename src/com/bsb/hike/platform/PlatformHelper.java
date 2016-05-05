@@ -238,11 +238,11 @@ public class PlatformHelper
 
 			message.setParticipantInfoState(ConvMessage.ParticipantInfoState.NO_INFO);
 			JSONObject sharedDataJson = new JSONObject(sharedData);
-			sharedDataJson.put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
+			sharedDataJson.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.EVENT_FROM_USER_MSISDN, HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null));
 
 			NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(mBotInfo.getMetadata());
+			sharedDataJson.getJSONObject(HikePlatformConstants.EVENT_CARDDATA).put(HikePlatformConstants.PARENT_MSISDN, nonMessagingBotMetadata.getParentMsisdn());
 
-			sharedDataJson.put(HikePlatformConstants.PARENT_MSISDN, nonMessagingBotMetadata.getParentMsisdn());
 			sharedDataJson.put(HikePlatformConstants.EVENT_TYPE, HikePlatformConstants.SHARED_EVENT);
 
 			message.setPlatformData(sharedDataJson);
