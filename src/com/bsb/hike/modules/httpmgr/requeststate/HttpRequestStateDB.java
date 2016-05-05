@@ -237,7 +237,7 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		contentValues.put(REQUEST_TAG, requestTag);
 		contentValues.put(BUNDLE, bundleBytes);
 
-		mDb.insertWithOnConflict(GCM_NETWORK_MANAGER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+		mDb.insertWithOnConflict(GCM_NETWORK_MANAGER_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
 	}
 
 	public void deleteBundleForTag(String requestTag)
