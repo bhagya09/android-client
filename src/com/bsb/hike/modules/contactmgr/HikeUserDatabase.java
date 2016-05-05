@@ -521,8 +521,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 							new String[] { contact.getMsisdn() }, null, null, null);
 					try
 					{
-						if (favoriteCursor.getCount()>0)
-						{
 							while(favoriteCursor.moveToNext()) {
 								int favoriteTypeOrdinal = favoriteCursor.getInt(favoriteCursor.getColumnIndex(DBConstants.FAVORITE_TYPE));
 								contact.setFavoriteType(FavoriteType.values()[favoriteTypeOrdinal]);
@@ -539,14 +537,12 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 									selection = DBConstants.MSISDN + " =? AND " +DBConstants.ID + " is null AND " + DBConstants.PHONE + " is null";
 									updatedRows = mDb.update(DBConstants.USERS_TABLE, cv, selection, new String[]{contact.getMsisdn()});
 									Logger.d(TAG, "MSISDN ADDED" + contact.getMsisdn() + "result -->" + updatedRows + "UPDATE EXECUTED");
+									break;
 								} else {
 									Logger.d(TAG, "not exceuting update as the contact id is not null");
 								}
 							}
-						} else {
-							contact.setFavoriteType(FavoriteType.NOT_FRIEND);
 						}
-					}
 					finally
 					{
 						favoriteCursor.close();
