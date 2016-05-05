@@ -67,8 +67,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener
-{
+public class ShareLocation extends HikeAppStateBaseFragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener, GoogleMap.OnCameraChangeListener {
 
 	private GoogleMap map;
 
@@ -123,6 +122,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	private LocationClient mLocationClient;
 
 	private int SEARCH_RADIUS = 2000; // 2KM
+
+	private boolean selectingLocationManually;
 
 	// These settings are the same as the settings for the map. They will in
 	// fact give you updates at
@@ -186,13 +187,13 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				@Override
 				public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
 				{
-					if (lastMarker != null)
-					{
-						lastMarker.setVisible(false);
-					}
+//					if (lastMarker != null)
+//					{
+//						lastMarker.setVisible(false);
+//					}
 					selectedPosition = position;
 					Marker currentMarker = adapter.getMarker(position);
-					currentMarker.setVisible(true);
+					currentMarker.setVisible(false);
 					currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item));
 					lastMarker = currentMarker;
 					map.animateCamera(CameraUpdateFactory.newLatLng(currentMarker.getPosition()));
@@ -216,6 +217,10 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			map.getUiSettings().setMyLocationButtonEnabled(true);
 
 			map.setTrafficEnabled(false);
+
+			// Enable user to manually select location my moving the map around
+			map.setOnCameraChangeListener(this);
+
 			// map.setMyLocationEnabled(true);
 			setUpLocationClientIfNeeded();
 			mLocationClient.connect(); // onConnected is called when connection
@@ -251,6 +256,15 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			}
 		});
 
+		Button myLocationButton = (Button) findViewById(R.id.my_location_button);
+		myLocationButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				selectingLocationManually = false;
+				updateMyLocation();
+			}
+		});
+
 		Button searchButton = (Button) findViewById(R.id.search_button);
 		searchButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -269,9 +283,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 							lat = myLocation.getLatitude();
 							lng = myLocation.getLongitude();
 
-							lastMarker.setVisible(false);
+//							lastMarker.setVisible(false);
 							lastMarker = userMarker;
-							lastMarker.setVisible(true);
+//							lastMarker.setVisible(true);
 							selectedPosition = 0;
 							map.animateCamera(CameraUpdateFactory.newLatLng(lastMarker.getPosition()));
 							adapter.notifyDataSetChanged();
@@ -360,6 +374,9 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	@Override
 	public void onLocationChanged(Location newLocation)
 	{
+		if (selectingLocationManually)
+			return;
+
 		if (myLocation != null)
 		{
 			userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
@@ -379,7 +396,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 				{
 					lastMarker = userMarker;
 					selectedPosition = 0;
-					lastMarker.setVisible(true);
+					lastMarker.setVisible(false);
 					adapter.notifyDataSetChanged();
 					updateNearbyPlaces();
 				}
@@ -493,9 +510,8 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// remove any existing marker
 		if (userMarker != null)
 			userMarker.remove();
-		// create and set marker properties
+		// create and set marker propertie//s
 		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item)));
-
 		lastMarker = userMarker;
 		selectedPosition = 0;
 		updateLocationAddress(lat, lng, userMarker);
@@ -519,6 +535,30 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			isTextSearch = false;
 		}
 		new GetPlaces().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, searchStr);
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition) {
+
+		Logger.w(getClass().getSimpleName(), "Location: " + cameraPosition.target.latitude
+				+ ", " + cameraPosition.target.longitude);
+
+		selectingLocationManually = true;
+		double lat = cameraPosition.target.latitude;
+		double lng = cameraPosition.target.longitude;
+		// create LatLng
+		LatLng myLatLng = new LatLng(lat, lng);
+
+		// remove any existing marker
+		if (userMarker != null)
+			userMarker.remove();
+		// create and set marker propertie//s
+		userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("Custom Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_share_location_item)));
+		lastMarker = userMarker;
+		lastMarker.setVisible(false);
+		selectedPosition = 0;
+		updateLocationAddress(lat, lng, userMarker);
+
 	}
 
 	private class GetPlaces extends AsyncTask<String, Void, Integer>
