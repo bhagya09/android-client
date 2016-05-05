@@ -1,7 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.chatHead.CallerContentModel;
@@ -47,7 +45,7 @@ public class FetchUknownHikeUserInfo
 
 				Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel);
 
-				if (ChatHeadUtils.isFullNameValid(updatedCallerContentModel.getFullName()))
+				if (!ChatHeadUtils.isFullNameValid(updatedCallerContentModel.getFullName()))
 				{
 					Logger.d("c_spam", "HTTP res SUCCESS :- " + updatedCallerContentModel + " as Name is not known, so not showing view" );
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
