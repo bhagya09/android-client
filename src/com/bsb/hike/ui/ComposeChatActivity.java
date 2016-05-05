@@ -1994,6 +1994,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
 				}
+				//"d":{"ep":"HIGH","st":"repl","et":"nonUiEvent","md":{"sid":1462455204298,"fld6":1,"ek":"micro_app","event":"nativeCardForward","fld4":"tracking"},"cts":1462455428594,"tag":"plf"},"t":"le_android"
 				if(!TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD)))
 				{
 

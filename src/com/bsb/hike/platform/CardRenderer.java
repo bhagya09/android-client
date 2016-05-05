@@ -52,7 +52,7 @@ public class CardRenderer implements View.OnLongClickListener
 		HashMap<String, View> viewHashMap;
 
 		public void initializeHolder(View view, List<CardComponent.TextComponent> textComponentList, List<CardComponent.MediaComponent> mediaComponentList,
-									 ArrayList<CardComponent.ActionComponent> actionComponents)
+				ArrayList<CardComponent.ActionComponent> actionComponents)
 		{
 
 			viewHashMap = new HashMap<String, View>();

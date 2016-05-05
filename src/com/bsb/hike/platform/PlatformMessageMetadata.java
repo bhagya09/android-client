@@ -50,7 +50,7 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         this.mContext = context;
 
         try {
-            backgroundColor = getString(metadata,BACKGROUND_COLOR);
+			backgroundColor = getString(metadata, BACKGROUND_COLOR);
             version = getInt(metadata, VERSION);
             layoutId = getInt(metadata, LAYOUT_ID);
             loveId = getInt(metadata, LOVE_ID);
@@ -115,9 +115,10 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         for (int i = 0; i < total; i++) {
             try {
-                JSONObject obj = json.getJSONObject(i);
-                TextComponent textCom = new TextComponent.Builder(obj.optString(TAG)).setText(obj.optString(TEXT)).setTextColor(obj.optString(TEXT_COLOR)).setTextSize(obj.optInt(TEXT_SIZE)).build();
-                textComponents.add(textCom);
+				JSONObject obj = json.getJSONObject(i);
+				TextComponent textCom = new TextComponent.Builder(obj.optString(TAG)).setText(obj.optString(TEXT)).setTextColor(obj.optString(TEXT_COLOR))
+						.setTextSize(obj.optInt(TEXT_SIZE)).build();
+				textComponents.add(textCom);
             } catch (JSONException e) {
 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -202,17 +203,23 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         }
     }
-    private boolean getBoolean(JSONObject json, String key) {
-        if (json.has(key)) {
-            try {
-                return json.getBoolean(key);
-            } catch (JSONException e) {
-// TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
+
+	private boolean getBoolean(JSONObject json, String key)
+	{
+		if (json.has(key))
+		{
+			try
+			{
+				return json.getBoolean(key);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
     private int getInt(JSONObject json, String key) {
         if (json.has(key)) {
             try {

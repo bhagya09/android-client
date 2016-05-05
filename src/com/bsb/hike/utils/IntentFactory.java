@@ -1088,7 +1088,9 @@ public class IntentFactory
 
 		return new Intent();
 	}
-    public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage , Uri fileUri){
+
+	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, Uri fileUri)
+	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 		JSONArray multipleMsgArray = new JSONArray();
@@ -1103,12 +1105,12 @@ public class IntentFactory
 			}
 
 			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
-			if(fileUri != null)
+			if (fileUri != null)
 			{
-				//intent.putExtra((Intent.EXTRA_STREAM),fileUri);
+				// intent.putExtra((Intent.EXTRA_STREAM),fileUri);
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
 				multiMsgFwdObject.put(HikeConstants.Extras.FILE_TYPE, "img/jpg");
-				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE,true);
+				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE, true);
 			}
 			multipleMsgArray.put(multiMsgFwdObject);
 		}
@@ -1118,8 +1120,8 @@ public class IntentFactory
 		}
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
-        intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
-		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD,convMessage.platformMessageMetadata.contentId);
+		intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
+		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
 		return intent;
 	}
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )
