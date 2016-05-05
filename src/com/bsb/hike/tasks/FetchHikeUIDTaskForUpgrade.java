@@ -2,6 +2,7 @@ package com.bsb.hike.tasks;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -14,6 +15,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.Utils;
 import com.hike.transporter.utils.Logger;
 
@@ -169,8 +171,10 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
 
         List<ContactInfo> list = (ContactManager.getInstance().getAllConversationContactsSorted(false, false));
 
+        // rejecting ontoNConv,Bots,onSms
         for (ContactInfo ci : list) {
-            activeChats.add(ci.getMsisdn());
+            if (!ci.isOnhike() && !OneToNConversationUtils.isOneToNConversation(ci.getMsisdn()) && BotUtils.isBot(ci.getMsisdn()))
+                activeChats.add(ci.getMsisdn());
         }
         //Bots
         bots = HikeMessengerApp.hikeBotInfoMap.keySet();
