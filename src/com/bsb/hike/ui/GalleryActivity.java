@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.WindowCompat;
@@ -23,7 +24,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -277,7 +277,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			galleryItemLoader = new GalleryItemLoaderTask(this, isInsideAlbum, enableCameraPick);
 			galleryItemLoader.buildQuery(uri, projection, selection, args, sortBy, editEnabled, editedImages);
-			Utils.executeAsyncTask(galleryItemLoader);
+			galleryItemLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 			progressLoading = findViewById(R.id.progressLoading);
 			if(!isInsideAlbum)

@@ -64,6 +64,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -533,7 +534,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				notifyDataSetChanged();
 			}
 		};
-		Utils.executeAsyncTask(getLastSentMessagePositionTask);
+		getLastSentMessagePositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -1032,7 +1033,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), file);
+					fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 				}
 			}
 			boolean showThumbnail = false;
@@ -3047,7 +3048,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 	private void showTransferProgress(FTViewHolder holder, FileSavedState fss, long msgId, HikeFile hikeFile, boolean isSent)
 	{
-		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile.getFile(), isSent);
+		int progress = FileTransferManager.getInstance(context).getFTProgress(msgId, hikeFile, isSent);
 		int chunkSize = FileTransferManager.getInstance(context).getChunkSize(msgId);
 		int fakeProgress = FileTransferManager.getInstance(context).getAnimatedProgress(msgId);
 		if(fakeProgress == 0)
@@ -3067,24 +3068,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), 0);
 			}
-			if (Utils.isHoneycombOrHigher())
-			{
-				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-			}
-			else
-			{
-				holder.circularProgress.setProgress(animatedProgress);
-			}
+
+			holder.circularProgress.stopAnimation();
+			holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
 		else if (fss.getFTState() == FTState.IN_PROGRESS || fss.getFTState() == FTState.PAUSED || fss.getFTState() == FTState.ERROR)
 		{
-			if (progress < 100)
+			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 			if (fss.getFTState() == FTState.IN_PROGRESS)
 			{
 				float animatedProgress = 5 * 0.01f;
@@ -3092,11 +3086,19 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), progress);
 				}
-				if (Utils.isHoneycombOrHigher())
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 				{
-					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+				}
+				else if(progress == 100)
+				{
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+				}
+				else
+				{
+					if((progress + (int) (animatedProgress * 100)) > 100)
 					{
-						holder.circularProgress.setAnimatedProgress((int) (holder.circularProgress.getCurrentProgress() * 100), progress, 300);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 					else
 					{
@@ -3621,11 +3623,18 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						FileSavedState fss = FileTransferManager.getInstance(context).getUploadFileState(convMessage.getMsgID(), sentFile);
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
-
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
+							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.UPLOAD_MEDIA);
+							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
+							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
 					}
@@ -3656,7 +3665,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				}
 				else
 				{
-					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), receivedFile);
+					FileSavedState fss = FileTransferManager.getInstance(context).getDownloadFileState(convMessage.getMsgID(), hikeFile);
 
 					Logger.d(getClass().getSimpleName(), fss.getFTState().toString());
 
@@ -3670,6 +3679,17 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					}
 					else if (fss.getFTState() != FTState.INITIALIZED)
 					{
+						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
+							if (fss.getFTState() == FTState.NOT_STARTED) {
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+							} else if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
+							}
+						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
+							if (fss.getFTState() == FTState.ERROR) {
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
+							}
+						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
 								true);
 					}
@@ -4009,7 +4029,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 		private float proximitySensorMaxRange;
 
-		private int initialAudioMode;
 
 		private HeadSetConnectionReceiver headsetReceiver;
 		IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
@@ -4018,7 +4037,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			handler = new Handler();
 			audioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
-			initialAudioMode = audioManager.getMode();
 			sensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
 			headsetReceiver = new HeadSetConnectionReceiver();
 			proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -4040,13 +4058,25 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			try
 			{
-				audioManager.setMode(AudioManager.STREAM_MUSIC);
 				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+				mActivity.setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
-				mediaPlayer.start();
+				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
+				mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+					@Override
+					public void onPrepared(MediaPlayer mediaPlayer) {
+						mediaPlayer.start();
 
-				setFileBtnResource();
+						setFileBtnResource();
+
+						handler.post(updateTimer);
+
+						registerPoximitySensor();
+						registerHeadSetReceiver();
+					}
+				});
 
 				mediaPlayer.setOnCompletionListener(new OnCompletionListener()
 				{
@@ -4056,10 +4086,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						resetPlayer();
 					}
 				});
-				handler.post(updateTimer);
-
-				registerPoximitySensor();
-				registerHeadSetReceiver();
+				informUserIfVolumeLowOrMuted();
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -4081,6 +4108,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				if(!doesFileExist) {
 					Toast.makeText(context, R.string.unable_to_open, Toast.LENGTH_SHORT).show();
 				}
+			}
+		}
+
+		public void informUserIfVolumeLowOrMuted() {
+			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
+			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
+			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+			if(currentVol == 0){
+				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
 		}
 
@@ -4136,7 +4172,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			unregisterProximitySensor();
 			unregisterHeadserReceiver();
-			audioManager.setMode(initialAudioMode);
+			mActivity.setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 		}
 
 		@Override
@@ -4184,12 +4220,10 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					int state = intent.getIntExtra("state", -1);
 					switch (state) {
 						case HEADSET_UNPLUGGED:
-							audioManager.setMode(AudioManager.STREAM_MUSIC);
 							audioManager.setSpeakerphoneOn(true);
 							registerPoximitySensor();
 							break;
 						case HEADSET_PLUGGED:
-							audioManager.setMode(AudioManager.USE_DEFAULT_STREAM_TYPE);
 							audioManager.setSpeakerphoneOn(false);
 							unregisterProximitySensor();
 							break;
@@ -4616,8 +4650,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 
 			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
 					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
@@ -4628,15 +4661,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher())
+			if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 			{
-				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
-				{
-					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
-				}
-				else
-					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+				holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
 			}
+			else
+				holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
@@ -4685,5 +4716,15 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				break;
 		}
 		holder.ftAction.setScaleType(ScaleType.CENTER);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
+		sendImageVideoRelatedAnalytic(uniqueKey_Order, null, null);
+	}
+
+	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order, String genus, String family) {
+		if(mActivity!=null && mActivity instanceof ChatThreadActivity) {
+			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
+		}
 	}
 }

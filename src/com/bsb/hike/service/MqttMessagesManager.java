@@ -51,6 +51,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -102,6 +103,7 @@ import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
@@ -130,6 +132,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 /**
  *
@@ -971,7 +974,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage())
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey());
+			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 		}
 
@@ -984,7 +987,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+			NetworkType networkType = FTUtils.getNetworkType(context);
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
 				if ((networkType == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
@@ -1835,7 +1838,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
 			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -2169,6 +2172,11 @@ public class MqttMessagesManager
 			 */
 			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
+		if (data.has(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP))
+		{
+			boolean enableSettingsBackup = data.getBoolean(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, enableSettingsBackup);
+		}
 		if (data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
 			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
@@ -2453,7 +2461,7 @@ public class MqttMessagesManager
 		{
 			String ftHostIps = data.getString(HikeConstants.FT_HOST_IPS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
-			FileTransferManager.getInstance(context).setFThostURIs();
+			HttpManager.setFtHostUris();
 		}
 		if (data.has(HikeConstants.HTTP_HOST_IPS))
 		{
@@ -3025,6 +3033,11 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
@@ -3717,8 +3730,7 @@ public class MqttMessagesManager
 			// download the protip only if the URL is non empty
 			// also respect the user's auto photo download setting.
 			if (!TextUtils.isEmpty(protip.getImageURL())
-					&& ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FileTransferManager
-							.getInstance(context).getNetworkType() != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
+					&& ((FTUtils.getNetworkType(context) == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FTUtils.getNetworkType(context) != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
 			{
 				autoDownloadProtipImage(statusMessage, true);
 			}
@@ -4026,6 +4038,10 @@ public class MqttMessagesManager
 				}
 			}
 
+		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.TIP))
+		{
+			saveOrFlushAtomicTip(jsonObj);
 		}
 		else
 		{
@@ -4697,6 +4713,10 @@ public class MqttMessagesManager
 		{
 			showToast(jsonObj);
 		}
+		else if (ABTest.onRequestReceived(type, jsonObj))
+		{
+			//Do nothing, if its a ABTest message its handled
+		}
 	}
 	
 	private void saveInfraConfig(JSONObject jsonObj)
@@ -4840,8 +4860,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadProfileImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}
@@ -4854,8 +4874,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadGroupImage(String id)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}
@@ -5105,6 +5125,33 @@ public class MqttMessagesManager
 			 * We only publish this event if we actually removed a typing notification
 			 */
 			this.pubSub.publish(HikePubSub.END_TYPING_CONVERSATION, typingNotification);
+		}
+	}
+
+	/**
+	 * Method to parse atomic tip packet
+	 * @param jsonObj
+     */
+	public void saveOrFlushAtomicTip(JSONObject jsonObj)
+	{
+		Logger.d(getClass().getSimpleName(), "Parsing atomic tip packet");
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		if(data != null)
+		{
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH, false))
+				{
+					Logger.d(getClass().getSimpleName(), "Received atomic tip flush packet!");
+					AtomicTipManager.getInstance().processFlushPacket();
+					return;
+				}
+			}
+			else
+			{
+				Logger.d(getClass().getSimpleName(), "Received new atomic tip packet, saving it!");
+				AtomicTipManager.getInstance().parseAtomicTipPacket(data);
+			}
 		}
 	}
 

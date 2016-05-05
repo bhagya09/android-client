@@ -31,6 +31,8 @@ public class HikeConstants
 
 	public static final String MESSAGE = "msg";
 
+	public static final String CUSTOM_MESSAGE = "cmsg";
+
 	public static final String TOAST = "tst";
 	
 	public static final String UI_TOPIC = "/u";
@@ -76,6 +78,10 @@ public class HikeConstants
 	public static final String EVENT_ID = "ei";
 
 	public static final String METADATA = "md";
+
+	public static final String SPECIES = "s";
+
+	public static final String VARIETY = "v";
 
 	public static final String METADATA_DND = "dnd";
 
@@ -282,10 +288,6 @@ public class HikeConstants
 	public static final String JOIN_TIME = "jointime";
 
 	public static final String STATUS_MESSAGE_2 = "status-message";
-
-	public static final String FACEBOOK_STATUS = "fb";
-
-	// public static final String TWITTER_STATUS = "twitter";
 
 	public static final String TIME_OF_DAY = "timeofday";
 
@@ -1005,10 +1007,6 @@ public class HikeConstants
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
 
-	// Had to add this constant since its only available in the android API for
-	// Honeycomb and higher.
-	public static final int FLAG_HARDWARE_ACCELERATED = 16777216;
-
 	public static final int LOCAL_CLEAR_TYPING_TIME = 6 * 1000;
 
 	public static final int RESEND_TYPING_TIME = 4 * 1000;
@@ -1386,6 +1384,8 @@ public class HikeConstants
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
 	public static final class ChatHead
 	{
@@ -1902,6 +1902,8 @@ public class HikeConstants
 
 		public static final String ENABLE_PHOTOS = "ph_en";
 
+		public static final String ENABLE_CLOUD_SETTING_BACKUP = "rux_stg_bkup";
+
 		public static final String STATUS_UPDATE_SHOW_COUNTS = "su_sc";
 
 		public static final String STATUS_UPDATE_SHOW_LIKES = "su_sl";
@@ -1955,6 +1957,8 @@ public class HikeConstants
         public static final String FUNCTION_ID = "function_id";
 
         public static final String RESULT_CODE = "result_code";
+
+		public static final String PROFILE_DOB = "profile_dob";
 
     }
 
@@ -2173,9 +2177,6 @@ public class HikeConstants
 		public static final String NEW_CHAT_FROM_TOP_BAR = "newChatFromTopBar";
 
 		public static final String INVITE_FROM_GRID = "inviteFromGrid";
-
-		public static final String FB_CLICK = "fbClick";
-
 		/*
 		 * Invite keys
 		 */
@@ -2867,6 +2868,14 @@ public class HikeConstants
 		 * If you receive a packet of this subtype, it implies that the person you are calling is already on a call.
 		 */
 		public static final String VOIP_ERROR_ALREADY_IN_CALL = "mc";
+
+		/**
+		 * VoIP custom error message.
+		 * The server will include the error text to display to the user.
+		 * Usage (15 Apr, 2016) - To let a user know if the person they are calling is on a
+		 * carrier that prohibits VoIP.
+		 */
+		public static final String VOIP_ERROR_CUSTOM_MESSAGE = "e4";
 
 		public static final String VOIP_MSG_TYPE_CALL_SUMMARY = "vcs";
 
@@ -4091,6 +4100,32 @@ public class HikeConstants
 
 	public static final String LOG_SQLITE_PROPERTIES = "log_sqlite_props";
 
+	public static class BackupRestore
+	{
+		public static final String OS = "os";
+
+		public static final String FROM = "f";
+
+		public static final String TIMESTAMP = "ts";
+
+		public static final String VERSION = "ver";
+
+		public static final String DATA = "d";
+
+		public static final String VALUE = "v";
+
+		public static final String DATA_TYPE = "dt";
+
+		public static final String RUX_BACKUP_TS_PREF = "ruxbkupts";
+
+		public static final String RUX_BACKUP_PENDING = "ruxbkuppending";
+
+		public static final String KEY_SETTINGS = "settings";
+
+		public static final String KEY_MOVED_STICKER_EXTERNAL = "movdstckrext";
+
+	}
+
 	public static final String FAV_TO_FRIENDS_MIGRATION = "f2f_mig";
 
 	public static final String IS_NEW_USER = "is_new_user";
@@ -4175,4 +4210,11 @@ public class HikeConstants
 
     public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
+	public static final String TIP_CTA = "tp_cta";
+
+	public static final String TIP_CTA_LINK = "link";
+
+	public static final String TIP_PRIORITY = "tp_prrt";
+
+	public static final String ADD_HEADER = "addHeader";
 }

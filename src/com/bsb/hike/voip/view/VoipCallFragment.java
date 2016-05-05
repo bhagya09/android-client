@@ -195,6 +195,18 @@ public class VoipCallFragment extends Fragment implements CallActions
 				String name = bundle.getString(VoIPConstants.PARTNER_NAME);
 				showMessage(getString(R.string.voip_conference_not_supported, name));
 				break;
+			case VoIPConstants.MSG_CUSTOM_ERROR_FROM_SERVER:
+				if (voipService != null)
+				{
+					Bundle bundle2 = msg.getData();
+					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
+					partnerName = bundle2.getString(VoIPConstants.PARTNER_NAME);
+					String message = bundle2.getString(VoIPConstants.CUSTOM_MESSAGE);
+					if (!voipService.hostingConference()) {
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.CUSTOM_MESSAGE, msisdn, message);
+					}
+				}
+				break;
 			case VoIPConstants.MSG_PARTNER_BUSY:
 				if (voipService != null)
 				{
@@ -203,7 +215,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 					if (voipService.hostingConference()) {
 						showMessage(getString(R.string.voip_callee_busy, msisdn));
 					} else {
-						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn);
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_BUSY, msisdn, null);
 						voipService.setCallStatus(VoIPConstants.CallStatus.PARTNER_BUSY);
 						updateCallStatus();
 					}
@@ -215,7 +227,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 					Bundle bundle2 = msg.getData();
 					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
 					if (!voipService.hostingConference()) {
-						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn);
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_INCOMPAT, msisdn, null);
 					}
 				}
 				break;
@@ -225,7 +237,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 					Bundle bundle2 = msg.getData();
 					String msisdn = bundle2.getString(VoIPConstants.MSISDN);
 					if (!voipService.hostingConference()) {
-						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn);
+						showCallFailedFragment(VoIPConstants.CallFailedCodes.PARTNER_UPGRADE, msisdn, null);
 					}
 				}
 				break;
@@ -860,7 +872,6 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (clientPartner == null) 
 		{
 			// AND-1247
-			// getSherlockActivity().finish();
 			Logger.w(tag, "Partner client info is null. Returning.");
 			return;
 		}
@@ -1000,10 +1011,10 @@ public class VoipCallFragment extends Fragment implements CallActions
 		if (voipService.hostingConference())
 			return;
 		
-		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber());
+		showCallFailedFragment(callFailCode, voipService.getPartnerClient().getPhoneNumber(), null);
 	}
 
-	public void showCallFailedFragment(int callFailCode, String msisdn)
+	public void showCallFailedFragment(int callFailCode, String msisdn, String customMessage)
 	{
 		if(activity == null || voipService == null)
 		{
@@ -1016,6 +1027,7 @@ public class VoipCallFragment extends Fragment implements CallActions
 		bundle.putString(VoIPConstants.PARTNER_MSISDN, msisdn);
 		bundle.putInt(VoIPConstants.CALL_FAILED_REASON, callFailCode);
 		bundle.putString(VoIPConstants.PARTNER_NAME, partnerName);
+		bundle.putString(VoIPConstants.CUSTOM_MESSAGE, customMessage);
 
 		Logger.d(tag, "Showing call failed fragment.");
 		activity.showCallFailedFragment(bundle);

@@ -1429,4 +1429,5 @@
     <string name="slide_to_cancel">ಕ್ಯಾಂಸಲ್ಗೆ ಸ್ಲೈಡ್ ಮಾಡಿ</string>
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
+    <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
 </resources>

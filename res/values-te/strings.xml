@@ -1421,4 +1421,5 @@
     <string name="slide_to_cancel">క్యాన్సిల్ కు స్లయిడ్ చేయు</string>
     <string name="recording_help_text">రికార్డింగ్ కొరకు నోక్కి ఉంచు, పంపుటకు రిలీజ్ చేయు</string>
     <string name="max_duration_recorded">రికార్డింగ్ టైం పరిమితి మించినది</string>
+    <string name="stream_volume_muted_or_low">దయచేసి వాల్యూమ్ పెంచండి</string>
 </resources>

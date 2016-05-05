@@ -89,28 +89,22 @@ public class CustomProgressBar extends ProgressBar
 			return;
 		}
 
-		if (Utils.isHoneycombOrHigher())
+		if (animation == null)
 		{
-			if (animation == null)
-			{
-				animation = ObjectAnimator.ofInt(this, "progress", this.start, this.target);
-				animation.setDuration(this.duration); // 0.5 second
-				animation.setInterpolator(new LinearInterpolator());
-				if (android.os.Build.VERSION.SDK_INT >= 18)
-					animation.setAutoCancel(true);
-				animation.start();
-			}
-			else
-			{
-				animation.setIntValues(this.start, this.target);
-				// animation.setIntValues(this.target);
-				animation.setDuration(this.duration);
-				animation.start();
-			}
-
+			animation = ObjectAnimator.ofInt(this, "progress", this.start, this.target);
+			animation.setDuration(this.duration); // 0.5 second
+			animation.setInterpolator(new LinearInterpolator());
+			if (android.os.Build.VERSION.SDK_INT >= 18)
+				animation.setAutoCancel(true);
+			animation.start();
 		}
 		else
-			this.setProgress(target);
+		{
+			animation.setIntValues(this.start, this.target);
+			// animation.setIntValues(this.target);
+			animation.setDuration(this.duration);
+			animation.start();
+		}
 
 		return;
 	}

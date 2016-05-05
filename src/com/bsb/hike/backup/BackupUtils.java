@@ -12,10 +12,10 @@ import java.nio.channels.FileChannel;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
-import android.os.Environment;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.backup.model.BackupMetadata;
 import com.bsb.hike.utils.Logger;
 
 /**
@@ -219,5 +219,47 @@ public class BackupUtils
 		{
 			closeChannelsAndStreams(br);
 		}
+	}
+
+	public static boolean isSharedPrefFile(String prefName)
+	{
+		if (HikeMessengerApp.ACCOUNT_SETTINGS.equals(prefName)
+				|| HikeMessengerApp.DEFAULT_TAG_DOWNLOAD_LANGUAGES_PREF.equals(prefName)
+				|| HikeMessengerApp.DEFAULT_SETTINGS_PREF.equals(prefName))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public static void backupUserData() throws Exception
+	{
+		BackupMetadata backupMetadata = new BackupMetadata(HikeMessengerApp.getInstance().getApplicationContext());
+		String dataString = backupMetadata.toString();
+		File userDataFile = getMetadataFile();
+		BackupUtils.writeToFile(dataString, userDataFile);
+	}
+
+	public static BackupMetadata getBackupMetadata()
+	{
+		BackupMetadata userData;
+		try
+		{
+			File userDataFile = getMetadataFile();
+			String userDataString = BackupUtils.readStringFromFile(userDataFile);
+			userData = new BackupMetadata(HikeMessengerApp.getInstance().getApplicationContext(), userDataString);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		return userData;
+	}
+
+	public static File getMetadataFile()
+	{
+		new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT).mkdirs();
+		return new File(HikeConstants.HIKE_BACKUP_DIRECTORY_ROOT, AccountBackupRestore.DATA);
 	}
 }

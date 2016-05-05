@@ -65,9 +65,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.HikeCloudSettingsManager;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.db.AccountRestoreAsyncTask;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -77,7 +77,6 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.FtueContactsData;
@@ -93,7 +92,6 @@ import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.offline.OfflineConstants.OFFLINE_STATE;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
-import com.bsb.hike.platform.auth.PlatformAuthenticationManager;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.snowfall.SnowFallView;
 import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
@@ -326,6 +324,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
+
+		HikeCloudSettingsManager.getInstance().doRestore(null);
     }
 	
 	@Override
@@ -545,8 +545,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		HikeMessengerApp.getPubSub().addListeners(this, homePubSubListeners);
 
 		GetFTUEContactsTask getFTUEContactsTask = new GetFTUEContactsTask();
-		Utils.executeContactInfoListResultTask(getFTUEContactsTask);
-
+		getFTUEContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private void setupFestivePopup()
@@ -728,7 +727,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	
 	private boolean setupMenuOptions(final Menu menu)
 	{
-		// Adding defensive null pointer check (bug#44531)May be due to sherlock code, nullpointerexception occured.
 		try
 		{
 			getMenuInflater().inflate(R.menu.chats_menu, menu);
@@ -1252,9 +1250,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	@Override
 	public void onBackPressed()
 	{
-		// In android 5.0(and higher) when back is pressed, sherlock action mode does not exit.
-		// Instead the activity was exiting.
-		// The following change checks if search mode is still there, and take s action accordingly
+		// The following change checks if search mode is still there, and takes action accordingly
 		if (searchMenuItem != null && searchMenuItem.isActionViewExpanded())
 		{
 			searchMenuItem.collapseActionView();
@@ -1604,19 +1600,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				if (!deviceDetailsSent)
 				{
 					sendDeviceDetails();
-					if (accountPrefs.getBoolean(HikeMessengerApp.FB_SIGNUP, false))
-					{
-						try
-						{
-							JSONObject metadata = new JSONObject();
-							metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.FB_CLICK);
-							HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
-						}
-						catch(JSONException e)
-						{
-							Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
-						}
-					}
 					if (accountPrefs.getInt(HikeMessengerApp.WELCOME_TUTORIAL_VIEWED, -1) > -1)
 					{
 						try
@@ -1666,7 +1649,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 				public void run()
 				{
 					GetFTUEContactsTask ftueContactsTask = new GetFTUEContactsTask();
-					Utils.executeContactInfoListResultTask(ftueContactsTask);
+					ftueContactsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 			});
 		}
@@ -2189,7 +2172,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					
 				case R.string.send_logs:
 					SendLogsTask logsTask = new SendLogsTask(HomeActivity.this);
-					Utils.executeAsyncTask(logsTask);
+					logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 					break;
 					
 				case R.string.new_broadcast:
@@ -2538,8 +2521,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private void startRestoreProcess()
 	{
 		restoreAsyncTask = new AccountRestoreAsyncTask(new WeakReference<AccountRestoreAsyncTask.IRestoreCallback>(this));
-
-		Utils.executeIntegerAsyncTask(restoreAsyncTask);
+		restoreAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override

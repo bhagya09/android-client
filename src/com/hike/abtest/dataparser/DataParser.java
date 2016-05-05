@@ -10,9 +10,9 @@ import org.json.JSONObject;
  * Created by abhijithkrishnappa on 03/04/16.
  */
 public class DataParser {
-    public static final String REQUEST_TYPE_EXPERIMENT = "AB-Exp-Init";
-    public static final String REQUEST_TYPE_EXPERIMENT_ABORT = "AB-Abort";
-    public static final String REQUEST_TYPE_ROLL_OUT = "AB-Rollout";
+    public static final String REQUEST_TYPE_EXPERIMENT_INIT = "AB-Exp-Init";
+    public static final String REQUEST_TYPE_EXPERIMENT_ABORT = "AB-Exp-Abort";
+    public static final String REQUEST_TYPE_EXPERIMENT_ROLL_OUT = "AB-Exp-Rollout";
     public static final String REQUEST_TYPE_INVALID = "INVALID";
     private static final String REQUEST_FORMAT_JSON = "json";
     private static final String REQUEST_FORMAT_XML = "xml";
@@ -65,7 +65,7 @@ public class DataParser {
     public ExperimentInit getRollout(String notificationPayload) throws ParserException {
         switch(requestFormat) {
             case REQUEST_FORMAT_JSON:
-                return new ExperimentInitJson(notificationPayload);
+                return new ExperimentRolloutJson(notificationPayload);
             default:
                 throw new ParserException("Invalid packet format configuration");
         }
@@ -79,4 +79,17 @@ public class DataParser {
                 throw new ParserException("Invalid packet format configuration");
         }
     }
-}
+
+    public static boolean isABTestMessage(String requestType) {
+        boolean result = false;
+        switch(requestType) {
+            case REQUEST_TYPE_EXPERIMENT_INIT:
+            case REQUEST_TYPE_EXPERIMENT_ROLL_OUT:
+            case REQUEST_TYPE_EXPERIMENT_ABORT:
+                result = true;
+                break;
+            default:
+                result = false;
+        }
+        return result;
+    }}

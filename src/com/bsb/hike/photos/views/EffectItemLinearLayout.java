@@ -22,11 +22,6 @@ import com.bsb.hike.view.RoundedDrawable;
 
 public abstract class EffectItemLinearLayout extends LinearLayout
 {
-
-	private int foregroundColor;
-
-	private int backgroundColor;
-
 	private TextView label;
 
 	private ImageView icon;
@@ -56,31 +51,6 @@ public abstract class EffectItemLinearLayout extends LinearLayout
 		this.label.setText(text);
 		this.label.invalidate();
 		this.invalidate();
-	}
-
-	public int getBackgroundColor()
-	{
-		return this.backgroundColor;
-	}
-
-	public int getForegroundColor()
-	{
-		return this.foregroundColor;
-	}
-
-	public void setForegroundColor(int Color)
-	{
-		this.label.setTextColor(getResources().getColor(Color));
-		this.label.invalidate();
-		this.invalidate();
-
-	}
-
-	public void setBackgroundColor(int Color)
-	{
-		this.setBackgroundColor(getResources().getColor(Color));
-		this.invalidate();
-
 	}
 
 	public void setImage(Drawable drawable)

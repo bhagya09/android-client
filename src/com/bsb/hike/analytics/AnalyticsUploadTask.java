@@ -20,8 +20,6 @@ import com.bsb.hike.utils.Utils;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by abhijithkrishnappa on 13/02/16.
@@ -79,7 +77,7 @@ public class AnalyticsUploadTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     private IRequestInterceptor getRequestInterceptor() {
         return new IRequestInterceptor() {
             @Override
-            public void intercept(Chain chain) {
+            public void intercept(Chain chain)  throws Exception {
                 Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Intercepting HTTP request");
                 Logger.d(AnalyticsConstants.ANALYTICS_TAG, "Uploading: "+mFileToUpload);
                 IRequestBody body = new FileBody("text/plain", new File(mFileToUpload));
