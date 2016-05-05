@@ -867,8 +867,10 @@ public class AnalyticsConstants
 		public static final String TIP_NOTIF_SWIPED = "tip_ntf_swp";
 		public static final String TIP_VALID = "valid";
 		public static final String TIP_INVALID = "invalid";
+		public static final String TIP_FLUSH = "tip_flush";
 		public static final String HOME_SCREEN = "home_scrn";
 		public static final String FUNNEL = "funnel";
+		public static final String EXIT = "exit";
 
 	}
 }

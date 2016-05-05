@@ -280,6 +280,7 @@ public class AtomicTipManager
      */
     private void clearTipsList()
     {
+        recordFlushedTips();
         tipContentModels.clear();
     }
 
@@ -513,7 +514,6 @@ public class AtomicTipManager
             AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
             if(isTipExpired(currentModel))
             {
-                recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, currentModel.getTipId(), currentModel.isCancellable(), String.valueOf(currentModel.getStartTime()), String.valueOf(currentModel.getEndTime())));
                 tipIterator.remove();
                 Logger.d(TAG, "expired atomic tip removed");
             }
@@ -914,5 +914,15 @@ public class AtomicTipManager
     public void recordExpiredTip(AtomicTipContentModel tipContentModel)
     {
         recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), String.valueOf(tipContentModel.getStartTime()), String.valueOf(tipContentModel.getEndTime())));
+    }
+
+    public void recordFlushedTips()
+    {
+        Iterator tipIterator = tipContentModels.iterator();
+        while(tipIterator.hasNext())
+        {
+            AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_FLUSH, EXIT, currentModel.getTipId(), currentModel.isCancellable(), null, null));
+        }
     }
 }
