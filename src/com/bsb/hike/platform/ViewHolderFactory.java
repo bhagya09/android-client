@@ -193,9 +193,13 @@ public class ViewHolderFactory
 
         @Override
         public void processViewHolder(View view) {
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)messageContainer.getLayoutParams();
-            layoutParams.width = ((ImageView)view.findViewWithTag("I1")).getDrawable().getIntrinsicWidth();
-            messageContainer.setLayoutParams(layoutParams);
+            ImageView i1Image = ((ImageView)view.findViewWithTag("I1"));
+            if(i1Image.getDrawable() != null){
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)messageContainer.getLayoutParams();
+                layoutParams.width = i1Image.getDrawable().getIntrinsicWidth();
+                messageContainer.setLayoutParams(layoutParams);
+            }
+
         }
 
         @Override
