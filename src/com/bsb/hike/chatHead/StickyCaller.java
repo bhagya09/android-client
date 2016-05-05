@@ -700,6 +700,7 @@ public class StickyCaller {
 	{
 		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		stickyCallerView = (LinearLayout) inflater.inflate(R.layout.caller_quick_reply_layout, null);
+		callerParams.flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS | LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | LayoutParams.FLAG_NOT_TOUCH_MODAL;
 		final ListView defaultQuickReplyListView = (ListView)stickyCallerView.findViewById(R.id.caller_quick_reply_list);
 		HashSet<String> set = (HashSet<String>)HikeSharedPreferenceUtil.getInstance().getStringSet(HikeConstants.CALLER_QUICK_REPLY_SET, new HashSet<String>(Arrays.asList(context.getResources().getStringArray(R.array.caller_quick_reply_items))));
 		final BaseAdapter adapter = new CallerQuickReplyListAdapter(context, new ArrayList<String>(set));
