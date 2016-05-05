@@ -341,7 +341,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		{
 			Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel + ", so going for HTTP, with updationg old");
 			Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
-			FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
+			FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, callerContentModel);
 		}
 	}
 
@@ -662,7 +662,7 @@ import com.bsb.hike.voip.VoIPUtils;
 					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
 					Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
 					// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
-					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
+					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, callerContentModel);
 				}
 				else
 				{
