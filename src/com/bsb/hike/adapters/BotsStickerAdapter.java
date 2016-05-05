@@ -49,25 +49,9 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		 */
 		STICKER,
 		/**
-		 * Update view type.
-		 */
-		UPDATE,
-		/**
 		 * Downloading view type.
 		 */
 		DOWNLOADING,
-		/**
-		 * Retry view type.
-		 */
-		RETRY,
-		/**
-		 * Done view type.
-		 */
-		DONE,
-		/**
-		 * Place holder view type.
-		 */
-		PLACE_HOLDER
 	}
 
 	private int sizeEachImage;

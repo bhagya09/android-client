@@ -1,14 +1,6 @@
 package com.bsb.hike.ui;
 
 
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -118,6 +110,14 @@ import com.bsb.hike.utils.NUXManager;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Listener, HikeDialogListener,
 		AccountRestoreAsyncTask.IRestoreCallback
@@ -1177,7 +1177,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
             String codeArray[] = linkUrl.split("/");
             if (codeArray.length < 4)
             {
-                Logger.d("link_share_error", "The linkurl is wrong, either no :gc: present or split in '/' is < 4 " + linkUrl);
+                Logger.d("link_share_error", "The linkurl is wrong:: split in '/' is < 4 " + linkUrl);
                 return;
             }
             else if (linkUrl.contains(":gc:"))

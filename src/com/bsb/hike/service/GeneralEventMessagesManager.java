@@ -1,8 +1,5 @@
 package com.bsb.hike.service;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -23,6 +20,9 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GeneralEventMessagesManager
 {
@@ -130,8 +130,6 @@ public class GeneralEventMessagesManager
 			}
             else if(HikeConstants.GeneralEventMessagesTypes.CUSTOM_KEYBOARD.equals(type))
             {
-                Logger.i("tagcontroller", "has CUSTOM_KEYBOARD");
-
                 CustomKeyboardManager.getInstance().saveToSharedPreferences(packet.getString(HikeConstants.FROM), data.getJSONObject(HikeConstants.DATA));
 
                 HikeMessengerApp.getPubSub().publish(HikePubSub.SHOW_INPUT_BOX, packet.getString(HikeConstants.FROM));

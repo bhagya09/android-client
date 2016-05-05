@@ -428,8 +428,6 @@ public interface HikePlatformConstants
 
     String BOT_DISCOVERY = "bot_discovery";
 
-    String CUSTOM_KEYBOARD = "kb";
-
     String INTRO = "intro";
 
     String IS_KEYBOARD_PERSISTENT = "keep";
@@ -454,12 +452,7 @@ public interface HikePlatformConstants
         int smallStkrGridCols = 5;
     }
 
-    @IntDef({BotsTextKeyboardNumCols.ONE_COL,BotsTextKeyboardNumCols.TWO_COLS,BotsTextKeyboardNumCols.THREE_COLS})
-    @interface BotsTextKeyboardNumCols
-    {
-        int ONE_COL = 1;
-        int TWO_COLS = 2;
-        int THREE_COLS = 3;
-    }
+    String BOT_CUSTOM_KEYBOARD_TYPE_STICKER = "s";
 
+    String BOT_CUSTOM_KEYBOARD_TYPE_TEXT = "t";
 }

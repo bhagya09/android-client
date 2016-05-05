@@ -80,14 +80,14 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 		this.stickerPickerListener = stickerPickerListener;
 		customKeyboardInputBoxAdapter = new CustomKeyboardInputBoxAdapter(context, textPickerListener, stickerPickerListener);
 
-        CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(msisdn);
-		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals("text"))
+        CustomKeyboard customKeyboard = getCustomKeyboardObject(msisdn);
+		if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_TEXT))
 		{
 			ArrayList<ArrayList<TextKey>> customKeyboardTextKeys = customKeyboard.getTextKeys();
 
 			viewToDisplay = customKeyboardInputBoxAdapter.initTextKeyboardView(customKeyboardTextKeys);
 		}
-		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals("stickers"))
+		else if (customKeyboard != null && customKeyboard.getType() != null && customKeyboardInputBoxAdapter != null && customKeyboard.getType().equals(HikePlatformConstants.BOT_CUSTOM_KEYBOARD_TYPE_STICKER))
 		{
 			ArrayList<StkrKey> customKeyboardStkrKeys = customKeyboard.getStkrKeys();
 
@@ -196,7 +196,7 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 		}
 		catch (JSONException e)
 		{
-			Logger.i("tagcontroller", "JSONException while saving data in shared preferences");
+			Logger.i(getClass().getSimpleName(), "JSONException while saving data in shared preferences");
 			e.printStackTrace();
 		}
 	}
