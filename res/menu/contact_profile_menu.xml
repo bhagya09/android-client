@@ -15,9 +15,9 @@
                 android:visible="true"/>
             <item
                 android:id="@+id/mute_chat"
-                android:showAsAction="always"
+                android:showAsAction="never"
                 android:title="@string/mute_chat"
-                android:visible="true"/>
+                android:visible="false"/>
         </menu>
     </item>
 
