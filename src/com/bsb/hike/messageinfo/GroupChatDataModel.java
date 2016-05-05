@@ -69,9 +69,12 @@ public class GroupChatDataModel extends MessageInfoDataModel
 			{
 				MessageInfo info = iterator.next();
                 MessageInfoParticipantData participant = participantTreeMap.get(info.getReceiverMsisdn());
+				//If the participant is no longer in group ,we are not showing his information right now
+				if(participant!=null){
 				participant.setDeliveredTimeStamp(info.getDeliveredTimestamp());
 				participant.setReadTimeStamp(info.getReadTimestamp());
 				participant.setPlayedTimeStamp(info.getPlayedTimestamp());
+				}
 			}
 		}
 	}
