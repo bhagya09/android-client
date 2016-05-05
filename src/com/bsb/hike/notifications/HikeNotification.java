@@ -373,7 +373,7 @@ public class HikeNotification
 			Intent intent = Utils.getHomeActivityIntent(context);
 			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
 			intent.putExtra(HikeConstants.TIP_ID, ConversationTip.UPDATE_CRITICAL_TIP);
-			mBuilder.setContentIntent(PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT));
+			mBuilder.setContentIntent(PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT));
 			notifyNotification(APP_UPDATE_AVAILABLE_ID, mBuilder);
 
 		}

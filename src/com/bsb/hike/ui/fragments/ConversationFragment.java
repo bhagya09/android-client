@@ -1844,7 +1844,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
+		if(getActivity().getIntent().getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
+		{
+			processTipFromNotif(getActivity().getIntent().getExtras());
+		}
+		else
+		{
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
+		}
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1868,6 +1875,17 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	public void startActivityWithResult(Intent intent, int requestCode)
 	{
 		startActivityForResult(intent, requestCode);
+	}
+
+	public void processTipFromNotif(Bundle bundle)
+	{
+		int tipId = bundle.getInt(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
+		if(bundle.getBoolean(HikeConstants.IS_ATOMIC_TIP, false))
+		{
+			AtomicTipManager.getInstance().processAtomicTipFromNotif(tipId);
+			tipId = ConversationTip.ATOMIC_TIP;
+		}
+		ShowTipIfNeeded(displayedConversations.isEmpty(), true, tipId);
 	}
 
 	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent, int tipFromNotifId)
@@ -3889,13 +3907,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			int tipId = intent.getIntExtra(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
-			if(intent.getBooleanExtra(HikeConstants.IS_ATOMIC_TIP, false))
-			{
-				AtomicTipManager.getInstance().processAtomicTipFromNotif(tipId);
-				tipId = ConversationTip.ATOMIC_TIP;
-			}
-			ShowTipIfNeeded(displayedConversations.isEmpty(), true, tipId);
+			processTipFromNotif(intent.getExtras());
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
