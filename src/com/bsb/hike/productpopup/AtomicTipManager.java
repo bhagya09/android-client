@@ -173,6 +173,7 @@ public class AtomicTipManager
      */
     public void init()
     {
+        mHandler.sendMessage(getMessage(CLEAN_TIPS_TABLE, null));
         mHandler.sendMessage(getMessage(FETCH_TIPS_FROM_DB, null));
     }
 
@@ -197,7 +198,6 @@ public class AtomicTipManager
     public void parseAtomicTipPacket(JSONObject tipJSON)
     {
         mHandler.sendMessage(getMessage(PARSE_NEW_PACKET, tipJSON));
-
     }
 
     private void parseNewPacket(JSONObject tipJSON)
@@ -574,7 +574,7 @@ public class AtomicTipManager
         {
             currentlyShowing.setTipStatus(AtomicTipContentModel.SEEN);
             mHandler.sendMessage(getMessage(REFRESH_TIPS_LIST, null));
-            mHandler.sendMessage(getMessage(UPDATE_TIP_STATUS, currentlyShowing, AtomicTipContentModel.DISMISSED));
+            mHandler.sendMessage(getMessage(UPDATE_TIP_STATUS, currentlyShowing, AtomicTipContentModel.SEEN));
         }
 
         View tipView = LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(R.layout.atomic_tip_view, null);

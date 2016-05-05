@@ -1200,8 +1200,6 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	public List<AtomicTipContentModel> getSavedAtomicTips()
 	{
 		Logger.d(getClass().getSimpleName(), "Fetching saved atomic tips");
-		//first cleaning up tables to remove expired tips
-		cleanAtomicTipsTable();
 		List<AtomicTipContentModel> atomicTipContentModels = new ArrayList<>();
 		Cursor c = null;
 		try

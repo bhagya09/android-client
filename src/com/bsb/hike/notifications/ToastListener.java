@@ -417,20 +417,7 @@ public class ToastListener implements Listener
 			if (object != null && object instanceof AtomicTipContentModel)
 			{
 				AtomicTipContentModel tipContentModel = (AtomicTipContentModel) object;
-				String notifTitle = tipContentModel.getNotifTitle();
-				String notifText = tipContentModel.getNotifText();
-				int tipId = tipContentModel.hashCode();
-				boolean isSilent = tipContentModel.isSilent();
-				if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
-				{
-					Intent notificationIntent;
-					notificationIntent = new Intent(context, HomeActivity.class);
-					notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
-					notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
-					notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
-					toaster.notifyAtomicTip(notifTitle, notifText, isSilent, notificationIntent);
-				}
+				toaster.notifyAtomicTip(tipContentModel);
 			}
 		}
 		else if (HikePubSub.HIKE_TO_OFFLINE_PUSH.equals(type))

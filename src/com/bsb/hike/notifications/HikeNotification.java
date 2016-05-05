@@ -51,6 +51,9 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -307,7 +310,7 @@ public class HikeNotification
 
 	}
 
-	public void notifyAtomicTip(String title, String message, boolean isSilent, Intent notifIntent)
+	public void notifyAtomicTip(AtomicTipContentModel tipContentModel)
 	{
 		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
 		{
@@ -316,9 +319,32 @@ public class HikeNotification
 
 		Logger.d(getClass().getSimpleName(), "Creating notif for atomic tips with bundled values");
 		int notifId = NOTIFICATION_PRODUCT_POPUP;
-		NotificationCompat.Builder mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), isSilent, isSilent, false);
-		setNotificationIntentForBuilder(mBuilder, notifIntent, notifId);
-		notifyNotification(notifId, mBuilder);
+		String notifTitle = tipContentModel.getNotifTitle();
+		String notifText = tipContentModel.getNotifText();
+		int tipId = tipContentModel.hashCode();
+		boolean isSilent = tipContentModel.isSilent();
+		if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
+		{
+			NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, notifText, notifTitle, null, returnSmallIcon(), isSilent, isSilent, false);
+
+			Intent notificationIntent = Utils.getHomeActivityIntent(context);
+			notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
+			notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
+
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setContentIntent(contentIntent);
+
+			Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
+			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
+
+			notifyNotification(notifId, mBuilder);
+		}
 	}
 
 	public void notifyMessage(final Protip proTip, int notificationType)

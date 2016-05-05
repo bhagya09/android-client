@@ -1800,7 +1800,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	public void processTipFromNotif(Bundle bundle)
+	private void processTipFromNotif(Bundle bundle)
 	{
 		int tipId = bundle.getInt(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
 		if(bundle.getBoolean(HikeConstants.IS_ATOMIC_TIP, false))
