@@ -1386,6 +1386,8 @@ public class HikeConstants
 
 	public static final String MESSAGE_INFO_ENABLED_DATABASE = "mi_d";
 
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
