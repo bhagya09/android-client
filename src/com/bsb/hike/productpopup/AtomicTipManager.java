@@ -216,9 +216,13 @@ public class AtomicTipManager
         AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(tipJSON);
         Logger.d(TAG, "new tip hash: " + tipContentModel.hashCode());
 
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_RECEIVED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null));
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_DECODED, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), null, null));
+
         if(tipContentModels.contains(tipContentModel))
         {
             Logger.d(TAG, "received duplicate atomic tip. not saving it!");
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.DUPLICATE));
             return;
         }
 
@@ -226,6 +230,7 @@ public class AtomicTipManager
         if(!createAndCacheIcon(tipContentModel))
         {
             Logger.d(TAG, "unable to create icon for atomic tip. aborting");
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.ICON));
             return;
         }
 
@@ -233,8 +238,11 @@ public class AtomicTipManager
         if(!processTipBg(tipContentModel))
         {
             Logger.d(TAG, "Failure in processing tip bg. aborting");
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_INVALID, HikeConstants.BACKGROUND));
             return;
         }
+
+        recordTipsAnalytics(getJSONForTipAnalytics(TIP_VALIDITY, FUNNEL, tipContentModel.getTipId(), tipContentModel.isCancellable(), TIP_VALID, null));
 
         //saving model in DB
         saveNewTip(tipContentModel);
@@ -312,6 +320,7 @@ public class AtomicTipManager
      */
     private void cleanTipsTable()
     {
+        HikeContentDatabase.getInstance().checkAndLogExpiredAtomicTips();
         HikeContentDatabase.getInstance().cleanAtomicTipsTable();
     }
 
@@ -504,6 +513,7 @@ public class AtomicTipManager
             AtomicTipContentModel currentModel = (AtomicTipContentModel) tipIterator.next();
             if(isTipExpired(currentModel))
             {
+                recordTipsAnalytics(getJSONForTipAnalytics(TIP_EXPIRY, FUNNEL, currentModel.getTipId(), currentModel.isCancellable(), String.valueOf(currentModel.getStartTime()), String.valueOf(currentModel.getEndTime())));
                 tipIterator.remove();
                 Logger.d(TAG, "expired atomic tip removed");
             }
@@ -519,6 +529,10 @@ public class AtomicTipManager
         {
             Logger.d(TAG, "updating currently showing to tip referenced from notif");
             currentlyShowing = getTipFromId(atomicTipFromNotifId);
+            if(currentlyShowing != null)
+            {
+                tipFromNotifAnalytics(TIP_NOTIF_CLICKED, currentlyShowing.getTipId(), currentlyShowing.isCancellable());
+            }
             return;
         }
         mHandler.sendMessage(getMessage(REMOVE_EXPIRED_TIPS, null));
@@ -578,6 +592,7 @@ public class AtomicTipManager
             currentlyShowing.setTipStatus(AtomicTipContentModel.SEEN);
             mHandler.sendMessage(getMessage(REFRESH_TIPS_LIST, null));
             mHandler.sendMessage(getMessage(UPDATE_TIP_STATUS, currentlyShowing, AtomicTipContentModel.SEEN));
+            recordTipsAnalytics(getJSONForTipAnalytics(TIP_DISPLAYED, FUNNEL, currentlyShowing.getTipId(), currentlyShowing.isCancellable(), null, null));
         }
 
         View tipView = LayoutInflater.from(HikeMessengerApp.getInstance().getApplicationContext()).inflate(R.layout.atomic_tip_view, null);

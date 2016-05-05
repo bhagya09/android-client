@@ -6,7 +6,10 @@ import android.content.Intent;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.models.HikeAlarmManager;
+import com.bsb.hike.productpopup.AtomicTipManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
@@ -44,6 +47,16 @@ public class NotificationDismissedReceiver extends BroadcastReceiver
 					retryNotificationIntent.putExtra(HikeConstants.RETRY_COUNT, retryCount+1);
 					HikeAlarmManager.setAlarmWithIntent(context, retryTime,
 							HikeAlarmManager.REQUESTCODE_RETRY_LOCAL_NOTIFICATION, false, retryNotificationIntent);
+				}
+			}
+
+			if(notificationId == HikeNotification.NOTIFICATION_PRODUCT_POPUP)
+			{
+				if(intent.hasExtra(HikeConstants.TIP_ID))
+				{
+					String tipId = intent.getStringExtra(HikeConstants.TIP_ID);
+					boolean isCancellable = intent.getBooleanExtra(ProductPopupsConstants.IS_CANCELLABLE, true);
+					AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_SWIPED, tipId, isCancellable);
 				}
 			}
 		}

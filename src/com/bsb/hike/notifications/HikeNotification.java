@@ -343,6 +343,8 @@ public class HikeNotification
 			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 			mBuilder.setDeleteIntent(pendingIntent);
 
+			Logger.d(getClass().getSimpleName(), "recording atomic tip notif creation");
+			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable());
 			notifyNotification(notifId, mBuilder);
 		}
 	}

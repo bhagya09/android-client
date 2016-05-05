@@ -3893,6 +3893,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if (tipView != null && tipType == whichTip)
 		{
+			if(whichTip == ConversationTip.ATOMIC_TIP)
+			{
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CROSSED);
+			}
 			removeTipIfExists(whichTip);
 
 			JSONObject metadata = new JSONObject();
@@ -3947,6 +3951,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
 				break;
 			case ConversationTip.ATOMIC_TIP:
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CLICKED);
 				AtomicTipManager.getInstance().onAtomicTipClicked(getActivity());
 				break;
 			default:

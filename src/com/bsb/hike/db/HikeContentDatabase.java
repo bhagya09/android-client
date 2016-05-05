@@ -28,6 +28,7 @@ import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.utils.ChatTheme;
@@ -1258,6 +1259,41 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		String whereClause = dismissedClause + expiredClause;
 		int result = mDB.delete(ATOMIC_TIP_TABLE, whereClause, null);
 		Logger.d(getClass().getSimpleName(), "number of cleaned rows from atomic tip table: "+result);
+	}
+
+	/**
+	 * Method to check and record expired tips into analytics
+	 */
+	public void checkAndLogExpiredAtomicTips()
+	{
+		String expiredClause = TIP_END_TIME+ "<" + System.currentTimeMillis();
+		Cursor c = null;
+		try
+		{
+			String query = "SELECT * FROM " + ATOMIC_TIP_TABLE + " WHERE " + expiredClause;
+
+			c = mDB.rawQuery(query, null);
+
+			Logger.d(getClass().getSimpleName(), "atomic tips table cursor size = "+c.getCount());
+
+			while (c.moveToNext())
+			{
+				String tipJSON = c.getString(c.getColumnIndex(TIP_DATA));
+				AtomicTipContentModel tipContentModel = AtomicTipContentModel.getAtomicTipContentModel(new JSONObject(tipJSON));
+				AtomicTipManager.getInstance().recordExpiredTip(tipContentModel);
+			}
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "JSONException while fetching Atomic Tip from Content DB");
+		}
+		finally
+		{
+			if(c != null)
+			{
+				c.close();
+			}
+		}
 	}
 
 	/**
