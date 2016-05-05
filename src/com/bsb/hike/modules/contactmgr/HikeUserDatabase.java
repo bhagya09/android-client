@@ -29,8 +29,9 @@ import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.DbException;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.FtueContactsData;
+import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
+import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -57,7 +58,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HikeUserDatabase extends SQLiteOpenHelper
+public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Listener
 {
 	private static final String TAG = "HikeUserDatabase";
 	private static volatile SQLiteDatabase mDb;
@@ -67,6 +68,8 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 	private SQLiteDatabase mReadDb;
 
 	private Context mContext;
+
+	private String[] pubSubEvents = new String[]{HikePubSub.NEW_CONVERSATION, HikePubSub.CONVERSATION_DELETED};
 	
 	private HikeUserDatabase(Context context)
 	{
@@ -74,8 +77,13 @@ public class HikeUserDatabase extends SQLiteOpenHelper
 		this.mContext = context;
 		mDb = getWritableDatabase();
 		mReadDb = getReadableDatabase();
+		initPubSubListeners();
 	}
-	
+
+	private void initPubSubListeners() {
+		HikeMessengerApp.getPubSub().addListeners(this,pubSubEvents);
+	}
+
 	public static HikeUserDatabase getInstance()
 	{
 		if (hikeUserDatabase == null)
