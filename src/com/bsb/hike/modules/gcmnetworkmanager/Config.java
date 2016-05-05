@@ -88,6 +88,11 @@ public class Config
         }
 	}
 
+	public void decrementRetries()
+	{
+		this.numRetries--;
+	}
+
 	public int getNumRetries()
 	{
 		return numRetries;

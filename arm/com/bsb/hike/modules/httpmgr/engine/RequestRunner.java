@@ -51,30 +51,55 @@ public class RequestRunner
 				if (null == response)
 				{
 					requestListenerNotifier.notifyListenersOfRequestFailure(request, ex);
-					if (gcmTaskConfig != null)
+					if (gcmTaskConfig != null && gcmTaskConfig.getNumRetries() > 0)
 					{
+						gcmTaskConfig.decrementRetries();
+						updateGcmTaskConfigInDB(gcmTaskConfig);
 						HikeGcmNetworkMgr.getInstance().schedule(gcmTaskConfig);
+					}
+					else
+					{
+						removeGcmTaskConfigFromDB(gcmTaskConfig);
 					}
 				}
 				else
 				{
 					requestListenerNotifier.notifyListenersOfRequestSuccess(request, response);
+					removeGcmTaskConfigFromDB(gcmTaskConfig);
 				}
-
-				HikeHandlerUtil.getInstance().postAtFront(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						if (gcmTaskConfig != null)
-						{
-							HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
-						}
-					}
-				});
 			}
 		});
 		requestExecuter.execute();
+	}
+
+	private void removeGcmTaskConfigFromDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gcmTaskConfig != null)
+				{
+					HttpRequestStateDB.getInstance().deleteBundleForTag(gcmTaskConfig.getTag());
+				}
+			}
+		});
+	}
+
+	private void updateGcmTaskConfigInDB(final Config gcmTaskConfig)
+	{
+		HikeHandlerUtil.getInstance().postAtFront(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gcmTaskConfig != null)
+				{
+					HttpRequestStateDB.getInstance().insertBundleToDb(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
+				}
+			}
+		});
 	}
 
 	/**
