@@ -57,11 +57,11 @@ public class HomeAnalyticsConstants
 	@Retention(RetentionPolicy.SOURCE)
 	public @interface StatusUpdateSpecies{}
 
-	public static final String SU_SPECIES_OVERFLOW = "suSpoverflow";
+	public static final String SU_SPECIES_OVERFLOW = "overflow";
 
-	public static final String SU_SPECIES_TIMELINE_PHOTO_BUTTON = "suSpPhBtn";
+	public static final String SU_SPECIES_TIMELINE_PHOTO_BUTTON = "tl_photot";
 
-	public static final String SU_SPECIES_TIMELINE_TEXT_BUTTON = "suSpTxtBtn";
+	public static final String SU_SPECIES_TIMELINE_TEXT_BUTTON = "tl_text";
 
 	public static final String SU_SPECIES_OTHER = "other";
 
