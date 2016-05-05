@@ -1,5 +1,7 @@
 package com.bsb.hike.modules.gcmnetworkmanager;
 
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.GcmTaskConstants;
+import com.bsb.hike.modules.gcmnetworkmanager.tasks.SingleStickerDownloadGcmTask;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
@@ -9,14 +11,15 @@ import com.google.android.gms.gcm.TaskParams;
  */
 public class GcmNwMgrService extends GcmTaskService
 {
-
 	@Override
 	public int onRunTask(TaskParams taskParams)
 	{
-        switch(taskParams.getTag())
+        String tag = taskParams.getTag();
+
+        if(tag.startsWith(GcmTaskConstants.SINGLE_STICKER_GCM_TASK))
         {
-            default:
-                break;
+            SingleStickerDownloadGcmTask singleStickerDownloadGcmTask = new SingleStickerDownloadGcmTask();
+            singleStickerDownloadGcmTask.execute(taskParams);
         }
 		return GcmNetworkManager.RESULT_SUCCESS;
 	}
