@@ -9,6 +9,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -1101,7 +1102,9 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 
 		case R.id.new_status_tab:
 			recordNewStatusClick();
-			startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(),null, null, false));
+			Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, null, false);
+			Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_TEXT_BUTTON, newSUIntent);
+			startActivity(newSUIntent);
 			break;
 
 		default:
@@ -1132,6 +1135,8 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 			return;
 		}
 
+		final String genus = data.getStringExtra(HikeConstants.Extras.GENUS);
+
 		switch (requestCode)
 		{
 		case TIMELINE_POST_IMAGE_REQ:
@@ -1140,7 +1145,13 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
+					Intent newSUIntent = IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_TIMELINE_PHOTO_BUTTON, newSUIntent);
+					if(!TextUtils.isEmpty(genus))
+					{
+						Utils.setGenus(genus, newSUIntent);
+					}
+					startActivity(newSUIntent);
 				}
 
 				@Override

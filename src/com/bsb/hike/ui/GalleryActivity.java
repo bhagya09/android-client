@@ -34,6 +34,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -513,6 +514,7 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 			switch (requestCode)
 			{
 			case GALLERY_ACTIVITY_RESULT_CODE:
+				Utils.setGenus(HomeAnalyticsConstants.SU_GENUS_GALLERY, data);
 				setGalleryResult(RESULT_OK, data.putExtras(getIntent().getExtras()));
 				finish();
 				break;
@@ -537,12 +539,17 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
 				bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, cameraFilename);
 				// Added to ensure delegate activity passes destination path to editer
 				bundle.putString(HikeConstants.HikePhotos.DESTINATION_FILENAME, cameraFilename);
+
+				bundle.putString(HikeConstants.Extras.GENUS, HomeAnalyticsConstants.SU_GENUS_CAMERA);
+
 				Bundle extras = getIntent().getExtras();
 				if (extras != null)
 				{
 					bundle.putAll(extras);
 				}
 				intent.putExtras(bundle);
+
+				Utils.setGenus(HomeAnalyticsConstants.SU_GENUS_CAMERA, intent);
 
 				if (hasDelegateActivities())
 				{
