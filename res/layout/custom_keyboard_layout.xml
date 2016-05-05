@@ -9,13 +9,13 @@
         android:id="@+id/custom_keyboard_divider"
        	android:layout_width="match_parent"
        	android:layout_height="1dp"
-       	android:background="#1f2122"></View>
+       	android:background="#ECEFF0"></View>
         
     <ScrollView 
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:scrollbars="none"
-	    android:background="#1f2122"
+	    android:background="#ECEFF0"
 	    android:fillViewport="true">
 
 	    <LinearLayout
@@ -28,7 +28,7 @@
 			    android:layout_height="match_parent"
 			    android:orientation="vertical"
 			    android:gravity="center"
-			    android:background="#1f2122"
+			    android:background="#ECEFF0"
 			    android:padding="7dp"></LinearLayout>
 
 	    	</LinearLayout>

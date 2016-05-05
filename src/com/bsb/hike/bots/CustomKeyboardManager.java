@@ -1,6 +1,7 @@
 package com.bsb.hike.bots;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -164,6 +165,10 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 	public CustomKeyboard getCustomKeyboardObject(String msisdn)
     {
         String keyboardDataJson = HikeSharedPreferenceUtil.getInstance(CustomKeyboardManager.CUSTOM_INPUT_BOX_KEY).getData(getKeyboardKey(msisdn), HikePlatformConstants.KEYBOARD_DEFAULT_DATA);
+
+        if(TextUtils.isEmpty(keyboardDataJson) || keyboardDataJson.equals(HikePlatformConstants.KEYBOARD_DEFAULT_DATA))
+            return null;
+
         JsonParser jsonParser = new JsonParser();
         JsonObject keyboardJsonObj = null;
         try {

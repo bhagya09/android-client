@@ -901,7 +901,7 @@ public class MqttMessagesManager
         {
             // Delete keyboard data from shared pref if the keyboard type is not persistent
             CustomKeyboard customKeyboard = CustomKeyboardManager.getInstance().getCustomKeyboardObject(convMessage.getMsisdn());
-            if(!customKeyboard.getKeep())
+            if(customKeyboard != null && !customKeyboard.getKeep())
                 CustomKeyboardManager.getInstance().removeFromSharedPreferences(convMessage.getMsisdn());
         }
 
