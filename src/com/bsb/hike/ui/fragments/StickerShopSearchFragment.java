@@ -131,7 +131,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		{
 			loadingEmptyState.setVisibility(View.GONE);
 			searchFailedState.setVisibility(View.GONE);
-			listview.setVisibility(View.VISIBLE);
+            loadingFailedEmptyState.setVisibility(View.GONE);
+            listview.setVisibility(View.VISIBLE);
 			mAdapter.updateSearchresult(categories);
 		}
 		else
@@ -151,6 +152,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 		if (Utils.isUserOnline(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
             loadingEmptyState.setVisibility(View.GONE);
+            loadingFailedEmptyState.setVisibility(View.GONE);
             listview.setVisibility(View.GONE);
 			setSearchEmptyState(query);
 			searchFailedState.setVisibility(View.VISIBLE);
