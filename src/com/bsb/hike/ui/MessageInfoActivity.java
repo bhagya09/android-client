@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,12 +20,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,14 +40,11 @@ import com.bsb.hike.messageinfo.MessageInfoDataModel;
 import com.bsb.hike.messageinfo.MessageInfoDeliveredList;
 import com.bsb.hike.messageinfo.MessageInfoItem;
 import com.bsb.hike.messageinfo.MessageInfoList;
-import com.bsb.hike.messageinfo.MessageInfoPlayedList;
 import com.bsb.hike.messageinfo.MessageInfoReadList;
 import com.bsb.hike.messageinfo.MessageInfoView;
 import com.bsb.hike.messageinfo.OnetoOneDataModel;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.HikeFile;
-import com.bsb.hike.models.MessageMetadata;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
@@ -70,8 +68,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 	Conversation conversation;
 
 	private static final int NOTIFY_ADAPTER=1;
-
-	boolean refreshinginProgress = false;
 
 	public List<MessageInfoList> listsToBedisplayed = new ArrayList<MessageInfoList>();
 
@@ -97,20 +93,15 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		if (msg.what == NOTIFY_ADAPTER)
 		{
 
+			messageInfoAdapter.addAll(messageMap);
 			messageInfoAdapter.notifyDataSetChanged();
-			parentListView.setAdapter(messageInfoAdapter);
-			Logger.d("refresha", " adapter count" + messageInfoAdapter.getCount());
-
-			Logger.d("refresha", " list count" + messageInfoItemList.size());
-			for (MessageInfoItem item : messageInfoItemList)
-			{
-				Logger.d("refresha", "item " + item);
-			}
 
 		}
 	}
 
 	private List<MessageInfoItem> messageInfoItemList = Collections.synchronizedList(new ArrayList<MessageInfoItem>());
+
+	private LinkedHashSet<MessageInfoItem> messageMap=new LinkedHashSet<MessageInfoItem>();
 
 	private String[] pubSubListeners = { HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED };
 
@@ -262,7 +253,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		public void addItems()
 		{
 			Logger.d("MessageInfo", "Adding Items One to One");
-			messageInfoItemList.clear();
+			messageMap.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
 			MessageInfoDataModel.MessageInfoParticipantData participantData = null;
@@ -283,8 +274,11 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 					deliveredList.setTimeStamp(participantData.getDeliveredTimeStamp());
 			}
 
-			messageInfoItemList.add(readList);
-			messageInfoItemList.add(deliveredList);
+			messageMap.add(readList);
+			messageMap.add(deliveredList);
+		}
+		public void updateItemsinMap(){
+
 		}
 
 	}
@@ -325,18 +319,15 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			while (iterator.hasNext())
 			{
 				MessageInfoList messageInfoList = iterator.next();
-				messageInfoItemList.add(messageInfoList.messageStatusHeader);
+				messageMap.add(messageInfoList.messageStatusHeader);
 				List<MessageInfoItem.MesageInfoParticipantItem> allDisplayedContactItems = messageInfoList.allDisplayedContactItems;
 				for (MessageInfoItem.MesageInfoParticipantItem item : allDisplayedContactItems)
 				{
-					messageInfoItemList.add(item);
+					messageMap.add(item);
 				}
 				if (messageInfoList.getRemainingItemCount() > 0)
-					messageInfoItemList.add(messageInfoList.remainingItem);
-			}
-			for (MessageInfoItem item : messageInfoItemList)
-			{
-				Logger.d("MList", " " + item);
+					messageMap.add(messageInfoList.remainingItem);
+
 			}
 		}
 
@@ -344,7 +335,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		public synchronized void addItems()
 		{
 			Logger.d("MessageInfo", "Adding Items Group");
-			messageInfoItemList.clear();
+			messageMap.clear();
 			listsToBedisplayed.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			Iterator iterator = participantTreeMap.values().iterator();
