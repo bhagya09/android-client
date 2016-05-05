@@ -759,9 +759,8 @@ public class WebViewActivity extends HikeAppStateBaseFragmentActivity implements
 		{
 			color = R.color.blue_hike;
 		}
-		
-		updateActionBarColor(color !=-1 ? new ColorDrawable(getResources().getColor(color)) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
-		
+
+		updateActionBarColor(color !=-1 ? new ColorDrawable(color) : getResources().getDrawable(R.drawable.repeating_action_bar_bg));
 		setMicroAppStatusBarColor();
 		
 		setAvatar();

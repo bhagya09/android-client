@@ -280,14 +280,9 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 					mLoadingMorePins = false;
 				}
 			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
+
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 		}
 	}
 	
