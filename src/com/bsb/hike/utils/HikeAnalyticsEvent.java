@@ -240,6 +240,33 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void recordAnalyticsForGCPins(String uniqueKey_order, String genus, String source, String species)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+
+			if(genus != null && !TextUtils.isEmpty(genus))
+				json.put(AnalyticsConstants.V2.GENUS, genus);
+
+			if(source != null && !TextUtils.isEmpty(source))
+				json.put(AnalyticsConstants.V2.SOURCE, source);
+
+			if(species != null && !TextUtils.isEmpty(species))
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	public static void recordAnalyticsForGCFlow(String uniqueKey_order, String form, int race, int breed, int val_int, ArrayList<String> toUser_msisdn)
 	{

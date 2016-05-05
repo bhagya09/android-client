@@ -1,20 +1,18 @@
 package com.bsb.hike.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -30,18 +28,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinHistoryAdapter;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
@@ -49,8 +42,15 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChatTheme;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeAppStateBaseFragmentActivity;
 import com.bsb.hike.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity implements OnScrollListener, HikePubSub.Listener, OnItemLongClickListener 
 {	
@@ -226,6 +226,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		if(isActionModeOn)
 		{
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_OTHERS);
 			destroyActionMode();
 			return;
 		}
@@ -380,6 +381,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			@Override
 			public void onClick(View v)
 			{
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_CROSS);
 				destroyActionMode();
 			}
 		});
@@ -398,6 +400,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) 
 	{
+		HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_LONG_TAP, null, null, null);
 		return showPinContextMenu((ConvMessage)pinAdapter.getItem(position));
 	}
 	
@@ -417,6 +420,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else if(!hasCheckedItems && isActionModeOn)
 		{
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_OTHERS);
 			destroyActionMode();
 		}
 		
@@ -477,6 +481,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
+					HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_DELETE, null, null);
 					removeMessage(selectedPinIds);					
 					pinAdapter.notifyDataSetChanged();
 					destroyActionMode();
@@ -511,6 +516,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 			Utils.setClipboardText(pinStr.toString(), getApplicationContext());
 			Toast.makeText(PinHistoryActivity.this, R.string.copied, Toast.LENGTH_SHORT).show();
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_COPY, null, null);
 			destroyActionMode();
 			return true;
 		default:
