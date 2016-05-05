@@ -8,6 +8,7 @@
     android:paddingLeft="@dimen/chat_bubble_edge_spacing"
     android:paddingRight="@dimen/chat_bubble_edge_spacing"
     android:background="@android:color/white">
+    android:background="@drawable/share_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
