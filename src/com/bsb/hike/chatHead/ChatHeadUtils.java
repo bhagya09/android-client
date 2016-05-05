@@ -1153,7 +1153,7 @@ public class ChatHeadUtils
 	/**
 	 * Checks String is NOt valid
 	 * 1. Empty/Null
-	 * 2. contains only Number
+	 * 2. contains only Number : + is optional, contains only number and digint count is (10, 12)
 	 *
 	 * @param fullName
 	 * @return
@@ -1162,7 +1162,7 @@ public class ChatHeadUtils
 	{
 		boolean valid = true;
 
-		if(TextUtils.isEmpty(fullName) || fullName.matches("^[0-9]$"))
+		if(TextUtils.isEmpty(fullName) || fullName.matches("^[+]?[0-9]{10,12}$"))
 		{
 			valid = false;
 		}
