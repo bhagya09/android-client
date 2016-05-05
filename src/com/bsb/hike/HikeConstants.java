@@ -772,6 +772,7 @@ public class HikeConstants
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
 	public static final String CALL_TYPE = "call_type";
+	public static String CONTENT_RANGE = "Content-Range";
 
 	public class Shortcut
 	{
