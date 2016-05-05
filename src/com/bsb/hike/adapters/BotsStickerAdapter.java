@@ -183,20 +183,8 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		case StickerPageAdapterItem.STICKER:
 			viewType = ViewType.STICKER;
 			break;
-		case StickerPageAdapterItem.UPDATE:
-			viewType = ViewType.UPDATE;
-			break;
 		case StickerPageAdapterItem.DOWNLOADING:
 			viewType = ViewType.DOWNLOADING;
-			break;
-		case StickerPageAdapterItem.RETRY:
-			viewType = ViewType.RETRY;
-			break;
-		case StickerPageAdapterItem.DONE:
-			viewType = ViewType.DONE;
-			break;
-		case StickerPageAdapterItem.PLACE_HOLDER:
-			viewType = ViewType.PLACE_HOLDER;
 			break;
 		}
 
