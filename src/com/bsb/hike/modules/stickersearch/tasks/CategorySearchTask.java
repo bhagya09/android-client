@@ -23,6 +23,13 @@ public class CategorySearchTask implements Runnable
 	@Override
 	public void run()
 	{
+		if (mListener == null)
+		{
+			return;
+		}
+
+		mListener.onSearchInitiated();
+
 		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
 
 		sendResponse(results);

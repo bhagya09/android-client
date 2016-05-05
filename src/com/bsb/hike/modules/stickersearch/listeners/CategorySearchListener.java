@@ -13,4 +13,6 @@ public interface CategorySearchListener
 
     public void onNoCategoriesFound(String query);
 
+    public void onSearchInitiated();
+
 }

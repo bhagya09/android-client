@@ -69,6 +69,25 @@ public class CategorySearchWatcher implements CategorySearchListener, SearchView
 	}
 
 	@Override
+	public void onSearchInitiated()
+	{
+		CategorySearchManager.getInstance().getSearchEngine().runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener == null)
+				{
+					Logger.e(TAG, "onSearchInitiated() : No listener present");
+					return;
+				}
+
+				mListener.onSearchInitiated();
+			}
+		}, 0);
+	}
+
+    @Override
 	public boolean onQueryTextSubmit(String query)
 	{
 		return CategorySearchManager.getInstance().onQueryTextSubmit(query, this);

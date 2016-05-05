@@ -109,10 +109,6 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
-        searchFailedState.setVisibility(View.GONE);
-        loadingFailedEmptyState.setVisibility(View.GONE);
-        loadingEmptyState.setVisibility(View.VISIBLE);
-        listview.setVisibility(View.GONE);
 		return searchWatcher.onQueryTextSubmit(query);
 	}
 
@@ -167,7 +163,21 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
 	}
 
-	private void showNoInternetConnectionState()
+	@Override
+	public void onSearchInitiated()
+	{
+		if (!isAdded())
+		{
+			return;
+		}
+
+		searchFailedState.setVisibility(View.GONE);
+		loadingFailedEmptyState.setVisibility(View.GONE);
+		listview.setVisibility(View.GONE);
+		loadingEmptyState.setVisibility(View.VISIBLE);
+	}
+
+    private void showNoInternetConnectionState()
 	{
 		loadingEmptyState.setVisibility(View.GONE);
 		searchFailedState.setVisibility(View.GONE);
