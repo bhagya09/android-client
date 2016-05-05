@@ -33,6 +33,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -574,6 +575,12 @@ public class SettingsActivity extends ChangeProfileImageBaseActivity implements 
 		HikeMessengerApp.getPubSub().removeListeners(this, profilePubSubListeners);
 
 		super.onDestroy();
+	}
+
+	@Override
+	protected String getSourceSpecies()
+	{
+		return HomeAnalyticsConstants.DP_SPECIES_FULL_VIEW;
 	}
 
 	@Override

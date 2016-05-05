@@ -616,6 +616,12 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 	}
 
+	@Override
+	protected String getSourceSpecies()
+	{
+		return HomeAnalyticsConstants.DP_SPECIES_SIGN_UP;
+	}
+
 	private void startLoading()
 	{
 		if (loadingLayout != null)

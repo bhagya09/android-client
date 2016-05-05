@@ -2173,6 +2173,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					}
 
 					intent = new Intent(HomeActivity.this, StatusUpdate.class);
+					Utils.setSpecies(HomeAnalyticsConstants.SU_SPECIES_OVERFLOW, intent);
 					break;
 					
 				case R.string.send_logs:
