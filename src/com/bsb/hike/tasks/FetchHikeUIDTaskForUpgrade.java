@@ -1,5 +1,6 @@
 package com.bsb.hike.tasks;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
@@ -12,7 +13,9 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHttpTaskResult;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Utils;
+import com.hike.transporter.utils.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -124,15 +127,20 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         HikeUserDatabase.getInstance().updateContactUid(activeChats);
 
         //update Bots Table
+
+        //save Pref for upgrade
+       // HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL,true);
     }
 
     @Override
     public void doOnFailure(HttpException exception) {
-
+        Logger.d(getClass().getSimpleName(),exception.getMessage() +"");
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL,false);
     }
 
     @Override
     public void onRequestFailure(HttpException httpException) {
+        doOnFailure(httpException);
 
     }
 
@@ -166,6 +174,8 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         }
         //Bots
         bots = HikeMessengerApp.hikeBotInfoMap.keySet();
+
+
 
 
     }

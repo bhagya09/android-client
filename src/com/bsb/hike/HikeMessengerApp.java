@@ -50,6 +50,7 @@ import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.tasks.FetchHikeUIDTaskForUpgrade;
 import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
@@ -1085,6 +1086,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+		fetchHikeUIDForUpgrade();
 	}
 
 	private void logUser() {
@@ -1119,6 +1121,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+		}
+	}
+
+	private void fetchHikeUIDForUpgrade() {
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL, false)) {
+			new FetchHikeUIDTaskForUpgrade().execute();
 		}
 	}
 
