@@ -490,6 +490,10 @@ public class ConversationTip implements OnClickListener
 			case STEALTH_HIDE_TIP:
 			case STEALTH_FTUE_TIP:
 				mListener.closeTip(tipType);
+				if (tipType == STEALTH_FTUE_TIP)
+				{
+					LockPattern.recordCloseOnHiddenFtueTip();
+				}
 				StealthModeManager.getInstance().ftuePending(false);
 				break;
 				

@@ -317,4 +317,61 @@ public class LockPattern
 			e.toString();
 		}
 	}
+
+	public static void recordCancelClickForSetPassword(String family)
+	{
+		recordHiddenModeSetClicks(family, "cancel");
+	}
+
+	public static void recordRetryClickForSetPassword(String family)
+	{
+		recordHiddenModeSetClicks(family, "retry");
+	}
+
+	public static void recordConfirmOnSetPassword(String family)
+	{
+		recordHiddenModeSetClicks(family, "confirm");
+	}
+
+	private static void recordHiddenModeSetClicks(String family, String species)
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, family);
+				json.put(AnalyticsConstants.V2.ORDER, "hm_ftue");
+				json.put(AnalyticsConstants.V2.GENUS, StealthModeManager.getInstance().isPinAsPassword() ? "pin" : "pattern");
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void recordCloseOnHiddenFtueTip()
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "hdn_banner");
+				json.put(AnalyticsConstants.V2.ORDER, "hm_ftue");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }
