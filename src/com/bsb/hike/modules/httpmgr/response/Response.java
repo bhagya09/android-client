@@ -39,6 +39,16 @@ public class Response implements IResponseFacade
 		this.responseInterceptors = builder.responseInterceptors;
 	}
 
+	private Response(Response res)
+	{
+		this.url = res.url;
+		this.statusCode = res.statusCode;
+		this.reason = res.reason;
+		this.headers = res.headers;
+		this.body = res.body;
+		this.responseInterceptors = res.responseInterceptors;
+	}
+
 	/**
 	 * Returns the url of the response
 	 * 
@@ -232,5 +242,10 @@ public class Response implements IResponseFacade
 				responseInterceptors = new Pipeline<IResponseInterceptor>();
 			}
 		}
+	}
+
+	public Response clone()
+	{
+		return new Response(this);
 	}
 }

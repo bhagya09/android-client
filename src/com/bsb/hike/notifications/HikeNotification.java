@@ -37,6 +37,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
@@ -1599,7 +1600,7 @@ public class HikeNotification
 				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture, false);
 				String bitmap_url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
 				if(TextUtils.isEmpty(bitmapString) && !TextUtils.isEmpty(bitmap_url)){
-					FileTransferManager.NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+					FileTransferManager.NetworkType networkType = FTUtils.getNetworkType(context);
 					if ((networkType == FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
 							|| (networkType != FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 					{

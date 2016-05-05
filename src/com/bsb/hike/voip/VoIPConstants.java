@@ -140,6 +140,7 @@ public class VoIPConstants {
 	public static final String CALL_RATE_BUNDLE = "callRateBundle";
 	public static final String IS_CONFERENCE = "isConf";
 	public static final String CALL_DURATION = "duration";
+	public static final String CUSTOM_MESSAGE = "customMessage";
 
 	/*
 	 *  Handler Message Constants
@@ -172,6 +173,7 @@ public class VoIPConstants {
 	public static final int MSG_UPDATE_CALL_BUTTONS = 32;
 	public static final int MSG_PARTNER_INCOMPATIBLE_PLATFORM = 33;
 	public static final int MSG_PARTNER_UPGRADABLE_PLATFORM = 34;
+	public static final int MSG_CUSTOM_ERROR_FROM_SERVER = 40;
 
 	public static final class Analytics
 	{
@@ -225,6 +227,9 @@ public class VoIPConstants {
 		public static final int CALLER_IN_NATIVE_CALL = 8;
 
 		public static final int PARTNER_ANSWER_TIMEOUT = 9;
+
+		public static final int CUSTOM_MESSAGE = 10;
+
 	}
 
 	public static final class Extras
@@ -276,7 +281,9 @@ public class VoIPConstants {
 		public static final String RINGING = "r";
 		
 		public static final String VOIP_CLIENTS = "cl";
-		
+
+		public static final String CUSTOM_MESSAGE = "cm";
+
 	}
 
 	/**

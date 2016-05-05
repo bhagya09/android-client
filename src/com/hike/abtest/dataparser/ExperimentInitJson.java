@@ -62,15 +62,15 @@ public class ExperimentInitJson extends ExperimentInit{
 
             //Validate Variables in the Experiment
             for(ProtoMapper.VariableMapper variableMap : expMap.variableList) {
-                if(variableMap.variableName==null || variableMap.type==0 || variableMap.type>4 ||
-                        variableMap.defaultValue==null || variableMap.experimentalValue==null) {
+                if(variableMap.variableName ==null || variableMap.type==0 || variableMap.type>4 ||
+                        variableMap.defaultValue ==null || variableMap.experimentValue ==null) {
                     throw new ParserException("Invalid Variable", ParserException.ERROR_INVALID_VARIABLE);
                 }
             }
 
             //Experiment validated. Add to Map
             try {
-                experimentMap.put(expMap.experimentId, experiments.get(index).toString());
+                experimentMap.put(expMap.experimentId, getExperiment(experiments.getJSONObject(index)));
             } catch (JSONException e) {
                 e.printStackTrace();
                 throw new ParserException("Error storing experiment");
@@ -79,5 +79,9 @@ public class ExperimentInitJson extends ExperimentInit{
         }
 
         return experimentMap;
+    }
+
+    public String getExperiment(JSONObject experiment) throws JSONException {
+        return experiment.toString();
     }
 }

@@ -34,6 +34,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.http.HikeHttpRequest.RequestType;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
@@ -77,10 +78,12 @@ import com.bsb.hike.utils.SmileyParser;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.view.TextDrawable;
 import com.bsb.hike.voip.VoIPUtils;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -124,6 +127,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -187,6 +191,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private CustomFontEditText mEmailEdit;
 
 	private String emailTxt;
+
+	private CustomFontTextView savedDOB;
+
+	private String dobTxt;
+
+	private boolean dobEdited = false;
 
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
@@ -448,6 +458,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				setupEditScreen();
 				HikeMessengerApp.getPubSub().addListeners(this, profilEditPubSubListeners);
 				triggerPointPopup=ProductPopupsConstants.PopupTriggerPoints.EDIT_PROFILE.ordinal();
+				if(getIntent().getBooleanExtra(HikeConstants.Extras.PROFILE_DOB, false))
+				{
+					showDatePickerDialog();
+				}
 			}
 			else
 			{
@@ -1400,19 +1414,70 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			sharedMediaItem.addSharedMediaFiles((List<HikeSharedFile>) hCDB.getSharedMedia(mLocalMSISDN, maxMediaToShow * MULTIPLIER , -1, true));
 	}
 
+	private DatePickerDialog.OnDateSetListener dobDateListener = new DatePickerDialog.OnDateSetListener()
+	{
+		@Override
+		public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
+		{
+			Birthday dobEntered = new Birthday(dayOfMonth, monthOfYear +1, year);
+			dobTxt = dobEntered.toJsonString();
+			savedDOB.setText(Utils.formatDOB(dobTxt));
+			dobEdited = true;
+		}
+	};
+
+	private void showDatePickerDialog()
+	{
+		Logger.d(getClass().getSimpleName(), "creating date picker dialog");
+		int year, month, day;
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			year = Birthday.DEFAULT_YEAR;
+			month = Birthday.DEFAULT_MONTH;
+			day = Birthday.DEFAULT_DAY;
+		}
+		else
+		{
+			Birthday currDOB = new Birthday(dobTxt);
+			year = currDOB.year;
+			month = currDOB.month - 1;
+			day = currDOB.day;
+		}
+		DatePickerDialog dialog = new DatePickerDialog(this, dobDateListener, year, month, day);
+		Logger.d(getClass().getSimpleName(), "overriding negative button on date picker dialog");
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				if(which == DialogInterface.BUTTON_NEGATIVE)
+				{
+					Logger.d(TAG, "cancelling date picker dialog");
+					dialog.dismiss();
+					dobEdited = false;
+				}
+			}
+		});
+		Logger.d(getClass().getSimpleName(), "calling show on date picker dialog");
+		dialog.show();
+	}
+
 	private void setupEditScreen()
 	{
 		ViewGroup name = (ViewGroup) findViewById(R.id.name);
 		ViewGroup phone = (ViewGroup) findViewById(R.id.phone);
+		ViewGroup birthday = (ViewGroup) findViewById(R.id.birthday);
 		ViewGroup email = (ViewGroup) findViewById(R.id.email);
 		ViewGroup gender = (ViewGroup) findViewById(R.id.gender);
 		ViewGroup picture = (ViewGroup) findViewById(R.id.photo);
 
 		mNameEdit = (CustomFontEditText) name.findViewById(R.id.name_input);
 		mEmailEdit = (CustomFontEditText) email.findViewById(R.id.email_input);
+		savedDOB = ((CustomFontTextView) birthday.findViewById(R.id.birthday_stored));
 		
 		((TextView) name.findViewById(R.id.name_edit_field)).setText(R.string.name);
 		((TextView) phone.findViewById(R.id.phone_edit_field)).setText(R.string.phone_num);
+		((TextView) birthday.findViewById(R.id.birthday_edit_field)).setText(R.string.edit_profile_birthday);
 		((TextView) email.findViewById(R.id.email_edit_field)).setText(R.string.email);
 		((TextView) gender.findViewById(R.id.gender_edit_field)).setText(R.string.gender);
 		((TextView) picture.findViewById(R.id.photo_edit_field)).setText(R.string.edit_picture);
@@ -1425,6 +1490,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			public void onClick(View v)
 			{				
 				changeProfilePicture();
+			}
+		});
+
+		savedDOB.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				showDatePickerDialog();
 			}
 		});
 		
@@ -1440,6 +1514,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		mNameEdit.setText(nameTxt);
 		mEmailEdit.setText(emailTxt);
+		savedDOB.setText(Utils.formatDOB(dobTxt));
 
 		mNameEdit.setSelection(nameTxt.length());
 		mEmailEdit.setSelection(emailTxt.length());
@@ -1580,14 +1655,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 
 			};
-			if (Utils.isHoneycombOrHigher())
-			{
-				asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-			}
-			else
-			{
-				asyncTask.execute();
-			}
+
+			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -1599,12 +1668,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			Logger.d(getClass().getSimpleName(), "CentralTimeline Adapter Scrolled State: " + scrollState);
 			profileAdapter.setIsListFlinging(velocity > HikeConstants.MAX_VELOCITY_FOR_LOADING_TIMELINE_IMAGES && scrollState == OnScrollListener.SCROLL_STATE_FLING);
 		}
-		/*
-		 * // Pause fetcher to ensure smoother scrolling when flinging if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) { // Before Honeycomb pause image loading
-		 * on scroll to help with performance if (!Utils.hasHoneycomb()) { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(true);
-		 * profileAdapter.getIconImageLoader().setPauseWork(true); } } } else { if (profileAdapter != null) { profileAdapter.getTimelineImageLoader().setPauseWork(false);
-		 * profileAdapter.getIconImageLoader().setPauseWork(false); } }
-		 */
 	}
 
 	private void fetchPersistentData()
@@ -1614,6 +1677,17 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		emailTxt = preferences.getString(HikeConstants.Extras.EMAIL, "");
 		lastSavedGender = preferences.getInt(HikeConstants.Extras.GENDER, 0);
 		mActivityState.genderType = mActivityState.genderType == 0 ? lastSavedGender : mActivityState.genderType;
+		dobTxt = preferences.getString(HikeConstants.DOB, "");
+		if(TextUtils.isEmpty(dobTxt))
+		{
+			int day = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_DAY, 0);
+			int month = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_MONTH, 0);
+			int year = preferences.getInt(HikeConstants.SERVER_BIRTHDAY_YEAR, 0);
+			if(day != 0 && month != 0 && year != 0)
+			{
+				dobTxt = new Birthday(day, month, year).toJsonString();
+			}
+		}
 	}
 
 	@Override
@@ -1769,13 +1843,59 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			requests.add(request);
 		}
 
+		if(dobEdited)
+		{
+			HikeHttpRequest request = new HikeHttpRequest(httpRequestURL + "/dob", RequestType.OTHER, new HikeHttpRequest.HikeHttpCallback()
+			{
+				public void onFailure()
+				{
+					if (isBackPressed)
+					{
+						Logger.d(getClass().getSimpleName(), "DoB update request failed");
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+
+				public void onSuccess(JSONObject response)
+				{
+					Logger.d(getClass().getSimpleName(), "DoB updated request successful");
+					Editor editor = preferences.edit();
+					editor.putString(HikeConstants.DOB, dobTxt);
+					editor.commit();
+					if (isBackPressed)
+					{
+						// finishEditing();
+						HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+					}
+				}
+			});
+			JSONObject payload = new JSONObject();
+			try
+			{
+				Logger.d(getClass().getSimpleName(), "Profile details DOB: " + savedDOB.getText());
+				Birthday updatedDOB = new Birthday(dobTxt);
+				JSONObject dobJSON = new JSONObject();
+				dobJSON.put(HikeConstants.DAY, updatedDOB.day);
+				dobJSON.put(HikeConstants.MONTH, (updatedDOB.month));
+				dobJSON.put(HikeConstants.YEAR, updatedDOB.year);
+				payload.put(HikeConstants.DOB, dobJSON);
+				Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + payload.toString());
+				request.setJSONData(payload);
+			}
+			catch (JSONException e)
+			{
+				Logger.e(getClass().getSimpleName(), "Could not update DoB");
+			}
+			requests.add(request);
+		}
+
 		if (!requests.isEmpty() && this.profileType != ProfileType.USER_PROFILE)
 		{
 			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			Utils.executeHttpTask(mActivityState.task, r);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else if (isBackPressed)
 		{
