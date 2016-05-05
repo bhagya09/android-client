@@ -1385,6 +1385,17 @@ public class HikeConstants
 
 	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
+	public static final class Preactivation
+	{
+		public static final String LOGS_SCHEDULE="logs_schdl";
+
+		public static final String INTERVAL = "inv";
+
+		public static final String FREQUENCY = "frq";
+
+		public static final String TYPE = "typ";
+	}
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
