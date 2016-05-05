@@ -16,10 +16,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -438,7 +438,7 @@ public class FileSelectActivity extends HikeAppStateBaseFragmentActivity impleme
 
 				Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(FileSelectActivity.this, msisdn, false,false, ChatThreadActivity.ChatThreadOpenSources.FILE_SHARING);
 				fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), ftDataList, msisdn, onHike, FTAnalyticEvents.FILE_ATTACHEMENT, intent);
-				Utils.executeAsyncTask(fileTransferTask);
+				fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 				progressDialog = ProgressDialog.show(FileSelectActivity.this, null, getResources().getString(R.string.multi_file_creation));
 			}
