@@ -1,7 +1,6 @@
 package com.bsb.hike.tasks;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -16,6 +15,7 @@ import com.bsb.hike.modules.httpmgr.hikehttp.IHikeHTTPTask;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.ui.ProfileActivity;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -47,8 +47,6 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private boolean isBackPressed;
 
-    private SharedPreferences prefs;
-
     private RequestToken editNameRequestToken;
 
     private RequestToken editEmailGenderRequestToken;
@@ -66,10 +64,9 @@ public class EditProfileTask implements IHikeHTTPTask
         this.newGenderType = newGenderType;
         this.isBackPressed = isBackPressed;
         this.applicationCtx = HikeMessengerApp.getInstance().getApplicationContext();
-        this.prefs = applicationCtx.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, Context.MODE_PRIVATE);
-        this.currName = prefs.getString(HikeMessengerApp.NAME_SETTING, "");
-        this.currEmail = prefs.getString(HikeConstants.Extras.EMAIL, "");
-        this.currGenderType = prefs.getInt(HikeConstants.Extras.GENDER, 0);
+        this.currName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
+        this.currEmail = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.EMAIL, "");
+        this.currGenderType = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0);
         this.editProfileRequestsCount = new AtomicInteger(0);
     }
 
@@ -139,10 +136,7 @@ public class EditProfileTask implements IHikeHTTPTask
 					/*
 					 * if the request was successful, update the shared preferences and the UI
 					 */
-					String name = newName;
-					SharedPreferences.Editor editor = prefs.edit();
-					editor.putString(HikeMessengerApp.NAME_SETTING, name);
-					editor.commit();
+                    HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.NAME_SETTING, newName);
 					HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_NAME_CHANGED, null);
 				}
                 if (editProfileRequestsCount.decrementAndGet() == 0)
@@ -223,13 +217,11 @@ public class EditProfileTask implements IHikeHTTPTask
             @Override
             public void onRequestSuccess(Response result)
             {
-                SharedPreferences.Editor editor = prefs.edit();
                 if (Utils.isValidEmail(newEmail))
                 {
-                    editor.putString(HikeConstants.Extras.EMAIL, newEmail);
+                    HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.EMAIL, newEmail);
                 }
-                editor.putInt(HikeConstants.Extras.GENDER, newGenderType);
-                editor.commit();
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENDER, newGenderType);
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
