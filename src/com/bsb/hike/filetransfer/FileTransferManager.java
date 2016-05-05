@@ -727,7 +727,7 @@ public class FileTransferManager
 			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
-		String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
+		String network = FTUtils.getNetworkTypeString(context);
 		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{

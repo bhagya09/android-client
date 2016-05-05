@@ -1194,6 +1194,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 				LockPattern.recordCancelClickForResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd");
 			}
 
+			else
+			{
+				Logger.d("LockPattern", "Recording cancel click in lock pattern upon setting password");
+				LockPattern.recordCancelClickForSetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd");
+			}
+
 			passwordResetNewScreen = false;
 
 			getIntent().removeExtra(EXTRA_PATTERN);
@@ -1210,6 +1216,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 			{
 				Logger.d("LockPattern", "Recording retry click in lock pattern upon reset password");
 				LockPattern.recordRetryClickForResetPassword("hdn_new_pwd");
+			}
+
+			else
+			{
+				Logger.d("LockPattern", "Recording retry click in lock pattern upon Set password");
+				LockPattern.recordRetryClickForSetPassword("hdn_new_pwd");
 			}
 
         	mLockPatternViewReloader.run();
@@ -1270,6 +1282,12 @@ public class LockPatternActivity extends HikeAppStateBaseFragmentActivity {
 					{
 						Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
 						LockPattern.recordConfirmOnResetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd");
+					}
+
+					else
+					{
+						Logger.d("LockPattern", "Recording cancel click in lock pattern upon reset password");
+						LockPattern.recordConfirmOnSetPassword(passwordResetNewScreen ? "hdn_new_pwd" : "hdn_cnf_pwd");
 					}
 					passwordResetNewScreen = false;
 
