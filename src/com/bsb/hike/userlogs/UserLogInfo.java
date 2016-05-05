@@ -502,6 +502,7 @@ public class UserLogInfo {
 	{
 		return new IRequestListener()
 		{
+
 			@Override
 			public void onRequestSuccess(Response result)
 			{
@@ -525,35 +526,43 @@ public class UserLogInfo {
 			public void onRequestFailure(@Nullable final Response errorResponse, final HttpException httpException)
 			{
 
-				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME, new Runnable() {
+				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {
 					@Override
 					public void run() {
-						String url = errorResponse.getUrl();
+						String logType;
 
-						String logType = url.substring(url.lastIndexOf("/") + 1);
-						IRequestListener requestListener = getRequestListener();
+						if(errorResponse != null) {
+							String url = errorResponse.getUrl();
 
-						String encryptedJsonString = HikeSharedPreferenceUtil.getInstance().getData(logType,"");
+							logType = url.substring(url.lastIndexOf("/") + 1);
 
-						if(!TextUtils.isEmpty(encryptedJsonString))
-						{
-
-							try {
-								JSONObject jsonLogObject = null;
-								jsonLogObject = new JSONObject(encryptedJsonString);
-
-								RequestToken token = HttpRequests.sendUserLogInfoRequest(logType, jsonLogObject, requestListener);
-								token.execute();
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
 						}
+						else
+						{
+							logType = "al";
+						}
+
+							IRequestListener requestListener = getRequestListener();
+							String encryptedJsonString = HikeSharedPreferenceUtil.getInstance().getData(logType, "");
+
+							if (!TextUtils.isEmpty(encryptedJsonString)) {
+
+								try {
+									JSONObject jsonLogObject = null;
+									jsonLogObject = new JSONObject(encryptedJsonString);
+
+									RequestToken token = HttpRequests.sendUserLogInfoRequest(logType, jsonLogObject, requestListener);
+									token.execute();
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+
 
 
 					}
 				});
-
-				Logger.d(TAG, "failure : " + errorResponse.getBody().getErrorString());
+				Logger.d(TAG, "failure : " + errorResponse!=null ? errorResponse.getBody().getErrorString() : "");
 			}
 		};
 	};
@@ -566,8 +575,8 @@ public class UserLogInfo {
 
 		int lastBackOffTime = mprefs.getData(lastBackOffTimePref, 0);
 
-		lastBackOffTime = lastBackOffTime == 0 ? HikeConstants.RECONNECT_TIME : (lastBackOffTime * 2);
-		lastBackOffTime = Math.min(HikeConstants.MAX_RECONNECT_TIME, lastBackOffTime);
+		lastBackOffTime = lastBackOffTime == 0 ? 2 : (lastBackOffTime * 2);
+		lastBackOffTime = Math.min(20, lastBackOffTime);
 
 		Logger.d(TAG, "Scheduling the next disconnect");
 
