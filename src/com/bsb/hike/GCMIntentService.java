@@ -77,7 +77,11 @@ public class GCMIntentService extends GCMBaseIntentService
 			JSONObject logType = null;
 			try
 			{
+
 				String logtypeString = intent.getStringExtra("user_logs");
+
+				Logger.d(getClass().getSimpleName(), "user_logs message: " + logtypeString);
+
 				if(!TextUtils.isEmpty(logtypeString)) {
 					logType = new JSONObject(logtypeString);
 					if (logType != null) {

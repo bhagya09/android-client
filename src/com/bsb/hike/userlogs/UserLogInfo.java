@@ -455,9 +455,9 @@ public class UserLogInfo {
 	private static boolean isKeysAvailable()
 	{
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
-		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+		String key = settings.getData("pa_uid", null);
 		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		String salt = settings.getData("pa_token", null);
 		// if salt or key is empty, we do not send anything
 		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
 			return false;
