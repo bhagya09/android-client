@@ -725,6 +725,7 @@ public class HttpRequests
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
 				.addHeader(hdr)
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
