@@ -960,10 +960,10 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 
 	/**
 	 * This method deletes the contacts of particular set of ids given by parameter <code>keySet</code> from users database
-	 * 
+	 *
 	 * @param keySet
 	 */
-	public void deleteMultipleContactInDB(Set<String> keySet)
+	public void deleteMultipleContactInDB(Map<String, List<ContactInfo>> keySet)
 	{
 		hDb.deleteMultipleRows(keySet);
 	}
@@ -1789,7 +1789,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 
@@ -2042,7 +2042,7 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 			deleteContacts(contactsToDelete);
 
 			/* Delete ids from hike user DB */
-			deleteMultipleContactInDB(hike_contacts_by_id.keySet());
+			deleteMultipleContactInDB(hike_contacts_by_id);
 			updateContactsinDB(updatedContacts);
 			syncContacts(updatedContacts);
 

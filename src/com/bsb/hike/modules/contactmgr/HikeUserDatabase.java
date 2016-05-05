@@ -1440,8 +1440,23 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 
 
-	void deleteMultipleRows(Collection<String> ids)
+	void deleteMultipleRows(Map<String, List<ContactInfo>> hike_Contacts)
 	{
+		Set<String> ids = hike_Contacts.keySet();
+		Set<String> conversationExists = new HashSet<>(ids.size());
+
+		for (Entry<String, List<ContactInfo>> e : hike_Contacts.entrySet()) {
+			List<ContactInfo> list = e.getValue();
+			for (ContactInfo ci : list) {
+				if (ContactManager.getInstance().isConvExists(ci.getMsisdn())) {
+					conversationExists.add(e.getKey());
+					break;
+				}
+			}
+		}
+
+		ids.removeAll(conversationExists);
+
 		String ids_joined = "(" + Utils.join(ids, ",", "\"", "\"") + ")";
 		String selection= DBConstants.ID + " in " + ids_joined+ " AND ( "+DBConstants.FAVORITE_TYPE + " > 0 OR " + DBConstants.BLOCK_STATUS + " = "+ DBConstants.STATUS_BLOCKED + " ) ";
 		Logger.d(TAG,"The Selection query is "+selection);
@@ -1451,7 +1466,11 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		cv.putNull(DBConstants.ID);
 		cv.putNull(DBConstants.PHONE);
 
+
 		long rows=mDb.update(DBConstants.USERS_TABLE,cv,selection,null);
+		String idsJoinedConversationEx = "(" + Utils.join(conversationExists, ",", "\"", "\"") + ")";
+		rows = mDb.update(DBConstants.USERS_TABLE,cv,DBConstants.ID + " in "+ idsJoinedConversationEx,null);
+		Logger.d(TAG,"Update in COnversation Exists + "+rows);
 
 		Logger.d(TAG,"Update in deleteMultipleRows + "+rows);
 
