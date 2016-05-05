@@ -2678,4 +2678,82 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
             mDb.endTransaction();
         }
     }
+
+	@Override
+	public void onEventReceived(String type, Object object) {
+
+		switch (type) {
+			case HikePubSub.NEW_CONVERSATION:
+				updateTableWhenNewConversationCreated((ConvInfo) object);
+				break;
+			case HikePubSub.CONVERSATION_DELETED:
+				updateTableWhenNewConversationDeleted((ConvInfo) object);
+				break;
+		}
+	}
+
+	private void updateTableWhenNewConversationCreated(ConvInfo convInfo) {
+
+		//TODO : Correct implementation will be to update this table on pubsub that will be thrown on sucess of profile call for unknown caontact.
+		String msisdn = convInfo.getMsisdn();
+		if (TextUtils.isEmpty(msisdn)) {
+			return;
+		}
+		boolean doesConversationExist = doesContactExist(msisdn);
+		if (doesConversationExist) {
+			return;
+		}
+		ContentValues cv = new ContentValues();
+		cv.put(DBConstants.MSISDN, msisdn);
+
+		mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	private void updateTableWhenNewConversationDeleted(ConvInfo convInfo) {
+		String msisdn = convInfo.getMsisdn();
+		if (TextUtils.isEmpty(msisdn)) {
+			return;
+		}
+		// Deletion Logic:If saved in addressBk return
+		//if fav or BS = 1 return
+
+
+		boolean isInAddressBook = isAddressBookContact(msisdn);
+
+		if(isInAddressBook)
+		{
+			return;
+		}
+
+		String selection = DBConstants.MSISDN + " =? AND " +DBConstants.FAVORITE_TYPE  + " = 0    AND " + DBConstants.BLOCK_STATUS + " = 0";
+		Logger.d(TAG,"updateTableWhenNewConversationDeleted --> delete success" + selection);
+		long value = mDb.delete(DBConstants.USERS_TABLE, selection, new String[]{msisdn});
+		if (value == 0) {
+			ContentValues cv = new ContentValues();
+			cv.putNull(DBConstants.ID);
+			cv.putNull(DBConstants.NAME);
+			cv.putNull(DBConstants.PHONE);
+			value = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + " = ? and id is null", new String[]{msisdn});
+			Logger.d(TAG,"updateTableWhenNewConversationDeleted --> update success" + selection);
+		}
+	}
+
+	boolean isAddressBookContact(String msisdn) {
+		if (TextUtils.isEmpty(msisdn)) {
+			return false;
+		}
+		boolean isAddressBookContact = false;
+		Cursor c = null;
+		try {
+
+
+			c = mDb.rawQuery("Select name  from users where msisdn = ?  and id is not null and name is not null", new String[]{msisdn});
+			isAddressBookContact = c.getCount() > 0 ? true : false;
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+		}
+		return isAddressBookContact;
+	}
 }
