@@ -40,7 +40,7 @@ public class Config
 
 	public static final String WINDOW_END = "window_end";
 
-	private int numRetries = HikeConstants.DEFAULT_RETRIES_GCM_NW_MANAGER;
+	private int numRetries;
 
 	private long windowStartDelaySeconds;
 
@@ -206,7 +206,7 @@ public class Config
 
 	public static class Builder
 	{
-		private int numRetries;
+		private int numRetries = HikeConstants.DEFAULT_RETRIES_GCM_NW_MANAGER;
 
 		private long windowStartDelaySeconds;
 

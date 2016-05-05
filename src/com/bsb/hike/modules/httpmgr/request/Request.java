@@ -432,6 +432,11 @@ public abstract class Request<T> implements IRequestFacade
 		return gcmTaskConfig;
 	}
 
+	public void setGcmTaskConfig(Config gcmTaskConfig)
+	{
+		this.gcmTaskConfig = gcmTaskConfig;
+	}
+
 	/**
 	 * Returns the future of the request that is submitted to the executor
 	 * 

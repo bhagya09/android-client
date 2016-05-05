@@ -96,7 +96,7 @@ public class RequestRunner
 			{
 				if (gcmTaskConfig != null)
 				{
-					HttpRequestStateDB.getInstance().insertBundleToDb(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
+					HttpRequestStateDB.getInstance().update(gcmTaskConfig.getTag(), gcmTaskConfig.toBundle());
 				}
 			}
 		});
