@@ -6630,7 +6630,7 @@ public class Utils {
     {
         Bundle bundle = null;
 
-        if (isEmpty(bundleBytes))
+        if (!isEmpty(bundleBytes))
         {
             Parcel parcel = Parcel.obtain();
             parcel.unmarshall(bundleBytes, 0, bundleBytes.length);
