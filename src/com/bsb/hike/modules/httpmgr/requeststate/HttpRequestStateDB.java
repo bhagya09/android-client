@@ -203,19 +203,19 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, REQUEST_ID + "=?", new String[] { id });
 	}
 
-	public Bundle getBundleForTag(String requestTag)
+	public Config getConfigFromDb(Config config)
 	{
 		Cursor c = null;
-		Bundle bundle = null;
+		Config configFromDb = null;
 		try
 		{
-			c = mDb.query(GCM_NETWORK_MANAGER_TABLE, null, REQUEST_TAG + "=?", new String[] { requestTag }, null, null, null);
+			c = mDb.query(GCM_NETWORK_MANAGER_TABLE, null, REQUEST_TAG + "=?", new String[] { config.getTag() }, null, null, null);
 
 			int bundleIdx = c.getColumnIndex(BUNDLE);
 			if (c.moveToFirst())
 			{
 				byte[] bundleBytes = c.getBlob(bundleIdx);
-				bundle = Utils.getBundleFromBytes(bundleBytes);
+				configFromDb = Config.fromBundle(Utils.getBundleFromBytes(bundleBytes));
 			}
 		}
 		finally
@@ -226,7 +226,7 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 			}
 		}
 
-		return bundle;
+		return (configFromDb == null ? config : configFromDb);
 	}
 
 	public void insertBundleToDb(String requestTag, Bundle bundle)

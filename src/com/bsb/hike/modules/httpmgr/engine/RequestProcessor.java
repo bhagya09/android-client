@@ -59,9 +59,11 @@ public class RequestProcessor
 		}
 		else
 		{
-			final Config config = request.getGcmTaskConfig();
-			if (config != null)
+			if (request.getGcmTaskConfig() != null)
 			{
+				final Config config = HttpRequestStateDB.getInstance().getConfigFromDb(request.getGcmTaskConfig());
+				request.setGcmTaskConfig(config);
+
 				HikeHandlerUtil.getInstance().postAtFront(new Runnable()
 				{
 					@Override
