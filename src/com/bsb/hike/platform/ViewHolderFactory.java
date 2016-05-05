@@ -2,28 +2,24 @@ package com.bsb.hike.platform;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
-import android.support.v7.widget.RecyclerView;
+import android.net.Uri;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessagesAdapter;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.view.CustomFontTextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,27 +30,43 @@ import java.util.List;
  */
 public class ViewHolderFactory
 {
-    private static NativeCardManager.NativeCardType[] cardTypes = NativeCardManager.NativeCardType.values();
-    public static class ShareViewHolder extends MessagesAdapter.DetailViewHolder{
+    private Context mContext;
+    public ViewHolderFactory(Context context)
+    {
+        mContext =context;
+    }
+    private  NativeCardManager.NativeCardType[] cardTypes = NativeCardManager.NativeCardType.values();
+    public abstract  class ShareViewHolder extends MessagesAdapter.DetailViewHolder{
         public ViewStub shareStub;
         public View shareStubInflated;
-        protected void showShare(View view){
+        protected void showShare(final View view){
             if(shareStubInflated == null){
                 shareStub = (ViewStub)view.findViewById(R.id.share_stub);
                 shareStubInflated = shareStub.inflate();
             }
             shareStubInflated.setVisibility(View.VISIBLE);
+            shareStubInflated.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        shareCard(view);
+                    }
+                });
         }
+        public abstract void shareCard(View view);
     }
 
-    public abstract static class ViewHolder extends ShareViewHolder
+    public abstract  class ViewHolder extends ShareViewHolder
     {
         HashMap<String, View> viewHashMap;
-
-        public void initializeHolder(View view, List<CardComponent.TextComponent> textComponentList, List<CardComponent.MediaComponent> mediaComponentList,
-                                     ArrayList<CardComponent.ActionComponent> actionComponents, boolean isSent, boolean showShare)
+        protected ConvMessage convMessage;
+        public void initializeHolder(View view, ConvMessage convMessage)
         {
-
+            List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.textComponents;
+            List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.mediaComponents;
+            ArrayList<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.actionComponents;
+            ViewHolderFactory.ViewHolder viewHolder;
+            boolean showShare = convMessage.platformMessageMetadata.showShare;
+            boolean isSent = convMessage.isSent();
             viewHashMap = new HashMap<String, View>();
             time = (TextView) view.findViewById(R.id.time);
             status = (ImageView) view.findViewById(R.id.status);
@@ -63,15 +75,16 @@ public class ViewHolderFactory
             messageContainer = (ViewGroup) view.findViewById(R.id.message_container);
             dayStub = (ViewStub) view.findViewById(R.id.day_stub);
             messageInfoStub = (ViewStub) view.findViewById(R.id.message_info_stub);
+            this.convMessage =convMessage;
 
-            for (CardComponent.TextComponent textComponent : textComponentList)
+            for (CardComponent.TextComponent textComponent : textComponents)
             {
                 String tag = textComponent.getTag();
                 if (!TextUtils.isEmpty(tag))
                     viewHashMap.put(tag, view.findViewWithTag(tag));
             }
 
-            for (CardComponent.MediaComponent mediaComponent : mediaComponentList)
+            for (CardComponent.MediaComponent mediaComponent : mediaComponents)
             {
                 String tag = mediaComponent.getTag();
                 if (!TextUtils.isEmpty(tag))
@@ -116,9 +129,10 @@ public class ViewHolderFactory
         }
         public abstract void clearViewHolder(View view);
         public abstract void processViewHolder(View view);
+
     }
 
-    public static class HikeDailyViewHolder extends ViewHolder
+    public  class HikeDailyViewHolder extends ViewHolder
     {
         public void clearViewHolder(View view){
             if(shareStubInflated != null){
@@ -134,8 +148,17 @@ public class ViewHolderFactory
         public void processViewHolder(View view) {
 
         }
+
+        @Override
+        public void shareCard(View view) {
+            LinearLayout cardContainer = (LinearLayout)view.findViewById(R.id.card_container);
+            Uri fileUri=NativeCardUtils.getFileForView((View) cardContainer, HikeMessengerApp.getInstance());
+            Intent intent = IntentFactory.getForwardIntentForCards(mContext, convMessage,fileUri);
+            mContext.startActivity(intent);
+
+        }
     }
-    public static class JFLViewHolder extends ViewHolder
+    public class JFLViewHolder extends ViewHolder
     {
         public void clearViewHolder(View view){
             if(shareStubInflated != null){
@@ -153,8 +176,16 @@ public class ViewHolderFactory
             layoutParams.width = ((ImageView)view.findViewWithTag("I1")).getDrawable().getIntrinsicWidth();
             messageContainer.setLayoutParams(layoutParams);
         }
+
+        @Override
+        public void shareCard(View view) {
+            LinearLayout cardContainer = (LinearLayout)view.findViewById(R.id.card_container);
+            Uri fileUri=NativeCardUtils.getFileForView((View) cardContainer, HikeMessengerApp.getInstance());
+            Intent intent = IntentFactory.getForwardIntentForCards(mContext, convMessage,fileUri);
+            mContext.startActivity(intent);
+        }
     }
-    public static ViewHolder getViewHolder(int type){
+    public ViewHolder getViewHolder(int type){
         switch (cardTypes[type]){
             case HIKE_DAILY:
                 return new HikeDailyViewHolder();

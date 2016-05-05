@@ -17,6 +17,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CardComponent;
 import com.bsb.hike.platform.nativecards.NativeCardManager;
+import com.bsb.hike.platform.nativecards.NativeCardUtils;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -42,23 +43,20 @@ public class NativeCardRenderer implements View.OnLongClickListener
     }
 
     private Context context;
+    ViewHolderFactory viewHolderFactory;
     public NativeCardRenderer(Context context)
     {
         this.context =context;
+       viewHolderFactory = new ViewHolderFactory(context);
     }
     public View getView(View view, final ConvMessage convMessage, ViewGroup parent)
     {
-        List<CardComponent.TextComponent> textComponents = convMessage.platformMessageMetadata.textComponents;
-        List<CardComponent.MediaComponent> mediaComponents = convMessage.platformMessageMetadata.mediaComponents;
-        ArrayList<CardComponent.ActionComponent> actionComponents = convMessage.platformMessageMetadata.actionComponents;
-        ViewHolderFactory.ViewHolder viewHolder;
         int cardType = convMessage.platformMessageMetadata.layoutId;
-        boolean showShare = convMessage.platformMessageMetadata.showShare;
-        boolean isSent = convMessage.isSent();
+        ViewHolderFactory.ViewHolder viewHolder;
         if (view == null)
         {
             view = NativeCardManager.getInflatedViewAsPerType(context, cardType, parent, convMessage.isSent());
-            viewHolder = ViewHolderFactory.getViewHolder(cardType);
+            viewHolder = viewHolderFactory.getViewHolder(cardType);
             view.setTag(viewHolder);
         }
         else
@@ -66,7 +64,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
             viewHolder = (ViewHolderFactory.ViewHolder) view.getTag();
         }
         viewHolder.clearViewHolder(view);
-        viewHolder.initializeHolder(view, textComponents, mediaComponents, actionComponents, isSent, showShare);
+        viewHolder.initializeHolder(view, convMessage);
         cardDataFiller(convMessage, viewHolder);
         viewHolder.processViewHolder(view);
         return view;
@@ -81,7 +79,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
         //Add the length of NativeCardType enum for received card type.
         return convMessage.isSent()?convMessage.platformMessageMetadata.layoutId:convMessage.platformMessageMetadata.layoutId + NativeCardManager.NativeCardType.values().length;
     }
-    private void cardDataFiller(final ConvMessage convMessage, ViewHolderFactory.ViewHolder viewHolder)
+    private void cardDataFiller(final ConvMessage convMessage, final ViewHolderFactory.ViewHolder viewHolder)
     {
         if(!TextUtils.isEmpty(convMessage.platformMessageMetadata.backgroundColor)){
             Utils.setRectangularBackground(viewHolder.messageContainer,Color.parseColor(convMessage.platformMessageMetadata.backgroundColor) );
@@ -123,15 +121,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
 
             }
         }
-        if(viewHolder.shareStubInflated != null){
-            viewHolder.shareStubInflated.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = IntentFactory.getForwardIntentForCards(context, convMessage);
-                    context.startActivity(intent);
-                }
-            });
-        }
+
     }
 
     private void cardCallToActions(ArrayList<CardComponent.ActionComponent> actionComponents, final ViewHolderFactory.ViewHolder viewHolder, final boolean isAppInstalled, final String channelSource)

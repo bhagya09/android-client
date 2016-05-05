@@ -1086,7 +1086,7 @@ public class IntentFactory
 
 		return new Intent();
 	}
-    public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage){
+    public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage , Uri fileUri){
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
 		JSONArray multipleMsgArray = new JSONArray();
@@ -1101,7 +1101,12 @@ public class IntentFactory
 			}
 
 			multiMsgFwdObject.put(HikeConstants.HIKE_MESSAGE, convMessage.getMessage());
-
+			if(fileUri != null)
+			{
+				//intent.putExtra((Intent.EXTRA_STREAM),fileUri);
+				multiMsgFwdObject.put(HikeConstants.Extras.FILE_PATH, fileUri.getPath());
+				intent.putExtra(HikeConstants.Extras.SHOW_TIMELINE,true);
+			}
 			multipleMsgArray.put(multiMsgFwdObject);
 		}
 		catch (JSONException e)
