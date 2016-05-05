@@ -206,6 +206,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 
 	private boolean showStickerRestoreDiffDpiDialog = false;
 
+	private final String SHOW_STICKER_RESTORE_DIALOG  = "showStkDialog";
+
 	private class ActivityState
 	{
 		public RequestToken pinCallRequestToken; /* the task to update the global profile */
@@ -350,6 +352,8 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 				showErrorMsg();
 			}
 			mTask = SignupTask.startTask(this, mActivityState.userName, mActivityState.isFemale, mActivityState.birthday, mActivityState.profileBitmap);
+
+			showStickerRestoreDiffDpiDialog = savedInstanceState.getBoolean(SHOW_STICKER_RESTORE_DIALOG, false);
 		}
 		else
 		{
@@ -2073,6 +2077,7 @@ public class SignupActivity extends ChangeProfileImageBaseActivity implements Si
 		}
 		outState.putString(HikeConstants.Extras.RESTORE_STATUS, mActivityState.restoreStatus);
 		outState.putParcelable(HikeConstants.Extras.BITMAP, mActivityState.profileBitmap);
+		outState.putBoolean(SHOW_STICKER_RESTORE_DIALOG, showStickerRestoreDiffDpiDialog);
 		super.onSaveInstanceState(outState);
 	}
 
