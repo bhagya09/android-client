@@ -89,10 +89,6 @@ public class HikePhotosUtils
 
 		if (bitmap != null)
 		{
-			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
-			{
-				bitmap.recycle();
-			}
 			bitmap = null;
 		}
 	}

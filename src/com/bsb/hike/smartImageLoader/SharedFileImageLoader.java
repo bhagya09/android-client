@@ -33,6 +33,7 @@ public class SharedFileImageLoader extends ImageWorker
 		this.context = context;
 		this.size_image = size_image;
 		this.isThumbnail = isThumbnail;
+		mResources = context.getResources();
 	}
 	
 	@Override
@@ -108,7 +109,7 @@ public class SharedFileImageLoader extends ImageWorker
 		
 		BitmapResolutionState initState = BitmapResolutionState.STATE_3;
 
-		if(Utils.isHoneycombOrHigher() && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, true))
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_HIGH_RES_IMAGE, true))
 		{
 			initState = BitmapResolutionState.INIT_STATE;
 		}

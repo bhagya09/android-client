@@ -53,7 +53,7 @@ public class FileTransferManager
 
 	public static final int MAX_RETRY_COUNT = 3;
 
-	public static final int RETRY_DELAY = 1;
+	public static final int RETRY_DELAY = 1 * 1000;
 
 	public static final int RETRY_BACKOFF_MULTIPLIER = 2;
 
@@ -727,7 +727,7 @@ public class FileTransferManager
 			hikefile = ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0);
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
-		String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
+		String network = FTUtils.getNetworkTypeString(context);
 		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{

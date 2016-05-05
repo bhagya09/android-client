@@ -417,6 +417,13 @@ public interface DBConstants
 		public static final String MICROAPP_ID = "microapp_id";
 		public static final String TOKEN = "token";
 
+		// AtomicTip TABLE --> json, starttime, endtime, priority
+		public static final String ATOMIC_TIP_TABLE = "atomic_tip_table";
+		public static final String TIP_STATUS = "tp_stts";
+		public static final String TIP_END_TIME = "tp_et";
+		public static final String TIP_DATA = "tp_data";
+		public static final String TIP_PRIORITY = "tp_prrt";
+
 	}
 	
 	public static interface HIKE_PERSISTENCE

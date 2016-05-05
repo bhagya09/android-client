@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
@@ -1574,7 +1575,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			return;
 		}
 		SendLogsTask logsTask = new SendLogsTask(mContext);
-		Utils.executeAsyncTask(logsTask);
+		logsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
