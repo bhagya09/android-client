@@ -174,7 +174,7 @@ public class CategorySearchManager
 			}
             else
             {
-                Logger.e(TAG, "getOrderedCategoryList ignoring : "+category.getCategoryName() );
+                Logger.e(TAG, "getOrderedCategoryList ignoring : "+categorySearchData.getName() );
             }
 
             if(result.size() == HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_SEARCH_RESULTS_LIMIT))
