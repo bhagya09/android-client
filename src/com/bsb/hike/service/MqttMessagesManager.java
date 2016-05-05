@@ -3070,10 +3070,14 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED);
 			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED, enabled);
 		}
-		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE))
-		{
+		if (data.has(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE)) {
 			boolean enabled = data.getBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE);
 			editor.putBoolean(HikeConstants.MESSAGE_INFO_ENABLED_DATABASE, enabled);
+		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
