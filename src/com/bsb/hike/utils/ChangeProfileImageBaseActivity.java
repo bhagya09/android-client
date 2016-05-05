@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -260,7 +261,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						}
 					}
 				});
-				Utils.executeBoolResultAsyncTask(mActivityState.downloadPicasaImageTask);
+				mActivityState.downloadPicasaImageTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.downloading_image));
 			}
 			try

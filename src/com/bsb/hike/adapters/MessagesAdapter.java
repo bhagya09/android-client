@@ -65,6 +65,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
@@ -537,7 +538,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				notifyDataSetChanged();
 			}
 		};
-		Utils.executeAsyncTask(getLastSentMessagePositionTask);
+		getLastSentMessagePositionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	/**
@@ -3131,15 +3132,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), 0);
 			}
-			if (Utils.isHoneycombOrHigher())
-			{
-				holder.circularProgress.stopAnimation();
-				holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-			}
-			else
-			{
-				holder.circularProgress.setProgress(animatedProgress);
-			}
+
+			holder.circularProgress.stopAnimation();
+			holder.circularProgress.setAnimatedProgress(fakeProgress, (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
@@ -3147,8 +3142,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress <= 100)
 				holder.circularProgress.setProgress(fakeProgress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 			if (fss.getFTState() == FTState.IN_PROGRESS)
 			{
 				float animatedProgress = 5 * 0.01f;
@@ -3156,26 +3150,23 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				{
 					animatedProgress = getTargetProgress(chunkSize, fss.getTotalSize(), progress);
 				}
-				if (Utils.isHoneycombOrHigher())
+				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 				{
-					if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
+				}
+				else if(progress == 100)
+				{
+					holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+				}
+				else
+				{
+					if((progress + (int) (animatedProgress * 100)) > 100)
 					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 300);
-					}
-					else if(progress == 100)
-					{
-						holder.circularProgress.setAnimatedProgress(fakeProgress, progress, 200);
+						holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 					else
 					{
-						if((progress + (int) (animatedProgress * 100)) > 100)
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, 100, FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
-						else
-						{
-							holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
-						}
+						holder.circularProgress.setAnimatedProgress(fakeProgress, progress + (int) (animatedProgress * 100), FileTransferManager.FAKE_PROGRESS_DURATION);
 					}
 				}
 			}
@@ -3697,16 +3688,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
 							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.UPLOAD_MEDIA);
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
@@ -3754,13 +3745,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
 							if (fss.getFTState() == FTState.NOT_STARTED) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
 							} else if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
 							if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
@@ -4720,8 +4711,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (progress < 100)
 				holder.circularProgress.setProgress(progress * 0.01f);
-			if (Utils.isHoneycombOrHigher())
-				holder.circularProgress.stopAnimation();
+			holder.circularProgress.stopAnimation();
 
 			Logger.d("Spinner", "Msg Id is......... " + msgId + ".........holder.circularProgress="
 					+ holder.circularProgress.getCurrentProgress() * 100 + " Progress=" + progress);
@@ -4732,15 +4722,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				animatedProgress = (float) OfflineConstants.CHUNK_SIZE;
 				animatedProgress = animatedProgress / fss.getTotalSize();
 			}
-			if (Utils.isHoneycombOrHigher())
+			if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
 			{
-				if (holder.circularProgress.getCurrentProgress() < (0.95f) && progress == 100)
-				{
-					holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
-				}
-				else
-					holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+				holder.circularProgress.setAnimatedProgress( (int) (holder.circularProgress.getCurrentProgress() * 100), (int) progress, 300);
 			}
+			else
+				holder.circularProgress.setAnimatedProgress((int) progress, (int) progress + (int) (animatedProgress * 100), 6 * 1000);
+
 			holder.circularProgress.setVisibility(View.VISIBLE);
 			holder.circularProgressBg.setVisibility(View.VISIBLE);
 		}
