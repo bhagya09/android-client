@@ -1836,7 +1836,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
 			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -3031,6 +3031,11 @@ public class MqttMessagesManager
 		{
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
+		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{

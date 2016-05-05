@@ -10,6 +10,8 @@ import com.hike.abtest.dataparser.ExperimentAbort;
 import com.hike.abtest.dataparser.ExperimentInit;
 import com.hike.abtest.dataparser.ParserException;
 
+import java.util.Collection;
+
 public class UpdateExperimentService extends IntentService {
     private static final String ACTION_NOTIFICATION_RCVD = "com.hike.abtest.action.NOTIFICATION_RCVD";
     private static final String EXTRA_PAYLOAD = "com.hike.abtest.extra.PAYLOAD";
@@ -48,18 +50,15 @@ public class UpdateExperimentService extends IntentService {
             } catch (ParserException | IllegalArgumentException e) {
                 Logger.e(TAG, "Error processing request:");
                 e.printStackTrace();
-                respondStatus(STATUS_FAILURE);
             } finally {
                 mDataParser = null;
             }
-            respondStatus(STATUS_SUCCESS);
         } else {
             Logger.e(TAG, "Invalid request, Ignoring...");
         }
     }
 
     private void handleRequest(String requestType, String payload) throws ParserException {
-        //String requestType = mDataParser.getRequestType(payload);
         switch(requestType) {
             case DataParser.REQUEST_TYPE_EXPERIMENT_INIT:
                 handleExperimentInit(payload);
@@ -80,8 +79,9 @@ public class UpdateExperimentService extends IntentService {
         Logger.d(TAG, "Processing experiment init request");
         ExperimentInit experimentInitReq = mDataParser.getExperimentInit(payload);
         experimentInitReq.parse();
-        //mDataPersist.testStore(pload);
         mDataPersist.persistNewExperiment(experimentInitReq.getExperimentsMap());
+        respondStatus(DataParser.REQUEST_TYPE_EXPERIMENT_INIT,
+                STATUS_SUCCESS, experimentInitReq.getExperimentsMap().keySet());
     }
 
     private void handleExperimentAbort(String payload) throws ParserException {
@@ -90,6 +90,8 @@ public class UpdateExperimentService extends IntentService {
         ExperimentAbort experimentAbortReq = mDataParser.getExperimentAbort(payload);
         experimentAbortReq.parse();
         mDataPersist.abortExperiment(experimentAbortReq.getExperimentIds());
+        respondStatus(DataParser.REQUEST_TYPE_EXPERIMENT_ABORT,
+                STATUS_SUCCESS, experimentAbortReq.getExperimentIds());
     }
 
     private void handleRollOut(String payload) throws ParserException {
@@ -98,10 +100,15 @@ public class UpdateExperimentService extends IntentService {
         ExperimentInit rollOutReq = mDataParser.getRollout(payload);
         rollOutReq.parse();
         mDataPersist.persistRollOuts(rollOutReq.getExperimentsMap());
+        respondStatus(DataParser.REQUEST_TYPE_EXPERIMENT_ROLL_OUT,
+                STATUS_SUCCESS, rollOutReq.getExperimentsMap().keySet());
     }
 
-    private void respondStatus(String statusExperiment) {
-        Logger.d(TAG, "Experiment Request Status: " + statusExperiment);
-        //TODO sen dot server, once interface finalized
+    private void respondStatus(String requestType, String status, Collection<String> experiments) {
+        Logger.d(TAG, "Experiment Request Status: " + status);
+
+        for(String expId : experiments) {
+            AnalyticsUtil.sendRequestStatusAnalyticsJson(requestType, status, expId);
+        }
     }
 }

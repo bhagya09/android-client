@@ -1004,10 +1004,6 @@ public class HikeConstants
 
 	public static final int MAX_RECENTLY_JOINED_HIKE_TO_SHOW = 5;
 
-	// Had to add this constant since its only available in the android API for
-	// Honeycomb and higher.
-	public static final int FLAG_HARDWARE_ACCELERATED = 16777216;
-
 	public static final int LOCAL_CLEAR_TYPING_TIME = 6 * 1000;
 
 	public static final int RESEND_TYPING_TIME = 4 * 1000;
@@ -1385,6 +1381,8 @@ public class HikeConstants
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
 	public static final class ChatHead
 	{

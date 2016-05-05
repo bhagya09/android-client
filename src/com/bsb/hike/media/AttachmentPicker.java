@@ -27,6 +27,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -310,30 +311,30 @@ public class AttachmentPicker extends OverFlowMenuLayout
 		switch(code)
 		{
 			case CAMERA:
-				return AnalyticsConstants.CAMERA_ICON_CLICK;
+				return ChatAnalyticConstants.CAMERA_ICON_CLICK;
 			case VIDEO:
-				return AnalyticsConstants.VIDEO_ICON_CLICK;
+				return ChatAnalyticConstants.VIDEO_ICON_CLICK;
 			case AUDIO:
-				return AnalyticsConstants.AUDIO_ICON_CLICK;
+				return ChatAnalyticConstants.AUDIO_ICON_CLICK;
 			case LOCATION:
-				return AnalyticsConstants.LOCATION_ICON_CLICK;
+				return ChatAnalyticConstants.LOCATION_ICON_CLICK;
 			case CONTACT:
-				return AnalyticsConstants.CONTACT_ICON_CLICK;
+				return ChatAnalyticConstants.CONTACT_ICON_CLICK;
 			case FILE:
-				return AnalyticsConstants.FILE_ICON_CLICK;
+				return ChatAnalyticConstants.FILE_ICON_CLICK;
 			case GALLERY:
-				return AnalyticsConstants.GALLERY_ICON_CLICK;
+				return ChatAnalyticConstants.GALLERY_ICON_CLICK;
 			case APPS:
-				return AnalyticsConstants.APPS_ICON_CLICK;
+				return ChatAnalyticConstants.APPS_ICON_CLICK;
 			default:
-				return AnalyticsConstants.ATTACHMENT_PICKER_CLICK;
+				return ChatAnalyticConstants.ATTACHMENT_PICKER_CLICK;
 		}
 	}
 
 	@Override
 	public void show(int width, int height, int xOffset, int yOffset, View anchor, int inputMethodMode)
 	{
-		sendClickAnalytics(AnalyticsConstants.ATTACHMENT_PICKER_CLICK); // recording the showing of attachment picker
+		sendClickAnalytics(ChatAnalyticConstants.ATTACHMENT_PICKER_CLICK); // recording the showing of attachment picker
 		super.show(width, height, xOffset, yOffset, anchor, inputMethodMode);
 	}
 
