@@ -31,6 +31,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.OverFlowMenuItem;
@@ -353,7 +354,7 @@ public class GroupChatThread extends OneToNChatThread
 		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
 		{
 			mActionMode.finish();
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_CANCEL, null, null, AnalyticsConstants.GCEvents.CANCEL_SRC_OTHERS);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
 			return true;
 		}
 
@@ -514,7 +515,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (id)
 		{
 		case PIN_CREATE_ACTION_MODE:
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_CANCEL, null, null, AnalyticsConstants.GCEvents.CANCEL_SRC_CROSS);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_CROSS);
 			destroyPinCreateView();
 			break;
 
@@ -530,7 +531,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.cross: // Pin message bar cross
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_CROSS, null, null, null);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CROSS, null, null, null);
 			hidePin();
 			break;
 		default:
@@ -847,7 +848,7 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private void showPinHistory(boolean viaMenu)
 	{
-		HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_HISTORY, null, AnalyticsConstants.GCEvents.GC_PIN_HISTORY_SRC_CHATTHREAD, null);
+		HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_CHATTHREAD, null);
 		Intent intent = IntentFactory.getPinHistoryIntent(activity.getApplicationContext(), msisdn);
 		activity.startActivity(intent);
 		Utils.resetPinUnreadCount(oneToNConversation);

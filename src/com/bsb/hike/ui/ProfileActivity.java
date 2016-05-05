@@ -1,6 +1,7 @@
 package com.bsb.hike.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -44,6 +45,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,6 +66,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -135,8 +138,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import android.app.DatePickerDialog;
-import android.widget.DatePicker;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
 		View.OnClickListener
@@ -3596,7 +3597,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				intent.setClass(ProfileActivity.this, PinHistoryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intent.putExtra(HikeConstants.TEXT_PINS, mLocalMSISDN);
-				HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_HISTORY, null, AnalyticsConstants.GCEvents.GC_PIN_HISTORY_SRC_GROUPINFO, null);
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_GROUPINFO, null);
 				startActivity(intent);
 				return;
 			}

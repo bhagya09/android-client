@@ -27,6 +27,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -381,7 +382,7 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 				else
 				{
 					addMembersViaHike();
-					HikeAnalyticsEvent.recordAnalyticsForGCFlow(AnalyticsConstants.GCEvents.GC_CLICK_NEXT, getGroupName(), convImageSet?1:0, getGSSettings(), -1, null);
+					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_NEXT, getGroupName(), convImageSet?1:0, getGSSettings(), -1, null);
 
 				}
 				break;

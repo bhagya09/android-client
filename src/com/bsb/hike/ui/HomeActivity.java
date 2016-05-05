@@ -56,6 +56,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.backup.AccountBackupRestore;
@@ -2106,7 +2107,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					intent = new Intent(HomeActivity.this, SettingsActivity.class);
 					break;
 				case R.string.new_group:
-					HikeAnalyticsEvent.recordAnalyticsForGCFlow(AnalyticsConstants.GCEvents.GC_CLICK_NEW_GROUP, null, -1, -1, -1, null);
+					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_NEW_GROUP, null, -1, -1, -1, null);
 					intent = new Intent(HomeActivity.this, CreateNewGroupOrBroadcastActivity.class);
 					break;
 				

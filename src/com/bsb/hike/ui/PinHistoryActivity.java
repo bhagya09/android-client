@@ -33,7 +33,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.PinHistoryAdapter;
-import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
@@ -226,7 +226,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	{
 		if(isActionModeOn)
 		{
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_OTHERS);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_ACTION, ChatAnalyticConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
 			destroyActionMode();
 			return;
 		}
@@ -376,7 +376,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			@Override
 			public void onClick(View v)
 			{
-				HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_CROSS);
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_ACTION, ChatAnalyticConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_CROSS);
 				destroyActionMode();
 			}
 		});
@@ -395,7 +395,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) 
 	{
-		HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_LONG_TAP, null, null, null);
+		HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_LONG_TAP, null, null, null);
 		return showPinContextMenu((ConvMessage)pinAdapter.getItem(position));
 	}
 	
@@ -415,7 +415,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 		}
 		else if(!hasCheckedItems && isActionModeOn)
 		{
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, AnalyticsConstants.GCEvents.CANCEL_SRC_OTHERS);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_ACTION, ChatAnalyticConstants.GCEvents.GC_PIN_ACTION_CANCEL, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
 			destroyActionMode();
 		}
 		
@@ -476,7 +476,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 				@Override
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
-					HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_DELETE, null, null);
+					HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_ACTION, ChatAnalyticConstants.GCEvents.GC_PIN_ACTION_DELETE, null, null);
 					removeMessage(selectedPinIds);					
 					pinAdapter.notifyDataSetChanged();
 					destroyActionMode();
@@ -511,7 +511,7 @@ public class PinHistoryActivity extends HikeAppStateBaseFragmentActivity impleme
 			}
 			Utils.setClipboardText(pinStr.toString(), getApplicationContext());
 			Toast.makeText(PinHistoryActivity.this, R.string.copied, Toast.LENGTH_SHORT).show();
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(AnalyticsConstants.GCEvents.GC_PIN_ACTION, AnalyticsConstants.GCEvents.GC_PIN_ACTION_COPY, null, null);
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_ACTION, ChatAnalyticConstants.GCEvents.GC_PIN_ACTION_COPY, null, null);
 			destroyActionMode();
 			return true;
 		default:
