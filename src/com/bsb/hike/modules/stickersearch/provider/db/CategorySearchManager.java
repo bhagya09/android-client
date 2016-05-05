@@ -36,6 +36,8 @@ public class CategorySearchManager
 
 	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW";
 
+    public static final String SEARCH_QUERY_LENGTH_THRESHOLD = "s_q_l_t";
+
     public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
 
     public static final String AUTO_SEARCH_TIME = "a_s_tm";
@@ -44,7 +46,9 @@ public class CategorySearchManager
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
-    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = 100;
+    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
+
+    public static final int DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD = 0;
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
@@ -177,7 +181,9 @@ public class CategorySearchManager
                 Logger.e(TAG, "getOrderedCategoryList ignoring : "+categorySearchData.getName() );
             }
 
-            if(result.size() == HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_SEARCH_RESULTS_LIMIT))
+            int searchResultsLimit = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_RESULTS_LIMIT, DEFAULT_SEARCH_RESULTS_LIMIT);
+
+			if ((searchResultsLimit > 0) && (result.size() == searchResultsLimit))
             {
                 Logger.e(TAG, "getOrderedCategoryList limit reached");
                 break;
