@@ -1117,6 +1117,7 @@ public class IntentFactory
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
 		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
         intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
+		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD,convMessage.platformMessageMetadata.contentId);
 		return intent;
 	}
 	public static Intent getForwardIntentForConvMessage(Context context, ConvMessage convMessage, String metadata, boolean includeAllUsers )

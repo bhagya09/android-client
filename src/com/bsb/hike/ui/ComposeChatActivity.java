@@ -1994,6 +1994,23 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 
 					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
 				}
+				if(!TextUtils.isEmpty(presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD)))
+				{
+
+					JSONObject json = new JSONObject();
+					try
+					{
+						json.putOpt(AnalyticsConstants.EVENT_KEY,AnalyticsConstants.MICRO_APP_EVENT);
+						json.putOpt(AnalyticsConstants.EVENT,AnalyticsConstants.NATIVE_CARD_FORWARD);
+						json.putOpt(AnalyticsConstants.LOG_FIELD_4,presentIntent.getStringExtra(AnalyticsConstants.NATIVE_CARD_FORWARD));
+						json.putOpt(AnalyticsConstants.LOG_FIELD_6,arrayList.size());
+					} catch (JSONException e)
+					{
+						e.printStackTrace();
+					}
+
+					HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.MICRO_APP_REPLACED, json);
+				}
 				HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
 			}
 			catch (JSONException e)
