@@ -1,6 +1,7 @@
 package com.bsb.hike.platform;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.productpopup.IActivityPopup;
 import com.bsb.hike.productpopup.ProductContentModel;
 import com.bsb.hike.productpopup.ProductInfoManager;
+import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.ComposeChatActivity;
 import com.bsb.hike.ui.GalleryActivity;
 import com.bsb.hike.ui.HikeBaseActivity;
@@ -305,7 +307,13 @@ public class PlatformHelper
 			if(bitmap !=null)
 			{
 				String picture = Utils.drawableToString(bitmap);
-				groupDetailsJson.put("picture" , picture);
+				File groupPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "group_"+ groupId + ".jpg");
+				if(!groupPicFile.exists())
+				{
+					groupPicFile.createNewFile();
+					Utils.saveByteArrayToFile(groupPicFile, picture.getBytes());
+				}
+				groupDetailsJson.put("picture" , groupPicFile.getAbsolutePath());
 			}
 			else
 			{
@@ -326,7 +334,13 @@ public class PlatformHelper
 				if(participantBitmap !=null)
 				{
 					String picture = Utils.drawableToString(participantBitmap);
-					nameJSON.put("picture", picture);
+					File contactPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), groupId + "_" + name + ".jpg");
+					if(!contactPicFile.exists())
+					{
+						contactPicFile.createNewFile();
+						Utils.saveByteArrayToFile(contactPicFile, picture.getBytes());
+					}
+					nameJSON.put("picture", contactPicFile);
 				}
 				else
 				{
@@ -339,6 +353,8 @@ public class PlatformHelper
 			groupDetailsJson.put("participants", groupParticipants);
 			return groupDetailsJson.toString();
 		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
