@@ -65,6 +65,8 @@ public class HttpRequestConstants
 
 	private static final String BASE_STICKER = "/stickers";
 
+	private static final String BASE_SHOP = "/shop";
+
 	private static final String BASE_INVITE = "/invite";
 	
 	private static final String BASE_SDK_PROD = "oauth.hike.in/o/oauth2/";
@@ -230,10 +232,26 @@ public class HttpRequestConstants
 	
 	public static String stickerShopDownloadUrl()
 	{
-		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/shop";
+		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + BASE_SHOP;
 	}
-	
-	public static String stickerSignupUpgradeUrl()
+
+
+	public static String stickerCategoryFetchPrefOrderUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/fetch_shop_order";
+	}
+
+	public static String stickerShopFetchCategoryUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_metadata";
+	}
+
+	public static String stickerShopFetchCategoryTagsUrl()
+	{
+		return BASE_STICKERS_URL + BASE_V4 + BASE_SHOP + "/update_tags";
+	}
+
+    public static String stickerSignupUpgradeUrl()
 	{
 		return BASE_STICKERS_URL + BASE_V1 + BASE_STICKER + "/categories";
 	}
@@ -305,7 +323,7 @@ public class HttpRequestConstants
 
 	public static String preActivationBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/pa";
+		return HTTP + STAGING_API + BASE_V1 + "/pa";
 	}
 
 	public static String postAddressbookBaseUrl()
@@ -330,7 +348,7 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return BASE_URL + BASE_V1 + "/";
+		return HTTP + STAGING_API + BASE_V1 + "/pa/";
 	}
 
 	public static String deleteAccountBaseUrl()

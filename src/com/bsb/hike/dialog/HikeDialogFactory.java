@@ -153,6 +153,8 @@ public class HikeDialogFactory
 
 	public static final int BLOCK_CHAT_CONFIRMATION_DIALOG = 53;
 
+	public static final int STICKER_RESTORE_DIFF_DPI_DIALOG = 54;
+
 	public static HikeDialog showDialog(Context context, int whichDialog, Object... data)
 	{
 		return showDialog(context, whichDialog, null, data);
@@ -245,12 +247,12 @@ public class HikeDialogFactory
 		case CALLER_BLOCK_CONTACT_DIALOG:
 		case CALLER_UNBLOCK_CONTACT_DIALOG:
 			return showBlockContactDialog(context, dialogId, listener, data);
-
 		case DB_CORRUPT_RESTORE_DIALOG:
 			return showDBCorruptDialog(context, dialogId, listener, data);
-
 		case BLOCK_CHAT_CONFIRMATION_DIALOG:
 			return showBlockChatConfirmationDialog(context, dialogId, listener, data);
+		case STICKER_RESTORE_DIFF_DPI_DIALOG:
+			return showStickerRestoreDiffDpiDialog(context, dialogId, listener, data);
 		}
 		return null;
 	}
@@ -1272,4 +1274,16 @@ public class HikeDialogFactory
 		dialog.show();
 		return dialog;
 	}
+
+	private static HikeDialog showStickerRestoreDiffDpiDialog(Context context, int dialogId, HikeDialogListener listener, Object[] data)
+	{
+		CustomAlertDialog dialog = new CustomAlertDialog(context, dialogId);
+		dialog.setMessage(context.getString(R.string.sticker_restore_diffdpi_message));
+		dialog.setTitle(context.getString(R.string.sticker_restore_diffdpi_title));
+		dialog.setCancelable(false);
+		dialog.setPositiveButton(R.string.OK, listener);
+		dialog.show();
+		return dialog;
+	}
+
 }

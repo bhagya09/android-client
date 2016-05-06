@@ -60,7 +60,7 @@ import com.bsb.hike.ui.fragments.ShareLinkFragment;
 import com.bsb.hike.ui.fragments.ShareLinkFragment.ShareLinkFragmentListener;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 
-public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks, ShareLinkFragmentListener
+public abstract class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActivity implements OnClickListener, DisplayPictureEditListener, HikeImageWorker.TaskCallbacks, ShareLinkFragmentListener
 {
 	private HikeSharedPreferenceUtil prefs;
 
@@ -88,9 +88,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		public HikeImageUploader mImageWorkerFragment;
 		
 		public ShareLinkFragment shareLinkFragment;
+
+		public String species;
+
+		public String genus;
 	}
 
-	private ChangeProfileImageActivityState mActivityState;
+	protected ChangeProfileImageActivityState mActivityState;
 
 	private String mRemoveImagePath;
 
@@ -129,7 +133,13 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			mActivityState = new ChangeProfileImageActivityState();
 		}
 	}
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mActivityState.species = getSourceSpecies();
+	}
+
 	@Override
 	public Object onRetainCustomNonConfigurationInstance()
 	{
@@ -155,6 +165,7 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		if(isPersonal)
 		{
 			Intent galleryPickerIntent = IntentFactory.getProfilePicUpdateIntent(ChangeProfileImageBaseActivity.this, galleryFlags);
+			Utils.setSpecies(mActivityState.species, galleryPickerIntent);
 			startActivity(galleryPickerIntent);
 		}
 		else
@@ -197,6 +208,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		String path = null;
 		File selectedFileIcon = null;
 
+		mActivityState.genus = data.getStringExtra(HikeConstants.Extras.GENUS);
+
 		switch (requestCode)
 		{
 		case HikeConstants.GALLERY_RESULT:
@@ -229,6 +242,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 			{
 					Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
 					profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, path);
+					Utils.setGenus(mActivityState.genus, profilePicIntent);
+					Utils.setSpecies(mActivityState.species, profilePicIntent);
 					startActivity(profilePicIntent);
 					finish();
 			}
@@ -256,6 +271,8 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 						{
 							Intent profilePicIntent = new Intent(ChangeProfileImageBaseActivity.this, ProfilePicActivity.class);
 							profilePicIntent.putExtra(HikeMessengerApp.FILE_PATH, destFile.getAbsolutePath());
+							Utils.setGenus(mActivityState.genus, profilePicIntent);
+							Utils.setSpecies(mActivityState.species, profilePicIntent);
 							startActivity(profilePicIntent);
 							finish();
 						}
@@ -821,5 +838,6 @@ public class ChangeProfileImageBaseActivity extends HikeAppStateBaseFragmentActi
 		// TODO Auto-generated method stub
 		
 	}
-	
+
+	protected abstract String getSourceSpecies();
 }

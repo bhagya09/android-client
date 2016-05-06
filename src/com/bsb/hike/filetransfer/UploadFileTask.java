@@ -393,10 +393,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void upload()
 	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
+		uploadFile(selectedFile);
 	}
 
 	private String getImageQuality()
@@ -610,7 +607,7 @@ public class UploadFileTask extends FileTransferBase
 
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, new IRequestListener()
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)
