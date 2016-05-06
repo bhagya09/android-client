@@ -13,6 +13,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.bsb.hike.BitmapModule.HikeBitmapFactory;
+import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.CardComponent.ImageComponent;
 import com.bsb.hike.platform.CardComponent.MediaComponent;
@@ -21,6 +23,7 @@ import com.bsb.hike.platform.CardComponent.VideoComponent;
 import com.bsb.hike.utils.Utils;
 
 public class PlatformMessageMetadata implements HikePlatformConstants {
+    private final String CONTENT_UID = "contentUid";
     public int layoutId;
     public int loveId;
     public String notifText = "";
@@ -34,6 +37,9 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
     public String clickTrackUrl = "";
     Context mContext;
     private JSONObject json;
+    public boolean showShare;
+    public String backgroundColor;
+    public String contentId;
 
     public PlatformMessageMetadata(String jsonString, Context context) throws JSONException {
         this(new JSONObject(jsonString), context);
@@ -44,12 +50,14 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         this.mContext = context;
 
         try {
-
+			backgroundColor = getString(metadata, BACKGROUND_COLOR);
             version = getInt(metadata, VERSION);
             layoutId = getInt(metadata, LAYOUT_ID);
             loveId = getInt(metadata, LOVE_ID);
+            showShare = getBoolean(metadata, SHOW_SHARE);
             notifText = getString(metadata, NOTIF_TEXT);
             clickTrackUrl = getString(metadata, CLICK_TRACK_URL);
+            contentId = getString(metadata,CONTENT_UID);
 
             if (metadata.has(CHANNEL_SOURCE)) {
                 channelSource = metadata.optString(CHANNEL_SOURCE);
@@ -107,10 +115,10 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         for (int i = 0; i < total; i++) {
             try {
-                JSONObject obj = json.getJSONObject(i);
-                TextComponent textCom = new TextComponent(obj.optString(TAG),
-                        obj.optString(TEXT));
-                textComponents.add(textCom);
+				JSONObject obj = json.getJSONObject(i);
+				TextComponent textCom = new TextComponent.Builder(obj.optString(TAG)).setText(obj.optString(TEXT)).setTextColor(obj.optString(TEXT_COLOR))
+						.setTextSize(obj.optInt(TEXT_SIZE)).build();
+				textComponents.add(textCom);
             } catch (JSONException e) {
 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -196,6 +204,22 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
         }
     }
 
+	private boolean getBoolean(JSONObject json, String key)
+	{
+		if (json.has(key))
+		{
+			try
+			{
+				return json.getBoolean(key);
+			}
+			catch (JSONException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
     private int getInt(JSONObject json, String key) {
         if (json.has(key)) {
             try {

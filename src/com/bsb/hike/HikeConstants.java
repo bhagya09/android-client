@@ -1836,6 +1836,7 @@ public class HikeConstants
 		
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
+		public static final String BYPASS_GALLERY = "bypassGallery";
 
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
@@ -3088,7 +3089,7 @@ public class HikeConstants
 	public static interface ConvMessagePacketKeys
 	{
 
-		public static final String CONTENT_TYPE = "c";
+		public static final String CONTENT_TYPE = "nc";
 
 		public static final String PIN_TYPE = "pin";
 

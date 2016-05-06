@@ -13,16 +13,64 @@ public class CardComponent {
 
 	
 
-	public static class TextComponent extends CardComponent {
+	public static class TextComponent extends CardComponent
+	{
 		public String text;
 
-		public String getText() {
+		public String color;
+
+		public int size;
+
+		public String getText()
+		{
 			return text;
 		}
 
-		public TextComponent(String tag,String text) {
-			super(tag);
-			this.text = text;
+		public TextComponent(Builder builder)
+		{
+			super(builder.tag);
+			this.text = builder.text;
+			this.color = builder.color;
+			this.size = builder.size;
+		}
+
+		public static class Builder
+		{
+			private String text;
+
+			private String color;
+
+			private String tag;
+
+			private int size;
+
+			public Builder(String tag)
+			{
+				this.tag = tag;
+			}
+
+			public Builder setText(String text)
+			{
+				this.text = text;
+				return this;
+			}
+
+			public Builder setTextColor(String color)
+			{
+				this.color = color;
+				return this;
+			}
+
+			public Builder setTextSize(int size)
+			{
+				this.size = size;
+				return this;
+			}
+
+			public TextComponent build()
+			{
+				return new TextComponent(this);
+			}
 		}
 	}
 
