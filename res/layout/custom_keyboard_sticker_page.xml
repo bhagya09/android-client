@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:background="#ECEFF0"
+                android:layout_height="match_parent" >
+
+    <GridView
+        android:id="@+id/emoticon_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="@null"
+        android:drawSelectorOnTop="false"
+        android:fadingEdge="none"
+        android:listSelector="@android:color/transparent"
+        android:paddingLeft="@dimen/sticker_padding"
+        android:paddingRight="@dimen/sticker_padding"
+        android:paddingTop="8dp"
+        android:horizontalSpacing="@dimen/sticker_grid_horizontal_padding"
+        android:verticalSpacing="@dimen/sticker_padding"
+        android:background="#ECEFF0"
+        android:scrollbarStyle="outsideOverlay"/>
+
+</RelativeLayout>

@@ -14,6 +14,8 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
+import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.bots.CustomKeyboardManager;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.Conversation.BroadcastConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -81,28 +83,47 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		mInitialized = false;
 	}
 
-	public void setBtnEnabled()
-	{
-		CharSequence seq = mComposeView.getText();
+    public void setBtnEnabled()
+    {
+        CharSequence seq = mComposeView.getText();
 		/*
 		 * the button is enabled iff there is text AND (this is an IP conversation or we have credits available)
 		 */
-		boolean canSend = (!TextUtils.isEmpty(seq) && ((mConversation.isOnHike() || mCredits > 0)));
-		if (!mConversation.isOnHike() && mCredits <= 0)
-		{
-			boolean nativeSmsPref = Utils.getSendSmsPref(context);
-			canSend = nativeSmsPref;
-		}
-		setSendButton(canSend);
-		if (mConversation instanceof OneToNConversation)
-		{
-			mButton.setEnabled(((OneToNConversation) mConversation).isConversationAlive());
-		}
-		else
-		{
-			mButton.setEnabled(true);
-		}
-	}
+        boolean canSend = (!TextUtils.isEmpty(seq) && ((mConversation.isOnHike() || mCredits > 0)));
+        if (!mConversation.isOnHike() && mCredits <= 0)
+        {
+            boolean nativeSmsPref = Utils.getSendSmsPref(context);
+            canSend = nativeSmsPref;
+        }
+
+        if (!canSend)
+        {
+            if (BotUtils.isBot(mConversation.getMsisdn()) && CustomKeyboardManager.getInstance().shouldShowInputBox(mConversation.getMsisdn()))
+            {
+                mButton.setImageResource(R.drawable.keyboard_button_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            }
+            else
+            {
+                mButton.setImageResource(R.drawable.walkie_talkie_btn_selector);
+                mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_recorded_audio_text_chatting));
+            }
+        }
+        else
+        {
+            mButton.setImageResource(R.drawable.send_btn_selector);
+            mButton.setContentDescription(context.getResources().getString(R.string.content_des_send_message_button));
+        }
+
+        if (mConversation instanceof OneToNConversation)
+        {
+            mButton.setEnabled(((OneToNConversation) mConversation).isConversationAlive());
+        }
+        else
+        {
+            mButton.setEnabled(true);
+        }
+    }
 
 	private void setSendButton(boolean canSend){
 		if(!useWTRevamped) {
