@@ -860,7 +860,6 @@ public class AnalyticsConstants
 
 	public static final String BLOCK_LIST_BACK = "bckBlck";
 
-<<<<<<< HEAD
 	public static final String CALLER_FREE_SMS_CROSS= "frSms_cross";
 
 	public static final String CALLER_FREE_SMS_QUICK_REPLY_MSG= "frSms_msg";
@@ -890,17 +889,5 @@ public class AnalyticsConstants
 	public static final String BLOCK = "block";
 
 	public static final String SAVE = "save";
-
-=======
-	public static final String VIDEO_MAX_SIZE_TOAST_SHOWN = "maxLimToast";
-
-	public static final String SHARE_IMAGES = "imgShare";
-
-	public static final String IMAGE_SOURCE_GALLERY = "atchGal";
-
-	public static final String IMAGE_SOURCE_CAMERA = "atchCam";
-
-	public static final String OVERFLOW_MENU_CLICKED = "ctOvrFlw";
->>>>>>> 70c934372ff91fad6487d16e3ff82de81e324d04
 
 }
