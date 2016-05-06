@@ -223,21 +223,28 @@ public class AccountBackupRestore
 		BackupState state = getBackupState();
 		BackupMetadata backupMetadata = getBackupMetadata();
 
-		if (state == null && backupMetadata == null)
+		if (backupMetadata != null)
+		{
+			if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
+			{
+				successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
+			}
+			else if (!isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
+			{
+				successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+			}
+		}
+		else if (state != null)
+		{
+			if (!isBackupDbVersionCompatible(state.getDBVersion()))
+			{
+				successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
+			}
+		}
+		// both the backup metadata and the state date are unavailable. Atleast one on them is required.
+		else
 		{
 			successState = STATE_RESTORE_FAILURE_GENERIC;
-		}
-		else if (!ContactManager.getInstance().isMyMsisdn(backupMetadata.getMsisdn()))
-		{
-			successState = STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-		}
-		else if (backupMetadata != null && !isBackupAppVersionCompatible(backupMetadata.getAppVersion()))
-		{
-			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-		}
-		else if (state != null && !isBackupDbVersionCompatible(state.getDBVersion()))
-		{
-			successState = STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
 		}
 
 		if (successState == STATE_RESTORE_SUCCESS)
@@ -383,14 +390,8 @@ public class AccountBackupRestore
 			prefbBackupReady = false;
 		}
 
-		File backupStateFile = getBackupStateFile();
-		boolean stateFileAvailable = true;
-		if(!backupStateFile.exists())
-		{
-			stateFileAvailable = false;
-		}
 		if (getLastBackupTime() > 0
-				&& (stateFileAvailable || prefbBackupReady)
+				&& prefbBackupReady
 				&& dbBackupReady)
 		{
 			return true;

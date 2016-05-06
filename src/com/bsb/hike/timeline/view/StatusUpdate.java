@@ -876,7 +876,7 @@ public class StatusUpdate extends HikeAppStateBaseFragmentActivity implements Li
 			progressDialog = null;
 		}
 
-		if(!enableCompression && mActivityTask.task == null)
+		if(!enableCompression && mActivityTask.task == null && !TextUtils.isEmpty(mImagePath))
 		{
 			Utils.deleteFile(new File(mImagePath));
 		}

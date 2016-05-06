@@ -647,6 +647,11 @@ public class PackPreviewFragment extends Fragment implements HikePubSub.Listener
 
 	private void viewAllClicked()
 	{
+		if(mAdapter == null)
+		{
+			Logger.wtf(TAG, "view all clicked with no adapter");
+			return;
+		}
 		viewAllButton.setVisibility(View.GONE);
 		mAdapter.setLists(stickerCategory.getAllStickers(), getHeaderList(), getFooterList());
 		mAdapter.notifyDataSetChanged();
