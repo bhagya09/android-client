@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.filetransfer.FileTransferManager;
+import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.Header;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -38,6 +39,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.userlogs.PhoneSpecUtils;
 import com.bsb.hike.utils.AccountUtils;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
@@ -760,10 +762,15 @@ public class HttpRequests
 
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
+		String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid","");
+		String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token","");
+		Header hdr =new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
 		JsonBody body = new JsonBody(json);
 		RequestToken requestToken = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
+				.addHeader(hdr)
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
 				.post(body)
 				.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
@@ -1200,7 +1207,7 @@ public class HttpRequests
 
 	}
 
-	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString)
+	public static RequestToken downloadFile(String destFilePath, String url, long msgId, IRequestListener requestListener, IGetChunkSize chunkSizePolicy, String fileTypeString, String fileKey)
 	{
 		RequestToken token = new FileDownloadRequest.Builder()
 				.setUrl(url)
@@ -1209,6 +1216,7 @@ public class HttpRequests
 				.setFile(destFilePath)
 				.setFileTypeString(fileTypeString)
 				.setChunkSizePolicy(chunkSizePolicy)
+				.setFileKey(fileKey)
 				.setId(String.valueOf(msgId))
 				.setRetryPolicy(new BasicRetryPolicy(FileTransferManager.MAX_RETRY_COUNT, FileTransferManager.RETRY_DELAY, FileTransferManager.RETRY_BACKOFF_MULTIPLIER))
 				.build();

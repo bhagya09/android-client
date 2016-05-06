@@ -612,6 +612,9 @@
             <intent-filter >
                 <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
             </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT" />
+            </intent-filter>
         </receiver>
 
         <service

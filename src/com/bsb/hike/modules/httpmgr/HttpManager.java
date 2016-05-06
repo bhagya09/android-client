@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr;
 
+import com.bsb.hike.AppConfig;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -44,18 +45,10 @@ public class HttpManager
 
 	private HttpManager(ClientOptions options)
 	{
-		if (HttpLogger.DEBUG)
+		if (AppConfig.DEBUG_LOGS_ENABLED)
 		{
-			boolean t = true;
-			if (t)
-			{
-				HttpLogger.plant(new LogFull("Http"));
-				HttpLogger.plant(new LogHttp("Http"));
-			}
-			else
-			{
-				HttpLogger.plant(new LogHttp("Http"));
-			}
+			HttpLogger.plant(new LogFull("Http"));
+			HttpLogger.plant(new LogHttp("Http"));
 		}
 		setHostUris();
 		HttpEngine engine = new HttpEngine();

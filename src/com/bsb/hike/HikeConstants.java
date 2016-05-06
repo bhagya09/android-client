@@ -1392,6 +1392,17 @@ public class HikeConstants
 
 	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
+	public static final class Preactivation
+	{
+		public static final String LOGS_SCHEDULE="logs_schdl";
+
+		public static final String INTERVAL = "inv";
+
+		public static final String FREQUENCY = "frq";
+
+		public static final String TYPE = "typ";
+	}
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
@@ -3256,6 +3267,8 @@ public class HikeConstants
 
 	public static final String GCM_ID = "gcm_id";
 
+	public static final String OLD_GCM_ID = "old_gcm_id";
+
 	public static final String ADD_CATEGORY = "addCat";
 
     public static final String ADDED_DATA = "add";
@@ -4078,6 +4091,10 @@ public class HikeConstants
 
 	public static final int PACKAGE_MANAGER_INTENT_FLAG_MATCH_ALL = 0x00020000;
 
+	public static final String TP_API_KEY = "60b937a7-3df3-408e-8191-c0bf227fd5e2-5514c71-1015";
+
+	public static final String TP_ENABLE = "tp";
+	
 	public static final String PROB_ACTIVITY_OPEN="prob_act_op";
 
 	public static final int DEFAULT_ACTIVITY_OPEN = 10;
@@ -4209,6 +4226,8 @@ public class HikeConstants
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
 
+	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
+
 	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
 
 	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
@@ -4232,4 +4251,6 @@ public class HikeConstants
 	public static final String TIP_PRIORITY = "tp_prrt";
 
 	public static final String ADD_HEADER = "addHeader";
+
+	public static final String IS_ATOMIC_TIP = "isAtomicTip";
 }
