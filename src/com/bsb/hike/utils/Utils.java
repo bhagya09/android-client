@@ -7950,29 +7950,44 @@ public class Utils
 		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working. Renaming the
 		 * corrupted hike directory and creating the new one to solve this issue. Caused mainly by app like clean master, native memory optimization etc.
 		 */
-		if (rootDir != null && rootDir.exists())
-		{
-			if (!rootDir.isDirectory() && rootDir.isFile())
-			{
-				int count = 0;
-				File mFile = new File(dirPath + "_" + count);
-				while (mFile.exists())
-				{
-					mFile = new File(dirPath + "_" + ++count);
-				}
-				rootDir.renameTo(mFile);
-			}
-		}
-	}
+        if (rootDir != null && rootDir.exists()) {
+            if (!rootDir.isDirectory() && rootDir.isFile()) {
+                int count = 0;
+                File mFile = new File(dirPath + "_" + count);
+                while (mFile.exists()) {
+                    mFile = new File(dirPath + "_" + ++count);
+                }
+                rootDir.renameTo(mFile);
+            }
+        }
+    }
 
-	public static String formatDOB(String dobString)
-	{
-		if (TextUtils.isEmpty(dobString))
-		{
-			return "";
-		}
+    public static String formatDOB(String dobString) {
+        if (TextUtils.isEmpty(dobString)) {
+            return "";
+        }
 
-		Birthday dob = new Birthday(dobString);
-		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
-	}
+        Birthday dob = new Birthday(dobString);
+        return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+    }
+
+    public static void setGenus(String argGenus, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argGenus) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+    }
+
+    public static void setSpecies(String argSpecies, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+    }
 }
