@@ -1712,8 +1712,6 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
-					ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
-					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId)?1:0, gcSettings, selectedContacts.size(), selectedContacts);
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
