@@ -441,7 +441,7 @@ public class FileTransferManager
 			}
 			FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(mFile, msgId));
 			String network = analyticEvent.mNetwork + "/" + FTUtils.getNetworkTypeString(context);
-			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs);
+			analyticEvent.sendFTSuccessFailureEvent(network, fileSize, FTAnalyticEvents.FT_FAILED, attachmentShardeAs, hikeFile.getAttachementType());
 			deleteLogFile(msgId, mFile);
 		}
 	}
@@ -728,7 +728,7 @@ public class FileTransferManager
 		}
 		FTAnalyticEvents analyticEvent = FTAnalyticEvents.getAnalyticEvents(getAnalyticFile(hikefile.getFile(), msgId));
 		String network = FTUtils.getNetworkTypeString(context);
-		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs());
+		analyticEvent.sendFTSuccessFailureEvent(network, hikefile.getFileSize(), FTAnalyticEvents.FT_SUCCESS, hikefile.getAttachmentSharedAs(), hikefile.getAttachementType());
 		if (userContext != null && BotUtils.isBot(((ConvMessage) userContext).getMsisdn()) && isDownloadTask)
 		{
 			FTAnalyticEvents.platformAnalytics(((ConvMessage) userContext).getMsisdn(), ((ConvMessage) userContext).getMetadata().getHikeFiles().get(0).getFileKey(),
