@@ -516,4 +516,9 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		return; //Do nothing
 	}
+
+	@Override
+	public boolean shouldShowMessageInfo(){
+		return false;
+	}
 }
