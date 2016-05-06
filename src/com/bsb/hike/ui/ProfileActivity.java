@@ -113,6 +113,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -2169,25 +2170,35 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			if ((getString(R.string.mute_group)).equals(text))
 			{
-				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
-					@Override
-					public void negativeClicked(HikeDialog hikeDialog)
-					{
-						hikeDialog.dismiss();
-					}
+				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
+				if (muteGCApproach)
+				{
+					HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+						@Override
+						public void negativeClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+						}
 
-					@Override
-					public void positiveClicked(HikeDialog hikeDialog)
-					{
-						Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
-						hikeDialog.dismiss();
-					}
+						@Override
+						public void positiveClicked(HikeDialog hikeDialog)
+						{
+							Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+							hikeDialog.dismiss();
+						}
 
-					@Override
-					public void neutralClicked(HikeDialog hikeDialog) {
+						@Override
+						public void neutralClicked(HikeDialog hikeDialog) {
 
-					}
-				}, oneToNConversation.getMute());
+						}
+					}, oneToNConversation.getMute());
+				}
+				else
+				{
+					Mute mute = new Mute.InitBuilder(oneToNConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+					oneToNConversation.setMute(mute);
+					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+				}
 			}
 			else
 			{

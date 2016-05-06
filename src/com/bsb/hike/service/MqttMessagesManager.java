@@ -2325,6 +2325,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
 		}
 
+		if (data.has(HikeConstants.MUTE_GC_SERVER_SWITCH))
+		{
+			boolean muteGCapproach = data.getBoolean(HikeConstants.MUTE_GC_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_GC_SERVER_SWITCH, muteGCapproach);
+		}
+
 		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
 		{
 			String text = data.getString(HikeConstants.KPT_EXIT_SERVER_TEXT);

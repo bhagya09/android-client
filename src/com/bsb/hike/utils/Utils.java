@@ -6559,7 +6559,8 @@ public class Utils
 		if (mute != null) {
 			mute.setIsMute(!(mute.isMute()));
 
-			if (mute.isMute())
+            boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
+			if (mute.isMute() && muteGCApproach)
 			{
 				Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
 				HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
