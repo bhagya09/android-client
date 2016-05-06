@@ -8,7 +8,7 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 public class HikeStickerSearchBaseConstants
 {
-	public static final int STICKERS_SEARCH_DATABASE_VERSION = 4;
+	public static final int STICKERS_SEARCH_DATABASE_VERSION = 5;
 
 	public static final String DATABASE_HIKE_STICKER_SEARCH = "hike_sticker_search_base";
 
@@ -19,6 +19,8 @@ public class HikeStickerSearchBaseConstants
 
 	public static final int VERSION_STICKER_EVENT_ADDED = 4;
 
+    public static final int VERSION_SHOP_SEARCH_ADDED = 5;
+
 	// ==============================================Version history for DATABASE_HIKE_STICKER_SEARCH]]
 
 	// Fixed tables used for Sticker-Tag relation and recommendations================================[[
@@ -27,6 +29,8 @@ public class HikeStickerSearchBaseConstants
 	public static final String TABLE_STICKER_PACK_CATEGORY_HISTORY = "stickerCategoryHistory";
 
 	public static final String TABLE_STICKER_TAG_MAPPING = "stickerTagMapping";
+
+    public static final String TABLE_CATEGORY_TAG_MAPPING = "categoryTagMapping";
 
 	// ================================Fixed tables used for Sticker-Tag relation and recommendations]]
 
@@ -127,6 +131,21 @@ public class HikeStickerSearchBaseConstants
 	public static final String TAG_REAL_PHRASE = "realTagName";
 
 	public static final String TAG_GROUP_UNIQUE_ID = "tagUniqueId"; // foreign key from TABLE_STICKER_TAG_MAPPING
+
+    // Table: TABLE_CATEGORY_TAG_MAPPING
+    public static final String THEME = "theme";
+
+    public static final String FOR_GENDER = "forGender";
+
+    public static final String NAME = "name";
+
+    public static final String LANGUAGE = "lang";
+
+    public static final String RANK = "rank";
+
+    public static final String KEYWORDS = "keywords";
+
+    public static final String LAST_UPDATED_TIMESTAMP = "lastTimestamp";
 
 	// Syntax constants
 	public static final int SQLITE_FIRST_INTEGER_ROW_ID = 1;
@@ -337,6 +356,8 @@ public class HikeStickerSearchBaseConstants
 	// Default virtual tables prefixes
 	public static final String DEFAULT_VT_TABLE_LIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\0";
 
+    public static final String DEFAULT_VT_SHOP_SEARCH = "stickerShopSearch";
+
 	// Default story
 	public static final String DEFAULT_STORY = "generic";
 
@@ -346,7 +367,7 @@ public class HikeStickerSearchBaseConstants
 	// Default script
 	public static final String DEFAULT_STICKER_TAG_SCRIPT_ISO_CODE = "Latn";
 
-	// States used for Sticker-Tag relation and recommendations================================[[
+    // States used for Sticker-Tag relation and recommendations================================[[
 	public static enum STATE_CATEGORY
 	{
 		OTHER(0), // Undefined
