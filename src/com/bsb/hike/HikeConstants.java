@@ -3484,6 +3484,8 @@ public class HikeConstants
 
 	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
 
+	public static final String MUTE_GC_SERVER_SWITCH = "mutegc";
+
 	public static final String KPT_EXIT_SERVER_TEXT = "kest";
 
 	public static final String KPT_EXIT_HEADING = "keh";
