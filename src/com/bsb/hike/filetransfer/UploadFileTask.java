@@ -11,6 +11,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -70,11 +72,11 @@ public class UploadFileTask extends FileTransferBase
 
 	private List<ContactInfo> contactList;
 
-	private String caption;
-
 	private List<ConvMessage> messageList;
 
 	private String vidCompressionRequired = "0";
+
+	private int retryCount = 0;
 
 	public UploadFileTask(Context ctx, ConvMessage convMessage, String fileKey)
 	{
@@ -159,9 +161,17 @@ public class UploadFileTask extends FileTransferBase
 
 				if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					fileKey = null;
-					verifyMd5(false);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						fileKey = null;
+						verifyMd5(false);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -219,6 +229,7 @@ public class UploadFileTask extends FileTransferBase
 			}
 		}
 
+		retryCount = 0;
 		// If we are not able to verify the filekey validity from the server, fall back to uploading the file
 		RequestToken validateFileKeyToken = HttpRequests.validateFileKey(fileKey, getValidateFileKeyRequestListener());
 		validateFileKeyToken.execute();
@@ -295,6 +306,7 @@ public class UploadFileTask extends FileTransferBase
 				{
 					File compFile = null;
 					VideoEditedInfo info = null;
+					long time = 0;
 					if (!isFileKeyValid && android.os.Build.VERSION.SDK_INT >= 18
 							&& PreferenceManager.getDefaultSharedPreferences(context).getBoolean(HikeConstants.COMPRESS_VIDEO, true))
 					{
@@ -303,7 +315,7 @@ public class UploadFileTask extends FileTransferBase
 						{
 							if (info.isCompRequired)
 							{
-								long time = System.currentTimeMillis();
+								time = System.currentTimeMillis();
 								/*
 								 * Changes done to avoid the creation of multiple compressed file. Here I'm using message id as unique id of file.
 								 */
@@ -315,13 +327,14 @@ public class UploadFileTask extends FileTransferBase
 								HikeVideoCompressor instance = new HikeVideoCompressor();
 								compFile = instance.compressVideo(hikeFile);
 								Logger.d(getClass().getSimpleName(), "Video compression time = " + (System.currentTimeMillis() - time));
+								time = (System.currentTimeMillis() - time);
 							}
 						}
 					}
 					if (compFile != null && compFile.exists())
 					{
 						FTAnalyticEvents.sendVideoCompressionEvent(info.originalWidth + "x" + info.originalHeight, info.resultWidth + "x" + info.resultHeight, mFile.length(),
-								compFile.length(), 1);
+								compFile.length(), 1, time);
 						selectedFile = compFile;
 						vidCompressionRequired = "1";
 						Utils.deleteFileFromHikeDir(context, mFile, hikeFileType);
@@ -335,7 +348,12 @@ public class UploadFileTask extends FileTransferBase
 						}
 						selectedFile = mFile;
 					}
+					if (selectedFile.length() > HikeConstants.MAX_FILE_SIZE) {
+						String msisdn = ((ConvMessage) userContext).getMsisdn();
+						Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, ChatThreadUtils.getChatThreadType(msisdn), msisdn, hikeFile.getFileSize());
+					}
 					hikeFile.setFile(selectedFile);
+					hikeFile.setFileSize(selectedFile.length());
 				}
 				// do not copy the file if it is video or audio or any other file
 				else
@@ -376,10 +394,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void upload()
 	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
+		uploadFile(selectedFile);
 	}
 
 	private String getImageQuality()
@@ -444,6 +459,7 @@ public class UploadFileTask extends FileTransferBase
 			return;
 		}
 
+		retryCount = 0;
 		RequestToken token = HttpRequests.verifyMd5(msgId, new IRequestListener()
 		{
 			@Override
@@ -464,8 +480,16 @@ public class UploadFileTask extends FileTransferBase
 				}
 				else if (httpException.getErrorCode() / 100 > 0)
 				{
-					// do this in any failure response code returned by server
-					uploadFile(selectedFile);
+					retryCount++;
+					if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+					{
+						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+					}
+					else
+					{
+						// do this in any failure response code returned by server
+						uploadFile(selectedFile);
+					}
 				}
 				else if (httpException.getCause() instanceof FileTransferCancelledException)
 				{
@@ -572,14 +596,24 @@ public class UploadFileTask extends FileTransferBase
 
 	public void uploadFile(File sourceFile)
 	{
+		uploadFile(sourceFile, false);
+	}
+
+	public void uploadFile(File sourceFile, boolean retry)
+	{
 		if (!FileTransferManager.getInstance(context).isFileTaskExist(msgId))
 		{
 			return;
 		}
 
+		if (!retry)
+		{
+			retryCount = 0;
+		}
+
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, new IRequestListener()
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)
@@ -632,8 +666,42 @@ public class UploadFileTask extends FileTransferBase
 					}
 					else if (httpException.getErrorCode() == HttpURLConnection.HTTP_INTERNAL_ERROR)
 					{
-						deleteStateFile();
-						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							deleteStateFile();
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
+					}
+					else if (httpException.getErrorCode() / 100 > 0)
+					{
+						retryCount++;
+						if (retryCount >= FileTransferManager.MAX_RETRY_COUNT)
+						{
+							removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
+						}
+						else
+						{
+							handler.postDelayed(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									uploadFile(selectedFile, true);
+								}
+							}, FileTransferManager.RETRY_DELAY);
+						}
 					}
 					else if (httpException.getErrorCode() == HttpException.REASON_CODE_MALFORMED_URL)
 					{

@@ -161,10 +161,7 @@ public class CustomWebView extends WebView
 
 		if (!isDestroyed)
 		{
-			if (Utils.isHoneycombOrHigher())
-			{
-				removeJavascriptInterface(javaScriptInterface);
-			}
+			removeJavascriptInterface(javaScriptInterface);
 			isDestroyed = true;
 		}
 		if (mHandler != null && postJSRunnable != null)

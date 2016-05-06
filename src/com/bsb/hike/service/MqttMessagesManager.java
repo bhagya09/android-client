@@ -70,7 +70,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -102,6 +101,7 @@ import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
@@ -130,6 +130,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 /**
  *
@@ -1835,7 +1836,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
 			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -2168,6 +2169,11 @@ public class MqttMessagesManager
 			 * This Pubsub updates ActionBar on HomeActivity
 			 */
 			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
+		}
+		if (data.has(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP))
+		{
+			boolean enableSettingsBackup = data.getBoolean(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, enableSettingsBackup);
 		}
 		if (data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
@@ -3026,6 +3032,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
@@ -3141,7 +3152,10 @@ public class MqttMessagesManager
 
 		if(!makeAnEditCall)
 		{
-
+			if(TextUtils.isEmpty(newMsisdn))
+			{
+				return;
+			}
 		boolean changeMsisdn = !TextUtils.isEmpty(oldMsisdn);
 
 		Uri contactUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(changeMsisdn? oldMsisdn : newMsisdn));
@@ -3989,6 +4003,10 @@ public class MqttMessagesManager
 			}
 
 		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.TIP))
+		{
+			saveOrFlushAtomicTip(jsonObj);
+		}
 		else
 		{
 			// updatePopUpData
@@ -4659,6 +4677,10 @@ public class MqttMessagesManager
 		{
 			showToast(jsonObj);
 		}
+		else if (ABTest.onRequestReceived(type, jsonObj))
+		{
+			//Do nothing, if its a ABTest message its handled
+		}
 	}
 	
 	private void saveInfraConfig(JSONObject jsonObj)
@@ -5067,6 +5089,33 @@ public class MqttMessagesManager
 			 * We only publish this event if we actually removed a typing notification
 			 */
 			this.pubSub.publish(HikePubSub.END_TYPING_CONVERSATION, typingNotification);
+		}
+	}
+
+	/**
+	 * Method to parse atomic tip packet
+	 * @param jsonObj
+     */
+	public void saveOrFlushAtomicTip(JSONObject jsonObj)
+	{
+		Logger.d(getClass().getSimpleName(), "Parsing atomic tip packet");
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		if(data != null)
+		{
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH, false))
+				{
+					Logger.d(getClass().getSimpleName(), "Received atomic tip flush packet!");
+					AtomicTipManager.getInstance().processFlushPacket();
+					return;
+				}
+			}
+			else
+			{
+				Logger.d(getClass().getSimpleName(), "Received new atomic tip packet, saving it!");
+				AtomicTipManager.getInstance().parseAtomicTipPacket(data);
+			}
 		}
 	}
 

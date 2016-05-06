@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -22,6 +23,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.R;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 {
@@ -97,6 +99,7 @@ public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 			File file = new File(fileTransferData.filePath);
 			if (file.length() == 0)
 			{
+				HikeMessengerApp.getInstance().showToast(R.string.file_size_invalid_error, Toast.LENGTH_SHORT);
 				FTAnalyticEvents.logDevError(FTAnalyticEvents.UPLOAD_INIT_7_2, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "init", "InitiateFileTransferFromIntentData - File length is 0.");
 				return;
 			}

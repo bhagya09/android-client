@@ -94,11 +94,8 @@ public class DownloadFileTask extends FileTransferBase
 			downLoadUrl = AccountUtils.fileTransferBaseDownloadUrl + fileKey;
 		}
 
-		if (requestToken == null)
-		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
-					new FileTransferChunkSizePolicy(context), fileTypeString, fileKey);
-		}
+		requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
+				new FileTransferChunkSizePolicy(context), fileTypeString, fileKey);
 		requestToken.execute();
 	}
 
@@ -238,6 +235,7 @@ public class DownloadFileTask extends FileTransferBase
 					HttpManager.getInstance().deleteRequestStateFromDB(downLoadUrl, String.valueOf(msgId));
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_STATE_CHANGE, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "state", "CANCELLED");
 					removeTaskAndShowToast(HikeConstants.FTResult.CANCELLED);
+					break;
 				case HttpException.REASON_CODE_MALFORMED_URL:
 					Logger.e(getClass().getSimpleName(), "Invalid URL");
 					FTAnalyticEvents.logDevException(FTAnalyticEvents.DOWNLOAD_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "UrlCreation", "DOWNLOAD_FAILED : " , ex);
