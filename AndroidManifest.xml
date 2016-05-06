@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1691"
-    android:versionName="4.2.5.4.tp_okhttp_260" >
+    android:versionCode="1699"
+    android:versionName="4.2.5.82.49.18.sticker_sprint_25_4_16" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -167,11 +167,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.AddFriendsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
         </activity>
 
         <activity

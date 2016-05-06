@@ -352,8 +352,7 @@ public class GlowPadView extends View {
 		final int minimumHeight = getSuggestedMinimumHeight();
 		int computedWidth = resolveMeasured(widthMeasureSpec, minimumWidth);
 		int computedHeight = resolveMeasured(heightMeasureSpec, minimumHeight);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			computeInsets((computedWidth - minimumWidth), (computedHeight - minimumHeight));
+		computeInsets((computedWidth - minimumWidth), (computedHeight - minimumHeight));
 		setMeasuredDimension(computedWidth, computedHeight);
 	}
 

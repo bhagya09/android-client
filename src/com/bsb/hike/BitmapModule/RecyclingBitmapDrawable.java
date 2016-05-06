@@ -141,14 +141,7 @@ public class RecyclingBitmapDrawable extends BitmapDrawable
 		{
 			return bitmap.getAllocationByteCount();
 		}
-
-		if (Utils.hasHoneycombMR1())
-		{
-			return bitmap.getByteCount();
-		}
-
-		// Pre HC-MR1
-		return bitmap.getRowBytes() * bitmap.getHeight();
+		return bitmap.getByteCount();
 	}
 
 	/**

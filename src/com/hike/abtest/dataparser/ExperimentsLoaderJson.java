@@ -82,18 +82,17 @@ public class ExperimentsLoaderJson extends ExperimentsLoader {
                 throw new ParserException("Invalid Experiment", ParserException.ERROR_INVALID_EXPERIMENT);
             }
 
-            //TODO Check for duplicate of experiment with ROLLOUT flag ??
-            mExperimentMap.put(expMap.experimentId, new Experiment(expMap.experimentId, expMap.description,
-                    expMap.variantId, expMap.startTime, expMap.endTime, expMap.isRollout, expMap.callbackUrl));
+            mExperimentMap.put(expMap.experimentId, new Experiment(expMap.experimentId, expMap.variantId,
+                    expMap.description, expMap.startTime, expMap.endTime, expMap.isRollout, expMap.callbackUrl));
 
             for(ProtoMapper.VariableMapper varMap : expMap.variableList) {
-                if(varMap.variableName==null || varMap.type==0 || varMap.type>4 ||
-                        varMap.defaultValue==null || varMap.experimentalValue==null) {
+                if(varMap.variableName ==null || varMap.type==0 || varMap.type>4 ||
+                        varMap.defaultValue ==null || varMap.experimentValue ==null) {
                     throw new ParserException("Invalid Experiment", ParserException.ERROR_INVALID_VARIABLE);
                 }
 
                 mVariableMap.put(varMap.variableName, Variable.getInstance(varMap.variableName, expMap.experimentId, varMap.type,
-                        varMap.defaultValue, varMap.experimentalValue));
+                        varMap.defaultValue, varMap.experimentValue));
             }
         }
     }

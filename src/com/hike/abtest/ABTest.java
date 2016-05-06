@@ -7,7 +7,9 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.bsb.hike.HikeConstants;
 import com.hike.abtest.dataPersist.DataPersist;
+import com.hike.abtest.dataparser.DataParser;
 import com.hike.abtest.model.Experiment;
 
 /**
@@ -51,21 +53,21 @@ public class ABTest {
     private DataPersist getDataPersist() {
         return mDataPersist;
     }
-
     /**
      * Applies/Loads all the stored ABExperiments if available.
+     * Called as and when the application starts up
      *
      * @param context Application context.
      *
      */
     public static void apply(Context context) {
         if(isInitialized.get()) {
-            Logger.e(TAG, "Already initialized!!!");
+            Logger.d(TAG, "Already initialized!!!");
             return;
         }
 
         mContext = context.getApplicationContext();
-        Logger.e(TAG, "Initializing now..");
+        Logger.d(TAG, "Initializing now..");
         getInstance().loadExperiments();
         isInitialized.getAndSet(true);
     }
@@ -169,7 +171,7 @@ public class ABTest {
      *
      * @return Returns experiment details for the given variable if applicable, or null.
      */
-    public static synchronized JSONObject getDetails(String varKey) {
+    public static synchronized JSONObject getLogDetails(String varKey) {
         if(!isInitialized.get()) {
             return null;
         }
@@ -178,15 +180,10 @@ public class ABTest {
         Experiment experiment = getInstance().getDataManager().getExperiment(varKey);
 
         if(experiment != null) {
-            try {
-                //Logging only when experiment is running
-                if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
-                    experimentDetails = new JSONObject();
-                    experimentDetails.put("ExperimentID", experiment.getExperimentId());
-                    experimentDetails.put("VariantID", experiment.getVariantId());
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            //Logging only when experiment is running
+            if (experiment.getExperimentState() == Experiment.EXPERIMENT_STATE_RUNNING) {
+                experimentDetails = AnalyticsUtil.getExperimentAnalyticsJson(experiment.getExperimentId(),
+                        experiment.getVariantId());
             }
         }
 
@@ -195,15 +192,37 @@ public class ABTest {
 
     /**
      * Retrieve a ABExperiments associated with the variable, which can be logged as analytics
+     *  @param requestType type of the request received
+     *  @param requestPayload payload of the request received
      *
-     * @param requestPayload payload of the request received
-     *
+     *  @return returns true if the message is handled, false otherwise
      */
-    public static void onRequestReceived(String requestPayload) {
+    public static boolean onRequestReceived(String requestType, JSONObject requestPayload) {
+        boolean result = false;
         if(mContext == null) {
             Logger.d(TAG, "onRequestReceived, ABTesting not started, do nothing..");
-            return;
+            return result;
         }
-        UpdateExperimentService.onRequestReceived(mContext, requestPayload, getInstance().getDataPersist());
+
+        if(DataParser.isABTestMessage(requestType)) {
+            Logger.d(TAG,"requestType: " + requestType);
+            Logger.d(TAG,"requestPayload: " + requestPayload.toString());
+            try {
+                if(requestPayload.has(HikeConstants.DATA) &&
+                        requestPayload.getJSONObject(HikeConstants.DATA).has(HikeConstants.METADATA)) {
+                    requestPayload = requestPayload.getJSONObject(HikeConstants.DATA)
+                            .getJSONObject(HikeConstants.METADATA);
+                    Logger.d(TAG, "AB Request Payload: " + requestPayload);
+                    UpdateExperimentService.onRequestReceived(mContext, requestType, requestPayload.toString(),
+                            getInstance().getDataPersist());
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Logger.e(TAG, "Error Parsing AB Request packet!!!");
+            }
+            result = true;
+        }
+
+        return result;
     }
 }
