@@ -1,11 +1,13 @@
 package com.bsb.hike.utils;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.models.ConvMessage;
@@ -17,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HikeAnalyticsEvent
@@ -239,6 +242,66 @@ public class HikeAnalyticsEvent
 		}
 	}
 
+	public static void recordAnalyticsForGCPins(String uniqueKey_order, String genus, String source, String species)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+
+			if(!TextUtils.isEmpty(genus))
+				json.put(AnalyticsConstants.V2.GENUS, genus);
+
+			if(!TextUtils.isEmpty(source))
+				json.put(AnalyticsConstants.V2.SOURCE, source);
+
+			if(!TextUtils.isEmpty(species))
+				json.put(AnalyticsConstants.V2.SPECIES, species);
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void recordAnalyticsForGCFlow(String uniqueKey_order, String form, int race, int breed, int val_int, ArrayList<String> toUser_msisdn)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
+			if(!TextUtils.isEmpty(form))
+				json.put(AnalyticsConstants.V2.FORM, form);
+			if(race != -1)
+				json.put(AnalyticsConstants.V2.RACE, race);
+			if(breed != -1)
+				json.put(AnalyticsConstants.V2.BREED, breed);
+			if(val_int > 0)
+				json.put(AnalyticsConstants.V2.VAL_INT, val_int);
+			if(toUser_msisdn != null)
+			{
+				json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn.toString());
+			}
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
+
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public static JSONObject getSettingsAnalyticsJSON()
 	{
 		try
@@ -251,7 +314,6 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.SETTINGS_ORDER);
 			return json;
 		}
-
 		catch (JSONException e)
 		{
 			e.toString();
