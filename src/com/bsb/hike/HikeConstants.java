@@ -1958,6 +1958,9 @@ public class HikeConstants
 
 		public static final String PROFILE_DOB = "profile_dob";
 
+		public static final String GENUS = "genus_extra";
+
+		public static final String SPECIES = "species_extra";
     }
 
 	public static final class LogEvent
