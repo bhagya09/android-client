@@ -1,42 +1,6 @@
 
 package com.bsb.hike.chatthread;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
-import com.bsb.hike.R;
-import com.bsb.hike.analytics.AnalyticsConstants;
-import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.dialog.HikeDialog;
-import com.bsb.hike.dialog.HikeDialogFactory;
-import com.bsb.hike.dialog.HikeDialogListener;
-import com.bsb.hike.media.OverFlowMenuItem;
-import com.bsb.hike.models.ConvMessage;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.models.GroupTypingNotification;
-import com.bsb.hike.models.TypingNotification;
-import com.bsb.hike.models.Conversation.Conversation;
-import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
-import com.bsb.hike.ui.utils.HashSpanWatcher;
-import com.bsb.hike.utils.EmoticonTextWatcher;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.SmileyParser;
-import com.bsb.hike.utils.Utils;
-import com.bsb.hike.view.CustomFontEditText;
-import com.bsb.hike.voip.VoIPUtils;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -61,6 +25,41 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.media.OverFlowMenuItem;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Conversation.GroupConversation;
+import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.models.GroupTypingNotification;
+import com.bsb.hike.models.TypingNotification;
+import com.bsb.hike.ui.utils.HashSpanWatcher;
+import com.bsb.hike.utils.EmoticonTextWatcher;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.IntentFactory;
+import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.SmileyParser;
+import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontEditText;
+import com.bsb.hike.voip.VoIPUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author piyush
@@ -516,6 +515,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 		case PIN_CREATE_ACTION_MODE:
 			destroyPinCreateView();
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, null);
 			break;
 
 		default:
@@ -530,6 +530,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.cross: // Pin message bar cross
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CROSS, null, null, null);
 			hidePin();
 			break;
 		default:
@@ -846,6 +847,7 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private void showPinHistory(boolean viaMenu)
 	{
+		HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_CHATTHREAD, null);
 		Intent intent = IntentFactory.getPinHistoryIntent(activity.getApplicationContext(), msisdn);
 		activity.startActivity(intent);
 		Utils.resetPinUnreadCount(oneToNConversation);
