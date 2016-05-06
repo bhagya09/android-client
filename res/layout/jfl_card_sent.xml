@@ -32,14 +32,14 @@
             android:tag="@string/content_card_tag"
             android:layout_marginRight="10dp"
             android:layout_marginTop="3dp"
-            android:background="@drawable/demo_card"
             android:elevation="5dp"
             >
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="vertical"
-                android:id="@+id/text_container"
+                android:id="@+id/card_container"
+                android:background="@drawable/demo_card"
                 android:layout_height="wrap_content"
                 >
                 <ImageView
@@ -70,6 +70,8 @@
                     android:visibility="gone"
                     android:tag="T2"
                     app:maxLines ="1"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
                     android:layout_marginBottom="24dp"
                     android:layout_below="@id/text"
                     android:textColor="#FFFFFF"
@@ -80,7 +82,7 @@
                 android:id="@+id/share_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/text_container"
+                android:layout_below="@id/card_container"
                 android:layout="@layout/share_container" />
         </RelativeLayout>
 
