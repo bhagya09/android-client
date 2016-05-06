@@ -147,6 +147,8 @@ public class StickerSearchConstants
 
 	public static final String REGEX_SPACE = " ";
 
+    public static final String REGEX_SHOP_SEARCH_SEPARATORS_LATIN = "\n|\t|,|\\.|\\?";
+
 	// =====================================================================Regular expressions]]
 
 	// Generic constants=======================================================================[[
