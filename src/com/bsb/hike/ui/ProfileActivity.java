@@ -1931,7 +1931,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, r);
 		}
 		else if (isBackPressed)
 		{
