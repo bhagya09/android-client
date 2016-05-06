@@ -3097,6 +3097,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
 		}
 
+		if (data.has(HikeConstants.CHUNK_SIZE_POLICY))
+		{
+			int chunkSizePolicy = data.getInt(HikeConstants.CHUNK_SIZE_POLICY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHUNK_SIZE_POLICY, chunkSizePolicy);
+		}
+
 		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
 		{
 			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
