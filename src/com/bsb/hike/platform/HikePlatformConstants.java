@@ -20,11 +20,15 @@ public interface HikePlatformConstants
 	String KEY = "key";
 	String SUBTYPE = "st";
 	String TEXT = "title";
+	String TEXT_COLOR = "color";
+	String TEXT_SIZE = "size";
 	String THUMBNAIL = "thumbnail";
 	String URL = "url";
 	String MEDIA_SIZE = "size";
 	String DURATION = "duration";
 	String LAYOUT_ID = "layoutID";
+	String BACKGROUND_COLOR = "bg";
+	String SHOW_SHARE = "showShare";
 	String NOTIF_TEXT = "summary";
 	String LOVE_ID = "loveID";
 	String RECEPIENT = "to";
