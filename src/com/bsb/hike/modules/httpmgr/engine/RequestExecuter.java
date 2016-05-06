@@ -1,30 +1,6 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
-import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
-import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
-import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.UUID;
-
-import org.apache.http.conn.ConnectTimeoutException;
-
+import com.bsb.hike.filetransfer.FileTransferBase.FTState;
 import com.bsb.hike.modules.httpmgr.DefaultHeaders;
 import com.bsb.hike.modules.httpmgr.HttpUtils;
 import com.bsb.hike.modules.httpmgr.analytics.HttpAnalyticsConstants;
@@ -43,9 +19,32 @@ import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.Utils;
 
+import org.apache.http.conn.ConnectTimeoutException;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.UUID;
+
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.HTTP_UNZIP_FAILED;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_CONNECTION_TIMEOUT;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_INTERRUPTED_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNEXPECTED_ERROR;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_UNKNOWN_HOST_EXCEPTION;
+import static java.net.HttpURLConnection.HTTP_LENGTH_REQUIRED;
+
 /**
  * This class is responsible for submitting the {@link Request} to the {@link HttpEngine} for engine and decides whether to execute the request asynchronously or synchronously
- * based on request parameters. Also handle exceptions and retries based on {@link IRetryPolicy} set in the request object
+ * based on request parameters. Also handle exceptions and retries based on {@link BasicRetryPolicy} set in the request object
  * 
  * @author sidharth
  * 
@@ -90,10 +89,15 @@ public class RequestExecuter
 	private void preProcess()
 	{
 		LogFull.d("Pre-processing started for " + request.toString());
-		RequestFacade requestFacade = new RequestFacade(request);
-		Iterator<IRequestInterceptor> iterator = requestFacade.getRequestInterceptors().iterator();
-		RequestInterceptorChain chain = new RequestInterceptorChain(iterator, requestFacade);
-		chain.proceed();
+		try {
+			RequestFacade requestFacade = new RequestFacade(request);
+			Iterator<IRequestInterceptor> iterator = requestFacade.getRequestInterceptors().iterator();
+			RequestInterceptorChain chain = new RequestInterceptorChain(iterator, requestFacade);
+			chain.proceed();
+		} catch (Exception ex) {
+			listener.onResponse(null, new HttpException(ex)); // sending failure
+			return;
+		}
 		/**
 		 * This is to handle the case in which one of interceptor in the pipeline do not chain.proceed() then we have to clear request and response objects and also remove this
 		 * request from map
@@ -237,7 +241,7 @@ public class RequestExecuter
 			HttpAnalyticsLogger.logHttpRequest(trackId, request.getUrl(), request.getMethod(), request.getAnalyticsParam());
 
 			long startTimeNs = System.nanoTime();
-			response = client.execute(request);
+			response = request.executeRequest(client);
 			long timeTakenNs = System.nanoTime() - startTimeNs;
 
 			if (response.getStatusCode() < 200 || response.getStatusCode() > 299)
@@ -302,33 +306,47 @@ public class RequestExecuter
 				handleException(ex, statusCode);
 			}
 		}
+		catch (HttpException ex)
+		{
+			handleException(ex);
+		}
 		catch (Throwable ex)
 		{
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(), Utils.getStackTrace(ex));
+			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(),
+					Utils.getStackTrace(ex));
 			handleException(ex, REASON_CODE_UNEXPECTED_ERROR);
 		}
 	}
 
 	private void notifyResponseToRequestRunner()
 	{
-		ResponseBody<?> body = response.getBody();
-		if (null == body || null == body.getContent())
+		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
 		{
-			LogFull.d("null response for  " + request.getUrl());
-			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
-			listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+			LogFull.d("removing request");
+			RequestProcessor.removeRequest(request);
+			LogFull.d("removed request");
 		}
 		else
 		{
-			LogFull.d("positive response for : " + request.getUrl());
-			// positive response
-			HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
-			listener.onResponse(response, null);
-		}	
+			ResponseBody<?> body = response.getBody();
+			if (null == body || null == body.getContent())
+			{
+				LogFull.d("null response for  " + request.getUrl());
+				HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_RESPONSE_PARSING_ERROR, request.getMethod(), request.getAnalyticsParam());
+				listener.onResponse(null, new HttpException(REASON_CODE_RESPONSE_PARSING_ERROR, "response parsing error"));
+			}
+			else
+			{
+				LogFull.d("positive response for : " + request.getUrl());
+				// positive response
+				HttpAnalyticsLogger.logSuccessfullResponseReceived(trackId, request.getUrl(), response.getStatusCode(), request.getMethod(), request.getAnalyticsParam());
+				listener.onResponse(response, null);
+			}
+		}
 	}
 
 	/**
-	 * Handles the exception that occurs while executing the request, and in case of {@link IOException} handle retries based on {@link IRetryPolicy}
+	 * Handles the exception that occurs while executing the request, and in case of {@link IOException} handle retries based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */
@@ -338,8 +356,14 @@ public class RequestExecuter
 		listener.onResponse(null, new HttpException(reasonCode, ex));
 	}
 
+	private void handleException(HttpException ex)
+	{
+		LogFull.e(ex, "exception occured for " + request.toString());
+		listener.onResponse(null, ex);
+	}
+
 	/**
-	 * Handles the retries of the request based on {@link IRetryPolicy}
+	 * Handles the retries of the request based on {@link BasicRetryPolicy}
 	 * 
 	 * @param ex
 	 */
@@ -393,7 +417,7 @@ public class RequestExecuter
 		}
 
 		@Override
-		public void proceed()
+		public void proceed() throws Exception
 		{
 			if (iterator.hasNext())
 			{

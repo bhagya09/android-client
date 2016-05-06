@@ -1,16 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +17,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -67,6 +58,7 @@ import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
@@ -122,8 +114,16 @@ import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
 
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback
 {
@@ -970,7 +970,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
             ArrayList<ContactInfo> contactInfos = new ArrayList<>(1);
             contactInfos.add(contactInfo);
             ConvertToJsonArrayTask convertToJsonArrayTask = new ConvertToJsonArrayTask(this,contactInfos,true);
-            Utils.executeJSONArrayResultTask(convertToJsonArrayTask);
+			convertToJsonArrayTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             return;
         }
 
@@ -1712,6 +1712,8 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
+					ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
+					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId)?1:0, gcSettings, selectedContacts.size(), selectedContacts);
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
@@ -1802,7 +1804,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		dialog.setTitle(getResources().getString(R.string.please_wait));
 		dialog.setMessage(getResources().getString(R.string.loading_data));
 		ConvertToJsonArrayTask task = new ConvertToJsonArrayTask(this,adapter.getAllSelectedContacts(), dialog, thumbnailsRequired);
-		Utils.executeJSONArrayResultTask(task);
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 	
 	private void forwardConfirmation(final ArrayList<ContactInfo> arrayList)
@@ -2321,7 +2323,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							{
 								fileTransferTask = new InitiateMultiFileTransferTask(getApplicationContext(), fileTransferList, msisdn, onHike, FTAnalyticEvents.OTHER_ATTACHEMENT,
 										intent);
-								Utils.executeAsyncTask(fileTransferTask);
+								fileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 								progressDialog = ProgressDialog.show(this, null, getResources().getString(R.string.multi_file_creation));
 
@@ -2329,7 +2331,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 							else if (!fileTransferList.isEmpty())
 							{
 								prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-								Utils.executeAsyncTask(prefileTransferTask);
+								prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 							}
 						}
 				
@@ -2538,7 +2540,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				platformAnalyticsJson.put(HikePlatformConstants.CARD_TYPE, platformCards);
 				if(!fileTransferList.isEmpty()){
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList,intent,null, false,FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}else{
 					// if file trasfer started then it will show toast
 					Toast.makeText(getApplicationContext(), getString(R.string.messages_sent_succees), Toast.LENGTH_LONG).show();
@@ -2730,7 +2732,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				if (!fileTransferList.isEmpty() && ((offlineContact != null && arrayList.size() == 1) || (arrayList.size() > 1)))
 				{
 					prefileTransferTask = new PreFileTransferAsycntask(fileTransferList, intent, null, false, FILE_TRANSFER);
-					Utils.executeAsyncTask(prefileTransferTask);
+					prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
 				
 			}
@@ -3242,8 +3244,7 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 		
 		prefileTransferTask = new PreFileTransferAsycntask(arrayList,null,
 				contactJson, newConvIfnotExist,CONTACT_TRANSFER);
-		Utils.executeAsyncTask(prefileTransferTask);
-
+		prefileTransferTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	

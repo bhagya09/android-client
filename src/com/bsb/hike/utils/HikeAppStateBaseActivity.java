@@ -49,13 +49,6 @@ public abstract class HikeAppStateBaseActivity extends Activity
 	}
 
 	@Override
-	protected void onPause()
-	{
-		HikeAppStateUtils.onPause(this);
-		super.onPause();
-	}
-
-	@Override
 	protected void onStop()
 	{
 		HikeAppStateUtils.onStop(this);

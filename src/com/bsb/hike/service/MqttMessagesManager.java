@@ -51,6 +51,7 @@ import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatHead.StickyCaller;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.db.dbcommand.GetSqliteVersionCommand;
 import com.bsb.hike.filetransfer.FTApkManager;
 import com.bsb.hike.filetransfer.FileTransferManager;
@@ -69,7 +70,6 @@ import com.bsb.hike.models.Conversation.ConvInfo;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.Conversation.GroupConversation;
-import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.GroupTypingNotification;
 import com.bsb.hike.models.HikeFile;
@@ -85,9 +85,11 @@ import com.bsb.hike.models.WhitelistDomain;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.contactmgr.ContactUtils;
 import com.bsb.hike.modules.httpmgr.HttpManager;
+import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchConstants;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.modules.stickersearch.provider.db.HikeStickerSearchBaseConstants;
 import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.notifications.HikeNotification;
@@ -101,6 +103,7 @@ import com.bsb.hike.platform.PlatformContentRequest;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.content.PlatformContent;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.productpopup.ProductInfoManager;
 import com.bsb.hike.spaceManager.StorageSpecUtils;
 import com.bsb.hike.modules.signupmgr.PostAddressBookTask;
@@ -129,6 +132,7 @@ import com.bsb.hike.utils.Utils;
 import com.bsb.hike.voip.VoIPConstants;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gcm.GCMRegistrar;
+import com.hike.abtest.ABTest;
 
 /**
  *
@@ -970,7 +974,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage())
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey());
+			Logger.d(getClass().getSimpleName(), "FT MESSAGE: " + " NAME: " + hikeFile.getFileName() + " KEY: " + hikeFile.getFileKey() + "MSG ID: " + convMessage.getMsgID());
 			Utils.addFileName(hikeFile.getFileName(), hikeFile.getFileKey());
 		}
 
@@ -983,7 +987,7 @@ public class MqttMessagesManager
 		if (convMessage.isFileTransferMessage() && ((!TextUtils.isEmpty(name)) || BotUtils.isBot(msisdn)) && (manager.isConvExists(msisdn)))
 		{
 			HikeFile hikeFile = convMessage.getMetadata().getHikeFiles().get(0);
-			NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+			NetworkType networkType = FTUtils.getNetworkType(context);
 			if (hikeFile.getHikeFileType() == HikeFileType.IMAGE)
 			{
 				if ((networkType == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
@@ -1834,7 +1838,7 @@ public class MqttMessagesManager
 			int val = data.getInt(HikeConstants.VOIP_RATINGS_LEFT);
 			editor.putInt(HikeConstants.VOIP_RATINGS_LEFT, val);
 		}
-		if (data.has(HikeConstants.VOIP_RELAY_IPS) && Utils.isHoneycombOrHigher())
+		if (data.has(HikeConstants.VOIP_RELAY_IPS))
 		{
 			JSONArray array = data.getJSONArray(HikeConstants.VOIP_RELAY_IPS);
 			Set<String> ips = new HashSet<>();
@@ -2168,6 +2172,11 @@ public class MqttMessagesManager
 			 */
 			this.pubSub.publish(HikePubSub.UPDATE_OF_PHOTOS_ICON, null);
 		}
+		if (data.has(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP))
+		{
+			boolean enableSettingsBackup = data.getBoolean(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP);
+			HikeSharedPreferenceUtil.getInstance(HikeMessengerApp.ACCOUNT_SETTINGS).saveData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, enableSettingsBackup);
+		}
 		if (data.has(HikeConstants.Extras.ENABLE_SEND_LOGS))
 		{
 			boolean enableSendLogs = data.getBoolean(HikeConstants.Extras.ENABLE_SEND_LOGS);
@@ -2452,7 +2461,7 @@ public class MqttMessagesManager
 		{
 			String ftHostIps = data.getString(HikeConstants.FT_HOST_IPS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FT_HOST_IPS, ftHostIps);
-			FileTransferManager.getInstance(context).setFThostURIs();
+			HttpManager.setFtHostUris();
 		}
 		if (data.has(HikeConstants.HTTP_HOST_IPS))
 		{
@@ -3025,6 +3034,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.LARGE_VIDEO_SHARING_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED);
+			editor.putBoolean(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
@@ -3081,6 +3095,36 @@ public class MqttMessagesManager
 		{
 			boolean showRecommendedPacks = data.getBoolean(HikeConstants.SHOW_RECOMMENDED_PACKS);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_RECOMMENDED_PACKS, showRecommendedPacks);
+		}
+
+		if (data.has(HikeConstants.CHUNK_SIZE_POLICY))
+		{
+			int chunkSizePolicy = data.getInt(HikeConstants.CHUNK_SIZE_POLICY);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHUNK_SIZE_POLICY, chunkSizePolicy);
+		}
+
+		if(data.has(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER))
+		{
+			int orderRowsCount = data.optInt(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, StickerConstants.DEFAULT_NUMBER_OF_ROWS_FOR_ORDER);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.NUMBER_OF_ROWS_FOR_ORDER, orderRowsCount);
+		}
+
+		if(data.has(HikeConstants.PACK_UPDATION_PAGE_SIZE))
+		{
+			int packUpdationPageSize = data.optInt(HikeConstants.PACK_UPDATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_UPDATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_UPDATION_PAGE_SIZE, packUpdationPageSize);
+		}
+
+		if(data.has(HikeConstants.PACK_CREATION_PAGE_SIZE))
+		{
+			int packCreationPageSize = data.optInt(HikeConstants.PACK_CREATION_PAGE_SIZE, StickerConstants.DEFAULT_PAGE_SIZE_FOR_CATEGORY_CREATION_METADATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.PACK_CREATION_PAGE_SIZE, packCreationPageSize);
+		}
+
+		if(data.has(HikeConstants.FETCH_METADATA_PACK_COUNT))
+		{
+			int fetchMetadataPackCount = data.optInt(HikeConstants.FETCH_METADATA_PACK_COUNT, StickerConstants.DEFAULT_CATEGORIES_TO_FETCH_DATA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
 		}
 
 		editor.commit();
@@ -3545,15 +3589,42 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.LOG_EMOTICON_USAGE_SWITCH.equals(subType))
 		{
-			boolean showBadge = data.optBoolean(HikeConstants.BADGE, false);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, showBadge);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LOG_EMOTICON_USAGE_SWITCH, data.optBoolean(HikeConstants.BADGE, false));
 		}
         else if(HikeConstants.STICKER_SIZE.equals(subType))
         {
             int stickerSize = data.optInt(HikeConstants.STICKER_SIZE,-1);
             HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SIZE, stickerSize);
         }
-
+        else if(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, HikeConstants.DEFAULT_SEARCH_FTUE_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, limit);
+        }
+        else if(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE.equals(subType))
+        {
+            HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, data.optBoolean(HikeConstants.BADGE, false));
+        }
+        else if(CategorySearchManager.SHOP_SEARCH_WEIGHTS.equals(subType))
+        {
+            String weightString = data.optString(HikeConstants.STICKER_SCORE_WEIGHTAGE, CategorySearchManager.DEFAULT_WEIGHTS_INPUT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SHOP_SEARCH_WEIGHTS, weightString);
+        }
+        else if(CategorySearchManager.SEARCH_RESULTS_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LIMIT, limit);
+        }
+        else if(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_QUERY_LENGTH_THRESHOLD, limit);
+        }
+        else if(CategorySearchManager.AUTO_SEARCH_TIME.equals(subType))
+        {
+            long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
@@ -3670,8 +3741,7 @@ public class MqttMessagesManager
 			// download the protip only if the URL is non empty
 			// also respect the user's auto photo download setting.
 			if (!TextUtils.isEmpty(protip.getImageURL())
-					&& ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FileTransferManager
-							.getInstance(context).getNetworkType() != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
+					&& ((FTUtils.getNetworkType(context) == NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true)) || (FTUtils.getNetworkType(context) != NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true))))
 			{
 				autoDownloadProtipImage(statusMessage, true);
 			}
@@ -3979,6 +4049,10 @@ public class MqttMessagesManager
 				}
 			}
 
+		}
+		else if(subType.equals(HikeConstants.MqttMessageTypes.TIP))
+		{
+			saveOrFlushAtomicTip(jsonObj);
 		}
 		else
 		{
@@ -4650,6 +4724,10 @@ public class MqttMessagesManager
 		{
 			showToast(jsonObj);
 		}
+		else if (ABTest.onRequestReceived(type, jsonObj))
+		{
+			//Do nothing, if its a ABTest message its handled
+		}
 	}
 	
 	private void saveInfraConfig(JSONObject jsonObj)
@@ -4793,8 +4871,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadProfileImage(StatusMessage statusMessage, boolean statusUpdate)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}
@@ -4807,8 +4885,8 @@ public class MqttMessagesManager
 
 	private void autoDownloadGroupImage(String id)
 	{
-		if ((FileTransferManager.getInstance(context).getNetworkType() == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
-				|| (FileTransferManager.getInstance(context).getNetworkType() != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
+		if ((FTUtils.getNetworkType(context) == NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
+				|| (FTUtils.getNetworkType(context) != NetworkType.WIFI && !appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 		{
 			return;
 		}
@@ -5058,6 +5136,33 @@ public class MqttMessagesManager
 			 * We only publish this event if we actually removed a typing notification
 			 */
 			this.pubSub.publish(HikePubSub.END_TYPING_CONVERSATION, typingNotification);
+		}
+	}
+
+	/**
+	 * Method to parse atomic tip packet
+	 * @param jsonObj
+     */
+	public void saveOrFlushAtomicTip(JSONObject jsonObj)
+	{
+		Logger.d(getClass().getSimpleName(), "Parsing atomic tip packet");
+		JSONObject data = jsonObj.optJSONObject(HikeConstants.DATA);
+		if(data != null)
+		{
+			if(data.has(HikeConstants.FLUSH))
+			{
+				if(data.optBoolean(HikeConstants.FLUSH, false))
+				{
+					Logger.d(getClass().getSimpleName(), "Received atomic tip flush packet!");
+					AtomicTipManager.getInstance().processFlushPacket();
+					return;
+				}
+			}
+			else
+			{
+				Logger.d(getClass().getSimpleName(), "Received new atomic tip packet, saving it!");
+				AtomicTipManager.getInstance().parseAtomicTipPacket(data);
+			}
 		}
 	}
 

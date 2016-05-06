@@ -1425,4 +1425,5 @@
     <string name="slide_to_cancel">रद्द साठी स्लाईड करा</string>
     <string name="recording_help_text"> रेकॉर्ड करण्यासाठी टॅप धरून ठेवा</string>
     <string name="max_duration_recorded">जास्तीत जास्त कालावधीसाठी रेकॉर्डिंग केले</string>
+    <string name="stream_volume_muted_or_low">कृप्या आवाज वाढवा</string>
 </resources>
