@@ -1,6 +1,7 @@
 package com.bsb.hike.triggers;
 
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.notifications.HikeNotification;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
@@ -41,6 +42,7 @@ public class ImageAndVideoInterceptReceiver extends BroadcastReceiver
                     {
                         Logger.d(TAG, "processing action:" + intent.getAction());
                         Logger.d(TAG, "processing video intercept");
+                        InterceptUtils.recordInterceptEventV2(AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO, AnalyticsConstants.InterceptEvents.VIDEO_CAPTURE, AnalyticsConstants.InterceptEvents.CAPTURE);
                         HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptUtils.INTERCEPT_TYPE_VIDEO);
                     }
                     break;
@@ -53,6 +55,7 @@ public class ImageAndVideoInterceptReceiver extends BroadcastReceiver
                     {
                         Logger.d(TAG, "processing action:" + intent.getAction());
                         Logger.d(TAG, "processing image intercept");
+                        InterceptUtils.recordInterceptEventV2(AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE, AnalyticsConstants.InterceptEvents.IMAGE_CAPTURE, AnalyticsConstants.InterceptEvents.CAPTURE);
                         HikeNotification.getInstance().notifyIntercept(currUri, null, null, InterceptUtils.INTERCEPT_TYPE_IMAGE);
                     }
                     break;
