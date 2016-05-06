@@ -2,11 +2,9 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.R;
 import com.bsb.hike.adapters.CustomKeyboardInputBoxAdapter;
 import com.bsb.hike.media.ShareablePopup;
 import com.bsb.hike.media.StickerPickerListener;
@@ -93,9 +91,6 @@ public class CustomKeyboardManager implements ShareablePopup, TextPickerListener
 
 			viewToDisplay = customKeyboardInputBoxAdapter.initStickerKeyboardView(customKeyboardStkrKeys,customKeyboard.getStSize());
 		}
-
-		if (viewToDisplay == null)
-			viewToDisplay = LayoutInflater.from(context).inflate(R.layout.custom_keyboard_layout, null);
 
 	}
 

@@ -4176,8 +4176,6 @@ public class HikeConstants
 
     public static final String HANDLE = "handle";
 
-    public static final String HIKE = "hike";
-
     public static final String KEYBOARD_DATA = "kb";
 
 	public static final String TIP_CTA = "tp_cta";

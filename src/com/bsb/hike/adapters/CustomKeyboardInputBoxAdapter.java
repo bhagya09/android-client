@@ -154,7 +154,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 		case HikePlatformConstants.BotsStickerSize.LARGE:
 			stickerGridNumCols = HikePlatformConstants.BotsStickerGridType.largeStkrGridCols;
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) stickerGridView.getLayoutParams();
-			lp.setMargins((int) (2  * Utils.densityMultiplier), (int) (24  * Utils.densityMultiplier), (int) (2  * Utils.densityMultiplier), 0);
+			lp.setMargins((int) (2  * Utils.densityMultiplier), (int) (40  * Utils.densityMultiplier), (int) (2  * Utils.densityMultiplier), 0);
 			stickerGridView.setLayoutParams(lp);
 			break;
 		case HikePlatformConstants.BotsStickerSize.MEDIUM:

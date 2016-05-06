@@ -2718,7 +2718,7 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
                 @Override
                 public void onRequestFailure(HttpException httpException)
                 {
-                    Toast.makeText(HomeActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
             });
             requestToken.execute();

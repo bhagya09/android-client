@@ -265,9 +265,13 @@ public class BotsStickerAdapter extends BaseAdapter implements View.OnClickListe
 		{
 			Sticker sticker = (Sticker) data;
 			StickerPageAdapterItem item = new StickerPageAdapterItem(StickerPageAdapterItem.DOWNLOADING, sticker);
-			itemList.remove(item);
-			itemList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
-            notifyDataSetChanged();
+
+			if (itemList.contains(item))
+			{
+				itemList.remove(item);
+				itemList.add(new StickerPageAdapterItem(StickerPageAdapterItem.STICKER, sticker));
+				notifyDataSetChanged();
+			}
 		}
 	}
 
