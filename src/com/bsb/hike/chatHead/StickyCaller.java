@@ -144,6 +144,8 @@ public class StickyCaller {
 
 	private static boolean isItemClicked = false;
 
+	private static String quickCallerCardOpenSource;
+
 	public static Runnable removeViewRunnable = new Runnable() {
 
 		@Override
@@ -878,6 +880,7 @@ public class StickyCaller {
 				if (v.getTag() != null)
 				{
 					IncomingCallReceiver.callReceived = true;
+					quickCallerCardOpenSource = getCallEventFromCallType(CALL_TYPE);
 					CALL_TYPE = QUICK_REPLY;
 					Utils.killCall();
 					StickyCaller.showCallerViewWithDelay(getPhoneNumberFromTag(v), quickReplyContentModel, StickyCaller.QUICK_REPLY, AnalyticsConstants.StickyCallerEvents.STATIC_QUICK_REPLY_BUTTON);
@@ -950,6 +953,7 @@ public class StickyCaller {
 			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.CALLER_FREE_SMS);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, AnalyticsConstants.CROSS);
+			json.put(AnalyticsConstants.V2.GENUS, quickCallerCardOpenSource);
 			Logger.d("c_spam_logs", " QuickReplyCrossButtonClicked logs are \n " + json);
 			HAManager.getInstance().recordV2(json);
 
