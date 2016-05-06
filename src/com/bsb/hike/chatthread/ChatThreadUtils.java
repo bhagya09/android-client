@@ -1,14 +1,5 @@
 package com.bsb.hike.chatthread;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -54,11 +45,21 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class ChatThreadUtils
 {
@@ -751,5 +752,13 @@ public class ChatThreadUtils
 	public static boolean isBigVideoSharingEnabled()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
+	}
+
+	public static void logAnalyticsForPinActionModeFinish(int actionMode)
+	{
+		if (actionMode == GroupChatThread.PIN_CREATE_ACTION_MODE)
+		{
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
+		}
 	}
 }

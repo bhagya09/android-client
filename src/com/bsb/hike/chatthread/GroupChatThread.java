@@ -70,7 +70,7 @@ public class GroupChatThread extends OneToNChatThread
 
 	private static final String TAG = "groupchatthread";
 
-	private static final int PIN_CREATE_ACTION_MODE = 302;
+	public static final int PIN_CREATE_ACTION_MODE = 302;
 	
 	private static final int LATEST_PIN_DELETED = 303;
 	
@@ -351,13 +351,6 @@ public class GroupChatThread extends OneToNChatThread
 	@Override
 	public boolean onBackPressed()
 	{
-		if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)
-		{
-			mActionMode.finish();
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
-			return true;
-		}
-
 		if (!super.onBackPressed())
 		{
 			if (mActionMode.whichActionModeIsOn() == PIN_CREATE_ACTION_MODE)

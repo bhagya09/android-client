@@ -1839,7 +1839,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 		if (mActionMode.isActionModeOn())
 		{
+			int actionMode = mActionMode.whichActionModeIsOn();
 			mActionMode.finish();
+			ChatThreadUtils.logAnalyticsForPinActionModeFinish(actionMode);
 			return true;
 		}
 
