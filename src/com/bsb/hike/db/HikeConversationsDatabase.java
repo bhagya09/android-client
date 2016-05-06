@@ -7410,7 +7410,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						metadataUpdateList.add(stickerCategory);
 					}
 
-					if (cursor.getInt(isTagUpdatedIdx) == 0 && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.STICKER_SHOP_SEARCH_TOGGLE, true))
+					if (cursor.getInt(isTagUpdatedIdx) == 0)
 					{
 						tagdataUpdateList.add(Integer.toString(ucid));
 					}
