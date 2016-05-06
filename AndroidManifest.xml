@@ -409,6 +409,10 @@
                     android:host="hike.in"
                     android:pathPrefix="/"
                     android:scheme="https" />
+                 <data
+                     android:host="bots"
+                     android:pathPrefix="/"
+                     android:scheme="hike" />
             </intent-filter>
         </activity>
          
