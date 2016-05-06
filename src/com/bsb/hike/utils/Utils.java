@@ -6553,6 +6553,26 @@ public class Utils {
         Birthday dob = new Birthday(dobString);
         return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
     }
+
+    public static void setGenus(String argGenus, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argGenus) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+    }
+
+    public static void setSpecies(String argSpecies, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+    }
 }
 
 

@@ -11,6 +11,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -345,7 +347,12 @@ public class UploadFileTask extends FileTransferBase
 						}
 						selectedFile = mFile;
 					}
+					if (selectedFile.length() > HikeConstants.MAX_FILE_SIZE) {
+						String msisdn = ((ConvMessage) userContext).getMsisdn();
+						Utils.recordEventMaxSizeToastShown(ChatAnalyticConstants.VIDEO_MAX_SIZE_TOAST_SHOWN, ChatThreadUtils.getChatThreadType(msisdn), msisdn, hikeFile.getFileSize());
+					}
 					hikeFile.setFile(selectedFile);
+					hikeFile.setFileSize(selectedFile.length());
 				}
 				// do not copy the file if it is video or audio or any other file
 				else
@@ -386,10 +393,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void upload()
 	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
+		uploadFile(selectedFile);
 	}
 
 	private String getImageQuality()

@@ -514,14 +514,15 @@ public class BotUtils
 
 
 			NonMessagingBotMetadata botMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
+			if(checkIfDownloadInProgress(botMetadata.getAppName()))
+			{
+				return;
+			}
 
             if (botMetadata.isMicroAppMode())
 			{
 
-				if(botMetadata.getAutoResume())
-				{
-					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),botMetadata.getPrefNetwork(), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
-				}
+					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),botMetadata.getPrefNetwork(), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS,botMetadata.getAutoResume());
 				if(botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.WEB_MICRO_APPS);
@@ -537,11 +538,11 @@ public class BotUtils
 			else if (botMetadata.isNativeMode())
 			{
 
-				if(botMetadata.getAutoResume())
-				{
-					PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(), HikePlatformConstants.PlatformTypes.CBOT,jsonObj.optLong(HikePlatformConstants.TTL,HikePlatformConstants.oneDayInMS),jsonObj.optInt(HikePlatformConstants.PREF_NETWORK,Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)), HikePlatformConstants.PlatformDwnldState.IN_PROGRESS);
-				}
-				if(botMetadata.getPrefNetwork() < currentNetwork)
+				PlatformUtils.addToPlatformDownloadStateTable(botMetadata.getAppName(), botMetadata.getmAppVersionCode(), jsonObj.toString(),
+						HikePlatformConstants.PlatformTypes.CBOT, jsonObj.optLong(HikePlatformConstants.TTL, HikePlatformConstants.oneDayInMS),
+						jsonObj.optInt(HikePlatformConstants.PREF_NETWORK, Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)),
+						HikePlatformConstants.PlatformDwnldState.IN_PROGRESS, botMetadata.getAutoResume());
+				if (botMetadata.getPrefNetwork() < currentNetwork)
 					return; // Restricting download only to better network than pref.
 				botInfo.setBotType(HikePlatformConstants.PlatformBotType.NATIVE_APPS);
 
@@ -551,6 +552,11 @@ public class BotUtils
 		}
 
 		Logger.d("create bot", "It takes " + String.valueOf(System.currentTimeMillis() - startTime) + "msecs");
+	}
+
+	private static boolean checkIfDownloadInProgress(String appName)
+	{
+		return HikeContentDatabase.getInstance().isMicroAppDownloadRunning(appName);
 	}
 
 	private static BotInfo getBotInfoForNonMessagingBots(JSONObject jsonObj, String msisdn)
