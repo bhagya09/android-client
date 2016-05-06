@@ -94,11 +94,8 @@ public class DownloadFileTask extends FileTransferBase
 			downLoadUrl = AccountUtils.fileTransferBaseDownloadUrl + fileKey;
 		}
 
-		if (requestToken == null)
-		{
-			requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
+		requestToken = HttpRequests.downloadFile(tempDownloadedFile.getAbsolutePath(), downLoadUrl, msgId, downloadFileRequestListener,
 					new FileTransferChunkSizePolicy(context), fileTypeString);
-		}
 		requestToken.execute();
 	}
 
