@@ -1,8 +1,6 @@
 package com.bsb.hike.media;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -25,18 +23,15 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.StickerAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatHead.ChatHeadConstants;
-import com.bsb.hike.chatHead.ChatHeadLayout;
-import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.chatHead.ChatHeadViewManager;
 import com.bsb.hike.chatHead.TabClickListener;
 import com.bsb.hike.chatthread.IShopIconClickedCallback;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
