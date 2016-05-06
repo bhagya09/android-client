@@ -252,13 +252,13 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
 
-			if(genus != null && !TextUtils.isEmpty(genus))
+			if(!TextUtils.isEmpty(genus))
 				json.put(AnalyticsConstants.V2.GENUS, genus);
 
-			if(source != null && !TextUtils.isEmpty(source))
+			if(!TextUtils.isEmpty(source))
 				json.put(AnalyticsConstants.V2.SOURCE, source);
 
-			if(species != null && !TextUtils.isEmpty(species))
+			if(!TextUtils.isEmpty(species))
 				json.put(AnalyticsConstants.V2.SPECIES, species);
 
 			HAManager.getInstance().recordV2(json);
@@ -279,7 +279,7 @@ public class HikeAnalyticsEvent
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
-			if(form != null && !TextUtils.isEmpty(form))
+			if(!TextUtils.isEmpty(form))
 				json.put(AnalyticsConstants.V2.FORM, form);
 			if(race != -1)
 				json.put(AnalyticsConstants.V2.RACE, race);
