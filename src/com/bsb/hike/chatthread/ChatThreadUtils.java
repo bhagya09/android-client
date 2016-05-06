@@ -45,7 +45,6 @@ import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.offline.OfflineController;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.service.HikeMqttManagerNew;
-import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -754,11 +753,4 @@ public class ChatThreadUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
 
-	public static void logAnalyticsForPinActionModeFinish(int actionMode)
-	{
-		if (actionMode == GroupChatThread.PIN_CREATE_ACTION_MODE)
-		{
-			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, ChatAnalyticConstants.GCEvents.CANCEL_SRC_OTHERS);
-		}
-	}
 }
