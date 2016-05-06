@@ -19,7 +19,6 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
 import java.io.File;
@@ -92,30 +91,47 @@ public class ChatThemeDrawableHelper {
         return getResourceDrawableFromName(asset);
     }
 
+    public ColorDrawable getColorDrawable(HikeChatTheme theme, byte assetIndex) {
+        HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(theme.getAssetId(assetIndex));
+        if((asset != null) && (asset.getType() == HikeChatThemeConstants.ASSET_TYPE_COLOR)){
+            return getColorDrawable(asset.getAssetId());
+        }
+        return new ColorDrawable(Color.RED);//returning red color if the asset type is not color
+    }
+
     private Drawable getDrawableFromSDCard(HikeChatThemeAsset asset) {
-        String path = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath() + File.separator + asset.getAssetId();
+        String rootPath = getThemeAssetStoragePath();
+        if (TextUtils.isEmpty(rootPath)) {
+            Log.v(TAG, "External / Internal storage is not available");
+            return null;
+        }
+        String assetPath = rootPath + File.separator + asset.getAssetId();
         switch (asset.getType()) {
             case HikeChatThemeConstants.ASSET_TYPE_JPEG:
             case HikeChatThemeConstants.ASSET_TYPE_PNG:
             case HikeChatThemeConstants.ASSET_TYPE_BASE64STRING:
                 BitmapDrawable drawable = HikeMessengerApp.getLruCache().getBitmapDrawable(asset.getAssetId());
                 if (drawable == null) {
-                    if (TextUtils.isEmpty(path) && isFileExists(path)) {
-                        Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+                    if (!TextUtils.isEmpty(assetPath) && isFileExists(assetPath)) {
+                        Bitmap b = HikeBitmapFactory.decodeBitmapFromFile(assetPath, Bitmap.Config.RGB_565);
                         drawable = new BitmapDrawable(HikeMessengerApp.getInstance().getResources(), b);
                         HikeMessengerApp.getLruCache().putInCache(asset.getAssetId(), drawable);
                         b = null;
+                    } else {
+                        Log.v(TAG, "Either path is empty (or) file does not exist at path " + assetPath);
                     }
                 }
                 return drawable;
             case HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH:
-                if (TextUtils.isEmpty(path) && isFileExists(path)) {
-                    Bitmap bitmap = HikeBitmapFactory.decodeBitmapFromFile(path, Bitmap.Config.RGB_565);
+                if (!TextUtils.isEmpty(assetPath) && isFileExists(assetPath)) {
+                    Bitmap bitmap = HikeBitmapFactory.decodeBitmapFromFile(assetPath, Bitmap.Config.RGB_565);
                     byte[] chunk = bitmap.getNinePatchChunk();
                     boolean result = NinePatch.isNinePatchChunk(chunk);
                     if (result) {
                         return new NinePatchDrawable(HikeMessengerApp.getInstance().getResources(), bitmap, chunk, new Rect(), null);
                     }
+                } else {
+                    Log.v(TAG, "Either path is empty (or) file does not exist at path " + assetPath);
                 }
                 return null;
             case HikeChatThemeConstants.ASSET_TYPE_COLOR:
@@ -220,37 +236,15 @@ public class ChatThemeDrawableHelper {
      * method which returns the storage directory for saving chat theme assets. inspired by similar method in StickerManager
      *
      * @return the path of the directory
+     * <p/>
      */
     public String getThemeAssetStoragePath() {
-        /*
-		 * We give a higher priority to external storage. If we find an exisiting directory in the external storage, we will return its path. Otherwise if there is an exisiting
-		 * directory in internal storage, we return its path.
-		 *
-		 * If the directory is not available in both cases, we return the external storage's path if external storage is available. Else we return the internal storage's path.
-		 */
-        boolean externalAvailable = false;
         Utils.ExternalStorageState st = Utils.getExternalStorageState();
-        Logger.d(TAG, "External Storage state : " + st.name());
+        Context context = HikeMessengerApp.getInstance().getApplicationContext();
         if (st == Utils.ExternalStorageState.WRITEABLE) {
-            externalAvailable = true;
-            String themeDirPath = getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
-            Logger.d(TAG, "Theme dir path : " + themeDirPath);
-            if (themeDirPath == null) {
-                return null;
-            }
-
-            File themeDir = new File(themeDirPath);
-
-            if (themeDir.exists()) {
-                Logger.d(TAG, "Theme Dir exists ... so returning");
-                return themeDir.getPath();
-            }
-        }
-        if (externalAvailable) {
-            Logger.d(TAG, "Returning external storage dir.");
-            return getExternalThemeDirectory(HikeMessengerApp.getInstance().getApplicationContext());
+            return getExternalThemeDirectory(context);
         } else {
-            return null;
+            return getInternalThemeDirectory(context);
         }
     }
 
@@ -265,17 +259,20 @@ public class ChatThemeDrawableHelper {
         if (dir == null) {
             return null;
         }
-        String themePath = dir.getPath() + File.separator + HikeChatThemeConstants.CHAT_THEMES_ROOT;
-        dir = new File(themePath);
-
-        if (dir.isDirectory()) {
-            return themePath;
-        } else {
-            boolean created = dir.mkdir();
-            if (created) {
-                return themePath;
-            }
+        String path = dir.getPath() + File.separator + HikeChatThemeConstants.CHAT_THEMES_ROOT;
+        dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdir();
         }
-        return null;
+        return path;
+    }
+
+    private String getInternalThemeDirectory(Context context) {
+        String path = context.getFilesDir().getPath() + File.separator + HikeChatThemeConstants.CHAT_THEMES_ROOT;
+        File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        return path;
     }
 }
