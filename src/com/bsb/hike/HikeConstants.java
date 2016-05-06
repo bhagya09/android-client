@@ -4177,8 +4177,6 @@ public class HikeConstants
 
 	public static final String CHUNK_SIZE_POLICY = "chunkSizePolicy";
 
-	public static final String DISABLE_QUICK_UPLOAD = "disable_md5";
-
 	public static final String TIP_CTA = "tp_cta";
 
 	public static final String TIP_CTA_LINK = "link";

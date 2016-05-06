@@ -3101,12 +3101,6 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.CHUNK_SIZE_POLICY, chunkSizePolicy);
 		}
 
-		if (data.has(HikeConstants.DISABLE_QUICK_UPLOAD))
-		{
-			boolean disableQuickUpload = data.getBoolean(HikeConstants.DISABLE_QUICK_UPLOAD);
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DISABLE_QUICK_UPLOAD, disableQuickUpload);
-		}
-
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 
