@@ -32,6 +32,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
@@ -1149,7 +1150,14 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
+					boolean enableCompression = false;
+					if(data != null && data.hasExtra(HikeCropActivity.IS_CROPPED))
+					{
+						boolean isCropped = data.getBooleanExtra(HikeCropActivity.IS_CROPPED, false);
+						enableCompression = !isCropped;
+					}
+
+					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, enableCompression));
 				}
 
 				@Override
