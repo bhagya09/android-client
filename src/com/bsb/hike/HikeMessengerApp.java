@@ -234,6 +234,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String LAST_BACK_OFF_TIME = "lastBackOffTime";
 
+	public static final String LAST_BACK_OFF_TIME_USER_LOGS = "lastBackOffTimeUserLogs";
+
 	public static final String FACEBOOK_TOKEN = "facebookToken";
 
 	public static final String FACEBOOK_TOKEN_EXPIRES = "facebookTokenExpires";
@@ -991,6 +993,13 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		ABTest.apply(getApplicationContext());
 		CustomTabsHelper.getPackageNameToUse(this);
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
+
+		if (Utils.isUserOnline(this) && (!Utils.isUserAuthenticated(this)) && !settings.getBoolean(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
+		{
+			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
+			settings.edit().putInt(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP).commit();
+			LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(in);
+		}
 
 	}
 
