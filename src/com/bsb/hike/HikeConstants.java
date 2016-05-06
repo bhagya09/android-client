@@ -786,6 +786,7 @@ public class HikeConstants
 	public static long NO_OF_MILISECONDS_IN_1_DAY = 24 * 60 * 60 * 1000;
 
 	public static final String CALL_TYPE = "call_type";
+	public static String CONTENT_RANGE = "Content-Range";
 
 	public class Shortcut
 	{
@@ -1395,6 +1396,8 @@ public class HikeConstants
 	public static final String VOIP_RATINGS_LEFT = "vrl";
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
+
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
 
 	public static final class ChatHead
 	{
