@@ -8,6 +8,7 @@ import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,13 +27,13 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
         HikeMessengerApp.getPubSub().addListeners(this, mPubSubListeners);
     }
 
-    public void addDownloadedAsset(String assetId, HikeChatThemeAsset asset) {
+    public void saveChatThemeAsset(String assetId, HikeChatThemeAsset asset) {
         this.mAssets.put(assetId, asset);
     }
 
-    public void addDownloadedAssets(HikeChatThemeAsset[] assets) {
+    public void saveChatThemeAssets(HikeChatThemeAsset[] assets) {
         for (int i = 0; i < assets.length; i++) {
-            addDownloadedAsset(assets[i].getAssetId(), assets[i]);
+            saveChatThemeAsset(assets[i].getAssetId(), assets[i]);
         }
     }
 
@@ -59,7 +60,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     public void updateAssetsDownloadStatus(HikeChatTheme theme) {
         String[] assets = theme.getAssets();
         for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++) {
-            if ((assets[i] != null) && (isAssetRecorded(assets[i])) && (mAssets.get(assets[i]).isDownloaded() || mAssets.get(assets[i]).isAssetOnApk())) {
+            if ((assets[i] != null) && (isAssetAvailable(assets[i])) && (mAssets.get(assets[i]).isDownloaded() || mAssets.get(assets[i]).isAssetOnApk())) {
                 theme.setAssetDownloadStatus(1 << i);
             }
         }
@@ -92,10 +93,10 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     }
 
     public String[] getMissingAssets(String[] assets) {
-        ArrayList<String> missingAssets = new ArrayList<String>();
+        HashSet<String> missingAssets = new HashSet<String>();// Hashset is choosen to avoid placing download request for duplicate assets
         int len = assets.length;
         for (int i = 0; i < len; i++) {
-            if (!isAssetRecorded(assets[i]) || mAssets.get(assets[i]).isAssetMissing()) {
+            if (!isAssetAvailable(assets[i]) || mAssets.get(assets[i]).isAssetMissing()) {
                 missingAssets.add(assets[i]);
             }
         }
@@ -120,7 +121,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      * @param assetId assetId to be verified
      * @return true if the asset is recorded, else false
      */
-    public boolean isAssetRecorded(String assetId) {
+    public boolean isAssetAvailable(String assetId) {
         return mAssets.containsKey(assetId);
     }
 
@@ -130,7 +131,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      * @param assetId the asset to be searched
      * @return value of the asset if present, null otherwise
      */
-    public HikeChatThemeAsset getAssetIfRecorded(String assetId) {
+    public HikeChatThemeAsset getChatThemeAsset(String assetId) {
         return mAssets.get(assetId);
     }
 
