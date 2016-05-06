@@ -484,7 +484,7 @@ public class UserLogInfo {
 					@Override
 					public void run() {
 
-						IRequestListener requestListener = getRequestListener();
+						IRequestListener requestListener = getRequestListener(getLogKey(flags));
 						HikeSharedPreferenceUtil.getInstance().saveData(getLogKey(flags), jsonLogObj.toString());
 
 						RequestToken token = HttpRequests.sendUserLogInfoRequest(getLogKey(flags), jsonLogObj, requestListener);
@@ -498,7 +498,7 @@ public class UserLogInfo {
 	}
 
 
-	private static IRequestListener getRequestListener()
+	private static IRequestListener getRequestListener(final String logType)
 	{
 		return new IRequestListener()
 		{
@@ -509,10 +509,7 @@ public class UserLogInfo {
 				JSONObject response = (JSONObject) result.getBody().getContent();
 				Logger.d(TAG, response.toString());
 
-				String url = result.getUrl();
-				String logType = url.substring(url.lastIndexOf("/") + 1);
 				HikeSharedPreferenceUtil.getInstance().removeData(logType);
-
 
 				HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS);
 			}
@@ -529,20 +526,8 @@ public class UserLogInfo {
 				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {
 					@Override
 					public void run() {
-						String logType;
 
-						if(errorResponse != null) {
-							String url = errorResponse.getUrl();
-
-							logType = url.substring(url.lastIndexOf("/") + 1);
-
-						}
-						else
-						{
-							logType = "al";
-						}
-
-							IRequestListener requestListener = getRequestListener();
+							IRequestListener requestListener = getRequestListener(logType);
 							String encryptedJsonString = HikeSharedPreferenceUtil.getInstance().getData(logType, "");
 
 							if (!TextUtils.isEmpty(encryptedJsonString)) {
