@@ -594,6 +594,6 @@ public class HttpRequestConstants
 
 	public static String getBotInitiateUrl()
 	{
-		return "http://54.251.145.79:4000/bot/initiate";
+        return "http://bots.hike.in/bot/initiate";
 	}
 }
