@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1697"
-    android:versionName="4.2.5.82.110" >
+    android:versionName="4.2.5.82.110.1.bots_keyboard" >
 
    <uses-sdk
         android:minSdkVersion="14"
