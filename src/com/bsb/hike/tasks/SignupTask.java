@@ -51,6 +51,7 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.bsb.hike.backup.BackupUtils;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -120,8 +121,8 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 
 	public enum State
 	{
-		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS
-	};
+		MSISDN, ADDRESSBOOK, NAME, PULLING_PIN, PIN, ERROR, PROFILE_IMAGE, GENDER, SCANNING_CONTACTS, PIN_VERIFIED, BACKUP_AVAILABLE, RESTORING_BACKUP, RESTORING_CLOUD_SETTINGS, SHOW_STICKER_RESTORE_DIALOG
+	}
 
 	public class StateValue
 	{
@@ -706,7 +707,13 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 					{
 						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
+
+						if (BackupUtils.isDeviceDpiDifferent())
+						{
+							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
+						}
 					}
+
 					else
 					{
 						BotUtils.initBots();

@@ -70,8 +70,6 @@ public class ChatAnalyticConstants {
 
         public static final String GC_PIN_HISTORY_SRC_CHATTHREAD = "ctpin";
 
-        public static final String GC_CLICK_NEW_GROUP = "newGrp";
-
         public static final String GC_CLICK_NEXT = "nxtGrp";
 
         public static final String GC_CLICK_CREATE_GROUP = "createGrp";

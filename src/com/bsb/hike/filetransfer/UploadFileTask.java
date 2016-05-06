@@ -393,10 +393,7 @@ public class UploadFileTask extends FileTransferBase
 
 	public void upload()
 	{
-		if (requestToken != null)
-		{
-			requestToken.execute();
-		}
+		uploadFile(selectedFile);
 	}
 
 	private String getImageQuality()

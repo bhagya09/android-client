@@ -79,6 +79,8 @@ public class AccountBackupRestore
 
 	public static final String DATA = "data";
 
+	public static final String RESTORE_FAIL_REASON = "reason";
+
 	private static volatile AccountBackupRestore _instance = null;
 
 	/**
@@ -281,7 +283,7 @@ public class AccountBackupRestore
 
 		time = System.currentTimeMillis() - time;
 		Logger.d(LOGTAG, "Restore " + successState + " in " + time / 1000 + "." + time % 1000 + "s");
-		recordLog(RESTORE_EVENT_KEY, successState == STATE_RESTORE_SUCCESS, time);
+		recordLog(RESTORE_EVENT_KEY,successState, time);
 		logRestoreDetails(backupMetadata);
 		return successState;
 	}
@@ -323,6 +325,34 @@ public class AccountBackupRestore
 		{
 			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
+	}
+
+	private void recordLog(String eventKey, int result, long timeTaken)
+	{
+		if (result == STATE_RESTORE_SUCCESS)
+		{
+			recordLog(eventKey, true, timeTaken);
+			return;
+		}
+
+		JSONObject metadata = new JSONObject();
+		try
+		{
+			JSONArray sizes = new JSONArray();
+			metadata
+					.put(HikeConstants.EVENT_KEY, eventKey)
+					.put(SIZE, sizes)
+					.put(STATUS, false)
+					.put(TIME_TAKEN, timeTaken)
+					.put(RESTORE_FAIL_REASON, getRestoreFailReason(result));
+			HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_BACKUP, metadata);
+		}
+		catch(JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+
+
 	}
 
 	private String getBackupToken()
@@ -519,5 +549,19 @@ public class AccountBackupRestore
 			return false;
 		}
 		return true;
+	}
+
+	private String getRestoreFailReason(int result)
+	{
+		//STATE_RESTORE_SUCCESS, STATE_RESTORE_FAILURE_MSISDN_MISMATCH, STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION, STATE_RESTORE_FAILURE_GENERIC
+		switch (result)
+		{
+		case STATE_RESTORE_FAILURE_MSISDN_MISMATCH:
+			return "msisdn_mismatch";
+		case STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION:
+			return "version_mismatch";
+		default:
+			return "generic_failure";
+		}
 	}
 }

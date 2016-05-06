@@ -496,4 +496,11 @@ public class CreateNewGroupOrBroadcastActivity extends ChangeProfileImageBaseAct
 		startActivity(intentGroup);
 	}
 
+	@Override
+	protected String getSourceSpecies()
+	{
+		// Not doing it for Group/Broadcast pic changes
+		return null;
+	}
+
 }
