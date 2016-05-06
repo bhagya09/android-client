@@ -48,19 +48,19 @@ public class HikeActionMode implements ActionMode.Callback, OnClickListener
 	
 	private Menu mMenu;
 
-	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity appCompatActivity, ActionModeListener listener)
 	{
-		this(sherlockFragmentActivity, "", "", DEFAULT_LAYOUT_RESID, listener);
+		this(appCompatActivity, "", "", DEFAULT_LAYOUT_RESID, listener);
 	}
 
-	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, int layoutId, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity appCompatActivity, int layoutId, ActionModeListener listener)
 	{
-		this(sherlockFragmentActivity, "", "", layoutId, listener);
+		this(appCompatActivity, "", "", layoutId, listener);
 	}
 
-	public HikeActionMode(AppCompatActivity sherlockFragmentActivity, String title, String save, int layoutId, ActionModeListener listener)
+	public HikeActionMode(AppCompatActivity appCompatActivity, String title, String save, int layoutId, ActionModeListener listener)
 	{
-		this.mActivity = sherlockFragmentActivity;
+		this.mActivity = appCompatActivity;
 		this.defaultLayoutId = layoutId;
 		this.actionModeTitle = title;
 		this.doneButtonText = save;

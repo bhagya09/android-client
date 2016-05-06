@@ -1,5 +1,6 @@
 package com.bsb.hike.modules.httpmgr.hikehttp;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
@@ -1170,12 +1171,13 @@ public class HttpRequests
 		return token;
 	}
 	
-	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
+	public static RequestToken uploadFile(String filePath, long msgId, String videoCompressionReqd, String fileType, IRequestListener requestListener, IRequestInterceptor interceptor, IGetChunkSize chunkSizePolicy)
 	{
 		RequestToken requestToken = new FileUploadRequest.Builder()
 				.setUrl(getUploadFileBaseUrl())
 				.setId(String.valueOf(msgId))
 				.setRequestType(Request.REQUEST_TYPE_LONG)
+				.setFileType(fileType)
 				.addHeader(new Header("X-Compression-Required", videoCompressionReqd))
 				.setChunkSizePolicy(chunkSizePolicy)
 				.setRequestListener(requestListener)
@@ -1328,8 +1330,73 @@ public class HttpRequests
 				.setRequestType(Request.REQUEST_TYPE_SHORT)
 				.setRequestListener(listener)
 				.build();
-
 		requestToken.execute();
 		return requestToken;
 	}
+
+	public static RequestToken atomicTipRequestGet(String url, IRequestListener listener)
+	{
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		return builder.build();
+	}
+
+	public static RequestToken atomicTipRequestPost(String url, JSONObject payload, IRequestListener listener, boolean addHeader) {
+		JsonBody jsonBody = new JsonBody(payload);
+		JSONObjectRequest.Builder builder = new JSONObjectRequest.Builder()
+				.setUrl(url)
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(listener)
+				.post(jsonBody)
+				.setRetryPolicy(new BasicRetryPolicy(ProductPopupsConstants.numberOfRetries, ProductPopupsConstants.retryDelay, ProductPopupsConstants.backOffMultiplier));
+		if (addHeader) {
+			builder.addHeader(PlatformUtils.getHeaders());
+		}
+		return builder.build();
+	}
+
+	public static RequestToken uploadUserSettings(IRequestListener requestListener, int retryCount, int delayBeforeRetry,@NonNull JSONObject payloadJSON)
+	{
+
+		JSONObject settingsJSON = new JSONObject();
+		try
+		{
+			settingsJSON.put(HikeConstants.BackupRestore.KEY_SETTINGS, payloadJSON);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		JsonBody jsonBody = new JsonBody(settingsJSON);
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsUploadUrl())
+				.setRequestListener(requestListener)
+				.setId(Utils.StringToMD5(settingsJSON.toString()))
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.post(jsonBody)
+				.build();
+//		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
+		return requestToken;
+	}
+
+	public static RequestToken downloadUserSettings(IRequestListener requestListener,
+												  int retryCount, int delayBeforeRetry)
+	{
+		//Since user settings will always be common. Define constant local var as id
+		String downloadSettingsID = "dnwloadSettings";
+
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(HttpRequestConstants.getSettingsDownloadUrl())
+				.setRequestListener(requestListener)
+				.setId(downloadSettingsID)
+				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.build();
+		return requestToken;
+	}
+
 }

@@ -1,8 +1,6 @@
 package com.bsb.hike.photos;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
@@ -11,35 +9,27 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
-import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.photos.views.DoodleEffectItemLinearLayout;
 import com.bsb.hike.photos.views.FilterEffectItemLinearLayout;
-import com.bsb.hike.ui.PictureEditer;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Utils;
 
 //public static int[] BasicMenuIcons={R.drawable.effects_effect,R.drawable.effects_color,R.drawable.effects_frame,R.drawable.effects_text,R.drawable.effects_options};
 
 /**
  * Utility class for picture editing.
- * 
+ *
  * @author akhiltripathi
- * 
+ *
  */
 
 public class HikePhotosUtils
@@ -58,7 +48,7 @@ public class HikePhotosUtils
 
 		public static final int QUALITY_TYPE = 4;
 	}
-	
+
 	// array cpntaining colors hex codes for colors provided in doodling
 	public static int[] DoodleColors = { 0xffff6d00, 0xff1014e2, 0xff86d71d,
 
@@ -67,9 +57,9 @@ public class HikePhotosUtils
 	0xff16efc4, 0xffffffff, 0xff2ab0fc };
 
 	/**
-	 * 
+	 *
 	 * Util method which converts the dp value into float(pixel value) based on the given context resources
-	 * 
+	 *
 	 * @return value in pixel
 	 */
 	public static int dpToPx(int dps)
@@ -83,7 +73,7 @@ public class HikePhotosUtils
 	/**
 	 * This method converts device specific pixels to density independent pixels.
 	 * http://stackoverflow.com/questions/4605527/converting-pixels-to-dp
-	 * 
+	 *
 	 * @param px A value in px (pixels) unit. Which we need to convert into db
 	 * @return A float value to represent dp equivalent to px value
 	 */
@@ -93,16 +83,12 @@ public class HikePhotosUtils
 	    float dp = px / (metrics.densityDpi / 160f);
 	    return dp;
 	}
-	
+
 	public static void manageBitmaps(Bitmap bitmap)
 	{
 
 		if (bitmap != null)
 		{
-			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB && !bitmap.isRecycled())
-			{
-				bitmap.recycle();
-			}
 			bitmap = null;
 		}
 	}
@@ -128,7 +114,7 @@ public class HikePhotosUtils
 		{
 			return null;
 		}
-		
+
 		Bitmap temp = bitmap;
 		int width = 0, height = 0;
 		float aspectRatio = bitmap.getWidth() * 1.0f / bitmap.getHeight();
@@ -229,7 +215,7 @@ public class HikePhotosUtils
 
 	/**
 	 * Utility class for Filters
-	 * 
+	 *
 	 */
 	public static class FilterTools
 	{
@@ -314,7 +300,7 @@ public class HikePhotosUtils
 
 				effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.ORIGINAL);
 				++filterNameIndex;
-				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false)) 
+				if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SPECIAL_DAY_TRIGGER, false))
 				{
 					effectfilters.addFilter(filterNameArray[filterNameIndex], FilterType.TIRANGAA);
 				}
@@ -382,7 +368,7 @@ public class HikePhotosUtils
 
 	/**
 	 * Utility class for Borders/Frames
-	 * 
+	 *
 	 */
 
 	public static class BorderTools
@@ -409,41 +395,13 @@ public class HikePhotosUtils
 			return b;
 
 		}
-
-		public static class BorderList
-		{
-			public List<String> names = new LinkedList<String>();
-
-			public List<Integer> borders = new LinkedList<Integer>();
-
-			private static BorderList list;
-
-			public void addBorder(final String name, final int id)
-			{
-				names.add(name);
-				borders.add(new Integer(id));
-			}
-
-			public static BorderList getBorders()
-			{
-				if (list == null)
-
-				{
-					list = new BorderList();
-					list.addBorder("Hearts", R.drawable.a);
-
-				}
-				return list;
-			}
-		}
-
 	}
-	
+
 	public static int getServerConfigDimenForDP()
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DP_IMAGE_SIZE, HikeConstants.HikePhotos.MAX_IMAGE_DIMEN);
 	}
-	
+
 	public static Bitmap scaleAdvanced(Bitmap argBmp, final float maxWidth, final float maxHeight, boolean applyGreenDownShiftFilter)
 	{
 		Matrix scaleTransformation = null;

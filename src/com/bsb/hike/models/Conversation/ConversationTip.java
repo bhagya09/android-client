@@ -24,6 +24,8 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.PeopleActivity;
@@ -34,6 +36,7 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationTip implements OnClickListener
 {
@@ -74,6 +77,8 @@ public class ConversationTip implements OnClickListener
 	public static final int UPDATE_NORMAL_TIP = 17;
 	
 	public static final int INVITE_TIP = 18;
+
+	public static final int ATOMIC_TIP = 19;
 	
 	public static final int REQUEST_CODE_URL_OPEN = 101;
 	
@@ -280,6 +285,19 @@ public class ConversationTip implements OnClickListener
             HAManager.getInstance().updateTipAndNotifAnalyticEvent(AnalyticsConstants.UPDATE_INVITE_TIP,
                     AnalyticsConstants.INVITE_TIP_SHOWN, AnalyticsConstants.VIEW_EVENT);
 			return v;
+		case ATOMIC_TIP:
+			AtomicTipManager atomicTipManager = AtomicTipManager.getInstance();
+			atomicTipManager.updateCurrentlyShowing();
+			v = atomicTipManager.getAtomicTipView();
+			if(v != null)
+			{
+				v.findViewById(R.id.all_content).setOnClickListener(this);
+				if(atomicTipManager.isTipCancellable())
+				{
+					v.findViewById(R.id.close_tip).setOnClickListener(this);
+				}
+			}
+			return v;
 		default:
 			tipType = NO_TIP;
 			return null;
@@ -417,12 +435,14 @@ public class ConversationTip implements OnClickListener
 			case RESET_STEALTH_TIP:
 				if (mListener != null)
 				{
+					LockPattern.recordResetStealthTipEvent("hdn_reset_comp");
 					mListener.clickTip(tipType);
 				}
 				break;
 			case UPDATE_CRITICAL_TIP:
 			case UPDATE_NORMAL_TIP:
 			case INVITE_TIP:
+			case ATOMIC_TIP:
 				if(mListener != null)
 				{
 					mListener.clickTip(tipType);
@@ -449,6 +469,7 @@ public class ConversationTip implements OnClickListener
 			switch (tipType)
 			{
 			case RESET_STEALTH_TIP:
+				LockPattern.recordResetStealthTipEvent("hdn_reset_cancel");
 				resetCountDownSetter();
 				Utils.cancelScheduledStealthReset();
 
@@ -469,6 +490,10 @@ public class ConversationTip implements OnClickListener
 			case STEALTH_HIDE_TIP:
 			case STEALTH_FTUE_TIP:
 				mListener.closeTip(tipType);
+				if (tipType == STEALTH_FTUE_TIP)
+				{
+					LockPattern.recordCloseOnHiddenFtueTip();
+				}
 				StealthModeManager.getInstance().ftuePending(false);
 				break;
 				

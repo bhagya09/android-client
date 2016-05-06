@@ -173,4 +173,9 @@ public class HttpRequestStateDB extends SQLiteOpenHelper
 	{
 		mDb.delete(HTTP_REQUEST_STATE_TABLE, REQUEST_ID + "=?", new String[] { id });
 	}
+
+	public void deleteAll()
+	{
+		mDb.delete(HTTP_REQUEST_STATE_TABLE, null, null);
+	}
 }

@@ -85,8 +85,6 @@ public class AccountUtils
 	public static final int _STAGING_HOST = 1;
 
 	public static final int _DEV_STAGING_HOST = 2;
-
-	public static final int _PROD_DEBUGMQTT_HOST = 3;
 	
 	public static final int _CUSTOM_HOST = 4;
 
@@ -116,12 +114,6 @@ public class AccountUtils
 
 	public static String fastFileUploadUrl = fileTransferBase + FILE_TRANSFER_DOWNLOAD_BASE + "ffu/";
 
-	public static String partialfileTransferBaseUrl = base + "/user/pft";
-
-	public static final String FILE_TRANSFER_BASE_VIEW_URL_PRODUCTION = "hike.in/f/";
-
-	public static final String FILE_TRANSFER_BASE_VIEW_URL_STAGING = "staging.im.hike.in/f/";
-
 	public static final String REWARDS_PRODUCTION_BASE = "hike.in/rewards/";
 
 	public static final String REWARDS_STAGING_PATH = "/rewards/";
@@ -148,8 +140,6 @@ public class AccountUtils
 
 	public static boolean ssl = false;
 
-	public static final String NETWORK_PREFS_NAME = "NetworkPrefs";
-
 	public static HttpClient mClient = null;
 
 	public static String mToken = null;
@@ -163,8 +153,6 @@ public class AccountUtils
 	public static final String SDK_AUTH_BASE_URL_PROD = "http://oauth.hike.in/o/oauth2/";
 	
 	public static String SDK_AUTH_BASE = SDK_AUTH_BASE_URL_PROD;
-	
-	public static final String SDK_AUTH_PATH_AUTHORIZE = "authorize";
 	
 	public static final String SDK_AUTH_PARAM_RESPONSE_TYPE = "response_type";
 	
@@ -181,12 +169,6 @@ public class AccountUtils
 	public static final String ANALYTICS_UPLOAD_PATH = "/logs/analytics";
 	
 	public static String analyticsUploadUrl = base + ANALYTICS_UPLOAD_PATH;
-	
-	public static String USER_DP_UPDATE_URL = "/account/avatar";
-	
-	public static String GROUP_DP_UPDATE_URL_PREFIX = "/group/";
-	
-	public static String GROUP_DP_UPDATE_URL_SUFFIX = "/avatar";
 	
 	public static void setToken(String token)
 	{
@@ -279,11 +261,6 @@ public class AccountUtils
 		urlConnection.addRequestProperty("User-Agent", "android-" + appVersion);
 	}
 
-	public static void addUserAgent(HttpRequestBase request)
-	{
-		request.addHeader("User-Agent", "android-" + appVersion);
-	}
-
 	public static JSONObject executeRequest(HttpRequestBase request)
 	{
 		setNoTransform(request);
@@ -349,16 +326,6 @@ public class AccountUtils
 		}
 		req.addHeader("Cookie", "user=" + mToken + "; UID=" + mUid);
 	}
-	
-	public static void addTokenForAuthReq(HttpRequestBase req) throws IllegalStateException
-	{
-		assertIfTokenNull();
-		if (TextUtils.isEmpty(mToken))
-		{
-			throw new IllegalStateException("Token is null");
-		}
-		req.addHeader(new BasicHeader("cookie", "uid="+mUid+";token="+mToken));
-	}
 
 	private static void assertIfTokenNull()
 	{
@@ -374,37 +341,10 @@ public class AccountUtils
 		{
 			switch (requestType)
 			{
-			case PROFILE_PIC:
-				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
-				/*
-				 * Adding MD5 header to validate the file at server side.
-				 */
-				String fileMd5 = Utils.fileToMD5(hikeHttpRequest.getFilePath());
-				requestBase.addHeader("Content-MD5", fileMd5);
-				entity = new FileEntity(new File(hikeHttpRequest.getFilePath()), "");
-				break;
-
-			case STATUS_UPDATE:			
-			case SOCIAL_POST:
-			case OTHER:
-				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
-				entity = new GzipByteArrayEntity(hikeHttpRequest.getPostData(), HTTP.DEFAULT_CONTENT_CHARSET);
-				break;
-				
-
-			case DELETE_STATUS:
-			case DELETE_DP:
-				requestBase = new HttpDelete(base + hikeHttpRequest.getPath());
-				break;
-
-			case HIKE_JOIN_TIME:
-				requestBase = new HttpGet(base + hikeHttpRequest.getPath());
-				break;
-
-			case PREACTIVATION:
-				requestBase = new HttpPost(base + hikeHttpRequest.getPath());
-				entity = new GzipByteArrayEntity(hikeHttpRequest.getPostData(), HTTP.DEFAULT_CONTENT_CHARSET);
-				break;
+				case OTHER:
+					requestBase = new HttpPost(base + hikeHttpRequest.getPath());
+					entity = new GzipByteArrayEntity(hikeHttpRequest.getPostData(), HTTP.DEFAULT_CONTENT_CHARSET);
+					break;
 			}
 			if (addToken)
 			{
@@ -418,21 +358,11 @@ public class AccountUtils
 			}
 			JSONObject obj = executeRequest(requestBase);
 			Logger.d("AccountUtils", "Response: " + obj);
-			if (((obj == null) || (!"ok".equals(obj.optString("stat"))) && requestType != RequestType.HIKE_JOIN_TIME))
+			if (((obj == null) || (!"ok".equals(obj.optString("stat")))))
 			{
 				throw new NetworkErrorException("Unable to perform request");
 			}
-			if (requestType == RequestType.PREACTIVATION)
-			{
-				hikeHttpRequest.setResponse(obj);
-
-			}
-			else
-			/*
-			 * We need the response to save the id of the status.
-			 */
-			if (requestType == RequestType.STATUS_UPDATE || requestType == RequestType.HIKE_JOIN_TIME || requestType == RequestType.PROFILE_PIC
-					|| requestType == RequestType.SOCIAL_POST || requestType == RequestType.OTHER)
+			if (requestType == RequestType.OTHER)
 			{
 				hikeHttpRequest.setResponse(obj);
 			}
@@ -441,43 +371,6 @@ public class AccountUtils
 		{
 			Logger.wtf("AccountUtils", "Unable to encode name");
 		}
-	}
-
-	public static int getBytesUploaded(String sessionId, String mUrl, Scheme scheme) throws ClientProtocolException, IOException
-	{
-		int val = 0;
-		HttpRequestBase req = new HttpGet(mUrl);
-		addToken(req);
-		req.addHeader("X-SESSION-ID", sessionId);
-		AccountUtils.setNoTransform(req);
-		HttpClient httpclient = getClient(req);
-		httpclient.getConnectionManager().getSchemeRegistry().register(scheme);
-		HttpResponse response = httpclient.execute(req);
-		StatusLine statusLine = response.getStatusLine();
-		if (statusLine.getStatusCode() == HttpStatus.SC_OK)
-		{
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			response.getEntity().writeTo(out);
-			out.close();
-			String responseString = out.toString();
-			int resumeLen = 0;
-			try
-			{
-				resumeLen = Integer.parseInt(responseString) + 1;
-			}
-			catch(NumberFormatException e)
-			{
-				e.printStackTrace();
-				FTAnalyticEvents.logDevException(FTAnalyticEvents.BAD_RESUME_LENGTH, 0, FTAnalyticEvents.UPLOAD_FILE_TASK, "Getting resume length", "Response = " + responseString, e);
-			}
-			return resumeLen;
-		}
-		else
-		{
-			// Closes the connection.
-			response.getEntity().getContent().close();
-		}
-		return val;
 	}
 
 	public static void setNoTransform(URLConnection urlConnection)
@@ -555,25 +448,5 @@ public class AccountUtils
 		{
 			Logger.e(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
 		}
-	}
-	
-	public static JSONObject postAddressBook(String token, Map<String, List<ContactInfo>> contactsMap) throws IllegalStateException, IOException
-	{
-		HttpPost httppost = new HttpPost(base + "/account/addressbook");
-		addToken(httppost);
-		JSONObject data;
-		data = ContactUtils.getJsonContactList(contactsMap, true);
-		if (data == null)
-		{
-			return null;
-		}
-		String encoded = data.toString();
-
-		Logger.d("ACCOUNT UTILS", "Json data is : " + encoded);
-		AbstractHttpEntity entity = new GzipByteArrayEntity(encoded.getBytes(), HTTP.DEFAULT_CONTENT_CHARSET);
-		entity.setContentType("application/json");
-		httppost.setEntity(entity);
-		JSONObject obj = executeRequest(httppost);
-		return obj;
 	}
 }

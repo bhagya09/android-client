@@ -77,6 +77,7 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 		mPubSub.removeListener(HikePubSub.SMS_CREDIT_CHANGED, this);
 		mUIThreadHandler.removeCallbacks(this);
 		mComposeView.removeTextChangedListener(this);
+		mSendBtnListener = null;
 		mInitialized = false;
 	}
 
@@ -117,11 +118,13 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 			{
 				audButton.setVisibility(View.VISIBLE);
 				mButton.setVisibility(View.GONE);
+				if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(false);
 			}
 			else
 			{
 				audButton.setVisibility(View.GONE);
 				mButton.setVisibility(View.VISIBLE);
+				if(mSendBtnListener != null) mSendBtnListener.onSendBtnChanged(true);
 			}
 		}
 	}
@@ -219,4 +222,18 @@ public class ComposeViewWatcher extends EmoticonTextWatcher implements Runnable,
 			mCredits = ((Integer) object).intValue();
 		}
 	}
+
+	/* Begin CE-487: FTUE red-dot of WT also appears on send message button
+	 * Listener for sending callback to the chatthread when we toggle between send msg & audio
+	 */
+	public interface SendBtnChangedListener {
+		public void onSendBtnChanged(boolean enabled);
+	}
+
+	private SendBtnChangedListener mSendBtnListener = null;
+
+	public void setSendBtnChangeListener(SendBtnChangedListener listener) {
+		mSendBtnListener = listener;
+	}
+	//End CE-487
 }
