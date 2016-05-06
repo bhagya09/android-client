@@ -173,7 +173,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
 
         // rejecting ontoNConv,Bots,onSms
         for (ContactInfo ci : list) {
-            if (!ci.isOnhike() && !OneToNConversationUtils.isOneToNConversation(ci.getMsisdn()) && BotUtils.isBot(ci.getMsisdn()))
+            if (ci.isOnhike() && !OneToNConversationUtils.isOneToNConversation(ci.getMsisdn()) && !BotUtils.isBot(ci.getMsisdn()))
                 activeChats.add(ci.getMsisdn());
         }
         //Bots

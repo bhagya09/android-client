@@ -2693,7 +2693,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-	private void updateTableWhenNewConversationCreated(ConvInfo convInfo) {
+	public void updateTableWhenNewConversationCreated(ConvInfo convInfo) {
 
 		//TODO : Correct implementation will be to update this table on pubsub that will be thrown on sucess of profile call for unknown caontact.
 		String msisdn = convInfo.getMsisdn();
