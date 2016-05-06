@@ -1266,7 +1266,7 @@ public class HikeDialogFactory
 		dialog.setTitle(context.getString(R.string.block_dialog_title));
 		dialog.setMessage(context.getString(R.string.block_dialog_body));
 		dialog.setCancelable(true);
-		dialog.setCheckBox(context.getString(R.string.spam_info_in_dialog), null, true);
+		dialog.setCheckBox(context.getString(R.string.spam_info_in_dialog), null, false);
 		dialog.setPositiveButton(R.string.YES, listener);
 		dialog.setNegativeButton(R.string.CANCEL, listener);
 		dialog.show();
