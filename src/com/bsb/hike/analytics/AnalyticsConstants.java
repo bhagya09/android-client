@@ -799,6 +799,22 @@ public class AnalyticsConstants
 		public static final String INTERCEPT_SETTING_TURNED_OFF = "incStgOff";
 
 		public static final String INTERCEPT_CLICK_FOR_DELETED_FILE = "incDltClk";
+
+		public static final String IMAGE_CAPTURE = "incImgCapt";
+
+		public static final String VIDEO_CAPTURE = "incVidCapt";
+
+		public static final String SCREENSHOT_CAPTURE = "incScrnCapt";
+
+		public static final String INTERCEPT_VIDEO_CLICKED = "incVidClk";
+
+		public static final String INTERCEPT_NOTIF_SWIPED = "incNtfSwp";
+
+		public static final String CAPTURE = "capture";
+
+		public static final String SWIPED = "swiped";
+
+		public static final String ACT_INTERCEPT = "act_intrcpt";
 	}
 
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";

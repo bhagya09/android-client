@@ -145,6 +145,8 @@ public class HikeNotification
 
 	public static final String INTERCEPT_PHOTO_EDIT_INTENT = "com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT";
 
+	public static final String INTERCEPT_VIDEO_SHARE_INTENT = "com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT";
+
 	private static final int INTERCEPT_THMB_HEIGHT = 96;
 
 	private static final int INTERCEPT_THMB_WIDTH = 96;
@@ -1155,6 +1157,9 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = null;
 		Bitmap microThmb, miniThmb, scaled, circular;
 
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+
 		Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "received: path=" + path + fileName + " uri=" + interceptItem + " type=" + whichIntercept.toString());
 
 		switch (whichIntercept)
@@ -1192,6 +1197,7 @@ public class HikeNotification
 				circular = HikeBitmapFactory.getCircularBitmap(scaled);
 				mBuilder.setLargeIcon(circular);
 				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT);
 
 				break;
 
@@ -1230,6 +1236,7 @@ public class HikeNotification
 				circular = HikeBitmapFactory.getCircularBitmap(scaled);
 				mBuilder.setLargeIcon(circular);
 				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE);
 
 				break;
 
@@ -1245,10 +1252,14 @@ public class HikeNotification
 				message = context.getString(R.string.intercept_message_video);
 				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
 
-				//content intent for notification. share intent is same in this case
-				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+				//content intent for notification & share intent are essentially same, but different triggers for analytics purpose
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_VIDEO_SHARE_INTENT,
 						whichIntercept, interceptItem);
-				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), defaultAction);
+
+				PendingIntent shareActionVid = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), shareActionVid);
 
 				//creating and adding thumbnails to the notification
 				Bitmap microBmp = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
@@ -1256,6 +1267,7 @@ public class HikeNotification
 				scaled = HikeBitmapFactory.returnScaledBitmap(microBmp, context);
 				mBuilder.setLargeIcon(HikeBitmapFactory.getCircularBitmap(scaled));
 				mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO);
 
 				break;
 
@@ -1267,7 +1279,8 @@ public class HikeNotification
 		{
 			//adding content intent & onDelete intent
 			mBuilder.setContentIntent(defaultAction);
-			setOnDeleteIntent(mBuilder, notifId, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
 
 			//create the notification
 			notifyNotification(notifId, mBuilder);
