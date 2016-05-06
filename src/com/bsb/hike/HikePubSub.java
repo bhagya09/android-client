@@ -535,6 +535,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
+	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
+
 	private final Thread mThread;
 
 	private final BlockingQueue<Operation> mQueue;
