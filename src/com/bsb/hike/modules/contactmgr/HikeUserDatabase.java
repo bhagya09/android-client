@@ -35,6 +35,7 @@ import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
 
@@ -2696,7 +2697,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 		//TODO : Correct implementation will be to update this table on pubsub that will be thrown on sucess of profile call for unknown caontact.
 		String msisdn = convInfo.getMsisdn();
-		if (TextUtils.isEmpty(msisdn)) {
+		if (TextUtils.isEmpty(msisdn) || OneToNConversationUtils.isOneToNConversation(msisdn) || BotUtils.isBot(msisdn)) {
 			return;
 		}
 		boolean doesConversationExist = doesContactExist(msisdn);
@@ -2711,7 +2712,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 	private void updateTableWhenNewConversationDeleted(ConvInfo convInfo) {
 		String msisdn = convInfo.getMsisdn();
-		if (TextUtils.isEmpty(msisdn)) {
+		if (TextUtils.isEmpty(msisdn) || OneToNConversationUtils.isOneToNConversation(msisdn) || BotUtils.isBot(msisdn)) {
 			return;
 		}
 		// Deletion Logic:If saved in addressBk return
