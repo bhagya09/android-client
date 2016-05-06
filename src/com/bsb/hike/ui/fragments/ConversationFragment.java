@@ -128,6 +128,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -1185,6 +1186,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void positiveClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("confirm", "home");
 					HikeAnalyticsEvent.sendStealthReset();
 					resetStealthMode();
 					dialog.dismiss();
@@ -1199,6 +1201,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void negativeClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("cancel", "home");
+
 					StealthModeManager.getInstance().setTipVisibility(false, ConversationTip.RESET_STEALTH_TIP);
 
 					Utils.cancelScheduledStealthReset();

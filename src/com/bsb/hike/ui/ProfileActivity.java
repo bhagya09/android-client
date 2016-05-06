@@ -67,6 +67,7 @@ import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -449,6 +450,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			//SO that if activity is recreated we do not send it to DP Flow again.
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()) && savedInstanceState == null)
 			{
+				super.mActivityState.species = getSourceSpecies();
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
@@ -3629,6 +3631,23 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				}
 			}
 			startActivity(intent);
+		}
+	}
+
+	@Override
+	protected String getSourceSpecies()
+	{
+		if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()))
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EXTERNAL_APP;
+		}
+		else if (this.profileType == ProfileType.USER_PROFILE_EDIT)
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
+		}
+		else
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_MY_PROFILE;
 		}
 	}
 

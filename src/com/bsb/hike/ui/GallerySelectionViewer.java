@@ -48,6 +48,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.GalleryAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
@@ -564,20 +565,20 @@ public class GallerySelectionViewer extends HikeAppStateBaseFragmentActivity imp
 		int numOfImagesCaptions = (captions != null) ? captions.size() : 0;
 		try {
 			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.SHARE_IMAGES);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, ChatAnalyticConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SHARE_IMAGES);
+			json.put(AnalyticsConstants.V2.ORDER, ChatAnalyticConstants.SHARE_IMAGES);
 			if (StealthModeManager.getInstance().isStealthMsisdn(msisdn)) {
-				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			}
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			json.put(AnalyticsConstants.V2.CENSUS, FTUtils.getImageQuality());
 			json.put(AnalyticsConstants.V2.RACE, numberTotal);
 			json.put(AnalyticsConstants.V2.BREED, getNumberOfEditedImages());
 			json.put(AnalyticsConstants.V2.POPULATION, numOfImagesCaptions);
-			json.put(AnalyticsConstants.V2.SOURCE, AnalyticsConstants.IMAGE_SOURCE_GALLERY);
+			json.put(AnalyticsConstants.V2.SOURCE, ChatAnalyticConstants.IMAGE_SOURCE_GALLERY);
 			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
 			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
 					HikeMessengerApp.getInstance().getApplicationContext()));

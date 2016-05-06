@@ -170,6 +170,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
@@ -6399,14 +6400,14 @@ public class Utils
         try {
             JSONObject json = new JSONObject();
             json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
-            json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+            json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
             json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
             json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
             json.put(AnalyticsConstants.V2.ORDER, uniqueKey);
             json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
             json.put(AnalyticsConstants.V2.SPECIES, species);
             if (isStealth)
-                json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+                json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
             return json;
 
         } catch (JSONException e) {
@@ -6467,7 +6468,7 @@ public class Utils
         try {
             JSONObject json = new JSONObject();
             json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
-            json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+            json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
             json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
             json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
             json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
@@ -6476,7 +6477,7 @@ public class Utils
             json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
                     HikeMessengerApp.getInstance().getApplicationContext()));
             if (isStealth)
-                json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+                json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
             if (!TextUtils.isEmpty(genus))
                 json.put(AnalyticsConstants.V2.GENUS, genus);
             if (!TextUtils.isEmpty(family))
@@ -6492,7 +6493,7 @@ public class Utils
         try {
             JSONObject json = new JSONObject();
             json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
-            json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+            json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
             json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
             json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
             json.put(AnalyticsConstants.V2.SPECIES, species);
@@ -6580,6 +6581,26 @@ public class Utils
 		Birthday dob = new Birthday(dobString);
 		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
 	}
+
+    public static void setGenus(String argGenus, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argGenus) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+    }
+
+    public static void setSpecies(String argSpecies, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+    }
 }
 
 
