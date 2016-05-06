@@ -48,7 +48,6 @@
             android:tag="@string/content_card_tag"
             android:layout_toRightOf="@id/avatar_container"
             android:layout_below="@id/sender_details"
-            android:background="@drawable/demo_card"
             android:elevation="5dp"
             >
 
@@ -56,6 +55,7 @@
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/card_container"
+                android:background="@drawable/demo_card"
                 android:layout_height="wrap_content"
                 >
                 <ImageView
@@ -83,6 +83,8 @@
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
                     android:visibility="gone"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
                     android:tag="T2"
                     app:maxLines ="1"
                     android:layout_marginBottom="24dp"

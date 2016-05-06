@@ -201,6 +201,12 @@ public class ViewHolderFactory
 
 	public class JFLViewHolder extends ViewHolder
 	{
+		private LinearLayout cardContainer;
+		public void initializeHolder(View view, ConvMessage convMessage)
+		{
+			super.initializeHolder(view, convMessage);
+			cardContainer = (LinearLayout) view.findViewById(R.id.card_container);
+		}
 		public void clearViewHolder(View view)
 		{
 			if (shareStubInflated != null)
@@ -224,6 +230,14 @@ public class ViewHolderFactory
 				RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) messageContainer.getLayoutParams();
 				layoutParams.width = i1Image.getDrawable().getIntrinsicWidth();
 				messageContainer.setLayoutParams(layoutParams);
+			}
+			if (!TextUtils.isEmpty(convMessage.platformMessageMetadata.backgroundColor))
+			{
+				cardContainer.setBackgroundColor(Color.parseColor(convMessage.platformMessageMetadata.backgroundColor));
+			}
+			else
+			{
+				cardContainer.setBackgroundColor(Color.WHITE);
 			}
 
 		}
