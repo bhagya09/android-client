@@ -1594,4 +1594,5 @@
     <string name="atomic_tip_http_failure">Some error occured. Please try again</string>
     <string name="edit_profile_birthday">Birth Date</string>
 
+    <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
 </resources>
