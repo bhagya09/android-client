@@ -83,27 +83,35 @@ public class GeneralEventMessagesManager
 				String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
 				String toMsisdn = packet.getString(HikeConstants.TO);
 				long messageId = -1;
+				boolean isGroup = false;
 				if(!TextUtils.isEmpty(toMsisdn) && OneToNConversationUtils.isGroupConversation(toMsisdn))
 				{
 					messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, toMsisdn);
+					isGroup = true;
 				}
 				else
 				{
 					messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
 				}
 				long mappedId = data.getLong(HikeConstants.EVENT_ID);
-				long mappedMessageId=data.optLong(HikeConstants.MESSAGE_ID);
+				long mappedMessageId = data.optLong(HikeConstants.MESSAGE_ID);
 
 				long clientTimestamp = packet.getLong(HikeConstants.SEND_TIMESTAMP);
 				String eventMetadata = data.getString(HikePlatformConstants.EVENT_CARDDATA);
 				String namespace = data.getString(HikePlatformConstants.NAMESPACE);
 				String parent_msisdn = data.optString(HikePlatformConstants.PARENT_MSISDN);
-				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE,data.optString(HikePlatformConstants.NOTIFICATION));
+				String hm=data.optString(HikePlatformConstants.HIKE_MESSAGE, data.optString(HikePlatformConstants.NOTIFICATION));
 				MessageEvent messageEvent = new MessageEvent(HikePlatformConstants.NORMAL_EVENT, fromMsisdn, namespace, eventMetadata, messageHash,
 						HikePlatformConstants.EventStatus.EVENT_RECEIVED, clientTimestamp, mappedId, messageId, parent_msisdn,hm);
 				long eventId = HikeConversationsDatabase.getInstance().insertMessageEvent(messageEvent);
 
-				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm,mappedMessageId);
+				String fromUserMsisdn = null;
+				if(isGroup)
+				{
+					fromUserMsisdn = messageEvent.getFromUserMsisdn();
+				}
+
+				ConvMessage message = HikeConversationsDatabase.getInstance().updateMessageForGeneralEvent(messageHash, ConvMessage.State.RECEIVED_UNREAD, hm,mappedMessageId, isGroup, fromUserMsisdn);
 
 				if (message == null || eventId < 0)
 				{

@@ -9216,7 +9216,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	}
 
 
-	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm,Long mappedMessageID)
+	public ConvMessage updateMessageForGeneralEvent(String msgHash, ConvMessage.State state, String hm,Long mappedMessageID, boolean isGroup, String fromUserMsisdn)
 	{
 		ConvMessage msg = null;
 		try
@@ -9232,18 +9232,31 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			{
 				mappedmsgIdUpdate="";
 			}
-			updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
-					+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
-					+ DBConstants.MSG_STATUS + " = " + state.ordinal()+","
-					+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis()/1000+","
-					+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
-					+ mappedmsgIdUpdate
-					+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
-
+			if(!isGroup)
+			{
+				updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+						+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
+						+ DBConstants.MSG_STATUS + " = " + state.ordinal() + ","
+						+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis() / 1000 + ","
+						+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+						+ mappedmsgIdUpdate
+						+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
+			}
+			else
+			{
+				updateStatement = "UPDATE " + DBConstants.MESSAGES_TABLE + " SET " + DBConstants.SORTING_ID + " = "
+						+ " ( ( " + "SELECT" + " MAX( " + DBConstants.SORTING_ID + " ) " + " FROM " + DBConstants.MESSAGES_TABLE + " )" + " + 1 ), "
+						+ DBConstants.MSG_STATUS + " = " + state.ordinal() + ","
+						+ DBConstants.GROUP_PARTICIPANT + " = " + DatabaseUtils.sqlEscapeString(fromUserMsisdn) + ","
+						+ DBConstants.TIMESTAMP + " = " + System.currentTimeMillis() / 1000 + ","
+						+ DBConstants.MESSAGE + " = " + DatabaseUtils.sqlEscapeString(hm)
+						+ mappedmsgIdUpdate
+						+ " WHERE " + DBConstants.MESSAGE_HASH + " = " + DatabaseUtils.sqlEscapeString(msgHash);
+			}
 			mDb.execSQL(updateStatement);
 
 			msg =getMessageFromMessageHash(msgHash);
-			updateConvTable(msg);
+			updateConvTable(msg, isGroup, fromUserMsisdn);
 			mDb.setTransactionSuccessful();
 			HikeMessengerApp.getPubSub().publish(HikePubSub.GENERAL_EVENT_STATE_CHANGE,msg);
 		}
@@ -9354,7 +9367,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return null;
 	}
 
-	public void updateConvTable(ConvMessage convMessage)
+	public void updateConvTable(ConvMessage convMessage, boolean isGroup, String fromUserMsisdn)
 	{
 		ContentValues value=getContentValueForConversationMessage(convMessage, convMessage.getTimestamp());
 
@@ -9379,6 +9392,10 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			contentValues.put(DBConstants.LAST_MESSAGE_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.SORTING_TIMESTAMP, convMessage.getTimestamp());
 			contentValues.put(DBConstants.MESSAGE_ID, convMessage.getMsgID());
+			if(isGroup)
+			{
+				contentValues.put(DBConstants.GROUP_PARTICIPANT, fromUserMsisdn);
+			}
 
 			/**
 			 * InsertWithOnConflict returns -1 on error while inserting/replacing a new row
