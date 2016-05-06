@@ -23,6 +23,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.ui.ComposeChatActivity.FileTransferData;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.R;
 
 public class InitiateMultiFileTransferTask extends AsyncTask<Void, Void, Void>
 {
