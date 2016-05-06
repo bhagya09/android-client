@@ -129,7 +129,6 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		conversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
 		setupActionBar();
 		addMessageHeaderView(controller.getConvMessage());
-		Toast.makeText(this, "Message Info " + populateMessageInfo(), Toast.LENGTH_LONG).show();
 
 	}
 
