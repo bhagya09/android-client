@@ -520,7 +520,7 @@ public class UserLogInfo {
 			}
 
 			@Override
-			public void onRequestFailure(@Nullable final Response errorResponse, final HttpException httpException)
+			public void onRequestFailure(final HttpException httpException)
 			{
 
 				scheduleNextSendToServerAction(HikeMessengerApp.LAST_BACK_OFF_TIME_USER_LOGS, new Runnable() {
@@ -547,7 +547,7 @@ public class UserLogInfo {
 
 					}
 				});
-				Logger.d(TAG, "failure : " + errorResponse!=null ? errorResponse.getBody().getErrorString() : "");
+				Logger.d(TAG, "failure : " + logType);
 			}
 		};
 	};
