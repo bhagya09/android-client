@@ -4798,11 +4798,14 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	public void dismissUserInfoLoader()
 	{
 		Logger.d("c_spam", "dismissing unknown user info loader");
-		View view = mListView.getChildAt(0);
-		if (view != null)
+		if(getItemViewType(0) == ViewType.UNKNOWN_BLOCK_ADD.ordinal())
 		{
-			view.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
-			view.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+			View view = mListView.getChildAt(0);
+			if (view != null)
+			{
+				view.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+				view.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+			}
 		}
 	}
 	
