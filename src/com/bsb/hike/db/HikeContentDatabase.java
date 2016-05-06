@@ -261,9 +261,10 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
-
 		if(oldVersion < 8)
 		{
+			String alterNamespace = "ALTER TABLE " + PLATFORM_DOWNLOAD_STATE_TABLE + " ADD COLUMN " + AUTO_RESUME + " INTEGER";
+			queries.add(alterNamespace);
 			String atomicTipTableCreateQuery = getAtomicTipTableCreateQuery();
 			queries.add(atomicTipTableCreateQuery);
 		}
@@ -548,7 +549,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 
 	public void addDomainInWhitelist(WhitelistDomain domain)
 	{
-		addDomainInWhitelist(new WhitelistDomain[] { domain });
+		addDomainInWhitelist(new WhitelistDomain[]{domain});
 	}
 
 	/**
@@ -1050,7 +1051,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
      */
     public void initSdkMap()
     {
-        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[] { DBConstants.NAME,DBConstants.HIKE_CONTENT.VERSION }, null, null, null, null, null);
+        Cursor c = mDB.query(DBConstants.HIKE_CONTENT.MAPP_DATA, new String[]{DBConstants.NAME, DBConstants.HIKE_CONTENT.VERSION}, null, null, null, null, null);
 
         while(c != null && c.moveToNext())
         {
@@ -1095,6 +1096,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 				+ HikePlatformConstants.TYPE + " INTEGER, "
 				+ HikePlatformConstants.TTL + " INTEGER, "
 				+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+				+ AUTO_RESUME + " INTEGER DEFAULT " + 0 + ", "
 				+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
 				+ "UNIQUE ("
 				+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
@@ -1106,7 +1108,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	/**
 	 * Function to add data to Platform Download State Table
 	 */
-	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState)
+	public void addToPlatformDownloadStateTable(String name, int mAppVersionCode, String data, int type, long ttl,int prefNetwork, int dwnldState,int autoResume)
 	{
 		ContentValues cv = new ContentValues();
 		cv.put(HikePlatformConstants.APP_NAME, name);
@@ -1116,6 +1118,7 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 		cv.put(HikePlatformConstants.TTL, ttl);
 		cv.put(HikePlatformConstants.PREF_NETWORK, prefNetwork);
 		cv.put(DBConstants.HIKE_CONTENT.DOWNLOAD_STATE, dwnldState);
+		cv.put(AUTO_RESUME, autoResume);
 		try
 		{
 			mDB.insertWithOnConflict(HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
@@ -1157,6 +1160,38 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 	{
 		Logger.v("HikeContentDatabase", "Fluhsing Download state table");
 		mDB.delete(PLATFORM_DOWNLOAD_STATE_TABLE, null, null);
+	}
+	/*
+	Method to check if a microapp download is in progress
+	@param appName whose progress is to be checked .
+	 */
+	public boolean isMicroAppDownloadRunning(String appName)
+	{
+		if (TextUtils.isEmpty(appName))
+		{
+			Logger.e(HikePlatformConstants.TAG, "entries are incorrect. Send correct keys to search for.");
+			return false;
+		}
+		Cursor c = null;
+		try
+		{
+			c = mDB.query(PLATFORM_DOWNLOAD_STATE_TABLE, new String[] { DOWNLOAD_STATE }, HikePlatformConstants.APP_NAME + "=?", new String[] {appName}, null, null, null);
+			if (c.moveToFirst())
+			{
+				int downloadStateIndex = c.getColumnIndex(DOWNLOAD_STATE);
+				int value = c.getInt(downloadStateIndex);
+				if(value == (HikePlatformConstants.PlatformDwnldState.IN_PROGRESS))
+				return true;
+			}
+			return false;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
 	}
 
 	/**

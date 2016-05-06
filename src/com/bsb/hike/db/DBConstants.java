@@ -422,6 +422,7 @@ public interface DBConstants
 		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
 		String DOWNLOAD_STATE = "downloadState";
+		String AUTO_RESUME = "autoResume";
 		
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";

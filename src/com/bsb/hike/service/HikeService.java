@@ -27,8 +27,9 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
-import com.bsb.hike.chatHead.ChatHeadUtils;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.backup.AccountBackupRestore;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.imageHttp.HikeImageUploader;
 import com.bsb.hike.imageHttp.HikeImageWorker;
 import com.bsb.hike.models.ContactInfo;
@@ -881,26 +882,50 @@ public class HikeService extends Service
 			JSONObject response = (JSONObject) result.getBody().getContent();
 			String msisdn = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.MSISDN_SETTING, null);
 			HikeSharedPreferenceUtil.getInstance().removeData(HikeMessengerApp.SIGNUP_PROFILE_PIC_PATH);
-			
+
 			// clearing cache for this msisdn because if user go to profile before rename (above line) executes then icon blurred image will be set in cache
 			HikeMessengerApp.getLruCache().clearIconForMSISDN(msisdn);
 			Logger.d(TAG_IMG_UPLOAD, "profile pic upload done");
 
 			StatusMessage sm = Utils.createTimelinePostForDPChange(response);
-			
-			if(sm == null)
+
+			if (sm == null)
 			{
 				Logger.d(TAG_IMG_UPLOAD, "Timeline post creation was unsuccessfull on signup");
 				return;
-			}	
+			}
+
+			recordStatusUpdateSource();
+		}
+
+		private void recordStatusUpdateSource()
+		{
+			try
+			{
+				JSONObject json = new JSONObject();
+				json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+				json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+				json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+				json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+				json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.ORDER_STATUS_UPDATE);
+				json.put(AnalyticsConstants.V2.FAMILY, HomeAnalyticsConstants.SU_TYPE_DP);
+				json.put(AnalyticsConstants.V2.GENUS, HomeAnalyticsConstants.SU_GENUS_OTHER);
+				json.put(AnalyticsConstants.V2.SPECIES, HomeAnalyticsConstants.DP_SPECIES_SIGN_UP);
+				HAManager.getInstance().recordV2(json);
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		@Override
-		public void onTaskAlreadyRunning() {
+		public void onTaskAlreadyRunning()
+		{
 			// TODO Auto-generated method stub
-			
+
 		}
-		
+
 	}
 	
 	public boolean isInitialized()
