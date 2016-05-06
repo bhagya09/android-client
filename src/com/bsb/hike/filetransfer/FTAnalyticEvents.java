@@ -280,12 +280,12 @@ public class FTAnalyticEvents
 	/*
 	 * We send an event every time user transfer file whether it is succeeded or canceled.
 	 */
-	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs)
+	public void sendFTSuccessFailureEvent(String network,  long fileSize, int status, String attachmentShardeAs, int mAttachementType)
 	{
 		try
 		{
 			JSONObject metadata = new JSONObject();
-			metadata.put(FT_ATTACHEMENT_TYPE, this.mAttachementType);
+			metadata.put(FT_ATTACHEMENT_TYPE, mAttachementType);
 			metadata.put(FT_NETWORK_TYPE, network);
 			metadata.put(HikeConstants.FILE_SIZE, fileSize);
 			metadata.put(FT_STATUS, status);

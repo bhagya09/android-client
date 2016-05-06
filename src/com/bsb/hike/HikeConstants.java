@@ -772,6 +772,7 @@ public class HikeConstants
 	public static final String CALLER_BLOKED_LIST_PREF = "callerBlockedList";
 
 	public static final String CALL_TYPE = "call_type";
+	public static String CONTENT_RANGE = "Content-Range";
 
 	public class Shortcut
 	{
@@ -1382,6 +1383,8 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String LARGE_VIDEO_SHARING_ENABLED = "big_video";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";
@@ -1955,6 +1958,9 @@ public class HikeConstants
 
 		public static final String PROFILE_DOB = "profile_dob";
 
+		public static final String GENUS = "genus_extra";
+
+		public static final String SPECIES = "species_extra";
     }
 
 	public static final class LogEvent

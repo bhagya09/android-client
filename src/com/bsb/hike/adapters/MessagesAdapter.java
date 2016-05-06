@@ -64,6 +64,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
@@ -3623,16 +3624,16 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 						if (fss.getFTState() == FTState.IN_PROGRESS)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_UPLOAD_PAUSE_MANUALLY);
 							}
 							FileTransferManager.getInstance(context).pauseTask(convMessage.getMsgID());
 						}
 						else if (fss.getFTState() != FTState.INITIALIZED)
 						{
 							if(hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.UPLOAD_MEDIA);
 							} else if(hikeFile.getHikeFileType() == HikeFileType.IMAGE){
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.UPLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.UPLOAD_MEDIA);
 							}
 							FileTransferManager.getInstance(context).uploadFile(convMessage, null);
 						}
@@ -3680,13 +3681,13 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 					{
 						if (hikeFile.getHikeFileType() == HikeFileType.VIDEO) {
 							if (fss.getFTState() == FTState.NOT_STARTED) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.VIDEO_RECEIVER_DOWNLOAD_MANUALLY);
 							} else if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.VEDIO, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						} else if (hikeFile.getHikeFileType() == HikeFileType.IMAGE) {
 							if (fss.getFTState() == FTState.ERROR) {
-								sendImageVideoRelatedAnalytic(AnalyticsConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, AnalyticsConstants.DOWNLOAD_MEDIA);
+								sendImageVideoRelatedAnalytic(ChatAnalyticConstants.MEDIA_UPLOAD_DOWNLOAD_RETRY, AnalyticsConstants.MessageType.IMAGE, ChatAnalyticConstants.DOWNLOAD_MEDIA);
 							}
 						}
 						FileTransferManager.getInstance(context).downloadFile(receivedFile, hikeFile.getFileKey(), convMessage.getMsgID(), hikeFile.getHikeFileType(), convMessage,
@@ -4058,6 +4059,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			try
 			{
 				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+				mActivity.setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 				mediaPlayer.setDataSource(hikeFile.getFilePath());
 				mediaPlayer.prepare();
 				//CE-415:First ~1.5 seconds of audio recording are clipped for both sender & receiver
@@ -4111,7 +4114,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		public void informUserIfVolumeLowOrMuted() {
 			/* int maxVolume = audioManager.getStreamMaxVolume(audioManager.getMode());
 			   we can use maxVolume to notify user when currentVol is very low but not muted (0) */
-			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			int currentVol = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
 			if(currentVol == 0){
 				Toast.makeText(context, R.string.stream_volume_muted_or_low, Toast.LENGTH_SHORT).show();
 			}
@@ -4169,6 +4172,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 
 			unregisterProximitySensor();
 			unregisterHeadserReceiver();
+			mActivity.setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 		}
 
 		@Override
