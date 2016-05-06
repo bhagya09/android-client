@@ -101,7 +101,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
 
-        View view;
+		View view;
 
 		for (ArrayList<TextKey> textKeyArrayList : customKeyboardTextKeys)
 		{
@@ -109,20 +109,20 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 
 			for (TextKey textKey : textKeyArrayList)
 			{
-                view = inflater.inflate(R.layout.custom_keyboard_text, null);
-                TextView textView = (TextView) view.findViewById(R.id.text);
-                RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
+				view = inflater.inflate(R.layout.custom_keyboard_text, null);
+				TextView textView = (TextView) view.findViewById(R.id.text);
+				RelativeLayout relativeLayout = (RelativeLayout) view.findViewById(R.id.text_container_layout);
 
-                textView.setText(textKey.getText());
-                textView.setSingleLine(true);
-                params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
-                        (int) (8 * Utils.densityMultiplier));
+				textView.setText(textKey.getText());
+				textView.setSingleLine(true);
+				params.setMargins((int) (4 * Utils.densityMultiplier), (int) (8 * Utils.densityMultiplier), (int) (4 * Utils.densityMultiplier),
+						(int) (8 * Utils.densityMultiplier));
 
-                relativeLayout.setLayoutParams(params);
+				relativeLayout.setLayoutParams(params);
 
 				view.setOnClickListener(this);
 
-                view.setTag(textKey.getText());
+				view.setTag(textKey.getText());
 
 				horizontalLayout.addView(view);
 			}
@@ -154,7 +154,7 @@ public class CustomKeyboardInputBoxAdapter implements OnClickListener
 		case HikePlatformConstants.BotsStickerSize.LARGE:
 			stickerGridNumCols = HikePlatformConstants.BotsStickerGridType.largeStkrGridCols;
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) stickerGridView.getLayoutParams();
-			lp.setMargins((int) (2  * Utils.densityMultiplier), (int) (40  * Utils.densityMultiplier), (int) (2  * Utils.densityMultiplier), 0);
+			lp.setMargins((int) (2 * Utils.densityMultiplier), (int) (40 * Utils.densityMultiplier), (int) (2 * Utils.densityMultiplier), 0);
 			stickerGridView.setLayoutParams(lp);
 			break;
 		case HikePlatformConstants.BotsStickerSize.MEDIUM:
