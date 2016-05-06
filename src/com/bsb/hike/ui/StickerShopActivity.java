@@ -262,6 +262,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT, --searchFtueShowRemainingCount);
 
+        searchIcon.setVisibility(View.VISIBLE);
 		searchIcon.setImageResource(R.drawable.ic_top_bar_search);
 		searchIcon.setOnClickListener(new View.OnClickListener()
 		{

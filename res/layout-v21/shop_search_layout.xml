@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:contentDescription="Overflow menu"
+        android:visibility="gone"
         android:background="@drawable/ic_overflow_ripple"
         android:src="@drawable/ic_top_bar_search"/>
 
