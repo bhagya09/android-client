@@ -1582,6 +1582,9 @@
     <string name="sent_you_friend_req">Sent you a friend request. Accept request to chat and do more on Hike</string>
     <string name="ftue_frn_subtext">Add as a friend</string>
     <string name="profile_pic_display_info_frn">Show only to your Friends</string>
+    <string name="shop_search_hint">Love, hindi, bollywood etc.</string>
+    <string name="no_sticker_pack_match_found">Your search for \'%1$s\' did not match any sticker packs</string>
+    <string name="pack_search_again_hint">Type complete words like love, hindi, bollywood, etc.</string>
     <string name="recharge_menu">Recharge</string>
 
     <string name="message_info">Message Info</string>

@@ -11,7 +11,7 @@ import com.bsb.hike.modules.stickersearch.ui.StickerTagWatcher;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
-public class StickerSearchEngine
+public class SearchEngine
 {
 	private BlockingQueue<Runnable> searchQueue;
 
@@ -27,7 +27,7 @@ public class StickerSearchEngine
 
 	private final int KEEP_ALIVE_TIME = 30;
 
-	public StickerSearchEngine()
+	public SearchEngine()
 	{
 
 		uiExecutor = new MainThreadExecutor();

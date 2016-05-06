@@ -4,7 +4,7 @@
     package="com.bsb.hike"
     android:installLocation="auto"
     android:versionCode="1699"
-    android:versionName="4.2.5.82.112" >
+    android:versionName="4.2.5.82.49.18.sticker_sprint_25_4_16" >
 
 
    <uses-sdk

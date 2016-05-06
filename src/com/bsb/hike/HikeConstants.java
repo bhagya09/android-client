@@ -759,12 +759,15 @@ public class HikeConstants
 	public static final String AVATAR = "avatar";
 	public static final String LANGUAGE = "lan";
 
+    public static final String LANGUAGES = "langs";
+
 	public static final String NOTIFICATION_TITLE = "notifTitle";
 	public static final String NOTIFICATION_TEXT = "notifText";
 
 	public static final String TOGGLE = "toggle";
 
     public static final String HTTP_NETWORK_CHECK_CALL = "httpNetworkCheckCall";
+
 	public static String ADD_URL = "addUrl";
 	public static String DELETE_URL = "deleteUrl";
 
@@ -3229,6 +3232,10 @@ public class HikeConstants
 
 	public static final String COPYRIGHT = "copyright";
 
+	public static final String STATE = "state";
+
+	public static final String UPDATE_SHOP_RANK_TIMESTAMP = "updateOrderTimeStamp";
+
 	public static final long DEFAULT_RETRY_NOTIF_TIME = 20 * 60 * 1000; // 20
 																		// minutes
 
@@ -3250,6 +3257,10 @@ public class HikeConstants
 	public static final String GCM_ID = "gcm_id";
 
 	public static final String ADD_CATEGORY = "addCat";
+
+    public static final String ADDED_DATA = "add";
+
+    public static final String REMOVED_DATA = "rem";
 
 	public static final int LED_DEFAULT_WHITE_COLOR = 0xffffffff;
 
@@ -3770,6 +3781,8 @@ public class HikeConstants
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH = "stms"; // initial to following 4 keys
 
+    public static final String LIMIT_KEY = "limit";
+
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT = "stms_tl"; // integer
 
 	public static final String STICKER_TAG_MAXIMUM_SEARCH_TEXT_LIMIT_BROKER = "stms_tlb"; // integer
@@ -3984,6 +3997,8 @@ public class HikeConstants
     public static final String MINI_STICKER_IMAGE = "mini_image";
 
     public static final String TAGS = "tags";
+    
+	public static final String THEMES = "themes";
 
     public static final String RECENTS = "recents";
 
@@ -4159,6 +4174,14 @@ public class HikeConstants
 
 	public static final String HIKE_CUSTOM_PHONE_TYPE = "HIKE";
 
+	public static final String UPDATED_ALL_CATEGORIES_METADATA = "updatedAllCategoriesMeta";
+
+    public static final String UPDATED_ALL_CATEGORIES_TAGDATA = "updatedAllCategoriesTags";
+
+	public static final String UCIDS = "ucids";
+
+	public static final String UCID = "ucid";
+
 	public static final class AddFriendSources
 	{
 		public static final String CHAT_FTUE = "chat_ftue_screen";
@@ -4185,6 +4208,22 @@ public class HikeConstants
 	public static final String POSITION = "pos";
 
 	public static final String VIEW_ALL_CLICKED = "viewAllClicked";
+
+	public static final String NUMBER_OF_ROWS_FOR_ORDER = "orderRowsCount";
+
+	public static final String PACK_UPDATION_PAGE_SIZE = "packUpdatePageSize";
+
+	public static final String PACK_CREATION_PAGE_SIZE = "packCreationPageSize";
+
+	public static final String FETCH_METADATA_PACK_COUNT = "fetchPackMetadataCount";
+
+    public static final String SHOW_STICKER_SHOP_SEARCH_FTUE_LIMIT = "s_s_ftue";
+
+    public static final String STICKER_SHOP_SEARCH_ALLOWED = "s_s_s_allwd";
+
+    public static final String STICKER_SHOP_SEARCH_TOGGLE = "s_s_s_tgl";
+
+    public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
 
 	public static final String TIP_CTA = "tp_cta";
 
