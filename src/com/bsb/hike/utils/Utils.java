@@ -5641,7 +5641,7 @@ public class Utils
 
 	private static void recordBlockedNetworkState(JSONObject data)
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		if (data == null || data.length() == 0 || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, false))
 		{
 			return;
 		}
@@ -7237,8 +7237,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0)
-		{
+		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0) {
 
 			return true;
 		}
@@ -7252,8 +7251,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir != null && hikeLanguageDir.exists())
-		{
+		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
 			try
 			{
