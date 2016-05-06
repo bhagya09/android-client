@@ -206,7 +206,7 @@ public class CategorySearchManager
 
 		if (result == null)
 		{
-			result = StickerSearchUtility.computeWordMatchScore(searchKey, tag);
+			result = StickerSearchUtility.computeWordMatchScore(searchKey.replaceAll(StickerSearchConstants.REGEX_SHOP_SEARCH_SEPARATORS_LATIN, StickerSearchConstants.STRING_EMPTY), tag);
 			mCacheForLocalAnalogousScore.put(cacheKey, result);
 		}
 
