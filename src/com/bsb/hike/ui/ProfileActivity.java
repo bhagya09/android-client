@@ -448,7 +448,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			//SO that if activity is recreated we do not send it to DP Flow again.
 			if(Intent.ACTION_ATTACH_DATA.equals(getIntent().getAction()) && savedInstanceState == null)
 			{
-				super.mActivityState.species = getSourceSpecies();
 				super.onActivityResult(HikeConstants.GALLERY_RESULT, RESULT_OK, getIntent());
 			}
 			if (getIntent().getBooleanExtra(HikeConstants.Extras.EDIT_PROFILE, false))
@@ -3566,6 +3565,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else if (this.profileType == ProfileType.USER_PROFILE_EDIT)
 		{
 			return HomeAnalyticsConstants.DP_SPECIES_EDIT_PROFILE;
+		}
+		else if (getSupportFragmentManager().findFragmentByTag(HikeConstants.IMAGE_FRAGMENT_TAG) != null)
+		{
+			return HomeAnalyticsConstants.DP_SPECIES_FULL_VIEW;
 		}
 		else
 		{

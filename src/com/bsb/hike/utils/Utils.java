@@ -172,6 +172,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
@@ -6554,9 +6555,9 @@ public class Utils {
         return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
     }
 
-    public static void setGenus(String argGenus, Intent argIntent)
+    public static void setGenus(@HomeAnalyticsConstants.StatusUpdateSpecies String argGenus, Intent argIntent)
     {
-        if(TextUtils.isEmpty(argGenus) || argIntent == null)
+        if(argIntent == null)
         {
             return;
         }
@@ -6564,9 +6565,10 @@ public class Utils {
         argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
     }
 
-    public static void setSpecies(String argSpecies, Intent argIntent)
+    public static void setSpecies(@HomeAnalyticsConstants.ProfilePicUpdateSpecies
+                                  @HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies, Intent argIntent)
     {
-        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+        if(argIntent == null)
         {
             return;
         }
