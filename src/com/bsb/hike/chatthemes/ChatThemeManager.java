@@ -190,6 +190,10 @@ public class ChatThemeManager {
         }
     }
 
+    public String processCustomThemeSignal(JSONObject data, boolean downloadAssets){
+        return "";
+    }
+
     public void processDeleteThemeSignal(JSONObject data) {
 
     }

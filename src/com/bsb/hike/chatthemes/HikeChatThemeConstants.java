@@ -106,6 +106,8 @@ public class HikeChatThemeConstants {
     // JSON Signal Constants
     public static final String JSON_SIGNAL_THEME_DATA = "theme_data";
 
+    public static final String JSON_SIGNAL_THEME_META = "theme_meta";
+
     public static final String JSON_SIGNAL_NEW_THEME = "addCbg";
 
     public static final String JSON_SIGNAL_DEL_THEME = "del_cbg";
