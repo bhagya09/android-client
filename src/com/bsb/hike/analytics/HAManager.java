@@ -26,11 +26,11 @@ import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.platform.HikePlatformConstants;
-import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.hike.abtest.ABTest;
 
 /**
  * @author rajesh
@@ -270,6 +270,73 @@ public class HAManager
 
 		AnalyticsStore.getInstance(this.context).storeEvent(generateAnalticsJson(type, eventContext,
 				priority, metadata, tag));
+		ABTestSample(metadata);//Will be removed on 15/May/2016
+	}
+
+	//Will be removed on 15/May/2016
+	//Variable as defined by PM for the experiment.
+	String SAMPLE_EXPERIMENT_VARIABLE = "ABTEST-SAMPLE-01";
+	/**
+	 * Sample method for ABTest sdk usage reference.
+	 *
+	 * @param metadata
+	 */
+	private void ABTestSample(JSONObject metadata) {
+		//For sample purpose, this will be run as and when user enters TimeLine...
+		if(metadata.has(HikeConstants.EVENT_KEY)) {
+			String eventKey = null;
+			try {
+				eventKey = metadata.getString(HikeConstants.EVENT_KEY);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			if(!eventKey.equals(HikeConstants.LogEvent.TIMELINE_OPEN)) {
+				return;
+			}
+		} else {
+			return;
+		}
+		//Call ABTest API based on variable type and default value
+		int abtestIntSample = ABTest.getInt(SAMPLE_EXPERIMENT_VARIABLE, -1);
+
+		//Implement behaviors based on the variable value
+		switch(abtestIntSample) {
+			case 1:
+				//Implement for Behavior 1
+				break;
+			case 2:
+				//Implement for Behavior 2
+				break;
+			case 3:
+				//Implement for Behavior 3
+				break;
+		}
+
+		//After user goes through the experiment, log the experiment values.
+		//(Check with PM/Analyst on this, for your respective case)
+		logABtestSample(abtestIntSample);
+
+	}
+	//Will be removed on 15/May/2016
+	private void logABtestSample(int abtestIntSample) {
+		//Log only if we have received experiment value (non-default)
+		if(abtestIntSample > 0) {
+			//Get Experiment details from ABTest SDK
+			JSONObject analyticsLog = ABTest.getLogDetails(SAMPLE_EXPERIMENT_VARIABLE);
+			if(analyticsLog!=null) {
+				try {
+					//Add experiment values, which you receive from your respective PM/Analyst
+					analyticsLog.put(AnalyticsConstants.V2.UNIQUE_KEY, "AB-TEST-SAMPLE");
+					analyticsLog.put(AnalyticsConstants.V2.GENUS, "sampleExperiment");
+					analyticsLog.put(AnalyticsConstants.V2.FAMILY, "Var Value: " +
+							SAMPLE_EXPERIMENT_VARIABLE + ": " + abtestIntSample);
+					recordEventV2(analyticsLog);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
 	}
 
 	/**
@@ -1185,8 +1252,8 @@ public class HAManager
 		}
 
 		Editor editor = getPrefs().edit();
-	    editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
-	    editor.apply();
+		editor.putBoolean(AnalyticsConstants.USER_GOOGLE_ACCOUNTS_SENT, true);
+		editor.apply();
 	}
 
 	public void resetAnalyticsEventsUploadCount() {

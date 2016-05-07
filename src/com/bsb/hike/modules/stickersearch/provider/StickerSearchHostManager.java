@@ -1494,88 +1494,18 @@ public class StickerSearchHostManager
 		return stickers;
 	}
 
-	private float computeAnalogousScoreForExactMatch(String searchKey, String tag)
+	public float computeAnalogousScoreForExactMatch(String searchKey, String tag)
 	{
 		String cacheKey = searchKey + StickerSearchConstants.STRING_PREDICATE + tag;
 		Float result = sCacheForLocalAnalogousScore.get(cacheKey);
 
 		if (result == null)
 		{
-			ArrayList<String> searchWords = StickerSearchUtility.split(searchKey, StickerSearchConstants.REGEX_SPACE, 0);
-			while (searchWords.contains(StickerSearchConstants.STRING_EMPTY))
-			{
-				searchWords.remove(StickerSearchConstants.STRING_EMPTY);
-			}
-
-			ArrayList<String> tagWords = StickerSearchUtility.split(tag, StickerSearchConstants.REGEX_SPACE, 0);
-			while (tagWords.contains(StickerSearchConstants.STRING_EMPTY))
-			{
-				tagWords.remove(StickerSearchConstants.STRING_EMPTY);
-			}
-
-			int searchWordsCount = searchWords.size();
-			int exactWordsCount = tagWords.size();
-			float matchCount = 0.0f;
-			float localScore;
-
-			for (int indexInSearchKey = 0; indexInSearchKey < searchWordsCount; indexInSearchKey++)
-			{
-				for (int indexInTag = 0; indexInTag < exactWordsCount; indexInTag++)
-				{
-					if (tagWords.get(indexInTag).contains(searchWords.get(indexInSearchKey)))
-					{
-						localScore = ((float) searchWords.get(indexInSearchKey).length()) / tagWords.get(indexInTag).length();
-
-						if (indexInSearchKey == indexInTag)
-						{
-							matchCount += localScore;
-						}
-						else if (indexInSearchKey < indexInTag)
-						{
-							matchCount += localScore * (((float) (indexInSearchKey + 1)) / (indexInTag + 1));
-						}
-						else
-						{
-							matchCount += localScore * (((float) (indexInTag + 1)) / (indexInSearchKey + 1));
-						}
-
-						break;
-					}
-				}
-			}
-
-			// Apply spectra-full match prioritization before final scoring
-			int maxIndexBound = Math.max(searchWordsCount, exactWordsCount);
-			if (matchCount < maxIndexBound)
-			{
-				matchCount = matchCount + computeAnalogousSpectrelScore(tagWords, searchWords, StickerSearchUtility.getFirstOrderMoment(searchWordsCount, exactWordsCount));
-			}
-			result = Math.min(1.00f, (matchCount / maxIndexBound));
-
+			result = StickerSearchUtility.computeTextMatchScore(searchKey, tag, MARGINAL_FULL_SCORE_LATERAL);
 			sCacheForLocalAnalogousScore.put(cacheKey, result);
 		}
 
 		return result;
-	}
-
-	private float computeAnalogousSpectrelScore(ArrayList<String> tagWords, ArrayList<String> searchWords, int maximumPossibleSpectrumSpreading)
-	{
-		int wordMatchIndex;
-		float specificSpectrumWidth;
-		float matchCount = 0.0f;
-		int spectrumLimit = Math.min(StickerSearchConstants.MAXIMUM_ACCEPTED_SPECTRUM_SCORING_SIZE, searchWords.size());
-
-		for (int i = 0; i < spectrumLimit; i++)
-		{
-			wordMatchIndex = tagWords.indexOf(searchWords.get(i));
-			if (wordMatchIndex > -1)
-			{
-				specificSpectrumWidth = MARGINAL_FULL_SCORE_LATERAL / (i + 1);
-				matchCount = matchCount + (specificSpectrumWidth / maximumPossibleSpectrumSpreading) / (wordMatchIndex + 1);
-			}
-		}
-
-		return matchCount;
 	}
 
 	public void clearTransientResources()

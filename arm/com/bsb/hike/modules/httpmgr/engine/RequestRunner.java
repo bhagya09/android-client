@@ -1,11 +1,15 @@
 package com.bsb.hike.modules.httpmgr.engine;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
+import com.bsb.hike.modules.httpmgr.client.OkClient;
+import com.bsb.hike.modules.httpmgr.client.TwinPrimeOkClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.response.Response;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.hike.transporter.utils.Logger;
 
 /**
  * This class clones the {@link IClient} object and passes it to {@link RequestExecuter} for the final execution of the request
@@ -23,11 +27,27 @@ public class RequestRunner
 
 	public RequestRunner(ClientOptions options, HttpEngine engine, com.bsb.hike.modules.httpmgr.engine.RequestListenerNotifier requestListenerNotifier)
 	{
-		defaultClient = new OkUrlClient(options);
+		defaultClient = getClientBasedOnServerValue(options);
 		this.engine = engine;
 		this.requestListenerNotifier = requestListenerNotifier;
 	}
 
+	/**
+	 *
+	 * @param options
+	 * @return ICLIENT //1-->TWIN PRIME CLIENT,0-->OKCLIENT
+	 */
+	private IClient getClientBasedOnServerValue(ClientOptions options)
+	{
+		if(HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.TP_ENABLE,0)==1)
+		{
+			return new TwinPrimeOkClient(options);
+		}
+		else
+		{
+			return new OkClient(options);
+		}
+	}
 	/**
 	 * Clones the {@link IClient} object if parameter <code>options</code> is not null and then passes this client to the {@link RequestExecuter} for final execution of the request
 	 *

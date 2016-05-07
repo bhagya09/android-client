@@ -523,7 +523,17 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String DB_CORRUPT = "db_corrupt";
 
+	public static final String CLOUD_SETTINGS_BACKUP_SUCESS = "cldSetBackupDone";
+
+	public static final String CLOUD_SETTINGS_BACKUP_FAILED = "cldSetBackupFailed";
+
+	public static final String CLOUD_SETTINGS_RESTORE_SUCCESS = "cldSetRestoreDone";
+
+	public static final String CLOUD_SETTINGS_RESTORE_FAILED = "cldSetRestoreFailed";
+
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
+
+	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
 
 	private final Thread mThread;
 
@@ -579,12 +589,12 @@ public class HikePubSub extends Handler implements Runnable
 		list.add(listener);
 	}
 
-	public void addUiListener(String type, UiListener listener)
+	public void addUiListener(UiListener listener, String type)
 	{
 		add(type, listener);
 	}
 
-	public void addUiListeners(UiListener listener, String... types)
+	public void addUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{
@@ -637,12 +647,12 @@ public class HikePubSub extends Handler implements Runnable
 		}
 	}
 
-	public void removeUiListener(String type, UiListener listener)
+	public void removeUiListener(UiListener listener, String type)
 	{
 		remove(type, listener);
 	}
 
-	public void removeListeners(UiListener listener, String... types)
+	public void removeUiListener(UiListener listener, String... types)
 	{
 		for (String type : types)
 		{

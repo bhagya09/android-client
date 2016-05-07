@@ -37,9 +37,11 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.models.*;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
+import com.bsb.hike.models.Conversation.ConversationTip;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -49,6 +51,9 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.notifications.refactor.badge.HikeBadgeCountManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
+import com.bsb.hike.productpopup.AtomicTipManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActivityObjectTypes;
 import com.bsb.hike.timeline.model.FeedDataModel;
@@ -139,6 +144,8 @@ public class HikeNotification
 	public static final String INTERCEPT_SET_DP_INTENT = "com.bsb.hike.INTERCEPT_SET_DP_INTENT";
 
 	public static final String INTERCEPT_PHOTO_EDIT_INTENT = "com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT";
+
+	public static final String INTERCEPT_VIDEO_SHARE_INTENT = "com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT";
 
 	private static final int INTERCEPT_THMB_HEIGHT = 96;
 
@@ -305,6 +312,45 @@ public class HikeNotification
 
 	}
 
+	public void notifyAtomicTip(AtomicTipContentModel tipContentModel)
+	{
+		if (defaultSharedPrefs.getBoolean(HikeMessengerApp.BLOCK_NOTIFICATIONS, false))
+		{
+			return;
+		}
+
+		Logger.d(getClass().getSimpleName(), "Creating notif for atomic tips with bundled values");
+		int notifId = NOTIFICATION_PRODUCT_POPUP;
+		String notifTitle = tipContentModel.getNotifTitle();
+		String notifText = tipContentModel.getNotifText();
+		int tipId = tipContentModel.hashCode();
+		boolean isSilent = tipContentModel.isSilent();
+		if (!TextUtils.isEmpty(notifTitle) && !TextUtils.isEmpty(notifText))
+		{
+			NotificationCompat.Builder mBuilder = getNotificationBuilder(notifTitle, notifText, notifTitle, null, returnSmallIcon(), isSilent, isSilent, false);
+
+			Intent notificationIntent = Utils.getHomeActivityIntent(context);
+			notificationIntent.putExtra(HikeConstants.Extras.HAS_TIP, true);
+			notificationIntent.putExtra(HikeConstants.TIP_ID, tipId);
+			notificationIntent.putExtra(HikeConstants.IS_ATOMIC_TIP, true);
+
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setContentIntent(contentIntent);
+
+			Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+			deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+			deleteIntent.putExtra(HikeConstants.TIP_ID, tipContentModel.getTipId());
+			deleteIntent.putExtra(ProductPopupsConstants.IS_CANCELLABLE, tipContentModel.isCancellable());
+
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
+
+			Logger.d(getClass().getSimpleName(), "recording atomic tip notif creation");
+			AtomicTipManager.getInstance().tipFromNotifAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_NOTIF_CREATED, tipContentModel.getTipId(), tipContentModel.isCancellable());
+			notifyNotification(notifId, mBuilder);
+		}
+	}
+
 	public void notifyMessage(final Protip proTip, int notificationType)
 	{
 
@@ -356,7 +402,8 @@ public class HikeNotification
 
 			Intent intent = Utils.getHomeActivityIntent(context);
 			intent.putExtra(HikeConstants.Extras.HAS_TIP, true);
-			mBuilder.setContentIntent(PendingIntent.getActivity(context,0,intent,PendingIntent.FLAG_UPDATE_CURRENT));
+			intent.putExtra(HikeConstants.TIP_ID, ConversationTip.UPDATE_CRITICAL_TIP);
+			mBuilder.setContentIntent(PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT));
 			notifyNotification(APP_UPDATE_AVAILABLE_ID, mBuilder);
 
 		}
@@ -1110,6 +1157,9 @@ public class HikeNotification
 		NotificationCompat.Builder mBuilder = null;
 		Bitmap microThmb, miniThmb, scaled, circular;
 
+		Intent deleteIntent = new Intent(context, NotificationDismissedReceiver.class);
+		deleteIntent.putExtra(HIKE_NOTIFICATION_ID_KEY, notifId);
+
 		Logger.d(HikeConstants.INTERCEPTS.INTERCEPT_LOG, "received: path=" + path + fileName + " uri=" + interceptItem + " type=" + whichIntercept.toString());
 
 		switch (whichIntercept)
@@ -1147,6 +1197,7 @@ public class HikeNotification
 				circular = HikeBitmapFactory.getCircularBitmap(scaled);
 				mBuilder.setLargeIcon(circular);
 				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_SCREENSHOT);
 
 				break;
 
@@ -1185,6 +1236,7 @@ public class HikeNotification
 				circular = HikeBitmapFactory.getCircularBitmap(scaled);
 				mBuilder.setLargeIcon(circular);
 				mBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(miniThmb).bigLargeIcon(circular).setSummaryText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_IMAGE);
 
 				break;
 
@@ -1200,10 +1252,14 @@ public class HikeNotification
 				message = context.getString(R.string.intercept_message_video);
 				mBuilder = getNotificationBuilder(title, message, title, null, returnSmallIcon(), true, true, false);
 
-				//content intent for notification. share intent is same in this case
-				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+				//content intent for notification & share intent are essentially same, but different triggers for analytics purpose
+				defaultAction = IntentFactory.getInterceptBroadcast(context, INTERCEPT_VIDEO_SHARE_INTENT,
 						whichIntercept, interceptItem);
-				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), defaultAction);
+
+				PendingIntent shareActionVid = IntentFactory.getInterceptBroadcast(context, INTERCEPT_NON_DWLD_SHARE_INTENT,
+						whichIntercept, interceptItem);
+
+				mBuilder.addAction(R.drawable.actionbar_ic_forward, context.getString(R.string.intercept_lable_video_share), shareActionVid);
 
 				//creating and adding thumbnails to the notification
 				Bitmap microBmp = MediaStore.Video.Thumbnails.getThumbnail(context.getContentResolver(), ContentUris.parseId(interceptItem),
@@ -1211,6 +1267,7 @@ public class HikeNotification
 				scaled = HikeBitmapFactory.returnScaledBitmap(microBmp, context);
 				mBuilder.setLargeIcon(HikeBitmapFactory.getCircularBitmap(scaled));
 				mBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+				deleteIntent.putExtra(HikeConstants.TYPE, AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO);
 
 				break;
 
@@ -1222,7 +1279,8 @@ public class HikeNotification
 		{
 			//adding content intent & onDelete intent
 			mBuilder.setContentIntent(defaultAction);
-			setOnDeleteIntent(mBuilder, notifId, 0);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), notifId, deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			mBuilder.setDeleteIntent(pendingIntent);
 
 			//create the notification
 			notifyNotification(notifId, mBuilder);
@@ -1599,7 +1657,7 @@ public class HikeNotification
 				showNotification(notifIntent, notificationId, jsonObject, msisdn, avatarDrawable, bigPicture, false);
 				String bitmap_url = jsonObject.optString(HikePlatformConstants.BITMAP_URL);
 				if(TextUtils.isEmpty(bitmapString) && !TextUtils.isEmpty(bitmap_url)){
-					FileTransferManager.NetworkType networkType = FileTransferManager.getInstance(context).getNetworkType();
+					FileTransferManager.NetworkType networkType = FTUtils.getNetworkType(context);
 					if ((networkType == FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.WF_AUTO_DOWNLOAD_IMAGE_PREF, true))
 							|| (networkType != FileTransferManager.NetworkType.WIFI && appPrefs.getBoolean(HikeConstants.MD_AUTO_DOWNLOAD_IMAGE_PREF, true)))
 					{
