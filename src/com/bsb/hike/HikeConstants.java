@@ -2274,6 +2274,8 @@ public class HikeConstants
 
 		public static final String STICKER_BTN_CLICKED = "sBnc";
 
+        public static final String STICKER_SEARCH_BTN_CLICKED = "s_s_Bnc";
+
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
 
         public static final String EMOTICON_SENT = "eSnt";

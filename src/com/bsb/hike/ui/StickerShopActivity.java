@@ -144,6 +144,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 				{
 					menu.findItem(R.id.shop_settings).setVisible(false);
 					stickerShopFragment.showBanner(false);
+					StickerManager.getInstance().logStickerButtonsPressAnalytics(HikeMessengerApp.STICKER_SEARCH_BUTTON_CLICK_ANALYTICS);
 					return true;
 				}
 
