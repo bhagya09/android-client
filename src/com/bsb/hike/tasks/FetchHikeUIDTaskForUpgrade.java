@@ -3,6 +3,7 @@ package com.bsb.hike.tasks;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -47,14 +48,12 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         try {
             JSONArray addressBook = new JSONArray();
             addressBookContact.removeAll(activeChats);
-
-            data.put("addr", getJSONArrayFromSet(addressBook, addressBookContact));
+            addressBookContact.addAll(bots);
+            data.put("othr", getJSONArrayFromSet(addressBook, addressBookContact));
 
             JSONArray activeChat = new JSONArray();
             data.put("subs", getJSONArrayFromSet(activeChat, activeChats));
 
-            JSONArray bot = new JSONArray();
-            data.put("bots", getJSONArrayFromSet(bot, bots));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -79,7 +78,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
 
         for (int i = 0; i < array.length(); i++) {
             try {
-                data.add(new FetchUIDTaskPojo(array.getJSONObject(i).getString("m"), array.getJSONObject(i).getString("u")));
+                data.add(new FetchUIDTaskPojo(array.getJSONObject(i).optString("m",null), array.getJSONObject(i).optString("u",null)));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -118,8 +117,18 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         Set<FetchUIDTaskPojo> addressBookContacts = null, botsContact = null, activeChats = null;
 
         JSONObject data = (JSONObject) result;
-        addressBookContacts = parseJSONArrayIntoSet(addressBookContacts, data.optJSONArray("addr"));
-        botsContact = parseJSONArrayIntoSet(botsContact, data.optJSONArray("bots"));
+        addressBookContacts = parseJSONArrayIntoSet(addressBookContacts, data.optJSONArray("othr"));
+        botsContact = new HashSet<>();
+        for (FetchUIDTaskPojo pojo:addressBookContacts)
+        {
+            if(BotUtils.isBot(pojo.getMsisdn()))
+            {
+                botsContact.add(pojo);
+            }
+        }
+        // removing bots from addressBook:
+        addressBookContacts.removeAll(botsContact);
+
         activeChats = parseJSONArrayIntoSet(activeChats, data.optJSONArray("subs"));
 
         //Update in User Db
@@ -129,7 +138,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         HikeUserDatabase.getInstance().updateContactUid(activeChats);
 
         //update Bots Table
-
+        HikeConversationsDatabase.getInstance().updateUIDForBot(botsContact);
         //save Pref for upgrade
        // HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL,true);
     }
