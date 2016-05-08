@@ -157,7 +157,7 @@ public class ChatThemeManager {
                         size = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
                     }
                     theme.setAsset(j, id);
-                    if (!mAssetHelper.isAssetRecorded(id)) {
+                    if (!mAssetHelper.hasAsset(id)) {
                         HikeChatThemeAsset hcta = new HikeChatThemeAsset(id, type, null, size);
                         if (areTheseAssetsOnApk) {
                             hcta.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
@@ -167,7 +167,7 @@ public class ChatThemeManager {
                             }
                         }
                         assetsList.add(hcta);
-                        mAssetHelper.addDownloadedAsset(id, hcta);
+                        mAssetHelper.saveChatThemeAsset(id, hcta);
                     }
                 }
                 themeList.add(theme);
