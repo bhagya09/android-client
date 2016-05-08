@@ -27,7 +27,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -68,8 +67,6 @@ import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
-import com.bsb.hike.chatHead.CallerContentModel;
-import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -122,7 +119,6 @@ import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.bsb.hike.utils.Utils.ExternalStorageState;
 import com.bsb.hike.view.CustomFontButton;
-import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.view.CustomMessageTextView;
 import com.bsb.hike.view.CustomSendMessageTextView;
 import com.bsb.hike.view.HoloCircularProgress;
@@ -364,8 +360,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 	private String searchText;
 
 	private HashMap<Long, CharSequence> messageTextMap;
-
-	private CallerContentModel callerContentModel;
 
 	private StickerLoader stickerLoader;
 
@@ -2578,16 +2572,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				else
 				{
 					addButton.setTag(R.string.save_unknown_contact);
-
-					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-					Logger.i("c_spam", "visible........ user info view");
 				}
 
 				addButton.setOnClickListener(mOnClickListener);
 				convertView.findViewById(R.id.block_unknown_contact).setOnClickListener(mOnClickListener);
 			}
-
-			updateUnknownChatUserView(convertView);
 
 			return convertView;
 
@@ -2607,66 +2596,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			Logger.d(HikeConstants.CHAT_OPENING_BENCHMARK, " msisdn=" + conversation.getMsisdn() + " end=" + System.currentTimeMillis());
 		}
 		return v;
-	}
-
-	// To Show User info View in cases
-	// 1. one to one conv with unknown user
-	// 2. user opens 1-1 chat via caller "free sms" button click on hike caller card
-	private void updateUnknownChatUserView(View convertView)
-	{
-		try
-		{
-			if (!(BotUtils.isBot(conversation.getMsisdn())) && callerContentModel != null)
-			{
-				if(!ChatHeadUtils.isFullNameValid(callerContentModel.getFullName()))
-				{
-					Logger.d("c_spam", "As full name in callerContentModel is not valid, so not showing view " + callerContentModel);
-					convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
-					return;
-				}
-
-				Logger.d("c_spam", "filling values in user_info view as callercontentmodel is " + callerContentModel);
-
-				// set UI (Name, Location, Spam)
-				convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
-				convertView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
-				((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
-
-				if(!TextUtils.isEmpty(callerContentModel.getLocation()))
-				{
-					convertView.findViewById(R.id.unknown_user_info_location).setVisibility(View.VISIBLE);
-					((CustomFontTextView) convertView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
-				}
-				else
-				{
-					convertView.findViewById(R.id.unknown_user_info_location).setVisibility(View.GONE);
-				}
-
-				if (callerContentModel.getCallerMetadata() != null)
-				{
-					String spamCoutString = context.getString(R.string.unknown_user_spam_info, callerContentModel.getCallerMetadata().getChatSpamCount());
-					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() + " and text is " + spamCoutString);
-					if (!TextUtils.isEmpty(spamCoutString) && callerContentModel.getCallerMetadata().getChatSpamCount() > 0 )
-					{
-						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
-						((CustomFontTextView) convertView.findViewById(R.id.unknown_user_spam_info)).setText(Html.fromHtml(spamCoutString));
-					}
-					else
-					{
-						convertView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.GONE);
-					}
-				}
-			}
-			else if (callerContentModel != null && callerContentModel.getExpiryTime() == 0)
-			{
-				Logger.d("c_spam", "making invisible user_info view as callercontentmodel is " + callerContentModel);
-				convertView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
-			}
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	private void displayMessageIndicator(ConvMessage convMessage, ImageView broadcastIndicator, boolean showBlackIcon)
@@ -3899,7 +3828,7 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		contact.name = name;
 		contact.items = items;
 
-		this.dialog =HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
+		this.dialog = HikeDialogFactory.showDialog(context, HikeDialogFactory.CONTACT_SAVE_DIALOG, new HikeDialogListener()
 		{
 
 			@Override
@@ -4790,25 +4719,6 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		holder.ftAction.setScaleType(ScaleType.CENTER);
 	}
 
-	public void setCallerContentModel(CallerContentModel callerContentModel)
-	{
-		this.callerContentModel = callerContentModel;
-	}
-
-	public void dismissUserInfoLoader()
-	{
-		Logger.d("c_spam", "dismissing unknown user info loader");
-		if(getItemViewType(0) == ViewType.UNKNOWN_BLOCK_ADD.ordinal())
-		{
-			View view = mListView.getChildAt(0);
-			if (view != null)
-			{
-				view.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
-				view.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
-			}
-		}
-	}
-	
 	private void sendImageVideoRelatedAnalytic(String uniqueKey_Order) {
 		sendImageVideoRelatedAnalytic(uniqueKey_Order, null, null);
 	}

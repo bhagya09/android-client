@@ -4263,4 +4263,6 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String SHOW_USER_INFO_VIEW = "showUserInfoView";
 }

@@ -1281,4 +1281,26 @@ public class HAManager
 				getPrefs().getInt(AnalyticsConstants.EVENTS_TO_UPLOAD_COUNT, 0) + 1);
 		sharedPrefEditor.commit();
 	}
+
+	public void recordCallerChatSpamAnalytics(String uk, String order, String msisdn, String species)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uk);
+			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
+			json.put(AnalyticsConstants.V2.ORDER, order);
+			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
+			json.put(AnalyticsConstants.V2.SPECIES, species);
+			Logger.d("c_spam_logs", " Caller spam logs are \n " + json);
+			recordV2(json);
+
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

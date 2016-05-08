@@ -12,7 +12,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.net.MalformedURLException;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -66,6 +65,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
 import com.bsb.hike.models.CustomStickerCategory;
 import com.bsb.hike.models.FileListItem;
 import com.bsb.hike.models.GroupParticipant;
@@ -82,7 +82,6 @@ import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -3474,7 +3473,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				{
 					if (conv instanceof OneToOneConversation)
 					{
-						conv.setMetadata(new ConversationMetadata(metadata));
+						//conv.setMetadata(new ConversationMetadata(metadata));
+						conv.setMetadata(new OneToOneConversationMetadata(metadata));
 					}
 					else if (conv instanceof OneToNConversation)
 					{

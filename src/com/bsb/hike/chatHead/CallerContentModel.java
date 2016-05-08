@@ -51,16 +51,7 @@ public class CallerContentModel implements Parcelable
 
 	public CallerContentModel()
 	{
-
-	}
-
-	public CallerContentModel(String msisdn, String name, String location, int chatSpamType, CallerMetadata callerMetadata)
-	{
-		this.msisdn = msisdn;
-		this.full_name = name;
-		this.location = location;
-		this.chat_spam_type = chatSpamType;
-		this.callerMetadata = callerMetadata;
+		this.callerMetadata = new CallerMetadata(null);
 	}
 
 	private String getLastName()
@@ -251,10 +242,7 @@ public class CallerContentModel implements Parcelable
 		dest.writeString(getLocation());
 		dest.writeInt(is_on_hike ? 1 : 0);
 		dest.writeLong(expiry_time);
-		if(getCallerMetadata() != null)
-		{
-			dest.writeString(getCallerMetadata().toString());
-		}
+		dest.writeString(getCallerMetadata().toString());
 	}
 
 	public CallerContentModel(Parcel source)

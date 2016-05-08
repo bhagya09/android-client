@@ -66,6 +66,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.MessageType;
 import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatHead.CallerContentModel;
 import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -81,8 +82,10 @@ import com.bsb.hike.models.ContactInfo.FavoriteType;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
+import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
+import com.bsb.hike.models.Conversation.OneToOneConversationMetadata;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.Sticker;
@@ -111,6 +114,8 @@ import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.SoundUtils;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
+import com.bsb.hike.view.CustomFontButton;
+import com.bsb.hike.view.CustomFontTextView;
 import com.bsb.hike.voip.VoIPUtils;
 
 /**
@@ -176,6 +181,8 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private static final int UPDATE_UNKNOWN_USER_INFO = 122;
 	
+	private static final int SHOW_UNKNOWN_USER_OVERLAY = 123;
+	
 	private static short H2S_MODE = 0; // Hike to SMS Mode
 
 	private static short H2H_MODE = 1; // Hike to Hike Mode
@@ -230,6 +237,10 @@ import com.bsb.hike.voip.VoIPUtils;
 	private boolean shouldinitialteConnectionFragment=false;
 
 	boolean friendsFtueAnimationShown = false;
+
+	private CallerContentModel callerContentModel;
+
+	private View unknownContactInfoView;
 	
 	/**
 	 * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -287,7 +298,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		}
 
 		// Provide content to caller View inside Unknown contact overlay
-		CallerContentModel callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
+		this.callerContentModel = ChatHeadUtils.getCallerContentModelFormIntent(intent);
 		mConversation.setOnHike(callerContentModel.getIsOnHike());
 
 		// Showing quick reply message inside CT, only if user is not blocked
@@ -300,49 +311,6 @@ import com.bsb.hike.voip.VoIPUtils;
 		}
 
 		intent.removeExtra(HikeConstants.SRC_CALLER_QUICK_REPLY_CARD);
-
-		if (!mContactInfo.isUnknownContact())
-		{
-			return;
-		}
-		else if(!intent.hasExtra(HikeConstants.Extras.CALLER_QUICK_REPLY_MSG))
-		{
-			showUserInfoView(callerContentModel);
-		}
-
-	}
-
-	/**
-	 * Shows (User info + Block Add) View
-	 * 
-	 * @param callerContentModel
-	 */
-	private void showUserInfoView(CallerContentModel callerContentModel)
-	{
-		// Showing Caller View inside unknown contact overlay
-		if (messages != null && messages.size() == 0)
-		{
-			ConvMessage cm = new ConvMessage(0, 0l, 0l, -1);
-			cm.setBlockAddHeader(true);
-			messages.add(0, cm);
-		}
-
-		// Update Content of user info view
-		if (System.currentTimeMillis() - callerContentModel.getExpiryTime() < HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
-		{
-			if (mAdapter != null)
-			{
-				mAdapter.setCallerContentModel(callerContentModel);
-				mAdapter.notifyDataSetChanged();
-				Logger.d("c_spam", "C->C, info found in DB :- " + callerContentModel);
-			}
-		}
-		else
-		{
-			Logger.d("c_spam", "C->C, info NOT in DB :- " + callerContentModel + ", so going for HTTP, with updationg old");
-			Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
-			FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, callerContentModel);
-		}
 	}
 
 	private void handleOfflineIntent(Intent intent)
@@ -501,7 +469,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		if ((!Utils.isFavToFriendsMigrationAllowed()) && mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
 		{
-			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
+			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
 		}
 
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
@@ -511,9 +479,16 @@ import com.bsb.hike.voip.VoIPUtils;
 	@Override
 	protected Conversation fetchConversation()
 	{
-		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, false);
-
 		mContactInfo = ContactManager.getInstance().getContact(msisdn, true, true);
+
+		boolean fetchMetadata = false;
+
+		if(mContactInfo.isUnknownContact())
+		{
+			fetchMetadata = true;
+		}
+
+		mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, HikeConstants.MAX_MESSAGES_TO_LOAD_INITIALLY, fetchMetadata);
 
 		if (mConversation == null)
 		{
@@ -607,29 +582,32 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	protected void addUnkownContactBlockHeader()
 	{
-		if (mContactInfo != null && mContactInfo.isUnknownContact() && messages != null && messages.size() > 0)
+		if (mContactInfo == null || !mContactInfo.isUnknownContact())
 		{
-			ConvMessage cm = messages.get(0);
-			/**
-			 * Check if the conv message was previously a block header or not
-			 */
-			if (!cm.isBlockAddHeader())
-			{
-				/**
-				 * Creating a new conv message to be appended at the 0th position.
-				 */
-				cm = new ConvMessage(0, 0l, 0l, -1);
-				cm.setBlockAddHeader(true);
-				messages.add(0, cm);
-				Logger.d(TAG, "Adding unknownContact Header to the chatThread");
-
-				showUknownUserInfoView();
-//				if (mAdapter != null)
-//				{
-//					mAdapter.notifyDataSetChanged();
-//				}
-			}
+			return;
 		}
+
+		if(unknownContactInfoView == null)
+		{
+			unknownContactInfoView = LayoutInflater.from(activity.getApplicationContext()).inflate(R.layout.block_add_unknown_contact_mute_bot, null);
+			CustomFontButton addButton = (CustomFontButton) unknownContactInfoView.findViewById(R.id.add_unknown_contact);
+			if (mConversation instanceof BotConversation)
+			{
+				addButton.setTag(R.string.mute);
+				addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
+				unknownContactInfoView.setTag(R.string.mute);
+			}
+			else
+			{
+				addButton.setTag(R.string.save_unknown_contact);
+			}
+
+			addButton.setOnClickListener(this);
+			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
+
+			checkAndAddListViewHeader(unknownContactInfoView);
+		}
+		showUknownUserInfoView();
 	}
 
 	/**
@@ -637,41 +615,77 @@ import com.bsb.hike.voip.VoIPUtils;
 	 */
 	private void showUknownUserInfoView()
 	{
-		Logger.d("c_spam", "chat thread opened for unknown contact, going to find in DB");
-		// Show user info view
-		new AsyncTask<Void, Void, CallerContentModel>()
+		if(mConversation instanceof BotConversation)
 		{
-			@Override
-			protected CallerContentModel doInBackground(Void... voids)
+			return;
+		}
+		try
+		{
+			if(mConversation.getMetadata() == null)
 			{
-				// 1. get Data from DB
-				return ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn);
+				Logger.d("c_spam", "null metadata, so setting new one");
+				mConversation.setMetadata(new OneToOneConversationMetadata(null));
+			}
+			else if (!((OneToOneConversationMetadata) (mConversation.getMetadata())).isUserInfoViewToBeShown())
+			{
+				Logger.d("c_spam", "chat thread opened for unknown contact, found cross applied so not going ahead");
+				return;
 			}
 
-			@Override
-			protected void onPostExecute(CallerContentModel callerContentModel)
+			Logger.d("c_spam", "chat thread opened for unknown contact, going to find in DB");
+
+			// Show user info view
+			new AsyncTask<Void, Void, CallerContentModel>()
 			{
-				if (callerContentModel == null)
+				@Override
+				protected CallerContentModel doInBackground(Void... voids)
 				{
-					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +", so going for HTTP, new row");
-					// 2. if not in DB, then HTTP Call for user info + show loader(later on)
-					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, null);
+					if(callerContentModel != null)
+					{
+						return callerContentModel;
+					}
+					else
+					{
+						// 1. get Data from DB
+						return ContactManager.getInstance().getCallerContentModelFromMsisdn(msisdn);
+					}
 				}
-				else if(System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
+
+				@Override
+				protected void onPostExecute(CallerContentModel callerContentModel)
 				{
-					Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
-					Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
-					// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
-					FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, callerContentModel);
+					if (callerContentModel == null)
+					{
+						Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +", so going for HTTP, new row");
+						// 2. if not in DB, then HTTP Call for user info + show loader(later on)
+						FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, null);
+					}
+					else if(callerContentModel.getExpiryTime() == 0)
+					{
+						Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expiry time = 0, so going for HTTP, updating old");
+						// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
+						FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, false, callerContentModel);
+					}
+					else if(System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
+					{
+						Logger.d("c_spam", "info NOT in DB :- " + callerContentModel +"i.e expired, so going for HTTP, updating old");
+						Logger.d("c_spam", "EXPIRED ... Current time :- " + new Date(System.currentTimeMillis()) +" \n Expiry Time " + new Date(callerContentModel.getExpiryTime()) );
+						// 2. if row is in DB but expired, then HTTP Call for user info + and update md, expiry time
+						FetchUknownHikeUserInfo.fetchHikeUserInfo(msisdn, true, callerContentModel);
+					}
+					else
+					{
+						Logger.d("c_spam", "FOUND in DB, Firing pubsub " + HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW + " data:- " + callerContentModel);
+						// Update UI
+						HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
+					}
 				}
-				else
-				{
-					Logger.d("c_spam", "FOUND in DB, Firing pubsub " + HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW + " data:- " + callerContentModel);
-					// Update UI
-					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, callerContentModel);
-				}
-			}
-		}.execute();
+			}.execute();
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -708,8 +722,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 		mAdapter.addMessage(convMessage);
 
-		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent())
-		{
+		if (convMessage.getTypingNotification() == null && typingNotification != null && convMessage.isSent()) {
 			mAdapter.addMessage(new ConvMessage(typingNotification));
 		}
 
@@ -1088,6 +1101,9 @@ import com.bsb.hike.voip.VoIPUtils;
 		case HIDE_FRIENDS_VIEW:
 			activity.findViewById(R.id.compose_container).setVisibility(View.VISIBLE);
 			activity.findViewById(R.id.add_friend_view).setVisibility(View.GONE);
+			break;
+		case SHOW_UNKNOWN_USER_OVERLAY:
+			addUnkownContactBlockHeader();
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event in OneToOne ChatThread. Calling super class' handleUIMessage");
@@ -2268,6 +2284,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			if (isJoined)
 			{
 				uiHandler.sendEmptyMessage(SHOW_CALL_ICON);
+				uiHandler.sendEmptyMessage(SHOW_UNKNOWN_USER_OVERLAY);
 			}
 		}
 	}
@@ -2880,7 +2897,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			if ( null != v.getTag() && v.getTag().equals(R.string.save_unknown_contact))
 			{
 				Utils.addToContacts(activity, msisdn);
-				recordSaveChatUserFromUnknownOverlay();
+				HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_SAVE, AnalyticsConstants.SAVE, msisdn, null);
 			}
 			break;
 			
@@ -2897,8 +2914,29 @@ import com.bsb.hike.voip.VoIPUtils;
 		case R.id.add_friend_ftue_button:
 			handleAddFavoriteButtonClick(v.getId());
 			break;
+		case R.id.unknown_user_info_close:
+			handleUserInfoViewCloseClick();
+			break;
 		default:
 			super.onClick(v);
+		}
+	}
+
+	private void handleUserInfoViewCloseClick()
+	{
+		try
+		{
+			if (mConversation.getMetadata() != null)
+			{
+				((OneToOneConversationMetadata) mConversation.getMetadata()).setUserInfoViewToBeShown(false);
+				HikeConversationsDatabase.getInstance().updateConversationMetadata(mConversation.getMsisdn(), mConversation.getMetadata());
+			}
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_CROSS, AnalyticsConstants.CROSS, null, null);
+		}
+		catch (JSONException ex)
+		{
+			ex.printStackTrace();
 		}
 	}
 	
@@ -2958,7 +2996,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	private void onBlockClicked()
 	{
 		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, null);
-		recordBlockChatUserConfirmationPopup();
+		HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_BLOCK, AnalyticsConstants.BLOCK, msisdn, null);
 	}
 
 	/**
@@ -3161,7 +3199,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			{
 				sendUIMessage(SPAM_UNSPAM_USER, true);
 			}
-			recordBlockChatUserBlocked(((CustomAlertDialog) dialog).isChecked(), AnalyticsConstants.YES);
+			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.YES, msisdn, String.valueOf(((CustomAlertDialog) dialog).isChecked()));
 			break;
 
 		default:
@@ -3183,7 +3221,7 @@ import com.bsb.hike.voip.VoIPUtils;
 		case HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
-			recordBlockChatUserBlocked(((CustomAlertDialog) dialog).isChecked(), AnalyticsConstants.NO);
+			HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_FLAG, AnalyticsConstants.NO, msisdn, String.valueOf(((CustomAlertDialog) dialog).isChecked()));
 			break;
 
 		default:
@@ -3736,7 +3774,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		if(OfflineUtils.isConnectedToSameMsisdn(msisdn) ||  OfflineUtils.isConnectingToSameMsisdn(msisdn))
 		{
-			setLastSeen(getResources().getString(R.string.disconnecting_offline),true);
+			setLastSeen(getResources().getString(R.string.disconnecting_offline), true);
 		}
 		OfflineUtils.stopFreeHikeConnection(activity, msisdn);
 		
@@ -3875,24 +3913,80 @@ import com.bsb.hike.voip.VoIPUtils;
 		ChatHeadUtils.makeHttpCallToSpamUnspamChatUser(activity, msisdn, isSpam == true ? 1 : 0);
 	}
 
+
+	// To Show User info View in cases
+	// 1. one to one conv with unknown user
+	// 2. user opens 1-1 chat via caller "free sms" button click on hike caller card
 	private void updateUnknownUserInfoViews(Object object)
 	{
-		if (mAdapter != null)
+		if (BotUtils.isBot(mConversation.getMsisdn()))
+		{
+			return;
+		}
+		
+		try
 		{
 			// This is case When Http Call is failed and we have to dismissLoader
 			if (object == null)
 			{
-				Logger.d("c_spam", "inside updateUnknownUserInfoViews, object is "+ object);
-				mAdapter.dismissUserInfoLoader();
+				Logger.d("c_spam", "inside updateUnknownUserInfoViews, object is "+ object + " so not showing view");
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+				return;
 			}
 			else
 			{
-				Logger.d("c_spam", "inside updateUnknownUserInfoViews, CallerContentModel is "+ object);
-				mAdapter.setCallerContentModel((CallerContentModel) object);
-			}
-			mAdapter.notifyDataSetChanged();
-		}
+				callerContentModel = (CallerContentModel) object;
+				if (callerContentModel.getExpiryTime() == 0
+						|| System.currentTimeMillis() - callerContentModel.getExpiryTime() > HikeConstants.NO_OF_MILISECONDS_IN_1_DAY)
+				{
+					Logger.d("c_spam", "http call fail + 0/> 24 hr, showing old data " + callerContentModel);
+					//unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+					//return;
+				}
 
+				Logger.d("c_spam", "inside updateUnknownUserInfoViews, CallerContentModel is " + object);
+				if (!ChatHeadUtils.isFullNameValid(callerContentModel.getFullName()))
+				{
+					Logger.d("c_spam", "As full name in callerContentModel is not valid, so not showing view " + callerContentModel);
+					unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
+					return;
+				}
+
+				// set UI (Name, Location, Spam)
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_spinner).setVisibility(View.GONE);
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_close).setOnClickListener(this);
+				((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_info_name)).setText(callerContentModel.getFullName());
+
+				if (!TextUtils.isEmpty(callerContentModel.getLocation()))
+				{
+					unknownContactInfoView.findViewById(R.id.unknown_user_info_location).setVisibility(View.VISIBLE);
+					((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_info_location)).setText(callerContentModel.getLocation());
+				} else
+				{
+					unknownContactInfoView.findViewById(R.id.unknown_user_info_location).setVisibility(View.GONE);
+				}
+
+				if (callerContentModel.getCallerMetadata() != null)
+				{
+					String spamCoutString = activity.getString(R.string.unknown_user_spam_info, callerContentModel.getCallerMetadata().getChatSpamCount());
+					Logger.d("c_spam", "spam count inside callercontentmodel is " + callerContentModel.getCallerMetadata().getChatSpamCount() + " and text is " + spamCoutString);
+					if (!TextUtils.isEmpty(spamCoutString) && callerContentModel.getCallerMetadata().getChatSpamCount() > 0)
+					{
+						unknownContactInfoView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.VISIBLE);
+						((CustomFontTextView) unknownContactInfoView.findViewById(R.id.unknown_user_spam_info)).setText(Html.fromHtml(spamCoutString));
+					}
+					else
+					{
+						unknownContactInfoView.findViewById(R.id.unknown_user_spam_info).setVisibility(View.GONE);
+					}
+				}
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void inflateAddFriendButtonIfNeeded()
@@ -4362,67 +4456,24 @@ import com.bsb.hike.voip.VoIPUtils;
 		}
 	}
 
-	public void recordSaveChatUserFromUnknownOverlay()
+	/**
+	 * Workaround for bug where the header needs to be added after adapter has been set in the list view
+	 *
+	 * @param headerView
+	 */
+	private void checkAndAddListViewHeader(View headerView)
 	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_SAVE);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.SAVE);
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-			Logger.d("c_spam_logs", " Add to contact via unknown overlay are \n " + json);
-			HAManager.getInstance().recordV2(json);
 
-		}
-		catch (JSONException e)
+		if (mAdapter != null)
 		{
-			e.printStackTrace();
+			mConversationsView.setAdapter(null);
+			mConversationsView.addHeaderView(headerView);
+			mConversationsView.setAdapter(mAdapter);
 		}
-	}
 
-	public void recordBlockChatUserConfirmationPopup()
-	{
-		try
+		else
 		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_BLOCK);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
-			json.put(AnalyticsConstants.V2.ORDER, AnalyticsConstants.BLOCK);
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-			Logger.d("c_spam_logs", " Block Popup Shown logs are \n " + json);
-			HAManager.getInstance().recordV2(json);
-
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void recordBlockChatUserBlocked(boolean isSpamSelected, String optionSelected)
-	{
-		try
-		{
-			JSONObject json = new JSONObject();
-			json.put(AnalyticsConstants.V2.UNIQUE_KEY, AnalyticsConstants.CHAT_THREAD_FLAG);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_LOG);
-			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.STICKY_CALLER);
-			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CHAT_THREAD);
-			json.put(AnalyticsConstants.V2.ORDER, optionSelected);
-			json.put(AnalyticsConstants.V2.TO_USER, msisdn);
-			json.put(AnalyticsConstants.V2.SPECIES, isSpamSelected);
-			Logger.d("c_spam_logs", " Block Popup yes/NO selected are \n " + json);
-			HAManager.getInstance().recordV2(json);
-
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
+			mConversationsView.addHeaderView(headerView);
 		}
 	}
 }

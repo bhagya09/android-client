@@ -900,6 +900,8 @@ public class AnalyticsConstants
 
 	public static final String CHAT_THREAD_FLAG = "chat_thread_flag";
 
+	public static final String CHAT_THREAD_CROSS = "chat_thread_cross";
+
 	public static final class AtomicTipsAnalyticsConstants
 	{
 		public static final String TIPS = "tips";

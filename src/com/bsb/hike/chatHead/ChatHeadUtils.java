@@ -1134,12 +1134,21 @@ public class ChatHeadUtils
 					callerContentModel.setMsisdn(msisdn);
 				}
 
-				callerContentModel.setFullName(result.optString(HikeConstants.NAME));
-				callerContentModel.setLocation(result.optString(HikeConstants.LOCATION));
+				if(result.has(HikeConstants.NAME))
+				{
+					callerContentModel.setFullName(result.optString(HikeConstants.NAME));
+				}
+
+				if(result.has(HikeConstants.LOCATION))
+				{
+					callerContentModel.setLocation(result.optString(HikeConstants.LOCATION));
+				}
+
 				CallerMetadata md = new CallerMetadata(null);
 				md.setIsUserSpammedByYou(result.optBoolean(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU) == true ? 1 : 0);
 				md.setChatSpamCount(result.optInt(HikeConstants.CHAT_SPAM_COUNT));
 				callerContentModel.setCallerMetadata(md);
+				callerContentModel.setExpiryTime(System.currentTimeMillis());
 			}
 
 		}
