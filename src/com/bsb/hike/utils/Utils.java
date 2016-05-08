@@ -6476,7 +6476,7 @@ public class Utils
 
 	private static void recordBlockedNetworkState(JSONObject data)
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		if (data == null || data.length() == 0 || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, false))
 		{
 			return;
 		}
@@ -7823,11 +7823,13 @@ public class Utils
 	public static long folderSize(File folder)
 	{
 		long length = 0;
-		
+
 		// Precautionary check to prevent NPE from empty list files.
-		if (folder.listFiles() == null)
+        // Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+        File[] directory = folder.listFiles();
+		if (directory == null)
 			return length;
-		for (File file : folder.listFiles())
+		for (File file : directory)
 		{
 			if (file.isDirectory())
 				length += folderSize(file);
@@ -8077,7 +8079,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists() && hikeLanguageDir.list().length > 0) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists() && hikeLanguageDir.list() != null && hikeLanguageDir.list().length > 0) {
 
 			return true;
 		}
@@ -8090,7 +8092,7 @@ public class Utils
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
-		if (hikeLanguageDir.exists()) {
+		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
 			try {
 
