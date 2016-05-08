@@ -140,7 +140,7 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         //update Bots Table
         HikeConversationsDatabase.getInstance().updateUIDForBot(botsContact);
         //save Pref for upgrade
-       // HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL,true);
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL,true);
     }
 
     @Override
