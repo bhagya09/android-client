@@ -33,14 +33,10 @@ public class CategorySearchTask implements Runnable
 
 		mListener.onSearchInitiated();
 
-		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
+		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query, sendLogs);
 
 		sendResponse(results);
 
-		if (sendLogs)
-		{
-			CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_SEARCH_BUTTON_TRIGGER);
-		}
 	}
 
 	private void sendResponse(List<StickerCategory> results)

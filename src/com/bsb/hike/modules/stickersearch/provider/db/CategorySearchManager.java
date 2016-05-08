@@ -116,11 +116,11 @@ public class CategorySearchManager
 		return categorySearchEngine;
 	}
 
-	public List<StickerCategory> searchForPacks(String query)
+	public List<StickerCategory> searchForPacks(String query, boolean sendLogs)
 	{
 		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
 
-		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories));
+		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories, sendLogs));
 
 		return getOrderedCategoryList(resultCategories);
 	}

@@ -19,10 +19,6 @@ public class CategorySearchAnalyticsTask implements Runnable
 {
 	private final String TAG = CategorySearchAnalyticsTask.class.getSimpleName();
 
-	private String searchedQuery;
-
-	private Set<CategorySearchData> searchedCategories;
-
 	public static final String SHOP_SEARCH_RESULTS_ANALYTICS_LOG = "ssr_log";
 
 	public static final String QUERY_KEY = "query";
@@ -57,10 +53,17 @@ public class CategorySearchAnalyticsTask implements Runnable
 
 	public static final String SHOP_SEARCH_PACK_PREVIEWED_BUTTON_TRIGGER = "pPrev";
 
-	public CategorySearchAnalyticsTask(String query, Set<CategorySearchData> categoriesSearchData)
+    private String searchedQuery;
+
+    private Set<CategorySearchData> searchedCategories;
+
+    private boolean sendLogsImmediately;
+
+	public CategorySearchAnalyticsTask(String query, Set<CategorySearchData> categoriesSearchData, boolean sendLogsImmediately)
 	{
 		this.searchedQuery = preProcessQuery(query);
 		this.searchedCategories = categoriesSearchData;
+        this.sendLogsImmediately = sendLogsImmediately;
 	}
 
 	@Override
@@ -74,16 +77,6 @@ public class CategorySearchAnalyticsTask implements Runnable
 
 		try
 		{
-			if (Utils.isEmpty(searchedCategories))
-			{
-				JSONObject categorySearchMetadata = new JSONObject();
-
-				categorySearchMetadata.put(QUERY_KEY, searchedQuery);
-				categorySearchMetadata.put(RESULTS_COUNT, 0);
-
-				HikeSharedPreferenceUtil.getInstance().saveData(SHOP_SEARCH_RESULTS_ANALYTICS_LOG, categorySearchMetadata.toString());
-				return;
-			}
 
 			int categoryToLogVectorsLimit = HikeSharedPreferenceUtil.getInstance().getData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT,
 					CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
@@ -96,27 +89,35 @@ public class CategorySearchAnalyticsTask implements Runnable
 
 			categorySearchMetadata.put(RESULTS_COUNT, searchedCategories.size());
 
-			JSONArray resultsMetadata = new JSONArray();
-
-			for (CategorySearchData searchedCategory : searchedCategories)
+			if (!Utils.isEmpty(searchedCategories))
 			{
-				if (categoryLoggedCount < categoryToLogVectorsLimit)
+				JSONArray resultsMetadata = new JSONArray();
+
+				for (CategorySearchData searchedCategory : searchedCategories)
 				{
-					JSONObject searchedCategoryJSON = searchedCategory.toJSON();
+					if (categoryLoggedCount < categoryToLogVectorsLimit)
+					{
+						JSONObject searchedCategoryJSON = searchedCategory.toJSON();
 
-					searchedCategoryJSON.put(HikeConstants.INDEX, categoryLoggedCount);
+						searchedCategoryJSON.put(HikeConstants.INDEX, categoryLoggedCount);
 
-					resultsMetadata.put(searchedCategoryJSON);
+						resultsMetadata.put(searchedCategoryJSON);
+					}
+
+					CategorySearchManager.logSearchedCategoryToDailyReport(searchedCategory, categoryLoggedCount, searchedCategories.size());
+
+					categoryLoggedCount++;
 				}
 
-				CategorySearchManager.logSearchedCategoryToDailyReport(searchedCategory, categoryLoggedCount, searchedCategories.size());
-
-				categoryLoggedCount++;
+				categorySearchMetadata.put(RESULT_SET, resultsMetadata);
 			}
 
-			categorySearchMetadata.put(RESULT_SET, resultsMetadata);
-
 			HikeSharedPreferenceUtil.getInstance().saveData(SHOP_SEARCH_RESULTS_ANALYTICS_LOG, categorySearchMetadata.toString());
+
+			if (sendLogsImmediately)
+			{
+				CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_SEARCH_BUTTON_TRIGGER);
+			}
 
 		}
 		catch (JSONException e)
