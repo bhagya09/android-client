@@ -1,25 +1,6 @@
 package com.bsb.hike.db;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -49,7 +30,6 @@ import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.db.DBConstants.HIKE_CONV_DB;
 import com.bsb.hike.db.DatabaseErrorHandlers.ConversationDatabaseErrorHandler;
-import com.bsb.hike.db.DatabaseErrorHandlers.CustomDatabaseErrorHandler;
 import com.bsb.hike.db.dbcommand.SetPragmaModeCommand;
 import com.bsb.hike.models.ContactInfo;
 import com.bsb.hike.models.ConvMessage;
@@ -68,6 +48,7 @@ import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.CustomStickerCategory;
+import com.bsb.hike.models.FetchUIDTaskPojo;
 import com.bsb.hike.models.FileListItem;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
@@ -110,6 +91,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -3250,7 +3232,27 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		values.put(HIKE_CONTENT.BOT_TRIGGER_POINT, botInfo.getTriggerPointFormenu());
 		values.put(HIKE_CONTENT.CLIENT_ID, botInfo.getClientId());
 		values.put(HIKE_CONTENT.CLIENT_HASH, botInfo.getClientHash());
+		values.put(DBConstants.HIKE_UID,botInfo.getUid());
 		mDb.insertWithOnConflict(DBConstants.BOT_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public void updateUIDForBot(Set<FetchUIDTaskPojo> fecTaskPojo) {
+		if (Utils.isEmpty(fecTaskPojo)) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+
+			ContentValues cv = new ContentValues();
+			for (FetchUIDTaskPojo pojo : fecTaskPojo) {
+				cv.put(HIKE_UID, pojo.getUid());
+				mDb.update(DBConstants.BOT_TABLE, cv, DBConstants.MSISDN + " =?", new String[]{pojo.getMsisdn()});
+				cv.clear();
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
 	}
 
 	public boolean isBotMuted(String msisdn)
