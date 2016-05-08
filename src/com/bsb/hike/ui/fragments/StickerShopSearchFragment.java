@@ -46,6 +46,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 
 	private CustomFontTextView searchFailedMessageView;
 
+    private String currentQuery;
+
 	public StickerShopSearchFragment()
 	{
 		super();
@@ -111,13 +113,15 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
+        currentQuery = query;
 		return searchWatcher.onQueryTextSubmit(query);
 	}
 
 	@Override
 	public boolean onQueryTextChange(String query)
 	{
-		return searchWatcher.onQueryTextChange(query);
+		currentQuery = query;
+        return searchWatcher.onQueryTextChange(query);
 	}
 
 	@Override
@@ -196,6 +200,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 			return;
 		}
 		String categoryId = mAdapter.getItem(position);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP_SEARCH.getValue() + HikeConstants.DELIMETER + currentQuery);
         CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_PACK_PREVIEWED_BUTTON_TRIGGER);
 	}
 
