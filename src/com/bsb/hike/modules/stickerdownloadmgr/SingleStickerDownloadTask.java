@@ -101,6 +101,7 @@ public class SingleStickerDownloadTask implements IHikeHTTPTask, IHikeHttpTaskRe
 			Bundle extras = new Bundle();
 			extras.putString(HikeConstants.STICKER_ID, stickerId);
 			extras.putString(HikeConstants.CATEGORY_ID, categoryId);
+			extras.putLong(HikeConstants.MESSAGE_ID, convMessage != null ? convMessage.getMsgID() : -1);
 			token = singleStickerImageDownloadRequest(requestId, stickerId, categoryId, downloadMini, getRequestListener(), extras);
 		}
 		else
