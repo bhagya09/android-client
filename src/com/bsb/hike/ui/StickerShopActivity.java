@@ -24,6 +24,8 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
+import com.bsb.hike.modules.stickersearch.tasks.CategorySearchAnalyticsTask;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.ui.fragments.StickerShopFragment;
 import com.bsb.hike.ui.fragments.StickerShopSearchFragment;
@@ -153,6 +155,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 				{
 					menu.findItem(R.id.shop_settings).setVisible(true);
 					stickerShopFragment.showBanner(true);
+                    CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_BACK_BUTTON_TRIGGER);
 					return true;
 				}
 			});
@@ -200,6 +203,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		{
 			if (TextUtils.isEmpty(query))
 			{
+                CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
 				if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
 				{
 					StickerShopActivity.super.onBackPressed();

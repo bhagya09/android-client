@@ -2,13 +2,23 @@ package com.bsb.hike.modules.stickersearch.provider.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.text.TextUtils;
+
 import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StickerCategory;
@@ -18,13 +28,12 @@ import com.bsb.hike.modules.stickersearch.datamodel.CategorySearchData;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
 import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
+import com.bsb.hike.modules.stickersearch.tasks.CategorySearchAnalyticsTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-
-import org.json.JSONArray;
 
 /**
  * Created by akhiltripathi on 13/04/16.
@@ -40,13 +49,19 @@ public class CategorySearchManager
 
     public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
 
+    public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit";
+
     public static final String AUTO_SEARCH_TIME = "a_s_tm";
+
+    public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report";
 
     public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L;
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
     public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
+
+    public static final int DEFAULT_SEARCH_RESULTS_LOG_LIMIT = 5;
 
     public static final int DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD = 0;
 
@@ -105,6 +120,8 @@ public class CategorySearchManager
 	{
 		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
 
+        HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories));
+
 		return getOrderedCategoryList(resultCategories);
 	}
 
@@ -148,14 +165,14 @@ public class CategorySearchManager
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
 	{
-		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, true);
 		categorySearchEngine.runOnSearchThread(categorySearchTask, 0);
 		return true;
 	}
 
 	public boolean onQueryTextChange(String query, CategorySearchListener listener)
 	{
-		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener);
+		CategorySearchTask categorySearchTask = new CategorySearchTask(query, listener, false);
 		categorySearchTask.run();
 		return true;
 	}
@@ -254,13 +271,132 @@ public class CategorySearchManager
 
 	public static void removeShopSearchTagsForCategory(final Set<Integer> ucids)
 	{
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                HikeStickerSearchDatabase.getInstance().deleteCategoryTagFromCategorySearchTable(ucids);
+            }
+        });
+	}
+
+	public static void logSearchedCategoryToDailyReport(CategorySearchData categorySearchData, int index, int totalResults) throws JSONException
+	{
+		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
+
+		JSONObject searchReportMetadata = TextUtils.isEmpty(searchReport) ? new JSONObject() : new JSONObject(searchReport);
+
+        String categoryKey = Integer.toString(categorySearchData.getUcid());
+
+        JSONObject categoryReport = searchReportMetadata.has(categoryKey) ? searchReportMetadata.getJSONObject(categoryKey) : new JSONObject();
+
+        categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categoryReport.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT) + 1);
+        categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReport.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) + index);
+        categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) + (index*1.0)/totalResults);
+
+        int topBucketIdx = index / 5;
+        if(topBucketIdx >= 0 && topBucketIdx < CategorySearchAnalyticsTask.TOP_BUCKETS.length)
+        {
+            categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx], categoryReport.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx]) + 1);
+        }
+
+        searchReportMetadata.put(categoryKey, categoryReport);
+
+        HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, searchReportMetadata.toString());
+	}
+
+	public static void sendSearchedCategoryDailyReport()
+	{
+		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
+
+		if (TextUtils.isEmpty(searchReport))
+		{
+			return;
+		}
+        
+		try
+		{
+			JSONObject searchReportJSON = new JSONObject(searchReport);
+            Iterator<String> iterator = searchReportJSON.keys();
+
+            JSONObject metadata = new JSONObject();
+            JSONArray categoriesReport = new JSONArray();
+
+            while(iterator.hasNext())
+            {
+                String catUcid= iterator.next();
+                JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
+
+                int categorySearchedCount = categoryReportJson.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT);
+
+                if(categorySearchedCount <= 0)
+                {
+                    continue;
+                }
+
+                JSONObject categoryReport = new JSONObject();
+                categoryReport.put(HikeConstants.UCID, catUcid);
+                categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categorySearchedCount);
+                categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReportJson.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT)*1.0/categorySearchedCount);
+                categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReportJson.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) / categorySearchedCount);
+                for(int i=0; i<CategorySearchAnalyticsTask.TOP_BUCKETS.length;i++)
+                {
+                    categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[i], categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[i]));
+                }
+
+                categoriesReport.put(categoryReport);
+            }
+
+            if (categoriesReport.length() > 0)
+            {
+                metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+                metadata.put(HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT_DATA, categoriesReport);
+
+                HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
+            }
+
+            HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
+
+		}
+		catch (JSONException e)
+		{
+            Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+		}
+	}
+
+	public static void sendCategorySearchResultResponseAnalytics(final String source)
+	{
+		final String recordedReportString = HikeSharedPreferenceUtil.getInstance().getData(CategorySearchAnalyticsTask.SHOP_SEARCH_RESULTS_ANALYTICS_LOG, "");
+
+		if (TextUtils.isEmpty(recordedReportString))
+		{
+			return;
+		}
+
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				HikeStickerSearchDatabase.getInstance().deleteCategoryTagFromCategorySearchTable(ucids);
+				try
+				{
+					JSONObject metadata = new JSONObject();
+
+					JSONObject recordedReport = new JSONObject(recordedReportString);
+
+					recordedReport.put(HikeConstants.SOURCE, source);
+
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+					metadata.put(HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE_DATA, recordedReport);
+
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+
+				}
+				catch (JSONException e)
+				{
+					Logger.e(TAG, "sendCategorySearchResultResponseAnalytics() : Exception While send report analytics JSON : " + e.getMessage());
+				}
 			}
 		});
+
 	}
 }

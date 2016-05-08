@@ -2460,6 +2460,7 @@ public class StickerManager
 		sendStickerButtonsClickAnalytics();
         sendEmoticonUsageAnalytics();
 		sendStickerPackAndOrderListForAnalytics();
+        CategorySearchManager.sendSearchedCategoryDailyReport();
         StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 	}
 
