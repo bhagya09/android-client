@@ -355,7 +355,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ HIKE_CONTENT.BOT_VERSION + " INTEGER DEFAULT 0,"//bot version for bot upgrade scenario
 				+ HIKE_CONTENT.BOT_TRIGGER_POINT + " INTEGER DEFAULT 0, " //by default ... its hould be 0 as not any trigger point
 				+ HIKE_CONTENT.CLIENT_ID + " TEXT, "  
-				+ HIKE_CONTENT.CLIENT_HASH + " TEXT "  
+				+ HIKE_CONTENT.CLIENT_HASH + " TEXT, "
+				+ DBConstants.HIKE_UID + " TEXT " // UID of the bot
 				+ ")";
 		db.execSQL(sql);
 		sql = getActionsTableCreateQuery();
@@ -1064,6 +1065,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			db.execSQL(sql);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.UPGRADE_FOR_STICKER_TABLE, 1);
         }
+		if(oldVersion < 50)
+		{// Adding UID coloum in Bots Table
+			if(!Utils.isColumnExistsInTable(db,DBConstants.BOT_TABLE,DBConstants.HIKE_UID))
+			{
+				String sql = "ALTER TABLE " + DBConstants.BOT_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
+				db.execSQL(sql);
+			}
+		}
 	}
 
 	public void reinitializeDB()
