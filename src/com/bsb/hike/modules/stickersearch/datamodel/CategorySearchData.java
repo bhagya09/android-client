@@ -139,9 +139,6 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		searchScore = (featureWeights[0] * genderMatchScore) + (featureWeights[1] * packStateScore) + (featureWeights[2] * stickerCountScore)
 				+ (featureWeights[3] * nameMatchScore);
 
-		Logger.i(TAG, "Scores for " + ucid + " ( " + name + " ) : genderMatchScore = " + genderMatchScore + " packStateScore = " + packStateScore + " stickerCountScore = "
-				+ stickerCountScore + " nameMatchScore = " + nameMatchScore);
-
 		return searchScore;
 	}
 
