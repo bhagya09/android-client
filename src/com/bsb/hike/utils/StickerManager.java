@@ -2305,8 +2305,8 @@ public class StickerManager
 
 	public void sendStickerButtonsClickAnalytics()
 	{
-		String[] stickerButtons = { HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS, HikeMessengerApp.STICKER_SEARCH_BUTTON_CLICK_ANALYTICS,
-				HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS };
+		String[] stickerButtons = { HikeMessengerApp.EMOTICON_BUTTON_CLICK_ANALYTICS, HikeMessengerApp.STICKER_PALLETE_BUTTON_CLICK_ANALYTICS,
+				HikeMessengerApp.STICKER_SEARCH_BUTTON_CLICK_ANALYTICS };
 
 		String[] stickerButtonAnalyticsKeys = { HikeConstants.LogEvent.EMOTICON_BTN_CLICKED, HikeConstants.LogEvent.STICKER_BTN_CLICKED,
 				HikeConstants.LogEvent.STICKER_SEARCH_BTN_CLICKED };
@@ -2316,7 +2316,7 @@ public class StickerManager
 			int pressCount = HikeSharedPreferenceUtil.getInstance().getData(stickerButtons[i], 0);
 			if (pressCount <= 0)
 			{
-				return;
+				continue;
 			}
 			try
 			{

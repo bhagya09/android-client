@@ -294,7 +294,7 @@ public class CategorySearchManager
 
 		categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categoryReport.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT) + 1);
 		categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReport.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) + index);
-		categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT)
+		categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, 0.0)
 				+ (index * 1.0) / totalResults);
 
 		int topBucketIdx = index / 5;
@@ -343,7 +343,7 @@ public class CategorySearchManager
 				categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReportJson.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) * 1.0
 						/ categorySearchedCount);
 				categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT,
-						categoryReportJson.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) / categorySearchedCount);
+						categoryReportJson.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, 0.0) / categorySearchedCount);
 				for (int i = 0; i < CategorySearchAnalyticsTask.TOP_BUCKETS.length; i++)
 				{
 					categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[i], categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[i]));
@@ -377,6 +377,8 @@ public class CategorySearchManager
 		{
 			return;
 		}
+
+		HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchAnalyticsTask.SHOP_SEARCH_RESULTS_ANALYTICS_LOG, "");
 
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 		{

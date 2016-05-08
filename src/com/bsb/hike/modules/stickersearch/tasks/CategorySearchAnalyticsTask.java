@@ -99,14 +99,13 @@ public class CategorySearchAnalyticsTask implements Runnable
 					{
 						JSONObject searchedCategoryJSON = searchedCategory.toJSON();
 
-						searchedCategoryJSON.put(HikeConstants.INDEX, categoryLoggedCount);
+						searchedCategoryJSON.put(HikeConstants.INDEX, ++categoryLoggedCount);
 
 						resultsMetadata.put(searchedCategoryJSON);
 					}
 
 					CategorySearchManager.logSearchedCategoryToDailyReport(searchedCategory, categoryLoggedCount, searchedCategories.size());
 
-					categoryLoggedCount++;
 				}
 
 				categorySearchMetadata.put(RESULT_SET, resultsMetadata);
