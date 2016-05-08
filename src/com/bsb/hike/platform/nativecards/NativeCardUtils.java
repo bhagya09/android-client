@@ -20,6 +20,9 @@ public class NativeCardUtils
 {
 	public static Uri getFileForView(View view, Context mContext)
 	{
+		if(view == null){
+			return null;
+		}
 		FileOutputStream fos = null;
 		File cardShareImageFile = null;
 		cardShareImageFile = new File(mContext.getExternalCacheDir(), System.currentTimeMillis() + ".jpg");

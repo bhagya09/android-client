@@ -106,7 +106,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
 
 					if (textComponent.size > 0)
 					{
-						tv.setTextSize(textComponent.size * Utils.densityMultiplier);
+						tv.setTextSize(textComponent.size);
 					}
 				}
 			}
