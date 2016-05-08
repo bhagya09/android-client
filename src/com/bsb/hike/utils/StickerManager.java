@@ -2458,10 +2458,10 @@ public class StickerManager
 	{
 		sendStickerError();
 		sendStickerButtonsClickAnalytics();
-        sendEmoticonUsageAnalytics();
+		sendEmoticonUsageAnalytics();
 		sendStickerPackAndOrderListForAnalytics();
-        CategorySearchManager.sendSearchedCategoryDailyReport();
-        StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
+		CategorySearchManager.sendSearchedCategoryDailyReport();
+		StickerSearchManager.getInstance().sendStickerRecommendationAccuracyAnalytics();
 	}
 
 	/**

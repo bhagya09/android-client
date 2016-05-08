@@ -126,7 +126,8 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 					: PACK_NOT_DOWNLOADED;
 			categoryScores.add(packStateScore);
 
-			stickerCountScore = (category.isDownloaded() || category.getTotalStickers() == 0) ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount() / category.getTotalStickers();
+			stickerCountScore = (category.isDownloaded() || category.getTotalStickers() == 0) ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount()
+					/ category.getTotalStickers();
 			categoryScores.add(stickerCountScore);
 
 			CategorySearchManager.getInstance().saveCategoryScores(ucid, categoryScores);
@@ -176,14 +177,14 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 	{
 		JSONObject categorySearchDataJson = new JSONObject();
 		categorySearchDataJson.put(HikeConstants.UCID, this.getUcid());
-        
-        int shopRank = (getCategory() == null)?-1:this.getCategory().getShopRank();
-        categorySearchDataJson.put(HikeConstants.RANK, shopRank);
 
-        categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_SCORE, this.getSearchMatchScore());
-        categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_FEATURE_VECTOR, this.getFeatureVectorJSONs());
+		int shopRank = (getCategory() == null) ? -1 : this.getCategory().getShopRank();
+		categorySearchDataJson.put(HikeConstants.RANK, shopRank);
 
-        return categorySearchDataJson;
+		categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_SCORE, this.getSearchMatchScore());
+		categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_FEATURE_VECTOR, this.getFeatureVectorJSONs());
+
+		return categorySearchDataJson;
 	}
 
 	public JSONArray getFeatureVectorJSONs() throws JSONException
@@ -194,23 +195,23 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 		JSONObject genderMatchScoreJSON = new JSONObject();
 		genderMatchScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[0]);
-        genderMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_GENDER_MATCH_SCORE, this.genderMatchScore);
-        featureVectors.put(genderMatchScoreJSON);
+		genderMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_GENDER_MATCH_SCORE, this.genderMatchScore);
+		featureVectors.put(genderMatchScoreJSON);
 
-        JSONObject stateScoreJSON = new JSONObject();
-        stateScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[1]);
-        stateScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STATE_SCORE, this.packStateScore);
-        featureVectors.put(stateScoreJSON);
+		JSONObject stateScoreJSON = new JSONObject();
+		stateScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[1]);
+		stateScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STATE_SCORE, this.packStateScore);
+		featureVectors.put(stateScoreJSON);
 
-        JSONObject stickerCountScoreJSON = new JSONObject();
-        stickerCountScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[2]);
-        stickerCountScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, this.stickerCountScore);
-        featureVectors.put(stickerCountScoreJSON);
+		JSONObject stickerCountScoreJSON = new JSONObject();
+		stickerCountScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[2]);
+		stickerCountScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, this.stickerCountScore);
+		featureVectors.put(stickerCountScoreJSON);
 
-        JSONObject nameMatchScoreJSON = new JSONObject();
-        nameMatchScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[3]);
-        nameMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, this.nameMatchScore);
-        featureVectors.put(nameMatchScoreJSON);
+		JSONObject nameMatchScoreJSON = new JSONObject();
+		nameMatchScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[3]);
+		nameMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, this.nameMatchScore);
+		featureVectors.put(nameMatchScoreJSON);
 
 		return featureVectors;
 	}

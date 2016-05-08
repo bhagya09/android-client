@@ -45,25 +45,25 @@ public class CategorySearchManager
 
 	public static final String SHOP_SEARCH_WEIGHTS = "s_srcW";
 
-    public static final String SEARCH_QUERY_LENGTH_THRESHOLD = "s_q_l_t";
+	public static final String SEARCH_QUERY_LENGTH_THRESHOLD = "s_q_l_t";
 
-    public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
+	public static final String SEARCH_RESULTS_LIMIT = "s_s_limit";
 
-    public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit";
+	public static final String SEARCH_RESULTS_LOG_LIMIT = "s_s_l_limit";
 
-    public static final String AUTO_SEARCH_TIME = "a_s_tm";
+	public static final String AUTO_SEARCH_TIME = "a_s_tm";
 
-    public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report";
+	public static final String CATEGORIES_SEARCHED_DAILY_REPORT = "cat_srch_report";
 
-    public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L;
+	public static final long DEFAULT_AUTO_SEARCH_TIME = 1250L;
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
-    public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
+	public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
 
-    public static final int DEFAULT_SEARCH_RESULTS_LOG_LIMIT = 5;
+	public static final int DEFAULT_SEARCH_RESULTS_LOG_LIMIT = 5;
 
-    public static final int DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD = 0;
+	public static final int DEFAULT_SEARCH_QUERY_LENGTH_THRESHOLD = 0;
 
 	public static final String TAG = CategorySearchManager.class.getSimpleName();
 
@@ -73,43 +73,43 @@ public class CategorySearchManager
 
 	private static Map<Integer, StickerCategory> mCacheForSearchedCategories;
 
-    private static Map<Integer, List<Float>> mCacheForCategoryScore;
+	private static Map<Integer, List<Float>> mCacheForCategoryScore;
 
 	private SearchEngine categorySearchEngine;
 
 	private float[] weights;
 
-    private CategorySearchManager()
-    {
-        mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
+	private CategorySearchManager()
+	{
+		mCacheForShopSearchKeys = new HashMap<String, SortedSet<CategorySearchData>>();
 
-        mCacheForLocalAnalogousScore = new HashMap<String, Float>();
+		mCacheForLocalAnalogousScore = new HashMap<String, Float>();
 
-        mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
+		mCacheForSearchedCategories = new HashMap<Integer, StickerCategory>();
 
-        mCacheForCategoryScore = new HashMap<Integer,List<Float>>();
+		mCacheForCategoryScore = new HashMap<Integer, List<Float>>();
 
-        categorySearchEngine = new SearchEngine();
+		categorySearchEngine = new SearchEngine();
 
-        this.loadCategoriesForShopSearch();
-    }
+		this.loadCategoriesForShopSearch();
+	}
 
-    /* Get the instance of this class from outside */
-    public static CategorySearchManager getInstance()
-    {
-        if (instance == null)
-        {
-            synchronized (CategorySearchManager.class)
-            {
-                if (instance == null)
-                {
-                    instance = new CategorySearchManager();
-                }
-            }
-        }
+	/* Get the instance of this class from outside */
+	public static CategorySearchManager getInstance()
+	{
+		if (instance == null)
+		{
+			synchronized (CategorySearchManager.class)
+			{
+				if (instance == null)
+				{
+					instance = new CategorySearchManager();
+				}
+			}
+		}
 
-        return instance;
-    }
+		return instance;
+	}
 
 	public SearchEngine getSearchEngine()
 	{
@@ -120,7 +120,7 @@ public class CategorySearchManager
 	{
 		Set<CategorySearchData> resultCategories = getCategorySearchDataForKey(query);
 
-        HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories));
+		HikeHandlerUtil.getInstance().postRunnable(new CategorySearchAnalyticsTask(query, resultCategories));
 
 		return getOrderedCategoryList(resultCategories);
 	}
@@ -150,17 +150,17 @@ public class CategorySearchManager
 	{
 		mCacheForLocalAnalogousScore.clear();
 		mCacheForShopSearchKeys.clear();
-        mCacheForSearchedCategories.clear();
-        mCacheForCategoryScore.clear();
-        categorySearchEngine.shutDown();
+		mCacheForSearchedCategories.clear();
+		mCacheForCategoryScore.clear();
+		categorySearchEngine.shutDown();
 
-        mCacheForLocalAnalogousScore = null;
-        mCacheForShopSearchKeys = null;
-        mCacheForSearchedCategories = null;
-        mCacheForCategoryScore = null;
-        categorySearchEngine = null;
-        
-        instance = null;
+		mCacheForLocalAnalogousScore = null;
+		mCacheForShopSearchKeys = null;
+		mCacheForSearchedCategories = null;
+		mCacheForCategoryScore = null;
+		categorySearchEngine = null;
+
+		instance = null;
 	}
 
 	public boolean onQueryTextSubmit(String query, CategorySearchListener listener)
@@ -189,22 +189,22 @@ public class CategorySearchManager
 		for (CategorySearchData categorySearchData : querySet)
 		{
 			StickerCategory category = categorySearchData.getCategory();
-			if (category != null )
+			if (category != null)
 			{
 				result.add(category);
 			}
-            else
-            {
-                Logger.e(TAG, "getOrderedCategoryList ignoring : "+categorySearchData.getName() );
-            }
+			else
+			{
+				Logger.e(TAG, "getOrderedCategoryList ignoring : " + categorySearchData.getName());
+			}
 
-            int searchResultsLimit = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_RESULTS_LIMIT, DEFAULT_SEARCH_RESULTS_LIMIT);
+			int searchResultsLimit = HikeSharedPreferenceUtil.getInstance().getData(SEARCH_RESULTS_LIMIT, DEFAULT_SEARCH_RESULTS_LIMIT);
 
 			if ((searchResultsLimit > 0) && (result.size() == searchResultsLimit))
-            {
-                Logger.e(TAG, "getOrderedCategoryList limit reached");
-                break;
-            }
+			{
+				Logger.e(TAG, "getOrderedCategoryList limit reached");
+				break;
+			}
 		}
 
 		return result;
@@ -223,7 +223,8 @@ public class CategorySearchManager
 
 		if (result == null)
 		{
-			result = StickerSearchUtility.computeWordMatchScore(searchKey.replaceAll(StickerSearchConstants.REGEX_SHOP_SEARCH_SEPARATORS_LATIN, StickerSearchConstants.STRING_EMPTY), tag);
+			result = StickerSearchUtility.computeWordMatchScore(
+					searchKey.replaceAll(StickerSearchConstants.REGEX_SHOP_SEARCH_SEPARATORS_LATIN, StickerSearchConstants.STRING_EMPTY), tag);
 			mCacheForLocalAnalogousScore.put(cacheKey, result);
 		}
 
@@ -271,12 +272,14 @@ public class CategorySearchManager
 
 	public static void removeShopSearchTagsForCategory(final Set<Integer> ucids)
 	{
-		HikeHandlerUtil.getInstance().postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                HikeStickerSearchDatabase.getInstance().deleteCategoryTagFromCategorySearchTable(ucids);
-            }
-        });
+		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				HikeStickerSearchDatabase.getInstance().deleteCategoryTagFromCategorySearchTable(ucids);
+			}
+		});
 	}
 
 	public static void logSearchedCategoryToDailyReport(CategorySearchData categorySearchData, int index, int totalResults) throws JSONException
@@ -285,23 +288,24 @@ public class CategorySearchManager
 
 		JSONObject searchReportMetadata = TextUtils.isEmpty(searchReport) ? new JSONObject() : new JSONObject(searchReport);
 
-        String categoryKey = Integer.toString(categorySearchData.getUcid());
+		String categoryKey = Integer.toString(categorySearchData.getUcid());
 
-        JSONObject categoryReport = searchReportMetadata.has(categoryKey) ? searchReportMetadata.getJSONObject(categoryKey) : new JSONObject();
+		JSONObject categoryReport = searchReportMetadata.has(categoryKey) ? searchReportMetadata.getJSONObject(categoryKey) : new JSONObject();
 
-        categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categoryReport.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT) + 1);
-        categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReport.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) + index);
-        categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) + (index*1.0)/totalResults);
+		categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categoryReport.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT) + 1);
+		categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReport.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) + index);
+		categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT)
+				+ (index * 1.0) / totalResults);
 
-        int topBucketIdx = index / 5;
-        if(topBucketIdx >= 0 && topBucketIdx < CategorySearchAnalyticsTask.TOP_BUCKETS.length)
-        {
-            categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx], categoryReport.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx]) + 1);
-        }
+		int topBucketIdx = index / 5;
+		if (topBucketIdx >= 0 && topBucketIdx < CategorySearchAnalyticsTask.TOP_BUCKETS.length)
+		{
+			categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx], categoryReport.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[topBucketIdx]) + 1);
+		}
 
-        searchReportMetadata.put(categoryKey, categoryReport);
+		searchReportMetadata.put(categoryKey, categoryReport);
 
-        HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, searchReportMetadata.toString());
+		HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, searchReportMetadata.toString());
 	}
 
 	public static void sendSearchedCategoryDailyReport()
@@ -312,54 +316,56 @@ public class CategorySearchManager
 		{
 			return;
 		}
-        
+
 		try
 		{
 			JSONObject searchReportJSON = new JSONObject(searchReport);
-            Iterator<String> iterator = searchReportJSON.keys();
+			Iterator<String> iterator = searchReportJSON.keys();
 
-            JSONObject metadata = new JSONObject();
-            JSONArray categoriesReport = new JSONArray();
+			JSONObject metadata = new JSONObject();
+			JSONArray categoriesReport = new JSONArray();
 
-            while(iterator.hasNext())
-            {
-                String catUcid= iterator.next();
-                JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
+			while (iterator.hasNext())
+			{
+				String catUcid = iterator.next();
+				JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
 
-                int categorySearchedCount = categoryReportJson.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT);
+				int categorySearchedCount = categoryReportJson.optInt(CategorySearchAnalyticsTask.RESULTS_COUNT);
 
-                if(categorySearchedCount <= 0)
-                {
-                    continue;
-                }
+				if (categorySearchedCount <= 0)
+				{
+					continue;
+				}
 
-                JSONObject categoryReport = new JSONObject();
-                categoryReport.put(HikeConstants.UCID, catUcid);
-                categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categorySearchedCount);
-                categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReportJson.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT)*1.0/categorySearchedCount);
-                categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT, categoryReportJson.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) / categorySearchedCount);
-                for(int i=0; i<CategorySearchAnalyticsTask.TOP_BUCKETS.length;i++)
-                {
-                    categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[i], categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[i]));
-                }
+				JSONObject categoryReport = new JSONObject();
+				categoryReport.put(HikeConstants.UCID, catUcid);
+				categoryReport.put(CategorySearchAnalyticsTask.RESULTS_COUNT, categorySearchedCount);
+				categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT, categoryReportJson.optInt(CategorySearchAnalyticsTask.CATEGORY_RANK_REPORT) * 1.0
+						/ categorySearchedCount);
+				categoryReport.put(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT,
+						categoryReportJson.optDouble(CategorySearchAnalyticsTask.CATEGORY_NORMALIZED_RANK_REPORT) / categorySearchedCount);
+				for (int i = 0; i < CategorySearchAnalyticsTask.TOP_BUCKETS.length; i++)
+				{
+					categoryReport.put(CategorySearchAnalyticsTask.TOP_BUCKETS[i], categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[i]));
+				}
 
-                categoriesReport.put(categoryReport);
-            }
+				categoriesReport.put(categoryReport);
+			}
 
-            if (categoriesReport.length() > 0)
-            {
-                metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
-                metadata.put(HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT_DATA, categoriesReport);
+			if (categoriesReport.length() > 0)
+			{
+				metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+				metadata.put(HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT_DATA, categoriesReport);
 
-                HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
-            }
+				HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
+			}
 
-            HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
+			HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
 
 		}
 		catch (JSONException e)
 		{
-            Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
+			Logger.e(TAG, "sendSearchedCategoryDailyReport() : Exception While send report analytics JSON : " + e.getMessage());
 		}
 	}
 

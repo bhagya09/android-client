@@ -155,7 +155,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 				{
 					menu.findItem(R.id.shop_settings).setVisible(true);
 					stickerShopFragment.showBanner(true);
-                    CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_BACK_BUTTON_TRIGGER);
+					CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_BACK_BUTTON_TRIGGER);
 					return true;
 				}
 			});
@@ -203,7 +203,7 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 		{
 			if (TextUtils.isEmpty(query))
 			{
-                CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
+				CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
 				if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
 				{
 					StickerShopActivity.super.onBackPressed();

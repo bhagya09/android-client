@@ -37,10 +37,10 @@ public class CategorySearchTask implements Runnable
 
 		sendResponse(results);
 
-        if(sendLogs)
-        {
-            CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_SEARCH_BUTTON_TRIGGER);
-        }
+		if (sendLogs)
+		{
+			CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_SEARCH_BUTTON_TRIGGER);
+		}
 	}
 
 	private void sendResponse(List<StickerCategory> results)
