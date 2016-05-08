@@ -14,10 +14,13 @@ public class CategorySearchTask implements Runnable
 
 	private CategorySearchListener mListener;
 
-	public CategorySearchTask(String query, CategorySearchListener listener)
+    private boolean sendLogs;
+
+	public CategorySearchTask(String query, CategorySearchListener listener, boolean sendLogs)
 	{
 		this.query = preProcessQuery(query);
 		this.mListener = listener;
+        this.sendLogs = sendLogs;
 	}
 
 	@Override
@@ -33,6 +36,11 @@ public class CategorySearchTask implements Runnable
 		List<StickerCategory> results = CategorySearchManager.getInstance().searchForPacks(query);
 
 		sendResponse(results);
+
+        if(sendLogs)
+        {
+            CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_SEARCH_BUTTON_TRIGGER);
+        }
 	}
 
 	private void sendResponse(List<StickerCategory> results)

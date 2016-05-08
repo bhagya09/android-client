@@ -1,14 +1,15 @@
 package com.bsb.hike.modules.stickersearch.datamodel;
 
-import android.text.TextUtils;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
+import com.bsb.hike.modules.stickersearch.tasks.CategorySearchAnalyticsTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
-import com.squareup.okhttp.internal.Util;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,9 +139,6 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		searchScore = (featureWeights[0] * genderMatchScore) + (featureWeights[1] * packStateScore) + (featureWeights[2] * stickerCountScore)
 				+ (featureWeights[3] * nameMatchScore);
 
-		Logger.i(TAG, "Scores for " + ucid + " ( " + name + " ) : genderMatchScore = " + genderMatchScore + " packStateScore = " + packStateScore + " stickerCountScore = "
-				+ stickerCountScore + " nameMatchScore = " + nameMatchScore);
-
 		return searchScore;
 	}
 
@@ -172,6 +170,49 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		{
 			return new CategorySearchData(this);
 		}
+	}
+
+	public JSONObject toJSON() throws JSONException
+	{
+		JSONObject categorySearchDataJson = new JSONObject();
+		categorySearchDataJson.put(HikeConstants.UCID, this.getUcid());
+        
+        int shopRank = (getCategory() == null)?-1:this.getCategory().getShopRank();
+        categorySearchDataJson.put(HikeConstants.RANK, shopRank);
+
+        categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_SCORE, this.getSearchMatchScore());
+        categorySearchDataJson.put(CategorySearchAnalyticsTask.CATEGORY_FEATURE_VECTOR, this.getFeatureVectorJSONs());
+
+        return categorySearchDataJson;
+	}
+
+	public JSONArray getFeatureVectorJSONs() throws JSONException
+	{
+		JSONArray featureVectors = new JSONArray();
+
+		float[] featureWeights = CategorySearchManager.getInstance().getFeatureWeights();
+
+		JSONObject genderMatchScoreJSON = new JSONObject();
+		genderMatchScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[0]);
+        genderMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_GENDER_MATCH_SCORE, this.genderMatchScore);
+        featureVectors.put(genderMatchScoreJSON);
+
+        JSONObject stateScoreJSON = new JSONObject();
+        stateScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[1]);
+        stateScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STATE_SCORE, this.packStateScore);
+        featureVectors.put(stateScoreJSON);
+
+        JSONObject stickerCountScoreJSON = new JSONObject();
+        stickerCountScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[2]);
+        stickerCountScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, this.stickerCountScore);
+        featureVectors.put(stickerCountScoreJSON);
+
+        JSONObject nameMatchScoreJSON = new JSONObject();
+        nameMatchScoreJSON.put(HikeConstants.STICKER_SCORE_WEIGHTAGE, featureWeights[3]);
+        nameMatchScoreJSON.put(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, this.nameMatchScore);
+        featureVectors.put(nameMatchScoreJSON);
+
+		return featureVectors;
 	}
 
 }
