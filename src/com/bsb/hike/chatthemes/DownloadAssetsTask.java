@@ -145,9 +145,8 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     }
 
     private void updateAssetDownloadStatus(byte status) {
-        int len = mAssetIds.length;
-        for (int i = 0; i < len; i++) {
-            HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(mAssetIds[i]);
+        for (String assetId : mAssetIds) {
+            HikeChatThemeAsset asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(assetId);
             if (asset != null) {
                 asset.setIsDownloaded(status);
             }
