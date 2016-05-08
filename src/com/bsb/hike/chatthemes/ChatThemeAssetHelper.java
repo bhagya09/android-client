@@ -32,8 +32,8 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     }
 
     public void saveChatThemeAssets(HikeChatThemeAsset[] assets) {
-        for (int i = 0; i < assets.length; i++) {
-            saveChatThemeAsset(assets[i].getAssetId(), assets[i]);
+        for (HikeChatThemeAsset asset : assets) {
+            saveChatThemeAsset(asset.getAssetId(), asset);
         }
     }
 
@@ -60,7 +60,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
     public void updateAssetsDownloadStatus(HikeChatTheme theme) {
         String[] assets = theme.getAssets();
         for (int i = 0; i < HikeChatThemeConstants.ASSET_INDEX_COUNT; i++) {
-            if ((assets[i] != null) && (isAssetAvailable(assets[i])) && (mAssets.get(assets[i]).isDownloaded() || mAssets.get(assets[i]).isAssetOnApk())) {
+            if ((assets[i] != null) && (hasAsset(assets[i])) && (mAssets.get(assets[i]).isDownloaded() || mAssets.get(assets[i]).isAssetOnApk())) {
                 theme.setAssetDownloadStatus(1 << i);
             }
         }
@@ -94,10 +94,9 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
 
     public String[] getMissingAssets(String[] assets) {
         HashSet<String> missingAssets = new HashSet<String>();// Hashset is choosen to avoid placing download request for duplicate assets
-        int len = assets.length;
-        for (int i = 0; i < len; i++) {
-            if (!isAssetAvailable(assets[i]) || mAssets.get(assets[i]).isAssetMissing()) {
-                missingAssets.add(assets[i]);
+        for (String asset : missingAssets) {
+            if (!hasAsset(asset) || mAssets.get(asset).isAssetMissing()) {
+                missingAssets.add(asset);
             }
         }
         return missingAssets.toArray(new String[missingAssets.size()]);
@@ -121,7 +120,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      * @param assetId assetId to be verified
      * @return true if the asset is recorded, else false
      */
-    public boolean isAssetAvailable(String assetId) {
+    public boolean hasAsset(String assetId) {
         return mAssets.containsKey(assetId);
     }
 
@@ -141,8 +140,8 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
             String[] downloadedAssets = (String[]) object;
             ArrayList<HikeChatThemeAsset> downloadedThemeAssets = new ArrayList<>();
 
-            for (int i = 0; i < downloadedAssets.length; i++) {
-                HikeChatThemeAsset asset = mAssets.get(downloadedAssets[i]);
+            for (String dAsset : downloadedAssets) {
+                HikeChatThemeAsset asset = mAssets.get(dAsset);
                 if (asset != null) {
                     asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_SDCARD);
                     downloadedThemeAssets.add(asset);
