@@ -320,7 +320,8 @@ public class RequestExecuter
 
 	private void notifyResponseToRequestRunner()
 	{
-		if (request.getState() != null && request.getState().getFTState() == FTState.PAUSED)
+		LogFull.d(" request total size : "+request.getState().getTotalSize() + "   transffereed size : " + request.getState().getTransferredSize());
+		if (request.getState() != null && (request.getState().getFTState() == FTState.PAUSED || request.getState().getTotalSize() != request.getState().getTransferredSize()))
 		{
 			LogFull.d("removing request");
 			RequestProcessor.removeRequest(request);
