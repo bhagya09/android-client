@@ -10100,6 +10100,40 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	/**
+	 * This method saves the mute data in chatPropTable on upgrade, so as to restore the previous settings
+	 */
+	public void migrateMuteData()
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID, DBConstants.MUTE_GROUP }, DBConstants.MUTE_GROUP + " = 1", null, null, null, null);
+			while (c.moveToNext())
+			{
+				String msisdn = c.getString(c.getColumnIndex(DBConstants.GROUP_ID));
+				int mute = c.getInt(c.getColumnIndex(DBConstants.MUTE_GROUP));
+
+				ContentValues values = new ContentValues();
+				values.put(DBConstants.MSISDN, msisdn);
+				values.put(DBConstants.IS_MUTE, mute);
+
+				int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				if (id < 0)
+				{
+					mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+				}
+			}
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 	public List<StickerCategory> getAllStickerCategories()
 	{
 		Cursor c = null;
