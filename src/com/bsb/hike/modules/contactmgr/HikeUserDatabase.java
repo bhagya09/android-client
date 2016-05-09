@@ -2713,6 +2713,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 		ContentValues cv = new ContentValues();
 		cv.put(DBConstants.MSISDN, msisdn);
+		cv.put(DBConstants.ONHIKE, convInfo.isOnHike() ? 1 : 0);
 
 		mDb.insertWithOnConflict(DBConstants.USERS_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 	}
