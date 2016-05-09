@@ -134,7 +134,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 				+ DBConstants.ID + " STRING , " // Contact ID. Not used.
 				+ DBConstants.NAME + " TEXT , " // Contact name
 				+ DBConstants.MSISDN + " TEXT COLLATE nocase, " // Contact normalised msisdn
-				+ DBConstants.ONHIKE + " INTEGER, " // Contact's on hike status
+				+ DBConstants.ONHIKE + " INTEGER DEFAULT 0, " // Contact's on hike status
 				+ DBConstants.PHONE + " TEXT, " // Contact's phone number in the user's contacts DB
 				+ DBConstants.HAS_CUSTOM_PHOTO + " INTEGER, " // Whether the contact has a custom avatar or not. Not used
 				+ DBConstants.OVERLAY_DISMISSED + " INTEGER, "
