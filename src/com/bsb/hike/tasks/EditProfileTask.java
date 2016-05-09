@@ -104,7 +104,7 @@ public class EditProfileTask implements IHikeHTTPTask
     private void editProfileName()
 	{
         JSONObject json = getEditProfileRequestBody();
-        if (json != null)
+        if (json != null && json.length() > 0)
         {
             if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO)
             {
@@ -183,7 +183,7 @@ public class EditProfileTask implements IHikeHTTPTask
     private void editProfileEmailGender()
 	{
 		JSONObject obj = getEditProfileEmailGenderRequestBody();
-        if (obj != null)
+        if (obj != null && obj.length() > 0)
         {
             Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
             editEmailGenderRequestToken = HttpRequests.editProfileEmailGenderRequest(obj, getEditEmailGenderRequestListener());
