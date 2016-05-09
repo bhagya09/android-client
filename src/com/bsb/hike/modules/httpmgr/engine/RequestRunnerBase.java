@@ -2,7 +2,6 @@ package com.bsb.hike.modules.httpmgr.engine;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkClient;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -13,7 +12,7 @@ import com.bsb.hike.modules.httpmgr.response.Response;
  * @author sidharth & anubhav
  *
  */
-public class RequestRunnerBase
+public abstract class RequestRunnerBase
 {
 	private IClient defaultClient;
 
@@ -28,10 +27,7 @@ public class RequestRunnerBase
 		this.requestListenerNotifier = requestListenerNotifier;
 	}
 
-	protected IClient getDefaultClient(ClientOptions options)
-	{
-		return new OkClient(options);
-	}
+	protected abstract IClient getDefaultClient(ClientOptions options);
 
 	/**
 	 * Clones the {@link IClient} object if parameter <code>options</code> is not null and then passes this client to the {@link RequestExecuter} for final execution of the request
