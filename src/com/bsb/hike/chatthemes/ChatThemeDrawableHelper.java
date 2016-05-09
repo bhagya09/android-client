@@ -238,95 +238,57 @@ public class ChatThemeDrawableHelper {
     }
 
     public HikeChatThemeAsset getDefaultCustomDrawable(String assetId) {
-        Context context = HikeMessengerApp.getInstance().getApplicationContext();
-        Resources res = context.getResources();
-        String resourceName = "";
-        HikeChatThemeAsset asset = null;
         try {
             switch (assetId) {
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_ACTION_BAR:
-                    resourceName = res.getResourceEntryName(R.drawable.bg_header_transparent_2x) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.bg_header_transparent_2x, HikeChatThemeConstants.ASSET_TYPE_PNG);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_CHAT_BUBBLE_BG:
-                    resourceName = res.getResourceEntryName(R.drawable.ic_bubble_blue) + HikeChatThemeConstants.FILEEXTN_9PATCH;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.ic_bubble_blue, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_SENT_NUDGE:
-                    resourceName = res.getResourceEntryName(R.drawable.ic_nudge_sent_purpleflower) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.ic_nudge_sent_purpleflower, HikeChatThemeConstants.ASSET_TYPE_PNG);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_RECEIVE_NUDGE:
-                    resourceName = res.getResourceEntryName(R.drawable.ic_nudge_receive_purpleflower) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.ic_nudge_receive_purpleflower, HikeChatThemeConstants.ASSET_TYPE_PNG);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_INLINE_STATUS_BG:
-                    resourceName = res.getResourceEntryName(R.drawable.bg_status_chat_thread_custom_theme) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.bg_status_chat_thread_custom_theme, HikeChatThemeConstants.ASSET_TYPE_PNG);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR:
-                    resourceName = res.getResourceEntryName(R.color.bubble_blue);
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.color.bubble_blue, HikeChatThemeConstants.ASSET_TYPE_COLOR);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_SMS_TOGGLE_BG:
-                    resourceName = res.getResourceEntryName(R.drawable.bg_sms_toggle_custom_theme) + HikeChatThemeConstants.FILEEXTN_9PATCH;
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.drawable.bg_sms_toggle_custom_theme, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE:
-                    resourceName = res.getResourceEntryName(R.color.light_black_transparent);
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.color.light_black_transparent, HikeChatThemeConstants.ASSET_TYPE_COLOR);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG:
-                    resourceName = res.getResourceEntryName(R.color.white);
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.color.white, HikeChatThemeConstants.ASSET_TYPE_COLOR);
+
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
-                    resourceName = res.getResourceEntryName(R.color.purpleflower_theme_status_bar_color);
-                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
-                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
-                    } else {
-                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
-                    }
-                    break;
+                    return getDefaultCustomDrawableAsset(R.color.purpleflower_theme_status_bar_color, HikeChatThemeConstants.ASSET_TYPE_COLOR);
             }
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    private HikeChatThemeAsset getDefaultCustomDrawableAsset(int assetDrawableId, int assetType) {
+        HikeChatThemeAsset asset = null;
+        Context context = HikeMessengerApp.getInstance().getApplicationContext();
+        String resourceName = context.getResources().getResourceEntryName(assetDrawableId);
+        if (assetType == HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH) {
+            resourceName += HikeChatThemeConstants.FILEEXTN_9PATCH;
+        } else if (assetType == HikeChatThemeConstants.ASSET_TYPE_PNG) {
+            resourceName += HikeChatThemeConstants.FILEEXTN_PNG;
+        }
+        if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+            asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+        } else {
+            asset = new HikeChatThemeAsset(resourceName, assetType, "", 0);
         }
         return asset;
     }
