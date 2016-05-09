@@ -1712,9 +1712,16 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				}
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
-					ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
-					HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId)?1:0, gcSettings, selectedContacts.size(), selectedContacts);
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
+
+					/*
+					 *	oneToNConvId is null when we're adding members to an existing group chat. We need to send this data only for group "creation" flow.
+					 */
+					if (!TextUtils.isEmpty(oneToNConvId))
+					{
+						ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
+						HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId) ? 1: 0, gcSettings, selectedContacts.size(), selectedContacts);
+					}
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
 				{
