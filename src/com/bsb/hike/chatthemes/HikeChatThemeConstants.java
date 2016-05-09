@@ -95,13 +95,13 @@ public class HikeChatThemeConstants {
     public static final byte ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK = 3;
 
     // File Extension Types
-    public static final String FILEEXTN_9PATCH = "9.png";
+    public static final String FILEEXTN_9PATCH = ".9.png";
 
-    public static final String FILEEXTN_PNG = "png";
+    public static final String FILEEXTN_PNG = ".png";
 
-    public static final String FILEEXTN_JPG = "jpg";
+    public static final String FILEEXTN_JPG = ".jpg";
 
-    public static final String FILEEXTN_JPEG = "jpeg";
+    public static final String FILEEXTN_JPEG = ".jpeg";
 
     // JSON Signal Constants
     public static final String JSON_SIGNAL_THEME_DATA = "theme_data";

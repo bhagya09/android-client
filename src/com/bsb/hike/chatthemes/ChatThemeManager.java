@@ -122,7 +122,7 @@ public class ChatThemeManager {
 
     public void downloadAssetsForTheme(String themeId) {
         String[] assets = getMissingAssetsForTheme(themeId);
-        if(assets.length > 0) {
+        if (assets.length > 0) {
             currentDownloadingAssetsThemeId = themeId;
             mAssetHelper.assetDownloadRequest(assets);
         }
@@ -239,9 +239,11 @@ public class ChatThemeManager {
 //                    theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, thumbnailAssetId);
                 } else {
                     HikeChatThemeAsset asset = getDrawableHelper().getDefaultCustomDrawable(assetKey);
-                    mAssetHelper.saveChatThemeAsset(asset.getAssetId(), asset);
-                    asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
-                    theme.setAsset(j, asset.getAssetId());
+                    if (asset != null) {
+                        mAssetHelper.saveChatThemeAsset(asset.getAssetId(), asset);
+                        asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_DOWNLOADED_APK);
+                        theme.setAsset(j, asset.getAssetId());
+                    }
                 }
             }
             mChatThemesList.put(themeID, theme);
@@ -303,7 +305,7 @@ public class ChatThemeManager {
         } else {
             if (isThemeAvailable(themeId)) {
                 HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, themeId);
-            }else{
+            } else {
                 downloadAssetsForTheme(themeId);
             }
         }
