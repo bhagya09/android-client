@@ -2646,7 +2646,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		Set<String> msisdns = new HashSet<>();
 		try {
 
-			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from " + DBConstants.USERS_TABLE + " where " + DBConstants.ONHIKE + "=1 AND " + DBConstants.HIKE_UID + "='' OR " + DBConstants.HIKE_UID + " is null", null);
+			c = mReadDb.rawQuery("select " + DBConstants.MSISDN + " from " + DBConstants.USERS_TABLE + " where (" + DBConstants.ONHIKE + "=1 OR " + DBConstants.FAVORITE_TYPE + " >0 OR "+ DBConstants.BLOCK_STATUS + " >0 )"+" AND " + DBConstants.HIKE_UID + " is null", null);
 
 
 			while (c.moveToNext()) {
