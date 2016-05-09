@@ -117,12 +117,12 @@ public class ChatThemeManager {
         if (!isThemeAvailable(themeId) && mChatThemesList.containsKey(themeId)) {
             return mAssetHelper.getMissingAssets(getTheme(themeId).getAssets());
         }
-        return new String[0];
+        return null;
     }
 
     public void downloadAssetsForTheme(String themeId) {
         String[] assets = getMissingAssetsForTheme(themeId);
-        if (assets.length > 0) {
+        if ((assets != null) && (assets.length > 0)) {
             currentDownloadingAssetsThemeId = themeId;
             mAssetHelper.assetDownloadRequest(assets);
         }
