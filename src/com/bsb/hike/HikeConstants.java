@@ -1386,6 +1386,8 @@ public class HikeConstants
 
 	public static final String WT_1_REVAMP_ENABLED = "wt_1";
 
+	public static final String CUSTOM_CHATTHEME_ENABLED = "ct_1";
+
 	public static final class ChatHead
 	{
 		public static final String STICKER_WIDGET = "stkr_wdgt";

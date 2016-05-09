@@ -38,6 +38,7 @@ import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
 import com.bsb.hike.filetransfer.FTMessageBuilder;
@@ -67,6 +68,11 @@ public class ChatThreadUtils
 	{
 		boolean wtRevamp = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.WT_1_REVAMP_ENABLED, false);
 		return wtRevamp;
+	}
+
+	public static boolean isCustomChatThemeEnabled()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, false);
 	}
 
 	protected static void playUpDownAnimation(Context context, final View view)

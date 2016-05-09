@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -25,7 +26,9 @@ import com.bsb.hike.R;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.chatthread.BackPressListener;
+import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.HikeChatTheme;
+import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
 import com.bsb.hike.utils.Logger;
 
 import java.util.ArrayList;
@@ -128,6 +131,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		attachmentsGridView.setNumColumns(getNumColumnsChatThemes());
 
 		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
+		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
+			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+		}
 
 		final ArrayAdapter<String> gridAdapter = new ArrayAdapter<String>(appCompatActivity.getApplicationContext(), -1, availableThemes)
 		{
@@ -139,14 +145,29 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				{
 					convertView = LayoutInflater.from(appCompatActivity).inflate(R.layout.chat_bg_item, parent, false);
 				}
-				HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
-
-				ImageView theme = (ImageView) convertView.findViewById(R.id.theme);
 				ImageView animatedThemeIndicator = (ImageView) convertView.findViewById(R.id.animated_theme_indicator);
+				ImageView theme = (ImageView) convertView.findViewById(R.id.theme);
+				View animatedBackground = convertView.findViewById(R.id.theme_animated_backgroud);
 
-				animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
-				theme.setBackground(ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
-				theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
+				theme.clearAnimation();
+				animatedThemeIndicator.setVisibility(View.GONE);
+				animatedBackground.setVisibility(View.GONE);
+				theme.setImageBitmap(null);
+				theme.setBackground(null);
+
+				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+					theme.setImageResource(R.drawable.ic_ct_camera);
+					theme.setScaleType(ImageView.ScaleType.CENTER);
+					animatedBackground.setVisibility(View.VISIBLE);
+					Animation anim = AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_out_from_mid);
+					animatedBackground.startAnimation(anim);
+					theme.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(appCompatActivity));
+				} else {
+					HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
+					animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
+					theme.setBackground(ChatThemeManager.getInstance().getDrawableForTheme(chatTheme.getThemeId(), HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL));
+					theme.setEnabled(userSelection.equals(chatTheme.getThemeId()));
+				}
 
 				return convertView;
 			}

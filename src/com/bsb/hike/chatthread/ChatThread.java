@@ -1661,8 +1661,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void themeClicked(String themeId)
 	{
-		postTrialsAnalytic(themeId);
-		updateUIAsPerTheme(themeId);
+		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+			//TODO Gallery Picker Code goes here
+		}else {
+			postTrialsAnalytic(themeId);
+			updateUIAsPerTheme(themeId);
+		}
 	}
 
 	@Override
@@ -1678,6 +1682,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		/**
 		 * Save current theme and send chat theme message
 		 */
+		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+			return;
+		}
 		if (!currentThemeId.equals(chatThemeId))
 		{
 			updateUIAsPerTheme(chatThemeId);

@@ -170,5 +170,7 @@ public class HikeChatThemeConstants {
 
     public static final String CHATTHEMES_DEFAULT_JSON_FILE_NAME = "chatthemes_data";
 
-    public static final String SHAREDPREF_DEFAULT_SET_RECORDED = "preloadedChatThemeSetRecorded";
+	public static final String SHAREDPREF_DEFAULT_SET_RECORDED = "preloadedChatThemeSetRecorded";
+
+	public static final String THEME_PALETTE_CAMERA_ICON = "camera";
 }
