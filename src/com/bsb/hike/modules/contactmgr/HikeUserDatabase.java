@@ -2662,23 +2662,28 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	}
 
     public void updateContactUid(Set<FetchUIDTaskPojo> data) {
-        if (data == null) {
-            return;
-        }
-        mDb.beginTransaction();
-        try {
-            for (FetchUIDTaskPojo d : data) {
-                ContentValues cv = new ContentValues();
-                cv.put(DBConstants.HIKE_UID, d.getUid());
-
-                long rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{d.getMsisdn()});
-                Logger.d(TAG, "Update Exceuted " + rows);
-            }
-            mDb.setTransactionSuccessful();
-        } finally {
-            mDb.endTransaction();
-        }
-    }
+		if (Utils.isEmpty(data)) {
+			return;
+		}
+		mDb.beginTransaction();
+		try {
+			ContentValues cv = new ContentValues();
+			for (FetchUIDTaskPojo d : data) {
+				if (TextUtils.isEmpty(d.getUid())) {    // onHike is false
+					cv.put(DBConstants.ONHIKE, 0);
+				} else {
+					cv.put(DBConstants.HIKE_UID, d.getUid());
+					cv.put(DBConstants.ONHIKE, 1);
+				}
+				long rows = mDb.update(DBConstants.USERS_TABLE, cv, DBConstants.MSISDN + "=?", new String[]{d.getMsisdn()});
+				Logger.d(TAG, "Update Exceuted " + rows);
+				cv.clear();
+			}
+			mDb.setTransactionSuccessful();
+		} finally {
+			mDb.endTransaction();
+		}
+	}
 
 	@Override
 	public void onEventReceived(String type, Object object) {
