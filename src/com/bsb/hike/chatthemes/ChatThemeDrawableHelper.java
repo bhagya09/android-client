@@ -271,6 +271,7 @@ public class ChatThemeDrawableHelper {
                     return getDefaultCustomDrawableAsset(R.color.purpleflower_theme_status_bar_color, HikeChatThemeConstants.ASSET_TYPE_COLOR);
             }
         } catch (Resources.NotFoundException e) {
+            Log.v(TAG, "Resource " + assetId + " not found on apk");
             e.printStackTrace();
         }
         return null;

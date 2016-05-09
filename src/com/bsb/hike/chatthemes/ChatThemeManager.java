@@ -217,7 +217,7 @@ public class ChatThemeManager {
                 String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
                 if ((assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT) || (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)))) {
                     JSONObject portrait = data.getJSONObject(assetKey);
-                    portraitAssetId = portrait.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + ".jpg";
+                    portraitAssetId = portrait.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG;
                     int portraitType = portrait.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
                     int portraitSize = portrait.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
                     HikeChatThemeAsset portaitAsset = new HikeChatThemeAsset(portraitAssetId, portraitType, "", portraitSize);
