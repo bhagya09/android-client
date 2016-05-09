@@ -125,13 +125,12 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
         try {
             JSONObject data = resp.getJSONObject(HikeConstants.DATA_2);
             String directoryPath = ChatThemeManager.getInstance().getDrawableHelper().getThemeAssetStoragePath();
-            for (int i = 0; i < mAssetIds.length; i++) {
+            for (String assetId : mAssetIds) {
                 if (directoryPath == null) {
                     continue;
                 }
-
-                String path = directoryPath + File.separator + mAssetIds[i];
-                Utils.saveBase64StringToFile(new File(path), data.getString(mAssetIds[i]));
+                String path = directoryPath + File.separator + assetId;
+                Utils.saveBase64StringToFile(new File(path), data.getString(assetId));
             }
         } catch (JSONException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));

@@ -21,12 +21,15 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
 
     private String[] mThemeIds;
 
+    private boolean isCustom;
+
     private RequestToken token;
 
     private final String TAG = "DownloadThemeContentTask";
 
-    public DownloadThemeContentTask(String[] themeIds) {
+    public DownloadThemeContentTask(String[] themeIds, boolean isCustom) {
         this.mThemeIds = themeIds;
+        this.isCustom = isCustom;
     }
 
     @Override
