@@ -649,7 +649,15 @@ public class UploadFileTask extends FileTransferBase
 				{
 					Logger.e("HttpResponseUpload", "  onprogress failure called : ", httpException.getCause());
 
-					if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
+					if (httpException.getErrorCode() == HttpException.REASON_CODE_REQUEST_PAUSED)
+					{
+						if (userContext != null)
+						{
+							removeTask();
+							HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+						}
+					}
+					else if (httpException.getErrorCode() == HttpException.REASON_CODE_NO_NETWORK)
 					{
 						removeTaskAndShowToast(HikeConstants.FTResult.UPLOAD_FAILED);
 					}

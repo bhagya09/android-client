@@ -35,6 +35,7 @@ import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_I
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_IO_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_MALFORMED_URL;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_NO_NETWORK;
+import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_REQUEST_PAUSED;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_RESPONSE_PARSING_ERROR;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_EXCEPTION;
 import static com.bsb.hike.modules.httpmgr.exception.HttpException.REASON_CODE_SOCKET_TIMEOUT;
@@ -326,6 +327,7 @@ public class RequestExecuter
 			LogFull.d("removing request");
 			RequestProcessor.removeRequest(request);
 			LogFull.d("removed request");
+			listener.onResponse(null, new HttpException(REASON_CODE_REQUEST_PAUSED, "request is paused"));
 		}
 		else
 		{
