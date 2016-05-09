@@ -103,26 +103,35 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private void editProfileName()
 	{
-		JSONObject json = new JSONObject();
-		try
-		{
-			json.put(HikeConstants.NAME, newName);
-
-			if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO)
-			{
-				editNameRequestToken = HttpRequests.editGroupProfileNameRequest(json, getEditNameRequestListener(), msisdn);
-			}
-			else
-			{
-				editNameRequestToken = HttpRequests.editProfileNameRequest(json, getEditNameRequestListener());
-			}
-			editNameRequestToken.execute();
-		}
-		catch (JSONException e)
-		{
-			Logger.e("ProfileActivity", "Could not set name", e);
-		}
+        JSONObject json = getEditProfileRequestBody();
+        if (json != null)
+        {
+            if (this.profileType == ProfileActivity.ProfileType.GROUP_INFO)
+            {
+                editNameRequestToken = HttpRequests.editGroupProfileNameRequest(json, getEditNameRequestListener(), msisdn);
+            }
+            else
+            {
+                editNameRequestToken = HttpRequests.editProfileNameRequest(json, getEditNameRequestListener());
+            }
+            editNameRequestToken.execute();
+        }
 	}
+
+    private JSONObject getEditProfileRequestBody()
+    {
+        JSONObject json = null;
+        try
+        {
+            json = new JSONObject();
+            json.put(HikeConstants.NAME, newName);
+        }
+        catch (JSONException e)
+        {
+            Logger.e("ProfileActivity", "Could not set name", e);
+        }
+        return json;
+    }
 
     private IRequestListener getEditNameRequestListener()
     {
