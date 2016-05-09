@@ -73,7 +73,6 @@
                     android:textSize="20sp"
                     android:textColor="#FFFFFF"
                     android:visibility="gone"
-                    android:fontFamily = "Roboto-Regular"
                     android:layout_marginBottom="9.5dp"
                     />
                 <com.bsb.hike.view.CustomFontTextView
@@ -89,7 +88,6 @@
                     android:layout_marginBottom="24dp"
                     android:layout_below="@id/text"
                     android:textColor="#FFFFFF"
-                    android:fontFamily = "Roboto-Regular"
                     android:layout_gravity="center_vertical"
                     />
             </LinearLayout>

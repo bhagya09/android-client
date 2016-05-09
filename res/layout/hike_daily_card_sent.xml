@@ -55,7 +55,6 @@
                     android:textStyle="italic"
                     android:visibility="gone"
                     android:layout_marginBottom="9.5dp"
-                    android:fontFamily = "Roboto-Light"
                     />
 
                 <com.bsb.hike.view.CustomFontTextView
