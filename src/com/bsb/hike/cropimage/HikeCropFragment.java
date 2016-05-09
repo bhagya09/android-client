@@ -34,6 +34,10 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 {
 	private boolean fixedAspectRatio;
 
+	private int aspectRatioX;
+
+	private int aspectRatioY;
+
 	private boolean editEnabled;
 
 	private boolean isSrcEdited;
@@ -137,6 +141,12 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		fixedAspectRatio = fixed;
 	}
 
+	public void setAspectWidthAndHeight(int aspectRatioX, int aspectRatioY)
+	{
+		this.aspectRatioX = aspectRatioX;
+		this.aspectRatioY = aspectRatioY;
+	}
+
 	public void setEditEnabled(boolean editEnabled)
 	{
 		this.editEnabled = editEnabled;
@@ -148,6 +158,7 @@ public class HikeCropFragment extends Fragment implements View.OnClickListener
 		super.onViewCreated(view, savedInstanceState);
 
 		mCropImageView.setFixedAspectRatio(fixedAspectRatio);
+		mCropImageView.setAspectRatio(aspectRatioX, aspectRatioY);
 
 		if (!fixedAspectRatio)
 		{
