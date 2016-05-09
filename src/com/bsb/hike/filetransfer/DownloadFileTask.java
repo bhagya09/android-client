@@ -226,6 +226,10 @@ public class DownloadFileTask extends FileTransferBase
 			int errorCode = httpException.getErrorCode();
 			switch (errorCode)
 			{
+				case HttpException.REASON_CODE_REQUEST_PAUSED:
+					FileTransferManager.getInstance(context).removeTask(msgId);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.FILE_TRANSFER_PROGRESS_UPDATED, null);
+					break;
 				case HttpException.REASON_CODE_NO_NETWORK:
 					FTAnalyticEvents.logDevError(FTAnalyticEvents.DOWNLOAD_CONN_INIT_2_1, 0, FTAnalyticEvents.DOWNLOAD_FILE_TASK, "http", "DOWNLOAD_FAILED : No Internet");
 					removeTaskAndShowToast(HikeConstants.FTResult.DOWNLOAD_FAILED);
