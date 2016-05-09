@@ -36,18 +36,8 @@ public class CallActionsView extends RelativeLayout
 
     private void init()
     {
-    	if(Utils.isHoneycombOrHigher())
-    	{
-    		inflate(getContext(), R.layout.voip_call_actions_view, this);
-    		glowPadView = (GlowPadViewWrapper) findViewById(R.id.glow_pad_view);
-    	}
-    	else
-    	{
-    		inflate(getContext(), R.layout.voip_call_actions_compat, this);
-    		setPadding(0, 0, 0, COMPAT_VIEW_EXTRA_PADDING);   		
-    		setupCompatActions();
-    	}
-    	
+		inflate(getContext(), R.layout.voip_call_actions_view, this);
+		glowPadView = (GlowPadViewWrapper) findViewById(R.id.glow_pad_view);
     }
 
     public void setCallActionsListener(CallActions listener)

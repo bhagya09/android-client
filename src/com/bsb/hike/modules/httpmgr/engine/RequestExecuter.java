@@ -306,6 +306,10 @@ public class RequestExecuter
 				handleException(ex, statusCode);
 			}
 		}
+		catch (HttpException ex)
+		{
+			handleException(ex);
+		}
 		catch (Throwable ex)
 		{
 			HttpAnalyticsLogger.logResponseReceived(trackId, request.getUrl(), REASON_CODE_UNEXPECTED_ERROR, request.getMethod(), request.getAnalyticsParam(),
@@ -350,6 +354,12 @@ public class RequestExecuter
 	{
 		LogFull.e(ex, "exception occured for " + request.toString());
 		listener.onResponse(null, new HttpException(reasonCode, ex));
+	}
+
+	private void handleException(HttpException ex)
+	{
+		LogFull.e(ex, "exception occured for " + request.toString());
+		listener.onResponse(null, ex);
 	}
 
 	/**

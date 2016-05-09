@@ -18,6 +18,7 @@ import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.service.HikeService;
 import com.bsb.hike.service.MqttMessagesManager;
 import com.bsb.hike.service.PreloadNotificationSchedular;
+import com.bsb.hike.userlogs.UserLogInfo;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
@@ -31,6 +32,8 @@ public class GCMIntentService extends GCMBaseIntentService
 	public static final String DEV_TYPE = "dev_type";
 
 	public static final String DEV_TOKEN = "dev_token";
+
+	public static final String OLD_DEV_TOKEN = "old_dev_token";
 	
 	public static final String NOTIFICATION="notification";
 	
@@ -71,6 +74,26 @@ public class GCMIntentService extends GCMBaseIntentService
 				PreloadNotificationSchedular.scheduleNextAlarm(context);
 			}
 			sendAnalyticsEvent(intent, intent.getStringExtra("msg"), reconnectVal, false);
+			JSONObject logType = null;
+			try
+			{
+
+				String logtypeString = intent.getStringExtra("user_logs");
+
+				Logger.d(getClass().getSimpleName(), "user_logs message: " + logtypeString);
+
+				if(!TextUtils.isEmpty(logtypeString)) {
+					logType = new JSONObject(logtypeString);
+					if (logType != null) {
+						UserLogInfo.requestUserLogs(logType);
+					}
+				}
+			}
+			catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+
 			return;
 		}
 
@@ -159,6 +182,10 @@ public class GCMIntentService extends GCMBaseIntentService
 
 				break;
 			}
+		}
+		else
+		{
+			Logger.d(TAG, "both GCM ids are same " + regId);
 		}
 	}
 

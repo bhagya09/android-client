@@ -2,7 +2,7 @@ package com.bsb.hike.modules.httpmgr.engine;
 
 import com.bsb.hike.modules.httpmgr.client.ClientOptions;
 import com.bsb.hike.modules.httpmgr.client.IClient;
-import com.bsb.hike.modules.httpmgr.client.OkUrlClient;
+import com.bsb.hike.modules.httpmgr.client.OkClient;
 
 /**
  * This class clones the {@link IClient} object and passes it to {@link RequestExecuter} for the final execution of the request
@@ -19,6 +19,6 @@ public class RequestRunner extends RequestRunnerBase
 
 	protected IClient getDefaultClient(ClientOptions options)
 	{
-		return new OkUrlClient(options);
+		return new OkClient(options);
 	}
 }

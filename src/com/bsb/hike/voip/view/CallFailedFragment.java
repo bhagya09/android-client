@@ -166,6 +166,11 @@ public class CallFailedFragment extends Fragment
 				view.setText(getString(R.string.voip_caller_poor_network, partnerName));
 				break;
 
+			case VoIPConstants.CallFailedCodes.CUSTOM_MESSAGE:
+				view.setText(getArguments().getString(VoIPConstants.CUSTOM_MESSAGE));
+				enableRedial = false;
+				break;
+
 			default:
 				((CallFailedFragListener)getActivity()).removeCallFailedFragment();
 		}

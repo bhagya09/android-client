@@ -1582,9 +1582,20 @@
     <string name="sent_you_friend_req">Sent you a friend request. Accept request to chat and do more on Hike</string>
     <string name="ftue_frn_subtext">Add as a friend</string>
     <string name="profile_pic_display_info_frn">Show only to your Friends</string>
+    <string name="shop_search_hint">Love, hindi, bollywood etc.</string>
+    <string name="no_sticker_pack_match_found">Your search for \'%1$s\' did not match any sticker packs</string>
+    <string name="pack_search_again_hint">Type complete words like love, hindi, bollywood, etc.</string>
     <string name="recharge_menu">Recharge</string>
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>
     <string name="mute_status_notification_subtext_frn">Show notifications for status &amp; profile picture updates from friends</string>
     <string name="stream_volume_muted_or_low">Please turn up the volume</string>
+    <string name="sticker_restore_diffdpi_title">Sticker Upgrade</string>
+    <string name="sticker_restore_diffdpi_message">Stickers could not be restored since you have upgraded your phone. You will need to download them.</string>
+    <string name="atomic_tip_header_default">Default Atomic Tip Header</string>
+    <string name="atomic_tip_body_default">Atomic Tip default body text!!! Just to let it flow to next line</string>
+    <string name="atomic_tip_http_failure">Some error occured. Please try again</string>
+    <string name="edit_profile_birthday">Birth Date</string>
+
+    <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
 </resources>
