@@ -57,6 +57,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.smartImageLoader.IconLoader;
+import com.bsb.hike.tasks.EditProfileTask;
 import com.bsb.hike.tasks.FinishableEvent;
 import com.bsb.hike.tasks.GetHikeJoinTimeTask;
 import com.bsb.hike.tasks.HikeHTTPTask;
@@ -69,6 +70,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -157,7 +159,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 		/* the task to update the global profile */
 		public HikeHTTPTask task;
-		
+
+		public EditProfileTask editProfileTask;
+
 		public void setStateValues(ChangeProfileImageActivityState state)
 		{
 			this.deleteAvatarToken = state.deleteAvatarToken;
@@ -204,15 +208,15 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private String[] groupInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.GROUP_END, HikePubSub.PARTICIPANT_JOINED_ONETONCONV,
 			HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED,HikePubSub.GROUP_OWNER_CHANGE};
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.DELETE_MESSAGE, HikePubSub.CONTACT_ADDED, HikePubSub.UNREAD_PIN_COUNT_RESET, HikePubSub.MESSAGE_RECEIVED, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETONCONV_ADMIN_UPDATE,HikePubSub.CONV_META_DATA_UPDATED,HikePubSub.GROUP_OWNER_CHANGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG};
 
 	private String[] contactInfoPubSubListeners = { HikePubSub.ICON_CHANGED, HikePubSub.CONTACT_ADDED, HikePubSub.USER_JOINED, HikePubSub.USER_LEFT,
 			HikePubSub.STATUS_MESSAGE_RECEIVED, HikePubSub.FAVORITE_TOGGLED, HikePubSub.FRIEND_REQUEST_ACCEPTED, HikePubSub.REJECT_FRIEND_REQUEST,
 			HikePubSub.HIKE_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.PROFILE_IMAGE_DOWNLOADED,
-			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.CONTACT_DELETED, HikePubSub.DELETE_MESSAGE };
+			HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.CONTACT_DELETED, HikePubSub.DELETE_MESSAGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG };
 
 	private String[] profilePubSubListeners = { HikePubSub.USER_JOIN_TIME_OBTAINED, HikePubSub.LARGER_IMAGE_DOWNLOADED, HikePubSub.STATUS_MESSAGE_RECEIVED,
-			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE };
+			HikePubSub.ICON_CHANGED, HikePubSub.PROFILE_IMAGE_DOWNLOADED, HikePubSub.DELETE_MESSAGE, HikePubSub.DISMISS_EDIT_PROFILE_DIALOG };
 
 	private String[] profilEditPubSubListeners = { HikePubSub.PROFILE_UPDATE_FINISH };
 
@@ -234,7 +238,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public static final String PROFILE_PIC_SUFFIX = "profilePic";
 
-	private static enum ProfileType
+	public static enum ProfileType
 	{
 		USER_PROFILE, // The user profile screen
 		USER_PROFILE_EDIT, // The user profile edit screen
@@ -382,6 +386,11 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				/* we're currently executing a task, so show the progress dialog */
 				mActivityState.task.setActivity(this);
+				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+			}
+			if (mActivityState.editProfileTask != null)
+			{
+				/* we're currently executing a task, so show the progress dialog */
 				mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
 			}
 			if (mActivityState.deleteStatusToken != null)
@@ -1658,6 +1667,64 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	public void saveChanges()
 	{
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.EDIT_PROFILE_THROUGH_HTTP_MGR, true))
+		{
+			saveChangesOkhttp();
+		}
+		else
+		{
+			saveChangesApache();
+		}
+	}
+
+	public void saveChangesOkhttp()
+	{
+		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && !TextUtils.isEmpty(mEmailEdit.getText()))
+		{
+			if (!Utils.isValidEmail(mEmailEdit.getText()))
+			{
+				Toast.makeText(this, getResources().getString(R.string.invalid_email), Toast.LENGTH_LONG).show();
+				return;
+			}
+		}
+		boolean doExecute = false;
+
+		String msisdn = mLocalMSISDN;
+		if (profileType == ProfileType.GROUP_INFO)
+		{
+			msisdn = oneToNConversation.getMsisdn();
+		}
+		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, isBackPressed);
+
+		if (mNameEdit != null)
+		{
+			String newName = mNameEdit.getText().toString().trim();
+			if (!TextUtils.isEmpty(newName) && !nameTxt.equals(newName))
+			{
+				mActivityState.editProfileTask.setNewName(newName);
+				doExecute = true;
+			}
+		}
+		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && ((!emailTxt.equals(mEmailEdit.getText().toString())) || ((mActivityState.genderType != lastSavedGender))))
+		{
+			mActivityState.editProfileTask.setNewEmail(mEmailEdit.getText().toString());
+			mActivityState.editProfileTask.setNewGenderType(mActivityState.genderType);
+			doExecute = true;
+		}
+
+		if (doExecute)
+		{
+			mActivityState.editProfileTask.execute();
+			mDialog = ProgressDialog.show(this, null, getResources().getString(R.string.updating_profile));
+		}
+		else if (isBackPressed)
+		{
+			finishEditing();
+		}
+	}
+
+	public void saveChangesApache()
+	{
 		ArrayList<HikeHttpRequest> requests = new ArrayList<HikeHttpRequest>();
 
 		if ((this.profileType == ProfileType.USER_PROFILE_EDIT) && !TextUtils.isEmpty(mEmailEdit.getText()))
@@ -1810,6 +1877,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 
 		mActivityState.task = null;
+		mActivityState.editProfileTask = null;
 	}
 
 	@Override
@@ -2785,6 +2853,21 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				public void run()
 				{
 					removeFragment(HikeConstants.IMAGE_FRAGMENT_TAG);
+				}
+			});
+		}
+		else if (HikePubSub.DISMISS_EDIT_PROFILE_DIALOG.equals(type))
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if (mActivityState != null)
+					{
+						mActivityState.editProfileTask = null;
+					}
+					dismissLoadingDialog();
 				}
 			});
 		}

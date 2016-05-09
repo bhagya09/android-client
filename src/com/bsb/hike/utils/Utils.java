@@ -874,6 +874,11 @@ public class Utils
 
 	public static boolean isValidEmail(Editable text)
 	{
+		return isValidEmail(text.toString());
+	}
+
+	public static boolean isValidEmail(String text)
+	{
 		return (!TextUtils.isEmpty(text) && android.util.Patterns.EMAIL_ADDRESS.matcher(text).matches());
 	}
 

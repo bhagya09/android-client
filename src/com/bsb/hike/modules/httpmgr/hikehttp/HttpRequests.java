@@ -60,6 +60,8 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.authSDK
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.bulkLastSeenUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.deleteAccountBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileAvatarBase;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileEmailGenderBaseUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.editProfileNameBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getActionsUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getAvatarBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBaseCodeGCAcceptUrl;
@@ -1374,5 +1376,42 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	public static RequestToken editProfileNameRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileNameBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 
+	public static RequestToken editGroupProfileNameRequest(JSONObject json, IRequestListener requestListener, String groupId)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(groupProfileBaseUrl() + groupId + "/name")
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken editProfileEmailGenderRequest(JSONObject json, IRequestListener requestListener)
+	{
+		JsonBody body = new JsonBody(json);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(editProfileEmailGenderBaseUrl())
+				.setRequestType(Request.REQUEST_TYPE_SHORT)
+				.setRequestListener(requestListener)
+				.setResponseOnUIThread(true)
+				.post(body)
+				.build();
+		return requestToken;
+	}
 }
