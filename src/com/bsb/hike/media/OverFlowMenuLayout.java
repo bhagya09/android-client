@@ -194,10 +194,7 @@ public class OverFlowMenuLayout implements OnItemClickListener
 		if (viewListener != null)
 		{
 			viewListener.onPrepareOverflowOptionsMenu(overflowItems);
-			if (!Utils.isHoneycombOrHigher())
-			{
-				notifyDateSetChanged();
-			}
+			notifyDateSetChanged();
 		}
 		popUpLayout.showPopUpWindow(width, height, xOffset, yOffset, anchor, getView(), inputMethodMode);
 		popUpLayout.setOnDismissListener(mOnDismisslistener);

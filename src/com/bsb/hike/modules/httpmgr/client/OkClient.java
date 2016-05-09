@@ -1,6 +1,7 @@
 package com.bsb.hike.modules.httpmgr.client;
 
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
@@ -9,6 +10,12 @@ import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,7 +31,7 @@ import java.util.List;
  */
 public class OkClient implements IClient
 {
-	private OkHttpClient client;
+	protected OkHttpClient client;
 
 	/**
 	 * These constants are used internally by okHttp for connection pooling
@@ -45,9 +52,33 @@ public class OkClient implements IClient
 		System.setProperty("http.maxConnections", Integer.toString(numOfMaxConnections));
 	}
 
-	protected OkHttpClient generateClient(ClientOptions options)
+	/**
+	 * Generates a new OkHttpClient with given clientOption parameters
+	 *
+	 * @param clientOptions
+	 * @return
+	 */
+	protected OkHttpClient generateClient(ClientOptions clientOptions)
 	{
-		return new OkHttpClientFactory().generateClient(options);
+		clientOptions = clientOptions != null ? clientOptions : com.bsb.hike.modules.httpmgr.client.ClientOptions
+				.getDefaultClientOptions();
+		OkHttpClient client = new OkHttpClient();
+		addLogging(client);
+		return new OkHttpClientFactory().setClientParameters(client, clientOptions);
+	}
+
+	protected void addLogging(OkHttpClient client)
+	{
+		HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger()
+		{
+			@Override
+			public void log(String message)
+			{
+				LogFull.d(message);
+			}
+		});
+		logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+		client.networkInterceptors().add(logging);
 	}
 
 	public OkClient()

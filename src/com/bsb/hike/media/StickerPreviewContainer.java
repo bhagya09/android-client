@@ -158,8 +158,8 @@ public class StickerPreviewContainer extends LinearLayout implements HikePubSub.
 
 	public void releaseResources()
 	{
-		uiHandler = null;
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
+		uiHandler = null;
 	}
 
 	private float[] computePreviewCoorinates(View v)

@@ -79,15 +79,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 	private void executeActivityFeedFetchTask()
 	{
 		FetchActivityFeeds fetchUpdates = new FetchActivityFeeds();
-
-		if (Utils.isHoneycombOrHigher())
-		{
-			fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			fetchUpdates.execute();
-		}
+		fetchUpdates.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override
@@ -162,15 +154,7 @@ public class ActivityFeedFragment extends Fragment implements Listener
 				}
 
 				UpdateActivityFeedsTask updateActivityFeedTask = new UpdateActivityFeedsTask();
-
-				if (Utils.isHoneycombOrHigher())
-				{
-					updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				}
-				else
-				{
-					updateActivityFeedTask.execute();
-				}
+				updateActivityFeedTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
 			else
 			{

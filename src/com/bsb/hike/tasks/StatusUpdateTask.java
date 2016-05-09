@@ -3,6 +3,7 @@ package com.bsb.hike.tasks;
 import java.io.File;
 import java.io.IOException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -19,6 +20,9 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.HAManager;
+import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.modules.httpmgr.RequestToken;
@@ -57,6 +61,12 @@ public class StatusUpdateTask implements IHikeHTTPTask
 
 	private int taskStatus = TASK_IDLE;
 
+	private StatusMessageType mSUType;
+
+	private String mGenus = HomeAnalyticsConstants.SU_GENUS_OTHER;
+
+	private String mSpecies = HomeAnalyticsConstants.SU_SPECIES_OTHER;
+
 	public StatusUpdateTask(String status, int argMoodId, String imageFilePath)
 	{
 		this(status, argMoodId, imageFilePath, null);
@@ -74,6 +84,22 @@ public class StatusUpdateTask implements IHikeHTTPTask
 		this.imageFilePath = imageFilePath;
 		this.bmp = bmp;
 		this.compressionEnabled = enableCompression;
+
+		if(TextUtils.isEmpty(imageFilePath) && bmp == null)
+		{
+			// Text Update
+			mSUType = StatusMessageType.TEXT;
+		}
+		else if(TextUtils.isEmpty(status))
+		{
+			// Photo update
+			mSUType = StatusMessageType.IMAGE;
+		}
+		else
+		{
+			// Text + photo update
+			mSUType = StatusMessageType.TEXT_IMAGE;
+		}
 	}
 
 	@Override
@@ -230,6 +256,9 @@ public class StatusUpdateTask implements IHikeHTTPTask
 					editor.putBoolean(HikeConstants.IS_HOME_OVERFLOW_CLICKED, false);
 					editor.commit();
 					HikeMessengerApp.getPubSub().publish(HikePubSub.MY_STATUS_CHANGED, text);
+
+					recordStatusUpdateSource();
+
 					/*
 					 * This would happen in the case where the user has added a self contact and received an mqtt message before saving this to the db.
 					 */
@@ -312,8 +341,53 @@ public class StatusUpdateTask implements IHikeHTTPTask
 		return taskStatus;
 	}
 
-	public String getImageFilePath()
+	private void recordStatusUpdateSource()
 	{
-		return imageFilePath;
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, HomeAnalyticsConstants.TIMELINE_UK);
+			json.put(AnalyticsConstants.V2.KINGDOM, HomeAnalyticsConstants.HOMESCREEN_KINGDOM);
+			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
+			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
+			json.put(AnalyticsConstants.V2.ORDER, HomeAnalyticsConstants.ORDER_STATUS_UPDATE);
+			json.put(AnalyticsConstants.V2.FAMILY, getAnalyticsFamilyName());
+			json.put(AnalyticsConstants.V2.GENUS, mGenus);
+			json.put(AnalyticsConstants.V2.SPECIES, mSpecies);
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void setGenus(@HomeAnalyticsConstants.StatusUpdateGenus String argGenus)
+	{
+		mGenus = argGenus;
+	}
+
+	public void setSpecies(@HomeAnalyticsConstants.StatusUpdateSpecies String argSpecies)
+	{
+		mSpecies = argSpecies;
+	}
+
+	private String getAnalyticsFamilyName()
+	{
+		switch (mSUType)
+		{
+		case IMAGE:
+			return HomeAnalyticsConstants.SU_TYPE_IMAGE;
+
+		case TEXT_IMAGE:
+			return HomeAnalyticsConstants.SU_TYPE_TEXT_IMAGE;
+
+		case TEXT:
+			return HomeAnalyticsConstants.SU_TYPE_TEXT;
+
+		default:
+			return HomeAnalyticsConstants.SU_TYPE_OTHER;
+
+		}
 	}
 }

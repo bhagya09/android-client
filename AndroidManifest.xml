@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1689"
-    android:versionName="4.2.5.82.107" >
+    android:versionCode="1699"
+    android:versionName="4.2.5.82.49.18.sticker_sprint_25_4_16" >
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -167,11 +167,6 @@
                 
                 <data android:mimeType="*/*" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.AddFriendsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/app_name" >
         </activity>
 
         <activity
@@ -610,6 +605,9 @@
             </intent-filter>
             <intent-filter >
                 <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT" />
             </intent-filter>
         </receiver>
 

@@ -61,13 +61,6 @@ public class StickerTagCache
 
     public boolean isValidStickerTagsJSON(JSONObject stickerJSON)
     {
-        if (!Utils.isHoneycombOrHigher())
-        {
-            Logger.d(TAG, "setupStickerSearchWizard(), Sticker Recommendation is not supported in Android OS v 2.3.x or lower.");
-            StickerManager.getInstance().removeStickerSet(mCache.tagState);
-            return false;
-        }
-
         if (stickerJSON == null)
         {
             return false;
