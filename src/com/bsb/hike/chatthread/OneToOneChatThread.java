@@ -415,7 +415,7 @@ import java.util.Map;
 		list.add(new OverFlowMenuItem(getString(R.string.chat_theme), 0, 0, R.string.chat_theme));
 		if (HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CHAT_SEARCH_ENABLED, true))
 			list.add(new OverFlowMenuItem(getString(R.string.search), 0, 0, R.string.search));
-//		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_chat) : getString(R.string.mute_chat), 0, 0, R.string.mute_chat));
+		list.add(new OverFlowMenuItem(isMuted() ? getString(R.string.unmute_chat) : getString(R.string.mute_chat), 0, 0, R.string.mute_chat));
 
 		for (OverFlowMenuItem item : super.getOverFlowMenuItems())
 		{
