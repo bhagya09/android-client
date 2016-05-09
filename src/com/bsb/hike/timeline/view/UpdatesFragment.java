@@ -1150,14 +1150,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 				@Override
 				public void imageParsed(String imagePath)
 				{
-					boolean enableCompression = false;
-					if(data != null && data.hasExtra(HikeCropActivity.IS_CROPPED))
-					{
-						boolean isCropped = data.getBooleanExtra(HikeCropActivity.IS_CROPPED, false);
-						enableCompression = !isCropped;
-					}
-
-					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, enableCompression));
+					startActivity(IntentFactory.getPostStatusUpdateIntent(getActivity(), null, imagePath, false));
 				}
 
 				@Override
