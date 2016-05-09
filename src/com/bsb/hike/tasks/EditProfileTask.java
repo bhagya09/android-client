@@ -182,28 +182,38 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private void editProfileEmailGender()
 	{
-		JSONObject obj = new JSONObject();
-		try
-		{
-			Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
-			if (!TextUtils.isEmpty(newEmail) && newEmail.equals(currEmail))
-			{
-				obj.put(HikeConstants.EMAIL, newEmail);
-			}
-			if (newGenderType != currGenderType)
-			{
-				obj.put(HikeConstants.GENDER, newGenderType == 1 ? "m" : newGenderType == 2 ? "f" : "");
-			}
-			Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
+		JSONObject obj = getEditProfileEmailGenderRequestBody();
+        if (obj != null)
+        {
+            Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
+            editEmailGenderRequestToken = HttpRequests.editProfileEmailGenderRequest(obj, getEditEmailGenderRequestListener());
+            editEmailGenderRequestToken.execute();
+        }
 
-			editEmailGenderRequestToken = HttpRequests.editProfileEmailGenderRequest(obj, getEditEmailGenderRequestListener());
-			editEmailGenderRequestToken.execute();
-		}
-		catch (JSONException e)
-		{
-			Logger.e("ProfileActivity", "Could not set email or gender", e);
-		}
 	}
+
+    private JSONObject getEditProfileEmailGenderRequestBody()
+    {
+        JSONObject obj = null;
+        try
+        {
+            obj = new JSONObject();
+            Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
+            if (!TextUtils.isEmpty(newEmail) && newEmail.equals(currEmail))
+            {
+                obj.put(HikeConstants.EMAIL, newEmail);
+            }
+            if (newGenderType != currGenderType)
+            {
+                obj.put(HikeConstants.GENDER, newGenderType == 1 ? "m" : newGenderType == 2 ? "f" : "");
+            }
+        }
+        catch (JSONException e)
+        {
+            Logger.e("ProfileActivity", "Could not set email or gender", e);
+        }
+        return obj;
+    }
 
     private IRequestListener getEditEmailGenderRequestListener()
     {
