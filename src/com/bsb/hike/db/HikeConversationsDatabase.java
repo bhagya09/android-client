@@ -1111,14 +1111,16 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			sql = getRecentStickersTableCreateQuery();
 			db.execSQL(sql);
+		}
 
+		if(oldVersion < 51)
+		{
 			String create = getChatPropertiesTableCreateStatement();
 			db.execSQL(create);
 
 			String index = getChatPropertiesIndexCreateStatement();
 			db.execSQL(index);
 		}
-
 	}
 
 	public void reinitializeDB()
