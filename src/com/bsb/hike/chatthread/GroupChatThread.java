@@ -61,6 +61,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.bsb.hike.analytics.ChatAnalyticConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
+
 /**
  * @author piyush
  * 
@@ -506,6 +509,7 @@ public class GroupChatThread extends OneToNChatThread
 		{
 		case PIN_CREATE_ACTION_MODE:
 			destroyPinCreateView();
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CANCEL, null, null, null);
 			break;
 
 		default:
@@ -520,6 +524,7 @@ public class GroupChatThread extends OneToNChatThread
 		switch (v.getId())
 		{
 		case R.id.cross: // Pin message bar cross
+			HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_CROSS, null, null, null);
 			hidePin();
 			break;
 		default:
@@ -836,6 +841,7 @@ public class GroupChatThread extends OneToNChatThread
 	
 	private void showPinHistory(boolean viaMenu)
 	{
+		HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_CHATTHREAD, null);
 		Intent intent = IntentFactory.getPinHistoryIntent(activity.getApplicationContext(), msisdn);
 		activity.startActivity(intent);
 		Utils.resetPinUnreadCount(oneToNConversation);

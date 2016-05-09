@@ -766,4 +766,5 @@ public class ChatThreadUtils
 	{
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LARGE_VIDEO_SHARING_ENABLED, false);
 	}
+
 }

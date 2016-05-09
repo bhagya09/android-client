@@ -80,7 +80,7 @@ public class FileTransferManager
 			@Override
 			public int getMinChunkSize()
 			{
-				return 256 * 1024;
+				return 512 * 1024;
 			}
 		},
 		FOUR_G
@@ -94,7 +94,7 @@ public class FileTransferManager
 			@Override
 			public int getMinChunkSize()
 			{
-				return 128 * 1024;
+				return 256 * 1024;
 			}
 		},
 		THREE_G
@@ -116,13 +116,13 @@ public class FileTransferManager
 			@Override
 			public int getMaxChunkSize()
 			{
-				return 32 * 1024;
+				return 80 * 1024;
 			}
 
 			@Override
 			public int getMinChunkSize()
 			{
-				return 16 * 1024;
+				return 50 * 1024;
 			}
 		},
 		NO_NETWORK

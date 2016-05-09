@@ -32,6 +32,7 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.productpopup.AtomicTipContentModel;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.FeedDataModel;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -71,7 +72,7 @@ public class ToastListener implements Listener
 			HikePubSub.CANCEL_ALL_STATUS_NOTIFICATIONS, HikePubSub.CANCEL_ALL_NOTIFICATIONS, HikePubSub.PROTIP_ADDED, HikePubSub.UPDATE_PUSH, HikePubSub.APPLICATIONS_PUSH,
 			HikePubSub.SHOW_FREE_INVITE_SMS, HikePubSub.STEALTH_POPUP_WITH_PUSH, HikePubSub.HIKE_TO_OFFLINE_PUSH, HikePubSub.ATOMIC_POPUP_WITH_PUSH,
 			HikePubSub.BULK_MESSAGE_NOTIFICATION, HikePubSub.USER_JOINED_NOTIFICATION,HikePubSub.ACTIVITY_UPDATE_NOTIF, HikePubSub.FLUSH_PERSISTENT_NOTIF,
-			HikePubSub.SHOW_PERSISTENT_NOTIF};
+			HikePubSub.SHOW_PERSISTENT_NOTIF, HikePubSub.ATOMIC_TIP_WITH_NOTIF};
 
 	/**
 	 * Used to check whether NUJ/RUJ message notifications are disabled
@@ -412,6 +413,15 @@ public class ToastListener implements Listener
 					}
 
 				}
+			}
+		}
+		else if(HikePubSub.ATOMIC_TIP_WITH_NOTIF.equals(type))
+		{
+			Logger.d(getClass().getSimpleName(), "Recived pubsub to show notif for atomic tip");
+			if (object != null && object instanceof AtomicTipContentModel)
+			{
+				AtomicTipContentModel tipContentModel = (AtomicTipContentModel) object;
+				toaster.notifyAtomicTip(tipContentModel);
 			}
 		}
 		else if (HikePubSub.HIKE_TO_OFFLINE_PUSH.equals(type))

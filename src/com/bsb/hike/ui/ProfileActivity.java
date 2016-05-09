@@ -66,6 +66,7 @@ import com.bsb.hike.R;
 import com.bsb.hike.adapters.ProfileAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.AnalyticsConstants.ProfileImageActions;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HomeAnalyticsConstants;
 import com.bsb.hike.bots.BotUtils;
@@ -114,6 +115,7 @@ import com.bsb.hike.ui.fragments.PhotoViewerFragment;
 import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
+import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
@@ -200,6 +202,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private String dobTxt;
 
 	private boolean dobEdited = false;
+
+	private boolean extrasClearedOut = false;
 
 	private Map<String, PairModified<GroupParticipant, String>> participantMap;
 
@@ -327,8 +331,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			Utils.hideSoftKeyboard(getApplicationContext(), mNameEdit);			
 		}
+		if(getIntent().hasExtra(HikeConstants.Extras.PROFILE_DOB))
+		{
+			extrasClearedOut = true;
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
+		}
 	}
-	
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		//saving the extrasClearedOut value to be used in onCreate, in case the activity is destroyed and re-spawned using old Intent
+		Logger.d(TAG," setting value  of EXTRTA  " + extrasClearedOut);
+		outState.putBoolean(HikeConstants.Extras.CLEARED_OUT, extrasClearedOut);
+		super.onSaveInstanceState(outState);
+	}
+
 	@Override
 	protected void onDestroy()
 	{
@@ -410,6 +428,22 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			mActivityState = new ProfileActivityState();
+		}
+
+		if (savedInstanceState != null && savedInstanceState.getBoolean(HikeConstants.Extras.CLEARED_OUT, false))
+		{
+
+			Logger.d(TAG, " making extra TRUE");
+			//this means that singleTop activity has been re-spawned after being destroyed
+			extrasClearedOut = true;
+		}
+
+		if(extrasClearedOut)
+		{
+			Logger.d(TAG, "clearing all data");
+			//removing unwanted EXTRA becoz every time a singleTop activity is re-spawned,
+			//android system uses the old intent to fire it, and it will contain unwanted extras.
+			getIntent().removeExtra(HikeConstants.Extras.PROFILE_DOB);
 		}
 
 		if (getIntent().hasExtra(HikeConstants.Extras.EXISTING_GROUP_CHAT) || getIntent().hasExtra(HikeConstants.Extras.EXISTING_BROADCAST_LIST))
@@ -1907,7 +1941,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			mActivityState.task = new HikeHTTPTask(this, R.string.update_profile_failed);
 			HikeHttpRequest[] r = new HikeHttpRequest[requests.size()];
 			requests.toArray(r);
-			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			mActivityState.task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, r);
 		}
 		else if (isBackPressed)
 		{
@@ -3692,6 +3726,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				intent.setClass(ProfileActivity.this, PinHistoryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				intent.putExtra(HikeConstants.TEXT_PINS, mLocalMSISDN);
+				HikeAnalyticsEvent.recordAnalyticsForGCPins(ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY, null, ChatAnalyticConstants.GCEvents.GC_PIN_HISTORY_SRC_GROUPINFO, null);
 				startActivity(intent);
 				return;
 			}

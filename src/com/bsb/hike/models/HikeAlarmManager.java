@@ -25,6 +25,7 @@ import com.bsb.hike.service.PreloadNotificationSchedular;
 import com.bsb.hike.tasks.SendDailyAnalyticsTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 
@@ -91,7 +92,9 @@ public class HikeAlarmManager
 
 	public static final int REQUEST_CODE_MICROAPPS_MIGRATION = 4581;
 
-	public static final int REQUESTCODE_END_CONVERSATION_MUTE = 4582;
+	public static final int REQUESTCODE_FETCH_PACK_ORDER = 4582;
+
+	public static final int REQUESTCODE_END_CONVERSATION_MUTE = 4583;
 	// ******************************************************//
 	
 	public static final String INTENT_EXTRA = "intent_extra";
@@ -341,7 +344,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			ChatHeadUtils.syncAllCallerBlockedContacts();
 			break;
-        case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
+		case HikeAlarmManager.REQUESTCODE_FETCH_PACK_ORDER:
+			StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask();
+			break;
+		case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
@@ -446,7 +452,10 @@ public class HikeAlarmManager
 		case HikeAlarmManager.REQUESTCODE_FETCH_BLOCK_LIST_CALLER:
 			processTasks(intent, context);
 			break;
-        case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
+		case HikeAlarmManager.REQUESTCODE_FETCH_PACK_ORDER:
+			processTasks(intent, context);
+			break;
+		case HikeAlarmManager.REQUESTCODE_LOG_HIKE_ANALYTICS:
             SendDailyAnalyticsTask sendDailyAnalyticsTask =  new SendDailyAnalyticsTask();
             HikeHandlerUtil.getInstance().postRunnable(sendDailyAnalyticsTask);
             break;
