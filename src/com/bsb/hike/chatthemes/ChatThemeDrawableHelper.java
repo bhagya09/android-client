@@ -35,6 +35,10 @@ public class ChatThemeDrawableHelper {
         assetRootPath = getThemeAssetStoragePath();
     }
 
+    public String getAssetRootPath() {
+        return assetRootPath;
+    }
+
     /**
      * This method returns the drawable for the theme
      *
@@ -230,6 +234,44 @@ public class ChatThemeDrawableHelper {
                 return getDrawableFromId(R.drawable.ic_ct_default_preview);
         }
         return null;
+    }
+
+    //TODO CHATTHEME to work on coming up with proper approach
+    public HikeChatThemeAsset getDefaultCustomDrawable(String assetId) {
+        HikeChatThemeAsset asset = null;
+        switch (assetId){
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_ACTION_BAR:
+                asset = new HikeChatThemeAsset("bg_header_transparent_2x.png", 1, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_CHAT_BUBBLE_BG:
+                asset = new HikeChatThemeAsset("ic_bubble_blue.9.png", 3, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_SENT_NUDGE:
+                asset = new HikeChatThemeAsset("ic_nudge_sent_purpleflower.png", 1, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_RECEIVE_NUDGE:
+                asset = new new HikeChatThemeAsset("ic_nudge_receive_purpleflower.png", 1, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_INLINE_STATUS_BG:
+                asset = new HikeChatThemeAsset("bg_status_chat_thread_custom_theme.png", 1, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR:
+                asset = new HikeChatThemeAsset("d4feff", 0, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_SMS_TOGGLE_BG
+                asset = new HikeChatThemeAsset("bg_sms_toggle_custom_theme.9.png", 3, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE:
+                asset = new HikeChatThemeAsset("3e000000", 0, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG:
+                asset = new HikeChatThemeAsset("FFFFFF", 0, "", 0);
+                break;
+            case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
+                asset = new HikeChatThemeAsset("28203D", 0, "", 0);
+                break;
+        }
+        return asset;
     }
 
     private Drawable getDrawableFromId(int resId) {
