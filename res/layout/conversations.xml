@@ -18,7 +18,7 @@
 
         <include
             android:id="@+id/searchEmptyView"
-            layout="@layout/home_search_empty_view"
+            layout="@layout/search_empty_view"
             android:visibility="gone" />
 
         <ListView
