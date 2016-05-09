@@ -35,7 +35,7 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
     @Override
     public void execute() {
         token = postCustomChatThemeBgImgUpload(imagePath, sessionId, getRequestListener());
-        if (token.isRequestRunning()) {
+        if ((token == null) || token.isRequestRunning()) {
             return;
         }
         token.execute();
@@ -68,7 +68,9 @@ public class UploadCustomChatThemeBackgroundTask implements IHikeHTTPTask {
                     JSONObject meta = response.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME_META);
                     Log.v(TAG, "Custom Chattheme Image Upload Successful :::::::::::::::::"+meta);
                     String themeId = ChatThemeManager.getInstance().processCustomThemeSignal(meta, false);
-                    HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, themeId);
+                    if(themeId != null) {
+                        HikeMessengerApp.getPubSub().publish(HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, themeId);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
