@@ -108,7 +108,6 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
      * @param String [] assetIds
      * @return void
      */
-    // TODO CHATTHEME Validation , to place request only for images, on the calling side
     public void assetDownloadRequest(String[] assetIds) {
         DownloadAssetsTask downloadAssets = new DownloadAssetsTask(assetIds);
         downloadAssets.execute();

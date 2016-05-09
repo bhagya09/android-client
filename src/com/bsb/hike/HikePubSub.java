@@ -539,6 +539,10 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String CHATTHEME_DOWNLOAD_SUCCESS = "chatThemeDownloadSuccess";
 
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS = "chatThemeCustomImageUploadSuccess";
+
+	public static final String CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED = "chatThemeCustomImageUploadFailed";
+
 
 	private final Thread mThread;
 

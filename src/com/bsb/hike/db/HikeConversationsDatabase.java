@@ -10228,6 +10228,19 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return allSaved;
 	}
 
+	public boolean saveChatTheme(HikeChatTheme theme)
+	{
+		SQLiteStatement insertPrepStmt = null, updatePrepStmt = null;
+
+		insertPrepStmt = prepStmtForChatThemeInsert();
+		updatePrepStmt = prepStmtForChatThemeUpdate();
+
+		if(insertPrepStmt == null || updatePrepStmt == null)
+			return false;
+
+		return saveChatTheme(theme, insertPrepStmt, updatePrepStmt);
+	}
+
 	/**
 	 * method to create a compiled sql query for inserting an asset object into the table
 	 * @return a SQLiteStatement object which stores a compiled query to insert an asset
