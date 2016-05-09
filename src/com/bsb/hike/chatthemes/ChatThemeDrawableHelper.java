@@ -237,7 +237,6 @@ public class ChatThemeDrawableHelper {
         return null;
     }
 
-    //TODO CHATTHEME to work on coming up with proper approach
     public HikeChatThemeAsset getDefaultCustomDrawable(String assetId) {
         Context context = HikeMessengerApp.getInstance().getApplicationContext();
         Resources res = context.getResources();
@@ -247,43 +246,83 @@ public class ChatThemeDrawableHelper {
             switch (assetId) {
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_ACTION_BAR:
                     resourceName = res.getResourceEntryName(R.drawable.bg_header_transparent_2x) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    asset = new HikeChatThemeAsset(resourceName, 1, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_CHAT_BUBBLE_BG:
                     resourceName = res.getResourceEntryName(R.drawable.ic_bubble_blue) + HikeChatThemeConstants.FILEEXTN_9PATCH;
-                    asset = new HikeChatThemeAsset(resourceName, 3, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_SENT_NUDGE:
                     resourceName = res.getResourceEntryName(R.drawable.ic_nudge_sent_purpleflower) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    asset = new HikeChatThemeAsset(resourceName, 1, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_RECEIVE_NUDGE:
                     resourceName = res.getResourceEntryName(R.drawable.ic_nudge_receive_purpleflower) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    asset = new HikeChatThemeAsset(resourceName, 1, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_INLINE_STATUS_BG:
                     resourceName = res.getResourceEntryName(R.drawable.bg_status_chat_thread_custom_theme) + HikeChatThemeConstants.FILEEXTN_PNG;
-                    asset = new HikeChatThemeAsset(resourceName, 1, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_PNG, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR:
                     resourceName = res.getResourceEntryName(R.color.bubble_blue);
-                    asset = new HikeChatThemeAsset(resourceName, 0, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_SMS_TOGGLE_BG:
                     resourceName = res.getResourceEntryName(R.drawable.bg_sms_toggle_custom_theme) + HikeChatThemeConstants.FILEEXTN_9PATCH;
-                    asset = new HikeChatThemeAsset(resourceName, 3, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_NINE_PATCH, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE:
                     resourceName = res.getResourceEntryName(R.color.light_black_transparent);
-                    asset = new HikeChatThemeAsset(resourceName, 0, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG:
                     resourceName = res.getResourceEntryName(R.color.white);
-                    asset = new HikeChatThemeAsset(resourceName, 0, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
+                    }
                     break;
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
                     resourceName = res.getResourceEntryName(R.color.purpleflower_theme_status_bar_color);
-                    asset = new HikeChatThemeAsset(resourceName, 0, "", 0);
+                    if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
+                        asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
+                    } else {
+                        asset = new HikeChatThemeAsset(resourceName, HikeChatThemeConstants.ASSET_TYPE_COLOR, "", 0);
+                    }
                     break;
             }
         } catch (Resources.NotFoundException e) {
