@@ -159,6 +159,14 @@ public class ToastListener implements Listener
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
+			if (Utils.isConversationMuted(statusMessage.getMsisdn()))
+			{
+				if (!(Utils.showNotifForMutedConversation(statusMessage.getMsisdn())))
+				{
+					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+					return;
+				}
+			}
 			if (msisdn.equals(statusMessage.getMsisdn()) || statusMessage.isHistoricalUpdate())
 			{
 				return;
@@ -247,6 +255,15 @@ public class ToastListener implements Listener
 				if (StealthModeManager.getInstance().isStealthMsisdn(statusMessage.getMsisdn()))
 				{
 					return;
+				}
+
+				if (Utils.isConversationMuted(statusMessage.getMsisdn()))
+				{
+					if (!(Utils.showNotifForMutedConversation(statusMessage.getMsisdn())))
+					{
+						Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+						return;
+					}
 				}
 				
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
