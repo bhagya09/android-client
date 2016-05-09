@@ -2863,7 +2863,10 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				@Override
 				public void run()
 				{
-					mActivityState.editProfileTask = null;
+					if (mActivityState != null)
+					{
+						mActivityState.editProfileTask = null;
+					}
 					dismissLoadingDialog();
 				}
 			});
