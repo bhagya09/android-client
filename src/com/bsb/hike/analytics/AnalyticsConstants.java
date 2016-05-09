@@ -814,7 +814,7 @@ public class AnalyticsConstants
 
 		public static final String SWIPED = "swiped";
 
-		public static final String ACT_INTERCEPT = "act_intrcpt";
+		public static final String ACT_INTERCEPT = "act_intercept";
 	}
 
     public static final String DISK_CONSUMPTION_ANALYTICS = "disk_consumption";
