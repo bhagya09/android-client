@@ -280,7 +280,11 @@ public class ToastListener implements Listener
 
 			if (Utils.isConversationMuted(message.getMsisdn()))
 			{
-				return;
+				if (!(Utils.showNotifForMutedConversation(message.getMsisdn())))
+				{
+					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+					return;
+				}
 			}
 			if(StealthModeManager.getInstance().isStealthMsisdn(message.getMsisdn()))
 			{
@@ -583,8 +587,11 @@ public class ToastListener implements Listener
 					}
 					if (Utils.isConversationMuted(message.getMsisdn()))
 					{
-						Logger.d(getClass().getSimpleName(), "Group has been muted");
-						continue;
+						if (!(Utils.showNotifForMutedConversation(msisdn)))
+						{
+							Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+							continue;
+						}
 					}
 
 					if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && message.webMetadata.getPushType().equals(HikePlatformConstants.NO_PUSH))

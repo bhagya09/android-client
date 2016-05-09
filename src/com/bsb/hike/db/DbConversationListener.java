@@ -289,10 +289,12 @@ public class DbConversationListener implements Listener
 		}
 		else if (HikePubSub.MUTE_CONVERSATION_TOGGLED.equals(type))
 		{
-			Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
+			Mute mute = (Mute) object;
 
-			String id = groupMute.first;
-			boolean mute = groupMute.second;
+			String id = mute.getMsisdn();
+			boolean isMute = mute.isMute();
+
+			mConversationDb.toggleChatMute(mute);
 
 			if (BotUtils.isBot(id))
 			{
@@ -300,8 +302,8 @@ public class DbConversationListener implements Listener
 			}
 			else
 			{
-				mConversationDb.toggleGroupMute(id, mute);
-				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(mute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
+				mConversationDb.toggleGroupMute(id, isMute);
+				HikeMqttManagerNew.getInstance().sendMessage(serializeMsg(isMute ? HikeConstants.MqttMessageTypes.MUTE : HikeConstants.MqttMessageTypes.UNMUTE, id),
 						MqttConstants.MQTT_QOS_ONE);
 			}
 

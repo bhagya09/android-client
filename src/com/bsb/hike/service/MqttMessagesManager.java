@@ -934,14 +934,7 @@ public class MqttMessagesManager
 					if (activeStealthChat || stealthNotifPref || !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
 
-						if (OneToNConversationUtils.isGroupConversation(msisdn))
-						{
-							if (!HikeConversationsDatabase.getInstance().isGroupMuted(msisdn))
-							{
-								vibrate = true;
-							}
-						}
-						else
+						if (!HikeConversationsDatabase.getInstance().isChatMuted(msisdn))
 						{
 							vibrate = true;
 						}
@@ -2332,6 +2325,12 @@ public class MqttMessagesManager
 		{
 			boolean showExitUI = data.getBoolean(HikeConstants.KPT_EXIT_SERVER_SWITCH);
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.KPT_EXIT_SERVER_SWITCH, showExitUI);
+		}
+
+		if (data.has(HikeConstants.MUTE_GC_SERVER_SWITCH))
+		{
+			boolean muteGCapproach = data.getBoolean(HikeConstants.MUTE_GC_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_GC_SERVER_SWITCH, muteGCapproach);
 		}
 
 		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))

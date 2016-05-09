@@ -1,16 +1,17 @@
 package com.bsb.hike.models.Conversation;
 
-import java.util.Comparator;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.TypingNotification;
 import com.bsb.hike.utils.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Comparator;
 
 /**
  * This class contains the core fields which are required for a conversation entity to be displayed on the ConversationFragment screen. This is the atomic unit for entities to be
@@ -28,7 +29,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 
 	private boolean isBlocked;
 
-	private boolean isMute;
+	private Mute mute;
 
 	private boolean isStealth;
 
@@ -54,7 +55,7 @@ public class ConvInfo implements Comparable<ConvInfo>
 		this.mConversationName = builder.convName;
 		this.sortingTimeStamp = builder.sortingTimeStamp;
 		this.isStealth = builder.isStealth;
-		this.isMute = builder.isMute;
+		this.mute = builder.mute;
 		this.isOnHike = builder.isOnHike;
 	}
 
@@ -142,21 +143,68 @@ public class ConvInfo implements Comparable<ConvInfo>
 		this.typingNotif = typingNotif;
 	}
 
+	public Mute getMute()
+	{
+		return mute;
+	}
+
+	protected void setMute(Mute mute)
+	{
+		this.mute = mute;
+	}
+
 	/**
 	 * @return the isMute
 	 */
 	public boolean isMute()
 	{
-		return isMute;
+		return mute.isMute();
 	}
 
 	/**
 	 * @param isMute
 	 *            the isMute to set
 	 */
-	public void setMute(boolean isMute)
+	public void setIsMute(boolean isMute)
 	{
-		this.isMute = isMute;
+		mute.setIsMute(isMute);
+	}
+
+	/**
+	 *
+	 * @return shouldShowNotifInMute for muted chat
+     */
+	public boolean shouldShowNotifInMute()
+	{
+		return mute.shouldShowNotifInMute();
+	}
+
+	/**
+	 *
+	 * @param muteNotification for muted chat
+     */
+	public void setShowNotifInMute(boolean muteNotification)
+	{
+		mute.setShowNotifInMute(muteNotification);
+	}
+
+	/**
+	 *
+	 * @return muteDuration
+	 * 			the duration for which the chat is muted
+     */
+	public int getMuteDuration()
+	{
+		return mute.getMuteDuration();
+	}
+
+	/**
+	 *
+	 * @param muteDuration the duration for which the chat is muted
+     */
+	public void setMuteDuration(int muteDuration)
+	{
+		mute.setMuteDuration(muteDuration);
 	}
 
 	/**
@@ -380,13 +428,14 @@ public class ConvInfo implements Comparable<ConvInfo>
 
 		private long sortingTimeStamp;
 
-		private boolean isMute;
+		private Mute mute;
 		
 		private boolean isOnHike;
 
 		protected InitBuilder(String msisdn)
 		{
 			this.msisdn = msisdn;
+			mute = getMute(msisdn);
 		}
 
 		protected abstract P getSelfObject();
@@ -409,9 +458,21 @@ public class ConvInfo implements Comparable<ConvInfo>
 			return getSelfObject();
 		}
 
-		public P setIsMute(boolean mute)
+		public P setIsMute(boolean isMute)
 		{
-			this.isMute = mute;
+			mute.setIsMute(isMute);
+			return getSelfObject();
+		}
+
+		public P setShowNotifInMute(boolean muteNotification)
+		{
+			mute.setShowNotifInMute(muteNotification);
+			return getSelfObject();
+		}
+
+		public P setMuteDuration(int muteDuration)
+		{
+			mute.setMuteDuration(muteDuration);
 			return getSelfObject();
 		}
 		
@@ -445,6 +506,8 @@ public class ConvInfo implements Comparable<ConvInfo>
 			return true;
 		}
 
+		protected abstract Mute getMute(String msisdn);
+
 	}
 
 	public static class ConvInfoBuilder extends InitBuilder<ConvInfoBuilder>
@@ -461,6 +524,11 @@ public class ConvInfo implements Comparable<ConvInfo>
 			return this;
 		}
 
+		@Override
+		protected Mute getMute(String msisdn)
+		{
+			return new Mute.InitBuilder(msisdn).build();
+		}
 	}
 
 	public static class ConvInfoComparator implements Comparator<ConvInfo>

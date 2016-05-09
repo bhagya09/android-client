@@ -42,6 +42,54 @@
         android:orientation="vertical" />
 
     <LinearLayout
+        android:id="@+id/checkbox_container"
+        android:layout_width="match_parent"
+        android:layout_height="47dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#14000000"
+        android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/checkbox_panel"
+            style="@style/CheckboxBarCustomDialog"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <CheckBox
+                android:id="@+id/checkbox"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_vertical"
+                android:button="@drawable/hike_list_item_checkbox"
+                android:clickable="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:visibility="gone"/>
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/checkbox_text"
+                android:layout_width="match_parent"
+                android:layout_height="18.5dp"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="18dp"
+                android:textSize="14sp"
+                android:textColor="@color/show_notif_color"
+                android:text="@string/show_notif"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/button_panel"
         style="@style/ButtonBarCustomDialog"
         android:layout_width="match_parent"

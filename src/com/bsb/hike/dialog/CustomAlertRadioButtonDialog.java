@@ -3,8 +3,6 @@
  */
 package com.bsb.hike.dialog;
 
-import java.util.List;
-
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
@@ -15,10 +13,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bsb.hike.R;
+
+import java.util.List;
 
 /**
  * Extends {@link CustomAlertDialog} <br>
@@ -40,6 +41,10 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 	
 	ArrayAdapter<RadioButtonPojo> mAdapter;
 
+	protected CheckBoxPojo checkBoxPojo;
+
+	protected CheckBoxListener checkBoxListener;
+
 	/**
 	 * @param context
 	 * @param dialogId
@@ -50,6 +55,47 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 		this.radioButtonPojoList = radioButtonPojo;
 		this.mListener = listener;
 		initRadioGroup();
+	}
+
+	public CustomAlertRadioButtonDialog(Context context, int dialogId, List<RadioButtonPojo> radioButtonPojo, RadioButtonItemCheckedListener radioButtonItemCheckedListener, CheckBoxPojo checkBoxPojo, CheckBoxListener checkBoxListener)
+	{
+		this(context, dialogId, radioButtonPojo, radioButtonItemCheckedListener);
+		this.checkBoxPojo = checkBoxPojo;
+		this.checkBoxListener = checkBoxListener;
+		initCheckBox();
+	}
+
+	private void initCheckBox()
+	{
+		LinearLayout checkboxContainer = (LinearLayout) findViewById(R.id.checkbox_container);
+		checkboxContainer.setVisibility(View.VISIBLE);
+		View divider = checkboxContainer.findViewById(R.id.divider);
+		divider.setVisibility(View.VISIBLE);
+		LinearLayout checkboxView = (LinearLayout) checkboxContainer.findViewById(R.id.checkbox_panel);
+		checkboxView.setVisibility(View.VISIBLE);
+		final CheckBox checkBox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
+		checkBox.setVisibility(View.VISIBLE);
+		TextView messageTextView = (TextView) checkboxView.findViewById(R.id.checkbox_text);
+		messageTextView.setVisibility(View.VISIBLE);
+		messageTextView.setText(checkBoxPojo.messageText);
+		checkBox.setChecked(checkBoxPojo.isChecked);
+
+		ViewCompat.setAlpha(messageTextView, checkBox.isEnabled() ? 1.0f : 0.24f);
+
+		checkboxView.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				checkBoxPojo.isChecked = !(checkBoxPojo.isChecked);
+				checkBox.setChecked(checkBoxPojo.isChecked);
+
+				if (checkBoxListener != null)
+				{
+					checkBoxListener.onCheckboxClicked(checkBoxPojo, CustomAlertRadioButtonDialog.this);
+				}
+			}
+		});
 	}
 
 	private void initRadioGroup()
@@ -129,6 +175,46 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 		checkBoxList.setAdapter(mAdapter);
 		checkBoxList.setOnItemClickListener(this);
 
+	}
+
+	public static class CheckBoxPojo
+	{
+		int id;
+
+		boolean isChecked;
+
+		String messageText;
+
+		boolean enabled = true;
+
+		public CheckBoxPojo(int id, boolean isChecked, String messageText)
+		{
+			this.id = id;
+
+			this.isChecked = isChecked;
+
+			this.messageText = messageText;
+
+			validateMessageText();
+		}
+
+		private void validateMessageText()
+		{
+			if (TextUtils.isEmpty(messageText))
+			{
+				throw new IllegalArgumentException("You need to pass in a message heading in CheckBox Pojo");
+			}
+		}
+
+		public void setChecked(boolean isChecked)
+		{
+			this.isChecked = isChecked;
+		}
+	}
+
+	public interface CheckBoxListener
+	{
+		void onCheckboxClicked(CheckBoxPojo whichItem, CustomAlertRadioButtonDialog dialog);
 	}
 
 	public static class RadioButtonPojo

@@ -72,6 +72,7 @@ import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.MessageEvent;
 import com.bsb.hike.models.MessageMetadata;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Protip;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.StickerCategory;
@@ -109,6 +110,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -258,6 +260,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.CONVERSATION_METADATA + " TEXT" // Extra info. JSON format
 				+ " )";
 		db.execSQL(sql);
+
+		sql = getChatPropertiesTableCreateStatement();
+		db.execSQL(sql);
+
+		sql = getChatPropertiesIndexCreateStatement();
+		db.execSQL(sql);
+
 		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.GROUP_MEMBERS_TABLE
 				+ " ( "
 				+ DBConstants.GROUP_ID + " TEXT, " // The group id.
@@ -326,15 +335,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ " )";
 		db.execSQL(sql);
 		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.FILE_THUMBNAIL_INDEX + " ON " + DBConstants.FILE_THUMBNAIL_TABLE + " (" + DBConstants.FILE_KEY + " )";
-		db.execSQL(sql);
-		sql = "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_BG_TABLE
-				+ " ("
-				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
-				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
-				+ DBConstants.TIMESTAMP + " INTEGER" // Timestamp when this them was changed.
-				+ ")";
-		db.execSQL(sql);
-		sql = "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_BG_INDEX + " ON " + DBConstants.CHAT_BG_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(sql);
 
 		sql = getStickerShopTableCreateQuery();
@@ -420,7 +420,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		mDb.delete(DBConstants.PROTIP_TABLE, null, null);
 		mDb.delete(DBConstants.SHARED_MEDIA_TABLE, null, null);
 		mDb.delete(DBConstants.FILE_THUMBNAIL_TABLE, null, null);
-		mDb.delete(DBConstants.CHAT_BG_TABLE, null, null);
+		mDb.delete(DBConstants.CHAT_PROPERTIES_TABLE, null, null);
 		mDb.delete(DBConstants.BOT_TABLE, null, null);
 		mDb.delete(DBConstants.ACTIONS_TABLE, null, null);
 		mDb.delete(DBConstants.FEED_TABLE, null, null);
@@ -1111,7 +1111,14 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			sql = getRecentStickersTableCreateQuery();
 			db.execSQL(sql);
+
+			String create = getChatPropertiesTableCreateStatement();
+			db.execSQL(create);
+
+			String index = getChatPropertiesIndexCreateStatement();
+			db.execSQL(index);
 		}
+
 	}
 
 	public void reinitializeDB()
@@ -1196,6 +1203,26 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.EVENT_HASH + " TEXT DEFAULT NULL, " // Used for duplication checks.
 				+ HIKE_CONTENT.NAMESPACE + " TEXT DEFAULT 'message'"  //namespace for uniqueness of content
 				+ ")";
+	}
+
+	private String getChatPropertiesTableCreateStatement()
+	{
+		return "CREATE TABLE IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_TABLE
+				+ " ("
+				+ DBConstants.MSISDN + " TEXT UNIQUE, " // Msisdn or group id
+				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
+				+ DBConstants.BG_TIMESTAMP + " INTEGER, " // Timestamp when this theme was changed.
+				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
+				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
+				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
+				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0, " //
+				+ DBConstants.MUTE_END_TIME + " INTEGER "
+				+ ")";
+	}
+
+	private String getChatPropertiesIndexCreateStatement()
+	{
+		return "CREATE INDEX IF NOT EXISTS " + DBConstants.CHAT_PROPERTIES_INDEX + " ON " + DBConstants.CHAT_PROPERTIES_TABLE + " (" + DBConstants.MSISDN + ")";
 	}
 
 	private void dropAndRecreateStatusTable(SQLiteDatabase db)
@@ -4134,7 +4161,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 						boolean isMuteGroup = details.isGroupMute();
 						convInfo.setmConversationName(name);
 						((OneToNConvInfo) convInfo).setConversationAlive(groupAlive);
-						convInfo.setMute(isMuteGroup);
+						convInfo.setIsMute(isMuteGroup);
 					}
 				}
 			}
@@ -4968,13 +4995,59 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public boolean isGroupMuted(String groupId)
+	public boolean isChatMuted(String msisdn)
 	{
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.GROUP_INFO_TABLE, new String[] { DBConstants.GROUP_ID }, DBConstants.GROUP_ID + " = ? AND " + DBConstants.MUTE_GROUP + " = 1",
-					new String[] { groupId }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1",
+					new String[] { msisdn }, null, null, null);
+			return c.moveToFirst();
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public Mute getChatMute(String msisdn)
+	{
+		Mute mute = new Mute.InitBuilder(msisdn).build();
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
+
+			while (c.moveToNext())
+			{
+				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				long muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
+				mute.setIsMute(isMute);
+				mute.setMuteTimestamp(muteTimestamp);
+				mute.setMuteDuration(muteDuration);
+			}
+			return mute;
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
+	public boolean shouldShowNotifForMutedChat(String msisdn)
+	{
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1 AND " + DBConstants.MUTE_NOTIFICATION + " = 1",
+					new String[] { msisdn }, null, null, null);
 			return c.moveToFirst();
 		}
 		finally
@@ -4997,6 +5070,28 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		contentValues.put(DBConstants.MUTE_GROUP, isMuted);
 
 		mDb.update(DBConstants.GROUP_INFO_TABLE, contentValues, DBConstants.GROUP_ID + "=?", new String[] { groupId });
+	}
+
+	public void toggleChatMute(Mute mute)
+	{
+		if (!ContactManager.getInstance().isConvExists(mute.getMsisdn()))
+		{
+			return;
+		}
+
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(DBConstants.MSISDN, mute.getMsisdn());
+		contentValues.put(DBConstants.IS_MUTE, mute.isMute() ? 1 : 0);
+		contentValues.put(DBConstants.MUTE_DURATION, mute.getMuteDuration());
+		contentValues.put(DBConstants.MUTE_NOTIFICATION, mute.shouldShowNotifInMute() ? 1 : 0);
+		contentValues.put(DBConstants.MUTE_TIMESTAMP, mute.getMuteTimestamp());
+		contentValues.put(DBConstants.MUTE_END_TIME, mute.getMuteEndTime());
+
+		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+		if (id < 0)
+		{
+			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
+		}
 	}
 
 	public int setGroupName(String groupId, String groupname)
@@ -6383,9 +6478,13 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		ContentValues values = new ContentValues();
 		values.put(DBConstants.MSISDN, msisdn);
 		values.put(DBConstants.BG_ID, bgId);
-		values.put(DBConstants.TIMESTAMP, timeStamp);
+		values.put(DBConstants.BG_TIMESTAMP, timeStamp);
 
-		mDb.insertWithOnConflict(DBConstants.CHAT_BG_TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		if (id < 0)
+		{
+			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		}
 	}
 
 	public Pair<ChatTheme, Long> getChatThemeAndTimestamp(String msisdn)
@@ -6393,12 +6492,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_BG_TABLE, new String[] { DBConstants.TIMESTAMP, DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.BG_TIMESTAMP, DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null,
 					null);
 			if (c.moveToFirst())
 			{
 				ChatTheme chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
-				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.TIMESTAMP));
+				Long timeStamp = c.getLong(c.getColumnIndex(DBConstants.BG_TIMESTAMP));
 
 				return new Pair<ChatTheme, Long>(chatTheme, timeStamp);
 			}
@@ -6418,7 +6517,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		Cursor c = null;
 		try
 		{
-			c = mDb.query(DBConstants.CHAT_BG_TABLE, new String[] { DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.BG_ID }, DBConstants.MSISDN + "=?", new String[] { msisdn }, null, null, null);
 			if (c.moveToFirst())
 			{
 				try
@@ -6444,82 +6543,120 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public Object[] getChatProperties(String msisdn)
+	{
+		Mute mute = new Mute.InitBuilder(msisdn).build();
+		ChatTheme chatTheme = ChatTheme.DEFAULT;
+		Cursor c = null;
+		try
+		{
+			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.BG_ID }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
+
+			if (c.moveToNext())
+			{
+				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
+				long muteTimestamp;
+				mute.setIsMute(isMute);
+				mute.setMuteDuration(muteDuration);
+
+				try
+				{
+					muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+				}
+				catch (IllegalArgumentException e)
+				{
+					muteTimestamp = 0;
+				}
+				mute.setMuteTimestamp(muteTimestamp);
+
+				try
+				{
+					chatTheme = ChatTheme.getThemeFromId(c.getString(c.getColumnIndex(DBConstants.BG_ID)));
+				}
+				catch (IllegalArgumentException e)
+				{
+					/*
+					 * For invalid theme id, we return the default id.
+					 */
+					chatTheme = ChatTheme.DEFAULT;
+				}
+			}
+			return new Object[] {chatTheme, mute};
+		}
+		finally
+		{
+			if (c != null)
+			{
+				c.close();
+			}
+		}
+	}
+
 	public void removeChatThemeForMsisdn(String msisdn)
 	{
-		mDb.delete(DBConstants.CHAT_BG_TABLE, DBConstants.MSISDN + "=?", new String[] { msisdn });
+		ContentValues values = new ContentValues();
+		values.put(DBConstants.BG_ID, "");
+		values.put(DBConstants.BG_TIMESTAMP, 0);
+
+		mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, values, DBConstants.MSISDN + "=?", new String[] { msisdn });
 	}
 
 	public void setChatThemesFromArray(JSONArray chatBackgroundArray)
 	{
-		SQLiteStatement insertStatement = null;
-		InsertHelper ih = null;
-		try
+
+		ContentValues contentValues = new ContentValues();
+
+		if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
 		{
-			ih = new InsertHelper(mDb, DBConstants.CHAT_BG_TABLE);
-			insertStatement = mDb.compileStatement("INSERT OR REPLACE INTO " + DBConstants.CHAT_BG_TABLE + " ( " + DBConstants.MSISDN + ", " + DBConstants.BG_ID + " ) "
-					+ " VALUES (?, ?)");
-			mDb.beginTransaction();
-
-			if (chatBackgroundArray == null || chatBackgroundArray.length() == 0)
-			{
-				return;
-			}
-			for (int i = 0; i < chatBackgroundArray.length(); i++)
-			{
-				JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
-
-				if (chatBgJson == null)
-				{
-					continue;
-				}
-
-				String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
-				String bgId = chatBgJson.optString(HikeConstants.BG_ID);
-
-				if (TextUtils.isEmpty(msisdn))
-				{
-					continue;
-				}
-
-				ChatTheme chatTheme = null;
-
-				try
-				{
-					/*
-					 * We don't support custom themes yet.
-					 */
-					if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
-					{
-						throw new IllegalArgumentException();
-					}
-
-					chatTheme = ChatTheme.getThemeFromId(bgId);
-				}
-				catch (IllegalArgumentException e)
-				{
-					continue;
-				}
-
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.MSISDN), msisdn);
-				insertStatement.bindString(ih.getColumnIndex(DBConstants.BG_ID), bgId);
-
-				insertStatement.executeInsert();
-
-				HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
-			}
-			mDb.setTransactionSuccessful();
+			return;
 		}
-		finally
+		for (int i = 0; i < chatBackgroundArray.length(); i++)
 		{
-			if (insertStatement != null)
+			JSONObject chatBgJson = chatBackgroundArray.optJSONObject(i);
+
+			if (chatBgJson == null)
 			{
-				insertStatement.close();
+				continue;
 			}
-			if (ih != null)
+
+			String msisdn = chatBgJson.optString(HikeConstants.MSISDN);
+			String bgId = chatBgJson.optString(HikeConstants.BG_ID);
+
+			if (TextUtils.isEmpty(msisdn))
 			{
-				ih.close();
+				continue;
 			}
-			mDb.endTransaction();
+
+			ChatTheme chatTheme = null;
+
+			try
+			{
+				/*
+				 * We don't support custom themes yet.
+				 */
+				if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
+				{
+					throw new IllegalArgumentException();
+				}
+
+				chatTheme = ChatTheme.getThemeFromId(bgId);
+			}
+			catch (IllegalArgumentException e)
+			{
+				continue;
+			}
+
+			contentValues.put(DBConstants.MSISDN, msisdn);
+			contentValues.put(DBConstants.BG_ID, bgId);
+
+			int id = (int) mDb.insertWithOnConflict(DBConstants.CHAT_PROPERTIES_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE);
+			if (id < 0)
+			{
+				mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { msisdn });
+			}
+
+			HikeMessengerApp.getPubSub().publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, ChatTheme>(msisdn, chatTheme));
 		}
 	}
 
@@ -9922,6 +10059,47 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public void migrateChatBgTableData()
+	{
+		try
+		{
+			mDb.beginTransaction();
+
+			String create = getChatPropertiesTableCreateStatement();
+			mDb.execSQL(create);
+
+			String index = getChatPropertiesIndexCreateStatement();
+			mDb.execSQL(index);
+
+			String insert = "INSERT INTO " + DBConstants.CHAT_PROPERTIES_TABLE
+					+ "( "
+					+ DBConstants.MSISDN + ", "
+					+ DBConstants.BG_ID + ", "
+					+ DBConstants.BG_TIMESTAMP
+					+ " ) SELECT "
+					+ DBConstants.MSISDN + ", "
+					+ DBConstants.BG_ID + ", "
+					+ DBConstants.TIMESTAMP
+					+ " FROM " + DBConstants.CHAT_BG_TABLE;
+
+			mDb.execSQL(insert);
+
+			String dropIndex = "DROP INDEX IF EXISTS " + DBConstants.CHAT_BG_INDEX;
+			mDb.execSQL(dropIndex);
+
+			String drop = "DROP TABLE IF EXISTS " + DBConstants.CHAT_BG_TABLE;
+			mDb.execSQL(drop);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		finally
+		{
+			mDb.endTransaction();
+		}
+	}
+
 	public List<StickerCategory> getAllStickerCategories()
 	{
 		Cursor c = null;
@@ -9974,15 +10152,12 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return stickerSet;
 	}
 
-	public void saveRecentStickers(Set<Sticker> recentStickers)
-	{
-		if(Utils.isEmpty(recentStickers))
-		{
+	public void saveRecentStickers(Set<Sticker> recentStickers) {
+		if (Utils.isEmpty(recentStickers)) {
 			Logger.d("recent sticker", "empty or null recent sticker set. cant save to table");
 			return;
 		}
-		try
-		{
+		try {
 			mDb.beginTransaction();
 
 			/**
@@ -9994,8 +10169,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 * now insert recent stickers
 			 */
 			ContentValues contentValues = new ContentValues();
-			for(Sticker sticker : recentStickers)
-			{
+			for (Sticker sticker : recentStickers) {
 				contentValues.clear();
 				contentValues.put(DBConstants.CATEGORY_ID, sticker.getCategoryId());
 				contentValues.put(DBConstants.STICKER_ID, sticker.getStickerId());

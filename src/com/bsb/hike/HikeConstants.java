@@ -3038,6 +3038,17 @@ public class HikeConstants
 		public static final String IMAGE_QUALITY_DEFAULT = IMAGE_QUALITY_SMALL;
 	}
 
+	public static final class MuteDuration
+	{
+		public static final int DURATION_EIGHT_HOURS = 0;
+
+		public static final int DURATION_ONE_WEEK = 1;
+
+		public static final int DURATION_ONE_YEAR = 2;
+
+		public static final int DURATION_DEFAULT = DURATION_EIGHT_HOURS;
+	}
+
 	public static final class PushType
 	{
 
@@ -3502,6 +3513,8 @@ public class HikeConstants
 	public static final int KEYBOARD_CONFIGURATION_NEW = 2;
 
 	public static final String KPT_EXIT_SERVER_SWITCH = "kess";
+
+	public static final String MUTE_GC_SERVER_SWITCH = "mutegc";
 
 	public static final String KPT_EXIT_SERVER_TEXT = "kest";
 
@@ -4232,6 +4245,10 @@ public class HikeConstants
     public static final String STICKER_SHOP_SEARCH_TOGGLE = "s_s_s_tgl";
 
     public static final int DEFAULT_SEARCH_FTUE_LIMIT = 2;
+
+	public static final String CHAT_BG_TABLE_MIGRATION = "chatBgTableMigration";
+
+	public static final String MUTE_NOTIF = "muteNotif";
 
 	public static final String TIP_CTA = "tp_cta";
 

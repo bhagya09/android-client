@@ -2,7 +2,6 @@ package com.bsb.hike.chatthread;
 
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.View;
 
@@ -17,6 +16,8 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.dialog.HikeDialog;
+import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
@@ -25,6 +26,7 @@ import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.Utils;
 import com.bsb.hike.view.CustomFontButton;
 
 import org.json.JSONException;
@@ -88,7 +90,6 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		super.fetchConversation();
 
-		mConversation.setIsMute(HikeConversationsDatabase.getInstance().isBotMuted(msisdn));
 		return mConversation;
 	}
 	
@@ -129,7 +130,6 @@ public class BotChatThread extends OneToOneChatThread
 	protected void fetchConversationFinished(Conversation conversation)
 	{
 		super.fetchConversationFinished(conversation);
-		toggleConversationMuteViewVisibility(mConversation.isMuted());
 		checkAndRecordNotificationAnalytics();
 	}
 
@@ -154,7 +154,7 @@ public class BotChatThread extends OneToOneChatThread
 
 		return botPubSubListeners;
 	}
-	
+
 	@Override
 	public void onEventReceived(String type, Object object)
 	{
@@ -174,7 +174,7 @@ public class BotChatThread extends OneToOneChatThread
 	{
 		mConversation.setIsMute(isMuted);
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), isMuted));
+		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
 	}
 	
 	@Override
@@ -296,7 +296,14 @@ public class BotChatThread extends OneToOneChatThread
 		switch (item.id)
 		{
 		case R.string.mute:
-			onMuteBotClicked();
+			if ((getString(R.string.mute)).equals(item.text))
+			{
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+			}
+			else
+			{
+				onMuteBotClicked();
+			}
 			break;
 		case R.string.view_profile:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
@@ -309,15 +316,28 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
+	@Override
+	public void positiveClicked(HikeDialog dialog)
+	{
+		switch (dialog.getId())
+		{
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				onMuteBotClicked();
+				dialog.dismiss();
+				break;
+			default:
+				super.positiveClicked(dialog);
+				break;
+		}
+	}
+
 	private void onMuteBotClicked()
 	{
 		boolean wasMuted = mConversation.isMuted();
-		mConversation.setIsMute(!mConversation.isMuted());
+		Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, mConversation.isMuted());
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
-
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(mConversation.getMsisdn(), mConversation.isMuted()));
 
 	}
 	
@@ -418,14 +438,6 @@ public class BotChatThread extends OneToOneChatThread
 	}
 	
 	@Override
-	protected void updateNetworkState()
-	{
-		super.updateNetworkState();
-		boolean networkError = ChatThreadUtils.checkNetworkError();
-		toggleConversationMuteViewVisibility(networkError ? false : mConversation.isMuted());
-	}
-
-	@Override
 	protected void toggleConversationMuteViewVisibility(boolean isMuted)
 	{
 
@@ -464,7 +476,14 @@ public class BotChatThread extends OneToOneChatThread
 			break;
 
 		case R.id.add_unknown_contact:
-			muteBotToggled(!mConversation.isMuted());
+			if ((((CustomFontButton) v).getText()).equals(getString(R.string.mute)))
+			{
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+			}
+			else
+			{
+				onMuteBotClicked();
+			}
 			break;
 		}
 

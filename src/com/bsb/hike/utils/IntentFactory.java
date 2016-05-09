@@ -3,7 +3,11 @@ package com.bsb.hike.utils;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.*;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -39,8 +43,10 @@ import com.bsb.hike.models.GalleryItem;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.platform.CocosGamingActivity;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -72,7 +78,6 @@ import com.bsb.hike.ui.ProfilePicActivity;
 import com.bsb.hike.ui.SettingsActivity;
 import com.bsb.hike.ui.ShareLocation;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.modules.packPreview.PackPreviewActivity;
 import com.bsb.hike.ui.StickerSettingsActivity;
 import com.bsb.hike.ui.StickerShopActivity;
 import com.bsb.hike.ui.WebViewActivity;
@@ -90,8 +95,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class IntentFactory
 {
@@ -1610,5 +1613,13 @@ public class IntentFactory
 			storageSpecIntent.putExtra(HikeConstants.SPACE_MANAGER.DIRECTORY_PATH, dirPath);
 		}
 		hikeAppContext.startService(storageSpecIntent);
+	}
+
+	public static Intent getIntentForMuteAlarm(Mute mute)
+	{
+		Intent intent = new Intent();
+		intent.putExtra(HikeConstants.MSISDN, mute.getMsisdn());
+		intent.putExtra(HikeConstants.MUTE_NOTIF, mute.shouldShowNotifInMute());
+		return intent;
 	}
 }

@@ -57,14 +57,13 @@ import com.bsb.hike.adapters.EmptyConversationsAdapter;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
+import com.bsb.hike.backup.AccountBackupRestore;
 import com.bsb.hike.bots.BotInfo;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.MessagingBotConfiguration;
 import com.bsb.hike.bots.MessagingBotMetadata;
 import com.bsb.hike.bots.NonMessagingBotConfiguration;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
-import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
@@ -84,6 +83,7 @@ import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.EmptyConversationContactItem;
 import com.bsb.hike.models.EmptyConversationFtueCardItem;
 import com.bsb.hike.models.EmptyConversationItem;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.NUXChatReward;
 import com.bsb.hike.models.NUXTaskDetails;
 import com.bsb.hike.models.NuxSelectFriends;
@@ -2871,11 +2871,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				return;
 			}
 
-			Pair<String, Boolean> groupMute = (Pair<String, Boolean>) object;
-			String groupId = groupMute.first;
-			final Boolean isMuted = groupMute.second;
+			Mute mute = (Mute) object;
+			String msisdn = mute.getMsisdn();
+			final Boolean isMuted = mute.isMute();
 
-			final ConvInfo convInfo = mConversationsByMSISDN.get(groupId);
+			final ConvInfo convInfo = mConversationsByMSISDN.get(msisdn);
 
 			if (convInfo == null)
 			{
@@ -2886,14 +2886,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void run()
 				{
-					if (convInfo instanceof OneToNConvInfo)
-					{
-						convInfo.setMute(isMuted);
-					}
-					else if (BotUtils.isBot(convInfo.getMsisdn()))
-					{
-						convInfo.setMute(isMuted);
-					}
+					convInfo.setIsMute(isMuted);
 
 					View parentView = getParenViewForConversation(convInfo);
 					if (parentView == null)
@@ -3001,7 +2994,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
 					// If the source is not memory map, then we're in trouble.
 					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
-					convInfo.setMute(botinfo.isMute());
+					convInfo.setIsMute(botinfo.isMute());
 					if (convInfo != null)
 					{
 						View parentView = getParenViewForConversation(convInfo);

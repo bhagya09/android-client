@@ -127,10 +127,12 @@ import com.bsb.hike.models.ConvMessage.ParticipantInfoState;
 import com.bsb.hike.models.ConvMessage.State;
 import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.GalleryItem;
+import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.MovingList;
 import com.bsb.hike.models.MovingList.OnItemsFinishedListener;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.PhonebookContact;
 import com.bsb.hike.models.Sticker;
 import com.bsb.hike.models.TypingNotification;
@@ -578,7 +580,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 
 	/**
-	 * This method handles the UI part of Mute group conversation It is to be strictly called from the UI Thread
+	 * This method handles the UI part of Mute conversation It is to be strictly called from the UI Thread
 	 * 
 	 * @param isMuted
 	 */
@@ -2313,6 +2315,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		switch (dialog.getId())
 		{
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
@@ -2354,6 +2357,10 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			mActionMode.finish();
 			break;
 
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
+			Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+			dialog.dismiss();
+			break;
 		}
 
 	}
@@ -2708,6 +2715,8 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 		initKeyboardOffBoarding();
 
 		setEditTextListeners();
+
+		toggleConversationMuteViewVisibility(mConversation.isMuted());
 		
 		activity.supportInvalidateOptionsMenu(); // Calling the onCreate menu here
 		// Register broadcasts
@@ -4254,18 +4263,17 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	
 	private void onMuteConversationToggled(Object object)
 	{
-		Pair<String, Boolean> mutePair = (Pair<String, Boolean>) object;
+		Mute mute = (Mute) object;
 
 		/**
-		 * Proceeding only if we caught an event for this groupchat/botchat thread
+		 * Proceeding only if we caught an event for this chatThread
 		 */
-
-		if (mutePair.first.equals(msisdn))
+		if (mute.getMsisdn().equals(msisdn))
 		{
-			mConversation.setIsMute(mutePair.second);
+			mConversation.setMute(mute);
 		}
 
-		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mutePair.second);
+		sendUIMessage(MUTE_CONVERSATION_TOGGLED, mute.isMute());
 	}
 
 	private void onMultiMessageDbInserted(Object object)
@@ -5444,6 +5452,7 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	protected void updateNetworkState()
 	{
 		showNetworkError(ChatThreadUtils.checkNetworkError());
+		toggleConversationMuteViewVisibility(ChatThreadUtils.checkNetworkError() ? false : mConversation.isMuted());
 	}
 
 	/**
@@ -6742,6 +6751,24 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 			return "unknown";
 		}
 
+	}
+
+	/**
+	 * Returns whether the chat is mute or not
+	 *
+	 * @return
+	 */
+	protected boolean isMuted()
+	{
+		/**
+		 * Defensive check
+		 */
+
+		if (mConversation == null)
+		{
+			return false;
+		}
+		return mConversation.isMuted();
 	}
 
 }

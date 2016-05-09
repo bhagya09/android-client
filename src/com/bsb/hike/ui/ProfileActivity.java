@@ -90,6 +90,7 @@ import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.models.ProfileItem;
 import com.bsb.hike.models.ProfileItem.ProfileStatusItem;
 import com.bsb.hike.modules.contactmgr.ContactManager;
@@ -115,6 +116,7 @@ import com.bsb.hike.ui.utils.StatusBarColorChanger;
 import com.bsb.hike.utils.ChangeProfileImageBaseActivity;
 import com.bsb.hike.utils.EmoticonConstants;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.OneToNConversationUtils;
@@ -797,6 +799,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case CONTACT_INFO:
 			MenuItem friendItem = menu.findItem(R.id.unfriend);
 			MenuItem overflow = menu.findItem(R.id.overflow_menu);
+			MenuItem chatMuteItem = menu.findItem(R.id.mute_chat);
 
 			if (friendItem != null)
 			{
@@ -817,6 +820,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			{
 				overflow.setVisible(false);
 			}
+
+			if (chatMuteItem != null)
+			{
+				chatMuteItem.setTitle(HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN).isMute() ? R.string.unmute_chat : R.string.mute_chat);
+			}
+
 			return true;
 		case GROUP_INFO:
 			MenuItem muteItem = menu.findItem(R.id.mute_group);
@@ -846,8 +855,9 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		case R.id.leave_group:
 			onProfileLargeBtnClick(null);
 			break;
+		case R.id.mute_chat:
 		case R.id.mute_group:
-			onProfileSmallRightBtnClick(null);
+			onProfileSmallRightBtnClick(item.getTitle().toString());
 			break;
 		case R.id.new_update:
 			onProfileLargeBtnClick(null);
@@ -2190,11 +2200,79 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	}
 
-	public void onProfileSmallRightBtnClick(View v)
+	public void onProfileSmallRightBtnClick(String text)
 	{
-		oneToNConversation.setIsMute(!oneToNConversation.isMuted());
+		if (OneToNConversationUtils.isOneToNConversation(mLocalMSISDN))
+		{
+			if ((getString(R.string.mute_group)).equals(text))
+			{
+				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
+				if (muteGCApproach)
+				{
+					HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+						@Override
+						public void negativeClicked(HikeDialog hikeDialog)
+						{
+							hikeDialog.dismiss();
+						}
 
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, new Pair<String, Boolean>(oneToNConversation.getMsisdn(), oneToNConversation.isMuted()));
+						@Override
+						public void positiveClicked(HikeDialog hikeDialog)
+						{
+							Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+							hikeDialog.dismiss();
+						}
+
+						@Override
+						public void neutralClicked(HikeDialog hikeDialog) {
+
+						}
+					}, oneToNConversation.getMute());
+				}
+				else
+				{
+					Mute mute = new Mute.InitBuilder(oneToNConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+					oneToNConversation.setMute(mute);
+					Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+				}
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
+			}
+		}
+		else
+		{
+			final Mute mute = HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN);
+
+			if ((getString(R.string.mute_chat)).equals(text))
+			{
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
+					@Override
+					public void negativeClicked(HikeDialog hikeDialog)
+					{
+						hikeDialog.dismiss();
+					}
+
+					@Override
+					public void positiveClicked(HikeDialog hikeDialog)
+					{
+						Utils.toggleMuteChat(getApplicationContext(), mute);
+						hikeDialog.dismiss();
+					}
+
+					@Override
+					public void neutralClicked(HikeDialog hikeDialog) {
+
+					}
+				}, mute);
+			}
+			else
+			{
+				Utils.toggleMuteChat(getApplicationContext(), mute);
+			}
+		}
+
 		invalidateOptionsMenu();
 	}
 

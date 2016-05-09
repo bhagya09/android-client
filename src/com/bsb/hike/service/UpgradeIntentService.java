@@ -137,6 +137,14 @@ public class UpgradeIntentService extends IntentService
 			}
 		}
 
+		if(prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0)
+		{
+			migrateChatBgTableData();
+			Editor editor = prefs.edit();
+			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
+			editor.commit();
+		}
+
 		if (!prefs.getBoolean(StickerManager.UPGRADE_STICKER_CATEGORIES_TABLE, false))
 		{
 			StickerManager.getInstance().markAllCategoriesAsDownloaded();
@@ -165,6 +173,11 @@ public class UpgradeIntentService extends IntentService
 	public UpgradeIntentService()
 	{
 		super(TAG);
+	}
+
+	private void migrateChatBgTableData()
+	{
+		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()

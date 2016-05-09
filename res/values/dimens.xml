@@ -132,6 +132,8 @@
 	<dimen name="md_notitle_vertical_padding">0dp</dimen>
 	<dimen name="md_button_frame_vertical_padding">0dp</dimen>
 	<dimen name="md_button_height">56dp</dimen>
+	<dimen name="md_checkbox_frame_vertical_padding">0dp</dimen>
+	<dimen name="md_checkbox_height">47dp</dimen>
 	<dimen name="md_divider_height">1dp</dimen>
 	<dimen name="tick_padding_bottom">3dp</dimen>
 	<dimen name="clock_padding_bottom">2dp</dimen>
