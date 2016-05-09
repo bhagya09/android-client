@@ -561,14 +561,14 @@ public class MqttMessagesManager
 					 */
 					if (chatBgJson.optBoolean(HikeConstants.CUSTOM))
 					{
-						throw new IllegalArgumentException();
+						//throw new IllegalArgumentException();
+						//putting request to download the asset ids for the theme
+						ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
 					}
 
 					String chatThemeId = bgId;
 					convDb.setChatBackground(groupId, bgId, 0);
 
-					//putting request to download the asset ids for the theme
-					ChatThemeManager.getInstance().downloadThemeAssetsMetadata(new String[]{bgId});
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -3813,19 +3813,15 @@ public class MqttMessagesManager
 			/*
 			 * If this is a custom theme, we should show it as not supported.
 			 */
-			if (data.optBoolean(HikeConstants.CUSTOM))
-			{
-				throw new IllegalArgumentException();
+			if (data.optBoolean(HikeConstants.CUSTOM)) {
+				//throw new IllegalArgumentException();
+				//putting a request to downlaod the asset ids for the theme
+				ChatThemeManager.getInstance().downloadThemeAssetsMetadata(bgId, true);
+			}else {
+				String chatThemeId = bgId;
+				this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
 			}
-
-			String chatThemeId = bgId;
 			convDb.setChatBackground(id, bgId, timestamp);
-
-			this.pubSub.publish(HikePubSub.CHAT_BACKGROUND_CHANGED, new Pair<String, String>(id, bgId));
-
-			//putting a request to downlaod the asset ids for the theme
-			ChatThemeManager.getInstance().downloadThemeAssetsMetadata(new String[]{bgId});
-
 			saveStatusMsg(jsonObj, id);
 		}
 		catch (IllegalArgumentException e)

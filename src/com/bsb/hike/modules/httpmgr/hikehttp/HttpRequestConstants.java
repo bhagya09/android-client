@@ -208,9 +208,13 @@ public class HttpRequestConstants
 		//BASE_CHATTHEME_URL += (isProduction) ? CHATTHEME_PRODUCTION_API : CHATTHEME_STAGING_API;
 		BASE_CHATTHEME_URL += STAGING_API;
 	}
-	
-	
+
 	/*********************************************************************************************************************************************/
+	public static String chatThemeBgImgUploadBase()
+	{
+		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/custom";
+	}
+
 	public static String chatThemeAssetsDownloadBase()
 	{
 		return BASE_CHATTHEME_URL + BASE_V1 + BASE_CHATTHEME + "/assets";
