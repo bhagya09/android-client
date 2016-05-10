@@ -617,6 +617,7 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		if(mConversation instanceof BotConversation)
 		{
+			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 			return;
 		}
 		try
@@ -2995,7 +2996,7 @@ import com.bsb.hike.voip.VoIPUtils;
 
 	private void onBlockClicked()
 	{
-		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, null);
+		this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.BLOCK_CHAT_CONFIRMATION_DIALOG, this, !BotUtils.isBot(mConversation.getMsisdn()));
 		HAManager.getInstance().recordCallerChatSpamAnalytics(AnalyticsConstants.CHAT_THREAD_BLOCK, AnalyticsConstants.BLOCK, msisdn, null);
 	}
 
