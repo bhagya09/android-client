@@ -1539,6 +1539,9 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 						Logger.d(TAG, "Going to set FAV TYPE TO CONTACT" + ci.toString() + "and block status is " + ci.getBlockedStatus());
 						ci.setFavoriteType(deletedContactInfoMap.get(key).getFavoriteType());
 						ci.setBlockStatus(deletedContactInfoMap.get(key).getBlockedStatus());
+						ci.setHikeJoinTime(deletedContactInfoMap.get(key).getHikeJoinTime());
+						ci.setHasCustomPhoto(deletedContactInfoMap.get(key).hasCustomPhoto());
+						ci.setLastSeenTime(deletedContactInfoMap.get(key).getLastSeenTime());
 					}
 				}
 
