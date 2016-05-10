@@ -700,6 +700,7 @@ public class HoloCircularProgress extends View {
 	
 	public void resetProgress()
 	{
+		stopAnimation();
 		mProgress = 0.0f;
 		invalidate();
 	}
