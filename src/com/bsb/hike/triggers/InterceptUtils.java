@@ -22,6 +22,9 @@ import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 
 public class InterceptUtils
@@ -146,6 +149,19 @@ public class InterceptUtils
                 HAManager.getInstance().interceptAnalyticsEvent(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_SHARE_CLICKED, true);
                 break;
 
+            case HikeNotification.INTERCEPT_VIDEO_SHARE_INTENT:
+                try
+                {
+                    actionIntent = IntentFactory.getShareIntent(context, interceptItem, fileType);
+                }
+                catch(NullPointerException npe)
+                {
+                    npe.printStackTrace();
+                }
+
+                recordInterceptEventV2(eventKey, AnalyticsConstants.InterceptEvents.INTERCEPT_VIDEO_CLICKED, AnalyticsConstants.CLICK_EVENT);
+                break;
+
             case HikeNotification.INTERCEPT_SET_DP_INTENT:
                 try
                 {
@@ -174,6 +190,26 @@ public class InterceptUtils
 
         }
         return actionIntent;
+    }
+
+    public static void recordInterceptEventV2(String cls, String order, String genus)
+    {
+        JSONObject eventJSON = new JSONObject();
+        try
+        {
+            eventJSON.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.InterceptEvents.ACT_INTERCEPT);
+            eventJSON.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.InterceptEvents.INTERCEPTS);
+            eventJSON.put(AnalyticsConstants.V2.CLASS, cls);
+            eventJSON.put(AnalyticsConstants.V2.UNIQUE_KEY, order);
+            eventJSON.put(AnalyticsConstants.V2.ORDER, order);
+            eventJSON.put(AnalyticsConstants.V2.GENUS, genus);
+            HAManager.getInstance().recordV2(eventJSON);
+        }
+        catch (JSONException jse)
+        {
+            Logger.d(TAG, "error in parsing event json");
+            jse.printStackTrace();
+        }
     }
 
 }

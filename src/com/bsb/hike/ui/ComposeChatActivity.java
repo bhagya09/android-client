@@ -1,16 +1,5 @@
 package com.bsb.hike.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +17,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -67,6 +58,7 @@ import com.bsb.hike.adapters.FriendsAdapter;
 import com.bsb.hike.adapters.FriendsAdapter.FriendsListFetchedCallback;
 import com.bsb.hike.adapters.FriendsAdapter.ViewType;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.HAManager.EventPriority;
 import com.bsb.hike.bots.BotInfo;
@@ -122,8 +114,16 @@ import com.bsb.hike.view.TagEditText;
 import com.bsb.hike.view.TagEditText.Tag;
 import com.bsb.hike.view.TagEditText.TagEditorListener;
 
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implements TagEditorListener, OnItemClickListener, HikePubSub.Listener, OnScrollListener,ConvertToJsonArrayTask.ConvertToJsonArrayCallback
 {
@@ -1713,6 +1713,15 @@ public class ComposeChatActivity extends HikeAppStateBaseFragmentActivity implem
 				else if (composeMode == CREATE_GROUP_MODE)
 				{
 					OneToNConversationUtils.createGroupOrBroadcast(ComposeChatActivity.this, adapter.getAllSelectedContacts(), oneToNConvName, oneToNConvId, gcSettings);
+
+					/*
+					 *	oneToNConvId is null when we're adding members to an existing group chat. We need to send this data only for group "creation" flow.
+					 */
+					if (!TextUtils.isEmpty(oneToNConvId))
+					{
+						ArrayList<String> selectedContacts = (ArrayList<String>) adapter.getAllSelectedContactsMsisdns();
+						HikeAnalyticsEvent.recordAnalyticsForGCFlow(ChatAnalyticConstants.GCEvents.GC_CLICK_CREATE_GROUP, oneToNConvName, ContactManager.getInstance().hasIcon(oneToNConvId) ? 1: 0, gcSettings, selectedContacts.size(), selectedContacts);
+					}
 				}
 				else if(composeMode == PICK_CONTACT_MODE)
 				{
