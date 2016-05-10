@@ -1215,7 +1215,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
 				+ DBConstants.BG_TIMESTAMP + " INTEGER, " // Timestamp when this theme was changed.
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
-				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
+				+ DBConstants.MUTE_TIMESTAMP + " INTEGER DEFAULT 0, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
 				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0, " //
 				+ DBConstants.MUTE_END_TIME + " INTEGER "
