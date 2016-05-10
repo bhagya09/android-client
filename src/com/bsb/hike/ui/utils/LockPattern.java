@@ -374,4 +374,24 @@ public class LockPattern
 			e.printStackTrace();
 		}
 	}
+
+	public static void recordResetStealthModeClick()
+	{
+		try
+		{
+			JSONObject json = HikeAnalyticsEvent.getSettingsAnalyticsJSON();
+
+			if (json != null)
+			{
+				json.put(AnalyticsConstants.V2.FAMILY, "hdn_reset");
+				json.put(AnalyticsConstants.V2.ORDER, "sttng");
+				HAManager.getInstance().recordV2(json);
+			}
+		}
+
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }
