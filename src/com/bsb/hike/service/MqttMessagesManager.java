@@ -3520,7 +3520,6 @@ public class MqttMessagesManager
 			/*
 			 * reseting sticker shop update time so that next time we fetch a fresh sicker shop
 			 */
-			StickerManager.getInstance().resetStickerShopLastUpdateTime();
 			if (showBadge)
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.SHOW_STICKER_SHOP_BADGE, true);

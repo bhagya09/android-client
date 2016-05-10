@@ -23,6 +23,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.HikeHandlerUtil;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.DownloadType;
@@ -79,10 +80,6 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		if (StickerManager.getInstance().stickerShopUpdateNeeded())
-		{
-			HikeConversationsDatabase.getInstance().clearStickerShop();
-		}
 
 		doInitialSetup();
 	}
@@ -145,37 +142,45 @@ public abstract class StickerShopBaseFragment extends Fragment implements Listen
 		}
 		else if (HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS.equals(type))
 		{
-			JSONArray resultData = (JSONArray) object;
-			if (resultData.length() == 0)
-			{
-				HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
-			}
-			else
-			{
-				// TODO we should also update stickerCategoriesMap in StickerManager from here as well
-				HikeConversationsDatabase.getInstance().updateStickerCategoriesInDb(resultData, true);
-			}
 			if (!isAdded())
 			{
 				return;
 			}
-			getActivity().runOnUiThread(new Runnable()
+			HikeHandlerUtil.getInstance().postRunnable(new Runnable()
 			{
-
 				@Override
 				public void run()
 				{
-					if (currentCategoriesCount == 0)
+					final int count = HikeConversationsDatabase.getInstance().getRankCountFromCategoryTable();
+					if ((currentCategoriesCount) > (count - (2 * StickerManager.SHOP_FETCH_PACK_COUNT)))
 					{
-						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.LAST_STICKER_SHOP_UPDATE_TIME, System.currentTimeMillis());
+						StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(count, true, false);
 					}
-					listview.setVisibility(View.VISIBLE);
-					listview.removeFooterView(loadingFooterView);
-					loadingEmptyState.setVisibility(View.GONE);
-					loadingFailedEmptyState.setVisibility(View.GONE);
-					searchFailedState.setVisibility(View.GONE);
-					reloadAdapter();
-					downloadState = NOT_DOWNLOADING;
+					if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && ((currentCategoriesCount + StickerManager.SHOP_FETCH_PACK_COUNT) >= count))
+					{
+						HikeSharedPreferenceUtil.getInstance().saveData(StickerManager.STICKER_SHOP_DATA_FULLY_FETCHED, true);
+					}
+					getActivity().runOnUiThread(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							if (!isAdded())
+							{
+								return;
+							}
+							listview.setVisibility(View.VISIBLE);
+							listview.removeFooterView(loadingFooterView);
+							loadingEmptyState.setVisibility(View.GONE);
+							loadingFailedEmptyState.setVisibility(View.GONE);
+							searchFailedState.setVisibility(View.GONE);
+							if (count > currentCategoriesCount)
+							{
+								reloadAdapter();
+							}
+							downloadState = NOT_DOWNLOADING;
+						}
+					});
 				}
 			});
 		}

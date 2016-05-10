@@ -4952,6 +4952,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+
+	public int getRankCountFromCategoryTable()
+	{
+		Cursor cursor = null;
+		int count;
+		try
+		{
+			cursor = mDb.query(DBConstants.STICKER_CATEGORY_RANK_TABLE, new String[] { DBConstants.RANK }, null, null, null, null, null);
+			count = cursor.getCount();
+		}
+		finally
+		{
+			cursor.close();
+		}
+		return count;
+	}
+
 	public void toggleGroupMute(String groupId, boolean isMuted)
 	{
 		if (!ContactManager.getInstance().isGroupExist(groupId))
@@ -7390,10 +7407,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		return cursor;
 	}
 
-
-	public List<StickerCategory> getStickerCatToBeSendForShopMetaData(int limit)
+	public Cursor getCursorForShopMetaDataUpdate(int limit)
 	{
-		Cursor cursor = null;
+		/*
+		 * This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table whose
+		 * pack metadata is not updated
+		 */
+		String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
+				+ DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
+				+ DBConstants.RANK + " asc " + " limit " + limit;
+
+		Cursor cursor = mDb.rawQuery(query, null);
+
+		return cursor;
+	}
+
+	public List<StickerCategory> getCategoriesForShopMetadataUpdate(Cursor cursor)
+	{
 		List<StickerCategory> list = null;
 		try
 		{
@@ -7401,15 +7433,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			 * This will fetch the top 10000 categories from the order table and the corresponding ts of the categories from the categories in sorted order based on order table
 			 * whose pack metadata is not updated
 			 */
-			String query = "Select " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "." + DBConstants.UCID + "," + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
-					+ DBConstants.IS_PACK_METADATA_UPDATED + ", " + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UPDATED_METADATA_TIMESTAMP + " from "
-					+ DBConstants.STICKER_CATEGORY_RANK_TABLE + " LEFT OUTER JOIN " + DBConstants.STICKER_CATEGORIES_TABLE + " ON " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
-					+ DBConstants.UCID + "=" + DBConstants.STICKER_CATEGORIES_TABLE + "." + DBConstants.UCID + " order by " + DBConstants.STICKER_CATEGORY_RANK_TABLE + "."
-					+ DBConstants.RANK + " asc " + " limit " + limit;
-
-			cursor = mDb.rawQuery(query, null);
-
-			if (cursor.getCount() > 0)
+			if (cursor!= null && cursor.getCount() > 0)
 			{
 				list = new ArrayList<>(cursor.getCount());
 
@@ -7440,7 +7464,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 		return list;
 	}
-
 
 	private class SharedMediaCursorIterator implements Iterator<HikeSharedFile>
 	{
@@ -7883,20 +7906,23 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public long updateStickerCategoryRanks(JSONArray array)
+	public long updateStickerCategoryRanks(JSONArray array, boolean isUpdate)
 	{
 		ContentValues contentValues;
 		long count = 0;
 		try
 		{
 			mDb.beginTransaction();
-			mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			if (!isUpdate)
+			{
+				mDb.delete(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, null);
+			}
 			for (int i = 0; i < array.length(); i++)
 			{
 				contentValues = new ContentValues();
 				contentValues.put(DBConstants.RANK, i);
 				contentValues.put(DBConstants.UCID, array.optInt(i, -1));
-				if(mDb.insert(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues) > 0)
+				if (mDb.insertWithOnConflict(DBConstants.STICKER_CATEGORY_RANK_TABLE, null, contentValues, SQLiteDatabase.CONFLICT_IGNORE) > 0)
 				{
 					count++;
 				}
