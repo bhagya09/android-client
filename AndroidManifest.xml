@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
-    android:versionCode="1703"
-    android:versionName="4.2.6.81.22.1.atomic_tips" >
+    android:versionCode="1706"
+    android:versionName="4.2.6.81.23" >
 
    <uses-sdk
         android:minSdkVersion="14"
