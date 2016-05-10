@@ -8,6 +8,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -39,11 +40,15 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private int newGenderType;
 
+    private String newDob;
+
     private String currName;
 
     private String currEmail;
 
     private int currGenderType;
+
+    private String currDob;
 
     private boolean isBackPressed;
 
@@ -51,22 +56,26 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private RequestToken editEmailGenderRequestToken;
 
+    private RequestToken editDOBRequestToken;
+
     private AtomicInteger editProfileRequestsCount;
 
     private Context applicationCtx;
 
-    public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, boolean isBackPressed)
+    public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, String newDob, boolean isBackPressed)
     {
         this.msisdn = msisdn;
         this.profileType = profileType;
         this.newName = newName;
         this.newEmail = newEmail;
         this.newGenderType = newGenderType;
+        this.newDob = newDob;
         this.isBackPressed = isBackPressed;
         this.applicationCtx = HikeMessengerApp.getInstance().getApplicationContext();
         this.currName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
         this.currEmail = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.EMAIL, "");
         this.currGenderType = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0);
+        this.currDob = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DOB, "");
         this.editProfileRequestsCount = new AtomicInteger(0);
     }
 
@@ -85,6 +94,11 @@ public class EditProfileTask implements IHikeHTTPTask
         this.newGenderType = genderType;
     }
 
+    public void setNewDOB(String dob)
+    {
+        this.newDob = dob;
+    }
+
     @Override
     public void execute()
     {
@@ -98,6 +112,12 @@ public class EditProfileTask implements IHikeHTTPTask
         {
             editProfileRequestsCount.incrementAndGet();
             editProfileEmailGender();
+        }
+
+        if (!TextUtils.isEmpty(newDob) && !newDob.equals(currDob))
+        {
+            editProfileRequestsCount.incrementAndGet();
+            editProfileDOB();
         }
     }
 
@@ -199,7 +219,7 @@ public class EditProfileTask implements IHikeHTTPTask
         {
             obj = new JSONObject();
             Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
-            if (!TextUtils.isEmpty(newEmail) && newEmail.equals(currEmail) && Utils.isValidEmail(newEmail))
+            if (!TextUtils.isEmpty(newEmail) && !newEmail.equals(currEmail) && Utils.isValidEmail(newEmail))
             {
                 obj.put(HikeConstants.EMAIL, newEmail);
             }
@@ -238,6 +258,79 @@ public class EditProfileTask implements IHikeHTTPTask
             {
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.EMAIL, newEmail);
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENDER, newGenderType);
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                }
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress)
+            {
+
+            }
+        };
+    }
+
+    private void editProfileDOB()
+    {
+        JSONObject obj = getEditProfileDOBRequestBody();
+        if (obj != null && obj.length() > 0)
+        {
+            Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
+            editDOBRequestToken = HttpRequests.editDOBRequest(obj, getEditDOBRequestListener());
+            editDOBRequestToken.execute();
+        }
+    }
+
+    private JSONObject getEditProfileDOBRequestBody()
+    {
+        JSONObject payload = null;
+        try
+        {
+            payload = new JSONObject();
+            Birthday updatedDOB = new Birthday(newDob);
+            JSONObject dobJSON = new JSONObject();
+            dobJSON.put(HikeConstants.DAY, updatedDOB.day);
+            dobJSON.put(HikeConstants.MONTH, (updatedDOB.month));
+            dobJSON.put(HikeConstants.YEAR, updatedDOB.year);
+            payload.put(HikeConstants.DOB, dobJSON);
+            Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + payload.toString());
+        }
+        catch (JSONException ex) {
+            Logger.e(getClass().getSimpleName(), "Could not update DoB");
+        }
+        return payload;
+    }
+
+    private IRequestListener getEditDOBRequestListener()
+    {
+        return new IRequestListener()
+        {
+            @Override
+            public void onRequestFailure(HttpException httpException)
+            {
+                Logger.d(getClass().getSimpleName(), "DoB update request failed");
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                    showErrorToast(R.string.update_profile_failed, Toast.LENGTH_LONG);
+                }
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
+            }
+
+            @Override
+            public void onRequestSuccess(Response result)
+            {
+                Logger.d(getClass().getSimpleName(), "DoB updated request successful");
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DOB, newDob);
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);

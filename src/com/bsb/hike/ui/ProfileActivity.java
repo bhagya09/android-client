@@ -1804,7 +1804,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			msisdn = oneToNConversation.getMsisdn();
 		}
-		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, isBackPressed);
+		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, dobTxt, isBackPressed);
 
 		if (mNameEdit != null)
 		{
@@ -1822,6 +1822,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			doExecute = true;
 		}
 
+		if (dobEdited)
+		{
+			mActivityState.editProfileTask.setNewDOB(dobTxt);
+			doExecute = true;
+		}
+
 		if (doExecute)
 		{
 			mActivityState.editProfileTask.execute();
@@ -1833,6 +1839,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 	}
 
+	@Deprecated
 	public void saveChangesApache()
 	{
 		ArrayList<HikeHttpRequest> requests = new ArrayList<HikeHttpRequest>();
