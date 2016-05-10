@@ -65,10 +65,6 @@ public class ChatThemeManager {
         mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
-
-        // initialising the default theme
-        defaultChatTheme.setThemeId(defaultChatThemeId);
-        mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
     }
 
     public ChatThemeAssetHelper getAssetHelper() {
