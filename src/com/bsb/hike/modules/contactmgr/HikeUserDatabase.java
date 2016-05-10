@@ -773,7 +773,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 		if(blockStatusIndex != -1)
 		{
-			Logger.d(TAG,"Block Status  found"+c.getString(blockStatusIndex));
 			contactInfo.setBlockStatus(c.getString(blockStatusIndex).equals(DBConstants.STATUS_BLOCKED));
 		}
 		return contactInfo;
@@ -1273,7 +1272,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 					continue;
 				}
 				ContactInfo contact = processContact(c);
-				Logger.d(TAG,"Contact Name:"+contact.getMsisdn()+"Contact Id:"+contact.getId()+"");
 				contacts.add(contact);
 			}
 			return contacts;
