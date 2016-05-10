@@ -121,8 +121,8 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 
 			StickerCategory category = getCategory();
 
-			packStateScore = category.isDownloaded() ? (category.isUpdateAvailable() ? PACK_DOWNLOADED_UPDATE_AVAILABLE : PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE)
-					: PACK_NOT_DOWNLOADED;
+			packStateScore = category.isDownloaded() ? ((category.isUpdateAvailable() || category.isMoreStickerAvailable()) ? PACK_DOWNLOADED_UPDATE_AVAILABLE
+					: PACK_DOWNLOADED_UPDATE_NOT_AVAILABLE) : PACK_NOT_DOWNLOADED;
 			categoryScores.add(packStateScore);
 
 			stickerCountScore = (category.isDownloaded() || category.getTotalStickers() == 0) ? DEFAULT_STICKER_COUNT_SCORE : category.getDownloadedStickersCount() / category.getTotalStickers();
