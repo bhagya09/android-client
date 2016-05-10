@@ -931,22 +931,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			editor.commit();
 		}
 
-		if (token != null)
-		{
-			AccountUtils.setToken(token);
-		}
-		if (uid != null)
-		{
-			AccountUtils.setUID(uid);
-		}
-		try
-		{
-			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-		}
-		catch (NameNotFoundException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Invalid package", e);
-		}
 
 		/*
 		 * Replacing GB keys' strings.
@@ -983,6 +967,25 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
+	private void initCredentials()
+	{
+		if (token != null)
+		{
+			AccountUtils.setToken(token);
+		}
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null) != null)
+		{
+			AccountUtils.setUID(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+		}
+		try
+		{
+			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		}
+		catch (NameNotFoundException e)
+		{
+			Logger.e(getClass().getSimpleName(), "Invalid package", e);
+		}
+	}
 	private void validateCriticalDirs()
 	{
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -1027,6 +1030,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		// we're basically banking on the fact here that init() would be
 		// succeeded by the onUpgrade() calls being triggered in the respective databases.
+		initCredentials();
 		HikeConversationsDatabase.init(this);
 
 		initHikeLruCache(getApplicationContext());
