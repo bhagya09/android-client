@@ -856,7 +856,7 @@ public class AtomicTipManager
         public void onRequestFailure(HttpException httpException)
         {
             Logger.d(TAG, "atomic tip http call  error code " + httpException.getErrorCode());
-            String toastMsg = HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.atomic_tip_http_failure, httpException.getErrorCode());
+            String toastMsg = HikeMessengerApp.getInstance().getApplicationContext().getString(R.string.atomic_tip_http_failure);
             showHttpToast(toastMsg);
         }
     };
