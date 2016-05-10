@@ -130,8 +130,17 @@ public class GeneralEventMessagesManager
 				sendMessageEventToIntentService(messageEvent);
 				boolean increaseUnreadCount = data.optBoolean(HikePlatformConstants.INCREASE_UNREAD);
 				boolean rearrangeChat = data.optBoolean(HikePlatformConstants.REARRANGE_CHAT);
-				Utils.rearrangeChat(fromMsisdn, rearrangeChat, increaseUnreadCount);
-				showNotification(data, fromMsisdn);
+				if (OneToNConversationUtils.isGroupConversation(toMsisdn))
+				{
+					Utils.rearrangeChat(toMsisdn, rearrangeChat, increaseUnreadCount);
+					showNotification(data, toMsisdn);
+				}
+				else
+				{
+					Utils.rearrangeChat(fromMsisdn, rearrangeChat, increaseUnreadCount);
+					showNotification(data, fromMsisdn);
+				}
+
 				HikeMessengerApp.getPubSub().publish(HikePubSub.MESSAGE_EVENT_RECEIVED, messageEvent);
 
 			}
