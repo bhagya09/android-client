@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -103,6 +104,7 @@ import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.OneToNConversationUtils;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
@@ -1610,14 +1612,39 @@ public class PlatformUtils
 			{
 				jsonObject = new JSONObject();
 				jsonObject.put("name", msisdn);
+				jsonObject.put(HikePlatformConstants.MSISDN, msisdn);
 			}
 			else
 			{
 				jsonObject = info.getPlatformInfo();
 			}
+			if(OneToNConversationUtils.isGroupConversation(msisdn)) {
+				jsonObject.put("name", ContactManager.getInstance().getGroupDetails(msisdn).getGroupName());
+			}
+			BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(msisdn);
+			if(bitmap !=null)
+			{
+				String picture = Utils.drawableToString(bitmap);
+				File contactPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "contact_"+ msisdn + ".jpg");
+				if(!contactPicFile.exists())
+				{
+					contactPicFile.createNewFile();
+					Utils.saveByteArrayToFile(contactPicFile, picture.getBytes());
+				}
+				jsonObject.put("picture", contactPicFile.getAbsolutePath());
+			}
+			else
+			{
+				jsonObject.put("picture" , "");
+			}
 			return jsonObject;
 		}
 		catch (JSONException e)
+		{
+			e.printStackTrace();
+			return new JSONObject();
+		}
+		catch(IOException e)
 		{
 			e.printStackTrace();
 			return new JSONObject();
