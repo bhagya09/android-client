@@ -8,6 +8,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
+import com.bsb.hike.models.Birthday;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
@@ -39,11 +40,15 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private int newGenderType;
 
+    private String newDob;
+
     private String currName;
 
     private String currEmail;
 
     private int currGenderType;
+
+    private String currDob;
 
     private boolean isBackPressed;
 
@@ -51,22 +56,26 @@ public class EditProfileTask implements IHikeHTTPTask
 
     private RequestToken editEmailGenderRequestToken;
 
+    private RequestToken editDOBRequestToken;
+
     private AtomicInteger editProfileRequestsCount;
 
     private Context applicationCtx;
 
-    public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, boolean isBackPressed)
+    public EditProfileTask(String msisdn, ProfileActivity.ProfileType profileType, String newName, String newEmail, int newGenderType, String newDob, boolean isBackPressed)
     {
         this.msisdn = msisdn;
         this.profileType = profileType;
         this.newName = newName;
         this.newEmail = newEmail;
         this.newGenderType = newGenderType;
+        this.newDob = newDob;
         this.isBackPressed = isBackPressed;
         this.applicationCtx = HikeMessengerApp.getInstance().getApplicationContext();
         this.currName = HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.NAME_SETTING, "");
         this.currEmail = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.EMAIL, "");
         this.currGenderType = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.GENDER, 0);
+        this.currDob = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DOB, "");
         this.editProfileRequestsCount = new AtomicInteger(0);
     }
 
@@ -83,6 +92,11 @@ public class EditProfileTask implements IHikeHTTPTask
     public void setNewGenderType(int genderType)
     {
         this.newGenderType = genderType;
+    }
+
+    public void setNewDOB(String dob)
+    {
+        this.newDob = dob;
     }
 
     @Override

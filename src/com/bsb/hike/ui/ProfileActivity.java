@@ -1804,7 +1804,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			msisdn = oneToNConversation.getMsisdn();
 		}
-		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, isBackPressed);
+		mActivityState.editProfileTask = new EditProfileTask(msisdn, profileType, nameTxt, emailTxt,lastSavedGender, dobTxt, isBackPressed);
 
 		if (mNameEdit != null)
 		{
@@ -1819,6 +1819,12 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		{
 			mActivityState.editProfileTask.setNewEmail(mEmailEdit.getText().toString());
 			mActivityState.editProfileTask.setNewGenderType(mActivityState.genderType);
+			doExecute = true;
+		}
+
+		if (dobEdited)
+		{
+			mActivityState.editProfileTask.setNewDOB(dobTxt);
 			doExecute = true;
 		}
 
