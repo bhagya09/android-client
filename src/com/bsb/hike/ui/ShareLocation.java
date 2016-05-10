@@ -409,7 +409,11 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			Logger.d("ShareLocation", "LocationClient Connected inside if");
 			updateMyLocation();
 		}
-		mLocationClient.requestLocationUpdates(REQUEST, this); // LocationListener
+		try {
+			mLocationClient.requestLocationUpdates(REQUEST, this); // LocationListener
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -470,10 +474,14 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 	{
 		// get location manager
 		showLocationDialog();
-		myLocation = mLocationClient.getLastLocation();
-		if (myLocation == null)
-			myLocation = locManager.getLastKnownLocation(currentLocationDevice == GPS_ENABLED ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER);
-		// myLocation = map.getMyLocation();
+		try {
+			myLocation = mLocationClient.getLastLocation();
+			if (myLocation == null)
+				myLocation = locManager.getLastKnownLocation(currentLocationDevice == GPS_ENABLED ? LocationManager.GPS_PROVIDER : LocationManager.NETWORK_PROVIDER);
+			// myLocation = map.getMyLocation();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		Logger.d(getClass().getSimpleName(), "inside updateMyLocation");
 
 		if (myLocation != null)
