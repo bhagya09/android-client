@@ -113,6 +113,12 @@ public class EditProfileTask implements IHikeHTTPTask
             editProfileRequestsCount.incrementAndGet();
             editProfileEmailGender();
         }
+
+        if (!TextUtils.isEmpty(newDob) && !newDob.equals(currDob))
+        {
+            editProfileRequestsCount.incrementAndGet();
+            editProfileDOB();
+        }
     }
 
     private void editProfileName()
@@ -252,6 +258,79 @@ public class EditProfileTask implements IHikeHTTPTask
             {
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.EMAIL, newEmail);
                 HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.Extras.GENDER, newGenderType);
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                }
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
+            }
+
+            @Override
+            public void onRequestProgressUpdate(float progress)
+            {
+
+            }
+        };
+    }
+
+    private void editProfileDOB()
+    {
+        JSONObject obj = getEditProfileDOBRequestBody();
+        if (obj != null && obj.length() > 0)
+        {
+            Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + obj.toString());
+            editDOBRequestToken = HttpRequests.editDOBRequest(obj, getEditDOBRequestListener());
+            editDOBRequestToken.execute();
+        }
+    }
+
+    private JSONObject getEditProfileDOBRequestBody()
+    {
+        JSONObject payload = null;
+        try
+        {
+            payload = new JSONObject();
+            Birthday updatedDOB = new Birthday(newDob);
+            JSONObject dobJSON = new JSONObject();
+            dobJSON.put(HikeConstants.DAY, updatedDOB.day);
+            dobJSON.put(HikeConstants.MONTH, (updatedDOB.month));
+            dobJSON.put(HikeConstants.YEAR, updatedDOB.year);
+            payload.put(HikeConstants.DOB, dobJSON);
+            Logger.d(getClass().getSimpleName(), "JSON to be sent is: " + payload.toString());
+        }
+        catch (JSONException ex) {
+            Logger.e(getClass().getSimpleName(), "Could not update DoB");
+        }
+        return payload;
+    }
+
+    private IRequestListener getEditDOBRequestListener()
+    {
+        return new IRequestListener()
+        {
+            @Override
+            public void onRequestFailure(HttpException httpException)
+            {
+                Logger.d(getClass().getSimpleName(), "DoB update request failed");
+                if (editProfileRequestsCount.decrementAndGet() == 0)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
+                    showErrorToast(R.string.update_profile_failed, Toast.LENGTH_LONG);
+                }
+                if (isBackPressed)
+                {
+                    HikeMessengerApp.getPubSub().publish(HikePubSub.PROFILE_UPDATE_FINISH, null);
+                }
+            }
+
+            @Override
+            public void onRequestSuccess(Response result)
+            {
+                Logger.d(getClass().getSimpleName(), "DoB updated request successful");
+                HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.DOB, newDob);
                 if (editProfileRequestsCount.decrementAndGet() == 0)
                 {
                     HikeMessengerApp.getPubSub().publish(HikePubSub.DISMISS_EDIT_PROFILE_DIALOG, null);
