@@ -5114,11 +5114,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 	public void toggleChatMute(Mute mute)
 	{
-		if (!ContactManager.getInstance().isConvExists(mute.getMsisdn()))
-		{
-			return;
-		}
-
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(DBConstants.MSISDN, mute.getMsisdn());
 		contentValues.put(DBConstants.IS_MUTE, mute.isMute() ? 1 : 0);
