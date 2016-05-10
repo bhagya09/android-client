@@ -402,7 +402,7 @@ public class ChatThreadUtils
 		}
 	}
 
-	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv)
+	protected static ConvMessage getChatThemeConvMessage(Context context, long timestamp, String bgId, Conversation conv, boolean isCustom)
 	{
 
 		JSONObject jsonObject = new JSONObject();
@@ -412,6 +412,7 @@ public class ChatThreadUtils
 		{
 			data.put(HikeConstants.MESSAGE_ID, Long.toString(timestamp));
 			data.put(HikeConstants.BG_ID, bgId);
+			data.put(HikeConstants.CUSTOM, isCustom);
 
 			jsonObject.put(HikeConstants.DATA, data);
 			jsonObject.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.CHAT_BACKGROUD);

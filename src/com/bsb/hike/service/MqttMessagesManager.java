@@ -3842,19 +3842,20 @@ public class MqttMessagesManager
 	{
 		try
 		{
-			String type = jsonObj.getString(HikeConstants.SUB_TYPE);
-			if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
-			{
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-				ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
-				return true;
-			}
-			else if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
-			{
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				ChatThemeManager.getInstance().processDeleteThemeSignal(data);
-				return true;
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String type = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+					ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
+					return true;
+				} else if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					ChatThemeManager.getInstance().processDeleteThemeSignal(data);
+					return true;
+				}
 			}
 		}
 		catch (JSONException e)

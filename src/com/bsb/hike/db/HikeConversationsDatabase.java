@@ -10326,7 +10326,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 	{
 		LinkedHashMap<String, HikeChatTheme> themes = new LinkedHashMap<>();
 
-		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" ORDER BY "+ChatThemes.THEME_COL_ORDER+" ASC";
+		String getThemesQuery = "SELECT * FROM " + ChatThemes.CHAT_THEME_TABLE +" ORDER BY "+ChatThemes.THEME_COL_ORDER+" ASC, "+ChatThemes.CHAT_THEME_TIMESTAMP_COL+" DESC";
 		Cursor themeListCursor = mDb.rawQuery(getThemesQuery, null);
 		try {
 			if (themeListCursor.moveToFirst()) {
