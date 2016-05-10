@@ -1,20 +1,8 @@
 package com.bsb.hike.tasks;
 
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_INCOMPATIBLE_VERSION;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_FAILURE_MSISDN_MISMATCH;
-import static com.bsb.hike.backup.AccountBackupRestore.STATE_RESTORE_SUCCESS;
-
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import android.accounts.NetworkErrorException;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -31,7 +19,8 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.backup.AccountBackupRestore;
-import com.bsb.hike.backup.AccountBackupRestore.RestoreErrorStates;
+import com.bsb.hike.backup.AccountBackupRestore.*;
+import com.bsb.hike.backup.BackupUtils;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.models.AccountInfo;
@@ -45,12 +34,14 @@ import com.bsb.hike.modules.signupmgr.ValidateNumberTask;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUIDFetch;
 import com.bsb.hike.ui.SignupActivity;
-import com.bsb.hike.utils.HikeSharedPreferenceUtil;
-import com.bsb.hike.utils.Logger;
-import com.bsb.hike.utils.StealthModeManager;
-import com.bsb.hike.utils.StickerManager;
-import com.bsb.hike.utils.Utils;
+import com.bsb.hike.utils.*;
 import com.crashlytics.android.Crashlytics;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import static com.bsb.hike.backup.AccountBackupRestore.*;
 
 public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> implements ActivityCallableTask
 {
@@ -707,17 +698,9 @@ public class SignupTask extends AsyncTask<Void, SignupTask.StateValue, Boolean> 
 						BotUtils.postAccountRestoreSetup();
 						publishProgress(new StateValue(State.RESTORING_BACKUP,Boolean.TRUE.toString()));
 
-//						if (BackupUtils.isDeviceDpiDifferent())
+						if (BackupUtils.isDeviceDpiDifferent())
 						{
-							synchronized (this)
-							{
-								this.wait(600); //This is the duration of the success animation. Need to wait for that much amount so as to not interrupt the animation
-							}
 							publishProgress(new StateValue(State.SHOW_STICKER_RESTORE_DIALOG, null)); //Give a signal to show the sticker restore dialog.
-							synchronized (this)
-							{
-								this.wait(); // We will show a sticker dialog here since, the user has restored stickers on a diff device
-							}
 						}
 					}
 

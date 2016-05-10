@@ -128,6 +128,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -1160,7 +1161,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		{
 			searchText = null;
 			mAdapter.removeSearch();
-			ShowTipIfNeeded(displayedConversations.isEmpty(), false);
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
 			searchMode = false;
 		}
 	}
@@ -1185,6 +1186,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void positiveClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("confirm", "home");
 					HikeAnalyticsEvent.sendStealthReset();
 					resetStealthMode();
 					dialog.dismiss();
@@ -1199,6 +1201,8 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				@Override
 				public void negativeClicked(HikeDialog dialog)
 				{
+					LockPattern.recordResetPopupButtonClick("cancel", "home");
+
 					StealthModeManager.getInstance().setTipVisibility(false, ConversationTip.RESET_STEALTH_TIP);
 
 					Utils.cancelScheduledStealthReset();
@@ -1767,7 +1771,14 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			mAdapter.clear();
 		}
 
-		ShowTipIfNeeded(displayedConversations.isEmpty(), false);
+		if(getActivity().getIntent().getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
+		{
+			processTipFromNotif(getActivity().getIntent().getExtras());
+		}
+		else
+		{
+			ShowTipIfNeeded(displayedConversations.isEmpty(), false, ConversationTip.NO_TIP);
+		}
 
 		mAdapter = new ConversationsAdapter(getActivity(), displayedConversations, stealthConversations, getListView(), this);
 
@@ -1793,7 +1804,18 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		startActivityForResult(intent, requestCode);
 	}
 
-	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent)
+	private void processTipFromNotif(Bundle bundle)
+	{
+		int tipId = bundle.getInt(HikeConstants.TIP_ID, ConversationTip.NO_TIP);
+		if(bundle.getBoolean(HikeConstants.IS_ATOMIC_TIP, false))
+		{
+			AtomicTipManager.getInstance().processAtomicTipFromNotif(tipId);
+			tipId = ConversationTip.ATOMIC_TIP;
+		}
+		ShowTipIfNeeded(displayedConversations.isEmpty(), true, tipId);
+	}
+
+	private void ShowTipIfNeeded(boolean hasNoConversation, boolean isFromNewIntent, int tipFromNotifId)
 	{
 
 		if (convTip == null)
@@ -1806,7 +1828,11 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		String tip = pref.getData(HikeMessengerApp.ATOMIC_POP_UP_TYPE_MAIN, "");
 		Logger.i("tip", "#" + tip + "#-currenttype");
 
-		if(!isFromNewIntent && (AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist()))
+		if(isFromNewIntent)
+		{
+			tipType = tipFromNotifId;
+		}
+		else if(AtomicTipManager.getInstance().doesUnseenTipExist() || AtomicTipManager.getInstance().doesHighPriorityTipExist())
 		{
 			tipType = ConversationTip.ATOMIC_TIP;
 		}
@@ -3808,7 +3834,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 		Logger.d("footer", "onNewIntent");
 		if (intent.getBooleanExtra(HikeConstants.Extras.HAS_TIP, false))
 		{
-			ShowTipIfNeeded(displayedConversations.isEmpty(), true);
+			processTipFromNotif(intent.getExtras());
 		}
 
 		final NUXManager nm = NUXManager.getInstance();
@@ -3871,6 +3897,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	{
 		if (tipView != null && tipType == whichTip)
 		{
+			if(whichTip == ConversationTip.ATOMIC_TIP)
+			{
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CROSSED);
+			}
 			removeTipIfExists(whichTip);
 
 			JSONObject metadata = new JSONObject();
@@ -3925,6 +3955,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				startActivityForResult(sendInvite, ConversationTip.REQUEST_CODE_SEND_INVITE);
 				break;
 			case ConversationTip.ATOMIC_TIP:
+				AtomicTipManager.getInstance().tipUiEventAnalytics(AnalyticsConstants.AtomicTipsAnalyticsConstants.TIP_CLICKED);
 				AtomicTipManager.getInstance().onAtomicTipClicked(getActivity());
 				break;
 			default:

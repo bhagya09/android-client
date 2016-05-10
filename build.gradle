@@ -198,6 +198,9 @@ dependencies {
     compile ('com.google.android.gms:play-services-gcm:8.4.0') {
         exclude module: 'support-v4'
     }
+
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.5'
 }
 
 
