@@ -219,7 +219,7 @@ public class EditProfileTask implements IHikeHTTPTask
         {
             obj = new JSONObject();
             Logger.d(getClass().getSimpleName(), "Profile details Email: " + newEmail + " Gender: " + newGenderType);
-            if (!TextUtils.isEmpty(newEmail) && newEmail.equals(currEmail) && Utils.isValidEmail(newEmail))
+            if (!TextUtils.isEmpty(newEmail) && !newEmail.equals(currEmail) && Utils.isValidEmail(newEmail))
             {
                 obj.put(HikeConstants.EMAIL, newEmail);
             }
