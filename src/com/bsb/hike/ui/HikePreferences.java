@@ -937,7 +937,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				dialogStrings[1] = getString(R.string.initiate_reset_stealth_body);
 				dialogStrings[2] = getString(R.string.CONFIRM);
 				dialogStrings[3] = getString(R.string.CANCEL);
-				
+
+				LockPattern.recordResetStealthModeClick();
+
 				HikeDialogFactory.showDialog(this, HikeDialogFactory.RESET_STEALTH_DIALOG, new HikeDialogListener()
 				{
 
