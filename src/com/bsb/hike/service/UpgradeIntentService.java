@@ -140,6 +140,7 @@ public class UpgradeIntentService extends IntentService
 		if(prefs.getInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 0) == 0)
 		{
 			migrateChatBgTableData();
+			migrateMuteData();
 			Editor editor = prefs.edit();
 			editor.putInt(HikeConstants.CHAT_BG_TABLE_MIGRATION, 1);
 			editor.commit();
@@ -178,6 +179,11 @@ public class UpgradeIntentService extends IntentService
 	private void migrateChatBgTableData()
 	{
 		HikeConversationsDatabase.getInstance().migrateChatBgTableData();
+	}
+
+	private void migrateMuteData()
+	{
+		HikeConversationsDatabase.getInstance().migrateMuteData();
 	}
 
 	private void initialiseSharedMediaAndFileThumbnailTable()
