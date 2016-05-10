@@ -1791,8 +1791,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 					backgroundImage.setScaleType(ScaleType.CENTER_CROP);
 				} else {
 					backgroundImage.setScaleType(ScaleType.MATRIX);
-					ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 				}
+				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}

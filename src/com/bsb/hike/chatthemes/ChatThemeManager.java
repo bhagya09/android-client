@@ -282,6 +282,8 @@ public class ChatThemeManager {
 
     //TODO CHATTHEME work on optimisation of this method
     public ArrayList<String> getAvailableThemeIds() {
+        mChatThemesList.clear();
+        mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
         ArrayList<String> availableThemes = new ArrayList<>();
         for (String themeId : mChatThemesList.keySet()) {
             if (isThemeAvailable(themeId)) {

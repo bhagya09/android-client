@@ -65,6 +65,8 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	private int currentConfig = Configuration.ORIENTATION_PORTRAIT;
 
 	private ArrayList<String> availableThemes;
+
+	private ArrayAdapter<String> gridAdapter = null;
 	
 	public ThemePicker(AppCompatActivity appCompatActivity, ThemePickerListener listener, String currentThemeId)
 	{
@@ -135,7 +137,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
 		}
 
-		final ArrayAdapter<String> gridAdapter = new ArrayAdapter<String>(appCompatActivity.getApplicationContext(), -1, availableThemes)
+		gridAdapter = new ArrayAdapter<String>(appCompatActivity.getApplicationContext(), -1, availableThemes)
 		{
 
 			@Override
@@ -353,7 +355,17 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 	{
 		GridView grid = (GridView) viewToDisplay.findViewById(R.id.attachment_grid);
 		grid.setNumColumns(getNumColumnsChatThemes());
-		((ArrayAdapter<String>) grid.getAdapter()).notifyDataSetChanged();
+
+		availableThemes = ChatThemeManager.getInstance().getAvailableThemeIds();
+		if(ChatThreadUtils.isCustomChatThemeEnabled()) {
+			availableThemes.add(0, HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON);
+		}
+		if(gridAdapter != null) {
+			gridAdapter.clear();
+			gridAdapter.addAll(availableThemes);
+			grid.setAdapter(gridAdapter);
+			gridAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	public void setOrientation(int orientation)
@@ -361,8 +373,8 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 		if(orientation != currentConfig)
 		{
 			this.currentConfig = orientation;
-			refreshViews();
 		}
+		refreshViews();
 
 	}
 
