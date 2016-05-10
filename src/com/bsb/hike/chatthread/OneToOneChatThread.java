@@ -596,15 +596,16 @@ import com.bsb.hike.voip.VoIPUtils;
 				addButton.setTag(R.string.mute);
 				addButton.setText(mConversation.isMuted() ? R.string.unmute : R.string.mute);
 				unknownContactInfoView.setTag(R.string.mute);
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 			}
 			else
 			{
 				addButton.setTag(R.string.save_unknown_contact);
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.VISIBLE);
 			}
 
 			addButton.setOnClickListener(this);
 			unknownContactInfoView.findViewById(R.id.block_unknown_contact).setOnClickListener(this);
-
 			checkAndAddListViewHeader(unknownContactInfoView);
 		}
 		showUknownUserInfoView();
@@ -617,7 +618,6 @@ import com.bsb.hike.voip.VoIPUtils;
 	{
 		if(mConversation instanceof BotConversation)
 		{
-			unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 			return;
 		}
 		try
