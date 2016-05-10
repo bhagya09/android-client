@@ -52,7 +52,7 @@ public class StickerSearchManager
 
 	private IStickerSearchListener listener;
 
-	private StickerSearchEngine searchEngine;
+	private SearchEngine searchEngine;
 
 	private volatile String currentString;
 
@@ -87,7 +87,7 @@ public class StickerSearchManager
 		WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION = HikeSharedPreferenceUtil.getInstance(HikeStickerSearchBaseConstants.SHARED_PREF_STICKER_DATA).getData(
 				HikeConstants.STICKER_WAIT_TIME_SINGLE_CHAR_RECOMMENDATION, StickerSearchConstants.WAIT_TIME_SINGLE_CHARACTER_RECOMMENDATION);
 
-		searchEngine = new StickerSearchEngine();
+		searchEngine = new SearchEngine();
 		isFirstPhraseOrWord = false;
 		isTappedInsideComposeBox = false;
 		currentString = null;
@@ -402,7 +402,7 @@ public class StickerSearchManager
 
 	public void downloadStickerTags(boolean firstTime, int state, Set<String> languagesSet)
 	{
-		downloadStickerTags(firstTime, state, languagesSet,null);
+		downloadStickerTags(firstTime, state, null, languagesSet);
 	}
 
 	/**

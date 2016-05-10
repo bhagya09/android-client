@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,17 +38,18 @@ import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
 import com.bsb.hike.modules.httpmgr.request.FileRequestPersistent;
 import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
-import com.bsb.hike.platform.auth.AuthListener;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.GpsLocation;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.NonMessagingBotAlarmManager;
 import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
+import com.bsb.hike.platform.auth.AuthListener;
 import com.bsb.hike.platform.content.PlatformContentConstants;
 import com.bsb.hike.platform.content.PlatformZipDownloader;
 import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.PairModified;
 import com.bsb.hike.utils.Utils;
@@ -201,6 +203,7 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			jsonObject.put(HikePlatformConstants.BOT_VERSION, mBotInfo.getVersion());
             jsonObject.put(HikePlatformConstants.MAPP_VERSION_CODE, mBotInfo.getMAppVersionCode());
 			jsonObject.put(HikePlatformConstants.ASSOCIATE_MAPP,botMetadata.getAsocmapp());
+			jsonObject.put(HikeMessengerApp.PRODUCTION,HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.PRODUCTION,true));
 
 			if (!TextUtils.isEmpty(extraData))
 			{
