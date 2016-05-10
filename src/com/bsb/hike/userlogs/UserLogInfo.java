@@ -318,10 +318,19 @@ public class UserLogInfo {
 	private static JSONObject getEncryptedJSON(JSONArray jsonLogArray, int flag) throws JSONException {
 		
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
-		String key = settings.getData("pa_uid", null);
-
-		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getData("pa_encryption_key", null);
+		String key,salt;
+		if(Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+			salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		}
+		else
+		{
+			key = settings.getData("pa_uid", null);
+			//for the case when AI packet will not send us the backup Token
+			salt = settings.getData("pa_encryption_key", null);
+			// if salt or key is empty, we do not send anything
+		}
 		
 		AESEncryption aesObj = new AESEncryption(key + salt, HASH_SCHEME);
 		JSONObject jsonLogObj = new JSONObject();
@@ -444,10 +453,19 @@ public class UserLogInfo {
 	private static boolean isKeysAvailable()
 	{
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
-		String key = settings.getData("pa_uid", null);
-		//for the case when AI packet will not send us the backup Token
-		String salt = settings.getData("pa_token", null);
-		// if salt or key is empty, we do not send anything
+		String key, salt;
+		if(Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
+			salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
+		}
+		else
+		{
+			key = settings.getData("pa_uid", null);
+			//for the case when AI packet will not send us the backup Token
+			salt = settings.getData("pa_encryption_key", null);
+			// if salt or key is empty, we do not send anything
+		}
 		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))
 			return false;
 		
