@@ -94,7 +94,7 @@ public class ChatThemeAssetHelper implements HikePubSub.Listener {
 
     public String[] getMissingAssets(String[] assets) {
         HashSet<String> missingAssets = new HashSet<String>();// Hashset is choosen to avoid placing download request for duplicate assets
-        for (String asset : missingAssets) {
+        for (String asset : assets) {
             if (!hasAsset(asset) || mAssets.get(asset).isAssetMissing()) {
                 missingAssets.add(asset);
             }

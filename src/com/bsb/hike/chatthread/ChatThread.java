@@ -112,6 +112,7 @@ import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
 import com.bsb.hike.chatthread.HikeActionMode.ActionModeListener;
 import com.bsb.hike.chatthread.KeyboardOffBoarding.KeyboardShutdownListener;
+import com.bsb.hike.cropimage.CropCompression;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.CustomAlertDialog;
 import com.bsb.hike.dialog.HikeDialog;
@@ -122,6 +123,7 @@ import com.bsb.hike.filetransfer.FTUtils;
 import com.bsb.hike.filetransfer.FileTransferManager;
 import com.bsb.hike.media.AttachmentPicker;
 import com.bsb.hike.media.AudioRecordView;
+import com.bsb.hike.media.DrawUtils;
 import com.bsb.hike.media.EmoticonPicker;
 import com.bsb.hike.media.HikeActionBar;
 import com.bsb.hike.media.HikeAudioRecordListener;
@@ -294,6 +296,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	protected static final int OPEN_PICKER = 40;
 
 	protected static final int FILE_OPENED = 41;
+
+	protected static final int SEND_CUSTOM_THEME_MESSAGE = 42;
 
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
@@ -502,6 +506,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			break;
 		case CHAT_THEME:
 			changeChatTheme((String) msg.obj);
+			if (themePicker != null && themePicker.isShowing()) {
+				themePicker.dismiss();
+			}
 			break;
 		case CLOSE_CURRENT_STEALTH_CHAT:
 			closeStealthChat();
@@ -569,6 +576,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
+			break;
+		case SEND_CUSTOM_THEME_MESSAGE:
+			sendChatThemeMessage(true);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -1119,7 +1129,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			case HikeConstants.PLATFORM_REQUEST:
 		case HikeConstants.PLATFORM_FILE_CHOOSE_REQUEST:
 			mAdapter.onActivityResult(requestCode, resultCode, data);
-
+			break;
+		case HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE:
+			if(resultCode == Activity.RESULT_OK)
+			{
+				if(ChatThemeManager.getInstance().customThemeTempUploadImagePath != null) {
+					FileTransferManager.getInstance(activity).uploadCustomThemeBackgroundImage(ChatThemeManager.getInstance().customThemeTempUploadImagePath);
+				}
+			}
+			break;
 		}
 	}
 
@@ -1661,8 +1679,20 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	@Override
 	public void themeClicked(String themeId)
 	{
-		postTrialsAnalytic(themeId);
-		updateUIAsPerTheme(themeId);
+		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
+			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
+			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(100);
+
+			int height = DrawUtils.displayMetrics.heightPixels;
+			int width = DrawUtils.displayMetrics.widthPixels;
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true);
+			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
+
+		}else {
+			postTrialsAnalytic(themeId);
+			updateUIAsPerTheme(themeId);
+		}
 	}
 
 	@Override
@@ -1678,11 +1708,18 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		/**
 		 * Save current theme and send chat theme message
 		 */
+		if (chatThemeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+			return;
+		}
 		if (!currentThemeId.equals(chatThemeId))
 		{
 			updateUIAsPerTheme(chatThemeId);
 			currentThemeId = chatThemeId;
-			sendChatThemeMessage();
+			if (ChatThemeManager.getInstance().getTheme(chatThemeId).isCustomTheme()) {
+				sendChatThemeMessage(true);
+			} else {
+				sendChatThemeMessage();
+			}
 		}
 	}
 
@@ -1745,10 +1782,16 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		else
 		{
 			setChatBackground(REMOVE_CHAT_BACKGROUND);
-			backgroundImage.setScaleType(ChatThemeManager.getInstance().getTheme(themeId).isTiled() ? ScaleType.FIT_XY : ScaleType.MATRIX);
 			Drawable drawable = Utils.getChatTheme(themeId, activity);
-			if(!ChatThemeManager.getInstance().getTheme(themeId).isTiled())
-			{
+			if(ChatThemeManager.getInstance().getTheme(themeId).isTiled()){
+				backgroundImage.setScaleType(ScaleType.FIT_XY);
+			} else {
+				int orientation = getResources().getConfiguration().orientation;
+				if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+					backgroundImage.setScaleType(ScaleType.CENTER_CROP);
+				} else {
+					backgroundImage.setScaleType(ScaleType.MATRIX);
+				}
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
 			backgroundImage.setImageDrawable(drawable);
@@ -4143,7 +4186,20 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			uiHandler.sendEmptyMessage(FILE_OPENED);
 			break;
 		case HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS:
-			updateChatTheme();
+			if(object != null) {
+				String themeId = (String) object;
+				sendUIMessage(CHAT_THEME, themeId);
+			}else{
+				//if object is null an asset for this theme is downloaded
+				sendUIMessage(CHAT_THEME, ChatThemeManager.getInstance().currentDownloadingAssetsThemeId);
+				ChatThemeManager.getInstance().currentDownloadingAssetsThemeId = null;
+			}
+			break;
+		case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS:
+			updateCustomChatTheme(object);
+			break;
+		case HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED:
+			break;
 		default:
 			Logger.e(TAG, "PubSub Registered But Not used : " + type);
 			break;
@@ -4378,7 +4434,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				HikePubSub.CHAT_BACKGROUND_CHANGED, HikePubSub.CLOSE_CURRENT_STEALTH_CHAT, HikePubSub.ClOSE_PHOTO_VIEWER_FRAGMENT, HikePubSub.STICKER_CATEGORY_MAP_UPDATED,
 				HikePubSub.UPDATE_NETWORK_STATE, HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.SHARED_WHATSAPP, 
 				HikePubSub.STEALTH_CONVERSATION_MARKED, HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.STICKER_RECOMMEND_PREFERENCE_CHANGED, HikePubSub.ENTER_TO_SEND_SETTINGS_CHANGED, HikePubSub.NUDGE_SETTINGS_CHANGED,
-				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS};
+				HikePubSub.UPDATE_THREAD,HikePubSub.GENERAL_EVENT_STATE_CHANGE, HikePubSub.FILE_OPENED, HikePubSub.CLEAR_CONVERSATION, HikePubSub.CHATTHEME_DOWNLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_SUCCESS, HikePubSub.CHATTHEME_CUSTOM_IMAGE_UPLOAD_FAILED};
 
 		/**
 		 * Array of pubSub listeners we get from {@link OneToOneChatThread} or {@link GroupChatThread}
@@ -5299,11 +5355,15 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		
 	}
 
-	protected void sendChatThemeMessage()
+	protected void sendChatThemeMessage(){
+		sendChatThemeMessage(false);
+	}
+
+	protected void sendChatThemeMessage(boolean isCustom)
 	{
 		long timestamp = System.currentTimeMillis() / 1000;
 		mConversationDb.setChatBackground(msisdn, currentThemeId, timestamp);
-		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentThemeId, mConversation);
+		ConvMessage convMessage = ChatThreadUtils.getChatThemeConvMessage(activity.getApplicationContext(), timestamp, currentThemeId, mConversation, isCustom);
 		sendMessage(convMessage);
 	}
 	
@@ -6694,18 +6754,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	}
 
-	/**
-	 * On a chat theme download, this method updates the chat theme for the current chat thread if possible.
-	 */
-	public void updateChatTheme()
-	{
-		Pair<String, Long> theme = HikeConversationsDatabase.getInstance().getChatThemeIdAndTimestamp(msisdn);
-		if(ChatThemeManager.getInstance().isThemeAvailable(theme.first))
-		{
-			if(!currentThemeId.equals(theme.first))
-			{
-				sendUIMessage(CHAT_THEME, theme.first);
-			}
-		}
+	public void updateCustomChatTheme(Object data) {
+		String themeId = (String) data;
+		sendUIMessage(CHAT_THEME, themeId);
+		sendUIMessage(SEND_CUSTOM_THEME_MESSAGE, null);
 	}
+
 }

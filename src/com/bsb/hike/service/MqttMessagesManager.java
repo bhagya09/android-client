@@ -3036,6 +3036,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.WT_1_REVAMP_ENABLED);
 			editor.putBoolean(HikeConstants.WT_1_REVAMP_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_ENABLED))
+		{
+			boolean enabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, enabled);
+		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);
@@ -3837,19 +3842,20 @@ public class MqttMessagesManager
 	{
 		try
 		{
-			String type = jsonObj.getString(HikeConstants.SUB_TYPE);
-			if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
-			{
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-				ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
-				return true;
-			}
-			else if(type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
-			{
-				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
-				ChatThemeManager.getInstance().processDeleteThemeSignal(data);
-				return true;
+			if(jsonObj.has(HikeConstants.SUB_TYPE)) {
+				String type = jsonObj.getString(HikeConstants.SUB_TYPE);
+				if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_NEW_THEME))//New Theme Signal
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
+					ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
+					return true;
+				} else if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
+				{
+					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+					ChatThemeManager.getInstance().processDeleteThemeSignal(data);
+					return true;
+				}
 			}
 		}
 		catch (JSONException e)

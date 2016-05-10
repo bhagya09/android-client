@@ -23,6 +23,7 @@ import com.bsb.hike.models.HikeChatThemeAsset;
 import com.bsb.hike.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by sriram on 22/02/16.
@@ -32,12 +33,19 @@ public class ChatThemeDrawableHelper {
 
     private String assetRootPath;
 
+    private String cctTempUploadPath;
+
     public ChatThemeDrawableHelper() {
         assetRootPath = getThemeAssetStoragePath();
+        cctTempUploadPath = customChatTempUploadPath();
     }
 
     public String getAssetRootPath() {
         return assetRootPath;
+    }
+
+    public String getCCTTempUploadRootPath() {
+        return cctTempUploadPath;
     }
 
     /**
@@ -270,7 +278,7 @@ public class ChatThemeDrawableHelper {
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR:
-                    resourceName = res.getResourceEntryName(R.color.bubble_blue);
+                    resourceName = res.getString(R.color.bubble_blue);
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
@@ -280,21 +288,22 @@ public class ChatThemeDrawableHelper {
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE:
-                    resourceName = res.getResourceEntryName(R.color.light_black_transparent);
+                    resourceName = res.getString(R.color.light_black_transparent);
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG:
-                    resourceName = res.getResourceEntryName(R.color.white);
+                    resourceName = res.getString(R.color.white);
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
-                    resourceName = res.getResourceEntryName(R.color.purpleflower_theme_status_bar_color);
+                    resourceName = res.getString(R.color.purpleflower_theme_status_bar_color);
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
             }
             HikeChatThemeAsset asset = null;
+            Log.v(TAG, "resourceName :::: "+resourceName+" ::resourceType::: "+resourceType);
             if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
                 asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
             } else {
@@ -314,6 +323,24 @@ public class ChatThemeDrawableHelper {
         } else {
             return HikeMessengerApp.getInstance().getResources().getDrawable(resId);
         }
+    }
+
+    private String customChatTempUploadPath() {
+        String directory = HikeConstants.HIKE_CHATTHEME_DIRECTORY_ROOT;
+        File dir = new File(directory);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String noMediaFilePath = directory + File.separator + ".nomedia";
+        File nomediaFile = new File(noMediaFilePath);
+        if (!nomediaFile.exists()) {
+            try {
+                nomediaFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory;
     }
 
     /**

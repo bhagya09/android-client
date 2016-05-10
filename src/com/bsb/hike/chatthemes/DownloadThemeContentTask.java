@@ -19,16 +19,22 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests.downloadChatThe
 
 public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskResult {
 
-    private String[] mThemeIds;
+    private String[] mThemeIds = null;
 
-    private boolean isCustom;
+    private String mThemeId = null;
+
+    private boolean isCustom = false;
 
     private RequestToken token;
 
     private final String TAG = "DownloadThemeContentTask";
 
-    public DownloadThemeContentTask(String[] themeIds, boolean isCustom) {
+    public DownloadThemeContentTask(String[] themeIds) {
         this.mThemeIds = themeIds;
+    }
+
+    public DownloadThemeContentTask(String themeId, boolean isCustom) {
+        this.mThemeId = themeId;
         this.isCustom = isCustom;
     }
 
@@ -36,7 +42,6 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     public void execute() {
         JSONObject body = prepareBodyObject();
         if (body != null) {
-            updateAssetIdDownloadStatus(HikeChatThemeConstants.CHAT_THEME_ID_DOWNLOADING);
             token = downloadChatThemeAssetId(body, getRequestListener());
             if (token.isRequestRunning()) {
                 return;
@@ -55,13 +60,11 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     @Override
     public void doOnSuccess(Object result) {
         Logger.d(TAG, "chat theme asset id download complete");
-        updateAssetIdDownloadStatus(HikeChatThemeConstants.CHAT_THEME_ID_DOWNLOADED);
     }
 
     @Override
     public void doOnFailure(HttpException exception) {
         Logger.d(TAG, "chat theme asset id download failed");
-        updateAssetIdDownloadStatus(HikeChatThemeConstants.CHAT_THEME_ID_NOT_DOWNLOADED);
     }
 
     private IRequestListener getRequestListener() {
@@ -98,7 +101,14 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     private JSONObject prepareBodyObject() {
         try {
             JSONObject themeIds = new JSONObject();
-            JSONArray ids = new JSONArray(mThemeIds);
+            JSONArray ids = new JSONArray();
+            if (mThemeId != null) {
+                ids.put(0, mThemeId);
+            } else {
+                for (int i = 0; i < mThemeIds.length; i++) {
+                    ids.put(i, mThemeIds[i]);
+                }
+            }
             themeIds.put(HikeChatThemeConstants.JSON_DWNLD_THEME_ID, ids);
             return themeIds;
         } catch (JSONException e) {
@@ -110,18 +120,16 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
     private String[] parseAssetContent(JSONObject resp) {
         try {
             JSONArray data = resp.getJSONArray(HikeConstants.DATA_2);
-            ChatThemeManager.getInstance().processNewThemeSignal(data, false);
+            if(isCustom){
+                ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), true);
+            }else {
+                ChatThemeManager.getInstance().processNewThemeSignal(data, false);
+            }
         } catch (JSONException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));
             e.printStackTrace();
         }
 
         return mThemeIds;
-    }
-
-    private void updateAssetIdDownloadStatus(String value) {
-        for (String themeId : mThemeIds) {
-            ChatThemeManager.getInstance().getTheme(themeId).setMetadata(value);
-        }
     }
 }

@@ -112,7 +112,10 @@ public class DownloadAssetsTask implements IHikeHTTPTask, IHikeHttpTaskResult {
     private JSONObject prepareBodyObject() {
         try {
             JSONObject assetIds = new JSONObject();
-            JSONArray ids = new JSONArray(mAssetIds);
+            JSONArray ids = new JSONArray();
+            for(int i = 0 ; i < mAssetIds.length; i++){
+                ids.put(i, mAssetIds[i]);
+            }
             assetIds.put(HikeChatThemeConstants.JSON_DWNLD_ASSET_ID, ids);
             return assetIds;
         } catch (JSONException e) {
