@@ -294,6 +294,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	protected static final int FILE_OPENED = 41;
 
+	protected static final int GENERAL_EVENT_STATE_CHANGE = 42;
+
 	protected static final int REMOVE_CHAT_BACKGROUND = 0;
 
 	protected final int NUDGE_COOLOFF_TIME = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NUDGE_SEND_COOLOFF_TIME, 300);
@@ -568,6 +570,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			mStickerPicker.setShowLastCategory(StickerManager.getInstance().getShowLastCategory());
 			StickerManager.getInstance().setShowLastCategory(false);
 			stickerClicked();
+			break;
+		case GENERAL_EVENT_STATE_CHANGE:
+			onGeneralEventStateChange(msg.obj);
 			break;
 		default:
 			Logger.d(TAG, "Did not find any matching event for msg.what : " + msg.what);
@@ -4176,8 +4181,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 			FileTransferManager.getInstance(activity).clearConversation(msisdn);
 			break;
 		case HikePubSub.GENERAL_EVENT_STATE_CHANGE:
-			//TODO Proper handling in next release. It is safe to comment this out for now.
-			//onGeneralEventStateChange(object);
+			Message generalEventMessage = Message.obtain();
+			generalEventMessage.what = GENERAL_EVENT_STATE_CHANGE;
+			generalEventMessage.obj = object;
+			uiHandler.sendMessage(generalEventMessage);
 			break;
 		case HikePubSub.FILE_OPENED:
 			uiHandler.sendEmptyMessage(FILE_OPENED);
@@ -6568,20 +6575,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 	 */
 	private void onGeneralEventStateChange(Object object)
 	{
-		ConvMessage eventMessage=(ConvMessage)object;
+		final ConvMessage eventMessage=(ConvMessage)object;
 		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
 		{
-			long messageId = eventMessage.getMsgID();
-			for (int i = messages.size() - 1; i >= 0; i--)
-			{
-				ConvMessage mesg = messages.get(i);
-				if (mesg.getMsgID() == messageId)
-				{
-					mesg.setStateForced(eventMessage.getState());
-					uiHandler.sendEmptyMessage(NOTIFY_DATASET_CHANGED);
-					break;
-				}
-			}
+			mAdapter.onGeneralEventStateChange(eventMessage);
 		}
 	}
 	

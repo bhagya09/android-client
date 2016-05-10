@@ -4736,4 +4736,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			((ChatThreadActivity)mActivity).recordMediaShareEvent(uniqueKey_Order, genus, family);
 		}
 	}
+
+	public void onGeneralEventStateChange(ConvMessage convMessage)
+	{
+		for (int i = convMessages.size() - 1; i >= 0; i--)
+		{
+			if (convMessages.get(i).getMsgID() == convMessage.getMsgID())
+			{
+				ConvMessage oldMessage = convMessages.get(i);
+				oldMessage.getMsgID();
+				convMessage.webMetadata = convMessages.get(i).webMetadata;
+				convMessages.set(i, convMessage);
+				notifyDataSetChanged();
+				break;
+			}
+		}
+	}
 }
