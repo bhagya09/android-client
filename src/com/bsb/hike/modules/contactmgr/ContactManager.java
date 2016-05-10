@@ -591,6 +591,17 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		persistenceCache.setGroupMute(groupId, mute);
 	}
+
+	/**
+	 * Sets the chat mute status in {@link #persistenceCache}
+	 *
+	 * @param msisdn
+	 * @param mute
+     */
+	public void setChatMute(String msisdn, Mute mute)
+	{
+		persistenceCache.setChatMute(msisdn, mute);
+	}
 	
 	/**
 	 * Gets the Name, alive and Mute status of Group

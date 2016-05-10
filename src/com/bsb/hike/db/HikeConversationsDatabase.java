@@ -5043,6 +5043,42 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public Map<String, Mute> getChatMuteMap()
+	{
+		Cursor muteCursor = null;
+		try
+		{
+			muteCursor = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[]{DBConstants.MSISDN, DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.MUTE_NOTIFICATION}, null, null, null, null, null);
+
+			Map<String, Mute> map = new HashMap<>();
+
+			while (muteCursor.moveToNext())
+			{
+				String msisdn = muteCursor.getString(muteCursor.getColumnIndex(DBConstants.MSISDN));
+				Mute mute = new Mute.InitBuilder(msisdn).build();
+				boolean isMute = muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				int muteDuration = muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.MUTE_DURATION));
+				boolean muteNotification = (muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.MUTE_NOTIFICATION)) == 0 ? false : true);
+				long muteTimestamp = muteCursor.getLong(muteCursor.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+
+				mute.setIsMute(isMute);
+				mute.setMuteDuration(muteDuration);
+				mute.setShowNotifInMute(muteNotification);
+				mute.setMuteTimestamp(muteTimestamp);
+
+				map.put(msisdn, mute);
+			}
+			return map;
+		}
+		finally
+		{
+			if (muteCursor != null)
+			{
+				muteCursor.close();
+			}
+		}
+	}
+
 	public boolean shouldShowNotifForMutedChat(String msisdn)
 	{
 		Cursor c = null;
@@ -5094,6 +5130,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
 		}
+
+		ContactManager.getInstance().setChatMute(mute.getMsisdn(), mute);
 	}
 
 	public int setGroupName(String groupId, String groupname)
