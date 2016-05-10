@@ -247,9 +247,9 @@ public class LockPattern
 		recordHiddenModeResetClicks(family, "cancel");
 	}
 
-	public static void recordConfirmOnResetPassword(String family)
+	public static void recordConfirmOnResetPassword(String family, String species)
 	{
-		recordHiddenModeResetClicks(family, "confirm");
+		recordHiddenModeResetClicks(family, species);
 	}
 
 	public static void recordRetryClickForResetPassword(String family)
@@ -328,9 +328,9 @@ public class LockPattern
 		recordHiddenModeSetClicks(family, "retry");
 	}
 
-	public static void recordConfirmOnSetPassword(String family)
+	public static void recordConfirmOnSetPassword(String family, String species)
 	{
-		recordHiddenModeSetClicks(family, "confirm");
+		recordHiddenModeSetClicks(family, species);
 	}
 
 	private static void recordHiddenModeSetClicks(String family, String species)
