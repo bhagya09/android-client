@@ -32,6 +32,7 @@ import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.HikePubSub.Listener;
 import com.bsb.hike.R;
+import com.bsb.hike.cropimage.HikeCropActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.media.ImageParser;
 import com.bsb.hike.media.ImageParser.ImageParserListener;
@@ -1134,7 +1135,7 @@ public class UpdatesFragment extends Fragment implements Listener, OnClickListen
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
 		if (resultCode == Activity.RESULT_CANCELED)
 		{
