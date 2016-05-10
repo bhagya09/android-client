@@ -4067,6 +4067,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				long lastMessageTimestamp = c.getLong(lastMessageTsColumn);
 				long sortingTimestamp = c.getLong(sortingTsColumn);
 				boolean onhike = c.getInt(isOnHikeColumn) != 0;
+				Mute mute = ContactManager.getInstance().getMute(msisdn);
+
 				//If broadcast or group converstaion, create a oneToN object
 				if (OneToNConversationUtils.isOneToNConversation(msisdn))
 				{
@@ -4095,7 +4097,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					else
 					{
-						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).setIsMute(mute.isMute()).build();
 						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 					

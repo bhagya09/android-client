@@ -1147,6 +1147,24 @@ class PersistenceCache extends ContactsCache
 	}
 
 	/**
+	 *
+	 * @param msisdn
+	 * @return Mute object for an msisdn
+     */
+	public Mute getMute(String msisdn)
+	{
+		readLock.lock();
+		try
+		{
+			return mutePersistence.get(msisdn);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
+	/**
 	 * Blocks a msisdn , adds it to {@link #blockedMsisdns}
 	 * 
 	 * @param msisdn
