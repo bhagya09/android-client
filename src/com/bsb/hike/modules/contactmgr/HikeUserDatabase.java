@@ -332,25 +332,29 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		{
 			db.execSQL(getHikeCallerTable());
 		}
-		if(oldVersion < 19)
-		{
+		if(oldVersion < 19) {
 			//TODO : Handle migration
-			String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
-			db.execSQL(alter);
 
-			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
-			db.execSQL(alter);
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.HIKE_UID)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.HIKE_UID + " TEXT";
+				db.execSQL(alter);
+			}
 
-			alter ="ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
-			db.execSQL(alter);
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.BLOCK_STATUS)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.BLOCK_STATUS + " TEXT DEFAULT 0";
+				db.execSQL(alter);
+			}
 
+			if (!Utils.isColumnExistsInTable(mDb, DBConstants.USERS_TABLE, DBConstants.FAVORITE_TYPE)) {
+				String alter = "ALTER TABLE " + DBConstants.USERS_TABLE + " ADD COLUMN " + DBConstants.FAVORITE_TYPE + " TEXT DEFAULT 0";
+				db.execSQL(alter);
+			}
 
-			for(String s: getIndexQueriesForV19())
-			{
+			for (String s : getIndexQueriesForV19()) {
 				db.execSQL(s);
 			}
 			// Need to migrate the DBs in upgradeIntentService
-			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER,1);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 1);
 		}
 
 	}
