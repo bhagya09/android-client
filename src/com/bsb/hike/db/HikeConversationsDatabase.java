@@ -1215,7 +1215,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				+ DBConstants.BG_ID + " TEXT, " // Chat theme id
 				+ DBConstants.BG_TIMESTAMP + " INTEGER, " // Timestamp when this theme was changed.
 				+ DBConstants.IS_MUTE + " INTEGER DEFAULT 0, "  // conv mute or not
-				+ DBConstants.MUTE_TIMESTAMP + " INTEGER, " // Timestamp when this mute pref was changed.
+				+ DBConstants.MUTE_TIMESTAMP + " INTEGER DEFAULT 0, " // Timestamp when this mute pref was changed.
 				+ DBConstants.MUTE_DURATION + " INTEGER DEFAULT 0, " //Time duration for which this msisdn is muted
 				+ DBConstants.MUTE_NOTIFICATION + " INTEGER DEFAULT 0, " //
 				+ DBConstants.MUTE_END_TIME + " INTEGER "
@@ -4067,6 +4067,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				long lastMessageTimestamp = c.getLong(lastMessageTsColumn);
 				long sortingTimestamp = c.getLong(sortingTsColumn);
 				boolean onhike = c.getInt(isOnHikeColumn) != 0;
+				Mute mute = ContactManager.getInstance().getMute(msisdn);
+
 				//If broadcast or group converstaion, create a oneToN object
 				if (OneToNConversationUtils.isOneToNConversation(msisdn))
 				{
@@ -4095,7 +4097,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					else
 					{
-						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).build();
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).setIsMute(mute.isMute()).build();
 						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 					
@@ -5043,6 +5045,42 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
+	public Map<String, Mute> getChatMuteMap()
+	{
+		Cursor muteCursor = null;
+		try
+		{
+			muteCursor = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[]{DBConstants.MSISDN, DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION, DBConstants.MUTE_NOTIFICATION}, null, null, null, null, null);
+
+			Map<String, Mute> map = new HashMap<>();
+
+			while (muteCursor.moveToNext())
+			{
+				String msisdn = muteCursor.getString(muteCursor.getColumnIndex(DBConstants.MSISDN));
+				Mute mute = new Mute.InitBuilder(msisdn).build();
+				boolean isMute = muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
+				int muteDuration = muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.MUTE_DURATION));
+				boolean muteNotification = (muteCursor.getInt(muteCursor.getColumnIndex(DBConstants.MUTE_NOTIFICATION)) == 0 ? false : true);
+				long muteTimestamp = muteCursor.getLong(muteCursor.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
+
+				mute.setIsMute(isMute);
+				mute.setMuteDuration(muteDuration);
+				mute.setShowNotifInMute(muteNotification);
+				mute.setMuteTimestamp(muteTimestamp);
+
+				map.put(msisdn, mute);
+			}
+			return map;
+		}
+		finally
+		{
+			if (muteCursor != null)
+			{
+				muteCursor.close();
+			}
+		}
+	}
+
 	public boolean shouldShowNotifForMutedChat(String msisdn)
 	{
 		Cursor c = null;
@@ -5094,6 +5132,8 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		{
 			mDb.update(DBConstants.CHAT_PROPERTIES_TABLE, contentValues, DBConstants.MSISDN + "=?", new String[] { mute.getMsisdn() });
 		}
+
+		ContactManager.getInstance().setChatMute(mute.getMsisdn(), mute);
 	}
 
 	public int setGroupName(String groupId, String groupname)
