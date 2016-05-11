@@ -732,36 +732,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		/**
-		 * This is a strange bug in Android 5.1. If we call finish to an activity from onCreate, ideally onCreateOptions menu should not have been called. But in Droid 5.1 this is
-		 * being called. This check is defensive in nature
-		 */
-//		if (isFinishing())
-//		{
-//			Logger.wtf(TAG, "Activity is finishing yet onCreateOptionsMenu is being called");
-//			return false;
-//		}
-//
-//		if (showingBlockingDialog)
-//		{
-//			return false;
-//		}
-//		else
-//		{
-//			return setupMenuOptions(menu);
-//		}
-		return false;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu)
-	{
-		return super.onPrepareOptionsMenu(menu);
-	}
-
 //	private boolean setupMenuOptions(final Menu menu)
 //	{
 //		try
