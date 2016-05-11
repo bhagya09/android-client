@@ -147,9 +147,7 @@ public class UpgradeIntentService extends IntentService
 		}
 
 		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)) {
-			if(ChatThemeManager.getInstance().migrateChatThemesToDB()) {
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, true);
-			}
+			ChatThemeManager.getInstance().migrateChatThemesToDB();
 		}
 
 		// Set block notifications as false in shared preference i.e allow notifications to occur once Upgrade intent completes

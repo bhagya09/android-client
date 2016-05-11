@@ -327,6 +327,7 @@ public class ChatThemeManager {
             e.printStackTrace();
             return false;
         }
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, true);
         return true;
     }
 

@@ -867,7 +867,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 				|| settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1
 				|| settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1
 				||settings.getInt(UPGRADE_LANG_ORDER,0)==0
-				|| settings.getBoolean(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false) == false
+				|| !settings.getBoolean(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, false)
 				|| settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false
 				|| settings.getBoolean(HikeConstants.BackupRestore.KEY_MOVED_STICKER_EXTERNAL, false) == false
 				|| settings.getBoolean(HikeMessengerApp.MIGRATE_RECENT_STICKER_TO_DB, false) == false
