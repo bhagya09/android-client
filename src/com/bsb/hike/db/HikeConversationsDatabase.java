@@ -4097,7 +4097,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 					else
 					{
-						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).setIsMute(mute.isMute()).build();
+						convInfo = new ConvInfo.ConvInfoBuilder(msisdn).setSortingTimeStamp(sortingTimestamp).setOnHike(onhike).setIsMute((mute != null) ? mute.isMute() : false).build();
 						contact = ContactManager.getInstance().getContact(convInfo.getMsisdn());
 					}
 					
