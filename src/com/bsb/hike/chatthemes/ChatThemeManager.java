@@ -47,7 +47,7 @@ public class ChatThemeManager {
     private String TAG = "ChatThemeManager";
 
     private ChatThemeManager() {
-        initialize();
+
     }
 
     public static ChatThemeManager getInstance() {
@@ -61,19 +61,10 @@ public class ChatThemeManager {
         return mInstance;
     }
 
-    private void initialize() {
+    public void initialize() {
         mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
-
-        // initialising the default theme
-        defaultChatTheme.setThemeId(defaultChatThemeId);
-        mChatThemesList.put(defaultChatThemeId, defaultChatTheme);
-
-        if (!HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, false)) {
-            initializeHikeChatThemesWithDefaultSet();
-            HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHAREDPREF_DEFAULT_SET_RECORDED, true);
-        }
     }
 
     public ChatThemeAssetHelper getAssetHelper() {
@@ -321,7 +312,7 @@ public class ChatThemeManager {
     }
 
 
-    public void initializeHikeChatThemesWithDefaultSet() {
+    public boolean migrateChatThemesToDB() {
         try {
             JSONObject jsonObj = new JSONObject(Utils.loadJSONFromAsset(HikeMessengerApp.getInstance().getApplicationContext(), HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME));
             if (jsonObj != null) {
@@ -330,10 +321,14 @@ public class ChatThemeManager {
                 processNewThemeSignal(themeData, true);
             } else {
                 Log.v(TAG, "Unable to load " + HikeChatThemeConstants.CHATTHEMES_DEFAULT_JSON_FILE_NAME + " file from assets");
+                return false;
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
+        HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, true);
+        return true;
     }
 
 }
