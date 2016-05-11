@@ -998,7 +998,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		CustomTabsHelper.getPackageNameToUse(this);
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 
-		Utils.shouldConnectToGcmPreSignup();
+		Utils.connectToGcmPreSignup();
 
 	}
 

@@ -44,7 +44,7 @@ public class ConnectionChangeReceiver extends BroadcastReceiver
 //			return;
 //		}
 
-		Utils.shouldConnectToGcmPreSignup();
+		Utils.connectToGcmPreSignup();
 
 		//Update TwinPrime Location
 

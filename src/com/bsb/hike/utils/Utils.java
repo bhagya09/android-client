@@ -8076,7 +8076,7 @@ public class Utils
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
 
-	public static void shouldConnectToGcmPreSignup() {
+	public static void connectToGcmPreSignup() {
 		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
 
 		Context context = HikeMessengerApp.getInstance().getApplicationContext();
