@@ -278,7 +278,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 							lat = myLocation.getLatitude();
 							lng = myLocation.getLongitude();
 							selectedPosition = 0;
-							map.animateCamera(CameraUpdateFactory.newLatLng(userMarker.getPosition()));
 							adapter.notifyDataSetChanged();
 
 						}
