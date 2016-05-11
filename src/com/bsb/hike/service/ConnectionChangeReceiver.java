@@ -44,14 +44,7 @@ public class ConnectionChangeReceiver extends BroadcastReceiver
 //			return;
 //		}
 
-		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
-
-		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !mprefs.getData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
-		{
-			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
-			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
-			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
-		}
+		Utils.shouldConnectToGcmPreSignup();
 
 		//Update TwinPrime Location
 
