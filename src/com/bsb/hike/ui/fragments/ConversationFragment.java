@@ -12,9 +12,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Intents.Insert;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -23,6 +26,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -96,6 +100,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.productpopup.AtomicTipManager;
+import com.bsb.hike.productpopup.ProductPopupsConstants;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.EmailConversationsAsyncTask;
 import com.bsb.hike.ui.HikeFragmentable;
@@ -226,6 +231,10 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	};
 
 	View parent;
+
+	private MenuItem searchMenuItem;
+
+	private TextView newConversationIndicator;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -964,8 +973,165 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
 	{
+		inflater.inflate(R.menu.conv_menu, menu);
+		setupNewConvOptionItem(menu);
+		setupSearchOptionItem(menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.search)
+		{
+			recordSearchOptionClick();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void setupNewConvOptionItem(final Menu menu)
+	{
+		newConversationIndicator = (TextView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.top_bar_indicator_text);
+		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image).setContentDescription("Start a new chat");
+		((ImageView) MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).findViewById(R.id.overflow_icon_image))
+				.setImageResource(R.drawable.ic_new_conversation);
+
+		MenuItemCompat.getActionView(menu.findItem(R.id.new_conversation)).setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				Logger.d(HikeConstants.COMPOSE_SCREEN_OPENING_BENCHMARK, "start=" + System.currentTimeMillis());
+				try
+				{
+					JSONObject metadata = new JSONObject();
+					metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.NEW_CHAT_FROM_TOP_BAR);
+					HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+				}
+				catch (JSONException e)
+				{
+					Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+				}
+
+				Intent intent = IntentFactory.getComposeChatIntentWithBotDiscovery(getActivity());
+
+				newConversationIndicator.setVisibility(View.GONE);
+				HikeMessengerApp.getPubSub().publish(HikePubSub.BADGE_COUNT_USER_JOINED, new Integer(0));
+				startActivity(intent);
+			}
+		});
+	}
+
+	private void setupSearchOptionItem(final Menu menu)
+	{
+		searchMenuItem = menu.findItem(R.id.search);
+		SearchView searchView=(SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		searchView.setOnQueryTextListener(onQueryTextListener);
+		searchView.setQueryHint(getString(R.string.search));
+		searchView.clearFocus();
+
+		//MenuItemCompat.setShowAsAction(MenuItemCompat.setActionView(searchMenuItem, searchView), MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+		MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener()
+		{
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item)
+			{
+				setupSearch();
+				toggleMenuItems(menu, false);
+//				showProductPopup(ProductPopupsConstants.PopupTriggerPoints.SEARCH.ordinal());
+//				showingSearchModeActionBar = true;
+//				if (hiButton != null)
+//				{
+//					hiButton.clearAnimation();
+//				}
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item)
+			{
+				removeSearch();
+				toggleMenuItems(menu, true);
+//				setupActionBar();
+				return true;
+			}
+		});
+
+	}
+
+	public boolean isSearchInActionMode()
+	{
+		return searchMenuItem.isActionViewExpanded();
+	}
+
+	public void endSearchActionMode()
+	{
+		searchMenuItem.collapseActionView();
+	}
+
+	private void recordSearchOptionClick()
+	{
+		try
+		{
+			JSONObject metadata = new JSONObject();
+			metadata.put(HikeConstants.EVENT_KEY, HikeConstants.LogEvent.HOME_SEARCH);
+			HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, metadata);
+		}
+		catch (JSONException e)
+		{
+			Logger.d(AnalyticsConstants.ANALYTICS_TAG, "invalid json");
+		}
+	}
+
+	public void showRecentlyJoinedDot()
+	{
+		// Defensive check for case where newConversationIndicator was coming as null. Possible due to the various if..else conditions for newConversationIndicator initialisation.
+		if(newConversationIndicator == null)
+			return;
+
+		boolean showNujNotif = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean(HikeConstants.NUJ_NOTIF_BOOLEAN_PREF, true);
+		if (showNujNotif && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.SHOW_RECENTLY_JOINED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+		else
+		{
+			newConversationIndicator.setVisibility(View.GONE);
+		}
+	}
+
+	public void showNewChatRedDot()
+	{
+		if (newConversationIndicator != null && HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NEW_CHAT_RED_DOT, false))
+		{
+			newConversationIndicator.setText("1");
+			newConversationIndicator.setVisibility(View.VISIBLE);
+			newConversationIndicator.startAnimation(Utils.getNotificationIndicatorAnim());
+		}
+	}
+
+	private void toggleMenuItems(Menu menu, boolean value)
+	{
+		menu.findItem(R.id.new_conversation).setVisible(value);
+	}
+
+	private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener()
+	{
+		@Override
+		public boolean onQueryTextSubmit(String query)
+		{
+			Utils.hideSoftKeyboard(getContext().getApplicationContext(), searchMenuItem.getActionView());
+			return true;
+		}
+
+		@Override
+		public boolean onQueryTextChange(String newText)
+		{
+			onSearchQueryChanged(newText.toString());
+			return true;
+		}
+	};
 
 	private boolean isConversationsEmpty()
 	{
@@ -975,6 +1141,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 	@Override
 	public void onDestroy()
 	{
+		if (searchMenuItem != null && MenuItemCompat.getActionView(searchMenuItem) != null)
+		{
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setOnQueryTextListener(null);
+			searchView.clearFocus();
+		}
 		HikeMessengerApp.getPubSub().removeListeners(this, pubSubListeners);
 		uiHandler.removeCallbacksAndMessages(null);
 		super.onDestroy();
@@ -3889,6 +4061,12 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 				llChatReward.setVisibility(View.GONE);
 				getListView().setPadding(0, 0, 0, 0);
 			}
+		}
+
+		if (searchMenuItem.isActionViewExpanded())
+		{
+			MenuItemCompat.getActionView(searchMenuItem).clearFocus();
+			MenuItemCompat.collapseActionView(searchMenuItem);
 		}
 	}
 

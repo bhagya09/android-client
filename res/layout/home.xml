@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_bg"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
         <View
             android:id="@+id/overflow_anchor"
@@ -20,6 +19,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
         </FrameLayout>
+
+        <View
+            android:id="@+id/fragment_limit"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="48dp"
+            android:background="#14000000"
+            android:visibility="gone" />
+
+        <android.support.v4.view.ViewPager
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager_frag"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/fragment_limit" />
 
         <View
             android:id="@+id/chat_bg_ftue_fade"
