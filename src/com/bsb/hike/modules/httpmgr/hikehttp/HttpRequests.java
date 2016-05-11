@@ -1369,6 +1369,7 @@ public class HttpRequests
 				.setUrl(url)
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
+				.setId(sessionId)
 				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
 				.setRequestListener(listener)
 				.build();
