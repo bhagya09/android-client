@@ -762,17 +762,24 @@ public class HttpRequests
 
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
-		String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid","");
-		String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token","");
-		Header hdr =new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+
 		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+
+		JSONObjectRequest.Builder sendUserLogJsonRequestBuilder = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
-				.addHeader(hdr)
-				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
-				.post(body)
-				.build();
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f));
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			Header customHeader;
+			String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid", "");
+			String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token", "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+			sendUserLogJsonRequestBuilder.addHeader(customHeader);
+		}
+		sendUserLogJsonRequestBuilder.post(body);
+
+		RequestToken requestToken = sendUserLogJsonRequestBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
