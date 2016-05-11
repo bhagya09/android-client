@@ -253,7 +253,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
-    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 0;
 
     public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
