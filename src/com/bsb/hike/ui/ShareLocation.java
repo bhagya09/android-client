@@ -371,7 +371,7 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		if (myLocation != null)
 		{
 			userMarker.setPosition(new LatLng(newLocation.getLatitude(), newLocation.getLongitude()));
-			map.animateCamera(CameraUpdateFactory.newLatLng(userMarker.getPosition()));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), HikeConstants.DEFAULT_ZOOM_LEVEL));
 			Logger.d("ShareLocation", "is Location changed = " + Double.valueOf(myLocation.distanceTo(newLocation)).toString());
 			Logger.d(getClass().getSimpleName(), "Location accuracy: " + newLocation.getAccuracy() + "m.");
 			if ((currentLocationDevice == GPS_ENABLED && myLocation.distanceTo(newLocation) > 100)
