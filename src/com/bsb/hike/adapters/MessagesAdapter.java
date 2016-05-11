@@ -4743,10 +4743,11 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		{
 			if (convMessages.get(i).getMsgID() == convMessage.getMsgID())
 			{
-				ConvMessage oldMessage = convMessages.get(i);
-				oldMessage.getMsgID();
 				convMessage.webMetadata = convMessages.get(i).webMetadata;
-				convMessages.set(i, convMessage);
+				// removing from list and add it again. This would make the message appear at the
+				// end of the thread
+				removeMessage(i);
+				addMessage(convMessage);
 				notifyDataSetChanged();
 				break;
 			}

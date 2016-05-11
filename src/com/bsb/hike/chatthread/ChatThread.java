@@ -6579,6 +6579,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
 		{
 			mAdapter.onGeneralEventStateChange(eventMessage);
+			setMessagesRead();
 		}
 	}
 	

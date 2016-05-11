@@ -93,6 +93,11 @@ public class GeneralEventMessagesManager
 				{
 					messageId = HikeConversationsDatabase.getInstance().getMessageIdFromMessageHash(messageHash, fromMsisdn);
 				}
+				if(messageId < 0)
+				{
+					Logger.e("General Event", "Event is unauthenticated");
+					return;
+				}
 				long mappedId = data.getLong(HikeConstants.EVENT_ID);
 				long mappedMessageId = data.optLong(HikeConstants.MESSAGE_ID);
 

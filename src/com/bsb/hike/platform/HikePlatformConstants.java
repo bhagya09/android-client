@@ -216,6 +216,8 @@ public interface HikePlatformConstants
 
 	public static final String INCREASE_UNREAD = "increase_unread";
 
+	public static final String REARRANGE_CARD = "rearrange_card";
+
 	public static final String REARRANGE_CHAT = "rearrange_chat";
 
 	public static final String MESSAGE_ID = "message_id";
