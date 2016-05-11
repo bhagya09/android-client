@@ -349,7 +349,6 @@ public class AtomicTipManager
         catch (IllegalArgumentException iae)
         {
             Logger.d(TAG, "exception while creating tip icon. possibly invalid base64");
-            iae.printStackTrace();
             return false;
         }
         if(iconDrawable != null)
@@ -380,7 +379,6 @@ public class AtomicTipManager
         catch (IllegalArgumentException iae)
         {
             Logger.d(TAG, "exception while creating tip bg image. possibly invalid base64");
-            iae.printStackTrace();
             return false;
         }
         if(bgImageDrawable != null)
