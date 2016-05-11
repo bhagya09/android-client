@@ -325,6 +325,7 @@ public class CategorySearchManager
 			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
 			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
 			metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
 			while (iterator.hasNext())
 			{
 				String catUcid = iterator.next();
@@ -345,7 +346,7 @@ public class CategorySearchManager
 				metadata.put(AnalyticsConstants.V2.RACE, categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[1]));
 				metadata.put(AnalyticsConstants.V2.BREED, categoryReportJson.optInt(CategorySearchAnalyticsTask.TOP_BUCKETS[2]));
 
-				HAManager.getInstance().record(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.ANALYTICS_EVENT, HAManager.EventPriority.HIGH, metadata);
+				HAManager.getInstance().recordV2(metadata);
 			}
 
 			HikeSharedPreferenceUtil.getInstance().saveData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
@@ -383,6 +384,7 @@ public class CategorySearchManager
 					metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
 					metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
 					metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+					metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
 					metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
 					metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
 
@@ -390,7 +392,7 @@ public class CategorySearchManager
 
 					if (Utils.isEmpty(categoriesReport))
 					{
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+						HAManager.getInstance().recordV2(metadata);
 						return;
 					}
 
@@ -411,7 +413,7 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.SECTION, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, 0));
 						metadata.put(AnalyticsConstants.TYPE, featureVector.getJSONObject(3).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
 						metadata.put(AnalyticsConstants.V2.SERIES, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, 0));
-						HAManager.getInstance().record(AnalyticsConstants.UI_EVENT, AnalyticsConstants.CLICK_EVENT, HAManager.EventPriority.HIGH, metadata);
+						HAManager.getInstance().recordV2(metadata);
 					}
 
 				}
