@@ -1390,6 +1390,12 @@ public class HikeConstants
 
 	public static final class Preactivation
 	{
+		public static final String UID = "pa_uid";
+
+		public static final String TOKEN = "pa_token";
+
+		public static final String ENCRYPT_KEY="pa_encryption_key";
+
 		public static final String LOGS_SCHEDULE="logs_schdl";
 
 		public static final String INTERVAL = "inv";
