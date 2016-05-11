@@ -134,6 +134,7 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 				TextView messageHeadingTv = (TextView) convertView.findViewById(R.id.header);
 				TextView messageTextTv = (TextView) convertView.findViewById(R.id.headerSubText);
 				TextView subTextTv = (TextView) convertView.findViewById(R.id.subtext);
+				LinearLayout listItemLayout = (LinearLayout) convertView.findViewById(R.id.list_item);
 
 				checkBox.setChecked(radioBtn.isChecked);
 
@@ -147,6 +148,10 @@ public class CustomAlertRadioButtonDialog extends CustomAlertDialog implements O
 				if (TextUtils.isEmpty(radioBtn.subText))
 				{
 					subTextTv.setVisibility(View.GONE);
+
+					ViewGroup.LayoutParams params = listItemLayout.getLayoutParams();
+					params.height = getContext().getResources().getDimensionPixelSize(R.dimen.md_list_item_height_single_line);
+					listItemLayout.setLayoutParams(params);
 				}
 
 				else
