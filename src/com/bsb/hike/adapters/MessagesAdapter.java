@@ -4749,8 +4749,21 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				removeMessage(i);
 				addMessage(convMessage);
 				notifyDataSetChanged();
-				break;
+				return;
 			}
 		}
+
+		// for those cases where the message is not loaded into memory
+		long messageId = convMessage.getMsgID();
+		String messageHash = HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(messageId);
+		if(TextUtils.isEmpty(messageHash))
+		{
+			return;
+		}
+		ConvMessage oldMessage = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
+
+		convMessage.webMetadata = oldMessage.webMetadata;
+		addMessage(convMessage);
+		notifyDataSetChanged();
 	}
 }
