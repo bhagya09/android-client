@@ -1682,11 +1682,10 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		if (themeId.equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
 			ChatThemeManager.getInstance().customThemeTempUploadImagePath = ChatThemeManager.getInstance().getCCTTempUploadPath();
 			int galleryFlags = GalleryActivity.GALLERY_CATEGORIZE_BY_FOLDERS | GalleryActivity.GALLERY_DISPLAY_CAMERA_ITEM;
-			CropCompression compression = new CropCompression().maxWidth(640).maxHeight(640).quality(100);
-
 			int height = DrawUtils.displayMetrics.heightPixels;
 			int width = DrawUtils.displayMetrics.widthPixels;
-			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true);
+			CropCompression compression = new CropCompression().maxWidth(width).maxHeight(height).quality(100);
+			Intent imageChooserIntent = IntentFactory.getImageChooserIntent(activity, galleryFlags, ChatThemeManager.getInstance().customThemeTempUploadImagePath, compression, true, width, height);
 			activity.startActivityForResult(imageChooserIntent, HikeConstants.ResultCodes.CHATTHEME_GALLERY_REQUEST_CODE);
 
 		}else {
