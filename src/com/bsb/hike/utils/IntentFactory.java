@@ -1510,13 +1510,13 @@ public class IntentFactory
 		return intent;
 	}
 
-	public static void openPackPreviewIntent(Context context, String catId, int position, String previewClickSource)
+	public static void openPackPreviewIntent(Context context, String catId, int position, StickerConstants.PackPreviewClickSource previewClickSource, String previewClickSourceKey)
 	{
 		Intent intent = new Intent(context, PackPreviewActivity.class);
 		intent.putExtra(HikeConstants.STICKER_CATEGORY_ID, catId);
 		intent.putExtra(HikeConstants.POSITION, position);
 		context.startActivity(intent);
-		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, position, previewClickSource);
+		StickerManager.getInstance().sendPackPreviewOpenAnalytics(catId, position, previewClickSource.getValue(), previewClickSourceKey);
 	}
 
 	public static String getTextFromActionSendIntent(Intent presentIntent)

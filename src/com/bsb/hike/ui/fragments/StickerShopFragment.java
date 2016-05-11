@@ -207,7 +207,7 @@ public class StickerShopFragment extends StickerShopBaseFragment implements OnSc
 			return;
 		}
 		String categoryId = mAdapter.getItem(position - FIRST_PACK_VIEW_ROW_NUMBER);
-		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP.getValue());
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP, null);
 		mAdapter.setShownPackPreviewFtue();
 	}
 

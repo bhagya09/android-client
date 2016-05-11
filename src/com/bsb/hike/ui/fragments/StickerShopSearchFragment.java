@@ -200,8 +200,7 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 			return;
 		}
 		String categoryId = mAdapter.getItem(position);
-		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP_SEARCH.getValue() + HikeConstants.DELIMETER
-				+ currentQuery);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP_SEARCH, currentQuery);
 		CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_PACK_PREVIEWED_BUTTON_TRIGGER);
 	}
 

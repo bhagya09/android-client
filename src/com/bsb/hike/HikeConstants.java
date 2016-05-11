@@ -2278,11 +2278,13 @@ public class HikeConstants
 
         public static final String EMOTICON_BTN_CLICKED = "eBnc";
 
-        public static final String CATEGORY_SEARCHED_REPORT = "c_s_rep";
+        public static final String CATEGORY_SEARCHED_REPORT = "shpSrchAggRept";
 
         public static final String CATEGORY_SEARCHED_REPORT_DATA = "csrd";
 
-        public static final String SEARCHED_CATEGORY_RESPONSE = "scRep";
+        public static final String SEARCHED_CATEGORY_RESPONSE = "shpSrchRept";
+
+        public static final String SHOP_SEARCH = "shpSrch";
 
         public static final String SEARCHED_CATEGORY_RESPONSE_DATA = "scRepD";
 

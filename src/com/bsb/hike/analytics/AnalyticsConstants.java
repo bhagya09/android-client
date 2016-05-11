@@ -279,6 +279,8 @@ public class AnalyticsConstants
 
 		public static final String REC_ID = "ri";
 
+		public static final String SECTION = "sec";
+
 		public static final String TO_USER = "tu";
 
 		public static final String USER_STATE = "us";
