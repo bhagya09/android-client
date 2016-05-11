@@ -278,7 +278,7 @@ public class ChatThemeDrawableHelper {
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_BUBBLE_COLOR:
-                    resourceName = res.getString(R.color.bubble_blue);
+                    resourceName = truncateHashForColor(res.getString(R.color.bubble_blue));
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
@@ -288,22 +288,22 @@ public class ChatThemeDrawableHelper {
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_MULTI_SELECT_BUBBLE:
-                    resourceName = res.getString(R.color.light_black_transparent);
+                    resourceName = truncateHashForColor(res.getString(R.color.light_black_transparent));
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_OFFLINE_MSG_BG:
-                    resourceName = res.getString(R.color.white);
+                    resourceName = truncateHashForColor(res.getString(R.color.white));
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
 
                 case HikeChatThemeConstants.JSON_SIGNAL_THEME_STATUS_BAR_BG:
-                    resourceName = res.getString(R.color.purpleflower_theme_status_bar_color);
+                    resourceName = truncateHashForColor(res.getString(R.color.purpleflower_theme_status_bar_color));
                     resourceType = HikeChatThemeConstants.ASSET_TYPE_COLOR;
                     break;
             }
             HikeChatThemeAsset asset = null;
-            Log.v(TAG, "resourceName :::: "+resourceName+" ::resourceType::: "+resourceType);
+            Log.v(TAG, "resourceName :::: " + resourceName + " ::resourceType::: " + resourceType);
             if (ChatThemeManager.getInstance().getAssetHelper().hasAsset(resourceName)) {
                 asset = ChatThemeManager.getInstance().getAssetHelper().getChatThemeAsset(resourceName);
             } else {
@@ -315,6 +315,13 @@ public class ChatThemeDrawableHelper {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private String truncateHashForColor(String color) {
+        if (!TextUtils.isEmpty(color) && color.startsWith("#")) {
+            return color.substring(1, color.length());
+        }
+        return color;
     }
 
     private Drawable getDrawableFromId(int resId) {

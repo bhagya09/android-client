@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 /**
  * Created by sriram on 22/02/16.
@@ -46,6 +47,10 @@ public class ChatThemeManager {
 
     private String TAG = "ChatThemeManager";
 
+    private ArrayList<String> defaultHikeThemes = null;
+
+    private String recentCustomTheme = null;
+
     private ChatThemeManager() {
 
     }
@@ -65,6 +70,24 @@ public class ChatThemeManager {
         mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
+
+        getDefaultHikeThemes();
+    }
+
+    private void getDefaultHikeThemes() {
+        defaultHikeThemes = new ArrayList<>();
+        Set<String> themeIds = mChatThemesList.keySet();
+        boolean isRecentCTFound = false;
+        for (String themeId : themeIds) {
+            if (!mChatThemesList.get(themeId).isCustomTheme()) {
+                defaultHikeThemes.add(themeId);
+            } else {
+                if (!isRecentCTFound) {
+                    recentCustomTheme = themeId;
+                    isRecentCTFound = true;
+                }
+            }
+        }
     }
 
     public ChatThemeAssetHelper getAssetHelper() {
@@ -154,7 +177,7 @@ public class ChatThemeManager {
                 for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
                     JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME[j]);
                     int type = assetObj.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
-                    String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE);
+                    String id = assetObj.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE).toLowerCase();
 
                     int size = 0;
                     if (assetObj.has(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE)) {
@@ -210,23 +233,23 @@ public class ChatThemeManager {
 
             for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
                 String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
-                Log.v(TAG, "assetKey ::processCustomThemeSignal:: "+assetKey);
+                Log.v(TAG, "assetKey ::processCustomThemeSignal:: " + assetKey);
                 if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_PORTRAIT)) {
                     JSONObject jsonObject = data.getJSONObject(assetKey);
-                    assetId = jsonObject.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG;
+                    assetId = (jsonObject.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + HikeChatThemeConstants.FILEEXTN_JPG).toLowerCase();
                     int type = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
                     int size = jsonObject.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
                     HikeChatThemeAsset asset = new HikeChatThemeAsset(assetId, type, "", size);
                     mAssetHelper.saveChatThemeAsset(assetId, asset);
                     asset.setIsDownloaded(HikeChatThemeConstants.ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED);
                     theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT, assetId);
-                }else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
+                } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_BG_LANDSCAPE)) {
                     theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_BG_LANDSCAPE, assetId);
                 } else if (assetKey.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_THEME_THUMBNAIL)) {
                     //TODO CHATTHEME, remove once the thumbnail is corrected on server, enable the below code
                     theme.setAsset(HikeChatThemeConstants.ASSET_INDEX_THUMBNAIL, assetId);
 //                    JSONObject thumbnail = data.getJSONObject(assetKey);
-//                    thumbnailAssetId = thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + ".jpg";
+//                    thumbnailAssetId = (thumbnail.getString(HikeChatThemeConstants.JSON_SIGNAL_ASSET_VALUE) + ".jpg").toLowerCase();
 //                    int thumbnailType = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_TYPE);
 //                    int thumbnailSize = thumbnail.getInt(HikeChatThemeConstants.JSON_SIGNAL_ASSET_SIZE);
 //                    HikeChatThemeAsset thumbnailAsset = new HikeChatThemeAsset(thumbnailAssetId, thumbnailType, "", thumbnailSize);
@@ -246,9 +269,11 @@ public class ChatThemeManager {
             HikeConversationsDatabase.getInstance().saveChatTheme(theme);
 
             if (downloadAssets) {
-                Log.v(TAG, "Download Assets for Theme :::: "+themeID);
+                Log.v(TAG, "Download Assets for Theme :::: " + themeID);
                 downloadAssetsForTheme(themeID);
             } else {
+                recentCustomTheme = themeID;
+
                 ArrayList<HikeChatThemeAsset> assetsList = new ArrayList<>();
                 String destFilePath = ChatThemeManager.getInstance().getDrawableHelper().getAssetRootPath() + File.separator + assetId;
                 Utils.copyFile(customThemeTempUploadImagePath, destFilePath);
@@ -271,15 +296,14 @@ public class ChatThemeManager {
 
     }
 
-    //TODO CHATTHEME work on optimisation of this method
     public ArrayList<String> getAvailableThemeIds() {
-        mChatThemesList.clear();
-        mChatThemesList = HikeConversationsDatabase.getInstance().getAllChatThemes();
         ArrayList<String> availableThemes = new ArrayList<>();
-        for (String themeId : mChatThemesList.keySet()) {
-            if (isThemeAvailable(themeId)) {
-                availableThemes.add(themeId);
-            }
+        if ((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
+            getDefaultHikeThemes();
+        }
+        availableThemes.addAll(defaultHikeThemes);
+        if (recentCustomTheme != null) {
+            availableThemes.add(0, recentCustomTheme);
         }
         return availableThemes;
     }
