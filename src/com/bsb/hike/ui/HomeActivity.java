@@ -92,6 +92,7 @@ import com.bsb.hike.tasks.DownloadAndInstallUpdateAsyncTask;
 import com.bsb.hike.tasks.SendLogsTask;
 import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
+import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ConversationFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.FestivePopup;
@@ -167,6 +168,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private int recommendedCount = -1;
 
 	private FetchContactsTask fetchContactsTask;
+
+	private UpdatesFragment updatesFragment;
 
 	private ConversationFragment conversationFragment;
 
@@ -596,21 +599,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		@Override
 		public Fragment getItem(int position) {
-			return getConversationFragment();
-//			switch (position) {
-//				case SU_FRAGMENT_ID:
-//					return getStatusFragment();
-//				case CONV_FRAGMENT_ID:
-//					return getConversationFragment();
+			switch (position) {
+				case SU_FRAGMENT_ID:
+					return getStatusFragment();
+				case CONV_FRAGMENT_ID:
+					return getConversationFragment();
 //				case MY_FRAGMENT_ID:
 //					return getMyFragment();
-//			}
-//			return null;
+			}
+			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 1;
+			return 2;
 		}
 	}
 
@@ -630,6 +632,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 
 		}
 	};
+
+	private Fragment getStatusFragment()
+	{
+		Fragment frag = getSupportFragmentManager().findFragmentByTag(SU_FRAGMENT_TAG);
+		if (frag != null)
+		{
+			updatesFragment = (UpdatesFragment) frag;
+		}
+		if (updatesFragment == null)
+		{
+			updatesFragment = new UpdatesFragment();
+		}
+		return updatesFragment;
+	}
 
 	private Fragment getConversationFragment()
 	{
