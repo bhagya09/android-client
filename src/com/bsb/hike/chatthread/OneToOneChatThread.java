@@ -630,6 +630,7 @@ import com.bsb.hike.voip.VoIPUtils;
 			else if (!((OneToOneConversationMetadata) (mConversation.getMetadata())).isUserInfoViewToBeShown())
 			{
 				Logger.d("c_spam", "chat thread opened for unknown contact, found cross applied so not going ahead");
+				unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 				return;
 			}
 
