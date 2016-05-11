@@ -326,9 +326,9 @@ public class UserLogInfo {
 		}
 		else
 		{
-			key = settings.getData("pa_uid", null);
+			key = settings.getData(HikeConstants.Preactivation.UID, null);
 			//for the case when AI packet will not send us the backup Token
-			salt = settings.getData("pa_encryption_key", null);
+			salt = settings.getData(HikeConstants.Preactivation.ENCRYPT_KEY, null);
 			// if salt or key is empty, we do not send anything
 		}
 		
@@ -461,9 +461,9 @@ public class UserLogInfo {
 		}
 		else
 		{
-			key = settings.getData("pa_uid", null);
+			key = settings.getData(HikeConstants.Preactivation.UID, null);
 			//for the case when AI packet will not send us the backup Token
-			salt = settings.getData("pa_encryption_key", null);
+			salt = settings.getData(HikeConstants.Preactivation.ENCRYPT_KEY, null);
 			// if salt or key is empty, we do not send anything
 		}
 		if(TextUtils.isEmpty(salt) || TextUtils.isEmpty(key))

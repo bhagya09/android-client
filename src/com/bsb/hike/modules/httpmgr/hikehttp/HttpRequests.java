@@ -772,9 +772,9 @@ public class HttpRequests
 		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
 		{
 			Header customHeader;
-			String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid", "");
-			String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token", "");
-			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+			String pa_uid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			String pa_token = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.TOKEN, "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikeConstants.Preactivation.TOKEN + "=" + pa_token + "; " + HikeConstants.Preactivation.UID + "=" + pa_uid);
 			sendUserLogJsonRequestBuilder.addHeader(customHeader);
 		}
 		sendUserLogJsonRequestBuilder.post(body);
