@@ -548,8 +548,6 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// remove any existing marker
 		if (userMarker != null)
 			userMarker.remove();
-		// create and set marker properties
-		lastMarker = userMarker;
 
 		if (settingCustomLocation) {
 			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("Custom Location").visible(false));
@@ -559,10 +557,13 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 			location.setLongitude(lng);
 			updateNearbyPlaces(location);
 		} else {
-			// create and set marker propertie//s
+			// create and set marker properties
 			userMarker = map.addMarker(new MarkerOptions().position(myLatLng).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing)).visible(false));
 
 		}
+
+		// create and set marker properties
+		lastMarker = userMarker;
 
 		updateLocationAddress(lat, lng, userMarker);
 	}
