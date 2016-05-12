@@ -310,7 +310,7 @@ public class ChatThemeManager {
 
     public ArrayList<String> getAvailableThemeIds() {
         ArrayList<String> availableThemes = new ArrayList<>();
-        if((defaultHikeThemes == null) || (defaultHikeThemes.size() > 0)) {
+        if((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
             getAllHikeThemesForDisplay();
         }
         availableThemes.addAll(defaultHikeThemes);
