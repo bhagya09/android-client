@@ -1791,6 +1791,25 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 	}
 
+	private void setNewBDPrefValue(Preference bdPref, String bdPrefValue)
+	{
+		Logger.d(getClass().getSimpleName(), "setting new bd pref");
+		IconListPreference bdListPref = (IconListPreference) bdPref;
+		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + getBDPrefText(bdPrefValue, false));
+		bdListPref.setSummary(getBDPrefText(bdPrefValue, true));
+		bdListPref.setValue(String.valueOf(bdPrefValue));
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(HikeConstants.BIRTHDAY_PRIVACY_PREF, bdPrefValue).commit();
+	}
+
+
+	private void showBDUpdateStatusToast(String toastMsg)
+	{
+		if(!TextUtils.isEmpty(toastMsg))
+		{
+			Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_SHORT).show();
+		}
+	}
+
 	private void updateAccountBackupPrefView()
 	{
 		Preference preference = getPreferenceScreen().findPreference(HikeConstants.BACKUP_PREF);
