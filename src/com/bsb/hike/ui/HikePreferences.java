@@ -1267,6 +1267,17 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 				e.printStackTrace();
 			}
 		}
+		else if(HikeConstants.BIRTHDAY_PRIVACY_PREF.equals(preference.getKey()))
+		{
+			Logger.d(getClass().getSimpleName(), "calling update bd pref");
+			String bdPrefValue = String.valueOf(newValue);
+			updateBirthdayPrivacyPref(preference, bdPrefValue);
+			/**
+			 * we are updating pref on server via http. we want value on client to update only on request success so always
+			 * returning false here and updating value in HTTP's onRequestSuccess callback here {@link #sendBDPrefToServer}
+			 */
+			return false;
+		}
 		else if (newValue instanceof Boolean)
 		{
 			boolean isChecked = (Boolean) newValue;
