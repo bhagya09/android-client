@@ -27,6 +27,8 @@ public class HikeChatTheme
 
 	private int themeOrderIndex = 0;
 
+    private int systemMessageType = HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DARK;
+
 	public HikeChatTheme()
 	{
 		assets = new String[HikeChatThemeConstants.ASSET_INDEX_COUNT];
@@ -146,4 +148,12 @@ public class HikeChatTheme
 	public void setThemeOrderIndex(int themeOrderIndex) {
 		this.themeOrderIndex = themeOrderIndex;
 	}
+
+    public int getSystemMessageType() {
+        return systemMessageType;
+    }
+
+    public void setSystemMessageType(int systemMessageType) {
+        this.systemMessageType = systemMessageType;
+    }
 }

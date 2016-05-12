@@ -6,6 +6,7 @@ import android.util.Log;
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
+import com.bsb.hike.R;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.models.HikeChatThemeAsset;
@@ -150,6 +151,11 @@ public class ChatThemeManager {
                     theme.setThemeOrderIndex(order);
                 }
 
+                if (t.has(HikeChatThemeConstants.JSON_SIGNAL_THEME_SYSTEM_MESSAGE)) {
+                    int messageType = t.getInt(HikeChatThemeConstants.JSON_SIGNAL_THEME_SYSTEM_MESSAGE);
+                    theme.setSystemMessageType(messageType);
+                }
+
                 // looping to the no of indexes for a theme
                 for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
                     JSONObject assetObj = t.getJSONObject(HikeChatThemeConstants.JSON_SIGNAL_THEME[j]);
@@ -207,6 +213,7 @@ public class ChatThemeManager {
             theme.setThemeType(HikeChatThemeConstants.THEME_TYPE_CUSTOM);
             theme.setVisibilityStatus(true);
             theme.setThemeOrderIndex(0);
+            theme.setSystemMessageType(HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT);
 
             for (byte j = 0; j < HikeChatThemeConstants.ASSET_INDEX_COUNT; j++) {
                 String assetKey = HikeChatThemeConstants.JSON_SIGNAL_THEME[j];
@@ -329,6 +336,28 @@ public class ChatThemeManager {
         }
         HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.MIGRATE_CHAT_THEMES_DATA_TO_DB, true);
         return true;
+    }
+
+    public int getSystemMessageTextViewLayout(int systemMessageType) {
+        switch(systemMessageType){
+            case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT:
+                return R.layout.system_message_light;
+            case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DARK:
+                return R.layout.system_message_dark;
+            case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DEFAULT:
+                return R.layout.system_message_default_theme;
+        }
+        return R.layout.system_message_dark;
+    }
+
+    public int getSystemMessageBackgroundLayout(int systemMessageType) {
+        switch(systemMessageType){
+            case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_LIGHT:
+                return R.drawable.bg_system_message_light;
+            case HikeChatThemeConstants.SYSTEM_MESSAGE_TYPE_DARK:
+                return R.drawable.bg_system_message_dark;
+        }
+        return R.drawable.bg_system_message_dark;
     }
 
 }
