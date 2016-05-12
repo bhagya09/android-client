@@ -823,7 +823,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 			if (chatMuteItem != null)
 			{
-				chatMuteItem.setTitle(HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN).isMute() ? R.string.unmute_chat : R.string.mute_chat);
+				chatMuteItem.setTitle(ContactManager.getInstance().isChatMuted(mLocalMSISDN) ? R.string.unmute_chat : R.string.mute_chat);
 			}
 
 			return true;
@@ -2243,7 +2243,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		}
 		else
 		{
-			final Mute mute = HikeConversationsDatabase.getInstance().getChatMute(mLocalMSISDN);
+			final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
 
 			if ((getString(R.string.mute_chat)).equals(text))
 			{

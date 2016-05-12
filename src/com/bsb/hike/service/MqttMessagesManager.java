@@ -934,7 +934,7 @@ public class MqttMessagesManager
 					if (activeStealthChat || stealthNotifPref || !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
 
-						if (!HikeConversationsDatabase.getInstance().isChatMuted(msisdn))
+						if (!ContactManager.getInstance().isChatMuted(msisdn))
 						{
 							vibrate = true;
 						}
