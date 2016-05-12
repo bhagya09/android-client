@@ -8001,16 +8001,6 @@ public class Utils
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
 
-    public static boolean isConversationMuted(String msisdn)
-    {
-        return ContactManager.getInstance().isChatMuted(msisdn);
-    }
-
-    public static boolean showNotifForMutedConversation(String msisdn)
-    {
-        return (ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn));
-    }
-
     /**
      * Used to toggle mute and unmute for chat
      */
