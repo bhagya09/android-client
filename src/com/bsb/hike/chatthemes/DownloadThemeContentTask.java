@@ -123,7 +123,8 @@ public class DownloadThemeContentTask implements IHikeHTTPTask, IHikeHttpTaskRes
             if(isCustom){
                 ChatThemeManager.getInstance().processCustomThemeSignal(data.getJSONObject(0), true);
             }else {
-                ChatThemeManager.getInstance().processNewThemeSignal(data, false);
+                //TODO CHATTHEME, Enable if it OTA Themes
+                //ChatThemeManager.getInstance().processNewThemeSignal(data, false);
             }
         } catch (JSONException e) {
             doOnFailure(new HttpException(HttpException.REASON_CODE_UNEXPECTED_ERROR, e));

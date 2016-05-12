@@ -3848,7 +3848,8 @@ public class MqttMessagesManager
 				{
 					JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
 					JSONArray themeData = data.getJSONArray(HikeChatThemeConstants.JSON_SIGNAL_THEME_DATA);
-					ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
+					//TODO CHATTHEME, Enable if it OTA Themes
+					//ChatThemeManager.getInstance().processNewThemeSignal(themeData, false);
 					return true;
 				} else if (type.equalsIgnoreCase(HikeChatThemeConstants.JSON_SIGNAL_DEL_THEME))//Delete Theme Packet
 				{
