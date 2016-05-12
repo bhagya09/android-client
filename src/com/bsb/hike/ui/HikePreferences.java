@@ -1734,6 +1734,9 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			profilePicPrefs.setSummary(getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.profile_pic_display_info_frn : R.string.profile_pic_display_info));
 		}
+
+		//calling setup for birthday privacy preference
+		setupBirthdayPrivacyPref();
 	}
 
 	private String getLSSummaryText()
@@ -1782,6 +1785,7 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		}
 
 		bdListPref.setNegativeButtonText(R.string.CANCEL);
+		bdListPref.setOnPreferenceChangeListener(this);
 
 		//adding preference title and summary text
 		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + bdListPref.getEntry());
