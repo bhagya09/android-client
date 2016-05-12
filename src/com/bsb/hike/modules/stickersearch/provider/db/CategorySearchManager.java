@@ -58,8 +58,6 @@ public class CategorySearchManager
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
-	public static final float[] DEFAULT_WEIGHTS = new float[] { 0.0f, 1.0f, 0.0f, 2.0f };
-
 	public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
 
 	public static final int DEFAULT_SEARCH_RESULTS_LOG_LIMIT = 5;
@@ -254,10 +252,10 @@ public class CategorySearchManager
 
 			if (TextUtils.isEmpty(weightString) || !weightString.contains(HikeConstants.DELIMETER))
 			{
-				return DEFAULT_WEIGHTS;
+				weightString = DEFAULT_WEIGHTS_INPUT;
 			}
 
-			String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
+			String[] inputs = weightString.split(HikeConstants.DELIMETER);
 			weights = new float[inputs.length];
 			for (int i = 0; i < inputs.length; i++)
 			{
