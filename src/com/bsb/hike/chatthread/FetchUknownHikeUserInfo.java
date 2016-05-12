@@ -47,7 +47,7 @@ public class FetchUknownHikeUserInfo
 
 				if (!ChatHeadUtils.isFullNameValid(updatedCallerContentModel.getFullName()))
 				{
-					Logger.d("c_spam", " as Name is not valid, so not entring in DB + not showing view and firing null pubsub" );
+					Logger.d("c_spam", " as Name ( "+ updatedCallerContentModel.getFullName()+" ) is not valid, so not entring in DB + not showing view and firing null pubsub" );
 					HikeMessengerApp.getPubSub().publish(HikePubSub.UPDATE_UNKNOWN_USER_INFO_VIEW, null);
 				}
 				else

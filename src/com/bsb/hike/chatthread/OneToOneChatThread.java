@@ -3949,7 +3949,7 @@ import com.bsb.hike.voip.VoIPUtils;
 				Logger.d("c_spam", "inside updateUnknownUserInfoViews, CallerContentModel is " + object);
 				if (!ChatHeadUtils.isFullNameValid(callerContentModel.getFullName()))
 				{
-					Logger.d("c_spam", "As full name in callerContentModel is not valid, so not showing view " + callerContentModel);
+					Logger.d("c_spam", "As full name( "+callerContentModel.getFullName()+" ) in callerContentModel is not valid, so not showing view " + callerContentModel);
 					unknownContactInfoView.findViewById(R.id.unknown_user_info_view).setVisibility(View.GONE);
 					return;
 				}

@@ -1162,6 +1162,7 @@ public class ChatHeadUtils
 	/**
 	 * Checks String is NOt valid
 	 * 1. Empty/Null
+	 * 2. String is msisdn or not
 	 *
 	 * @param fullName
 	 * @return
@@ -1170,7 +1171,7 @@ public class ChatHeadUtils
 	{
 		boolean valid = true;
 
-		if(TextUtils.isEmpty(fullName))
+		if(TextUtils.isEmpty(fullName) || fullName.trim().matches(HikeConstants.VALID_MSISDN_REGEX))
 		{
 			valid = false;
 		}
