@@ -420,11 +420,6 @@ import java.util.Map;
 			list.add(item);
 		}
 
-		if ((!Utils.isFavToFriendsMigrationAllowed()) && mContactInfo.isNotOrRejectedFavourite() && mConversation.isOnHike())
-		{
-			list.add(new OverFlowMenuItem(getString(Utils.isFavToFriendsMigrationAllowed() ?  R.string.add_as_friend_menu : R.string.add_as_favorite_menu), 0, 0, R.string.add_as_favorite_menu));
-		}
-
 		list.add(new OverFlowMenuItem(mConversation.isBlocked() ? getString(R.string.unblock_title) : getString(R.string.block_title), 0, 0, !isNotMyOneWayFriend(), R.string.block_title));
 		return list;
 	}
@@ -3339,11 +3334,8 @@ import java.util.Map;
 		Utils.addFavorite(activity, mContactInfo, false, fromFtueBtn ? HikeConstants.AddFriendSources.CHAT_FTUE : HikeConstants.AddFriendSources.CHAT_ADD_FRIEND);
 		mContactInfo.setFavoriteType(favoriteType);
 
-		if (Utils.isFavToFriendsMigrationAllowed())
-		{
-			ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
-			HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
-		}
+		ConvMessage message = Utils.generateAddFriendSystemMessage(msisdn, activity.getString(R.string.friend_req_inline_msg_sent, mContactInfo.getFirstNameAndSurname()), mConversation.isOnHike(), State.RECEIVED_UNREAD);
+		HikeMessengerApp.getPubSub().publish(HikePubSub.ADD_INLINE_FRIEND_MSG, message);
 	}
 	
 	@Override
@@ -3705,12 +3697,7 @@ import java.util.Map;
 
 	private void inflateAddFriendButtonIfNeeded()
 	{
-		if (!Utils.isFavToFriendsMigrationAllowed())
-		{
-			return; // Do nothing here!
-		}
-
-		else if (mContactInfo.isMyOneWayFriend())
+		if (mContactInfo.isMyOneWayFriend())
 		{
 			return; //If I am 1-way or 2-way friends, do not inflate these views
 		}
@@ -3785,12 +3772,7 @@ import java.util.Map;
 
 	protected void doSetupForAddFriend()
 	{
-		if (!Utils.isFavToFriendsMigrationAllowed())
-		{
-			return; // Do nothing here!
-		}
-
-		else if (mContactInfo.isMyOneWayFriend())
+		if (mContactInfo.isMyOneWayFriend())
 		{
 			return; // If it already is a 1 way or a 2 way friend, no need for all this shizzle!
 		}
@@ -3977,7 +3959,7 @@ import java.util.Map;
 		{
 			return false; //Self obsessed 1-way friend
 		}
-		return Utils.isNotMyOneWayFriend(mContactInfo);
+		return !mContactInfo.isMyOneWayFriend();
 	}
 
 	@Override
