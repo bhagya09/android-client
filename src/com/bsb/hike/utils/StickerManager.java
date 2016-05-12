@@ -3481,8 +3481,13 @@ public class StickerManager
 			}
 			else
 			{
+				recordStickerMigrationFailure("failed to upgrade for sticker table");
 				return false;
 			}
+		}
+		else
+		{
+			recordStickerMigrationFailure("failed to move stickers");
 		}
 
 		return isMoved;
@@ -3782,5 +3787,25 @@ public class StickerManager
 	{
 		HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
 		setupStickerCategoryList(); //Set up the sticker category list again
+	}
+
+	public void recordStickerMigrationFailure(String errorString)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_error");
+			if(!TextUtils.isEmpty(errorString))
+			{
+				json.put(AnalyticsConstants.V2.GENUS, errorString);
+			}
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
