@@ -5,6 +5,7 @@
         "theme_id": "42",
         "order": 5,
         "name": "COFFEEBEAN",
+        "sysMessageType": 1,
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_custom_theme.png",
@@ -147,6 +148,7 @@
         "theme_id": "0",
         "order": 1,
         "name": "DEFAULT",
+        "sysMessageType": 0,
         "inline_update_bg": {
           "type": 1,
           "value": "bg_status_chat_thread_default_theme.png",
@@ -503,6 +505,7 @@
         "order": 7,
         "name": "PEACOCKGLORY",
         "theme_state": 0,
+        "sysMessageType": 1,
         "header": {
           "type": 1,
           "value": "bg_header_transparent_2x.png",
@@ -573,6 +576,7 @@
         "theme_id": "38",
         "order": 8,
         "name": "NOWHERE",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -644,6 +648,7 @@
         "theme_id": "20",
         "order": 14,
         "name": "VALENTINES_2",
+        "sysMessageType": 1,
         "theme_state": 3,
         "header": {
           "type": 1,
@@ -715,6 +720,7 @@
         "theme_id": "28",
         "order": 11,
         "name": "FRIENDS",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -786,6 +792,7 @@
         "theme_id": "26",
         "order": 19,
         "name": "BEACH_2",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -857,6 +864,7 @@
         "theme_id": "22",
         "order": 17,
         "name": "NIGHT",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -999,6 +1007,7 @@
         "theme_id": "21",
         "order": 12,
         "name": "NIGHT_PATTERN",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,
@@ -1070,6 +1079,7 @@
         "theme_id": "30",
         "order": 9,
         "name": "GUITAR",
+        "sysMessageType": 1,
         "theme_state": 0,
         "header": {
           "type": 1,

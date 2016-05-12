@@ -2107,8 +2107,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				infoHolder.text.setTextColor(context.getResources().getColor(R.color.white));
 				infoHolder.messageInfo.setTextColor(context.getResources().getColor(R.color.white));
 			}
-			// TODO CHATTHEME
-			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(R.drawable.bg_system_message_dark);
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			((View) v.findViewById(R.id.voip_details)).setBackgroundResource(ChatThemeManager.getInstance().getSystemMessageBackgroundLayout(sysMsgType));
 			int duration = metadata.getDuration();
 			boolean initiator = metadata.isVoipInitiator();
 
@@ -2219,8 +2219,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			int right = 0;
 			int bottom = positiveMargin;
 
-			// TODO CHATTHEME
-			int layoutRes = R.layout.system_message_dark;
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			int layoutRes = ChatThemeManager.getInstance().getSystemMessageTextViewLayout(sysMsgType);
 			
 			if(infoState == ParticipantInfoState.OFFLINE_INLINE_MESSAGE)
 			{
@@ -2549,8 +2549,8 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 				participantInfoHolder = (ParticipantInfoHolder) v.getTag();
 			}
 			dayHolder = participantInfoHolder;
-			// TODO CHATTHEME
-			int layoutRes = R.layout.system_message_dark;
+			int sysMsgType = ChatThemeManager.getInstance().getTheme(chatThemeId).getSystemMessageType();
+			int layoutRes = ChatThemeManager.getInstance().getSystemMessageTextViewLayout(sysMsgType);
 			TextView participantInfo = (TextView) inflater.inflate(layoutRes, null);
 			if (convMessage.getUnreadCount() == 1)
 			{

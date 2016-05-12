@@ -24,6 +24,12 @@ public class HikeChatThemeConstants {
 
     public static final byte ASSET_TYPE_BASE64STRING = 4;
 
+    public static final byte SYSTEM_MESSAGE_TYPE_DEFAULT = 0;
+
+    public static final byte SYSTEM_MESSAGE_TYPE_LIGHT = 1;
+
+    public static final byte SYSTEM_MESSAGE_TYPE_DARK = 2;
+
 
     // Asset Download is a Success / Failure
     public static final byte ASSET_DOWNLOAD_STATUS_NOT_DOWNLOADED = 0;
@@ -57,6 +63,8 @@ public class HikeChatThemeConstants {
     public static final String JSON_SIGNAL_THEME_VISIBILITY = "visibility";
 
     public static final String JSON_SIGNAL_THEME_ORDER = "order";
+
+    public static final String JSON_SIGNAL_THEME_SYSTEM_MESSAGE = "sysMessageType";
 
     public static final String JSON_SIGNAL_THEME_THEMESTATE = "theme_state";
 
