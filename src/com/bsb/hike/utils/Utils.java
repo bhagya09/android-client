@@ -7911,9 +7911,6 @@ public class Utils
 					result = result && f.renameTo(newFile);
 				}
 			}
-
-			// Delete residual dirs
-			Utils.deleteFile(oldRootDir);
 		}
 
 		return result;
