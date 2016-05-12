@@ -113,6 +113,7 @@ import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateL
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.updateUnLoveLinkUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.validateNumberBaseUrl;
 import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getHistoricalStatusUpdatesUrl;
+import static com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants.getBDPrefUpdateUrl;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_HIGH;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_LOW;
 import static com.bsb.hike.modules.httpmgr.request.PriorityConstants.PRIORITY_NORMAL;
@@ -1447,6 +1448,19 @@ public class HttpRequests
 				.setRequestListener(requestListener)
 				.setId(downloadSettingsID)
 				.setRetryPolicy(new BasicRetryPolicy(retryCount, delayBeforeRetry, 1))
+				.build();
+		return requestToken;
+	}
+
+	public static RequestToken getBDPrefUpdateRequest(JSONObject payload, IRequestListener requestListener)
+	{
+		JsonBody jsonBody = new JsonBody(payload);
+		RequestToken requestToken = new JSONObjectRequest.Builder()
+				.setUrl(getBDPrefUpdateUrl())
+				.setRequestType(REQUEST_TYPE_SHORT)
+				.setResponseOnUIThread(true)
+				.setRequestListener(requestListener)
+				.post(jsonBody)
 				.build();
 		return requestToken;
 	}
