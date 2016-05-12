@@ -3041,6 +3041,11 @@ public class MqttMessagesManager
 			boolean enabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED);
 			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, enabled);
 		}
+		if (data.has(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY))
+		{
+			boolean disabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, disabled);
+		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
 			boolean fav_to_friends_switch = data.getBoolean(HikeConstants.FAV_TO_FRIENDS_MIGRATION);

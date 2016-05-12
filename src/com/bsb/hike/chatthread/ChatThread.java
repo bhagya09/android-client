@@ -1795,7 +1795,7 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 				}
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
 			}
-			if(ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme()) {
+			if(!ChatThreadUtils.disableOverlayEffectForCCT() && ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme()) {
 				backgroundImage.setOverLay(true);
 			}
 			backgroundImage.setImageDrawable(drawable);

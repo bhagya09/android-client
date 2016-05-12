@@ -75,6 +75,11 @@ public class ChatThreadUtils
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_ENABLED, false);
 	}
 
+	public static boolean disableOverlayEffectForCCT()
+	{
+		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, false);
+	}
+
 	protected static void playUpDownAnimation(Context context, final View view)
 	{
 		if (view == null)
