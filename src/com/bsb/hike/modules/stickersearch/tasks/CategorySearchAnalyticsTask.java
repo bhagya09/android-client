@@ -95,16 +95,23 @@ public class CategorySearchAnalyticsTask implements Runnable
 
 				for (CategorySearchData searchedCategory : searchedCategories)
 				{
-					if (categoryLoggedCount < categoryToLogVectorsLimit)
+					try
 					{
-						JSONObject searchedCategoryJSON = searchedCategory.toJSON();
+						if (categoryLoggedCount < categoryToLogVectorsLimit)
+						{
+							JSONObject searchedCategoryJSON = searchedCategory.toJSON();
 
-						searchedCategoryJSON.put(HikeConstants.INDEX, ++categoryLoggedCount);
+							searchedCategoryJSON.put(HikeConstants.INDEX, ++categoryLoggedCount);
 
-						resultsMetadata.put(searchedCategoryJSON);
+							resultsMetadata.put(searchedCategoryJSON);
+						}
+
+						CategorySearchManager.logSearchedCategoryToDailyReport(searchedCategory, categoryLoggedCount, searchedCategories.size());
 					}
-
-					CategorySearchManager.logSearchedCategoryToDailyReport(searchedCategory, categoryLoggedCount, searchedCategories.size());
+					catch (JSONException e)
+					{
+						Logger.e(TAG, "Exception While logging analytics JSON : " + e.getMessage());
+					}
 
 				}
 
