@@ -66,6 +66,7 @@ import com.bsb.hike.StringUtils;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.bots.BotUtils;
+import com.bsb.hike.chatthread.ChatThread;
 import com.bsb.hike.chatthread.ChatThreadActivity;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.dialog.ContactDialog;
@@ -4737,33 +4738,20 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 		}
 	}
 
-	public void onGeneralEventStateChange(ConvMessage convMessage)
+	public boolean onGeneralEventStateChange(ConvMessage convMessage)
 	{
 		for (int i = convMessages.size() - 1; i >= 0; i--)
 		{
 			if (convMessages.get(i).getMsgID() == convMessage.getMsgID())
 			{
-				convMessage.webMetadata = convMessages.get(i).webMetadata;
 				// removing from list and add it again. This would make the message appear at the
 				// end of the thread
 				removeMessage(i);
 				addMessage(convMessage);
 				notifyDataSetChanged();
-				return;
+				return true;
 			}
 		}
-
-		// for those cases where the message is not loaded into memory
-		long messageId = convMessage.getMsgID();
-		String messageHash = HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(messageId);
-		if(TextUtils.isEmpty(messageHash))
-		{
-			return;
-		}
-		ConvMessage oldMessage = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
-
-		convMessage.webMetadata = oldMessage.webMetadata;
-		addMessage(convMessage);
-		notifyDataSetChanged();
+		return false;
 	}
 }

@@ -6578,8 +6578,12 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 		final ConvMessage eventMessage=(ConvMessage)object;
 		if(eventMessage!=null&&this.msisdn.equals(eventMessage.getMsisdn()))
 		{
-			mAdapter.onGeneralEventStateChange(eventMessage);
+			if(!mAdapter.onGeneralEventStateChange(eventMessage))
+			{
+				addMessage(eventMessage);
+			}
 			setMessagesRead();
+			tryScrollingToBottom(eventMessage, 1);
 		}
 	}
 	

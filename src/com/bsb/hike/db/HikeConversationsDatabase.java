@@ -9343,9 +9343,25 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				final int contentIdColumn = c.getColumnIndex(DBConstants.HIKE_CONTENT.CONTENT_ID);
 				final int nameSpaceColumn = c.getColumnIndex(HIKE_CONTENT.NAMESPACE);
 				final int sortId = c.getColumnIndex(DBConstants.SORTING_ID);
+				final int metadataColumn = c.getColumnIndex(DBConstants.MESSAGE_METADATA);
 
 				ConvMessage message = new ConvMessage(c.getString(msgColumn), c.getString(msisdnColumn), c.getInt(tsColumn), ConvMessage.stateValue(c.getInt(msgStatusColumn)),
 						c.getLong(msgIdColumn), c.getLong(mappedMsgIdColumn), c.getString(groupParticipantColumn), true, c.getInt(typeColumn), c.getInt(contentIdColumn), c.getString(nameSpaceColumn), c.getLong(sortId));
+				String metadata = c.getString(metadataColumn);
+				try
+				{
+					if(message.getMessageType() == com.bsb.hike.HikeConstants.MESSAGE_TYPE.CONTENT){
+						message.platformMessageMetadata = new PlatformMessageMetadata(metadata, mContext);
+					}else if(message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || message.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT){
+						message.webMetadata = new WebMetadata(metadata);
+					}else{
+						message.setMetadata(metadata);
+					}
+				}
+				catch (JSONException e)
+				{
+					Logger.w(HikeConversationsDatabase.class.getName(), "Invalid JSON metadata", e);
+				}
 				
 				return message;
 
