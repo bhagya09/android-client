@@ -143,12 +143,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class ProfileActivity extends ChangeProfileImageBaseActivity implements FinishableEvent, Listener, OnLongClickListener, OnItemLongClickListener, OnScrollListener,
-		View.OnClickListener
+		View.OnClickListener, HikeDialogListener
 {
 
 	private ImageView mAvatarEdit;
 
 	private int defAvBgColor;
+
+	private HikeDialog hikeDialog;
 
 	class ProfileActivityState extends ChangeProfileImageActivityState
 	{
@@ -2200,6 +2202,103 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	}
 
+	@Override
+	public void negativeClicked(HikeDialog hikeDialog)
+	{
+		switch (hikeDialog.getId())
+		{
+			case HikeDialogFactory.DELETE_STATUS_DIALOG:
+			case HikeDialogFactory.DELETE_FROM_BROADCAST:
+			case HikeDialogFactory.DELETE_FROM_GROUP:
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				hikeDialog.dismiss();
+				this.hikeDialog = null;
+				break;
+
+			case HikeDialogFactory.DELETE_GROUP_DIALOG:
+				hikeDialog.dismiss();
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+				break;
+		}
+	}
+
+	@Override
+	public void positiveClicked(HikeDialog hikeDialog)
+	{
+		switch (hikeDialog.getId())
+		{
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
+				Utils.toggleMuteChat(getApplicationContext(), mute);
+				hikeDialog.dismiss();
+				break;
+
+			case HikeDialogFactory.DELETE_GROUP_DIALOG:
+				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
+				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
+
+				if (((CustomAlertDialog) hikeDialog).isChecked())
+				{
+					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
+					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					finish();
+				}
+				else
+				{
+
+					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
+					{
+
+						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
+						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
+					}
+				}
+				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
+				hikeDialog.dismiss();
+				break;
+
+			case HikeDialogFactory.DELETE_FROM_BROADCAST:
+			case HikeDialogFactory.DELETE_FROM_GROUP:
+				JSONObject object = new JSONObject();
+				try
+				{
+					object.put(HikeConstants.TO, oneToNConversation.getMsisdn());
+					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GROUP_CHAT_KICK);
+
+					JSONObject data = new JSONObject();
+
+					JSONArray msisdns = new JSONArray();
+					msisdns.put(contactInfo.getMsisdn());
+
+					data.put(HikeConstants.MSISDNS, msisdns);
+					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
+
+					object.put(HikeConstants.DATA, data);
+				}
+				catch (JSONException e)
+				{
+					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
+				}
+				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
+				hikeDialog.dismiss();
+				break;
+
+			case HikeDialogFactory.DELETE_STATUS_DIALOG:
+				deleteStatus();
+				hikeDialog.dismiss();
+				break;
+		}
+	}
+
+	@Override
+	public void neutralClicked(HikeDialog hikeDialog)
+	{
+
+	}
+
 	public void onProfileSmallRightBtnClick(String text)
 	{
 		if (OneToNConversationUtils.isOneToNConversation(mLocalMSISDN))
@@ -2209,25 +2308,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
 				if (muteGCApproach)
 				{
-					HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
-						@Override
-						public void negativeClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							Utils.toggleMuteChat(getApplicationContext(), oneToNConversation.getMute());
-							hikeDialog.dismiss();
-						}
-
-						@Override
-						public void neutralClicked(HikeDialog hikeDialog) {
-
-						}
-					}, oneToNConversation.getMute());
+					HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, oneToNConversation.getMute());
 				}
 				else
 				{
@@ -2247,25 +2328,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 			if ((getString(R.string.mute_chat)).equals(text))
 			{
-				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, new HikeDialogListener() {
-					@Override
-					public void negativeClicked(HikeDialog hikeDialog)
-					{
-						hikeDialog.dismiss();
-					}
-
-					@Override
-					public void positiveClicked(HikeDialog hikeDialog)
-					{
-						Utils.toggleMuteChat(getApplicationContext(), mute);
-						hikeDialog.dismiss();
-					}
-
-					@Override
-					public void neutralClicked(HikeDialog hikeDialog) {
-
-					}
-				}, mute);
+				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mute);
 			}
 			else
 			{
@@ -2372,52 +2435,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	
 	public void leaveGroup()
 	{
-		HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, new HikeDialogListener()
-		{
-
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				Utils.logEvent(ProfileActivity.this, HikeConstants.LogEvent.DELETE_CONVERSATION);
-				HikeMqttManagerNew.getInstance().sendMessage(oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_LEAVE), MqttConstants.MQTT_QOS_ONE);
-
-				if (((CustomAlertDialog) hikeDialog).isChecked())
-				{
-					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
-					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
-					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-					finish();
-				}
-				else
-				{
-
-					if (HikeConversationsDatabase.getInstance().toggleGroupDeadOrAlive(oneToNConversation.getMsisdn(), false) > 0)
-					{
-
-						OneToNConversationUtils.saveStatusMesg(oneToNConversation.getConvInfo(), getApplicationContext());
-						HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_END, oneToNConversation.serialize(HikeConstants.MqttMessageTypes.GROUP_CHAT_END));
-					}
-				}
-				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, true,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-				hikeDialog.dismiss();
-			}
-
-		
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
-
-			}
-		}, oneToNConversation.getLabel());
+		this.hikeDialog = HikeDialogFactory.showDialog(ProfileActivity.this, HikeDialogFactory.DELETE_GROUP_DIALOG, this, oneToNConversation.getLabel());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -3140,46 +3158,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 	private void removeFromGroup(final ContactInfo contactInfo)
 	{
 		int dialogId = oneToNConversation instanceof BroadcastConversation? HikeDialogFactory.DELETE_FROM_BROADCAST : HikeDialogFactory.DELETE_FROM_GROUP;
-		HikeDialogFactory.showDialog(this, dialogId, new HikeDialogListener()
-		{	
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				JSONObject object = new JSONObject();
-				try
-				{
-					object.put(HikeConstants.TO, oneToNConversation.getMsisdn());
-					object.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.GROUP_CHAT_KICK);
-
-					JSONObject data = new JSONObject();
-
-					JSONArray msisdns = new JSONArray();
-					msisdns.put(contactInfo.getMsisdn());
-
-					data.put(HikeConstants.MSISDNS, msisdns);
-					data.put(HikeConstants.MESSAGE_ID, Long.toString(System.currentTimeMillis()));
-
-					object.put(HikeConstants.DATA, data);
-				}
-				catch (JSONException e)
-				{
-					Logger.e(getClass().getSimpleName(), "Invalid JSON", e);
-				}
-				HikeMqttManagerNew.getInstance().sendMessage(object, MqttConstants.MQTT_QOS_ONE);
-				hikeDialog.dismiss();
-			}
-			
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-			}
-			
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-			}
-		}, contactInfo.getFirstName());	
+		this.hikeDialog = HikeDialogFactory.showDialog(this, dialogId, this, contactInfo.getFirstName());
 		
 	}
 
@@ -3232,28 +3211,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 
 	private void showDeleteStatusConfirmationDialog()
 	{
-		HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, new HikeDialogListener()
-		{
-			
-			@Override
-			public void positiveClicked(HikeDialog hikeDialog)
-			{
-				deleteStatus();
-				hikeDialog.dismiss();
-			}
-			
-			@Override
-			public void neutralClicked(HikeDialog hikeDialog)
-			{
-				//Do nothing
-			}
-			
-			@Override
-			public void negativeClicked(HikeDialog hikeDialog)
-			{
-				hikeDialog.dismiss();
-			}
-		});
+		this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.DELETE_STATUS_DIALOG, this);
 	}
 
 	private IRequestListener getDeleteStatusRequestListener()
