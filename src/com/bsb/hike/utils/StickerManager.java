@@ -3558,7 +3558,7 @@ public class StickerManager
     }
 
 
-	public void sendPackPreviewOpenAnalytics(String categoryId, int position, String packPreviewClickSource, String packPreviewClickSourceKey)
+	public void sendPackPreviewOpenAnalytics(String categoryId, int position, String packPreviewClickSource, String packPreviewClickSearchKey)
 	{
 		try
 		{
@@ -3571,7 +3571,7 @@ public class StickerManager
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, categoryId);
 			json.put(AnalyticsConstants.V2.SOURCE, packPreviewClickSource);
-			json.put(AnalyticsConstants.V2.VAL_STR, packPreviewClickSourceKey);
+			json.put(AnalyticsConstants.V2.VAL_STR, packPreviewClickSearchKey);
 			json.put(AnalyticsConstants.V2.VAL_INT, position);
 			HAManager.getInstance().recordV2(json);
 		}
