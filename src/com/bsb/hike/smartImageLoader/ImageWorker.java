@@ -67,7 +67,7 @@ public abstract class ImageWorker
 
     private AtomicBoolean mExitTasksEarly = new AtomicBoolean(false);
 
-    protected Resources mResources;
+    private Resources mResources;
 
     private boolean setDefaultAvatarIfNoCustomIcon = false;
 
@@ -735,5 +735,10 @@ public abstract class ImageWorker
         {
             imageLoaderListener.onImageWorkFailed(imageView);
         }
+    }
+
+    protected Resources getResources()
+    {
+        return mResources;
     }
 }
