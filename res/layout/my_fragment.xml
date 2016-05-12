@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.bsb.hike.view.RoundedImageView
+            android:id="@+id/profile_image"
+            style="@style/RoundedStyle"
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:layout_margin="10dp"
+            android:contentDescription="Profile Image"
+            android:src="@drawable/ic_default_avatar_group" />
+
+        <com.bsb.hike.view.CustomFontTextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp"
+            android:text="My name"
+            android:textColor="#3d475b"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:id="@+id/statuslayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Status Layout"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp">
+
+            <ImageView
+                android:id="@+id/status_mood"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_marginRight="5dp"
+                android:visibility="gone" />
+
+            <com.bsb.hike.view.CustomFontTextView
+                android:id="@+id/subtext"
+                style="@style/ProfileHeaderSubText"
+                android:contentDescription="Status"
+                android:text="#mystatus" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -94,6 +94,7 @@ import com.bsb.hike.timeline.view.StatusUpdate;
 import com.bsb.hike.timeline.view.TimelineActivity;
 import com.bsb.hike.timeline.view.UpdatesFragment;
 import com.bsb.hike.ui.fragments.ConversationFragment;
+import com.bsb.hike.ui.fragments.MyFragment;
 import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.FestivePopup;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
@@ -172,6 +173,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 	private UpdatesFragment updatesFragment;
 
 	private ConversationFragment conversationFragment;
+
+	private MyFragment myFragment;
 
 	private static final int SU_FRAGMENT_ID = 0;
 
@@ -604,15 +607,15 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 					return getStatusFragment();
 				case CONV_FRAGMENT_ID:
 					return getConversationFragment();
-//				case MY_FRAGMENT_ID:
-//					return getMyFragment();
+				case MY_FRAGMENT_ID:
+					return getMyFragment();
 			}
 			return null;
 		}
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
 	}
 
@@ -659,6 +662,20 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 			conversationFragment = new ConversationFragment();
 		}
 		return conversationFragment;
+	}
+
+	private Fragment getMyFragment()
+	{
+		Fragment frag = getSupportFragmentManager().findFragmentByTag(MY_FRAGMENT_TAG);
+		if (frag != null)
+		{
+			myFragment = (MyFragment) frag;
+		}
+		if (myFragment == null)
+		{
+			myFragment = new MyFragment();
+		}
+		return myFragment;
 	}
 
 	public void onFestiveModeBgClick(View v)
