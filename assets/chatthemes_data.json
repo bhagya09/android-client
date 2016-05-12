@@ -18,13 +18,13 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "theme_state": 0,
         "status_bar": {
           "type": 0,
-          "value": "170e0e",
+          "value": "FF170e0e",
           "size": 0
         },
         "thumbnail": {
@@ -69,7 +69,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         }
       },
@@ -89,13 +89,13 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "theme_state": 0,
         "status_bar": {
           "type": 0,
-          "value": "716567",
+          "value": "FF716567",
           "size": 0
         },
         "multi_select_bubble": {
@@ -140,7 +140,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         }
       },
@@ -156,18 +156,18 @@
         },
         "bg_landscape": {
           "type": 0,
-          "value": "e8e3d8",
+          "value": "FFe8e3d8",
           "size": 0
         },
         "offline_message_color": {
           "type": 0,
-          "value": "73716d",
+          "value": "FF73716d",
           "size": 0
         },
         "theme_state": 0,
         "status_bar": {
           "type": 0,
-          "value": "1993CB",
+          "value": "FF1993CB",
           "size": 0
         },
         "thumbnail": {
@@ -207,12 +207,12 @@
         },
         "bg_portrait": {
           "type": 0,
-          "value": "e8e3d8",
+          "value": "FFe8e3d8",
           "size": 0
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         }
       },
@@ -232,13 +232,13 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "theme_state": 0,
         "status_bar": {
           "type": 0,
-          "value": "621908",
+          "value": "FF621908",
           "size": 0
         },
         "multi_select_bubble": {
@@ -283,7 +283,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "ffffcd",
+          "value": "FFffffcd",
           "size": 0
         }
       },
@@ -334,7 +334,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -349,12 +349,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "7f2833",
+          "value": "FF7f2833",
           "size": 0
         }
       },
@@ -405,7 +405,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d9d9d9",
+          "value": "FFd9d9d9",
           "size": 0
         },
         "sms_bg": {
@@ -420,12 +420,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "101010",
+          "value": "FF101010",
           "size": 0
         }
     },
@@ -476,7 +476,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -491,12 +491,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "644f38",
+          "value": "FF644f38",
           "size": 0
         }
       },
@@ -548,7 +548,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -563,12 +563,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "10080b",
+          "value": "FF10080b",
           "size": 0
         }
       },
@@ -620,7 +620,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -635,12 +635,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "565c54",
+          "value": "FF565c54",
           "size": 0
         }
       },
@@ -692,7 +692,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "ffffcd",
+          "value": "FFffffcd",
           "size": 0
         },
         "sms_bg": {
@@ -707,12 +707,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "421308",
+          "value": "FF421308",
           "size": 0
         }
       },
@@ -764,7 +764,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "b9fffb",
+          "value": "FFb9fffb",
           "size": 0
         },
         "sms_bg": {
@@ -779,12 +779,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "253636",
+          "value": "FF253636",
           "size": 0
         }
       },
@@ -836,7 +836,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "b2e5ff",
+          "value": "FFb2e5ff",
           "size": 0
         },
         "sms_bg": {
@@ -851,12 +851,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "0e284e",
+          "value": "FF0e284e",
           "size": 0
         }
       },
@@ -908,7 +908,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "91d8fa",
+          "value": "FF91d8fa",
           "size": 0
         },
         "sms_bg": {
@@ -923,12 +923,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "000000",
+          "value": "FF000000",
           "size": 0
         }
       },
@@ -979,7 +979,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "dcffa0",
+          "value": "FFdcffa0",
           "size": 0
         },
         "sms_bg": {
@@ -994,12 +994,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "49695d",
+          "value": "FF49695d",
           "size": 0
         }
       },
@@ -1051,7 +1051,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "91d8fa",
+          "value": "FF91d8fa",
           "size": 0
         },
         "sms_bg": {
@@ -1066,12 +1066,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "000000",
+          "value": "FF000000",
           "size": 0
         }
       },
@@ -1123,7 +1123,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -1138,12 +1138,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "0c0505",
+          "value": "FF0c0505",
           "size": 0
         }
       },
@@ -1194,7 +1194,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "a7d3fe",
+          "value": "FFa7d3fe",
           "size": 0
         },
         "sms_bg": {
@@ -1209,12 +1209,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "0a3054",
+          "value": "FF0a3054",
           "size": 0
         }
       },
@@ -1265,7 +1265,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "7acdc8",
+          "value": "FF7acdc8",
           "size": 0
         },
         "sms_bg": {
@@ -1280,12 +1280,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "122424",
+          "value": "FF122424",
           "size": 0
         }
       },
@@ -1336,7 +1336,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "b9fffb",
+          "value": "FFb9fffb",
           "size": 0
         },
         "sms_bg": {
@@ -1351,12 +1351,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "035c66",
+          "value": "FF035c66",
           "size": 0
         }
       },
@@ -1408,7 +1408,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "dcffa0",
+          "value": "FFdcffa0",
           "size": 0
         },
         "sms_bg": {
@@ -1423,12 +1423,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "1a5f1a",
+          "value": "FF1a5f1a",
           "size": 0
         }
       },
@@ -1479,7 +1479,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "ffd7ac",
+          "value": "FFffd7ac",
           "size": 0
         },
         "sms_bg": {
@@ -1494,12 +1494,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "644b30",
+          "value": "FF644b30",
           "size": 0
         }
       },
@@ -1550,7 +1550,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -1565,12 +1565,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "5e1643",
+          "value": "FF5e1643",
           "size": 0
         }
       },
@@ -1621,7 +1621,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -1636,12 +1636,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "852e2e",
+          "value": "FF852e2e",
           "size": 0
         }
       },
@@ -1692,7 +1692,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -1707,12 +1707,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "832944",
+          "value": "FF832944",
           "size": 0
         }
       },
@@ -1763,7 +1763,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "fce3c5",
+          "value": "FFfce3c5",
           "size": 0
         },
         "sms_bg": {
@@ -1778,12 +1778,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "413932",
+          "value": "FF413932",
           "size": 0
         }
       },
@@ -1834,7 +1834,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "ffffcd",
+          "value": "FFffffcd",
           "size": 0
         },
         "sms_bg": {
@@ -1849,12 +1849,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "8b6710",
+          "value": "FF8b6710",
           "size": 0
         }
       },
@@ -1905,7 +1905,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "b9fffb",
+          "value": "FFb9fffb",
           "size": 0
         },
         "sms_bg": {
@@ -1920,12 +1920,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "07507f",
+          "value": "FF07507f",
           "size": 0
         }
       },
@@ -1976,7 +1976,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "c0dded",
+          "value": "FFc0dded",
           "size": 0
         },
         "sms_bg": {
@@ -1991,12 +1991,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "273f4c",
+          "value": "FF273f4c",
           "size": 0
         }
       },
@@ -2047,7 +2047,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -2062,12 +2062,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "751d2e",
+          "value": "FF751d2e",
           "size": 0
         }
       },
@@ -2118,7 +2118,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -2133,12 +2133,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "8c3030",
+          "value": "FF8c3030",
           "size": 0
         }
       },
@@ -2189,7 +2189,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "dcffa0",
+          "value": "FFdcffa0",
           "size": 0
         },
         "sms_bg": {
@@ -2204,12 +2204,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "4b5427",
+          "value": "FF4b5427",
           "size": 0
         }
       },
@@ -2260,7 +2260,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "b9fffb",
+          "value": "FFb9fffb",
           "size": 0
         },
         "sms_bg": {
@@ -2275,12 +2275,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "024e69",
+          "value": "FF024e69",
           "size": 0
         }
       },
@@ -2331,7 +2331,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "e4cdfe",
+          "value": "FFe4cdfe",
           "size": 0
         },
         "sms_bg": {
@@ -2346,12 +2346,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "4a2f6a",
+          "value": "FF4a2f6a",
           "size": 0
         }
       },
@@ -2402,7 +2402,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "feebdd",
+          "value": "FFfeebdd",
           "size": 0
         },
         "sms_bg": {
@@ -2417,12 +2417,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "702b3f",
+          "value": "FF702b3f",
           "size": 0
         }
       },
@@ -2474,7 +2474,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -2489,12 +2489,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "28203D",
+          "value": "FF28203D",
           "size": 0
         }
       },
@@ -2545,7 +2545,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -2560,12 +2560,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "1E131C",
+          "value": "FF1E131C",
           "size": 0
         }
       },
@@ -2616,7 +2616,7 @@
         },
         "bubble_color": {
           "type": 0,
-          "value": "d4feff",
+          "value": "FFd4feff",
           "size": 0
         },
         "sms_bg": {
@@ -2631,12 +2631,12 @@
         },
         "offline_message_color": {
           "type": 0,
-          "value": "FFFFFF",
+          "value": "FFFFFFFF",
           "size": 0
         },
         "status_bar": {
           "type": 0,
-          "value": "422223",
+          "value": "FF422223",
           "size": 0
         }
       }
