@@ -28,7 +28,12 @@ import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.Conversation.ConversationTip;
+import com.bsb.hike.modules.httpmgr.RequestToken;
+import com.bsb.hike.modules.httpmgr.exception.HttpException;
 import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequestConstants;
+import com.bsb.hike.modules.httpmgr.hikehttp.HttpRequests;
+import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
+import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants.StickerSettingsTask;
 import com.bsb.hike.modules.stickersearch.StickerSearchManager;
 import com.bsb.hike.offline.OfflineController;
@@ -1789,6 +1794,42 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		{
 			return headerTxt;
 		}
+	}
+
+	/**
+	 * Method to notify server of birthday privacy pref update via HTTP
+	 * @param bdPref
+	 * @param bdSelectedPrefId
+	 * @param payload
+     */
+	private void sendBDPrefToServer(final Preference bdPref, final String bdSelectedPrefId, JSONObject payload)
+	{
+		Logger.d(getClass().getSimpleName(), "dob update payload: " + payload.toString());
+
+		RequestToken bdPrefUpdateRequest = HttpRequests.getBDPrefUpdateRequest(payload, new IRequestListener()
+		{
+			@Override
+			public void onRequestFailure(HttpException httpException)
+			{
+				Logger.d(getClass().getSimpleName(), "updating bd pref http failure code: " + httpException.getErrorCode());
+				showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+			}
+
+			@Override
+			public void onRequestSuccess(Response result)
+			{
+				Logger.d(getClass().getSimpleName(), "http request result code: " + result.getStatusCode());
+				setNewBDPrefValue(bdPref, bdSelectedPrefId);
+			}
+
+			@Override
+			public void onRequestProgressUpdate(float progress)
+			{
+				//doing nothing here
+			}
+		});
+
+		bdPrefUpdateRequest.execute();
 	}
 
 	private void setNewBDPrefValue(Preference bdPref, String bdPrefValue)
