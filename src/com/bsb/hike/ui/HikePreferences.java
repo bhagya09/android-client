@@ -1797,6 +1797,35 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	}
 
 	/**
+	 * Method to handle privacy pref update for birthday visibility
+	 * @param bdPref
+	 * @param bdSelectedPrefId
+     */
+	private void updateBirthdayPrivacyPref(Preference bdPref, String bdSelectedPrefId)
+	{
+		if(bdSelectedPrefId.equals("-1"))
+		{
+			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+			return;
+		}
+
+		Logger.d(getClass().getSimpleName(), "new birthday privacy id: " + bdSelectedPrefId);
+
+		JSONObject payload = new JSONObject();
+
+		try
+		{
+			payload.put(HikeConstants.Extras.PREF, Integer.valueOf(bdSelectedPrefId));
+			sendBDPrefToServer(bdPref, bdSelectedPrefId, payload);
+		}
+		catch (JSONException jse)
+		{
+			Logger.d(getClass().getSimpleName(), "error in forming request object for birthday privacy update");
+			showBDUpdateStatusToast(getString(R.string.bd_change_failed));
+		}
+	}
+
+	/**
 	 * Method to notify server of birthday privacy pref update via HTTP
 	 * @param bdPref
 	 * @param bdSelectedPrefId
