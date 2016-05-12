@@ -341,7 +341,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheIcon(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable iconDrawable = drawableFromString(tipContentModel.getIcon());
+        BitmapDrawable iconDrawable;
+        try
+        {
+            iconDrawable = drawableFromString(tipContentModel.getIcon());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip icon. possibly invalid base64");
+            return false;
+        }
         if(iconDrawable != null)
         {
             Logger.d(TAG, "caching atomic tip icon");
@@ -362,7 +371,16 @@ public class AtomicTipManager
      */
     private boolean createAndCacheBgImage(AtomicTipContentModel tipContentModel)
     {
-        BitmapDrawable bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        BitmapDrawable bgImageDrawable;
+        try
+        {
+            bgImageDrawable = drawableFromString(tipContentModel.getBgImage());
+        }
+        catch (IllegalArgumentException iae)
+        {
+            Logger.d(TAG, "exception while creating tip bg image. possibly invalid base64");
+            return false;
+        }
         if(bgImageDrawable != null)
         {
             cacheTipAsset(tipContentModel.getBgImgKey(), bgImageDrawable);

@@ -153,12 +153,7 @@ public class UpgradeIntentService extends IntentService
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.UPGRADING, false);
 		HikeMessengerApp.getPubSub().publish(HikePubSub.FINISHED_UPGRADE_INTENT_SERVICE, null);
 
-		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !prefs.getBoolean(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
-		{
-			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
-			prefs.edit().putInt(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP).commit();
-			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
-		}
+		Utils.connectToGcmPreSignup();
 
 	}
 

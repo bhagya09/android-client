@@ -129,6 +129,7 @@ import android.provider.ContactsContract.RawContacts;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.Settings.Secure;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
@@ -219,6 +220,7 @@ import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
+import com.bsb.hike.service.HikeService;
 import com.bsb.hike.tasks.CheckForUpdateTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
@@ -8073,4 +8075,19 @@ public class Utils
 
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
+
+	public static void connectToGcmPreSignup() {
+		// GCM_ID_SENT_PRELOAD=true,UserAuth=false,UserOnline=true;GooglePlayServices Installed---->Best Case Scenario
+
+		Context context = HikeMessengerApp.getInstance().getApplicationContext();
+		HikeSharedPreferenceUtil mprefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (Utils.isUserOnline(context) && (!Utils.isUserAuthenticated(context)) && !mprefs.getData(HikeMessengerApp.GCM_ID_SENT_PRELOAD, false))
+		{
+			Intent in = new Intent(HikeService.REGISTER_TO_GCM_ACTION);
+			mprefs.saveData(HikeConstants.REGISTER_GCM_SIGNUP, HikeConstants.REGISTEM_GCM_BEFORE_SIGNUP);
+			LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(in);
+		}
+
+	}
 }
