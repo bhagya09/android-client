@@ -1745,6 +1745,52 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 		return summaryTxt;
 	}
 
+	/**
+	 * Method to get title/summary text for birthday preference based on current user selection
+	 * @param bdPrefValue - id for current user pref selection
+	 * @param isSummary - whether summary or header text is required
+     * @return
+     */
+	private String getBDPrefText(String bdPrefValue, boolean isSummary)
+	{
+		int bdPrefInt = Integer.valueOf(bdPrefValue);
+		if(bdPrefInt == -1)
+		{
+			return null;
+		}
+
+		String summaryTxt = null;
+		String headerTxt = null;
+		switch (HikeConstants.PrivacyOptions.values()[bdPrefInt])
+		{
+			case NOBODY:
+				summaryTxt = getApplicationContext().getString(R.string.bd_nobody_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_nobody_key);
+				break;
+			case EVERYONE:
+				summaryTxt = getApplicationContext().getString(R.string.bd_everyone_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_everyone_key);
+				break;
+			case FAVORITES:
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_friends_summary : R.string.bd_favorites_summary);
+				headerTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.privacy_friends_key : R.string.privacy_favorites_key);
+				break;
+			case MY_CONTACTS:
+				summaryTxt = getApplicationContext().getString(Utils.isFavToFriendsMigrationAllowed() ? R.string.bd_my_contacts_summary_frn : R.string.bd_my_contacts_summary);
+				headerTxt = getApplicationContext().getString(R.string.privacy_my_contacts_key);
+				break;
+		}
+
+		if(isSummary)
+		{
+			return summaryTxt;
+		}
+		else
+		{
+			return headerTxt;
+		}
+	}
+
 	private void updateAccountBackupPrefView()
 	{
 		Preference preference = getPreferenceScreen().findPreference(HikeConstants.BACKUP_PREF);
