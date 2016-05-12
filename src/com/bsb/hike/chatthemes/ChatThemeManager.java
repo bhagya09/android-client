@@ -71,10 +71,10 @@ public class ChatThemeManager {
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
 
-        getDefaultHikeThemes();
+        getAllHikeThemesForDisplay();
     }
 
-    private void getDefaultHikeThemes() {
+    private void getAllHikeThemesForDisplay() {
         defaultHikeThemes = new ArrayList<>();
         Set<String> themeIds = mChatThemesMap.keySet();
         boolean isRecentCTFound = false;
@@ -305,9 +305,6 @@ public class ChatThemeManager {
 
     public ArrayList<String> getAvailableThemeIds() {
         ArrayList<String> availableThemes = new ArrayList<>();
-        if ((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
-            getDefaultHikeThemes();
-        }
         availableThemes.addAll(defaultHikeThemes);
         if (recentCustomTheme != null) {
             availableThemes.add(0, recentCustomTheme);
