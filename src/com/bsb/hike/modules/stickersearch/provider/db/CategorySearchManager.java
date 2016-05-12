@@ -333,13 +333,14 @@ public class CategorySearchManager
 			JSONObject searchReportJSON = new JSONObject(searchReport);
 			Iterator<String> iterator = searchReportJSON.keys();
 
-			JSONObject metadata = new JSONObject();
-			metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
-			metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
-			metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
-			metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
 			while (iterator.hasNext())
 			{
+				JSONObject metadata = new JSONObject();
+				metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+				metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
+				metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+				metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.CATEGORY_SEARCHED_REPORT);
+
 				String catUcid = iterator.next();
 				JSONObject categoryReportJson = searchReportJSON.getJSONObject(catUcid);
 
@@ -388,28 +389,38 @@ public class CategorySearchManager
 			{
 				try
 				{
-					JSONObject metadata = new JSONObject();
-
 					JSONObject recordedReport = new JSONObject(recordedReportString);
-
-					metadata.put(AnalyticsConstants.V2.SOURCE, source);
-					metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
-					metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
-					metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
-					metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
-					metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
-					metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
 
 					JSONArray categoriesReport = recordedReport.optJSONArray(CategorySearchAnalyticsTask.RESULT_SET);
 
 					if (Utils.isEmpty(categoriesReport))
 					{
+
+						JSONObject metadata = new JSONObject();
+						metadata.put(AnalyticsConstants.V2.SOURCE, source);
+						metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+						metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
+						metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
+						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+
 						HAManager.getInstance().recordV2(metadata);
 						return;
 					}
 
 					for (int i = 0; i < categoriesReport.length(); i++)
 					{
+
+						JSONObject metadata = new JSONObject();
+						metadata.put(AnalyticsConstants.V2.SOURCE, source);
+						metadata.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_STICKER_LOGS);
+						metadata.put(AnalyticsConstants.V2.PHYLUM, HikeConstants.LogEvent.SHOP_SEARCH);
+						metadata.put(AnalyticsConstants.V2.ORDER, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+						metadata.put(AnalyticsConstants.V2.UNIQUE_KEY, HikeConstants.LogEvent.SEARCHED_CATEGORY_RESPONSE);
+						metadata.put(AnalyticsConstants.V2.VAL_STR, recordedReport.optString(CategorySearchAnalyticsTask.QUERY_KEY));
+						metadata.put(AnalyticsConstants.V2.VAL_INT, recordedReport.optString(CategorySearchAnalyticsTask.RESULTS_COUNT));
+
 						JSONObject categoryReport = categoriesReport.getJSONObject(i);
 						metadata.put(AnalyticsConstants.V2.GENUS, categoryReport.optString(HikeConstants.UCID));
 						metadata.put(AnalyticsConstants.V2.USER_STATE, categoryReport.optInt(HikeConstants.RANK));
