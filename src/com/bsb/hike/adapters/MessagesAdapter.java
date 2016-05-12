@@ -4564,7 +4564,9 @@ public class MessagesAdapter extends BaseAdapter implements OnClickListener, OnL
 			{
 				continue;
 			}
-			Object object = mListView.getItemAtPosition(i);
+
+			//As In case of unknown contact, header is shown for unknonw user info
+			Object object = mListView.getItemAtPosition(i + mListView.getHeaderViewsCount());
 			if (object instanceof ConvMessage)
 			{
 				ConvMessage convMessage = (ConvMessage) object;
