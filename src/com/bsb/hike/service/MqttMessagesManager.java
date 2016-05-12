@@ -3044,7 +3044,7 @@ public class MqttMessagesManager
 		if (data.has(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY))
 		{
 			boolean disabled = data.getBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY);
-			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_ENABLED, disabled);
+			editor.putBoolean(HikeConstants.CUSTOM_CHATTHEME_DISABLE_OVERLAY, disabled);
 		}
 		if (data.has(HikeConstants.FAV_TO_FRIENDS_MIGRATION))
 		{
