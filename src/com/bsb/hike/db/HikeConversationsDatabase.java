@@ -1,23 +1,6 @@
 package com.bsb.hike.db;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.net.MalformedURLException;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -81,7 +64,6 @@ import com.bsb.hike.modules.contactmgr.ConversationMsisdns;
 import com.bsb.hike.modules.contactmgr.GroupDetails;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.datamodel.CategoryTagData;
-import com.bsb.hike.modules.stickersearch.provider.StickerSearchUtility;
 import com.bsb.hike.offline.OfflineUtils;
 import com.bsb.hike.platform.ContentLove;
 import com.bsb.hike.platform.HikePlatformConstants;
@@ -4999,52 +4981,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 		}
 	}
 
-	public boolean isChatMuted(String msisdn)
-	{
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1",
-					new String[] { msisdn }, null, null, null);
-			return c.moveToFirst();
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
-	public Mute getChatMute(String msisdn)
-	{
-		Mute mute = new Mute.InitBuilder(msisdn).build();
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.IS_MUTE, DBConstants.MUTE_TIMESTAMP, DBConstants.MUTE_DURATION }, DBConstants.MSISDN + " =? ", new String[] { msisdn }, null, null, null);
-
-			while (c.moveToNext())
-			{
-				boolean isMute = c.getInt(c.getColumnIndex(DBConstants.IS_MUTE)) == 1 ? true : false;
-				long muteTimestamp = c.getLong(c.getColumnIndex(DBConstants.MUTE_TIMESTAMP));
-				int muteDuration = c.getInt(c.getColumnIndex(DBConstants.MUTE_DURATION));
-				mute.setIsMute(isMute);
-				mute.setMuteTimestamp(muteTimestamp);
-				mute.setMuteDuration(muteDuration);
-			}
-			return mute;
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
-			}
-		}
-	}
-
 	public Map<String, Mute> getChatMuteMap()
 	{
 		Cursor muteCursor = null;
@@ -5077,24 +5013,6 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 			if (muteCursor != null)
 			{
 				muteCursor.close();
-			}
-		}
-	}
-
-	public boolean shouldShowNotifForMutedChat(String msisdn)
-	{
-		Cursor c = null;
-		try
-		{
-			c = mDb.query(DBConstants.CHAT_PROPERTIES_TABLE, new String[] { DBConstants.MSISDN }, DBConstants.MSISDN + " = ? AND " + DBConstants.IS_MUTE + " = 1 AND " + DBConstants.MUTE_NOTIFICATION + " = 1",
-					new String[] { msisdn }, null, null, null);
-			return c.moveToFirst();
-		}
-		finally
-		{
-			if (c != null)
-			{
-				c.close();
 			}
 		}
 	}

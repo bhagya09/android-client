@@ -8003,16 +8003,12 @@ public class Utils
 
     public static boolean isConversationMuted(String msisdn)
     {
-        if (HikeConversationsDatabase.getInstance().isChatMuted(msisdn))
-        {
-            return true;
-        }
-        return false;
+        return ContactManager.getInstance().isChatMuted(msisdn);
     }
 
     public static boolean showNotifForMutedConversation(String msisdn)
     {
-        return (HikeConversationsDatabase.getInstance().shouldShowNotifForMutedChat(msisdn));
+        return (ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn));
     }
 
     /**

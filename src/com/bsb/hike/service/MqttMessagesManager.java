@@ -934,7 +934,7 @@ public class MqttMessagesManager
 					if (activeStealthChat || stealthNotifPref || !StealthModeManager.getInstance().isStealthMsisdn(msisdn))
 					{
 
-						if (!HikeConversationsDatabase.getInstance().isChatMuted(msisdn))
+						if (!ContactManager.getInstance().isChatMuted(msisdn))
 						{
 							vibrate = true;
 						}
@@ -4140,7 +4140,7 @@ public class MqttMessagesManager
 
 						Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 
-						if (!Utils.isConversationMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
+						if (!ContactManager.getInstance().isChatMuted(destination) && data.optBoolean(HikeConstants.PUSH, true))
 						{
 
 							if(data.has(HikePlatformConstants.HIKE_AFFINITY) && !data.optBoolean(HikePlatformConstants.HIKE_AFFINITY))
@@ -4179,7 +4179,7 @@ public class MqttMessagesManager
 
 							if (convDb.isContentMessageExist(destination, contentId, nameSpace))
 							{
-								if (!Utils.isConversationMuted(destination))
+								if (!ContactManager.getInstance().isChatMuted(destination))
 								{
 									Utils.rearrangeChat(destination, rearrangeChat, updateUnreadCount);
 								}

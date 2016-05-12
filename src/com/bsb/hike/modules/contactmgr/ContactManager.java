@@ -641,6 +641,36 @@ public class ContactManager implements ITransientCache, HikePubSub.Listener
 	{
 		return persistenceCache.getMute(msisdn);
 	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether to show notifications for a given chat
+     */
+	public boolean shouldShowNotifForMutedConversation(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null && mute.isMute())
+		{
+			return mute.shouldShowNotifInMute();
+		}
+		return true;
+	}
+
+	/**
+	 *
+	 * @param msisdn
+	 * @return boolean stating whether the given chat is muted or not
+     */
+	public boolean isChatMuted(String msisdn)
+	{
+		Mute mute = persistenceCache.getMute(msisdn);
+		if (mute != null)
+		{
+			return mute.isMute();
+		}
+		return false;
+	}
 	
 	/**
 	 * This method returns a list {@link ContactInfo} objects of a particular favorite type and if parameter <code>onHike</code> is one then these are hike contacts otherwise non

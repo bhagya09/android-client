@@ -159,13 +159,10 @@ public class ToastListener implements Listener
 			}
 			StatusMessage statusMessage = (StatusMessage) object;
 			String msisdn = context.getSharedPreferences(HikeMessengerApp.ACCOUNT_SETTINGS, 0).getString(HikeMessengerApp.MSISDN_SETTING, "");
-			if (Utils.isConversationMuted(statusMessage.getMsisdn()))
+			if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(statusMessage.getMsisdn()))
 			{
-				if (!(Utils.showNotifForMutedConversation(statusMessage.getMsisdn())))
-				{
-					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
-					return;
-				}
+				Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+				return;
 			}
 			if (msisdn.equals(statusMessage.getMsisdn()) || statusMessage.isHistoricalUpdate())
 			{
@@ -257,15 +254,12 @@ public class ToastListener implements Listener
 					return;
 				}
 
-				if (Utils.isConversationMuted(statusMessage.getMsisdn()))
+				if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(statusMessage.getMsisdn()))
 				{
-					if (!(Utils.showNotifForMutedConversation(statusMessage.getMsisdn())))
-					{
-						Logger.d(getClass().getSimpleName(), "Conversation has been muted");
-						return;
-					}
+					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+					return;
 				}
-				
+
 				if (statusMessage.getStatusMessageType() == StatusMessageType.IMAGE || statusMessage.getStatusMessageType() == StatusMessageType.TEXT_IMAGE)
 				{
 					toaster.notifyBigPictureStatusNotification(notifyBundle.getString(HikeConstants.Extras.PATH), notifyBundle.getString(HikeConstants.Extras.MSISDN),
@@ -295,14 +289,12 @@ public class ToastListener implements Listener
 				return;
 			}
 
-			if (Utils.isConversationMuted(message.getMsisdn()))
+			if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(message.getMsisdn()))
 			{
-				if (!(Utils.showNotifForMutedConversation(message.getMsisdn())))
-				{
-					Logger.d(getClass().getSimpleName(), "Conversation has been muted");
-					return;
-				}
+				Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+				return;
 			}
+
 			if(StealthModeManager.getInstance().isStealthMsisdn(message.getMsisdn()))
 			{
 				Logger.d(getClass().getSimpleName(), "this conversation is stealth");
@@ -602,13 +594,11 @@ public class ToastListener implements Listener
 						Logger.w(getClass().getSimpleName(), "The client did not get a GCJ message for us to handle this message.");
 						continue;
 					}
-					if (Utils.isConversationMuted(message.getMsisdn()))
+
+					if (!ContactManager.getInstance().shouldShowNotifForMutedConversation(msisdn))
 					{
-						if (!(Utils.showNotifForMutedConversation(msisdn)))
-						{
-							Logger.d(getClass().getSimpleName(), "Conversation has been muted");
-							continue;
-						}
+						Logger.d(getClass().getSimpleName(), "Conversation has been muted");
+						continue;
 					}
 
 					if (message.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && message.webMetadata.getPushType().equals(HikePlatformConstants.NO_PUSH))
