@@ -87,7 +87,7 @@ public class CategorySearchAnalyticsTask implements Runnable
 
 			categorySearchMetadata.put(QUERY_KEY, searchedQuery);
 
-			categorySearchMetadata.put(RESULTS_COUNT, searchedCategories.size());
+			categorySearchMetadata.put(RESULTS_COUNT, Utils.isEmpty(searchedCategories) ? 0 : searchedCategories.size());
 
 			if (!Utils.isEmpty(searchedCategories))
 			{

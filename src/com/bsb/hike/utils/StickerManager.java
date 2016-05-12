@@ -2311,7 +2311,7 @@ public class StickerManager
 		String[] stickerButtonAnalyticsKeys = { HikeConstants.LogEvent.EMOTICON_BTN_CLICKED, HikeConstants.LogEvent.STICKER_BTN_CLICKED,
 				HikeConstants.LogEvent.STICKER_SEARCH_BTN_CLICKED };
 
-		for (int i = 0; i < stickerButtonAnalyticsKeys.length; i++)
+		for (int i = 0; ((i < stickerButtonAnalyticsKeys.length) && (i < stickerButtons.length)); i++)
 		{
 			int pressCount = HikeSharedPreferenceUtil.getInstance().getData(stickerButtons[i], 0);
 			if (pressCount <= 0)

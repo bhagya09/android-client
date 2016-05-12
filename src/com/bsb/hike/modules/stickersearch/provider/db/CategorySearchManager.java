@@ -58,6 +58,8 @@ public class CategorySearchManager
 
 	public static final String DEFAULT_WEIGHTS_INPUT = "0:1:0:2";
 
+	public static final float[] DEFAULT_WEIGHTS = new float[] { 0.0f, 1.0f, 0.0f, 2.0f };
+
 	public static final int DEFAULT_SEARCH_RESULTS_LIMIT = -1;
 
 	public static final int DEFAULT_SEARCH_RESULTS_LOG_LIMIT = 5;
@@ -248,6 +250,13 @@ public class CategorySearchManager
 	{
 		if (weights == null)
 		{
+			String weightString = HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT);
+
+			if (TextUtils.isEmpty(weightString) || !weightString.contains(HikeConstants.DELIMETER))
+			{
+				return DEFAULT_WEIGHTS;
+			}
+
 			String[] inputs = HikeSharedPreferenceUtil.getInstance().getData(SHOP_SEARCH_WEIGHTS, DEFAULT_WEIGHTS_INPUT).split(HikeConstants.DELIMETER);
 			weights = new float[inputs.length];
 			for (int i = 0; i < inputs.length; i++)
@@ -283,6 +292,11 @@ public class CategorySearchManager
 
 	public static void logSearchedCategoryToDailyReport(CategorySearchData categorySearchData, int index, int totalResults) throws JSONException
 	{
+		if (categorySearchData == null || totalResults == 0)
+		{
+			return;
+		}
+        
 		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
 
 		JSONObject searchReportMetadata = TextUtils.isEmpty(searchReport) ? new JSONObject() : new JSONObject(searchReport);
@@ -362,7 +376,7 @@ public class CategorySearchManager
 	{
 		final String recordedReportString = HikeSharedPreferenceUtil.getInstance().getData(CategorySearchAnalyticsTask.SHOP_SEARCH_RESULTS_ANALYTICS_LOG, "");
 
-		if (TextUtils.isEmpty(recordedReportString))
+		if (TextUtils.isEmpty(recordedReportString) || TextUtils.isEmpty(source))
 		{
 			return;
 		}
@@ -404,15 +418,20 @@ public class CategorySearchManager
 						metadata.put(AnalyticsConstants.V2.FORM, categoryReport.optDouble(CategorySearchAnalyticsTask.CATEGORY_SCORE, 0));
 						metadata.put(AnalyticsConstants.V2.CENSUS, categoryReport.optInt(HikeConstants.INDEX, 0));
 
-						JSONArray featureVector = categoryReport.getJSONArray(CategorySearchAnalyticsTask.CATEGORY_FEATURE_VECTOR);
-						metadata.put(AnalyticsConstants.V2.SPECIES, featureVector.getJSONObject(0).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
-						metadata.put(AnalyticsConstants.V2.VARIETY, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_GENDER_MATCH_SCORE, 0));
-						metadata.put(AnalyticsConstants.V2.RACE, featureVector.getJSONObject(1).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
-						metadata.put(AnalyticsConstants.V2.BREED, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_STATE_SCORE, 0));
-						metadata.put(AnalyticsConstants.DATA, featureVector.getJSONObject(2).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
-						metadata.put(AnalyticsConstants.V2.SECTION, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, 0));
-						metadata.put(AnalyticsConstants.TYPE, featureVector.getJSONObject(3).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
-						metadata.put(AnalyticsConstants.V2.SERIES, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, 0));
+						JSONArray featureVector = categoryReport.optJSONArray(CategorySearchAnalyticsTask.CATEGORY_FEATURE_VECTOR);
+
+						if (!Utils.isEmpty(featureVector))
+						{
+							metadata.put(AnalyticsConstants.V2.SPECIES, featureVector.getJSONObject(0).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
+							metadata.put(AnalyticsConstants.V2.VARIETY, featureVector.getJSONObject(0).optDouble(CategorySearchAnalyticsTask.CATEGORY_GENDER_MATCH_SCORE, 0));
+							metadata.put(AnalyticsConstants.V2.RACE, featureVector.getJSONObject(1).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
+							metadata.put(AnalyticsConstants.V2.BREED, featureVector.getJSONObject(1).optDouble(CategorySearchAnalyticsTask.CATEGORY_STATE_SCORE, 0));
+							metadata.put(AnalyticsConstants.DATA, featureVector.getJSONObject(2).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
+							metadata.put(AnalyticsConstants.V2.SECTION, featureVector.getJSONObject(2).optDouble(CategorySearchAnalyticsTask.CATEGORY_STICKER_COUNT_SCORE, 0));
+							metadata.put(AnalyticsConstants.TYPE, featureVector.getJSONObject(3).optDouble(HikeConstants.STICKER_SCORE_WEIGHTAGE, 0));
+							metadata.put(AnalyticsConstants.V2.SERIES, featureVector.getJSONObject(3).optDouble(CategorySearchAnalyticsTask.CATEGORY_NAME_MATCH_SCORE, 0));
+						}
+
 						HAManager.getInstance().recordV2(metadata);
 					}
 
