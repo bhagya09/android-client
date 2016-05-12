@@ -1751,6 +1751,35 @@ public class HikePreferences extends HikeAppStateBasePreferenceActivity implemen
 	}
 
 	/**
+	 * Method to setup birthday privacy pref
+	 */
+	private void setupBirthdayPrivacyPref()
+	{
+		Logger.d(getClass().getSimpleName(), "setting up birthday privacy pref");
+		IconListPreference bdListPref = (IconListPreference) getPreferenceScreen().findPreference(HikeConstants.BIRTHDAY_PRIVACY_PREF);
+		//adding entries on basis of friends experiment
+		if (Utils.isFavToFriendsMigrationAllowed())
+		{
+			bdListPref.setEntries(R.array.privacyPrefKeysFriendsExp);
+			bdListPref.setEntryValues(R.array.privacyPrefValuesFriendsExp);
+		}
+
+		else
+		{
+			bdListPref.setEntries(R.array.privacyPrefKeys);
+			bdListPref.setEntryValues(R.array.privacyPrefValues);
+		}
+
+		bdListPref.setNegativeButtonText(R.string.CANCEL);
+
+		//adding preference title and summary text
+		bdListPref.setTitle(getString(R.string.birthday_privacy_header) + ": " + bdListPref.getEntry());
+		String defValue = getApplicationContext().getString(R.string.privacy_my_contacts);
+		String selectedValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(HikeConstants.BIRTHDAY_PRIVACY_PREF, defValue);
+		bdListPref.setSummary(getBDPrefText(selectedValue, true));
+	}
+
+	/**
 	 * Method to get title/summary text for birthday preference based on current user selection
 	 * @param bdPrefValue - id for current user pref selection
 	 * @param isSummary - whether summary or header text is required
