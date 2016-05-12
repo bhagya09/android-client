@@ -205,8 +205,8 @@ public class StickerShopActivity extends HikeAppStateBaseFragmentActivity
 				if (stickerShopSearchFragment != null && stickerShopSearchFragment.isAdded())
 				{
 					StickerShopActivity.super.onBackPressed();
-					CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
 				}
+				CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_CROSS_BUTTON_TRIGGER);
 				return true;
 			}
 
