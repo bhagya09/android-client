@@ -13,7 +13,7 @@
 
         <com.bsb.hike.view.CustomFontTextView
             android:id="@+id/unknown_user_info_name"
-            android:layout_width="310dp"
+            android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:textColor="@color/unknown_user_info_ct"
             android:layout_gravity="center_vertical"
@@ -43,15 +43,17 @@
 
         <LinearLayout
             android:id="@+id/unknown_user_info_close"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@+id/unknown_user_info_name"
+            android:layout_alignParentRight="true"
+            android:gravity="right"
             android:padding="8dp">
 
             <com.bsb.hike.ui.utils.RecyclingImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/connectionscreencross" />
         </LinearLayout>
 
