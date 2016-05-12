@@ -23,7 +23,7 @@ import java.util.concurrent.Callable;
 /**
  * This class will be used to migrate block and favorite table.
  */
-public class MigrateBlockTableToUserTable implements Callable<Boolean> {
+public class MigrateTablesForHikeUID implements Callable<Boolean> {
 
     private static final String TAG="MigrateTable";
 

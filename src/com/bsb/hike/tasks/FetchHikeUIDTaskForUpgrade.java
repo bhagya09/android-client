@@ -46,13 +46,11 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     private JSONObject getPostData() {
         JSONObject data = new JSONObject();
         try {
-            JSONArray addressBook = new JSONArray();
             addressBookContact.removeAll(activeChats);
             addressBookContact.addAll(bots);
-            data.put("othr", getJSONArrayFromSet(addressBook, addressBookContact));
+            data.put("othr", getJSONArrayFromSet(addressBookContact));
 
-            JSONArray activeChat = new JSONArray();
-            data.put("subs", getJSONArrayFromSet(activeChat, activeChats));
+            data.put("subs", getJSONArrayFromSet(activeChats));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -60,7 +58,8 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
         return data;
     }
 
-    private JSONArray getJSONArrayFromSet(JSONArray arr, Set<String> data) {
+    private JSONArray getJSONArrayFromSet(Set<String> data) {
+        JSONArray arr = new JSONArray();
         for (String s : data) {
             arr.put(s);
         }
@@ -69,12 +68,14 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
 
     private Set<FetchUIDTaskPojo> parseJSONArrayIntoSet(Set<FetchUIDTaskPojo> data, JSONArray array) {
 
+        if (Utils.isEmpty(data)) {
+            data = new HashSet<>();
+        }
+
         if (Utils.isEmpty(array)) {
             return data;
         }
-        if (Utils.isEmpty(data)) {
-            data = new HashSet<>(array.length());
-        }
+
 
         for (int i = 0; i < array.length(); i++) {
             try {
@@ -91,17 +92,13 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
     public void execute() {
         getMsisdnForMissingUID();
         JSONObject d = getPostData();
-        token = HttpRequests.fetchUIDForMissingMsisdn(getRequestId(), this,d);
+        token = HttpRequests.fetchUIDForMissingMsisdn(this,d);
 
         if (!token.isRequestRunning()) {
             token.execute();
         }
 
 
-    }
-
-    public String getRequestId() {
-        return "reqId";
     }
 
     @Override
@@ -131,11 +128,9 @@ public class FetchHikeUIDTaskForUpgrade implements IHikeHTTPTask, IHikeHttpTaskR
 
         activeChats = parseJSONArrayIntoSet(activeChats, data.optJSONArray("subs"));
 
+        addressBookContacts.addAll(activeChats);
         //Update in User Db
         HikeUserDatabase.getInstance().updateContactUid(addressBookContacts);
-
-        //Update in User Db.
-        HikeUserDatabase.getInstance().updateContactUid(activeChats);
 
         //update Bots Table
         HikeConversationsDatabase.getInstance().updateUIDForBot(botsContact);

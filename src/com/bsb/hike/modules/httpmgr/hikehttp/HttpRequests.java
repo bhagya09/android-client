@@ -119,8 +119,8 @@ public class HttpRequests
 		return requestToken;
 	}
 
-	public static RequestToken fetchUIDForMissingMsisdn(String requestId, IRequestListener requestListener,JSONObject d) {
-		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(fetchUIDForMissingMsisdnUrl()).setId(requestId).setRequestListener(requestListener)
+	public static RequestToken fetchUIDForMissingMsisdn(IRequestListener requestListener,JSONObject d) {
+		RequestToken requestToken = new JSONObjectRequest.Builder().setUrl(fetchUIDForMissingMsisdnUrl()).setRequestListener(requestListener)
 				.setRequestType(REQUEST_TYPE_LONG).setPriority(PRIORITY_HIGH).post(new JsonBody(d)).build();
 
 		return requestToken;

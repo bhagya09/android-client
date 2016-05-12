@@ -12,7 +12,7 @@ import com.bsb.hike.HikePubSub;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.platform.content.PlatformContentConstants;
-import com.bsb.hike.tasks.MigrateBlockTableToUserTable;
+import com.bsb.hike.tasks.MigrateTablesForHikeUID;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
@@ -133,14 +133,14 @@ public class UpgradeIntentService extends IntentService
 		}
 
 		if (prefs.getInt(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 0) == 1) {
-			MigrateBlockTableToUserTable migrateBlockTableToUserTable = new MigrateBlockTableToUserTable();
+			MigrateTablesForHikeUID migrateTablesForHikeUID = new MigrateTablesForHikeUID();
 			try {
-				boolean result = migrateBlockTableToUserTable.call();
+				boolean result = migrateTablesForHikeUID.call();
 				if (result) {
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.MIGRATE_TABLE_TO_USER, 2);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logger.e(TAG,"Exception in Migrating Tables ...");
 			}
 		}
 

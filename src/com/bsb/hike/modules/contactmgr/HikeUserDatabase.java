@@ -155,8 +155,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		create = "CREATE TABLE IF NOT EXISTS " + DBConstants.THUMBNAILS_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.IMAGE + " BLOB" + " ) ";
 		db.execSQL(create);
 
-		//create = "CREATE TABLE IF NOT EXISTS " + DBConstants.FAVORITES_TABLE + " ( " + DBConstants.MSISDN + " TEXT PRIMARY KEY, " + DBConstants.FAVORITE_TYPE + " INTEGER" + " ) ";
-		//db.execSQL(create);
 
 		create = getHikeCallerTable();
 		db.execSQL(create);
@@ -167,8 +165,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		create = "CREATE INDEX IF NOT EXISTS " + DBConstants.THUMBNAIL_INDEX + " ON " + DBConstants.THUMBNAILS_TABLE + " (" + DBConstants.MSISDN + ")";
 		db.execSQL(create);
 
-		//create = "CREATE INDEX IF NOT EXISTS " + DBConstants.FAVORITE_INDEX + " ON " + DBConstants.FAVORITES_TABLE + " (" + DBConstants.MSISDN + ")";
-		//db.execSQL(create);
 
 		for(String s: getIndexQueriesForV19())
 		{
@@ -716,9 +712,6 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 	{
 		/* delete all existing entries from database */
 		mDb.delete(DBConstants.USERS_TABLE, null, null);
-
-		//mDb.delete(DBConstants.BLOCK_TABLE, null, null);
-
 		addContacts(contacts, true);
 		addBlockList(blockedMsisdns);
 	}
@@ -1055,7 +1048,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		}
 	}
 
-	public Map<String, FavoriteType> getFavoriteMap()
+	private Map<String, FavoriteType> getFavoriteMap()
 	{
 		Cursor c = null;
 
@@ -1214,7 +1207,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return getContactInfoFromMsisdns(msisdns, favoriteTypeNeeded, false);
 	}
 
-	public Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded, boolean ignoreUnknownContacts)
+	Map<String, ContactInfo> getContactInfoFromMsisdns(List<String> msisdns, boolean favoriteTypeNeeded, boolean ignoreUnknownContacts)
 	{
 		Cursor c = null;
 
@@ -1257,7 +1250,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		return getSortedContactMap();
 	}
 
-	public List<ContactInfo> getAllContactsForSyncing()
+	List<ContactInfo> getAllContactsForSyncing()
 	{
 		Cursor c = null;
 		List<ContactInfo> contacts = new ArrayList<ContactInfo>();
@@ -1712,7 +1705,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 
 
 
-	public void unblock(String msisdn)
+	void unblock(String msisdn)
 	{
 		ContentValues cv=new ContentValues();
 		cv.put(DBConstants.BLOCK_STATUS,DBConstants.STATUS_UNBLOCKED);
@@ -1745,7 +1738,7 @@ public class HikeUserDatabase extends SQLiteOpenHelper implements HikePubSub.Lis
 		//mDb.delete(DBConstants.BLOCK_TABLE, DBConstants.MSISDN + "=?", new String[] { hikeUID });
 	}
 
-	public boolean isMsisdnBlocked(String msisdn)
+	 boolean isMsisdnBlocked(String msisdn)
 	{
 		if(TextUtils.isEmpty(msisdn))
 		{
