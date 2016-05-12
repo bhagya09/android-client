@@ -258,7 +258,19 @@ public class HikeContentDatabase extends SQLiteOpenHelper implements DBConstants
 			queries.add(authTable);
 
             String createMappTableQuery = getCreateMAppDataTableQuery();
-			String botDownloadStateTableQuery = getPlatformDownloadStateTableQuery();
+			String botDownloadStateTableQuery = CREATE_TABLE + DBConstants.HIKE_CONTENT.PLATFORM_DOWNLOAD_STATE_TABLE +
+					" ("
+					+ HikePlatformConstants.APP_NAME + " TEXT, "
+					+ HikePlatformConstants.PACKET_DATA + " TEXT, "
+					+ HikePlatformConstants.MAPP_VERSION_CODE + " INTEGER, "
+					+ HikePlatformConstants.TYPE + " INTEGER, "
+					+ HikePlatformConstants.TTL + " INTEGER, "
+					+ DBConstants.HIKE_CONTENT.DOWNLOAD_STATE + " INTEGER, "
+					+ HikePlatformConstants.PREF_NETWORK + " INTEGER DEFAULT " + Utils.getNetworkShortinOrder(HikePlatformConstants.DEFULT_NETWORK)+", "
+					+ "UNIQUE ("
+					+ HikePlatformConstants.APP_NAME + "," + HikePlatformConstants.MAPP_VERSION_CODE
+					+ ")"
+					+ ")";
 			queries.add(botDownloadStateTableQuery);
             queries.add(createMappTableQuery);
         }
