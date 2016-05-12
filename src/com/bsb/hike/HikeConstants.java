@@ -531,6 +531,8 @@ public class HikeConstants
 
 	public static final String LAST_SEEN_PREF_LIST = "lastSeenPrefList";
 
+	public static final String BIRTHDAY_PRIVACY_PREF = "birthdayPrivacyPref";
+
 	public static final String LONG_PRESS_DUR_PREF = "longPressDurationPref";
 	
 	public static final String KEYPRESS_VOL_PREF = "keyPressVolPref";
