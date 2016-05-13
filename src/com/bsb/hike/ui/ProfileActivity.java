@@ -2241,9 +2241,8 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				if (((CustomAlertDialog) hikeDialog).isChecked())
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.GROUP_LEFT, oneToNConversation.getConvInfo());
-					Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+					Intent intent = IntentFactory.getHomeActivityIntent(this);
 					intent.putExtra(HikeConstants.Extras.GROUP_LEFT, mLocalMSISDN);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					startActivity(intent);
 					finish();
 				}
