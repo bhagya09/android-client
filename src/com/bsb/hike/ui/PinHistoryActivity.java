@@ -1,5 +1,6 @@
 package com.bsb.hike.ui;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;

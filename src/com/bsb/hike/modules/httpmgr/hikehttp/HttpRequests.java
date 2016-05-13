@@ -356,7 +356,7 @@ public class HttpRequests
 				MultipartRequestBody body = new MultipartRequestBody(requestBody);
 				requestToken = new JSONObjectRequest.Builder().setUrl(chatThemeBgImgUploadBase()).addHeader(new Header("X-SESSION-ID", sessionId)).setRequestListener(requestListener).post(body).build();
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return requestToken;
