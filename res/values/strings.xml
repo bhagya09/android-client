@@ -672,7 +672,6 @@
     <string name="medium_faster">fast</string>
     <string name="original_slow">slow</string>
     <string name="forward_to_plural">Send message to %1$s contacts?</string>
-    <string name="forward_to_singular">Send message to 1 contact?</string>
     <string name="selected_contacts_count_plural">%1$s contacts</string>
     <string name="selected_contacts_count_singular">%1$s contact</string>
     <string name="wish_now">Wish Now</string>
@@ -1487,7 +1486,6 @@
     <string name="filters">Filters</string>
     <string name="rotate">Rotate</string>
     <string name="forward_to_plural_timeline">Send message to %1$s contacts and on Timeline?</string>
-    <string name="forward_to_single_timeline">Send message to 1 contact and on Timeline?</string>
     <string name="share_with_timeline">Share with %1$d contacts and on Timeline?</string>
     <string name="share_with_contact_timeline">Share with %1$s and on Timeline?</string>
     <string name="image_w_caption_sms">sent you an image with caption %1$s</string>
@@ -1598,4 +1596,6 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="forward_to_single_timeline">Send message to %1$s and on Timeline?</string>
+    <string name="forward_to_singular">Send message to %1$s?</string>
 </resources>
