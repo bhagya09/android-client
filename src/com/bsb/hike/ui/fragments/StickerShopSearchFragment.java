@@ -22,6 +22,8 @@ import com.bsb.hike.adapters.StickerShopSearchAdapter;
 import com.bsb.hike.models.StickerCategory;
 import com.bsb.hike.modules.stickerdownloadmgr.StickerConstants;
 import com.bsb.hike.modules.stickersearch.listeners.CategorySearchListener;
+import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
+import com.bsb.hike.modules.stickersearch.tasks.CategorySearchAnalyticsTask;
 import com.bsb.hike.modules.stickersearch.ui.CategorySearchWatcher;
 import com.bsb.hike.smartImageLoader.StickerOtherIconLoader;
 import com.bsb.hike.utils.IntentFactory;
@@ -43,6 +45,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	private StickerShopSearchAdapter mAdapter;
 
 	private CustomFontTextView searchFailedMessageView;
+
+    private String currentQuery;
 
 	public StickerShopSearchFragment()
 	{
@@ -109,12 +113,14 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 	@Override
 	public boolean onQueryTextSubmit(String query)
 	{
+		currentQuery = query;
 		return searchWatcher.onQueryTextSubmit(query);
 	}
 
 	@Override
 	public boolean onQueryTextChange(String query)
 	{
+		currentQuery = query;
 		return searchWatcher.onQueryTextChange(query);
 	}
 
@@ -194,7 +200,8 @@ public class StickerShopSearchFragment extends StickerShopBaseFragment implement
 			return;
 		}
 		String categoryId = mAdapter.getItem(position);
-		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP);
+		IntentFactory.openPackPreviewIntent(getActivity(), categoryId, position, StickerConstants.PackPreviewClickSource.SHOP_SEARCH, currentQuery);
+		CategorySearchManager.sendCategorySearchResultResponseAnalytics(CategorySearchAnalyticsTask.SHOP_SEARCH_PACK_PREVIEWED_BUTTON_TRIGGER);
 	}
 
 	@Override
