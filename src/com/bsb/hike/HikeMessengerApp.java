@@ -253,7 +253,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	// public static final String TWITTER_AUTH_COMPLETE = "twitterAuthComplete";
 
-    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 12;
+    public static final int DEFAULT_SEND_ANALYTICS_TIME_HOUR = 0;
 
     public static final String DAILY_ANALYTICS_ALARM_STATUS = "dailyAnalyticsAlarmStatus";
 
@@ -566,9 +566,11 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SET_ALARM_FIRST_TIME = "setAlarmFirstTime";
 
-    public static final String STICKER_BUTTON_CLICK_ANALYTICS_COUNT = "lastStickerButtonClickAnalyticsCount";
+    public static final String STICKER_PALLETE_BUTTON_CLICK_ANALYTICS = "lastStickerButtonClickAnalyticsCount";
 
-    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS_COUNT = "lastEmoticonButtonClickAnalyticsCount";
+    public static final String STICKER_SEARCH_BUTTON_CLICK_ANALYTICS = "lastStickerSearchButtonClickAnalyticsCount";
+
+    public static final String EMOTICON_BUTTON_CLICK_ANALYTICS = "lastEmoticonButtonClickAnalyticsCount";
 
     public static final String EMOTICONS_CLICKED_LIST = "emoticonClickedIndex";
 
