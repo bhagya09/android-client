@@ -198,7 +198,9 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 					listener.themeClicked(availableThemes.get(position));
 				}
 				userSelection = availableThemes.get(position);
-				HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, false);
+				if(gridAdapter.getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, false);
+				}
 			}
 		});
 
