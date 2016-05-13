@@ -11,6 +11,9 @@ public interface HikePlatformConstants
 	String TEXTS = "textLinks";
 	String IMAGES = "images";
 	String VIDEOS = "videos";
+	String ACTION = "action";
+	String ACTION_TEXT = "text";
+	String ACTION_EXTRA = "extra";
 	String AUDIO = "audios";
 	String ACTIONS = "actions";
 	String INTENT_URI = "intentUri";
@@ -27,8 +30,10 @@ public interface HikePlatformConstants
 	String MEDIA_SIZE = "size";
 	String DURATION = "duration";
 	String LAYOUT_ID = "layoutID";
-	String BACKGROUND_COLOR = "bg";
-	String SHOW_SHARE = "showShare";
+	String BACKGROUND_COLOR = "bg_color";
+	String BACKGROUND = "bg";
+	String SHOW_SHARE = "showActionContainer";
+	String CARD_ACTION = "cardAction";
 	String NOTIF_TEXT = "summary";
 	String LOVE_ID = "loveID";
 	String RECEPIENT = "to";

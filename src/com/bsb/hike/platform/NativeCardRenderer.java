@@ -59,8 +59,8 @@ public class NativeCardRenderer implements View.OnLongClickListener
 		{
 			viewHolder = (ViewHolderFactory.ViewHolder) view.getTag();
 		}
-		viewHolder.clearViewHolder(view);
 		viewHolder.initializeHolder(view, convMessage);
+		viewHolder.clearViewHolder(view);
 		cardDataFiller(convMessage, viewHolder);
 		viewHolder.processViewHolder(view);
 		return view;
@@ -167,7 +167,7 @@ public class NativeCardRenderer implements View.OnLongClickListener
 							}
 							else
 							{
-								CardController.callToAction(actionComponent.getAndroidIntent(), context);
+//								CardController.callToAction(actionComponent.getAndroidIntent(), context);
 							}
 						}
 						catch (URISyntaxException e)

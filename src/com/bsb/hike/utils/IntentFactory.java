@@ -1089,7 +1089,7 @@ public class IntentFactory
 		return new Intent();
 	}
 
-	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, Uri fileUri)
+	public static Intent getForwardIntentForCards(Context context, ConvMessage convMessage, File fileUri)
 	{
 		Intent intent = new Intent(context, ComposeChatActivity.class);
 		intent.putExtra(HikeConstants.Extras.FORWARD_MESSAGE, true);
@@ -1119,7 +1119,7 @@ public class IntentFactory
 			Logger.e(context.getClass().getSimpleName(), "Invalid JSON", e);
 		}
 		intent.putExtra(HikeConstants.Extras.MULTIPLE_MSG_OBJECT, multipleMsgArray.toString());
-		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
+//		intent.putExtra(HikeConstants.Extras.PREV_MSISDN, convMessage.getMsisdn());
 		intent.putExtra(HikeConstants.Extras.BYPASS_GALLERY, true);
 		intent.putExtra(AnalyticsConstants.NATIVE_CARD_FORWARD, convMessage.platformMessageMetadata.contentId);
 		return intent;
@@ -1454,7 +1454,24 @@ public class IntentFactory
 
 		return intent;
 	}
+	public static Intent getPostStatusUpdateIntent(Context argActivity, String text, String argImagePath, boolean compressImage)
+	{
+		Intent intent = new Intent(argActivity, StatusUpdate.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
+		if (!TextUtils.isEmpty(argImagePath))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_IMAGE_PATH, argImagePath);
+			intent.putExtra(StatusUpdate.ENABLE_COMPRESSION,compressImage);
+		}
+
+		if (!TextUtils.isEmpty(text))
+		{
+			intent.putExtra(StatusUpdate.STATUS_UPDATE_TEXT, text);
+		}
+
+		return intent;
+	}
 	public static void openAccessibilitySettings(Activity activity)
 	{
 		Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);

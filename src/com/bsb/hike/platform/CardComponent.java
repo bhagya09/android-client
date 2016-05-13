@@ -150,15 +150,25 @@ public class CardComponent {
 	}
 
     public static class ActionComponent extends CardComponent{
-        private JSONObject android_intent;
-
-        public ActionComponent(String tag, JSONObject android) {
-            super(tag);
-            this.android_intent = android;
+        private String action;
+        private String actionText;
+		private String url;
+        public ActionComponent(String action, String actionText, String url) {
+			super(null);
+            this.action = action;
+			this.actionText = actionText;
+			this.url=url;
         }
 
-        public JSONObject getAndroidIntent() {
-            return android_intent;
+        public String getAction() {
+            return action;
         }
-    }
+		public String getActionText() {
+			return actionText;
+		}
+		public String getActionUrl() {
+			return url;
+		}
+
+	}
 }

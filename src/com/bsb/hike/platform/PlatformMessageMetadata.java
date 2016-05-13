@@ -13,8 +13,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.bsb.hike.BitmapModule.HikeBitmapFactory;
-import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.platform.CardComponent.ImageComponent;
 import com.bsb.hike.platform.CardComponent.MediaComponent;
@@ -39,8 +37,9 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
     private JSONObject json;
     public boolean showShare;
     public String backgroundColor;
+    public String background;
     public String contentId;
-
+    public CardComponent.ActionComponent cardAction;
     public PlatformMessageMetadata(String jsonString, Context context) throws JSONException {
         this(new JSONObject(jsonString), context);
     }
@@ -51,6 +50,7 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         try {
 			backgroundColor = getString(metadata, BACKGROUND_COLOR);
+            background = getString(metadata,BACKGROUND);
             version = getInt(metadata, VERSION);
             layoutId = getInt(metadata, LAYOUT_ID);
             loveId = getInt(metadata, LOVE_ID);
@@ -58,7 +58,10 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
             notifText = getString(metadata, NOTIF_TEXT);
             clickTrackUrl = getString(metadata, CLICK_TRACK_URL);
             contentId = getString(metadata,CONTENT_UID);
-
+            if(metadata.has(CARD_ACTION)){
+                JSONObject cardActionObj = metadata.optJSONObject(CARD_ACTION);
+                cardAction = new CardComponent.ActionComponent(cardActionObj.getString(ACTION), cardActionObj.getString(ACTION_TEXT), cardActionObj.optString(ACTION_EXTRA));
+            }
             if (metadata.has(CHANNEL_SOURCE)) {
                 channelSource = metadata.optString(CHANNEL_SOURCE);
                 isInstalled = Utils.isPackageInstalled(mContext, channelSource);
@@ -98,9 +101,8 @@ public class PlatformMessageMetadata implements HikePlatformConstants {
 
         for (int i = 0; i < total; i++) {
             try {
-                JSONObject obj = jsonArray.getJSONObject(i);
-                CardComponent.ActionComponent actionComponent = new CardComponent.ActionComponent(obj.optString(TAG),
-                        obj.optJSONObject(ANDROID_INTENT));
+                JSONObject actionObj = jsonArray.getJSONObject(i);
+                CardComponent.ActionComponent actionComponent = new CardComponent.ActionComponent(actionObj.getString(ACTION), actionObj.getString(ACTION_TEXT), actionObj.optString(ACTION_EXTRA));
                 actionComponents.add(actionComponent);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block

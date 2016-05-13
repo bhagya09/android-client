@@ -203,7 +203,7 @@ public class CardRenderer implements View.OnLongClickListener
 							}
 							else
 							{
-								CardController.callToAction(actionComponent.getAndroidIntent(), mContext);
+//								CardController.callToAction(actionComponent.getAndroidIntent(), mContext);
 							}
 						}
 						catch (URISyntaxException e)
