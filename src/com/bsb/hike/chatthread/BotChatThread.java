@@ -21,6 +21,7 @@ import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.media.OverFlowMenuItem;
 import com.bsb.hike.models.Conversation.BotConversation;
 import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.models.Mute;
 import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
@@ -296,14 +297,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (item.id)
 		{
 		case R.string.mute:
-			if ((getString(R.string.mute)).equals(item.text))
-			{
-				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
-			}
-			else
-			{
-				onMuteBotClicked();
-			}
+			onMuteBotClicked(item.text);
 			break;
 		case R.string.view_profile:
 			BotConversation.analyticsForBots(msisdn, HikePlatformConstants.BOT_VIEW_PROFILE, HikePlatformConstants.OVERFLOW_MENU, AnalyticsConstants.CLICK_EVENT, null);
@@ -322,7 +316,7 @@ public class BotChatThread extends OneToOneChatThread
 		switch (dialog.getId())
 		{
 			case HikeDialogFactory.MUTE_CHAT_DIALOG:
-				onMuteBotClicked();
+				toggleMuteBot();
 				dialog.dismiss();
 				break;
 			default:
@@ -331,14 +325,35 @@ public class BotChatThread extends OneToOneChatThread
 		}
 	}
 
-	private void onMuteBotClicked()
+	private void onMuteBotClicked(String text)
+	{
+		if ((getString(R.string.mute)).equals(text))
+		{
+			boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, true);
+			if (muteApproach)
+			{
+				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+			}
+			else
+			{
+				Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+				mConversation.setMute(mute);
+				Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+			}
+		}
+		else
+		{
+			toggleMuteBot();
+		}
+	}
+
+	private void toggleMuteBot()
 	{
 		boolean wasMuted = mConversation.isMuted();
 		Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
 		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, mConversation.isMuted());
 		BotConversation.analyticsForBots(msisdn, wasMuted ? HikePlatformConstants.BOT_UNMUTE_CHAT : HikePlatformConstants.BOT_MUTE_CHAT, HikePlatformConstants.OVERFLOW_MENU,
 				AnalyticsConstants.CLICK_EVENT, null);
-
 	}
 	
 	private void onHelpClicked()
@@ -476,14 +491,7 @@ public class BotChatThread extends OneToOneChatThread
 			break;
 
 		case R.id.add_unknown_contact:
-			if ((((CustomFontButton) v).getText()).equals(getString(R.string.mute)))
-			{
-				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
-			}
-			else
-			{
-				onMuteBotClicked();
-			}
+			onMuteBotClicked(((CustomFontButton) v).getText().toString());
 			break;
 		}
 

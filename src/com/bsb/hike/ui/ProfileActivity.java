@@ -87,6 +87,7 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConversation;
 import com.bsb.hike.models.Conversation.OneToNConversationMetadata;
+import com.bsb.hike.models.Conversation.OneToOneConversation;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeSharedFile;
 import com.bsb.hike.models.ImageViewerInfo;
@@ -2308,7 +2309,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				boolean muteGCApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_GC_SERVER_SWITCH, true);
 				if (muteGCApproach)
 				{
-					HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, oneToNConversation.getMute());
+					this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, oneToNConversation.getMute());
 				}
 				else
 				{
@@ -2325,10 +2326,20 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 		else
 		{
 			final Mute mute = (ContactManager.getInstance().getMute(mLocalMSISDN) == null ? new Mute.InitBuilder(mLocalMSISDN).build() : ContactManager.getInstance().getMute(mLocalMSISDN));
+			Conversation mConversation = new OneToOneConversation.ConversationBuilder(mLocalMSISDN).build();
+			mConversation.setMute(mute);
 
 			if ((getString(R.string.mute_chat)).equals(text))
 			{
-				HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mute);
+				boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, true);
+				if (muteApproach)
+				{
+					this.hikeDialog = HikeDialogFactory.showDialog(this, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mute);
+				}
+				else
+				{
+					Utils.toggleMuteChat(getApplicationContext(), mute);
+				}
 			}
 			else
 			{

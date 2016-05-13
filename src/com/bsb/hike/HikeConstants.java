@@ -3516,6 +3516,8 @@ public class HikeConstants
 
 	public static final String MUTE_GC_SERVER_SWITCH = "mutegc";
 
+	public static final String MUTE_ONE_TO_ONE_SERVER_SWITCH = "mute11";
+
 	public static final String KPT_EXIT_SERVER_TEXT = "kest";
 
 	public static final String KPT_EXIT_HEADING = "keh";
