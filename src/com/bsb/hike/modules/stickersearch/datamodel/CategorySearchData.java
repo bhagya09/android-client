@@ -103,6 +103,11 @@ public class CategorySearchData extends CategoryTagData implements Comparable<Ca
 		{
 			return searchScore;
 		}
+        
+		if (getCategory() == null)
+		{
+			return 0;
+		}
 
 		List<Float> categoryScores = CategorySearchManager.getInstance().getCategoryScores(getUcid());
 
