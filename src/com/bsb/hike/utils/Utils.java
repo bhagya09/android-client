@@ -3374,7 +3374,7 @@ public class Utils
 
 	public static boolean shouldIncrementCounter(ConvMessage convMessage)
 	{
-		return !convMessage.isSent() && convMessage.getState() == State.RECEIVED_UNREAD && convMessage.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE;
+		return !convMessage.isSent() && convMessage.getState() == State.RECEIVED_UNREAD && convMessage.getParticipantInfoState() != ParticipantInfoState.STATUS_MESSAGE && convMessage.getMessageEventData() == null;
 	}
 
 	public static void createShortcut(Context activity, ConvInfo conv, boolean showToast)

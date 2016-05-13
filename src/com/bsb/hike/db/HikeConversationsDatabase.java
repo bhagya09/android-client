@@ -85,6 +85,7 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.platform.PlatformMessageMetadata;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
+import com.bsb.hike.service.GeneralEventMessagesManager;
 import com.bsb.hike.service.UpgradeIntentService;
 import com.bsb.hike.timeline.model.ActionsDataModel;
 import com.bsb.hike.timeline.model.ActionsDataModel.ActionTypes;
@@ -2623,61 +2624,68 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 
 			for (ConvMessage conv : convMessages)
 			{
-
-				String thumbnailString = extractThumbnailFromMetadata(conv.getMetadata());
-				bindConversationInsert(insertStatement, conv,true);
-
-				try
+				if(conv.getMessageEventData()!=null)
 				{
-					msgId = insertMessage(insertStatement, conv);
+					try
+					{
+						resultList.add(conv);
+						GeneralEventMessagesManager.getInstance().handleGeneralMessage(conv.getMessageEventData());
+					}
+					catch (JSONException e)
+					{
+						Logger.e("HikeConversationDataBase", "Error in message event");
+					}
+
 				}
-				catch (Exception e)
+				else
 				{
-					// duplicate message . Skip further processing
-					continue;
-				}
-				addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
+					String thumbnailString = extractThumbnailFromMetadata(conv.getMetadata());
+					bindConversationInsert(insertStatement, conv, true);
+
+					try {
+						msgId = insertMessage(insertStatement, conv);
+					} catch (Exception e) {
+						// duplicate message . Skip further processing
+						continue;
+					}
+					addThumbnailStringToMetadata(conv.getMetadata(), thumbnailString);
 				/*
 				 * Represents we dont have any conversation made for this msisdn. Here we are also checking whether the message is a group message, If it is and the conversation
 				 * does not exist we do not add a conversation.
 				 */
-				if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn()))
-				{
-					addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv, -1l, null);
+					if (msgId <= 0 && !OneToNConversationUtils.isOneToNConversation(conv.getMsisdn())) {
+						addConversation(conv.getMsisdn(), !conv.isSMS(), null, null, conv, -1l, null);
 
-					bindConversationInsert(insertStatement, conv,true);
-					try
-					{
-						msgId = insertMessage(insertStatement, conv);
-					}
-					catch (Exception e)
-					{
-						// duplicate message . Skip further processing
-						continue;
-					}
+						bindConversationInsert(insertStatement, conv, true);
+						try {
+							msgId = insertMessage(insertStatement, conv);
+						} catch (Exception e) {
+							// duplicate message . Skip further processing
+							continue;
+						}
 
-					assert (msgId >= 0);
-				}
-				conv.setMsgID(msgId);
-				com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
+						assert (msgId >= 0);
+					}
+					conv.setMsgID(msgId);
+					com.bsb.hike.chatthread.ChatThread.addtoMessageMap(conv);
 
 				/*
 				 * msdId > 0 means that the conversation exists.
 				 */
-				if (conv.isFileTransferMessage() && msgId > 0)
-				{
-					addSharedMedia(conv);
-				}
+					if (conv.isFileTransferMessage() && msgId > 0) {
+						addSharedMedia(conv);
+					}
 
 				/*
 				 * Shared data for platform card messages
 				 */
-				if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO)
-				{
-					PlatformUtils.sharedDataHandlingForMessages(conv);
+					if ((conv.getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT || conv.getMessageType() == HikeConstants.MESSAGE_TYPE.FORWARD_WEB_CONTENT) && conv.getParticipantInfoState() == ParticipantInfoState.NO_INFO) {
+						PlatformUtils.sharedDataHandlingForMessages(conv);
+					}
+					resultList.add(conv);
 				}
-				resultList.add(conv);
 			}
+
 			Logger.d("BulkProcess", "adding conversation returning");
 			return resultList;
 		}

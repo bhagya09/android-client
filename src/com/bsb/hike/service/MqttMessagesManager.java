@@ -4281,9 +4281,16 @@ public class MqttMessagesManager
 		 * lastPinMap is map of msisdn to a pair containing last pin message for a conversation and count of total number of pin messages in bulk packet for that conversation
 		 */
 		HashMap<String, PairModified<ConvMessage, Integer>> lastPinMap = new HashMap<String, PairModified<ConvMessage, Integer>>();
-
+		List<ConvMessage> removeMessages = new ArrayList<>();
 		for (ConvMessage convMessage : messageList)
 		{
+			if(convMessage.getMessageEventData()!=null)
+			{
+				removeMessages.add(convMessage);
+				String messageHash = HikeConversationsDatabase.getInstance().getMessageHashFromMessageId(convMessage.getMsgID()); // TODO :Write a direct query
+				convMessage = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
+				convMessage.setMessageEventData(new JSONObject());
+			}
 			String msisdn = convMessage.getMsisdn();
 			if (messageListMap.get(msisdn) == null)
 			{
@@ -4340,7 +4347,7 @@ public class MqttMessagesManager
 			convDb.updateStatusBulk(messageStatusMap);
 			convDb.setReadByForGroupBulk(messageStatusMap);
 		}
-
+		messageList.removeAll(removeMessages);
 		/*
 		 * Since now messages contains message id and conversation object we can process ft messages
 		 */
@@ -4637,7 +4644,24 @@ public class MqttMessagesManager
 		}
 		else if (HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ONE.equals(type) || HikeConstants.MqttMessageTypes.GENERAL_EVENT_QOS_ZERO.equals(type))
 		{
-			GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+			if (isBulkMessage)
+			{
+				JSONObject data = jsonObj.getJSONObject(HikeConstants.DATA);
+				if (data.has(HikeConstants.TYPE) && data.optString(HikeConstants.TYPE).equals(HikeConstants.GeneralEventMessagesTypes.MESSAGE_EVENT))
+				{
+					String messageHash = data.getString(HikePlatformConstants.MESSAGE_HASH);
+					if (!TextUtils.isEmpty(messageHash))
+					{
+						ConvMessage message = HikeConversationsDatabase.getInstance().getMessageFromMessageHash(messageHash);
+						message.setMessageEventData(jsonObj);
+						addToLists(message.getMsisdn(), message);
+					}
+				}
+			}
+			else
+			{
+				GeneralEventMessagesManager.getInstance().handleGeneralMessage(jsonObj);
+			}
 		}
 		else if (HikeConstants.MqttMessageTypes.ACTIVITY_UPDATE.equals(type))
 		{
