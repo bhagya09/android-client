@@ -1426,4 +1426,12 @@
     <string name="recording_help_text"> रेकॉर्ड करण्यासाठी टॅप धरून ठेवा</string>
     <string name="max_duration_recorded">जास्तीत जास्त कालावधीसाठी रेकॉर्डिंग केले</string>
     <string name="stream_volume_muted_or_low">कृप्या आवाज वाढवा</string>
+
+    <string name="group_mute_dialog_title">ग्रुप निशब्द करा</string>
+    <string name="chat_mute_dialog_title">चैट निशब्द करा</string>
+    <string name="mute_chat_eight_hrs">८ तास</string>
+    <string name="mute_chat_one_week">१ आठवडा</string>
+    <string name="mute_chat_one_yr">१ वर्ष</string>
+    <string name="show_notif">सूचना दाखवा</string>
+
 </resources>

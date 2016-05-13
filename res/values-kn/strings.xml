@@ -1430,4 +1430,12 @@
     <string name="recording_help_text">ಒತ್ತಿ ಹಿಡಿದು ರೆಕಾರ್ಡ್ ಮಾಡಿ, ಕಳುಹಿಸಲು ಬಿಡಿ</string>
     <string name="max_duration_recorded">ಗರಿಷ್ಠ ಸಮಯದವರೆಗೆ ರೆಕಾರ್ಡಿಂಗ್ ಆಗಿದೆ</string>
     <string name="stream_volume_muted_or_low">ದಯವಿಟ್ಟು ವಾಲ್ಯೂಮ್ಅನ್ನು ಜಾಸ್ತಿ ಮಾಡಿ</string>
+
+    <string name="group_mute_dialog_title">ಗ್ರೂಪ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
+    <string name="chat_mute_dialog_title">ಚಾಟ್ಅನ್ನು ಮ್ಯೂಟ್ ಮಾಡಿ</string>
+    <string name="mute_chat_eight_hrs">8 ಗಂಟೆ</string>
+    <string name="mute_chat_one_week">1 ವಾರ</string>
+    <string name="mute_chat_one_yr">1 ವರ್ಷ</string>
+    <string name="show_notif">ಪ್ರಕಟಣೆಅನ್ನು  ತೋರಿಸು</string>
+
 </resources>

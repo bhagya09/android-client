@@ -1422,4 +1422,12 @@
     <string name="recording_help_text">रिकॉर्डिंग के लिए दबा कर रखें, भेजने के लिए छोड़ें</string>
     <string name="max_duration_recorded">अधिकतम अवधि तक रिकॉर्डिंग की गई</string>
     <string name="stream_volume_muted_or_low">कृप्या आवाज़ बढ़ाएँ</string>
+
+    <string name="group_mute_dialog_title">ग्रुप शांत करें</string>
+    <string name="chat_mute_dialog_title">चैट शांत करें</string>
+    <string name="mute_chat_eight_hrs">8 घंटों के लिए</string>
+    <string name="mute_chat_one_week">1 हफ़्ते के लिए</string>
+    <string name="mute_chat_one_yr">1 वर्ष के लिए</string>
+    <string name="show_notif">सूचनाएं दिखाएं</string>
+
 </resources>
