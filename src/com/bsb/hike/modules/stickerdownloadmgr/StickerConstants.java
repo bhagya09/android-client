@@ -116,7 +116,7 @@ public class StickerConstants
 
 	public enum PackPreviewClickSource
 	{
-		SHOP("shop"), RECOMMENDATION("reco"), NOTIFICATION("notif"), BANNER("banner");
+		SHOP("shop"), RECOMMENDATION("reco"), NOTIFICATION("notif"), BANNER("banner"), SHOP_SEARCH("search");
 
 		private String value;
 
