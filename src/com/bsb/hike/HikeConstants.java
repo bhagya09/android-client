@@ -1851,6 +1851,8 @@ public class HikeConstants
 		public static final String HIKE_DIRECT_MODE="hikedirectmode";
 		public static final String SHOW_TIMELINE = "showTimeline";
 
+		public static final String HIKE_BDAY_MODE = "hikeBdayMode";
+
 		// constants related to sharing Functioanlity
 		public static final class ShareTypes
 		{
@@ -4242,4 +4244,14 @@ public class HikeConstants
 	public static final String ADD_HEADER = "addHeader";
 
 	public static final String IS_ATOMIC_TIP = "isAtomicTip";
+
+	public static final String ENABLE_BDAY_IN_CCA = "e_bd_cca";
+
+	public static final String BDAYS_LIST = "bday_list";
+
+	public static final String BDAY_HTTP_CALL_TS = "bday_call_ts";
+
+	public static final String BDAY_HTTP_CALL_TIME_GAP = "b_c_g";
+
+	public static final String BIRTHDAY_DATA = "bdata";
 }
