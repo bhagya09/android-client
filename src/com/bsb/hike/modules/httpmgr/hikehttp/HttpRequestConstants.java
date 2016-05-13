@@ -107,6 +107,8 @@ public class HttpRequestConstants
 
 	private static final String HIKE_SETTINGS = "/hikesettings";
 
+	private static final String  FETCH_TODAYS_BIRTHDAY_URL = "/events/birthday";
+
 	public static synchronized void setUpBase()
 	{
 		toggleStaging();
@@ -608,5 +610,10 @@ public class HttpRequestConstants
 	public static String getSettingsDownloadUrl()
 	{
 		return  BASE_URL + BASE_V5 + HIKE_SETTINGS;
+	}
+
+	public static String getFetchBdayUrl()
+	{
+		return BASE_URL + BASE_V1 + FETCH_TODAYS_BIRTHDAY_URL;
 	}
 }
