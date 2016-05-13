@@ -1598,4 +1598,9 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+
+    <string name="hike_bday_contacts">TODAY\'S BIRTHDAYS</string>
+    <string name="bday_list_view_subheading">WISH HAPPY BIRTHDAY!</string>
+    <string name="composeview_bday">HAPPY BIRTHDAY</string>
+
 </resources>
