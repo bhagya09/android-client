@@ -71,8 +71,6 @@ public class ChatThemeManager {
         mChatThemesMap = HikeConversationsDatabase.getInstance().getAllChatThemes();
         mDrawableHelper = new ChatThemeDrawableHelper();
         mAssetHelper = new ChatThemeAssetHelper();
-
-        getAllHikeThemesForDisplay();
     }
 
     private void getAllHikeThemesForDisplay() {
@@ -312,6 +310,9 @@ public class ChatThemeManager {
 
     public ArrayList<String> getAvailableThemeIds() {
         ArrayList<String> availableThemes = new ArrayList<>();
+        if((defaultHikeThemes == null) || (defaultHikeThemes.size() == 0)) {
+            getAllHikeThemesForDisplay();
+        }
         availableThemes.addAll(defaultHikeThemes);
         if (recentCustomTheme != null) {
             availableThemes.add(0, recentCustomTheme);
