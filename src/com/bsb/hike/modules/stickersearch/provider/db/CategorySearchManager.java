@@ -32,6 +32,7 @@ import com.bsb.hike.modules.stickersearch.tasks.CategorySearchTask;
 import com.bsb.hike.modules.stickersearch.tasks.CategoryTagInsertTask;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 /**
@@ -323,7 +324,7 @@ public class CategorySearchManager
 	{
 		String searchReport = HikeSharedPreferenceUtil.getInstance().getData(CATEGORIES_SEARCHED_DAILY_REPORT, "");
 
-		if (TextUtils.isEmpty(searchReport))
+		if (!StickerManager.getInstance().isShopSearchEnabled() || TextUtils.isEmpty(searchReport))
 		{
 			return;
 		}
@@ -375,7 +376,7 @@ public class CategorySearchManager
 	{
 		final String recordedReportString = HikeSharedPreferenceUtil.getInstance().getData(CategorySearchAnalyticsTask.SHOP_SEARCH_RESULTS_ANALYTICS_LOG, "");
 
-		if (TextUtils.isEmpty(recordedReportString) || TextUtils.isEmpty(source))
+		if (!StickerManager.getInstance().isShopSearchEnabled() || TextUtils.isEmpty(recordedReportString) || TextUtils.isEmpty(source))
 		{
 			return;
 		}

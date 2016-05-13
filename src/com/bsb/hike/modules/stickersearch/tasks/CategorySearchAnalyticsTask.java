@@ -13,6 +13,7 @@ import com.bsb.hike.modules.stickersearch.datamodel.CategorySearchData;
 import com.bsb.hike.modules.stickersearch.provider.db.CategorySearchManager;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
+import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 
 public class CategorySearchAnalyticsTask implements Runnable
@@ -69,6 +70,11 @@ public class CategorySearchAnalyticsTask implements Runnable
 	@Override
 	public void run()
 	{
+		if (!StickerManager.getInstance().isShopSearchEnabled())
+		{
+			return;
+		}
+
 		if (TextUtils.isEmpty(searchedQuery))
 		{
 			Logger.i(TAG, "Invalid searched analytics data. Skipping analytics recording");
