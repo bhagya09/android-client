@@ -1611,7 +1611,17 @@ import java.util.Map;
 		case R.string.mute_chat:
 			if ((item.text).equals(getString(R.string.mute_chat)))
 			{
-				this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+				boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, true);
+				if (muteApproach)
+				{
+					this.dialog = HikeDialogFactory.showDialog(activity, HikeDialogFactory.MUTE_CHAT_DIALOG, this, mConversation.getMute());
+				}
+				else
+				{
+					Mute mute = new Mute.InitBuilder(mConversation.getMsisdn()).setIsMute(false).setMuteDuration(HikeConstants.MuteDuration.DURATION_ONE_YEAR).setShowNotifInMute(false).build();
+					mConversation.setMute(mute);
+					Utils.toggleMuteChat(activity.getApplicationContext(), mConversation.getMute());
+				}
 			}
 			else
 			{

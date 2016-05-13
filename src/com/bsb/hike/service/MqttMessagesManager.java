@@ -2333,6 +2333,12 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_GC_SERVER_SWITCH, muteGCapproach);
 		}
 
+		if (data.has(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH))
+		{
+			boolean muteApproach = data.getBoolean(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH, muteApproach);
+		}
+
 		if (data.has(HikeConstants.KPT_EXIT_SERVER_TEXT))
 		{
 			String text = data.getString(HikeConstants.KPT_EXIT_SERVER_TEXT);

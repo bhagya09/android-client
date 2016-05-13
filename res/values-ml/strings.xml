@@ -1422,4 +1422,12 @@
     <string name="recording_help_text">പരമാവധി ദൈർഘ്യം രേഖപ്പെടുത്തിയിട്ടുണ്ട്</string>
     <string name="max_duration_recorded">പരമാവധി ദൈർഘ്യത്തിൽ റെക്കോർഡിംഗ് ചെയ്തു</string>
     <string name="stream_volume_muted_or_low">ദയവായി ശബ്ദം കൂട്ടുക</string>
+
+    <string name="group_mute_dialog_title">ഗ്രൂപ്പ് നിശ്ശബ്ദമാക്കുക</string>
+    <string name="chat_mute_dialog_title">Mute chat for</string>
+    <string name="mute_chat_eight_hrs">8 മണിക്കൂർ</string>
+    <string name="mute_chat_one_week">1 ആഴ്ച</string>
+    <string name="mute_chat_one_yr">1 വർഷം</string>
+    <string name="show_notif">നോട്ടിഫിക്കേഷൻ കാണിക്കുക</string>
+
 </resources>
