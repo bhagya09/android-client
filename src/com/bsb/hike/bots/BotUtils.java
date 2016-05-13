@@ -2,6 +2,7 @@ package com.bsb.hike.bots;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -1135,6 +1136,38 @@ public class BotUtils
 		}
 		NonMessagingBotMetadata nonMessagingBotMetadata = new NonMessagingBotMetadata(botInfo.getMetadata());
 		return nonMessagingBotMetadata.getParentMsisdn();
+	}
+
+	public static JSONObject getBotInfoAsString(BotInfo botInfo) throws JSONException, IOException
+	{
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("botDescription", botInfo.getBotDescription());
+		jsonObject.put("botType", botInfo.getBotType());
+		jsonObject.put("helperData", botInfo.getHelperData());
+		jsonObject.put("metadata", botInfo.getMetadata());
+		jsonObject.put("namespace", botInfo.getNamespace());
+		jsonObject.put("msisdn", botInfo.getMsisdn());
+		jsonObject.put("mAppVersionCode", botInfo.getMAppVersionCode());
+		jsonObject.put("version", botInfo.getVersion());
+		jsonObject.put("conversationName", botInfo.getConversationName());
+		jsonObject.put("type", botInfo.getType());
+		BitmapDrawable bitmap = HikeMessengerApp.getLruCache().getIconFromCache(botInfo.getMsisdn());
+		if(bitmap !=null)
+		{
+			String picture = Utils.drawableToString(bitmap);
+			File botPicFile = new File(HikeMessengerApp.getInstance().getExternalCacheDir(), "bot_"+ botInfo.getMsisdn() + ".jpg");
+			if(!botPicFile.exists())
+			{
+				botPicFile.createNewFile();
+				Utils.saveByteArrayToFile(botPicFile, picture.getBytes());
+			}
+			jsonObject.put("picture", botPicFile.getAbsolutePath());
+		}
+		else
+		{
+			jsonObject.put("picture" , "");
+		}
+		return jsonObject;
 	}
 	
 }

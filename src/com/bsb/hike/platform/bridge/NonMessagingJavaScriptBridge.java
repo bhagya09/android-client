@@ -1,6 +1,7 @@
 package com.bsb.hike.platform.bridge;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import org.json.JSONArray;
@@ -1851,5 +1852,51 @@ public class NonMessagingJavaScriptBridge extends JavascriptBridge
 			// Saving lastConvMessage in memory as well to refresh the UI
 			mBotInfo.setLastConversationMsg(Utils.makeConvMessage(mBotInfo.getMsisdn(), message, true, ConvMessage.State.RECEIVED_READ));
 		}
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get list of children bots
+	 */
+	@JavascriptInterface
+	public void getChildrenBots(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+            {
+                String childrenBotInformation = PlatformHelper.getChildrenBots(mBotInfo.getMsisdn());
+				callbackToJS(id, childrenBotInformation);
+				return;
+            }
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "[]");
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get bot information as string
+	 */
+	@JavascriptInterface
+	public void getBotInfoAsString(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String childrenBotInformation = BotUtils.getBotInfoAsString(mBotInfo).toString();
+				callbackToJS(id, childrenBotInformation);
+				return;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "{}");
 	}
 }

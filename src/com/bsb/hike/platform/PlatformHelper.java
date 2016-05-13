@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -25,6 +26,7 @@ import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.bots.BotInfo;
+import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.bots.NonMessagingBotMetadata;
 import com.bsb.hike.db.HikeContentDatabase;
 import com.bsb.hike.db.HikeConversationsDatabase;
@@ -295,6 +297,30 @@ public class PlatformHelper
 	{
 		String messageData = HikeConversationsDatabase.getInstance().getMessageEventsForMicroapps(namespace, false);
 		return messageData;
+	}
+
+	public static String getChildrenBots(String botMsisdn) throws JSONException, IOException
+	{
+		BotInfo botInfo = BotUtils.getBotInfoForBotMsisdn(botMsisdn);
+
+		Map<String, BotInfo> botInfoMap = HikeMessengerApp.hikeBotInfoMap;
+		List<BotInfo> listChildrenBots = new ArrayList<>();
+		for (Map.Entry<String, BotInfo> childBotMap : botInfoMap.entrySet())
+		{
+			if(BotUtils.getParentMsisdnFromBotMsisdn(childBotMap.getKey()).equals(botMsisdn))
+			{
+				listChildrenBots.add(childBotMap.getValue());
+			}
+		}
+
+		JSONArray childrenBotArray = new JSONArray();
+		for(BotInfo childBot : listChildrenBots)
+		{
+			JSONObject jsonObject = BotUtils.getBotInfoAsString(childBot);
+			childrenBotArray.put(jsonObject);
+		}
+
+		return childrenBotArray.toString();
 	}
 
 	public static String getGroupDetails(String groupId)

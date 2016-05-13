@@ -18,6 +18,7 @@ import com.bsb.hike.db.HikeConversationsDatabase;
 import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.platform.CustomWebView;
 import com.bsb.hike.platform.HikePlatformConstants;
+import com.bsb.hike.platform.PlatformHelper;
 import com.bsb.hike.platform.PlatformUtils;
 import com.bsb.hike.platform.WebMetadata;
 import com.bsb.hike.utils.CustomAnnotation.DoNotObfuscate;
@@ -26,6 +27,8 @@ import com.bsb.hike.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 /**
  * This class was introduced to cater platform bridge Platform Bridge Version 1 onwards. We have introduced message id and platform Platform Bridge Version concept here.
@@ -818,7 +821,7 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 	@JavascriptInterface
 	public void enableParentBot(String enable)
 	{
-		enableParentBot(enable,false);
+		enableParentBot(enable, false);
 
 	}
 
@@ -901,6 +904,59 @@ public class MessagingBridge_Alto extends MessagingBridge_Nano
 		{
 			BotUtils.deleteBotConversation(botInfo.getMsisdn(), false);
 		}
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get list of children bots
+	 */
+	@JavascriptInterface
+	public void getChildrenBots(String id)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String childrenBotInformation = PlatformHelper.getChildrenBots(mBotInfo.getMsisdn());
+				callbackToJS(id, childrenBotInformation);
+				return;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "[]");
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get bot information as string
+	 */
+	@JavascriptInterface
+	public void getBotInfoAsString(String id)
+	{
+		BotInfo mBotInfo = BotUtils.getBotInfoForBotMsisdn(message.webMetadata.getParentMsisdn());
+		try
+		{
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String botInformation = BotUtils.getBotInfoAsString(mBotInfo).toString();
+				callbackToJS(id, botInformation);
+				return;
+			}
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		callbackToJS(id, "{}");
 	}
 
 }

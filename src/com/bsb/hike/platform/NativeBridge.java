@@ -1,5 +1,6 @@
 package com.bsb.hike.platform;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 
@@ -14,7 +15,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.JavascriptInterface;
 
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
@@ -94,9 +94,7 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this method to get cardObj
 	 * 
-	 * @param id
-	 *            : the id of the function that native will call to call the game .
-	 * 
+	 *
 	 * @return
 	 */
 	public String getCardObj()
@@ -111,9 +109,7 @@ public class NativeBridge
 	/**
 	 * Platform Version 7 Call this method to get Bot Helper data
 	 * 
-	 * @param id
-	 *            : the id of the function that native will call to call the game .
-	 * 
+	 *
 	 * @return
 	 */
 	public void getBotHelperData(final String functionId)
@@ -144,12 +140,10 @@ public class NativeBridge
 		if (mThread == null)
 			return;
 
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 
 			@Override
-			public void run()
-			{
+			public void run() {
 
 				helper.putInCache(key, value, mBotInfo.getNamespace());
 
@@ -180,11 +174,9 @@ public class NativeBridge
 			{
 				final String cache = helper.getFromCache(key, mBotInfo.getNamespace());
 
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(id, cache);
 					}
 				});
@@ -325,11 +317,9 @@ public class NativeBridge
 			public void run()
 			{
 				final String returnedData = helper.getAllEventsForMessageHash(messageHash, mBotInfo.getNamespace());
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(functionId, returnedData);
 					}
 				});
@@ -348,11 +338,9 @@ public class NativeBridge
 			public void run()
 			{
 				final String returnedData = helper.getAllEventsForMessageHashFromUser(messageHash, mBotInfo.getNamespace(), fromUserId);
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(functionId, returnedData);
 					}
 				});
@@ -435,11 +423,9 @@ public class NativeBridge
 	public void showPopup(final String contentData)
 	{
 		Handler handler = new Handler(HikeMessengerApp.getInstance().getApplicationContext().getMainLooper());
-		handler.post(new Runnable()
-		{
+		handler.post(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformHelper.showPopup(contentData, weakActivity.get());
 			}
 		});
@@ -451,14 +437,11 @@ public class NativeBridge
 	 * @param id
 	 *            : the id of the function that native will call to call the js .
 	 */
-	@JavascriptInterface
 	public void getBotVersion(final String id)
 	{
-		activity.runOnGLThread(new Runnable()
-		{
+		activity.runOnGLThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(id, String.valueOf(mBotInfo.getVersion()));
 			}
 		});
@@ -472,11 +455,9 @@ public class NativeBridge
 	 */
 	public void getSystemArchitecture(final String id)
 	{
-		activity.runOnGLThread(new Runnable()
-		{
+		activity.runOnGLThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(id, System.getProperty("os.arch"));
 			}
 		});
@@ -507,12 +488,10 @@ public class NativeBridge
 	 */
 	public void deleteEvent(final String eventId)
 	{
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 
 			@Override
-			public void run()
-			{
+			public void run() {
 				EventData eventData = new EventData(true, eventId);
 				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
@@ -529,12 +508,10 @@ public class NativeBridge
 
 	public void deleteAllEventsForMessage(final String messageHash)
 	{
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 
 			@Override
-			public void run()
-			{
+			public void run() {
 				EventData eventData = new EventData(false, messageHash);
 				Intent hikeProcessIntentService = new Intent(activity, HikeProcessIntentService.class);
 				hikeProcessIntentService.putExtra(HikeProcessIntentService.EVENT_DELETE, eventData);
@@ -573,11 +550,9 @@ public class NativeBridge
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				activity.runOnGLThread(new Runnable()
-				{
+				activity.runOnGLThread(new Runnable() {
 					@Override
-					public void run()
-					{
+					public void run() {
 						activity.platformCallback(id, result.toString());
 					}
 				});
@@ -662,11 +637,9 @@ public class NativeBridge
 	 */
 	public void platformCallback(final String callID, final String response)
 	{
-		activity.runOnGLThread(new Runnable()
-		{
+		activity.runOnGLThread(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				activity.platformCallback(callID, response);
 			}
 		});
@@ -735,11 +708,9 @@ public class NativeBridge
 			return;
 		}
 		Log.d("cocos2d-x", data);
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				PlatformUtils.openActivity(weakActivity.get(), data);
 			}
 		});
@@ -763,11 +734,9 @@ public class NativeBridge
 		final Application application = weakActivity.get().getApplication();
 		final int length = duration.equals("long") ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
 
-		mThread.postRunnable(new Runnable()
-		{
+		mThread.postRunnable(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				Toast.makeText(application, message, length).show();
 			}
 		});
@@ -968,6 +937,47 @@ public class NativeBridge
 			return;
 		}
 		HikeAlarmManager.cancelAlarm(weakActivity.get(), msisdn.hashCode() + alarmData.hashCode());
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get list of children bots
+	 */
+	public String getChildrenBots(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String childrenBotInformation = PlatformHelper.getChildrenBots(mBotInfo.getMsisdn());
+				return childrenBotInformation;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return "[]";
+	}
+
+	/**
+	 * Platform Version 12
+	 * Method to get bot information as string
+	 */
+	public String getBotInfoAsString(String id)
+	{
+		try {
+			if (!TextUtils.isEmpty(id) && mBotInfo !=null)
+			{
+				String botInformation = BotUtils.getBotInfoAsString(mBotInfo).toString();
+				return botInformation;
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "{}";
 	}
 
 }
