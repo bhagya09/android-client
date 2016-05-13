@@ -3131,6 +3131,18 @@ public class MqttMessagesManager
 			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.FETCH_METADATA_PACK_COUNT, fetchMetadataPackCount);
 		}
 
+		if (data.has(HikeConstants.ENABLE_BDAY_IN_CCA))
+		{
+			boolean showBdayInCCA = data.getBoolean(HikeConstants.ENABLE_BDAY_IN_CCA);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.ENABLE_BDAY_IN_CCA, showBdayInCCA);
+		}
+
+		if (data.has(HikeConstants.BDAY_HTTP_CALL_TIME_GAP))
+		{
+			long bdayHttpTimeGap = data.getLong(HikeConstants.BDAY_HTTP_CALL_TIME_GAP);
+			HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.BDAY_HTTP_CALL_TIME_GAP, bdayHttpTimeGap);
+		}
+		
 		editor.commit();
 		this.pubSub.publish(HikePubSub.UPDATE_OF_MENU_NOTIFICATION, null);
 

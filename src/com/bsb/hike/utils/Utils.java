@@ -8073,4 +8073,16 @@ public class Utils
 
         argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
     }
+
+	public static boolean isBDayInNewChatEnabled()
+	{
+		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
+
+		if (prefs != null)
+		{
+			return prefs.getData(HikeConstants.ENABLE_BDAY_IN_CCA, true);
+		}
+
+		return false;
+	}
 }
