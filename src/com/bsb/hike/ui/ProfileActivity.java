@@ -2211,7 +2211,6 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			case HikeDialogFactory.DELETE_STATUS_DIALOG:
 			case HikeDialogFactory.DELETE_FROM_BROADCAST:
 			case HikeDialogFactory.DELETE_FROM_GROUP:
-			case HikeDialogFactory.MUTE_CHAT_DIALOG:
 				hikeDialog.dismiss();
 				this.hikeDialog = null;
 				break;
@@ -2220,6 +2219,13 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 				hikeDialog.dismiss();
 				OneToNConversationUtils.leaveGCAnalyticEvent(hikeDialog, false,HikeConstants.LogEvent.LEAVE_GROUP_VIA_PROFILE);
 				break;
+
+			case HikeDialogFactory.MUTE_CHAT_DIALOG:
+				HikeAnalyticsEvent.recordAnalyticsForMuteCancel(mLocalMSISDN);
+				hikeDialog.dismiss();
+				this.hikeDialog = null;
+				break;
+
 		}
 	}
 
