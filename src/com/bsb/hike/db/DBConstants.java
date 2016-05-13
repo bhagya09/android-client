@@ -404,6 +404,7 @@ public interface DBConstants
 		String PLATFORM_DOWNLOAD_STATE_TABLE = "plf_dwnld_state_table";
 
 		String DOWNLOAD_STATE = "downloadState";
+		String AUTO_RESUME = "autoResume";
 		
 		// AUTH TABLE ->auth_table--> microApp_id,token
 		public static final String AUTH_TABLE = "auth_table";
@@ -594,6 +595,24 @@ public interface DBConstants
 	public static final String AUTHOR = "author";
 
 	public static final String COPYRIGHT_STRING = "copyRightString";
+
+	public static final String STICKER_CATEGORY_RANK_TABLE = "categoryRankTable";
+
+	public static final String UCID_INDEX = "ucidIndex";
+
+	public static final String RANK = "rank";
+
+	public static final String UCID = "ucid";
+
+	public static final String IS_PACK_METADATA_UPDATED = "isPackMetadataUpdated";
+
+    public static final String IS_PACK_TAGDATA_UPDATED = "isPackTagdataUpdated";
+
+	public static final String UPDATED_METADATA_TIMESTAMP = "updatedMetadataTs";
+
+	public static final String UPDATED_PREVIEW_TIMESTAMP = "updatedPreviewTs";
+
+	public static final String IS_DISABLED = "is_disabled";
 
 	public static final String STICKER_SHOP_TABLE = "stickerShopTable";
 	

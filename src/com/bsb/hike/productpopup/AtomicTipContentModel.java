@@ -15,6 +15,8 @@ import java.util.Comparator;
  */
 public class AtomicTipContentModel
 {
+    private String tipId;
+
     private String header;
 
     private String body;
@@ -40,6 +42,8 @@ public class AtomicTipContentModel
     private boolean isCancellable;
 
     private boolean isSilent;
+
+    private boolean showNotification;
 
     private String notifTitle;
 
@@ -67,6 +71,7 @@ public class AtomicTipContentModel
 
     private AtomicTipContentModel(JSONObject tipContentJSON)
     {
+        this.tipId = tipContentJSON.optString(HikeConstants.TIP_ID);
         this.header = tipContentJSON.optString(HikeConstants.HEADER, "");
         this.body = tipContentJSON.optString(HikeConstants.BODY, "");
         this.icon = tipContentJSON.optString(HikeConstants.ICON, "");
@@ -106,16 +111,15 @@ public class AtomicTipContentModel
     {
         if(tipNotifData == null)
         {
-            this.isSilent = true;
+            this.showNotification = false;
             return;
         }
-
-        this.isSilent = tipNotifData.optBoolean(HikeConstants.SILENT, true);
-
-        if(!isSilent)
+        else
         {
             this.notifTitle = tipNotifData.optString(HikeConstants.NOTIFICATION_TITLE);
             this.notifText = tipNotifData.optString(HikeConstants.NOTIFICATION_TEXT);
+            this.isSilent = tipNotifData.optBoolean(HikeConstants.SILENT, true);
+            this.showNotification = true;
         }
     }
 
@@ -142,7 +146,7 @@ public class AtomicTipContentModel
     {
         if(hashCode == -1)
         {
-            hashCode = new String(getStartTime() + getEndTime() + getPriority() + getHeader() + "").hashCode();
+            hashCode = tipId.hashCode();
         }
         return hashCode;
     }
@@ -167,6 +171,11 @@ public class AtomicTipContentModel
     public boolean isSilent()
     {
         return isSilent;
+    }
+
+    public String getTipId()
+    {
+        return tipId;
     }
 
     public String getHeader()
@@ -263,6 +272,11 @@ public class AtomicTipContentModel
     public boolean isCancellable()
     {
         return isCancellable;
+    }
+
+    public boolean isShowNotification()
+    {
+        return showNotification;
     }
 
     public static Comparator<AtomicTipContentModel> tipsComparator = new Comparator<AtomicTipContentModel>()

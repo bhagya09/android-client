@@ -37,13 +37,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -89,7 +89,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -100,6 +99,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
@@ -108,7 +108,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
@@ -153,7 +152,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
@@ -167,15 +165,14 @@ import com.bsb.hike.BitmapModule.BitmapUtils;
 import com.bsb.hike.BitmapModule.HikeBitmapFactory;
 import com.bsb.hike.BuildConfig;
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeConstants.FTResult;
 import com.bsb.hike.HikeConstants.ImageQuality;
-import com.bsb.hike.HikeConstants.SMSSyncState;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikeMessengerApp.CurrentState;
 import com.bsb.hike.HikePubSub;
 import com.bsb.hike.MqttConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
+import com.bsb.hike.analytics.ChatAnalyticConstants;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.TrafficsStatsFile;
 import com.bsb.hike.bots.BotInfo;
@@ -192,7 +189,6 @@ import com.bsb.hike.dialog.HikeDialog;
 import com.bsb.hike.dialog.HikeDialogFactory;
 import com.bsb.hike.dialog.HikeDialogListener;
 import com.bsb.hike.filetransfer.FTAnalyticEvents;
-import com.bsb.hike.http.HikeHttpRequest;
 import com.bsb.hike.localisation.LocalLanguage;
 import com.bsb.hike.localisation.LocalLanguageUtils;
 import com.bsb.hike.models.AccountData;
@@ -210,12 +206,10 @@ import com.bsb.hike.models.Conversation.Conversation;
 import com.bsb.hike.models.Conversation.GroupConversation;
 import com.bsb.hike.models.Conversation.OneToNConvInfo;
 import com.bsb.hike.models.Conversation.OneToNConversation;
-import com.bsb.hike.models.FtueContactsData;
 import com.bsb.hike.models.GroupParticipant;
 import com.bsb.hike.models.HikeFile;
 import com.bsb.hike.models.HikeFile.HikeFileType;
 import com.bsb.hike.models.HikeHandlerUtil;
-import com.bsb.hike.models.utils.JSONSerializable;
 import com.bsb.hike.modules.contactmgr.ContactManager;
 import com.bsb.hike.modules.httpmgr.RequestToken;
 import com.bsb.hike.modules.httpmgr.exception.HttpException;
@@ -229,7 +223,6 @@ import com.bsb.hike.platform.HikePlatformConstants;
 import com.bsb.hike.service.ConnectionChangeReceiver;
 import com.bsb.hike.service.HikeMqttManagerNew;
 import com.bsb.hike.tasks.CheckForUpdateTask;
-import com.bsb.hike.tasks.SignupTask;
 import com.bsb.hike.tasks.StatusUpdateTask;
 import com.bsb.hike.timeline.model.StatusMessage;
 import com.bsb.hike.timeline.model.StatusMessage.StatusMessageType;
@@ -244,9 +237,65 @@ import com.bsb.hike.userlogs.AESEncryption;
 import com.bsb.hike.voip.VoIPUtils;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.apache.http.NameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URL;
+import java.nio.CharBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+
 public class Utils
 {
 	private static final String TAG = Utils.class.getSimpleName();
+
 
 	// Precision points definition for duration logging========================================[[
 	public static final class ExecutionDurationLogger
@@ -331,28 +380,26 @@ public class Utils
 		return builder.toString();
 	}
 
-
 	public static boolean isIndianMobileNumber(String number)
 	{
-		//13 is the number of chars in the phone msisdn 
+		// 13 is the number of chars in the phone msisdn
 		if (number != null && (number.startsWith("+919") || number.startsWith("+918") || number.startsWith("+917")) && number.length() == 13)
 		{
 			return true;
 		}
 		return false;
 	}
-	
+
 	public static boolean isIndianNumber(String number)
 	{
-		//13 is the number of chars in the phone msisdn 
+		// 13 is the number of chars in the phone msisdn
 		if (number != null && number.startsWith("+91"))
 		{
 			return true;
 		}
 		return false;
 	}
-	
-	
+
 	static final private int ANIMATION_DURATION = 400;
 
 	public static long gettingMidnightTimeinMilliseconds()
@@ -365,9 +412,9 @@ public class Utils
 		return c.getTimeInMillis();
 	}
 
-
-
-	/** Create a File for saving an image or video */
+	/**
+	 * Create a File for saving an image or video
+	 */
 	public static File getOutputMediaFile(HikeFileType type, String orgFileName, boolean isSent)
 	{
 		// To be safe, you should check that the SDCard is mounted
@@ -409,7 +456,7 @@ public class Utils
 
 		return new File(mediaStorageDir, orgFileName);
 	}
-	
+
 	public static void setSharedPrefValue(Context context, String key, boolean value)
 	{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -583,11 +630,12 @@ public class Utils
 		editor.putInt(HikeMessengerApp.INVITED, accountInfo.getAllInvitee());
 		editor.putInt(HikeMessengerApp.INVITED_JOINED, accountInfo.getAllInviteeJoined());
 		editor.putString(HikeMessengerApp.COUNTRY_CODE, accountInfo.getCountryCode());
-		editor.putString(HikeConstants.SERVER_NAME_SETTING,accountInfo.getServerName());
-		editor.putString(HikeConstants.SERVER_GENDER_SETTING,accountInfo.getServerGender());
+		editor.putString(HikeConstants.SERVER_NAME_SETTING, accountInfo.getServerName());
+		editor.putString(HikeConstants.SERVER_GENDER_SETTING, accountInfo.getServerGender());
 
 		Birthday serverDOB = accountInfo.getServerDOB();
-		if (serverDOB != null);
+		if (serverDOB != null)
+			;
 		{
 			editor.putInt(HikeConstants.SERVER_BIRTHDAY_DAY, serverDOB.day);
 			editor.putInt(HikeConstants.SERVER_BIRTHDAY_MONTH, serverDOB.month);
@@ -653,7 +701,7 @@ public class Utils
 	/**
 	 * Returns true if the user has successfully signedup. This means user is has passed signuptask. Returns false otherwise. In this case it will open either SignupActivity or
 	 * WelcomeActivity.
-	 * 
+	 *
 	 * @param context
 	 * @param launchSignup
 	 *            -- true if you want to launch respective activity, false otherwise
@@ -738,7 +786,7 @@ public class Utils
 
 	/**
 	 * Used for logging the UI based events from the clients side.
-	 * 
+	 *
 	 * @param context
 	 * @param event
 	 *            : The event which is to be logged.
@@ -784,7 +832,7 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = convInfo.getConvParticipantName(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " " + context.getString(R.string.and)  + " "+ name2;
+			highlight += " " + context.getString(R.string.and) + " " + name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
@@ -807,7 +855,7 @@ public class Utils
 			JSONObject participant2 = (JSONObject) participantInfoArray.opt(1);
 			String name2 = conversation.getConvParticipantFirstNameAndSurname(participant2.optString(HikeConstants.MSISDN));
 
-			highlight += " " + context.getString(R.string.and)  + " "+ name2;
+			highlight += " " + context.getString(R.string.and) + " " + name2;
 		}
 		else if (participantInfoArray.length() > 2)
 		{
@@ -922,10 +970,10 @@ public class Utils
 		messageWithName.setSpan(new StyleSpan(Typeface.BOLD), 0, firstName.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return messageWithName;
 	}
-	
+
 	/**
 	 * Used for setting the density multiplier, which is to be multiplied with any pixel value that is programmatically given
-	 * 
+	 *
 	 * @param activity
 	 */
 	public static void setDensityMultiplier(DisplayMetrics displayMetrics)
@@ -937,9 +985,9 @@ public class Utils
 		Utils.displayHeightPixels = displayMetrics.heightPixels;
 	}
 
-	//AND-4036, Extending the high light to the next space.
-	//Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
-	//Sol: making the highlight text extend to the end of the word.
+	// AND-4036, Extending the high light to the next space.
+	// Problem: only "aap" is getting highlighted in the "aapko" / "aapne" since the highlighted text is "aap"
+	// Sol: making the highlight text extend to the end of the word.
 	public static CharSequence getFormattedParticipantInfo(String info, String textToHighlight)
 	{
 		if (!info.contains(textToHighlight) || TextUtils.isEmpty(textToHighlight))
@@ -949,16 +997,15 @@ public class Utils
 		int index = info.indexOf(textToHighlight);
 
 		int wordEndIndex = info.substring(index + textToHighlight.length()).indexOf(" ");
-		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length()+ wordEndIndex;
+		int highlightLen = (wordEndIndex == -1) ? textToHighlight.length() : textToHighlight.length() + wordEndIndex;
 		ssb.setSpan(new StyleSpan(Typeface.BOLD), info.indexOf(textToHighlight), info.indexOf(textToHighlight) + highlightLen, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		return ssb;
 	}
 
-
 	/**
 	 * Used for preventing the cursor from being shown initially on the text box in touch screen devices. On touching the text box the cursor becomes visible
-	 * 
+	 *
 	 * @param editText
 	 */
 	public static void hideCursor(final EditText editText, Resources resources)
@@ -982,7 +1029,7 @@ public class Utils
 	}
 
 	/**
-	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 * DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
 	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs)
 	{
@@ -990,7 +1037,7 @@ public class Utils
 	}
 
 	/**
-	 *  DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
+	 * DEPRECATED. Use {@link #getUserContactInfo(boolean) getUserContactInfo(showNameAsYou)}
 	 */
 	public static ContactInfo getUserContactInfo(SharedPreferences prefs, boolean showNameAsYou)
 	{
@@ -1014,7 +1061,7 @@ public class Utils
 
 		return contactInfo;
 	}
-	
+
 	public static ContactInfo getUserContactInfo(boolean showNameAsYou)
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
@@ -1049,15 +1096,20 @@ public class Utils
 			}
 			int currentVersionToken = Integer.parseInt(currentVersion.nextToken());
 			int updateVersionToken = Integer.parseInt(updateVersion.nextToken());
-			if (updateVersionToken > currentVersionToken) {
+			if (updateVersionToken > currentVersionToken)
+			{
 				return true;
-			} else if (updateVersionToken < currentVersionToken) {
+			}
+			else if (updateVersionToken < currentVersionToken)
+			{
 				return false;
 			}
 
 		}
-		while (updateVersion.hasMoreTokens()) {
-			if (Integer.parseInt(updateVersion.nextToken()) > 0) {
+		while (updateVersion.hasMoreTokens())
+		{
+			if (Integer.parseInt(updateVersion.nextToken()) > 0)
+			{
 				return true;
 			}
 		}
@@ -1074,7 +1126,7 @@ public class Utils
 		}
 		catch (NumberFormatException nfe)
 		{
-			Logger.e("AUTOAPK","version name contains strings possibly", nfe);
+			Logger.e("AUTOAPK", "version name contains strings possibly", nfe);
 			return false;
 		}
 		catch (NameNotFoundException e)
@@ -1305,7 +1357,7 @@ public class Utils
 
 	/**
 	 * Wrapper Method that covers all the known edge cases while retrieving filepath from Uri
-	 * 
+	 *
 	 * @param uri
 	 * @param mContext
 	 * @param checkForPicassaUri
@@ -1321,10 +1373,10 @@ public class Utils
 
 	public static String getAbsolutePathFromUri(Uri uri, Context mContext, boolean checkForPicassaUri, boolean showToasts)
 	{
-		if(uri == null)
+		if (uri == null)
 		{
-			if(showToasts)
-			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
+			if (showToasts)
+				Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 			return null;
 		}
 		String fileUriString = uri.toString();
@@ -1360,19 +1412,19 @@ public class Utils
 			{
 				er.printStackTrace();
 			}
-			if(file != null)
+			if (file != null)
 			{
 				return file.getAbsolutePath();
 			}
 			else
 			{
-				if(showToasts)
-				Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
+				if (showToasts)
+					Toast.makeText(mContext, R.string.cloud_file_error, Toast.LENGTH_SHORT).show();
 				return null;
 			}
 		}
 
-		if(returnFilePath == null && showToasts)
+		if (returnFilePath == null && showToasts)
 			Toast.makeText(mContext, R.string.unknown_file_error, Toast.LENGTH_SHORT).show();
 		return returnFilePath;
 
@@ -1436,12 +1488,12 @@ public class Utils
 			Logger.d("StickerSize", "get available blocks : " + (double) stat.getAvailableBlocks() + "  get block size : " + (double) stat.getBlockSize());
 
 		}
-		catch(IllegalArgumentException e) // http://stackoverflow.com/questions/23516075/invalid-path-error-get-the-external-memory-size
+		catch (IllegalArgumentException e) // http://stackoverflow.com/questions/23516075/invalid-path-error-get-the-external-memory-size
 		{
-			//returning sufficient amount of size so that download is executed
+			// returning sufficient amount of size so that download is executed
 			sdAvailSize = 15 * 1024 * 1024;
 		}
-		
+
 		return sdAvailSize;
 	}
 
@@ -1668,10 +1720,10 @@ public class Utils
 
 	public static boolean shouldChangeMessageState(ConvMessage convMessage, int stateOrdinal)
 	{
-	
+
 		if (convMessage == null || convMessage.getTypingNotification() != null || convMessage.getUnreadCount() != -1)
 		{
-			Logger.d("BufRef","ConvMessage is null" + convMessage);
+			Logger.d("BufRef", "ConvMessage is null" + convMessage);
 			return false;
 		}
 		int minStatusOrdinal;
@@ -1687,7 +1739,6 @@ public class Utils
 			maxStatusOrdinal = stateOrdinal;
 		}
 
-		
 		int convMessageStateOrdinal = convMessage.getState().ordinal();
 
 		Logger.d("BugRef", "Ordinal state of our ConvMessage is " + convMessageStateOrdinal);
@@ -1798,18 +1849,18 @@ public class Utils
 				public void positiveClicked(HikeDialog hikeDialog)
 				{
 					Editor editor = settings.edit();
-					editor.putBoolean(checkPref, ((CustomAlertDialog)hikeDialog).isChecked());
+					editor.putBoolean(checkPref, ((CustomAlertDialog) hikeDialog).isChecked());
 					editor.commit();
 					invite(context, contactInfo, whichScreen);
 					hikeDialog.dismiss();
 				}
-				
+
 				@Override
 				public void neutralClicked(HikeDialog hikeDialog)
 				{
 					hikeDialog.dismiss();
 				}
-				
+
 				@Override
 				public void negativeClicked(HikeDialog hikeDialog)
 				{
@@ -2070,14 +2121,16 @@ public class Utils
 		ContentResolver cR = context.getContentResolver();
 		MimeTypeMap mime = MimeTypeMap.getSingleton();
 		String contentType = cR.getType(uri);
-		if(contentType == null)
+		if (contentType == null)
 			return null;
 		HikeFileType hikeFileType = HikeFileType.fromString(contentType, false);
 		String extension = mime.getExtensionFromMimeType(contentType);
 		File destFile = null;
-		try {
+		try
+		{
 			String fileName = contentType.substring(0, contentType.indexOf("/")) + "_" + timeStamp;
-			switch (hikeFileType) {
+			switch (hikeFileType)
+			{
 			case IMAGE:
 				destFile = File.createTempFile(fileName, "." + extension);
 				break;
@@ -2098,16 +2151,18 @@ public class Utils
 						return null;
 					}
 				}
-				destFile = new File(dir, fileName  + "." + extension);
+				destFile = new File(dir, fileName + "." + extension);
 				break;
 			default:
 				break;
 			}
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(destFile != null)
+		if (destFile != null)
 			downloadAndSaveFile(cR, destFile, uri);
 		return destFile;
 	}
@@ -2154,8 +2209,8 @@ public class Utils
 	{
 		return (picasaUriString.toString().startsWith(HikeConstants.OTHER_PICASA_URI_START) || picasaUriString.toString().startsWith(HikeConstants.JB_PICASA_URI_START)
 				|| picasaUriString.toString().startsWith("http") || picasaUriString.toString().startsWith(HikeConstants.GMAIL_PREFIX)
-				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX)
-				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_DRIVE_PREFIX));
+				|| picasaUriString.toString().startsWith(HikeConstants.GOOGLE_PLUS_PREFIX) || picasaUriString.toString().startsWith(HikeConstants.GOOGLE_INBOX_PREFIX) || picasaUriString
+				.toString().startsWith(HikeConstants.GOOGLE_DRIVE_PREFIX));
 	}
 
 	public static Uri makePicasaUriIfRequired(Uri uri)
@@ -2171,7 +2226,7 @@ public class Utils
 
 	/**
 	 * This will return true when SSL toggle is on and connection type is WIFI
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -2184,9 +2239,9 @@ public class Utils
 		{
 			return false;
 		}
-		
-		//this will ensure that no ssl(both https and mssaging) call is made for non ssl allowed countries
-		if(!isSSLAllowed())
+
+		// this will ensure that no ssl(both https and mssaging) call is made for non ssl allowed countries
+		if (!isSSLAllowed())
 		{
 			return false;
 		}
@@ -2399,7 +2454,7 @@ public class Utils
 		}
 		return items;
 	}
-	
+
 	public static boolean killCall()
 	{
 		Context context = HikeMessengerApp.getInstance();
@@ -2432,10 +2487,10 @@ public class Utils
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Get unseen status, user-status and friend request count,includes activity count as well
-	 * 
+	 *
 	 * @param accountPrefs
 	 *            Account settings shared preference
 	 * @param countUsersStatus
@@ -2444,12 +2499,12 @@ public class Utils
 	 */
 	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus)
 	{
-		return getNotificationCount(accountPrefs, countUsersStatus, true,true,true);
+		return getNotificationCount(accountPrefs, countUsersStatus, true, true, true);
 	}
-	
+
 	/**
 	 * Get unseen status, user-status and friend request count,
-	 * 
+	 *
 	 * @param accountPrefs
 	 *            Account settings shared preference
 	 * @param countUsersStatus
@@ -2462,11 +2517,12 @@ public class Utils
 	 *            Whether to include friend request count in the total
 	 * @return
 	 */
-	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity,boolean countUnseenStatus,boolean friendRequestCount)
+	public static int getNotificationCount(SharedPreferences accountPrefs, boolean countUsersStatus, boolean countUserActivity, boolean countUnseenStatus,
+			boolean friendRequestCount)
 	{
 		int notificationCount = 0;
 		if (countUnseenStatus)
-		notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
+			notificationCount += accountPrefs.getInt(HikeMessengerApp.UNSEEN_STATUS_COUNT, 0);
 		if (countUserActivity)
 			notificationCount += accountPrefs.getInt(HikeMessengerApp.USER_TIMELINE_ACTIVITY_COUNT, 0);
 		if (countUsersStatus)
@@ -2475,12 +2531,12 @@ public class Utils
 		}
 		if (friendRequestCount)
 		{
-		int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
-		notificationCount += frCount;
+			int frCount = accountPrefs.getInt(HikeMessengerApp.FRIEND_REQ_COUNT, 0);
+			notificationCount += frCount;
 		}
 		return notificationCount;
 	}
-	
+
 	/*
 	 * This method returns whether the device is an mdpi or ldpi device. The assumption is that these devices are low end and hence a DB call may block the UI on those devices.
 	 */
@@ -2541,26 +2597,27 @@ public class Utils
 
 	public static void sendLocaleToServer()
 	{
-		try {
+		try
+		{
 			JSONObject mqttLanguageAnalytic = new JSONObject();
 
 			JSONObject data = new JSONObject();
 
 			data.put(HikeConstants.PHONE_LANGUAGE, LocalLanguageUtils.getDeviceDefaultLocale());
-			//Getting APP Language
+			// Getting APP Language
 			String appLocale = LocalLanguageUtils.getApplicationLocalLanguageLocale();
 
 			data.put(HikeConstants.APP_LANGUAGE, appLocale);
-			mqttLanguageAnalytic.put(HikeConstants.DATA,data);
-			mqttLanguageAnalytic.put(HikeConstants.TYPE,HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
+			mqttLanguageAnalytic.put(HikeConstants.DATA, data);
+			mqttLanguageAnalytic.put(HikeConstants.TYPE, HikeConstants.MqttMessageTypes.ACCOUNT_CONFIG);
 			HikeMqttManagerNew.getInstance().sendMessage(mqttLanguageAnalytic, MqttConstants.MQTT_QOS_ONE);
 
-
-		}catch (JSONException e){
+		}
+		catch (JSONException e)
+		{
 
 		}
 	}
-
 
 	public static void setReceiveSmsSetting(Context context, boolean value)
 	{
@@ -2645,7 +2702,7 @@ public class Utils
 		}
 		return b;
 	}
-	
+
 	/**
 	 * Saves the byteArray to the file specified.
 	 */
@@ -2754,7 +2811,7 @@ public class Utils
 				 */
 				data.put(HikeConstants.BULK_LAST_SEEN, false);
 				object.put(HikeConstants.DATA, data);
-				
+
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.IS_HIKE_APP_FOREGROUNDED, true);
 				HikeNotification.getInstance().cancelPersistNotif();
 				HikeNotification.getInstance().cancelNotification(HikeNotification.NOTIF_INTERCEPT_NON_DOWNLOAD);
@@ -2791,7 +2848,7 @@ public class Utils
 
 	/**
 	 * Sends Session fg/bg Packet With MQTT_QOS_ONE
-	 * 
+	 *
 	 * @param context
 	 * @param subType
 	 * @param sessionMetaDataObject
@@ -2965,7 +3022,7 @@ public class Utils
 
 	/**
 	 * Applies the server time offset and ensures that the time does not go into the future
-	 * 
+	 *
 	 * @param context
 	 * @param time
 	 * @return
@@ -2986,7 +3043,7 @@ public class Utils
 
 	/**
 	 * Applies the server time offset and ensures that the time becomes sync with server
-	 * 
+	 *
 	 * @param context
 	 * @param time
 	 *            in seconds
@@ -3032,13 +3089,13 @@ public class Utils
 			{
 			case IMAGE:
 				String caption = convMessage.getMetadata().getCaption();
-				if(TextUtils.isEmpty(caption))
+				if (TextUtils.isEmpty(caption))
 				{
 					return context.getString(R.string.send_sms_img_msg);
 				}
 				else
 				{
-					return String.format(context.getString(R.string.image_w_caption_sms),"\""+caption+"\"");
+					return String.format(context.getString(R.string.image_w_caption_sms), "\"" + caption + "\"");
 				}
 			case VIDEO:
 				return context.getString(R.string.send_sms_video_msg);
@@ -3095,8 +3152,8 @@ public class Utils
 	{
 		sendLogEvent(data, subType, toMsisdn, HikeConstants.MqttMessageTypes.ANALYTICS_EVENT);
 	}
-	
-	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn,String type)
+
+	public static void sendLogEvent(JSONObject data, String subType, String toMsisdn, String type)
 	{
 
 		JSONObject object = new JSONObject();
@@ -3164,29 +3221,18 @@ public class Utils
 				jObject = null;
 			}
 		};
-		
+
 		if (TextUtils.isEmpty(url))
 		{
 			jObject = null;
 			return jObject;
 		}
-		
 		else
 		{
 			RequestToken token = HttpRequests.getJSONfromUrl(url, requestListener);
 			token.execute();
 		}
 		return jObject;
-	}
-
-	public static boolean isGingerbreadOrHigher()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-	}
-
-	public static boolean isHoneycombOrHigher()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 	}
 
 	public static boolean isKitkatOrHigher()
@@ -3222,114 +3268,6 @@ public class Utils
 	public static boolean isJellybeanMR1OrHigher()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
-	}
-
-	public static void executeAsyncTask(AsyncTask<Void, Void, Void> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeIntegerAsyncTask(AsyncTask<Void, Void, Integer> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeBoolResultAsyncTask(AsyncTask<Void, Void, Boolean> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeHttpTask(AsyncTask<HikeHttpRequest, Integer, Boolean> asyncTask, HikeHttpRequest... hikeHttpRequests)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, hikeHttpRequests);
-		}
-		else
-		{
-			asyncTask.execute(hikeHttpRequests);
-		}
-	}
-
-	public static void executeSignupTask(AsyncTask<Void, SignupTask.StateValue, Boolean> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeContactListResultTask(AsyncTask<Void, Void, List<Pair<AtomicBoolean, ContactInfo>>> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeContactInfoListResultTask(AsyncTask<Void, Void, FtueContactsData> asyncTask)
-	{
-		if (isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
-	}
-
-	public static void executeConvAsyncTask(AsyncTask<ConvInfo, Void, Conversation[]> asyncTask, ConvInfo... conversations)
-	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, conversations);
-		}
-		else
-		{
-			asyncTask.execute(conversations);
-		}
-	}
-	
-	public static void executeJSONArrayResultTask(AsyncTask<Void, Void, JSONArray> asyncTask)
-	{
-		if (Utils.isHoneycombOrHigher())
-		{
-			asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
-		else
-		{
-			asyncTask.execute();
-		}
 	}
 
 	public static boolean getSendSmsPref(Context context)
@@ -3389,13 +3327,12 @@ public class Utils
 			shortcutIntent.putExtra(HikePlatformConstants.IS_SHORTCUT, true);
 			shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		}
-
 		else
 		{
 			shortcutIntent = IntentFactory.createChatThreadIntentFromConversation(activity, conv, ChatThreadActivity.ChatThreadOpenSources.SHORTCUT);
 		}
 
-		if (conv instanceof BotInfo) //Adding Bot Open Source Analytics here
+		if (conv instanceof BotInfo) // Adding Bot Open Source Analytics here
 		{
 			shortcutIntent.putExtra(AnalyticsConstants.BOT_NOTIF_TRACKER, AnalyticsConstants.BOT_OPEN_SOURCE_SHORTCUT);
 		}
@@ -3414,9 +3351,9 @@ public class Utils
 		intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, scaled);
 		intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
 		activity.sendBroadcast(intent);
-		if(showToast)
+		if (showToast)
 		{
-			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName() , Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, activity.getString(R.string.shortcut_created) + " for " + conv.getConversationName(), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -3606,7 +3543,7 @@ public class Utils
 	{
 		return getTimelineActivityIntent(context, false, false);
 	}
-	
+
 	public static Intent getTimelineActivityIntent(Context context, boolean openActivityFeed, boolean fromNotif)
 	{
 		final Intent intent = new Intent(context, TimelineActivity.class);
@@ -3655,17 +3592,12 @@ public class Utils
 
 	public static boolean canInBitmap()
 	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+		return true;
 	}
 
 	public static boolean hasGingerbread()
 	{
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-	}
-
-	public static boolean hasHoneycombMR1()
-	{
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
 	}
 
 	public static boolean hasJellyBeanMR1()
@@ -3745,7 +3677,7 @@ public class Utils
 		int rawContactInsertIndex = ops.size();
 
 		ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI).withValue(RawContacts.ACCOUNT_TYPE, (accountData != null) ? accountData.getType() : null)
-				.withValue(RawContacts.ACCOUNT_NAME, (accountData != null) ? accountData.getName():null).build());
+				.withValue(RawContacts.ACCOUNT_NAME, (accountData != null) ? accountData.getName() : null).build());
 
 		for (ContactInfoData contactInfoData : items)
 		{
@@ -3791,7 +3723,7 @@ public class Utils
 			e.printStackTrace();
 			contactSaveSuccessful = false;
 		}
-		if(showToast)
+		if (showToast)
 		{
 			Toast.makeText(context.getApplicationContext(), contactSaveSuccessful ? R.string.contact_saved : R.string.contact_not_saved, Toast.LENGTH_SHORT).show();
 		}
@@ -4003,32 +3935,29 @@ public class Utils
 
 		if (!Utils.isFavToFriendsMigrationAllowed())
 		{
-			HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG,
-					new HikeDialogListener()
-					{
+			HikeDialogFactory.showDialog(context, HikeDialogFactory.FAVORITE_ADDED_DIALOG, new HikeDialogListener()
+			{
 
-						@Override
-						public void positiveClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-							HikeSharedPreferenceUtil.getInstance()
-									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-						}
+				@Override
+				public void positiveClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				}
 
-						@Override
-						public void neutralClicked(HikeDialog hikeDialog)
-						{
-						}
+				@Override
+				public void neutralClicked(HikeDialog hikeDialog)
+				{
+				}
 
-						@Override
-						public void negativeClicked(HikeDialog hikeDialog)
-						{
-							hikeDialog.dismiss();
-							HikeSharedPreferenceUtil.getInstance()
-									.saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
-						}
+				@Override
+				public void negativeClicked(HikeDialog hikeDialog)
+				{
+					hikeDialog.dismiss();
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SHOWN_ADD_FAVORITE_TIP, true);
+				}
 
-					}, contactInfo.getFirstName());
+			}, contactInfo.getFirstName());
 		}
 	}
 
@@ -4044,10 +3973,10 @@ public class Utils
 		{
 			favoriteType = FavoriteType.REQUEST_SENT;
 			isRequestSent = true;
-			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent , Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, Utils.isFavToFriendsMigrationAllowed() ? R.string.friend_request_sent : R.string.favorite_request_sent, Toast.LENGTH_SHORT).show();
 		}
 
-		//2-way friendship established. Get Historical updates here!
+		// 2-way friendship established. Get Historical updates here!
 		if (favoriteType == FavoriteType.FRIEND)
 		{
 			fetchHistoricalUpdates(contactInfo.getMsisdn());
@@ -4081,7 +4010,7 @@ public class Utils
 		i.putExtra(Insert.PHONE, msisdn);
 		context.startActivity(i);
 	}
-	
+
 	public static void addToContacts(Context context, String msisdn, String name, String address)
 	{
 		Intent intent = new Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI);
@@ -4106,16 +4035,18 @@ public class Utils
 		cal.add(Calendar.MINUTE, -min);
 		long old = cal.getTimeInMillis();
 		return old;
-	};
+	}
+
+	;
 
 	public static boolean isAppForeground(Context context)
 	{
 		ActivityManager mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<RunningAppProcessInfo> l = mActivityManager.getRunningAppProcesses();
 		// TODO. need review if we should return true or false.crash#46.
-		if(isEmpty(l))
+		if (isEmpty(l))
 			return false;
-		
+
 		Iterator<RunningAppProcessInfo> i = l.iterator();
 		while (i.hasNext())
 		{
@@ -4123,7 +4054,7 @@ public class Utils
 
 			if (info.uid == context.getApplicationInfo().uid && info.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND && info.importanceReasonCode == 0)
 			{
-				
+
 				Field field = null;
 				try
 				{
@@ -4135,7 +4066,8 @@ public class Utils
 					return true;
 				}
 
-				if(field != null) {
+				if (field != null)
+				{
 
 					Integer state = null;
 					try
@@ -4144,7 +4076,7 @@ public class Utils
 					}
 					catch (IllegalAccessException e)
 					{
-						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState" );
+						Logger.d(ChatHeadUtils.class.getSimpleName(), "illegal access of processState");
 						return true;
 					}
 					catch (IllegalArgumentException e)
@@ -4191,8 +4123,6 @@ public class Utils
 			return vibOff;
 		}
 	}
-
-
 
 	public static void handleBulkLastSeenPacket(Context context, JSONObject jsonObj) throws JSONException
 	{
@@ -4272,7 +4202,7 @@ public class Utils
 
 	/**
 	 * Adding this method to compute the overall count for showing in overflow menu on home screen
-	 * 
+	 *
 	 * @param accountPref
 	 * @param defaultValue
 	 * @return
@@ -4280,11 +4210,13 @@ public class Utils
 	public static int updateHomeOverflowToggleCount(SharedPreferences accountPref, boolean defaultValue)
 	{
 		int overallCount = 0;
-		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
+		if (!(accountPref.getBoolean(HikeConstants.IS_GAMES_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_GAMES, false)
+				&& !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
-		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false) && !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
+		if (!(accountPref.getBoolean(HikeConstants.IS_REWARDS_ITEM_CLICKED, defaultValue)) && accountPref.getBoolean(HikeMessengerApp.SHOW_REWARDS, false)
+				&& !TextUtils.isEmpty(accountPref.getString(HikeMessengerApp.REWARDS_TOKEN, "")))
 		{
 			overallCount++;
 		}
@@ -4351,14 +4283,9 @@ public class Utils
 		try
 		{
 			Class<?> jarURLConnectionImplClass;
-			if (isHoneycombOrHigher())
-			{
-				jarURLConnectionImplClass = Class.forName("libcore.net.url.JarURLConnectionImpl");
-			}
-			else
-			{
-				jarURLConnectionImplClass = Class.forName("org.apache.harmony.luni.internal.net.www.protocol.jar.JarURLConnectionImpl");
-			}
+
+			jarURLConnectionImplClass = Class.forName("libcore.net.url.JarURLConnectionImpl");
+
 			final Field jarCacheField = jarURLConnectionImplClass.getDeclaredField("jarCache");
 			jarCacheField.setAccessible(true);
 			jarCache = (HashMap<URL, JarFile>) jarCacheField.get(null);
@@ -4573,9 +4500,9 @@ public class Utils
 			return;
 		}
 
-        String emoji = SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
+		String emoji = SmileyParser.getInstance().addSmiley(composeBox, emoticonIndex);
 
-        StickerManager.getInstance().logEmoticonUsageAnalytics(emoji);
+		StickerManager.getInstance().logEmoticonUsageAnalytics(emoji);
 	}
 
 	public static Animation getNotificationIndicatorAnim()
@@ -4895,12 +4822,14 @@ public class Utils
 				else if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
 				{
 					// Show date in relative format. eg. 2 hours ago, yesterday, 2 days ago etc.
-					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_MONTH)
+							.toString();
 				}
 				else
 				{
 					// Shows date in numeric format
-					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE)
+							.toString();
 				}
 			}
 			else
@@ -4922,7 +4851,8 @@ public class Utils
 				else
 				{
 					// Show date in numeric format
-					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE).toString();
+					return HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NUMERIC_DATE)
+							.toString();
 				}
 			}
 		}
@@ -5024,17 +4954,18 @@ public class Utils
 	}
 
 	/**
-	 * 
 	 * @param c
 	 *            - contact info object
 	 * @param myMsisdn
 	 *            - self msisdn
 	 * @return <br>
 	 *         false if</br>
-	 * 
-	 *         <li>contact msisdn equals myMsisdn</li> <li>contact favorite state is FRIENDS</li> <li>contact favorite state is REQUEST_RECIEVED</li> <li>contact favorite state is
-	 *         REQUEST_RECIEVED_REJECTED</li>
-	 * 
+	 *         <p/>
+	 *         <li>contact msisdn equals myMsisdn</li>
+	 *         <li>contact favorite state is FRIENDS</li>
+	 *         <li>contact favorite state is REQUEST_RECIEVED</li>
+	 *         <li>contact favorite state is REQUEST_RECIEVED_REJECTED</li>
+	 *         <p/>
 	 *         <p>
 	 *         true otherwise
 	 *         </p>
@@ -5056,17 +4987,9 @@ public class Utils
 	@SuppressWarnings("deprecation")
 	public static void setClipboardText(String str, Context context)
 	{
-		if (isHoneycombOrHigher())
-		{
-			ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText("", str);
-			clipboard.setPrimaryClip(clip);
-		}
-		else
-		{
-			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-			clipboard.setText(str);
-		}
+		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+		ClipData clip = ClipData.newPlainText("", str);
+		clipboard.setPrimaryClip(clip);
 	}
 
 	public static String getClipboardText(Context context)
@@ -5088,7 +5011,7 @@ public class Utils
 
 	/**
 	 * This method is used to remove a contact as a favorite based on existing favorite type. It returns either FavoriteType.REQUEST_RECEIVED_REJECTED or FavoriteType.NOT_FRIEND
-	 * 
+	 *
 	 * @param contactInfo
 	 */
 
@@ -5132,7 +5055,7 @@ public class Utils
 
 	/**
 	 * Returns the device Orientation as either ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
-	 * 
+	 *
 	 * @param ctx
 	 * @return ORIENTATION_PORTRAIT or ORIENTATION_LANDSCAPE
 	 */
@@ -5175,7 +5098,7 @@ public class Utils
 
 	/**
 	 * Obtain the AuthenticatorDescription for a given account type.
-	 * 
+	 *
 	 * @param type
 	 *            The account type to locate.
 	 * @param dictionary
@@ -5195,28 +5118,33 @@ public class Utils
 		throw new RuntimeException("Unable to find matching authenticator");
 	}
 
-
 	public static short getNetworkShort(String networkType)
 	{
-		switch(networkType)
+		switch (networkType)
 		{
-			case "wifi" : return 1;
-			case "2g" : return 4;
-			case "3g" : return 3;
-			case "4g" : return 2;
-			case "off" : return -1;
-			case "unknown" : return 0;
-			default : return 0;
+		case "wifi":
+			return 1;
+		case "2g":
+			return 4;
+		case "3g":
+			return 3;
+		case "4g":
+			return 2;
+		case "off":
+			return -1;
+		case "unknown":
+			return 0;
+		default:
+			return 0;
 		}
 	}
 
 	/**
 	 * Fetches the network connection using connectivity manager
-	 * 
+	 *
 	 * @param context
 	 * @return <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of
 	 *         4g</li>
-	 * 
 	 */
 	public static short getNetworkType(Context context)
 	{
@@ -5333,7 +5261,7 @@ public class Utils
 
 	/**
 	 * Get time in millisecond from given time-stamp represented in format HH:mm:ss.SSS
-	 * 
+	 *
 	 * @param calendar
 	 *            Instance of calendar to be checked
 	 * @param timeStamp
@@ -5432,7 +5360,7 @@ public class Utils
 
 	/**
 	 * Checks if is user signed up. Works with application context.
-	 * 
+	 *
 	 * @return true, if is user signed up
 	 */
 	public static boolean requireAuth(Context appContext, boolean allowOpeningActivity)
@@ -5463,7 +5391,7 @@ public class Utils
 
 	/**
 	 * Tells if User is on Telephonic/Audio/Vedio/Voip Call Return whether response received is valid or not.
-	 * 
+	 *
 	 * @param response
 	 * @return <li>false if either response is null if we get "stat":"fail" in response or "stat" key is missing</li> <li>true otherwise</li>
 	 */
@@ -5478,7 +5406,7 @@ public class Utils
 
 	/**
 	 * Tells if User is on 1) Between any Telephonic/Audio/Vedio/Voip Call 2) Any Telephonic call is ringing
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -5495,11 +5423,10 @@ public class Utils
 
 	/**
 	 * Fetches the network connection using connectivity manager
-	 * 
+	 *
 	 * @param context
 	 * @return <li>-1 in case of no network</li> <li>0 in case of unknown network</li> <li>1 in case of wifi</li> <li>2 in case of 2g</li> <li>3 in case of 3g</li> <li>4 in case of
 	 *         4g</li>
-	 * 
 	 */
 	public static String getNetworkTypeAsString(Context context)
 	{
@@ -5553,8 +5480,10 @@ public class Utils
 			try
 			{
 				Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-				if (c != null) {
-					if (c.moveToFirst()) {
+				if (c != null)
+				{
+					if (c.moveToFirst())
+					{
 						name = c.getString(c.getColumnIndex(ContactsContract.Profile.DISPLAY_NAME));
 					}
 					c.close();
@@ -5587,7 +5516,7 @@ public class Utils
 
 	/**
 	 * Returns Data Consumed in KB
-	 * 
+	 *
 	 * @param appId
 	 * @return
 	 */
@@ -5673,7 +5602,7 @@ public class Utils
 
 	/**
 	 * Returns active network info
-	 * 
+	 *
 	 * @return
 	 */
 	public static NetworkInfo getActiveNetInfo()
@@ -5685,7 +5614,7 @@ public class Utils
 	/**
 	 * Now we might say network is there even if we don't have a NetworkInfo object that is why we returning NetworkInfo and NeworkAvailable states seprately. this is basically
 	 * done to tackle some exception scenarios where getActiveNetworkInfo unexpectedly throws an error.
-	 * 
+	 *
 	 * @return Pair<NetworkInfo, Boolean>.first ==> NeworkInfo object of current available network ; Pair<NetworkInfo, Boolean>.second ==> boolean indicating wheather network is
 	 *         available or not
 	 */
@@ -5696,7 +5625,7 @@ public class Utils
 			JSONObject blockedStateData = new JSONObject();
 			ConnectivityManager cm = (ConnectivityManager) HikeMessengerApp.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo netInfo = cm.getActiveNetworkInfo();
-			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			if (netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
 			{
 				blockedStateData.put(HikeConstants.LogEvent.NET_INFO, netInfo.getDetailedState());
 			}
@@ -5708,7 +5637,7 @@ public class Utils
 			}
 
 			netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-			if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+			if (netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
 			{
 				blockedStateData.put(HikeConstants.LogEvent.NET_INFO_MOBILE, netInfo.getDetailedState());
 			}
@@ -5721,7 +5650,7 @@ public class Utils
 			else
 			{
 				netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-				if(netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
+				if (netInfo != null && netInfo.getDetailedState() == NetworkInfo.DetailedState.BLOCKED)
 				{
 					blockedStateData.put(HikeConstants.LogEvent.NET_INFO_WIFI, netInfo.getDetailedState());
 				}
@@ -5765,7 +5694,7 @@ public class Utils
 
 	private static void recordBlockedNetworkState(JSONObject data)
 	{
-		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, true))
+		if (data == null || data.length() == 0 || !HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.NET_BLOCKED_STATE_ANALYTICS, false))
 		{
 			return;
 		}
@@ -5786,6 +5715,21 @@ public class Utils
 		for (Long entry : entries)
 		{
 			result.append(DatabaseUtils.sqlEscapeString(String.valueOf(entry)) + ",");
+		}
+		int idx = result.lastIndexOf(",");
+		if (idx >= 0)
+		{
+			result.replace(idx, result.length(), ")");
+		}
+		return result.toString();
+	}
+
+	public static <T> String valuesToCommaSepratedString(Collection<T> entries)
+	{
+		StringBuilder result = new StringBuilder("(");
+		for (T entry : entries)
+		{
+			result.append(DatabaseUtils.sqlEscapeString(String.valueOf(entry.toString())) + ",");
 		}
 		int idx = result.lastIndexOf(",");
 		if (idx >= 0)
@@ -5823,13 +5767,13 @@ public class Utils
 	{
 		for (String code : HikeConstants.SSL_NOT_ALLOWED_COUNTRIES)
 		{
-			if(countryCode.equalsIgnoreCase(code))
+			if (countryCode.equalsIgnoreCase(code))
 			{
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, false);
 				return;
 			}
 		}
-		
+
 		HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.SSL_ALLOWED, true);
 	}
 
@@ -5877,7 +5821,7 @@ public class Utils
 
 	/**
 	 * Making the profile pic change a status message
-	 * 
+	 *
 	 * @param response
 	 *            json packet received from server
 	 * @return StatusMessage created
@@ -6056,43 +6000,43 @@ public class Utils
 
 		return false;
 	}
-	
+
 	public static boolean isTimelineShowCountEnabled()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		
+
 		if (prefs != null)
 		{
 			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_COUNTS, true);
 		}
-		
+
 		return false;
 	}
-	
+
 	public static boolean isTimelineShowLikesEnabled()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		
+
 		if (prefs != null)
 		{
 			return prefs.getData(HikeConstants.Extras.STATUS_UPDATE_SHOW_LIKES, true);
 		}
-		
+
 		return false;
 	}
-	
+
 	public static boolean isGCViaLinkEnabled()
 	{
 		HikeSharedPreferenceUtil prefs = HikeSharedPreferenceUtil.getInstance();
-		
+
 		if (prefs != null)
 		{
 			return prefs.getData(HikeConstants.ENABLE_GC_VIA_LINK_SHARING, false);
 		}
-		
+
 		return false;
 	}
-	
+
 	public static boolean moveFile(File inputFile, File outputFile)
 	{
 		Logger.d("Utils", "Input file path - " + inputFile.getPath());
@@ -6341,7 +6285,7 @@ public class Utils
 
 	/**
 	 * Copies File from scrFilePath to DesFilePath
-	 * 
+	 *
 	 * @param srcFilePath
 	 * @param destFilePath
 	 * @return
@@ -6362,7 +6306,7 @@ public class Utils
 			FileOutputStream dest = new FileOutputStream(destFile);
 
 			File parentFolder = destFile.getParentFile();
-			if(parentFolder!=null && !parentFolder.exists())
+			if (parentFolder != null && !parentFolder.exists())
 			{
 				parentFolder.mkdirs();
 			}
@@ -6404,12 +6348,12 @@ public class Utils
 		File file1 = new File(filePath1);
 		File file2 = new File(filePath2);
 
-		if(!file1.exists() || !file2.exists())
+		if (!file1.exists() || !file2.exists())
 		{
 			return false;
 		}
 
-		if(file1.getParent().equals(file2.getParent()))
+		if (file1.getParent().equals(file2.getParent()))
 		{
 			return true;
 		}
@@ -6421,7 +6365,7 @@ public class Utils
 
 	/**
 	 * Returns Total RAM in bytes for HIKE
-	 * 
+	 *
 	 * @return
 	 */
 	public static double getTotalRAMForHike()
@@ -6447,7 +6391,7 @@ public class Utils
 		Logger.d("image_config", "Screen dimens are :- " + screenWidth + ", " + screenHeight);
 		return screenHeight * screenHeight;
 	}
-	
+
 	public static int getDeviceWidth()
 	{
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().widthPixels;
@@ -6463,8 +6407,10 @@ public class Utils
 		return HikeMessengerApp.getInstance().getApplicationContext().getResources().getDisplayMetrics().densityDpi;
 	}
 
-	public static String getStackTrace(Throwable ex) {
-		if (ex == null) {
+	public static String getStackTrace(Throwable ex)
+	{
+		if (ex == null)
+		{
 			return "";
 		}
 		StringWriter errorTrace = new StringWriter();
@@ -6484,7 +6430,7 @@ public class Utils
 				.appendPath(HikeConstants.ANDROID).appendPath(token).build();
 		return formedUri;
 	}
-	
+
 	public static int getOverflowMenuWidth(Context context)
 	{
 		Resources res = context.getResources();
@@ -6494,7 +6440,7 @@ public class Utils
 
 	/**
 	 * Utility method to verify the presence of bottom nav bar in Android phones
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -6512,7 +6458,7 @@ public class Utils
 
 	/**
 	 * Utility method to calculate the bottom navBar height
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -6543,7 +6489,7 @@ public class Utils
 
 	/**
 	 * Utility method to calculate the bottom navBar width in landscape mode
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -6568,7 +6514,7 @@ public class Utils
 	/**
 	 * Checks that an Iterable is both non-null and non-empty. This method does not check individual elements in the Iterable, it just checks that the Iterable has at least one
 	 * element.
-	 * 
+	 *
 	 * @param argument
 	 *            the argument to validate
 	 * @return true is argument is empty. false otherwise
@@ -6576,6 +6522,11 @@ public class Utils
 	public static <S, T extends Iterable<S>> boolean isEmpty(T argument)
 	{
 		return (argument == null) || !argument.iterator().hasNext();
+	}
+
+	public static <T extends Object> boolean isEmpty(T[] argument)
+	{
+		return (argument == null) || argument.length == 0;
 	}
 
 	public static boolean isEmpty(JSONArray jsonArray)
@@ -6680,7 +6631,7 @@ public class Utils
 
 	/**
 	 * Determine whether databse recognized by given instance contains given table or not.
-	 * 
+	 *
 	 * @param db
 	 *            Instance of SQLiteDatabase, which possibly contains given table.
 	 * @param tableName
@@ -6751,23 +6702,23 @@ public class Utils
 
 		return cloneJson;
 	}
-	
+
 	public static void deleteFileFromHikeDir(Context context, File file, HikeFileType hikeFileType)
 	{
-		if(file.getPath().startsWith(getFileParent(hikeFileType, true)))
+		if (file.getPath().startsWith(getFileParent(hikeFileType, true)))
 		{
-			String [] retCol = new String[] { MediaStore.Video.Media._ID };
+			String[] retCol = new String[] { MediaStore.Video.Media._ID };
 			Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
 			int id = HikeFile.getMediaId(file.getPath(), retCol, uri, context);
 			if (id != -1)
 			{
 				context.getContentResolver().delete(ContentUris.withAppendedId(uri, id), null, null);
 			}
-			if(file.exists())
+			if (file.exists())
 				file.delete();
 		}
 	}
-	
+
 	public static String getAppVersionName()
 	{
 		String appVersionName = "";
@@ -6807,23 +6758,18 @@ public class Utils
 		{
 			return contactInfo.isMyTwoWayFriend();
 		}
-
 		else
 		{
-			return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) ||
-					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) ||
-					(contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED)) &&
-					(contactInfo.isOnhike());
+			return ((contactInfo.getFavoriteType() == FavoriteType.FRIEND) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED) || (contactInfo.getFavoriteType() == FavoriteType.REQUEST_RECEIVED_REJECTED))
+					&& (contactInfo.isOnhike());
 		}
 	}
 
-
-	
 	public static boolean isSelfMsisdn(String argMsisdn)
 	{
 		return getUserContactInfo(false).getMsisdn().equals(argMsisdn);
 	}
-	
+
 	public static boolean appInstalledOrNot(Context context, String uri)
 	{
 		PackageManager pm = context.getPackageManager();
@@ -6837,23 +6783,22 @@ public class Utils
 		{
 			app_installed = false;
 		}
-		
+
 		return app_installed;
 	}
-	
 
-	
 	/**
 	 * Call this method to post a status update to timeline.
+	 *
 	 * @param status
-	 * @param moodId : Pass -1 if no mood
-	 * @param imageFilePath : Path of the image on the client. Image should only be of jpeg format and compressed.
-	 * 
-	 * Status = null, moodId < 0 & imageFilePath = null should not hold together
-	 * 
-	 * List of moods:
-	 * {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
-	 * 
+	 * @param moodId
+	 *            : Pass -1 if no mood
+	 * @param imageFilePath
+	 *            : Path of the image on the client. Image should only be of jpeg format and compressed.
+	 *            <p/>
+	 *            Status = null, moodId < 0 & imageFilePath = null should not hold together
+	 *            <p/>
+	 *            List of moods: {@link com.bsb.hike.utils.EmoticonConstants#moodMapping}
 	 */
 	public static void postStatusUpdate(String status, int moodId, String imageFilePath)
 	{
@@ -6902,13 +6847,14 @@ public class Utils
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(array[0]);
-		for (int i = 1; i < array.length; i++) {
+		for (int i = 1; i < array.length; i++)
+		{
 			sb.append(", ");
 			sb.append(array[i]);
 		}
 		return sb.toString();
 	}
-	
+
 	public static String getNewImagePostFilePath()
 	{
 		String directory = HikeConstants.HIKE_MEDIA_DIRECTORY_ROOT + HikeConstants.PROFILE_ROOT;
@@ -6917,14 +6863,15 @@ public class Utils
 		{
 			dir.mkdirs();
 		}
-		return directory+File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
+		return directory + File.separator + Utils.getUniqueFilename(HikeFileType.IMAGE);
 	}
 
 	public static void sendFreeSms(String number)
 	{
-		Intent intent = IntentFactory.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
+		Intent intent = IntentFactory
+				.createChatThreadIntentFromMsisdn(HikeMessengerApp.getInstance(), number, true, false, ChatThreadActivity.ChatThreadOpenSources.STICKEY_CALLER);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    HikeMessengerApp.getInstance().startActivity(intent);
+		HikeMessengerApp.getInstance().startActivity(intent);
 	}
 
 	public static boolean isOnHike(String number)
@@ -6940,7 +6887,7 @@ public class Utils
 
 	/**
 	 * Determine whether a time-stamp represents correct clock time of a day.
-	 * 
+	 *
 	 * @param HH
 	 *            Hour element of the day
 	 * @param mm
@@ -6979,7 +6926,7 @@ public class Utils
 
 	/**
 	 * Get differential time logging upto nano second considering maximum significant time unit reference as second.
-	 * 
+	 *
 	 * @param start
 	 *            Start time of operation as long value
 	 * @param end
@@ -7071,7 +7018,6 @@ public class Utils
 		return output.toByteArray();
 	}
 
-
 	public static TypedArray getDefaultAvatarBG()
 	{
 		if (HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY == null)
@@ -7080,8 +7026,10 @@ public class Utils
 		}
 		return HikeConstants.DEFAULT_AVATAR_BG_COLOR_ARRAY;
 	}
+
 	/**
 	 * Call this method to find the total size of a folder
+	 *
 	 * @param folder
 	 * @return size of the folder in bytes
 	 */
@@ -7090,8 +7038,8 @@ public class Utils
 		long length = 0;
 
 		// Precautionary check to prevent NPE from empty list files.
-        // Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
-        File[] directory = folder.listFiles();
+		// Saving folder.listFiles() in a temp array to avoid null pointer exception arising because of race condition
+		File[] directory = folder.listFiles();
 		if (directory == null)
 			return length;
 		for (File file : directory)
@@ -7106,6 +7054,7 @@ public class Utils
 
 	/**
 	 * Call this method to get the total available internal storage space
+	 *
 	 * @return
 	 */
 	public static double getFreeInternalStorage()
@@ -7183,46 +7132,52 @@ public class Utils
 	{
 		return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1;
 	}
+
 	/**
 	 * returns true if the filePath starts with android data storage directory path
+	 *
 	 * @param filePath
 	 */
 	public static boolean isAndroidDataStorageDir(String filePath)
 	{
 		boolean isAndroidDataStorageDir = false;
-		if(TextUtils.isEmpty(filePath))
+		if (TextUtils.isEmpty(filePath))
 		{
-			isAndroidDataStorageDir =  false;
+			isAndroidDataStorageDir = false;
 		}
-		else if(getExternalStorageState() == ExternalStorageState.WRITEABLE)
+		else if (getExternalStorageState() == ExternalStorageState.WRITEABLE)
 		{
 			isAndroidDataStorageDir = filePath.startsWith(Environment.getExternalStorageDirectory() + ANDROID_DATA_STORAGE_DIR_SUFFIX);
 		}
 		return isAndroidDataStorageDir;
 	}
 
-    /*
-     * Returns a interval added string from a given list
-     */
-    public static String listToString(List<String> list, String strInterVal) {
-        if (list == null) {
-            return null;
-        }
-        StringBuilder result = new StringBuilder();
-        boolean flag = false;
-        for (String str : list) {
-            if (flag) {
-                result.append(strInterVal);
-            }
-            if (null == str) {
-                str = "";
-            }
-            result.append(str);
-            flag = true;
-        }
-        return result.toString();
-    }
-
+	/*
+	 * Returns a interval added string from a given list
+	 */
+	public static String listToString(List<String> list, String strInterVal)
+	{
+		if (list == null)
+		{
+			return null;
+		}
+		StringBuilder result = new StringBuilder();
+		boolean flag = false;
+		for (String str : list)
+		{
+			if (flag)
+			{
+				result.append(strInterVal);
+			}
+			if (null == str)
+			{
+				str = "";
+			}
+			result.append(str);
+			flag = true;
+		}
+		return result.toString();
+	}
 
 	public static Locale getCurrentLanguageLocale()
 	{
@@ -7236,17 +7191,20 @@ public class Utils
 		}
 	}
 
-	public static JSONObject getDataBasedOnAppLanguage(String json){
+	public static JSONObject getDataBasedOnAppLanguage(String json)
+	{
 
-		if (TextUtils.isEmpty(json)) {
+		if (TextUtils.isEmpty(json))
+		{
 			return null;
 		}
-		try {
-
+		try
+		{
 
 			JSONArray array = new JSONArray(json);
 
-			if (array == null || array.length() <= 0) {
+			if (array == null || array.length() <= 0)
+			{
 				return null;
 			}
 
@@ -7254,15 +7212,17 @@ public class Utils
 
 			JSONObject data = null;
 
-			for (int i = 0; i < array.length(); i++) {
+			for (int i = 0; i < array.length(); i++)
+			{
 				data = array.getJSONObject(i);
 
-				if (data.optString(HikeConstants.LANGUAGE).equalsIgnoreCase(deviceLocale)) {
+				if (data.optString(HikeConstants.LANGUAGE).equalsIgnoreCase(deviceLocale))
+				{
 					return data.getJSONObject(HikeConstants.DATA);
 				}
 			}
 		}
-		catch(JSONException e)
+		catch (JSONException e)
 		{
 			Logger.e("productpopup", "JSON Exception in JSON Array language");
 		}
@@ -7298,8 +7258,8 @@ public class Utils
 	}
 
 	/**
-	 * Sample logging JSON :
-	 * {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
+	 * Sample logging JSON : {"ek":"micro_app","event":"db_corrupt","fld1":"\/data\/data\/com.bsb.hike\/databases\/chats","fld4":"db_error","fld5":50880512 }
+	 *
 	 * @param dbObj
 	 */
 	public static void recordDatabaseCorrupt(SQLiteDatabase dbObj)
@@ -7318,14 +7278,14 @@ public class Utils
 
 			HikeAnalyticsEvent.analyticsForPlatform(AnalyticsConstants.NON_UI_EVENT, AnalyticsConstants.APP_CRASH_EVENT, json);
 		}
-
 		catch (JSONException e)
 		{
 			e.printStackTrace();
 		}
 	}
 
-	public static boolean kptDictionaryDownloaded(Context context) {
+	public static boolean kptDictionaryDownloaded(Context context)
+	{
 
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
@@ -7338,57 +7298,68 @@ public class Utils
 		return false;
 	}
 
-	public static void removeKptDictionaries(Context context) {
+	public static void removeKptDictionaries(Context context)
+	{
 
 		File hikeDir = context.getExternalFilesDir(null);
 		File hikeLanguageDir = new File(hikeDir + HikeConstants.KPTConstants.KPT_LANGUAGE_DIR_ROOT);
 
 		if (hikeLanguageDir != null && hikeLanguageDir.exists()) {
 
-			try {
+			try
+			{
 
 				delete(hikeLanguageDir);
 
-			}catch(IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public static void delete(File file) throws IOException {
+	public static void delete(File file) throws IOException
+	{
 
-		if (file.isDirectory()) {
+		if (file.isDirectory())
+		{
 
-			//directory is empty, then delete it
-			if (file.list().length == 0) {
+			// directory is empty, then delete it
+			if (file.list().length == 0)
+			{
 
 				file.delete();
-				System.out.println("Directory is deleted : "
-						+ file.getAbsolutePath());
+				System.out.println("Directory is deleted : " + file.getAbsolutePath());
 
-			} else {
+			}
+			else
+			{
 
-				//list all the directory contents
+				// list all the directory contents
 				String files[] = file.list();
 
-				for (String temp : files) {
-					//construct the file structure
+				for (String temp : files)
+				{
+					// construct the file structure
 					File fileDelete = new File(file, temp);
 
-					//recursive delete
+					// recursive delete
 					delete(fileDelete);
 				}
 
-				//check the directory again, if empty then delete it
-				if (file.list().length == 0) {
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0)
+				{
 					file.delete();
-					System.out.println("Directory is deleted : "
-							+ file.getAbsolutePath());
+					System.out.println("Directory is deleted : " + file.getAbsolutePath());
 				}
 			}
 
-		} else {
-			//if file, then delete it
+		}
+		else
+		{
+			// if file, then delete it
 			file.delete();
 			System.out.println("File is deleted : " + file.getAbsolutePath());
 		}
@@ -7397,32 +7368,32 @@ public class Utils
 	// Use this method to encrypt a string
 	public static String encrypt(String input)
 	{
-		if(input==null)
+		if (input == null)
 			return null;
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
-		//for the case when AI packet will not send us the backup Token
+		// for the case when AI packet will not send us the backup Token
 		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
-		AESEncryption aesObj = new AESEncryption(key + salt,"MD5");
+		AESEncryption aesObj = new AESEncryption(key + salt, "MD5");
 		return aesObj.encrypt(input);
 	}
 
-	//Use this method to decrypt a string encrypted using the method above
+	// Use this method to decrypt a string encrypted using the method above
 
 	public static String decrypt(String input)
 	{
-		if(input==null)
+		if (input == null)
 			return null;
 		HikeSharedPreferenceUtil settings = HikeSharedPreferenceUtil.getInstance();
 		String key = settings.getData(HikeMessengerApp.MSISDN_SETTING, null);
-		//for the case when AI packet will not send us the backup Token
+		// for the case when AI packet will not send us the backup Token
 		String salt = settings.getData(HikeMessengerApp.BACKUP_TOKEN_SETTING, null);
-		AESEncryption aesObj = new AESEncryption(key + salt,"MD5");
+		AESEncryption aesObj = new AESEncryption(key + salt, "MD5");
 		return aesObj.decrypt(input);
 	}
 
 	/**
-	 *Method to return network type as short in descending order
+	 * Method to return network type as short in descending order
 	 */
 	public static short getNetworkShortinOrder(String networkType)
 	{
@@ -7445,20 +7416,25 @@ public class Utils
 		}
 	}
 
-	public static long calculateDiskCacheSize(File dir) {
+	public static long calculateDiskCacheSize(File dir)
+	{
 		long size = HikeConstants.MIN_DISK_CACHE_SIZE;
 
-		try {
+		try
+		{
 			StatFs statFs = new StatFs(dir.getAbsolutePath());
 			long available = ((long) statFs.getBlockCount()) * statFs.getBlockSize();
 			// Target 2% of the total space.
 			size = available / 50;
-		} catch (IllegalArgumentException ignored) {
+		}
+		catch (IllegalArgumentException ignored)
+		{
 		}
 
 		// Bound inside min/max size for disk cache.
 		size = Math.max(Math.min(size, HikeConstants.MAX_DISK_CACHE_SIZE), HikeConstants.MIN_DISK_CACHE_SIZE);
-		size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) != -1 ? HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) : size ;
+		size = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.DISK_CACHE_SIZE, -1L) != -1 ? HikeSharedPreferenceUtil.getInstance().getData(
+				HikeConstants.DISK_CACHE_SIZE, -1L) : size;
 		return size;
 	}
 
@@ -7475,13 +7451,13 @@ public class Utils
 	public static void deleteDiskCache()
 	{
 		deleteFile(new File(HikeMessengerApp.getInstance().getExternalFilesDir(null).getPath() + HikeConstants.DISK_CACHE_ROOT));
-        HikeMessengerApp.clearDiskCache();
+		HikeMessengerApp.clearDiskCache();
 	}
 
 	/**
-	 * This method checks whether we should connect to MQTT or not
-	 * Among the cases to check, there can be  : <br> 1. User's db was corrupt previously. 2. User is not signed up.
-	 *
+	 * This method checks whether we should connect to MQTT or not Among the cases to check, there can be : <br>
+	 * 1. User's db was corrupt previously. 2. User is not signed up.
+	 * <p/>
 	 * In simple terms, we should connect to MQTT if Db is not corrupt and User is Signed up.
 	 *
 	 * @return
@@ -7530,17 +7506,20 @@ public class Utils
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_favorites))
-					&& !currentValue.equals(context.getString(R.string.privacy_nobody))) {
+			if (!currentValue.equals(context.getString(R.string.privacy_favorites)) && !currentValue.equals(context.getString(R.string.privacy_nobody)))
+			{
 				Editor settingEditor = settings.edit();
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
 				HikeSharedPreferenceUtil.getInstance().saveData(HikeConstants.LAST_SEEN_TEMP_PREF, currentValue);
 				int slectedPrivacyId = Integer.parseInt(context.getString(R.string.privacy_favorites));
-				try {
+				try
+				{
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
 					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 1);
-				} catch (JSONException e) {
+				}
+				catch (JSONException e)
+				{
 					e.printStackTrace();
 				}
 			}
@@ -7555,18 +7534,22 @@ public class Utils
 			// Change last seen pref to friends if its is not already set to friends or noone.
 			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 			String currentValue = settings.getString(HikeConstants.LAST_SEEN_PREF_LIST, context.getString(R.string.privacy_favorites));
-			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts))
-					&& !currentValue.equals(context.getString(R.string.privacy_everyone))) {
+			if (!currentValue.equals(context.getString(R.string.privacy_my_contacts)) && !currentValue.equals(context.getString(R.string.privacy_everyone)))
+			{
 
 				String oldLsValue = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.LAST_SEEN_TEMP_PREF, context.getString(R.string.privacy_my_contacts));
 				Editor settingEditor = settings.edit();
 				settingEditor.putString(HikeConstants.LAST_SEEN_PREF_LIST, oldLsValue);
 				int slectedPrivacyId = Integer.parseInt(oldLsValue);
-				try {
+				try
+				{
 					HikePreferences.sendNLSToServer(slectedPrivacyId, true);
 					settingEditor.commit();
-					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); //Resetting the flag, so that when the packet might be sent again, it is able to alter the prefs
-				} catch (JSONException e) {
+					HikeSharedPreferenceUtil.getInstance().saveData(HikeMessengerApp.FAVORITES_TO_FRIENDS_TRANSITION_STATE, 0); // Resetting the flag, so that when the packet might
+																																// be sent again, it is able to alter the prefs
+				}
+				catch (JSONException e)
+				{
 					e.printStackTrace();
 				}
 			}
@@ -7588,7 +7571,6 @@ public class Utils
 			obj.put(HikeConstants.TYPE, HikeConstants.FRIENDS_SYSTEM_MESSAGE);
 			convMessage.setMetadata(obj);
 		}
-
 		catch (JSONException e)
 		{
 			Logger.wtf("Utils", "getting exception while creating convmessage : " + e.toString());
@@ -7617,178 +7599,194 @@ public class Utils
 		return exists;
 	}
 
-	public static boolean isSettingsBackupEnabled() {
-		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false)) {
+	public static boolean isSettingsBackupEnabled()
+	{
+		if (!Utils.isUserSignedUp(HikeMessengerApp.getInstance().getApplicationContext(), false))
+		{
 			return false;
 		}
 
 		return HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Extras.ENABLE_CLOUD_SETTING_BACKUP, true);
 	}
 
-    private static String getCursorString(Cursor cursor, String columnName) {
+	private static String getCursorString(Cursor cursor, String columnName)
+	{
 		int index = cursor.getColumnIndex(columnName);
-		if(index != -1) return cursor.getString(index);
+		if (index != -1)
+			return cursor.getString(index);
 		return null;
 	}
 
-
-	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri, String oldName) {
+	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri, String oldName)
+	{
 		PairModified<String, String> returnContactIds = null;
 
 		String mRawContactId, mDataId;
 		Cursor mContactCursor = context.getContentResolver().query(contactUri, null, null, null, null);
 		Logger.v("Contact", "Got Contact Cursor");
 
-		try {
-			if (mContactCursor.moveToFirst()) {
-				String mContactId = getCursorString(mContactCursor,
-						ContactsContract.Contacts._ID);
+		try
+		{
+			if (mContactCursor.moveToFirst())
+			{
+				String mContactId = getCursorString(mContactCursor, ContactsContract.Contacts._ID);
 
-				Cursor mRawContactCursor = context.getContentResolver().query(
-						RawContacts.CONTENT_URI,
-						null,
-						Data.CONTACT_ID + " = ?",
-						new String[]{mContactId},
-						null);
+				Cursor mRawContactCursor = context.getContentResolver().query(RawContacts.CONTENT_URI, null, Data.CONTACT_ID + " = ?", new String[] { mContactId }, null);
 
 				Logger.v("RawContact", "Got RawContact Cursor");
 
-				try {
+				try
+				{
 					ArrayList<String> mRawContactIds = new ArrayList<String>();
-					while (mRawContactCursor.moveToNext()) {
+					while (mRawContactCursor.moveToNext())
+					{
 						String rawId = getCursorString(mRawContactCursor, RawContacts._ID);
 						Logger.v("RawContact", "ID: " + rawId);
 						mRawContactIds.add(rawId);
 					}
 
-					for (String rawId : mRawContactIds) {
+					for (String rawId : mRawContactIds)
+					{
 						// Make sure the "last checked" RawContactId is set locally for use in insert & update.
 						mRawContactId = rawId;
-						Cursor mDataCursor = context.getContentResolver().query(
-								Data.CONTENT_URI,
-								null,
-								Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ? AND " + StructuredName.DISPLAY_NAME + " = ?" ,
-								new String[]{mRawContactId, StructuredName.CONTENT_ITEM_TYPE, oldName},
-								null);
+						Cursor mDataCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
+								Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ? AND " + StructuredName.DISPLAY_NAME + " = ?",
+								new String[] { mRawContactId, StructuredName.CONTENT_ITEM_TYPE, oldName }, null);
 
-						if (mDataCursor.getCount() > 0) {
+						if (mDataCursor.getCount() > 0)
+						{
 							mDataCursor.moveToFirst();
 							mDataId = getCursorString(mDataCursor, Data._ID);
 							Logger.v("Data", "Found data item with MIMETYPE and Phone.TYPE");
 							mDataCursor.close();
 							returnContactIds = new PairModified<>(mRawContactId, mDataId);
 							break;
-						} else {
+						}
+						else
+						{
 							Logger.v("Data", "Data doesn't contain MIMETYPE and Phone.TYPE");
 							mDataCursor.close();
 						}
 						returnContactIds = null;
 					}
-				} finally {
+				}
+				finally
+				{
 					mRawContactCursor.close();
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.w("UpdateContact", e.getMessage());
-			for (StackTraceElement ste : e.getStackTrace()) {
+			for (StackTraceElement ste : e.getStackTrace())
+			{
 				Logger.w("UpdateContact", "\t" + ste.toString());
 			}
 			throw new RuntimeException();
-		} finally {
+		}
+		finally
+		{
 			mContactCursor.close();
 		}
 
 		return returnContactIds;
 	}
 
-
-	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri) {
+	public static PairModified<String, String> doesContactContainHikeCustomPhoneType(Context context, Uri contactUri)
+	{
 		PairModified<String, String> returnContactIds = null;
 
 		String mRawContactId, mDataId;
 		Cursor mContactCursor = context.getContentResolver().query(contactUri, null, null, null, null);
 		Logger.v("Contact", "Got Contact Cursor");
 
-		try {
-			if (mContactCursor.moveToFirst()) {
-				String mContactId = getCursorString(mContactCursor,
-						ContactsContract.Contacts._ID);
+		try
+		{
+			if (mContactCursor.moveToFirst())
+			{
+				String mContactId = getCursorString(mContactCursor, ContactsContract.Contacts._ID);
 
-				Cursor mRawContactCursor = context.getContentResolver().query(
-						RawContacts.CONTENT_URI,
-						null,
-						Data.CONTACT_ID + " = ?",
-						new String[]{mContactId},
-						null);
+				Cursor mRawContactCursor = context.getContentResolver().query(RawContacts.CONTENT_URI, null, Data.CONTACT_ID + " = ?", new String[] { mContactId }, null);
 
 				Logger.v("RawContact", "Got RawContact Cursor");
 
-				try {
+				try
+				{
 					ArrayList<String> mRawContactIds = new ArrayList<String>();
-					while (mRawContactCursor.moveToNext()) {
+					while (mRawContactCursor.moveToNext())
+					{
 						String rawId = getCursorString(mRawContactCursor, RawContacts._ID);
 						Logger.v("RawContact", "ID: " + rawId);
 						mRawContactIds.add(rawId);
 					}
 
-					for (String rawId : mRawContactIds) {
+					for (String rawId : mRawContactIds)
+					{
 						// Make sure the "last checked" RawContactId is set locally for use in insert & update.
 						mRawContactId = rawId;
-						Cursor mDataCursor = context.getContentResolver().query(
-								Data.CONTENT_URI,
-								null,
+						Cursor mDataCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
 								Data.RAW_CONTACT_ID + " = ? AND " + Data.MIMETYPE + " = ? AND " + Phone.TYPE + " = ? AND " + Phone.LABEL + " = ?",
-								new String[]{mRawContactId, Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_CUSTOM), HikeConstants.HIKE_CUSTOM_PHONE_TYPE},
-								null);
+								new String[] { mRawContactId, Phone.CONTENT_ITEM_TYPE, String.valueOf(Phone.TYPE_CUSTOM), HikeConstants.HIKE_CUSTOM_PHONE_TYPE }, null);
 
-						if (mDataCursor.getCount() > 0) {
+						if (mDataCursor.getCount() > 0)
+						{
 							mDataCursor.moveToFirst();
 							mDataId = getCursorString(mDataCursor, Data._ID);
 							Logger.v("Data", "Found data item with MIMETYPE and Phone.TYPE");
 							mDataCursor.close();
 							returnContactIds = new PairModified<>(mRawContactId, mDataId);
 							break;
-						} else {
+						}
+						else
+						{
 							Logger.v("Data", "Data doesn't contain MIMETYPE and Phone.TYPE");
 							mDataCursor.close();
 						}
 						returnContactIds = null;
 					}
-				} finally {
+				}
+				finally
+				{
 					mRawContactCursor.close();
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Logger.w("UpdateContact", e.getMessage());
-			for (StackTraceElement ste : e.getStackTrace()) {
+			for (StackTraceElement ste : e.getStackTrace())
+			{
 				Logger.w("UpdateContact", "\t" + ste.toString());
 			}
 			throw new RuntimeException();
-		} finally {
+		}
+		finally
+		{
 			mContactCursor.close();
 		}
 
 		return returnContactIds;
 	}
 
-	public static void updateContactWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String msisdn) {
-		try {
+	public static void updateContactWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String msisdn)
+	{
+		try
+		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
-					.withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
-					.withSelection(Data._ID + " = ?", new String[]{mDataId})
-					.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
-					.withValue(Phone.NUMBER, msisdn)
-					.withValue(Phone.TYPE, Phone.TYPE_CUSTOM)
-					.withValue(Phone.LABEL, HikeConstants.HIKE_CUSTOM_PHONE_TYPE)
-					.build());
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
+					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(Phone.NUMBER, msisdn)
+					.withValue(Phone.TYPE, Phone.TYPE_CUSTOM).withValue(Phone.LABEL, HikeConstants.HIKE_CUSTOM_PHONE_TYPE).build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			// Display warning
 			Logger.w("UpdateContact", e.getMessage());
-			for(StackTraceElement ste : e.getStackTrace()) {
+			for (StackTraceElement ste : e.getStackTrace())
+			{
 				Logger.w("UpdateContact", "\t" + ste.toString());
 			}
 			int duration = Toast.LENGTH_SHORT;
@@ -7798,28 +7796,29 @@ public class Utils
 	}
 
 	/**
-	 *
 	 * @param context
 	 * @param mRawContactId
 	 * @param mDataId
-     * @param msisdn
-     */
-	public static void updateNameWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String name) {
-		try {
+	 * @param msisdn
+	 */
+	public static void updateNameWithHikeCustomPhoneType(Context context, String mRawContactId, String mDataId, String name)
+	{
+		try
+		{
 			ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI)
-					.withSelection(Data.RAW_CONTACT_ID + " = ?", new String[]{mRawContactId})
-					.withSelection(Data._ID + " = ?", new String[]{mDataId})
-					.withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE)
-					.withValue(StructuredName.DISPLAY_NAME, name)
+			ops.add(ContentProviderOperation.newUpdate(Data.CONTENT_URI).withSelection(Data.RAW_CONTACT_ID + " = ?", new String[] { mRawContactId })
+					.withSelection(Data._ID + " = ?", new String[] { mDataId }).withValue(Data.MIMETYPE, Phone.CONTENT_ITEM_TYPE).withValue(StructuredName.DISPLAY_NAME, name)
 					.build());
 			context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			// Display warning
 			Logger.w("UpdateContact", e.getMessage());
-			for(StackTraceElement ste : e.getStackTrace()) {
+			for (StackTraceElement ste : e.getStackTrace())
+			{
 				Logger.w("UpdateContact", "\t" + ste.toString());
 			}
 			int duration = Toast.LENGTH_SHORT;
@@ -7829,8 +7828,8 @@ public class Utils
 	}
 
 	/**
-	 * method to get a JSON for media click events. It assumes that the events for media differ only
-	 * in uniqueKey and order column
+	 * method to get a JSON for media click events. It assumes that the events for media differ only in uniqueKey and order column
+	 *
 	 * @param uniqueKey
 	 * @param order
 	 * @return
@@ -7841,14 +7840,14 @@ public class Utils
 		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey);
 			json.put(AnalyticsConstants.V2.FAMILY, System.currentTimeMillis());
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			if (isStealth)
-				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
 			return json;
 
 		}
@@ -7860,9 +7859,8 @@ public class Utils
 	}
 
 	/**
-	 * This does a rename of entire folder (recursive) to new path.
-	 * Use this if old and new paths are on same mount point since its practically instantaneous.
-	 * 
+	 * This does a rename of entire folder (recursive) to new path. Use this if old and new paths are on same mount point since its practically instantaneous.
+	 *
 	 * @param oldRootDir
 	 * @param newRootDir
 	 * @return true, if the operation was successful
@@ -7872,7 +7870,7 @@ public class Utils
 		boolean result = true;
 
 		// param check
-		if(oldRootDir == null || newRootDir == null)
+		if (oldRootDir == null || newRootDir == null)
 		{
 			return false;
 		}
@@ -7885,7 +7883,7 @@ public class Utils
 		if (!oldRootDir.exists() || (oldRootDir.listFiles() == null))
 		{
 			Logger.d("StickerMigration", "Migration unsuccessful but new folder created");
-			return true; //Migration unsuccessful but new folder created
+			return true; // Migration unsuccessful but new folder created
 		}
 
 		if (result)
@@ -7912,48 +7910,53 @@ public class Utils
 			Utils.deleteFile(oldRootDir);
 		}
 
-
 		return result;
 	}
 
-	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species,
-												   String toUser_msisdn, boolean isStealth, String genus, String family) {
-		try {
+	public static void recordCoreAnalyticsForShare(String uniqueKey_order, String species, String toUser_msisdn, boolean isStealth, String genus, String family)
+	{
+		try
+		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.CLASS, AnalyticsConstants.CLICK_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
-			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(
-					HikeMessengerApp.getInstance().getApplicationContext()));
+			json.put(AnalyticsConstants.V2.NETWORK, Utils.getNetworkTypeAsString(HikeMessengerApp.getInstance().getApplicationContext()));
 			if (isStealth)
-				json.put(AnalyticsConstants.V2.VARIETY, AnalyticsConstants.STEALTH_CHAT_THREAD);
-			if(!TextUtils.isEmpty(genus))
+				json.put(AnalyticsConstants.V2.VARIETY, ChatAnalyticConstants.STEALTH_CHAT_THREAD);
+			if (!TextUtils.isEmpty(genus))
 				json.put(AnalyticsConstants.V2.GENUS, genus);
-			if(!TextUtils.isEmpty(family))
+			if (!TextUtils.isEmpty(family))
 				json.put(AnalyticsConstants.V2.FAMILY, family);
 
 			HAManager.getInstance().recordV2(json);
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize) {
-		try {
+	public static void recordEventMaxSizeToastShown(String uniqueKey_order, String species, String toUser_msisdn, long fileSize)
+	{
+		try
+		{
 			JSONObject json = new JSONObject();
 			json.put(AnalyticsConstants.V2.UNIQUE_KEY, uniqueKey_order);
-			json.put(AnalyticsConstants.V2.KINGDOM, AnalyticsConstants.ACT_CORE_LOGS);
+			json.put(AnalyticsConstants.V2.KINGDOM, ChatAnalyticConstants.ACT_CORE_LOGS);
 			json.put(AnalyticsConstants.V2.PHYLUM, AnalyticsConstants.UI_EVENT);
 			json.put(AnalyticsConstants.V2.ORDER, uniqueKey_order);
 			json.put(AnalyticsConstants.V2.SPECIES, species);
 			json.put(AnalyticsConstants.V2.TO_USER, toUser_msisdn);
 			json.put(AnalyticsConstants.V2.VAL_INT, fileSize);
 			HAManager.getInstance().recordV2(json);
-		} catch (JSONException e) {
+		}
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 
@@ -7995,9 +7998,8 @@ public class Utils
 	{
 		File rootDir = new File(dirPath);
 		/*
-		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working.
-		 * Renaming the corrupted hike directory and creating the new one to solve this issue.
-		 * Caused mainly by app like clean master, native memory optimization etc.
+		 * On re-install hike, sometimes the hike directory get corrupted and converted into a file. Due to which operation related to that directory stopped working. Renaming the
+		 * corrupted hike directory and creating the new one to solve this issue. Caused mainly by app like clean master, native memory optimization etc.
 		 */
 		if(rootDir != null && rootDir.exists())
 		{
@@ -8013,15 +8015,29 @@ public class Utils
 		}
 	}
 
-	public static String formatDOB(String dobString)
-	{
-		if(TextUtils.isEmpty(dobString))
-		{
-			return "";
+	/**
+	 *
+	 * @return
+	 *
+	 * Function to get the last known Passive Location
+	 * Can return null
+     */
+	public static Location getPassiveLocation() {
+		Location bestLocation = null;
+		LocationManager locManager = (LocationManager) HikeMessengerApp.getInstance().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+		List<String> locProviders = locManager.getProviders(true);
+		if (locProviders == null || locProviders.isEmpty())
+			return null;
+		for (String provider : locManager.getProviders(true)) {
+			Location location = locManager.getLastKnownLocation(provider);
+			if (location == null)
+				continue;
+			if (bestLocation == null ||
+					(location.hasAccuracy() && location.getAccuracy() < bestLocation.getAccuracy())) {
+				bestLocation = location;
+			}
 		}
-
-		Birthday dob = new Birthday(dobString);
-		return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+		return bestLocation;
 	}
 
 	public static String repeatString(String repeat, int repeatCount) {
@@ -8032,6 +8048,33 @@ public class Utils
 
 		return repeatedString.toString();
 	}
+
+    public static String formatDOB(String dobString) {
+        if (TextUtils.isEmpty(dobString)) {
+            return "";
+        }
+
+        Birthday dob = new Birthday(dobString);
+        return String.format("%d/%d/%d", dob.day, dob.month, dob.year);
+    }
+
+    public static void setGenus(String argGenus, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argGenus) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.GENUS, argGenus);
+    }
+
+    public static void setSpecies(String argSpecies, Intent argIntent)
+    {
+        if(TextUtils.isEmpty(argSpecies) || argIntent == null)
+        {
+            return;
+        }
+
+        argIntent.putExtra(HikeConstants.Extras.SPECIES, argSpecies);
+    }
 }
-
-

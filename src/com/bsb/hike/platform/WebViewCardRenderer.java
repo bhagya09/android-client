@@ -70,6 +70,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by shobhitmandloi on 14/01/15.
@@ -102,7 +103,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
     private static final String TAG = "WebViewCardRenderer";
 
     // Map having list of view holders as value added for listening to pubsub events
-    public ConcurrentHashMap<String,ArrayList<WebViewHolder>> webViewHolderMap = new ConcurrentHashMap<String,ArrayList<WebViewHolder>>();
+    public ConcurrentHashMap<String,CopyOnWriteArrayList<WebViewHolder>> webViewHolderMap = new ConcurrentHashMap<String,CopyOnWriteArrayList<WebViewHolder>>();
 
     // usually we have seen 3 cards will be inflated, so 3 holders will be initiated (just an optimizations)
 	ArrayList<WebViewHolder> holderList = new ArrayList<WebViewCardRenderer.WebViewHolder>(3);
@@ -300,7 +301,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 		{
             final WebViewHolder holder = (WebViewHolder) view.getTag();
             ConvMessage viewHolderConvMessage = (ConvMessage) holder.customWebView.getTag(R.id.conv_message_key);
-            ArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(viewHolderConvMessage.webMetadata.getAppName());
+            CopyOnWriteArrayList<WebViewHolder> webViewHolders = webViewHolderMap.get(viewHolderConvMessage.webMetadata.getAppName());
             if(webViewHolders != null)
                 webViewHolders.remove(holder);
 		}
@@ -692,7 +693,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 // Precautionary check for checking if appName is null, return from here
                 if(appName == null)
                     return;
-                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+                CopyOnWriteArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
                 if(viewHolders != null) {
                     for (WebViewHolder viewHolder : viewHolders) {
@@ -725,7 +726,7 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
                 // Precautionary check for checking if appName is null, return from here
                 if(appName == null)
                     return;
-                ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+                CopyOnWriteArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
                 if(viewHolders != null) {
                     for (WebViewHolder viewHolder : viewHolders) {
@@ -772,10 +773,6 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 			@Override
 			public void run()
 			{
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-				{
-					// TODO Add animations here if required
-				}
 
 				argViewHolder.cardFadeScreen.setVisibility(View.VISIBLE);
 				argViewHolder.loadingSpinner.setVisibility(View.GONE);
@@ -964,11 +961,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 								convMessage.webMetadata.setCardobj(cardObj);
                                 convMessage.webMetadata.setAppName(updatedAppName);
 
-								ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
+                                CopyOnWriteArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(updatedAppName);
 
 								// In case view holders array list is null , initialize it with an empty array list
 								if (viewHolders == null)
-									viewHolders = new ArrayList<>();
+									viewHolders = new CopyOnWriteArrayList<>();
 
 								viewHolders.add(webViewHolder);
 								webViewHolderMap.put(updatedAppName, viewHolders);
@@ -976,11 +973,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 						}
 						else
 						{
-							ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+                            CopyOnWriteArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
 							// In case view holders array list is null , initialize it with an empty array list
 							if (viewHolders == null)
-								viewHolders = new ArrayList<>();
+								viewHolders = new CopyOnWriteArrayList<>();
 
 							viewHolders.add(webViewHolder);
 							webViewHolderMap.put(appName, viewHolders);
@@ -1010,11 +1007,11 @@ public class WebViewCardRenderer extends BaseAdapter implements Listener
 
         if (token != null && !token.isRequestRunning())
         {
-            ArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
+            CopyOnWriteArrayList<WebViewHolder> viewHolders = webViewHolderMap.get(appName);
 
             // In case view holders array list is null , initialize it with an empty array list
             if (viewHolders == null)
-                viewHolders = new ArrayList<>();
+                viewHolders = new CopyOnWriteArrayList<>();
 
             viewHolders.add(webViewHolder);
             webViewHolderMap.put(appName, viewHolders);

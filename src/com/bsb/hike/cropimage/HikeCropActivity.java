@@ -59,7 +59,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 
 	public static final String SOURCE_IMAGE_PATH = "image-path";
 
-	public static final String CROPPED_IMAGE_PATH = "CropIMGP";
+	public static final String CROPPED_IMAGE_PATH = "final-crop-path";
 
 	public static final String CROP_COMPRESSION = "CropCompres";
 
@@ -225,14 +225,7 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 			public void onClick(View v)
 			{
 				doneClicked = true;
-				if (mCropFragment.isInCropMode())
-				{
-					mCropFragment.crop();
-				}
-				else
-				{
-					sendCropResult();
-				}
+				mCropFragment.crop();
 			}
 		});
 
@@ -296,13 +289,13 @@ public class HikeCropActivity extends HikeAppStateBaseFragmentActivity
 		}
 
 		Intent resultIntent = new Intent();
-		resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
-		resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
 		Bundle extras = getIntent().getExtras();
 		if (extras != null)
 		{
 			resultIntent.putExtras(extras);
 		}
+		resultIntent.putExtra(CROPPED_IMAGE_PATH, mCropImagePath);
+		resultIntent.putExtra(SOURCE_IMAGE_PATH, mSrcImagePath);
 		setResult(RESULT_OK, resultIntent);
 		finish();
 	}

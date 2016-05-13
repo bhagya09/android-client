@@ -3,8 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bsb.hike"
     android:installLocation="auto"
+<<<<<<< HEAD
     android:versionCode="1690"
     android:versionName="4.2.5.82.109.ota_chatthemes_v1_1" >
+=======
+    android:versionCode="1711"
+    android:versionName="4.2.6.82.100" >
+>>>>>>> bcb29ab82661c590e1f202d72cd1b681c0e95d22
 
    <uses-sdk
         android:minSdkVersion="14"
@@ -605,6 +610,9 @@
             </intent-filter>
             <intent-filter >
                 <action android:name="com.bsb.hike.INTERCEPT_PHOTO_EDIT_INTENT" />
+            </intent-filter>
+            <intent-filter >
+                <action android:name="com.bsb.hike.INTERCEPT_VIDEO_SHARE_INTENT" />
             </intent-filter>
         </receiver>
 

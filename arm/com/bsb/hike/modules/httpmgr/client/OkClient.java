@@ -1,13 +1,21 @@
 package com.bsb.hike.modules.httpmgr.client;
 
 import com.bsb.hike.modules.httpmgr.Header;
+import com.bsb.hike.modules.httpmgr.log.LogFull;
 import com.bsb.hike.modules.httpmgr.request.Request;
 import com.bsb.hike.modules.httpmgr.request.requestbody.IRequestBody;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.response.ResponseBody;
 import com.bsb.hike.utils.Utils;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 {
-	private OkHttpClient client;
+	protected OkHttpClient client;
 
 	/**
 	 * These constants are used internally by okHttp for connection pooling
@@ -49,15 +57,29 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient generateClient(
-			com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	protected OkHttpClient generateClient(com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
 		clientOptions = clientOptions != null ? clientOptions : com.bsb.hike.modules.httpmgr.client.ClientOptions
 				.getDefaultClientOptions();
 		OkHttpClient client = new OkHttpClient();
+		addLogging(client);
 		return setClientParameters(client, clientOptions);
 	}
 
+	protected void addLogging(OkHttpClient client)
+	{
+		HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger()
+		{
+			@Override
+			public void log(String message)
+			{
+				LogFull.d(message);
+			}
+		});
+		logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+		client.networkInterceptors().add(logging);
+	}
+	
 	/**
 	 * Sets Client option parameters to given OkHttpClient
 	 *
@@ -65,7 +87,7 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 	 * @param clientOptions
 	 * @return
 	 */
-	static OkHttpClient setClientParameters(OkHttpClient client, com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
+	protected OkHttpClient setClientParameters(OkHttpClient client, com.bsb.hike.modules.httpmgr.client.ClientOptions clientOptions)
 	{
 		client.setConnectTimeout(clientOptions.getConnectTimeout(), TimeUnit.MILLISECONDS);
 		client.setReadTimeout(clientOptions.getReadTimeout(), TimeUnit.MILLISECONDS);
@@ -206,6 +228,19 @@ public class OkClient implements com.bsb.hike.modules.httpmgr.client.IClient
 		responseBuilder.setUrl(response.request().urlString());
 		responseBuilder.setStatusCode(response.code());
 		responseBuilder.setReason(response.message());
+		Headers responseHeaders = response.headers();
+		if (responseHeaders != null)
+		{
+			int size = responseHeaders.size();
+			List<Header> headersList = new ArrayList<>(size);
+			for (int i = 0; i < size; ++i)
+			{
+				Header header = new Header(responseHeaders.name(i), responseHeaders.value(i));
+				headersList.add(header);
+			}
+			responseBuilder.setHeaders(headersList);
+		}
+		
 		com.squareup.okhttp.ResponseBody responseBody = response.body();
 
 		InputStream stream = responseBody.byteStream();
