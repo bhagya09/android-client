@@ -319,7 +319,7 @@ public class HttpRequestConstants
 
 	public static String preActivationBaseUrl()
 	{
-		return HTTP + STAGING_API + BASE_V1 + "/pa";
+		return BASE_URL + BASE_V1 + "/pa";
 	}
 
 	public static String postAddressbookBaseUrl()
@@ -344,7 +344,14 @@ public class HttpRequestConstants
 
 	public static String sendUserLogsInfoBaseUrl()
 	{
-		return HTTP + STAGING_API + BASE_V1 + "/pa/";
+		if(!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			return BASE_URL + BASE_V1 + "/pa/";
+		}
+		else
+		{
+			return BASE_URL + BASE_V1 +  "/";
+		}
 	}
 
 	public static String deleteAccountBaseUrl()

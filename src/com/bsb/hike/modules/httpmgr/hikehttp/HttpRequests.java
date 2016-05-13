@@ -760,19 +760,32 @@ public class HttpRequests
 		return requestToken;
 	}
 
+	private static  JSONObjectRequest.Builder addPreActivationHeaders(JSONObjectRequest.Builder jsonRequestBuilder )
+	{
+		if (!Utils.isUserAuthenticated(HikeMessengerApp.getInstance().getApplicationContext()))
+		{
+			Header customHeader;
+			String paUid = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.UID, "");
+			String paToken = HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.Preactivation.TOKEN, "");
+			customHeader = new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, HikeConstants.Preactivation.TOKEN + "=" + paToken + "; " + HikeConstants.Preactivation.UID + "=" + paUid);
+			jsonRequestBuilder.addHeader(customHeader);
+		}
+		return jsonRequestBuilder;
+	}
+
 	public static RequestToken sendUserLogInfoRequest(String logKey, JSONObject json, IRequestListener requestListener)
 	{
-		String pa_uid = HikeSharedPreferenceUtil.getInstance().getData("pa_uid","");
-		String pa_token = HikeSharedPreferenceUtil.getInstance().getData("pa_token","");
-		Header hdr =new Header(HttpHeaderConstants.COOKIE_HEADER_NAME, "pa_token" + "=" + pa_token + "; " + "pa_uid" + "=" + pa_uid);
+
 		JsonBody body = new JsonBody(json);
-		RequestToken requestToken = new JSONObjectRequest.Builder()
+
+		JSONObjectRequest.Builder sendUserLogJsonRequestBuilder = new JSONObjectRequest.Builder()
 				.setUrl(sendUserLogsInfoBaseUrl() + logKey)
 				.setRequestListener(requestListener)
-				.addHeader(hdr)
-				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE,BasicRetryPolicy.DEFAULT_RETRY_DELAY,4f))
-				.post(body)
-				.build();
+				.setRetryPolicy(new BasicRetryPolicy(Integer.MAX_VALUE, BasicRetryPolicy.DEFAULT_RETRY_DELAY, 4f))
+				.post(body);
+		addPreActivationHeaders(sendUserLogJsonRequestBuilder);
+
+		RequestToken requestToken = sendUserLogJsonRequestBuilder.build();
 		requestToken.getRequestInterceptors().addLast("gzip", new GzipRequestInterceptor());
 		return requestToken;
 	}
@@ -1369,6 +1382,7 @@ public class HttpRequests
 				.setUrl(url)
 				.addHeader(new Header("X-SESSION-ID", sessionId))
 				.setAsynchronous(false)
+				.setId(sessionId)
 				.setRetryPolicy(new BasicRetryPolicy(1, FileTransferManager.RETRY_DELAY, 1))
 				.setRequestListener(listener)
 				.build();
