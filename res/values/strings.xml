@@ -19,8 +19,6 @@
     <string name="update_profile_failed">Could not update profile</string>
     <string name="image_failed">Unable to open image</string>
     <string name="block_title">Block</string>
-    <string name="overlay_block_title">BLOCK</string>
-    <string name="overlay_add_title">SAVE</string>
     <string name="unblock_title">Unblock</string>
     <string name="feedback">Feedback</string>
     <string name="block_overlay_message">You\'ve blocked %1$s.  Unblock and continue hiking.</string>
@@ -1609,4 +1607,6 @@
     <string name="edit_profile_birthday">Birth Date</string>
 
     <string name="file_size_invalid_error">The file size which you are trying to share is invalid</string>
+    <string name="overlay_block_title">BLOCK</string>
+    <string name="overlay_add_title">SAVE</string>
 </resources>

@@ -56,9 +56,9 @@ public class CallerMetadata {
         return jsonObject.optInt(HikeConstants.CHAT_SPAM_COUNT);
     }
 
-    public void setIsUserSpammedByYou(int isSpamByMe) throws JSONException
+    public void setIsUserSpammedByYou(int isSpamByYou) throws JSONException
     {
-        jsonObject.put(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU, isSpamByMe);
+        jsonObject.put(HikeConstants.IS_USER_CHAT_SPAMMED_BY_YOU, isSpamByYou);
     }
 
     public int getIsUserSpammedByYou() throws JSONException
