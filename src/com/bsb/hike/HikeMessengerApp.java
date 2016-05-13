@@ -1,26 +1,5 @@
 package com.bsb.hike;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.ReportField;
-import org.acra.annotation.ReportsCrashes;
-import org.acra.collector.CrashReportData;
-import org.acra.sender.HttpSender;
-import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
-import org.acra.util.HttpRequest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -71,6 +50,7 @@ import com.bsb.hike.service.RegisterToGCMTrigger;
 import com.bsb.hike.service.SendGCMIdToServerTrigger;
 import com.bsb.hike.smartcache.HikeLruCache;
 import com.bsb.hike.smartcache.HikeLruCache.ImageCacheParams;
+import com.bsb.hike.tasks.FetchHikeUIDTaskForUpgrade;
 import com.bsb.hike.ui.CustomTabsHelper;
 import com.bsb.hike.utils.AccountUtils;
 import com.bsb.hike.utils.ActivityTimeLogger;
@@ -82,6 +62,28 @@ import com.bsb.hike.utils.StealthModeManager;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
 import com.crashlytics.android.Crashlytics;
+
+import org.acra.ACRA;
+import org.acra.ErrorReporter;
+import org.acra.ReportField;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.HttpSender;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
+import org.acra.util.HttpRequest;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -599,6 +601,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String SHOWN_PACK_PREVIEW_FTUE = "shownPackPreviewFtue";
 
+	public static final String MIGRATE_TABLE_TO_USER="migblktbl";
+
 	// =========================================================================================Constants for sticker search]]
 
 	private static HikePubSub mPubSubInstance;
@@ -857,7 +861,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		// successfully.
 		if ((settings.getInt(HikeConstants.UPGRADE_AVATAR_CONV_DB, -1) == 1) || settings.getInt(HikeConstants.UPGRADE_MSG_HASH_GROUP_READBY, -1) == 1
 				|| settings.getInt(HikeConstants.UPGRADE_FOR_DATABASE_VERSION_28, -1) == 1 || settings.getInt(StickerManager.MOVED_HARDCODED_STICKERS_TO_SDCARD, 1) == 1
-				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0 || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || TEST)
+				|| settings.getInt(StickerManager.UPGRADE_FOR_STICKER_SHOP_VERSION_1, 1) == 1 || settings.getInt(UPGRADE_FOR_SERVER_ID_FIELD, 0) == 1 || settings.getInt(UPGRADE_SORTING_ID_FIELD, 0) == 1 ||settings.getInt(UPGRADE_LANG_ORDER,0)==0 || settings.getBoolean(HikeConstants.HIKE_CONTENT_MICROAPPS_MIGRATION, false) == false || settings.getInt(UPGRADE_FOR_STICKER_TABLE, 1) == 1 || settings.getInt(MIGRATE_TABLE_TO_USER, 0) == 1 || TEST)
 		{
 			startUpdgradeIntent();
 		}
@@ -927,22 +931,6 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 			editor.commit();
 		}
 
-		if (token != null)
-		{
-			AccountUtils.setToken(token);
-		}
-		if (uid != null)
-		{
-			AccountUtils.setUID(uid);
-		}
-		try
-		{
-			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-		}
-		catch (NameNotFoundException e)
-		{
-			Logger.e(getClass().getSimpleName(), "Invalid package", e);
-		}
 
 		/*
 		 * Replacing GB keys' strings.
@@ -979,6 +967,25 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		Logger.d(HikeConstants.APP_OPENING_BENCHMARK, "Time taken in HikeMessengerApp onCreate = " + (System.currentTimeMillis() - time));
 	}
 
+	private void initCredentials()
+	{
+		if (token != null)
+		{
+			AccountUtils.setToken(token);
+		}
+		if (HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null) != null)
+		{
+			AccountUtils.setUID(HikeSharedPreferenceUtil.getInstance().getData(HikeMessengerApp.UID_SETTING, null));
+		}
+		try
+		{
+			AccountUtils.setAppVersion(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		}
+		catch (NameNotFoundException e)
+		{
+			Logger.e(getClass().getSimpleName(), "Invalid package", e);
+		}
+	}
 	private void validateCriticalDirs()
 	{
 		HikeHandlerUtil.getInstance().postRunnable(new Runnable()
@@ -1023,6 +1030,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 	{
 		// we're basically banking on the fact here that init() would be
 		// succeeded by the onUpgrade() calls being triggered in the respective databases.
+		initCredentials();
 		HikeConversationsDatabase.init(this);
 
 		initHikeLruCache(getApplicationContext());
@@ -1082,6 +1090,7 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		}
 
 		initCrashReportingTool();
+		fetchHikeUIDForUpgrade();
 	}
 
 	private void logUser() {
@@ -1116,6 +1125,12 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 		if (prefs.getData(HikeMessengerApp.PLATFORM_UID_SETTING, null) == null && prefs.getData(HikeMessengerApp.PLATFORM_TOKEN_SETTING, null) == null)
 		{
 			PlatformUIDFetch.fetchPlatformUid(HikePlatformConstants.PlatformFetchType.SELF);
+		}
+	}
+
+	private void fetchHikeUIDForUpgrade() {
+		if (!HikeSharedPreferenceUtil.getInstance().getData(HikeConstants.FETCH_UID_UPGRADE_SUCCESSFULL, false)) {
+			new FetchHikeUIDTaskForUpgrade().execute();
 		}
 	}
 

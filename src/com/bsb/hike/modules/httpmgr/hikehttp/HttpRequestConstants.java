@@ -17,7 +17,7 @@ public class HttpRequestConstants
 
 	public static final String PRODUCTION_API = "api.im.hike.in";
 
-	public static final String STAGING_API = "staging.im.hike.in";
+	public static final String STAGING_API = "52.76.190.255";
 
 	public static final String PLATFORM_PRODUCTION_API = "platform.hike.in";
 
@@ -303,6 +303,11 @@ public class HttpRequestConstants
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook";
 	}
 
+	public static String postAddressbookBaseV3Url()
+	{
+		return BASE_URL + BASE_V3 + BASE_ACCOUNT + "/addressbook";
+	}
+
 	public static String updateAddressbookBaseUrl()
 	{
 		return BASE_URL + BASE_V1 + BASE_ACCOUNT + "/addressbook-update";
@@ -553,5 +558,10 @@ public class HttpRequestConstants
 	public static String getHistoricalStatusUpdatesUrl()
 	{
 		return  BASE_URL + BASE_V1 + "hsu/";
+	}
+
+	public static String fetchUIDForMissingMsisdnUrl()
+	{
+		return BASE_URL + BASE_V2 + "/user-identifier-update-graph";
 	}
 }

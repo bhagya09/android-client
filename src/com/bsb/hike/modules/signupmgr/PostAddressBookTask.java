@@ -13,6 +13,7 @@ import com.bsb.hike.modules.httpmgr.request.listener.IRequestListener;
 import com.bsb.hike.modules.httpmgr.response.Response;
 import com.bsb.hike.modules.httpmgr.retry.BasicRetryPolicy;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
+import com.bsb.hike.utils.PairModified;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -86,7 +87,7 @@ public class PostAddressBookTask
 				}
 
 				List<ContactInfo> addressbook = ContactUtils.getContactList(jsonForAddressBookAndBlockList, contactsMap);
-				List<String> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
+				List<PairModified<String,String>> blockList = ContactUtils.getBlockList(jsonForAddressBookAndBlockList);
 
 				if (jsonForAddressBookAndBlockList.has(HikeConstants.PREF))
 				{

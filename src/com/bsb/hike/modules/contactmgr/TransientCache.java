@@ -1,5 +1,19 @@
 package com.bsb.hike.modules.contactmgr;
 
+import android.database.DatabaseUtils;
+import android.text.TextUtils;
+import android.util.Pair;
+
+import com.bsb.hike.HikeConstants;
+import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.db.HikeConversationsDatabase;
+import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ContactInfo.FavoriteType;
+import com.bsb.hike.models.GroupParticipant;
+import com.bsb.hike.utils.OneToNConversationUtils;
+import com.bsb.hike.utils.PairModified;
+import com.bsb.hike.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,19 +27,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import android.database.DatabaseUtils;
-import android.util.Pair;
-
-import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.db.HikeConversationsDatabase;
-import com.bsb.hike.models.ContactInfo;
-import com.bsb.hike.models.ContactInfo.FavoriteType;
-import com.bsb.hike.models.GroupParticipant;
-import com.bsb.hike.utils.OneToNConversationUtils;
-import com.bsb.hike.utils.PairModified;
-import com.bsb.hike.utils.Utils;
 
 public class TransientCache extends ContactsCache
 {
@@ -818,7 +819,7 @@ public class TransientCache extends ContactsCache
 				{
 					ContactInfo contactInfo = savedMapEntry.getValue().getFirst();
 					String phoneNum = contactInfo.getPhoneNum();
-					if (null != phoneNumbers && phoneNumbers.contains(DatabaseUtils.sqlEscapeString(phoneNum)) && !contactInfo.isOnhike() && (null != contactInfo.getName()))
+					if (!TextUtils.isEmpty(phoneNumbers) && !TextUtils.isEmpty(phoneNum) && phoneNumbers.contains(DatabaseUtils.sqlEscapeString(phoneNum)) && !contactInfo.isOnhike() && (null != contactInfo.getName()))
 					{
 						contacts.add(contactInfo);
 						limit = limit - 1;
