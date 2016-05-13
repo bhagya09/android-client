@@ -607,7 +607,8 @@ public class UploadFileTask extends FileTransferBase
 
 		if (requestToken == null || !requestToken.isRequestRunning())
 		{
-			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileType, new IRequestListener()
+			String fileTypeToSendInHttpCall = (hikeFileType == HikeFileType.AUDIO_RECORDING) ? fileType : "";
+			requestToken = HttpRequests.uploadFile(sourceFile.getAbsolutePath(), msgId, vidCompressionRequired, fileTypeToSendInHttpCall, new IRequestListener()
 			{
 				@Override
 				public void onRequestSuccess(Response result)
