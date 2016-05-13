@@ -4051,6 +4051,15 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 				boolean onhike = c.getInt(isOnHikeColumn) != 0;
 				Mute mute = ContactManager.getInstance().getMute(msisdn);
 
+				/*
+				 *	This handles the backup restore case when a conversation is muted.
+				 */
+				if (mute != null && mute.isMute() && mute.getMuteEndTime() < System.currentTimeMillis())
+				{
+					mute.setIsMute(false);
+					HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mute);
+				}
+
 				//If broadcast or group converstaion, create a oneToN object
 				if (OneToNConversationUtils.isOneToNConversation(msisdn))
 				{
@@ -4064,8 +4073,7 @@ public class HikeConversationsDatabase extends SQLiteOpenHelper implements DBCon
 					{
 						String name = details.getGroupName();
 						boolean groupAlive = details.isGroupAlive();
-						boolean isMuteGroup = details.isGroupMute();
-						convInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConversationAlive(groupAlive).setIsMute(isMuteGroup).setOnHike(onhike).setConvName(name).build();
+						convInfo = new OneToNConvInfo.ConvInfoBuilder(msisdn).setConversationAlive(groupAlive).setIsMute((mute != null) ? mute.isMute() : false).setOnHike(onhike).setConvName(name).build();
 					}
 				}
 				else
