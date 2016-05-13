@@ -3462,13 +3462,14 @@ public class StickerManager
 	 *
 	 * 2. Update sticker file path in sticker table (Note: New path updated to directory returned by getStickerExternalDirFilePath}
 	 */
-	public void migrateStickerAssets(String fromPath, String toPath)
+	public boolean migrateStickerAssets(String fromPath, String toPath)
 	{
 		boolean isMoved = moveStickersFolder(fromPath, toPath);
-		HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
 
 		if (isMoved)
 		{
+			HikeConversationsDatabase.getInstance().clearTable(DBConstants.STICKER_TABLE); // Need to wipe off the table as well and then populate the new one
+
 			// Assets migrated successfully
 			// Update stickers path
 			stickerExternalDir = getStickerExternalDirFilePath(); // We need to re-init this path to the new path now
@@ -3476,14 +3477,20 @@ public class StickerManager
 			if (HikeConversationsDatabase.getInstance().upgradeForStickerTable())
 			{
 				doInitialSetup();
+				return true;
+			}
+			else
+			{
+				recordStickerMigrationFailure("failed to upgrade for sticker table");
+				return false;
 			}
 		}
 		else
 		{
-			// Move wasn't successful.
-			// 1. Delete old sticker folder (if present)
-			Utils.deleteFile(new File(StickerManager.getInstance().getOldStickerExternalDirFilePath()));
+			recordStickerMigrationFailure("failed to move stickers");
 		}
+
+		return isMoved;
 	}
 
 	/**
@@ -3780,5 +3787,25 @@ public class StickerManager
 	{
 		HikeConversationsDatabase.getInstance().markAllCategoriesAsDownloaded();
 		setupStickerCategoryList(); //Set up the sticker category list again
+	}
+
+	public void recordStickerMigrationFailure(String errorString)
+	{
+		try
+		{
+			JSONObject json = new JSONObject();
+			json.put(AnalyticsConstants.V2.UNIQUE_KEY, "backup");
+			json.put(AnalyticsConstants.V2.KINGDOM, "act_hs");
+			json.put(AnalyticsConstants.V2.ORDER, "stk_rstr_error");
+			if(!TextUtils.isEmpty(errorString))
+			{
+				json.put(AnalyticsConstants.V2.GENUS, errorString);
+			}
+			HAManager.getInstance().recordV2(json);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
