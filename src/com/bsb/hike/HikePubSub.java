@@ -533,6 +533,8 @@ public class HikePubSub extends Handler implements Runnable
 
 	public static final String ADD_INLINE_FRIEND_MSG = "inline_friend_msg";
 
+	public static final String DISMISS_EDIT_PROFILE_DIALOG = "dismiss_edit_profile_dialog";
+
 	public static final String ATOMIC_TIP_WITH_NOTIF = "atomic_tip_notif";
 
 	private final Thread mThread;

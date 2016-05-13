@@ -515,6 +515,8 @@ public class HikeMessengerApp extends MultiDexApplication implements HikePubSub.
 
 	public static final String ENABLE_ADDRESSBOOK_THROUGH_HTTP_MGR = "enAbHttpMgr";
 
+	public static final String EDIT_PROFILE_THROUGH_HTTP_MGR = "editProfHttpMgr";
+
 	public static final String PROB_NUM_TEXT_MSG = "num_txt";
 
 	public static final String PROB_NUM_STICKER_MSG = "num_stk";
