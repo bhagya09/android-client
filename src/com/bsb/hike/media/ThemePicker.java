@@ -22,6 +22,7 @@ import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bsb.hike.HikeConstants;
 import com.bsb.hike.R;
 import com.bsb.hike.chatthemes.ChatThemeManager;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
@@ -29,6 +30,7 @@ import com.bsb.hike.chatthread.BackPressListener;
 import com.bsb.hike.chatthread.ChatThreadUtils;
 import com.bsb.hike.models.HikeChatTheme;
 import com.bsb.hike.modules.animationModule.HikeAnimationFactory;
+import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.Logger;
 
 import java.util.ArrayList;
@@ -160,10 +162,13 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 				if(getItem(position).equalsIgnoreCase(HikeChatThemeConstants.THEME_PALETTE_CAMERA_ICON)) {
 					theme.setImageResource(R.drawable.ic_ct_camera);
 					theme.setScaleType(ImageView.ScaleType.CENTER);
-					animatedBackground.setVisibility(View.VISIBLE);
-					Animation anim = AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_out_from_mid);
-					animatedBackground.startAnimation(anim);
-					theme.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(appCompatActivity));
+
+					if (HikeSharedPreferenceUtil.getInstance().getData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, true)){
+						animatedBackground.setVisibility(View.VISIBLE);
+						Animation anim = AnimationUtils.loadAnimation(appCompatActivity, R.anim.scale_out_from_mid);
+						animatedBackground.startAnimation(anim);
+						theme.setAnimation(HikeAnimationFactory.getStickerShopIconAnimation(appCompatActivity));
+					}
 				} else {
 					HikeChatTheme chatTheme = ChatThemeManager.getInstance().getTheme(getItem(position));
 					animatedThemeIndicator.setVisibility(chatTheme.isAnimated() ? View.VISIBLE : View.GONE);
@@ -193,6 +198,7 @@ public class ThemePicker implements BackPressListener, OnDismissListener, OnClic
 					listener.themeClicked(availableThemes.get(position));
 				}
 				userSelection = availableThemes.get(position);
+				HikeSharedPreferenceUtil.getInstance().saveData(HikeChatThemeConstants.SHARED_PREF_CT_SHOW_FTUE_ANIMATION, false);
 			}
 		});
 

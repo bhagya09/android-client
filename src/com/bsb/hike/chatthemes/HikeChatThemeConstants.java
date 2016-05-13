@@ -185,4 +185,6 @@ public class HikeChatThemeConstants {
 	public static final String MIGRATE_CHAT_THEMES_DATA_TO_DB = "migrateChatThemesToDB";
 
 	public static final String THEME_PALETTE_CAMERA_ICON = "camera";
+
+    public static final String SHARED_PREF_CT_SHOW_FTUE_ANIMATION = "showCTFTUEAnim";
 }
