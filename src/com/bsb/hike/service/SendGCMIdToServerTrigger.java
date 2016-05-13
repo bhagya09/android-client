@@ -219,16 +219,16 @@ public class SendGCMIdToServerTrigger extends BroadcastReceiver
 						 * 
 						 */
 						try {
-							String enKey = response.getString("pa_encryption_key");
-							String pa_uid = response.getString("pa_uid");
-							String pa_token = response.getString("pa_token");
+							String paEncryptKey = response.getString(HikeConstants.Preactivation.ENCRYPT_KEY);
+							String paUid = response.getString(HikeConstants.Preactivation.UID);
+							String paToken = response.getString(HikeConstants.Preactivation.TOKEN);
 
-							Logger.d("pa","pa_encryption_key : " + enKey);
-							mprefs.saveData("pa_encryption_key", enKey);
-							Logger.d("pa","pa_uid : " + pa_uid);
-							mprefs.saveData("pa_uid", pa_uid);
-							Logger.d("pa","pa_token : " + pa_token);
-							mprefs.saveData("pa_token", pa_token);
+							Logger.d("pa","paEncryptKey : " + paEncryptKey);
+							mprefs.saveData(HikeConstants.Preactivation.ENCRYPT_KEY, paEncryptKey);
+							Logger.d("pa","paUid : " + paUid);
+							mprefs.saveData(HikeConstants.Preactivation.UID, paUid);
+							Logger.d("pa","paToken : " + paToken);
+							mprefs.saveData(HikeConstants.Preactivation.TOKEN, paToken);
 
 						} catch (JSONException e) {
 							e.printStackTrace();

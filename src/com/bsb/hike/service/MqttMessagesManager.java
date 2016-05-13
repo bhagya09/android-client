@@ -3635,6 +3635,11 @@ public class MqttMessagesManager
             long limit = data.optLong(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_AUTO_SEARCH_TIME);
             HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.AUTO_SEARCH_TIME, limit);
         }
+        else if(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT.equals(subType))
+        {
+            int limit = data.optInt(HikeConstants.LIMIT_KEY, CategorySearchManager.DEFAULT_SEARCH_RESULTS_LOG_LIMIT);
+            HikeSharedPreferenceUtil.getInstance().saveData(CategorySearchManager.SEARCH_RESULTS_LOG_LIMIT, limit);
+        }
 	}
 
 	private void saveBulkLastSeen(JSONObject jsonObj) throws JSONException
