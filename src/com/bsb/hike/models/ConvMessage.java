@@ -1219,10 +1219,15 @@ public class ConvMessage implements Searchable, DimentionMatrixHolder, Unique, C
 		{
 			return isNormalMessageSilent();
 		}
-		if (ContactManager.getInstance().shouldShowNotifForMutedConversation(mMsisdn))
+
+		if (ContactManager.getInstance().isChatMuted(mMsisdn))
 		{
-			return true;
+			if (ContactManager.getInstance().shouldShowNotifForMutedConversation(mMsisdn))
+			{
+				return true;
+			}
 		}
+
 		if (getMessageType() == HikeConstants.MESSAGE_TYPE.WEB_CONTENT && webMetadata != null)
 		{
 			return webMetadata.getPushType().equals(HikePlatformConstants.SILENT_PUSH);
