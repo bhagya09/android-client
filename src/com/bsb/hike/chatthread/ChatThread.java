@@ -2315,14 +2315,19 @@ import static com.bsb.hike.HikeConstants.IntentAction.ACTION_KEYBOARD_CLOSED;
 	{
 		switch (dialog.getId())
 		{
-		case HikeDialogFactory.MUTE_CHAT_DIALOG:
 		case HikeDialogFactory.DELETE_MESSAGES_DIALOG:
 		case HikeDialogFactory.CONTACT_SEND_DIALOG:
 		case HikeDialogFactory.CLEAR_CONVERSATION_DIALOG:
 			dialog.dismiss();
 			this.dialog = null;
 			break;
-			
+
+		case HikeDialogFactory.MUTE_CHAT_DIALOG:
+			HikeAnalyticsEvent.recordAnalyticsForMuteCancel(msisdn);
+			dialog.dismiss();
+			this.dialog = null;
+			break;
+
 		}
 	}
 
