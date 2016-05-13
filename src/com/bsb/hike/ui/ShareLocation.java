@@ -630,12 +630,14 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 						jse.printStackTrace();
 					}
 					// if values missing we don't display
-					if (missingValue)
-						places[p] = null;
-					else
-					{
-						places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing))
-								.snippet(address);
+					synchronized (places) {
+						if (missingValue)
+							places[p] = null;
+						else
+						{
+							places[p] = new MarkerOptions().position(placeLL).title(placeName).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_marker_location_sharing))
+									.snippet(address);
+						}
 					}
 				}
 			}
@@ -676,16 +678,19 @@ public class ShareLocation extends HikeAppStateBaseFragmentActivity implements C
 		// process data retrieved from doInBackground
 		protected void onPostExecute(Integer totalPlaces)
 		{
-			for (int p = 0; p < totalPlaces; p++)
-			{
-				if (places[p] != null)
+			synchronized (places) {
+				for (int p = 0; p < totalPlaces; p++)
 				{
-					placeMarkers[p] = map.addMarker(places[p]);
-					addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
-					placeMarkers[p].setVisible(false);
-					adapter.notifyDataSetChanged();
+					if (places[p] != null)
+					{
+						placeMarkers[p] = map.addMarker(places[p]);
+						addItemToAdapter(places[p].getTitle(), places[p].getSnippet(), placeMarkers[p], false);
+						placeMarkers[p].setVisible(false);
+						adapter.notifyDataSetChanged();
+					}
 				}
 			}
+
 			if(totalPlaces == 0)
 				Toast.makeText(ShareLocation.this, getString(R.string.no_places_found), Toast.LENGTH_SHORT).show();
 			findViewById(R.id.progress_dialog).setVisibility(View.GONE);
