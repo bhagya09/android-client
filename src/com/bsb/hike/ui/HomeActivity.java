@@ -325,8 +325,6 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		FTApkManager.removeApkIfNeeded();
 		moveToComposeChatScreen();
 
-
-		HikeCloudSettingsManager.getInstance().doRestore(null);
     }
 	
 	@Override

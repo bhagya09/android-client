@@ -56,7 +56,6 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				array.put(jsonObject);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
-            Logger.d(TAG, requestJsonBody.toString());
         }
         catch (Exception e)
         {
@@ -85,7 +84,6 @@ public class FetchCategoryMetadataTask implements IHikeHTTPTask, IHikeHttpTaskRe
 				try
 				{
 					JSONObject response = (JSONObject) result.getBody().getContent();
-					Logger.d(TAG, response.toString());
 
 					if (!Utils.isResponseValid(response))
 					{

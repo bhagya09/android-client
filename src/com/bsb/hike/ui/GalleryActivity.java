@@ -456,6 +456,12 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
             Intent intent = getIntent();
 
             Bundle bundle = new Bundle();
+			Bundle extras = getIntent().getExtras();
+			if (extras != null)
+			{
+				bundle.putAll(extras);
+			}
+			intent.putExtras(bundle);
 
             /**
              * Setting class loader due class not found exception on GalleryItem whie parcing
@@ -465,12 +471,6 @@ public class GalleryActivity extends HikeAppStateBaseFragmentActivity implements
             bundle.setClassLoader(GalleryItem.class.getClassLoader());
             bundle.putString(HikeConstants.Extras.GALLERY_SELECTION_SINGLE, selectedGalleryItems.get(0).getFilePath());
 			bundle.putString(HikeConstants.Extras.GENUS, HomeAnalyticsConstants.SU_GENUS_GALLERY);
-			Bundle extras = getIntent().getExtras();
-			if (extras != null)
-			{
-				bundle.putAll(extras);
-			}
-            intent.putExtras(bundle);
 
             if (hasDelegateActivities()) {
                 launchNextDelegateActivity(bundle);

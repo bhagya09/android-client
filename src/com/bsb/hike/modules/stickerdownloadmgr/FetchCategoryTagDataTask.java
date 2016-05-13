@@ -63,7 +63,6 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 				fetchMap.put(categoryTagData.getUcid(), categoryTagData);
 			}
 			requestJsonBody.put(HikeConstants.UCIDS, array);
-			Logger.d(TAG, requestJsonBody.toString());
 		}
 		catch (Exception e)
 		{
@@ -90,7 +89,6 @@ public class FetchCategoryTagDataTask implements IHikeHTTPTask, IHikeHttpTaskRes
 			public void onRequestSuccess(Response result)
 			{
 				JSONObject response = (JSONObject) result.getBody().getContent();
-				Logger.d(TAG, response.toString());
 
 				if (!Utils.isResponseValid(response))
 				{
