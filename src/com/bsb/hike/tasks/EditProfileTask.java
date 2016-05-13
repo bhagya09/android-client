@@ -108,7 +108,7 @@ public class EditProfileTask implements IHikeHTTPTask
             editProfileName();
         }
 
-        if (!TextUtils.isEmpty(newEmail) && (!newEmail.equals(currEmail) || newGenderType != currGenderType))
+        if ((!TextUtils.isEmpty(newEmail) && !newEmail.equals(currEmail)) || newGenderType != currGenderType)
         {
             editProfileRequestsCount.incrementAndGet();
             editProfileEmailGender();
