@@ -107,6 +107,7 @@ import com.bsb.hike.analytics.AnalyticsConstants.MsgRelEventType;
 import com.bsb.hike.analytics.HAManager;
 import com.bsb.hike.analytics.MsgRelLogManager;
 import com.bsb.hike.chatthemes.ChatThemeManager;
+import com.bsb.hike.chatthemes.CustomBGRecyclingImageView;
 import com.bsb.hike.chatthemes.HikeChatThemeConstants;
 import com.bsb.hike.bots.BotUtils;
 import com.bsb.hike.chatthread.ChatThreadActivity.ChatThreadOpenSources;
@@ -1772,7 +1773,8 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 
 	protected void setBackground(String themeId)
 	{
-		ImageView backgroundImage = (ImageView) activity.findViewById(R.id.background);
+		CustomBGRecyclingImageView backgroundImage = (CustomBGRecyclingImageView) activity.findViewById(R.id.background);
+		backgroundImage.setOverLay(false);
 		if (themeId.equals(ChatThemeManager.getInstance().defaultChatThemeId))
 		{
 			backgroundImage.setImageDrawable(ChatThemeManager.getInstance().getDrawableForTheme(themeId, HikeChatThemeConstants.ASSET_INDEX_BG_PORTRAIT));
@@ -1792,6 +1794,9 @@ import com.bsb.hike.view.CustomLinearLayout.OnSoftKeyboardListener;
 					backgroundImage.setScaleType(ScaleType.MATRIX);
 				}
 				ChatThreadUtils.applyMatrixTransformationToImageView(drawable, backgroundImage);
+			}
+			if(!ChatThreadUtils.disableOverlayEffectForCCT() && ChatThemeManager.getInstance().getTheme(themeId).isCustomTheme()) {
+				backgroundImage.setOverLay(true);
 			}
 			backgroundImage.setImageDrawable(drawable);
 		}
