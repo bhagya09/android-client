@@ -53,13 +53,13 @@ public class FetchShopPackDownloadTask extends AsyncTask<Void, Void, Void>
 			}
 			else
 			{
-				if (HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && limit - cursor.getCount() > 0)
+				if ((cursor.getCount() + StickerManager.SHOP_FETCH_PACK_COUNT - limit) > 0)
 				{
 					HikeMessengerApp.getPubSub().publish(HikePubSub.STICKER_SHOP_DOWNLOAD_SUCCESS, null);
 				}
-				else
+				if (!HikeSharedPreferenceUtil.getInstance().getData(StickerManager.STICKER_SHOP_RANK_FULLY_FETCHED, false) && ((limit - cursor.getCount()) > 0))
 				{
-					StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(0, true, true);
+					StickerManager.getInstance().initiateFetchCategoryRanksAndDataTask(cursor.getCount(), true, true);
 				}
 			}
 		}
