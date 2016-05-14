@@ -1,15 +1,16 @@
 package com.bsb.hike.tasks;
 
+import java.util.Calendar;
+import java.util.Locale;
+
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
+import com.bsb.hike.chatHead.ChatHeadUtils;
 import com.bsb.hike.models.HikeAlarmManager;
 import com.bsb.hike.utils.IntentFactory;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.StickerManager;
 import com.bsb.hike.utils.Utils;
-
-import java.util.Calendar;
-import java.util.Locale;
 
 /**
  * Created by akhiltripathi on 08/03/16.
@@ -30,6 +31,8 @@ public class SendDailyAnalyticsTask implements Runnable
 
         //Add module specific analytics code here
         StickerManager.getInstance().sendStickerDailyAnalytics();
+
+        ChatHeadUtils.updateBdayHttCallInfo();
 
         Logger.d(TAG, "SendDailyAnalyticsTask completed with result: ");
 
