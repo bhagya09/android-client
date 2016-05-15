@@ -4917,7 +4917,7 @@ public class Utils
 			}
 			else
 			{
-				// Show date in abbreviated  format with year 
+				// Show date in abbreviated  format with year
 				return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
 					.toString();
 			}

@@ -311,6 +311,18 @@ public abstract class MessageInfoItem
 
 		 }
 	 }
+	public static class MessageInfoSMSItem extends MessageInfoItem{
+		public MessageInfoSMSItem(){
+			super(0,"MessageInfoSMS",MessageInfoAdapter.MESSAGE_INFO_SMS);
+
+		}
+	}
+	public static class MessageInfoNotApplicableItem extends MessageInfoItem{
+		public MessageInfoNotApplicableItem(){
+			super(0,"MessageInfoSMS",MessageInfoAdapter.MESSAGE_INFO_NOTAPPLICABLE);
+
+		}
+	}
 	public static class MesageInfoReadItem extends MessageInfoItem
 	{
 

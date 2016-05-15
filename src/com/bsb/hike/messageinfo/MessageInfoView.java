@@ -88,17 +88,18 @@ public class MessageInfoView
 
 	private VoiceMessagePlayer voiceMessagePlayer;
 
-	private int readListString;
-
 	public boolean isGroupChat = true;
 
-	public ViewType vType;
 
 	public CardRenderer mMessageInfoCardRenderer;
 
 	public WebViewCardRenderer mWebViewCardRenderer;
 
 	public MovingList<ConvMessage> movingList;
+
+	public boolean shouldShowPlayedList=false;
+
+	public int readListString=R.string.seen_list;
 
 	private MovingList.OnItemsFinishedListener mOnItemsFinishedListener  = new MovingList.OnItemsFinishedListener()
 	{
@@ -114,6 +115,7 @@ public class MessageInfoView
 
 	};
 
+	private ViewType vType;
 	public MessageInfoView(ConvMessage convMessage, ChatTheme chatTheme, Context mContext, Conversation conversation,BaseAdapter adapter)
 	{
 		this.convMessage = convMessage;
@@ -138,6 +140,7 @@ public class MessageInfoView
 			.downloadMiniStickerIfNotFound(true)
 			.stretchMini(true)
 			.build();
+		getItemViewType(convMessage);
 
 
 	}
@@ -633,6 +636,7 @@ public class MessageInfoView
 		}
 		else if(viewType==ViewType.SEND_HIKE||viewType==ViewType.SEND_SMS)
 		{
+			readListString=R.string.read_list;
 			TextViewHolder textHolder=null;
 			if(v==null) {
 				textHolder=new TextViewHolder();
@@ -1079,6 +1083,7 @@ public class MessageInfoView
 		return v;
 	}
 
+
 	/**
 	 * Returns what type of View this item is going to result in * @return an integer
 	 */
@@ -1193,7 +1198,7 @@ public class MessageInfoView
 			type = ViewType.SEND_HIKE;
 
 		}
-
+		vType=type;
 		return type.ordinal();
 	}
 
@@ -1930,8 +1935,12 @@ public class MessageInfoView
 		}
 	}
 
-	public String getReadListHeaderString(){
-		return null;
+	public int getReadListHeaderString(){
+		if(vType==ViewType.SEND_HIKE||vType==ViewType.SEND_SMS)
+		readListString=R.string.read_list;
+		else
+			readListString=R.string.seen_list;
+		return readListString;
 	}
 	public boolean shouldShowPlayedByList(){
 		return false;

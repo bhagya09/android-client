@@ -10,6 +10,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -32,6 +34,8 @@ import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.utils.Logger;
 
+import org.w3c.dom.Text;
+
 public class MessageInfoAdapter extends BaseAdapter
 {
 
@@ -44,6 +48,10 @@ public class MessageInfoAdapter extends BaseAdapter
 	public static final int LIST_ONE_TO_ONE = 3;
 
 	public static final int MESSAGE_INFO_VIEW = 4;
+
+	public static final int MESSAGE_INFO_SMS = 5;
+
+	public static final int MESSAGE_INFO_NOTAPPLICABLE = 6;
 
 	private Context context;
 
@@ -62,7 +70,8 @@ public class MessageInfoAdapter extends BaseAdapter
 	private WebViewCardRenderer mWebViewCardRenderer;
 
 	public View view;
-
+	private final LayoutParams MATCH_PARENT = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+	private final LayoutParams WRAP_CONTENT = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 	public MessageInfoAdapter(MessageInfoActivity messageInfoActivity, List<MessageInfoItem> completeitemList, ConvMessage convMessage)
 	{
 		// super(messageInfoActivity,-1,itemList);
@@ -117,7 +126,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public int getViewTypeCount()
 	{
-		return 5;
+		return 7;
 	}
 
 	@Override
@@ -171,7 +180,13 @@ public class MessageInfoAdapter extends BaseAdapter
 			case MESSAGE_INFO_VIEW:
 
 				v = messageInfoView.getView(v, convMessage);
-
+				break;
+			case MESSAGE_INFO_SMS:
+				v = inflater.inflate(R.layout.messageinfo_sms_item, null);
+				break;
+			case MESSAGE_INFO_NOTAPPLICABLE:
+				v = inflater.inflate(R.layout.messageinfo_sms_item, null);
+				viewHolder.text = (TextView) v.findViewById(R.id.text);
 				break;
 
 			}
@@ -212,6 +227,8 @@ public class MessageInfoAdapter extends BaseAdapter
 			Logger.d("refresh", "Adapter parent" + viewHolder.parent);
 			parentView.addView(viewHolder.parent);
 			Logger.d("refresh", "adapter LISTCONTACTGROUP " + messageInfoItem + " position " + position);
+			viewHolder.messageInfoParticipantItem=participant;
+			//v.setOnClickListener(readListItemonClick);
 			break;
 		case LIST_REMAINING_GROUP:
 			viewHolder = (ViewHolder) v.getTag();
@@ -233,6 +250,10 @@ public class MessageInfoAdapter extends BaseAdapter
 		case MESSAGE_INFO_VIEW:
 			v = messageInfoView.getView(v, convMessage);
 			break;
+		case MESSAGE_INFO_NOTAPPLICABLE:
+			viewHolder.text.setText(R.string.messageinfo_not_applicable);
+			break;
+			
 
 		}
 
@@ -249,6 +270,25 @@ public class MessageInfoAdapter extends BaseAdapter
 			{
 				if (remainingItem.shouldshowList())
 					showRemainingItemDialog(remainingItem);
+			}
+		}
+	};
+	public View.OnClickListener readListItemonClick = new View.OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			MessageInfoItem.MesageInfoParticipantItem participantItem = ((ViewHolder) v.getTag()).messageInfoParticipantItem;
+			if (participantItem != null&&participantItem.hasRead())
+			{
+				Logger.d("lparams","params"+v.getLayoutParams());
+				AbsListView.LayoutParams lp= (AbsListView.LayoutParams) v.getLayoutParams();
+
+				v.findViewById(R.id.default_timestamp).setVisibility(View.GONE);
+				v.findViewById(R.id.expandedReadLayout).setVisibility(View.VISIBLE);
+				v.findViewById(R.id.expandedDeliveredLayout).setVisibility(View.VISIBLE);
+				notifyDataSetChanged();
+
 			}
 		}
 	};
@@ -321,6 +361,8 @@ public class MessageInfoAdapter extends BaseAdapter
 		TextView timeStampOnetoOne;
 
 		MessageInfoItem.MesageInfoRemainingItem remainingItem;
+
+		MessageInfoItem.MesageInfoParticipantItem messageInfoParticipantItem;
 
 	}
 

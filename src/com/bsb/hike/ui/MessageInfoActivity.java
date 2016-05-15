@@ -7,11 +7,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TreeMap;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -22,7 +23,6 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.bsb.hike.HikeConstants;
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.HikePubSub;
@@ -35,6 +35,8 @@ import com.bsb.hike.messageinfo.MessageInfoDataModel;
 import com.bsb.hike.messageinfo.MessageInfoDeliveredList;
 import com.bsb.hike.messageinfo.MessageInfoItem;
 import com.bsb.hike.messageinfo.MessageInfoList;
+import com.bsb.hike.messageinfo.MessageInfoLoader;
+import com.bsb.hike.messageinfo.MessageInfoLoaderData;
 import com.bsb.hike.messageinfo.MessageInfoReadList;
 import com.bsb.hike.messageinfo.MessageInfoView;
 import com.bsb.hike.messageinfo.OnetoOneDataModel;
@@ -127,6 +129,16 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 		setupActionBar();
 		setChatTheme();
+		// parentListView.smoothScrollToPosition(2);
+		parentListView.setSelection(2);
+		parentListView.postDelayed(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				// parentListView.setSelection(1);
+			}
+		}, 500);
 		// addMessageHeaderView(controller.getConvMessage());'
 
 	}
@@ -167,7 +179,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 	}
 
-	private abstract class MessageInfoController implements HikePubSub.Listener
+	private abstract class MessageInfoController implements HikePubSub.Listener, LoaderManager.LoaderCallbacks<MessageInfoLoaderData>
 	{
 		MessageInfoDataModel dataModel;
 
@@ -194,18 +206,42 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 
 		View mView;
 
+		protected int readListString;
+
 		void init()
 		{
 			chatTheme = HikeConversationsDatabase.getInstance().getChatThemeForMsisdn(msisdn);
 			mConversation = HikeConversationsDatabase.getInstance().getConversation(msisdn, 1, true);
+			// getSupportLoaderManager().initLoader(1,null,this).forceLoad();
+			// dataModel.fetchAllParticipantsInfo();
 
-			dataModel.fetchAllParticipantsInfo();
-			convMessage = dataModel.getConvMessage();
+			getSupportLoaderManager().initLoader(1, null, this).forceLoad();
+			HikeMessengerApp.getPubSub().addListeners(this, listeners);
+
+		}
+
+		@Override
+		public Loader<MessageInfoLoaderData> onCreateLoader(int id, Bundle args)
+		{
+			return new MessageInfoLoader(MessageInfoActivity.this, dataModel);
+		}
+
+		@Override
+		public void onLoadFinished(Loader<MessageInfoLoaderData> loader, MessageInfoLoaderData data)
+		{
+			participantTreeMap = data.participantTreeMap;
+			convMessage = data.convMessage;
 			messageInfoView = new MessageInfoView(convMessage, chatTheme, MessageInfoActivity.this, mConversation, messageInfoAdapter);
+			readListString = messageInfoView.getReadListHeaderString();
 			messageInfoAdapter.setMessageInfoView(messageInfoView);
 			addItems();
 			notifyAdapter();
-			HikeMessengerApp.getPubSub().addListeners(this, listeners);
+
+		}
+
+		@Override
+		public void onLoaderReset(Loader<MessageInfoLoaderData> loader)
+		{
 
 		}
 
@@ -234,6 +270,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		protected abstract void notifyAdapter();
 
 		public abstract void addItems();
+
 	}
 
 	private class MessageInfoControllerOnetoOne extends MessageInfoController
@@ -262,32 +299,40 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 		@Override
 		public void addItems()
 		{
+
 			Logger.d("MessageInfo", "Adding Items One to One");
 			messageMap.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			messageMap.add(new MessageInfoItem.MessageInfoViewItem(convMessage));
-			Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
-			MessageInfoDataModel.MessageInfoParticipantData participantData = null;
-			if (iterator.hasNext())
-				participantData = iterator.next();
-			// Creating readList
-			MessageInfoItem.MessageInfoItemOnetoOne readList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.read_list), R.drawable.ic_double_tick_r_blue);
-			if (!participantTreeMap.isEmpty())
+			if (!convMessage.isOfflineMessage())
 			{
-				if (participantData != null)
-					readList.setTimeStamp(participantData.getReadTimeStamp());
-			}
-			// Creating deliveredList
-			MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list),
-					R.drawable.ic_double_tick_blue);
-			if (!participantTreeMap.isEmpty())
-			{
-				if (participantData != null)
-					deliveredList.setTimeStamp(participantData.getDeliveredTimeStamp());
-			}
+				Iterator<MessageInfoDataModel.MessageInfoParticipantData> iterator = participantTreeMap.values().iterator();
+				MessageInfoDataModel.MessageInfoParticipantData participantData = null;
+				if (iterator.hasNext())
+					participantData = iterator.next();
+				// Creating readList
+				MessageInfoItem.MessageInfoItemOnetoOne readList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(readListString), R.drawable.ic_double_tick_r_blue);
+				if (!participantTreeMap.isEmpty())
+				{
+					if (participantData != null)
+						readList.setTimeStamp(participantData.getReadTimeStamp());
+				}
+				// Creating deliveredList
+				MessageInfoItem.MessageInfoItemOnetoOne deliveredList = new MessageInfoItem.MessageInfoItemOnetoOne(0, getString(R.string.delivered_list),
+						R.drawable.ic_double_tick_blue);
+				if (!participantTreeMap.isEmpty())
+				{
+					if (participantData != null)
+						deliveredList.setTimeStamp(participantData.getDeliveredTimeStamp());
+				}
 
-			messageMap.add(readList);
-			messageMap.add(deliveredList);
+				messageMap.add(readList);
+				messageMap.add(deliveredList);
+			}
+			else
+			{
+				messageMap.add(new MessageInfoItem.MessageInfoSMSItem());
+			}
 		}
 
 		public void updateItemsinMap()
@@ -354,7 +399,7 @@ public class MessageInfoActivity extends HikeAppStateBaseFragmentActivity implem
 			listsToBedisplayed.clear();
 			participantTreeMap = dataModel.participantTreeMap;
 			Iterator iterator = participantTreeMap.values().iterator();
-			readList = new MessageInfoReadList(participantTreeMap.size(), getResources().getString(R.string.read_list), R.string.emptyreadlist);
+			readList = new MessageInfoReadList(participantTreeMap.size(), getResources().getString(readListString), R.string.emptyreadlist);
 			deliveredList = new MessageInfoDeliveredList(participantTreeMap.size(), R.string.emptydeliveredlist);
 			// Disabling played list as of now
 			// playedList = new MessageInfoPlayedList(participantTreeMap.size(), R.string.emptyplayedlist);

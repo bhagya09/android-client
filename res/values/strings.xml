@@ -1597,6 +1597,8 @@
     <string name="seen_list">SEEN</string>
     <string name="delivered_list">DELIVERED</string>
     <string name="played_list">PLAYED</string>
+    <string name="messageinfo_sms">Sent as SMS</string>
+    <string name="messageinfo_not_applicable">No information available</string>
 
     <string name="restore_msisdn_error">You seem to have a backup file of some different number!</string>
     <string name="ACCEPT">ACCEPT</string>

@@ -46,7 +46,7 @@ public class GroupChatDataModel extends MessageInfoDataModel
 	}
 
 	@Override
-	public void fetchAllParticipantsInfo()
+	public MessageInfoLoaderData fetchAllParticipantsInfo()
 	{
 
 		convMessage=mDb.getMessageFromID(messageID,msisdn);
@@ -77,6 +77,12 @@ public class GroupChatDataModel extends MessageInfoDataModel
 				}
 			}
 		}
+		MessageInfoLoaderData data=new MessageInfoLoaderData();
+		data.conversation=oneToNConversation;
+		data.convMessage=convMessage;
+		data.messageInfoHashSet=messageInfoMap;
+		data.participantTreeMap=participantTreeMap;
+		return data;
 	}
 	public void refreshData(){
 
