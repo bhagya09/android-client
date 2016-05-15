@@ -8010,7 +8010,10 @@ public class Utils
         {
             mute.setIsMute(!(mute.isMute()));
 
-            if (mute.isMute())
+            boolean muteApproach = HikeSharedPreferenceUtil.getInstance().getData(
+                    (OneToNConversationUtils.isOneToNConversation(mute.getMsisdn()) ? HikeConstants.MUTE_GC_SERVER_SWITCH : HikeConstants.MUTE_ONE_TO_ONE_SERVER_SWITCH), true);
+
+            if (mute.isMute() && muteApproach)
             {
                 Intent intent = IntentFactory.getIntentForMuteAlarm(mute);
                 HikeAlarmManager.setAlarmwithIntentPersistance(context.getApplicationContext(), mute.getMuteEndTime(), HikeAlarmManager.REQUESTCODE_END_CONVERSATION_MUTE, true, intent, true);
