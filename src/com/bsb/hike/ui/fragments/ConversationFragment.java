@@ -103,6 +103,7 @@ import com.bsb.hike.ui.HikeListActivity;
 import com.bsb.hike.ui.HomeActivity;
 import com.bsb.hike.ui.ProfileActivity;
 import com.bsb.hike.ui.fragments.OfflineDisconnectFragment.OfflineConnectionRequestListener;
+import com.bsb.hike.ui.utils.LockPattern;
 import com.bsb.hike.utils.HikeAnalyticsEvent;
 import com.bsb.hike.utils.HikeSharedPreferenceUtil;
 import com.bsb.hike.utils.IntentFactory;
@@ -128,7 +129,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import com.bsb.hike.ui.utils.LockPattern;
 
 public class ConversationFragment extends ListFragment implements OnItemLongClickListener, Listener, OnScrollListener, HikeFragmentable, OnClickListener,
 		ConversationTipClickedListener, FilterListener
@@ -140,7 +140,7 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			HikePubSub.BULK_MESSAGE_RECEIVED, HikePubSub.ONETON_MESSAGE_DELIVERED_READ, HikePubSub.BULK_MESSAGE_DELIVERED_READ, HikePubSub.GROUP_END, HikePubSub.CONTACT_DELETED,
 			HikePubSub.MULTI_MESSAGE_DB_INSERTED, HikePubSub.SERVER_RECEIVED_MULTI_MSG, HikePubSub.MUTE_CONVERSATION_TOGGLED, HikePubSub.CONV_UNREAD_COUNT_MODIFIED,
 			HikePubSub.CONVERSATION_TS_UPDATED, HikePubSub.PARTICIPANT_JOINED_ONETONCONV, HikePubSub.PARTICIPANT_LEFT_ONETONCONV, HikePubSub.BLOCK_USER, HikePubSub.UNBLOCK_USER,
-			HikePubSub.MUTE_BOT, HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
+			HikePubSub.CONVERSATION_DELETED, HikePubSub.DELETE_THIS_CONVERSATION, HikePubSub.ONETONCONV_NAME_CHANGED, HikePubSub.STEALTH_CONVERSATION_MARKED,
 			HikePubSub.STEALTH_CONVERSATION_UNMARKED, HikePubSub.UPDATE_LAST_MSG_STATE, HikePubSub.OFFLINE_MESSAGE_SENT, HikePubSub.ON_OFFLINE_REQUEST,HikePubSub.GENERAL_EVENT,HikePubSub.GENERAL_EVENT_STATE_CHANGE,HikePubSub.LASTMSG_UPDATED};
 
 	private ConversationsAdapter mAdapter;
@@ -2978,36 +2978,6 @@ public class ConversationFragment extends ListFragment implements OnItemLongClic
 			{
 				convInfo.setBlocked(HikePubSub.BLOCK_USER.equals(type) ? true : false);
 			}
-		}
-
-		else if (HikePubSub.MUTE_BOT.equals(type))
-		{
-			final String mMsisdn = (String) object;
-
-			getActivity().runOnUiThread(new Runnable()
-			{
-
-				@Override
-				public void run()
-				{
-					ConvInfo convInfo = mConversationsByMSISDN.get(mMsisdn);
-					// If this convInfo is coming from the memory map, then we do not need to set mute here, WebViewActivity has already taken care of that.
-					// If the source is not memory map, then we're in trouble.
-					BotInfo botinfo=BotUtils.getBotInfoForBotMsisdn(mMsisdn); // Taking out of trouble hopefully.
-					convInfo.setIsMute(botinfo.isMute());
-					if (convInfo != null)
-					{
-						View parentView = getParenViewForConversation(convInfo);
-						if (parentView == null)
-						{
-							notifyDataSetChanged();
-							return;
-						}
-
-						notifyDataSetChanged();
-					}
-				}
-			});
 		}
 
 		else if (HikePubSub.UPDATE_LAST_MSG_STATE.equals(type))

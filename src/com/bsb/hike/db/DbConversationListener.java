@@ -89,7 +89,6 @@ public class DbConversationListener implements Listener
 		mPubSub.addListener(HikePubSub.MULTI_FILE_UPLOADED, this);
 		mPubSub.addListener(HikePubSub.HIKE_SDK_MESSAGE, this);
 		mPubSub.addListener(HikePubSub.CONVERSATION_TS_UPDATED, this);	
-		mPubSub.addListener(HikePubSub.MUTE_BOT, this);
 		mPubSub.addListener(HikePubSub.GROUP_LEFT, this);
 		mPubSub.addListener(HikePubSub.DELETE_THIS_CONVERSATION, this);
 		mPubSub.addListener(HikePubSub.UPDATE_LAST_MSG_STATE, this);
@@ -447,12 +446,6 @@ public class DbConversationListener implements Listener
 			String msisdn = p.first;
 			long timestamp = p.second;
 			boolean isUpdated = mConversationDb.updateSortingTimestamp(msisdn, timestamp);
-		}
-		
-		else if (HikePubSub.MUTE_BOT.equals(type))
-		{
-			String botMsisdn = (String) object;
-			mConversationDb.toggleMuteBot(botMsisdn, BotUtils.getBotInfoForBotMsisdn(botMsisdn).isMute());
 		}
 		
 		else if(HikePubSub.GROUP_LEFT.equals(type) || HikePubSub.DELETE_THIS_CONVERSATION.equals(type))

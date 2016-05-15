@@ -6,8 +6,6 @@ import android.view.Menu;
 import android.view.View;
 
 import com.bsb.hike.HikeConstants;
-import com.bsb.hike.HikeMessengerApp;
-import com.bsb.hike.HikePubSub;
 import com.bsb.hike.R;
 import com.bsb.hike.analytics.AnalyticsConstants;
 import com.bsb.hike.analytics.HAManager;
@@ -38,7 +36,7 @@ import java.util.List;
 
 /**
  * This class is a barebones skeleton for Bot chat thread. This is still Work in progress.
- * 
+ *
  * @author piyush
  */
 public class BotChatThread extends OneToOneChatThread
@@ -140,51 +138,12 @@ public class BotChatThread extends OneToOneChatThread
 	}
 
 	@Override
-	protected String[] getPubSubListeners()
-	{
-		String[] oneToOnePubSub = super.getPubSubListeners();
-		int superpubSubLength = oneToOnePubSub.length;
-		String[] botPubSubListeners = new String[superpubSubLength + 1];
-		int index = 0;
-		for (index = 0; index < superpubSubLength; index++)
-		{
-			botPubSubListeners[index] = oneToOnePubSub[index];
-		}
-
-		botPubSubListeners[index] = HikePubSub.MUTE_BOT;
-
-		return botPubSubListeners;
-	}
-
-	@Override
-	public void onEventReceived(String type, Object object)
-	{
-		switch (type)
-		{
-		case HikePubSub.MUTE_BOT:
-			muteBotToggled(true);
-			break;
-		default:
-			Logger.d(TAG, "Did not find any matching PubSub event in OneToOne ChatThread. Calling super class' onEventReceived");
-			super.onEventReceived(type, object);
-			break;
-		}
-	}
-
-	private void muteBotToggled(boolean isMuted)
-	{
-		mConversation.setIsMute(isMuted);
-		HikeConversationsDatabase.getInstance().toggleMuteBot(msisdn, isMuted);
-		HikeMessengerApp.getPubSub().publish(HikePubSub.MUTE_CONVERSATION_TOGGLED, mConversation.getMute());
-	}
-	
-	@Override
-	protected void showNetworkError(boolean isNetworkError) 
+	protected void showNetworkError(boolean isNetworkError)
 	{
 		activity.findViewById(R.id.network_error_chat).setVisibility(isNetworkError ? View.VISIBLE : View.GONE);
 		activity.findViewById(R.id.network_error_card).setVisibility(View.GONE);
 	};
-	
+
 	@Override
 	protected void sendPoke()
 	{
