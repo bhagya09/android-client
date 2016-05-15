@@ -1588,10 +1588,10 @@
     <string name="recharge_menu">Recharge</string>
 
     <string name="message_info">Message Info</string>
-    <string name="emptyreadlist">No one has read this </string>
-    <string name="emptyseenlist">No one has seen this </string>
-    <string name="emptydeliveredlist">No one has been delivered</string>
-    <string name="emptyplayedlist">No one played this</string>
+    <string name="emptyreadlist"> - </string>
+    <string name="emptyseenlist"> - </string>
+    <string name="emptydeliveredlist"> - </string>
+    <string name="emptyplayedlist"> - </string>
     <string name="remaining_items">%1s Remaining</string>
     <string name="read_list">READ</string>
     <string name="seen_list">SEEN</string>
