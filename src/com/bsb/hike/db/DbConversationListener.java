@@ -299,6 +299,7 @@ public class DbConversationListener implements Listener
 			if (BotUtils.isBot(id))
 			{
 				// TODO Do we have to do MQTT PUBLISH here?
+				mConversationDb.toggleMuteBot(id, isMute);
 			}
 			else
 			{
