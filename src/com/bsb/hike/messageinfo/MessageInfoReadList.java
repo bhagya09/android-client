@@ -9,7 +9,7 @@ import com.bsb.hike.adapters.MessageInfoAdapter;
 public class MessageInfoReadList extends MessageInfoList {
     public MessageInfoReadList(int totalNumberofParticipants,String header,int emptyStateText){
         super(totalNumberofParticipants);
-        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(header, R.drawable.ic_double_tick_r);
+        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(header, R.drawable.ic_double_tick_r_blue);
         remainingItem.setEmptyStateText(emptyStateText);
     }
 
@@ -21,4 +21,5 @@ public class MessageInfoReadList extends MessageInfoList {
             remainingItem.remainingItemList.add(participantData);
         }
     }
+
 }

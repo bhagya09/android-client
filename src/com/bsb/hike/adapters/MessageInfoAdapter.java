@@ -20,9 +20,14 @@ import android.widget.TextView;
 import com.bsb.hike.R;
 import com.bsb.hike.messageinfo.MessageInfoDataModel;
 import com.bsb.hike.messageinfo.MessageInfoItem;
+import com.bsb.hike.messageinfo.MessageInfoView;
 import com.bsb.hike.messageinfo.RemainingItemAdapter;
 import com.bsb.hike.messageinfo.RemainingListItem;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
+import com.bsb.hike.models.Conversation.Conversation;
+import com.bsb.hike.platform.CardRenderer;
+import com.bsb.hike.platform.WebViewCardRenderer;
 import com.bsb.hike.smartImageLoader.IconLoader;
 import com.bsb.hike.ui.MessageInfoActivity;
 import com.bsb.hike.utils.Logger;
@@ -38,13 +43,27 @@ public class MessageInfoAdapter extends BaseAdapter
 
 	public static final int LIST_ONE_TO_ONE = 3;
 
+	public static final int MESSAGE_INFO_VIEW = 4;
+
 	private Context context;
 
 	private IconLoader iconLoader;
 
 	private List<MessageInfoItem> completeitemList;
 
-	public MessageInfoAdapter(MessageInfoActivity messageInfoActivity, List<MessageInfoItem> completeitemList)
+	public Conversation conversation;
+
+	public ConvMessage convMessage;
+
+	private MessageInfoView messageInfoView;
+
+	private CardRenderer mMessageInfoCardRenderer;
+
+	private WebViewCardRenderer mWebViewCardRenderer;
+
+	public View view;
+
+	public MessageInfoAdapter(MessageInfoActivity messageInfoActivity, List<MessageInfoItem> completeitemList, ConvMessage convMessage)
 	{
 		// super(messageInfoActivity,-1,itemList);
 		context = messageInfoActivity;
@@ -52,6 +71,14 @@ public class MessageInfoAdapter extends BaseAdapter
 		this.iconLoader = new IconLoader(context, mIconImageSize);
 		iconLoader.setDefaultAvatarIfNoCustomIcon(true);
 		this.completeitemList = completeitemList;
+		this.convMessage = convMessage;
+		this.mMessageInfoCardRenderer=new CardRenderer(messageInfoActivity);
+
+	}
+
+	public void setMessageInfoView(MessageInfoView messageInfoView)
+	{
+		this.messageInfoView = messageInfoView;
 	}
 
 	@Override
@@ -81,7 +108,6 @@ public class MessageInfoAdapter extends BaseAdapter
 		return position;
 	}
 
-
 	public void addAll(HashSet<MessageInfoItem> map)
 	{
 		completeitemList.clear();
@@ -91,7 +117,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	@Override
 	public int getViewTypeCount()
 	{
-		return 4;
+		return 5;
 	}
 
 	@Override
@@ -116,11 +142,14 @@ public class MessageInfoAdapter extends BaseAdapter
 				v = inflater.inflate(R.layout.messageinfo_sectionhead, null);
 				viewHolder.listheader = (TextView) v.findViewById(R.id.headerTextView);
 				viewHolder.headerImageViewRight = (ImageView) v.findViewById(R.id.headerImageView);
+				v.setTag(viewHolder);
 				break;
+
 			case LIST_REMAINING_GROUP:
 				v = inflater.inflate(R.layout.messageinfo_remaining_items, null);
 				viewHolder.remainingItemsTextView = (TextView) v.findViewById(R.id.remainingItems);
 				v.setOnClickListener(remainingItemonClick);
+				v.setTag(viewHolder);
 				break;
 
 			case LIST_ONE_TO_N_CONTACT:
@@ -129,7 +158,7 @@ public class MessageInfoAdapter extends BaseAdapter
 				viewHolder.contactName = (TextView) viewHolder.parent.findViewById(R.id.contact);
 				viewHolder.contactAvatar = (ImageView) viewHolder.parent.findViewById(R.id.avatar);
 				viewHolder.timeStamp = (TextView) viewHolder.parent.findViewById(R.id.timestamp);
-
+				v.setTag(viewHolder);
 				break;
 
 			case LIST_ONE_TO_ONE:
@@ -137,38 +166,36 @@ public class MessageInfoAdapter extends BaseAdapter
 				viewHolder.listheader = (TextView) v.findViewById(R.id.headerTextView);
 				viewHolder.headerImageViewRight = (ImageView) v.findViewById(R.id.headerImageView);
 				viewHolder.timeStamp = (TextView) v.findViewById(R.id.timestamp);
+				v.setTag(viewHolder);
+				break;
+			case MESSAGE_INFO_VIEW:
+
+				v = messageInfoView.getView(v, convMessage);
+
 				break;
 
 			}
 
-			v.setTag(viewHolder);
-		}
-		else
-		{
-			viewHolder = (ViewHolder) v.getTag();
 		}
 
 		switch (viewType)
 		{
 		case LIST_NAME:
-
+			viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MessageStatusHeader statusHeaderItem = ((MessageInfoItem.MessageStatusHeader) messageInfoItem);
 			String heading = statusHeaderItem.getHeaderString();
-
 			viewHolder.listheader.setText(heading);
-
-			{
-				viewHolder.headerImageViewRight.setImageResource(statusHeaderItem.getDrawable());
-			}
+			viewHolder.headerImageViewRight.setImageResource(statusHeaderItem.getDrawable());
 			Logger.d("refresh", "adapter LISTNAME " + messageInfoItem + " position " + position);
 			break;
 
 		case LIST_ONE_TO_N_CONTACT:
+			viewHolder = (ViewHolder) v.getTag();
 			LinearLayout parentView = (LinearLayout) v;
 			parentView.removeAllViews();
 			MessageInfoItem.MesageInfoParticipantItem participant = (MessageInfoItem.MesageInfoParticipantItem) messageInfoItem;
 			parentView.setBackgroundColor(Color.WHITE);
-
+			participant.applyDividerBehavior(viewHolder.parent);
 			ContactInfo contactInfo = participant.getContactInfo();
 
 			Logger.d("MessageInfo", "Adapter viewHolder " + viewHolder);
@@ -187,7 +214,7 @@ public class MessageInfoAdapter extends BaseAdapter
 			Logger.d("refresh", "adapter LISTCONTACTGROUP " + messageInfoItem + " position " + position);
 			break;
 		case LIST_REMAINING_GROUP:
-
+			viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MesageInfoRemainingItem remainingItem = ((MessageInfoItem.MesageInfoRemainingItem) messageInfoItem);
 			String remaining = remainingItem.getRemainingItem();
 			viewHolder.remainingItemsTextView.setText(remaining);
@@ -196,11 +223,15 @@ public class MessageInfoAdapter extends BaseAdapter
 			Logger.d("refresh", "adapter LISTREMAINING " + messageInfoItem + " position " + position);
 			break;
 		case LIST_ONE_TO_ONE:
+			viewHolder = (ViewHolder) v.getTag();
 			MessageInfoItem.MessageInfoItemOnetoOne onetoOneList = ((MessageInfoItem.MessageInfoItemOnetoOne) messageInfoItem);
 			viewHolder.listheader.setText(onetoOneList.getHeader());
-			viewHolder.headerImageViewRight.setBackgroundResource(onetoOneList.getDrawableheaderIcon());
+			viewHolder.headerImageViewRight.setImageResource(onetoOneList.getDrawableheaderIcon());
 			viewHolder.timeStamp.setText(onetoOneList.getDisplayedTimeStamp());
 			Logger.d("refresh", "adapter LIST_ONE_TO_ONE " + messageInfoItem + " position " + position);
+			break;
+		case MESSAGE_INFO_VIEW:
+			v = messageInfoView.getView(v, convMessage);
 			break;
 
 		}
@@ -226,7 +257,7 @@ public class MessageInfoAdapter extends BaseAdapter
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View remView = inflater.inflate(R.layout.remaining_item_list, null);
-		ListView remaininglistView = (ListView) remView.findViewById(R.id.remainingitem_list);
+		ListView remaininglistView = (ListView) remView.findViewById(android.R.id.list);
 		ArrayList<RemainingListItem> remList = new ArrayList<RemainingListItem>();
 		for (MessageInfoDataModel.MessageInfoParticipantData data : remainingItem.remainingItemList)
 		{

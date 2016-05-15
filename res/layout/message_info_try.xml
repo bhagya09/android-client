@@ -2,53 +2,25 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/parent_layout">
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="151dp"
-                android:layout_alignParentTop="true"
-                android:id="@+id/scrollviewmessagecontainer"
-                android:fadeScrollbars="true"
-               >
-    <RelativeLayout
+                android:id="@+id/parent_layout"
+                >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/relativeLayout1">
+    <com.bsb.hike.ui.utils.RecyclingImageView
+        android:id="@+id/background"
         android:layout_width="match_parent"
-        android:layout_height="151dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_height="match_parent"
+        android:src="@color/chat_thread_default_bg" />
 
-        android:id="@+id/relativeLayout">
-        <com.bsb.hike.ui.utils.RecyclingImageView
-            android:id="@+id/messageinfo_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@color/blue_hike" />
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/message_container_layout"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_marginTop="56dp"
-            android:scaleType="centerCrop">
-
-        </LinearLayout>
-
-    </RelativeLayout>
-    </ScrollView>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/scrollviewmessagecontainer"
-        android:background="@color/white"
-        >
         <ListView
             android:id="@+id/profile_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:dividerHeight="0dp"
             android:cacheColorHint="@color/transparent"
+            android:layout_marginTop="@dimen/st__action_bar_default_height"
             android:headerDividersEnabled="false"
             android:footerDividersEnabled="false"
             android:drawSelectorOnTop="false"
@@ -56,8 +28,12 @@
             android:overScrollFooter="@android:color/transparent"
             android:divider="@null"
             />
-    </RelativeLayout>
-
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/profile_content"
+        android:id="@+id/relativeLayout2"
+        android:background="@color/white"></RelativeLayout>
+</RelativeLayout>
 
 </RelativeLayout>

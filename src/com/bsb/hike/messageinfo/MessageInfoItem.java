@@ -1,11 +1,13 @@
 package com.bsb.hike.messageinfo;
 
 import android.content.Context;
+import android.view.View;
 
 import com.bsb.hike.HikeMessengerApp;
 import com.bsb.hike.R;
 import com.bsb.hike.adapters.MessageInfoAdapter;
 import com.bsb.hike.models.ContactInfo;
+import com.bsb.hike.models.ConvMessage;
 import com.bsb.hike.utils.Logger;
 import com.bsb.hike.utils.Utils;
 
@@ -34,6 +36,8 @@ public abstract class MessageInfoItem
 	public static final int PLAYED_CONTACT = 6;
 
 	public static final int REMAINING_ITEM = 7;
+
+	public static final int MESSAGE_VIEW =8;
 
 	private int type = DELIVEREDLIST;
 
@@ -132,7 +136,7 @@ public abstract class MessageInfoItem
 		{
 			if (timeStamp == 0)
 				return "-";
-			return Utils.getFormattedTime(false, mContext, timeStamp);
+			return Utils.getFormattedTimeinMessageInfo(timeStamp);
 		}
 
 		public String getHeader()
@@ -174,7 +178,31 @@ public abstract class MessageInfoItem
 			// TODO Auto-generated constructor stub
 
 		}
-
+		public static final int NO_DIVIDER=0;
+		public static final int SMALL_DIVIDER=1;
+		public static final int BIG_DIVIDER=2;
+		int dividerBehavior=SMALL_DIVIDER;
+		public void setDividerBehavior(int dividerBehavior){
+			this.dividerBehavior=dividerBehavior;
+		}
+		public void applyDividerBehavior(View view){
+			if(view==null)
+				return ;
+			switch (dividerBehavior){
+				case NO_DIVIDER:
+					view.findViewById(R.id.dividermiddle).setVisibility(View.GONE);
+					view.findViewById(R.id.dividerend).setVisibility(View.GONE);
+					break;
+				case SMALL_DIVIDER:
+					view.findViewById(R.id.dividermiddle).setVisibility(View.VISIBLE);
+					view.findViewById(R.id.dividerend).setVisibility(View.GONE);
+					break;
+				case BIG_DIVIDER:
+					view.findViewById(R.id.dividerend).setVisibility(View.VISIBLE);
+					view.findViewById(R.id.dividermiddle).setVisibility(View.GONE);
+					break;
+			}
+		}
 		public String getDisplayedTimeStamp()
 		{
 			// Type t=Type.values()[type];
@@ -204,12 +232,14 @@ public abstract class MessageInfoItem
 
 		public String getReadTimeStamp()
 		{
-			return Utils.getFormattedTime(false, mContext, participantData.getReadTimeStamp());
+		//	return Utils.getFormattedTime(false, mContext, participantData.getReadTimeStamp());
+			return Utils.getFormattedTimeinMessageInfo(participantData.getReadTimeStamp());
 		}
 
 		public String getDeliveredTimeStamp()
 		{
-			return Utils.getFormattedTime(false, mContext, participantData.getDeliveredTimeStamp());
+			//return Utils.getFormattedTime(false, mContext, participantData.getDeliveredTimeStamp());
+			return Utils.getFormattedTimeinMessageInfo(participantData.getDeliveredTimeStamp());
 		}
 
 		public String getPlayedTimeStamp()
@@ -274,7 +304,13 @@ public abstract class MessageInfoItem
 		}
 
 	}
+	 public static class MessageInfoViewItem extends MessageInfoItem{
+		 public MessageInfoViewItem(ConvMessage convMessage){
+			 super(0,"MessageInfoView",MessageInfoAdapter.MESSAGE_INFO_VIEW);
 
+
+		 }
+	 }
 	public static class MesageInfoReadItem extends MessageInfoItem
 	{
 

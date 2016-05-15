@@ -10,7 +10,7 @@ import com.bsb.hike.adapters.MessageInfoAdapter;
 public class MessageInfoDeliveredList extends MessageInfoList {
     public MessageInfoDeliveredList(int totalNumberofParticipants,int emptyStateText){
         super(totalNumberofParticipants);
-        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(HikeMessengerApp.getInstance().getString(R.string.delivered_list), R.drawable.ic_double_tick);
+        messageStatusHeader=new MessageInfoItem.MessageStatusHeader(HikeMessengerApp.getInstance().getString(R.string.delivered_list), R.drawable.ic_double_tick_blue);
         remainingItem.setEmptyStateText(emptyStateText);
     }
 

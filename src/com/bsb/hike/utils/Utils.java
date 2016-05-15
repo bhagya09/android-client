@@ -137,6 +137,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateUtils;
+import android.text.format.Time;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -4864,6 +4865,68 @@ public class Utils
 		{
 			return getFallBackPrettyTime(context, timestampInSeconds);
 		}
+
+	}
+
+	public static String getFormattedTimeinMessageInfo(long timestampInSeconds){
+
+		Context context=HikeMessengerApp.getInstance().getApplicationContext();
+		try{
+		long givenTimeStampInMillis = timestampInSeconds * 1000;
+		Calendar givenCalendar = Calendar.getInstance();
+		givenCalendar.setTimeInMillis(givenTimeStampInMillis);
+		long currentTime = System.currentTimeMillis();
+		Calendar currentCalendar = Calendar.getInstance();
+
+		//Checking if today
+			Time startTime = new Time();
+			startTime.set(givenTimeStampInMillis);
+			int startDay = Time.getJulianDay(givenTimeStampInMillis, startTime.gmtoff);
+
+			Time currentTime1 = new Time();
+			currentTime1.set(currentTime);
+			int currentDay = Time.getJulianDay(currentTime, currentTime1.gmtoff);
+
+			int days = Math.abs(currentDay - startDay);
+			String daySuffix;
+			String time=getFormattedTime(context,givenTimeStampInMillis);
+			// TODO: some locales name other days too, such as de_DE's "Vorgestern" (today - 2).
+			if (days == 1) {
+				daySuffix=context.getString(R.string.yesterday);
+				return time+", "+daySuffix;
+			} else if (days == 0) {
+				daySuffix= context.getString(R.string.today);
+				return time+", "+daySuffix;
+			}
+
+		else
+		{
+			if (givenCalendar.get(Calendar.YEAR) == currentCalendar.get(Calendar.YEAR))
+			{
+				if (givenCalendar.get(Calendar.DAY_OF_YEAR) == currentCalendar.get(Calendar.DAY_OF_YEAR))
+				{
+					// Show time in non relate default time format
+					return getFormattedTime(context, givenTimeStampInMillis);
+				}
+				else
+				{
+					// Show date in MMM dd format eg. Apr 21, May 13 etc.
+					return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS,
+						DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_SHOW_DATE).toString();
+				}
+			}
+			else
+			{
+				// Show date in abbreviated  format with year 
+				return time+", "+HikeDateUtils.getRelativeTimeSpanString(context, givenTimeStampInMillis, currentTime, DateUtils.YEAR_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL)
+					.toString();
+			}
+		}
+	}
+	catch (Exception e)
+	{
+		return getFallBackPrettyTime(context, timestampInSeconds);
+	}
 
 	}
 

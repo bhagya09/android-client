@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
  	<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/conversation_item"
         android:layout_width="match_parent"
         android:layout_height="54dp"
@@ -111,4 +114,22 @@
 
             </LinearLayout>
         </LinearLayout>
+
  </LinearLayout>
+    <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginLeft="72dp"
+    android:layout_marginRight="16dp"
+    android:background="@color/black_alpha_10"
+    android:id="@+id/dividermiddle"
+        android:visibility="gone"></View>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@color/black_alpha_10"
+        android:visibility="gone"
+        android:id="@+id/dividerend"></View>
+</LinearLayout>
