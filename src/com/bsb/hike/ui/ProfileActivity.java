@@ -834,7 +834,7 @@ public class ProfileActivity extends ChangeProfileImageBaseActivity implements F
 			MenuItem muteItem = menu.findItem(R.id.mute_group);
 			if (muteItem != null)
 			{
-				muteItem.setTitle(oneToNConversation.isMuted() ? R.string.unmute_group : R.string.mute_group);
+				muteItem.setTitle(ContactManager.getInstance().isChatMuted(mLocalMSISDN) ? R.string.unmute_group : R.string.mute_group);
 			}
 			return true;
 		}
