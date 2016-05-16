@@ -309,10 +309,12 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 			bdayContactList = new ArrayList<ContactInfo>();
 		}
 
-		ChatHeadUtils.getSortedBdayContactListFromSharedPref();
 		if (showFilteredContacts && !TextUtils.isEmpty(msisdnList))
 		{
 			contactsInfo = ContactManager.getInstance().getContactInfoListForMsisdnFilter(msisdnList);
+			/**
+			 * Removing Birthday users from contacts list
+			 */
 			contactsInfo.removeAll(bdayContactList);
 			suggestedContactsList.addAll(contactsInfo);
 			filteredSuggestedContactsList.addAll(contactsInfo);
@@ -349,6 +351,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 				}
 				recentTaskList.add(recentContact);
 			}
+			/**
+			 * Removing Birthday users from resent contacts list
+			 */
 			recentTaskList.removeAll(bdayContactList);
 		}
 
@@ -404,6 +409,9 @@ public class FetchFriendsTask extends AsyncTask<Void, Void, Void>
 		}
 
 		long iterationTime = System.currentTimeMillis();
+		/**
+		 * Removing Birthday users from all contacts list
+		 */
 		allContacts.removeAll(bdayContactList);
 		for (ContactInfo contactInfo : allContacts)
 		{

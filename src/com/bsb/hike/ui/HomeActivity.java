@@ -685,6 +685,8 @@ public class HomeActivity extends HikeAppStateBaseFragmentActivity implements Li
 		}
 			
 		showProductPopup(ProductPopupsConstants.PopupTriggerPoints.HOME_SCREEN.ordinal());
+
+		fetchAndUpdateBdayList();
 	}
 
 	private void showSmsOrFreeInvitePopup()
